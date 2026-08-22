@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 /**
  * ==========================================
  * 🌌 OmniBase — 萬能基礎實現

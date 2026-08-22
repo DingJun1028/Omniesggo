@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 // Core TypeScript API Contract for OmniAgent ecosystem (OA, OAB, OAG)
 
 /**

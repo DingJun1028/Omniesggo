@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 /**
  * ==========================================
  * 🌌 OmniEvolution — 萬能進化實現

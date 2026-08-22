@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 /**
  * ==========================================
  * 🌌 OmniUserRegistry — 用戶成長資料庫

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+ 
 /**
  * ==========================================
  * 🌌 OmniMemory — 萬能永憶實現
