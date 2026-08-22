@@ -6,7 +6,11 @@ packages:
   - '.'
   # oa-swarm 為獨立可部署 App (自有 Dockerfile/ecosystem/lock)，排除出根 workspace
   # 避免根 pnpm-lock.yaml 需同步其 devDeps 導致 --frozen-lockfile 失敗
+  # '!oa-swarm' 排除「版控中的根層 oa-swarm/」(有 package.json，須保留)
+  # '!apps/oa-swarm' 排除「部署標的殘留的 apps/oa-swarm/」(未版控，僅存在於 VPS 工作樹)
+  #   ↑ 缺此行導致 VPS 上 'apps/*' 收進第 22 個 project → ERR_PNPM_OUTDATED_LOCKFILE
   - '!oa-swarm'
+  - '!apps/oa-swarm'
 
 overrides:
   "tar": ">=7.5.21 <8"
