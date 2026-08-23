@@ -88,6 +88,15 @@ e2e-k1/runs/
 .npmrc
 .vscode/
 
+# Debug / watchdog trace artifacts (never commit)
+wd_out.txt
+wd_trace.txt
+_h.txt
+*.trace
+*_trace.txt
+watchdog_*.txt
+watchdog_*.log
+
 # Temp / scratch / backup
 .tmp-*
 tmp_*
@@ -237,7 +246,6 @@ docker-compose.yml
 apphosting.yaml
 chromatic.config.json
 eslint.config.mjs
-next.config.ts
 tailwind.config.mjs
 openapi.yaml
 firebase.json

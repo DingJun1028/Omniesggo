@@ -42,6 +42,8 @@ const APP_VERSION = '1.0.0';
 const PORT = CFG.port;
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const store = new SubtitleStore({ maxLines: CFG.subtitleMaxLines, ttlMs: CFG.subtitleTtlMs });
+// STT 併發保護旗標 (DEPLOY.md #4): 同一時間只跑一個 STT 請求, 避免 ClientDisconnect 連環
+let sttInflight = false;
 
 // 定時清理過期字幕 (防長會議記憶體膨脹)
 const pruneTimer = setInterval(() => store.prune(), Math.max(5000, CFG.subtitleTtlMs / 2));
@@ -260,15 +262,21 @@ const server = http.createServer(/** @param {import('node:http').IncomingMessage
 
   // 辨識層: 音訊 bytes → STT → 雙語字幕 (Zoom 場景主入口)
   if (url.split('?')[0] === '/api/transcribe' && req.method === 'POST') {
+    // 併發保護 (DEPLOY.md #4): 上一個 STT 請求未完成就不送下一個,
+    // 避免單 worker STT 忙不過來導致客戶端 timeout 斷開 (ClientDisconnect 連環)
+    if (sttInflight) { res.writeHead(429); return res.end(JSON.stringify({ error: 'STT busy, retry later', code: 'STT_INFLIGHT' })); }
+    sttInflight = true;
+    const inflightTimer = setTimeout(() => { sttInflight = false; }, 45000); // 45s 超時保護防永久卡死
     let audioBuf;
-    try { audioBuf = await readBodyRaw(req); } catch { res.writeHead(400); return res.end(JSON.stringify({ error: 'read fail', code: 'BAD_REQUEST' })); }
-    if (!audioBuf.length) { res.writeHead(400); return res.end(JSON.stringify({ error: 'empty audio', code: 'BAD_REQUEST' })); }
+    try { audioBuf = await readBodyRaw(req); } catch { sttInflight = false; clearTimeout(inflightTimer); res.writeHead(400); return res.end(JSON.stringify({ error: 'read fail', code: 'BAD_REQUEST' })); }
+    if (!audioBuf.length) { sttInflight = false; clearTimeout(inflightTimer); res.writeHead(400); return res.end(JSON.stringify({ error: 'empty audio', code: 'BAD_REQUEST' })); }
     const q = new URL(url, 'http://localhost').searchParams;
     const room = q.get('room') || '';
     const vad = q.get('vad') === '1' || q.get('vad') === 'true';
     const reqLang = q.get('lang') || CFG.sttLang; // 沿用前端指定語言 (en/zh-TW), 避免強制 auto 導致 whisper 偶發 500
     try {
       const stt = await transcribe(audioBuf, { sttPort: CFG.sttPort, sttTimeoutMs: CFG.sttTimeoutMs, sttLang: reqLang, vad });
+      sttInflight = false; clearTimeout(inflightTimer);
       if (!stt.text) return writeJson(res, { source: '', target: '', engine: stt.engine, trace: '', note: 'no speech detected' });
       // VAD 語者分段: 每個語音段各自成一筆雙語字幕 (帶 speaker 標籤)
       if (stt.segments && stt.segments.length) {
@@ -284,6 +292,7 @@ const server = http.createServer(/** @param {import('node:http').IncomingMessage
       const sub = await pipeline(stt, room);
       return writeJson(res, sub, { 'X-OA-Trace': sub.trace });
     } catch (/** @type {any} */ e) {
+      sttInflight = false; clearTimeout(inflightTimer);
       const j = errorToJson(e);
       return res.writeHead(j.code === 'STT_UNAVAILABLE' ? 502 : 500).end(JSON.stringify(j));
     }
