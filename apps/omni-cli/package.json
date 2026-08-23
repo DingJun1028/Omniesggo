@@ -1,0 +1,17 @@
+{
+  "name": "omni-cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "OmniCLI — esggo 統一命令行入口（零依賴，對齊 OA-Team 萬能分身操作）",
+  "main": "omni.mjs",
+  "bin": {
+    "omni": "omni.mjs"
+  },
+  "scripts": {
+    "start": "node omni.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
