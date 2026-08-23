@@ -1,0 +1,18 @@
+{
+  "name": "omni-factory",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "OmniFactory 萬能工廠 — 讀取 Wiki/ReadMe 自動組裝並通過 5T 閘門佈署最佳實踐 APP 的驅動核心",
+  "main": "assemble.mjs",
+  "bin": {
+    "omni-factory": "assemble.mjs"
+  },
+  "scripts": {
+    "start": "node assemble.mjs",
+    "assemble": "node assemble.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
