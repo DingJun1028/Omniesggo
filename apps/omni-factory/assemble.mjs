@@ -138,6 +138,41 @@ function assemble(spec) {
   return artifact;
 }
 
+// ── Wiki 規範載入 (對齊「拿 ReadMe/Wiki 自動佈署」) ──
+function resolveWikiFile(dir, name) {
+  // 優先 wiki/wiki/, 退件到 wiki/ (萬能目錄.md 在上一層)
+  const p1 = path.join(dir, name);
+  if (fs.existsSync(p1)) return p1;
+  const p2 = path.join(ROOT, 'wiki', name);
+  if (fs.existsSync(p2)) return p2;
+  return p1; // 回傳預期路徑供錯誤訊息
+}
+
+function loadWikiSpec(wikiDir) {
+  const factoryMd = resolveWikiFile(wikiDir, '萬能工廠.md');
+  const catalogMd = resolveWikiFile(wikiDir, '萬能目錄.md');
+  const missing = [];
+  if (!fs.existsSync(factoryMd)) missing.push('萬能工廠.md');
+  if (!fs.existsSync(catalogMd)) missing.push('萬能目錄.md');
+  if (missing.length) {
+    throw new Error(`[Wiki] 規範檔缺失: ${missing.join(', ')} (預期路徑: ${wikiDir} 或 ${path.join(ROOT, 'wiki')})`);
+  }
+  const factory = fs.readFileSync(factoryMd, 'utf8');
+  const catalog = fs.readFileSync(catalogMd, 'utf8');
+  // 萃取流水線 P1–P7 (wiki 以表格列出: | P1 | 需求解析 | ...)
+  const pStages = [...factory.matchAll(/^\|\s*P([1-7])\s*\|/gm)].map(m => `P${m[1]}`);
+  // 萃取 5T 閘門 T1–T5 (wiki 以表格列出: | T1 真 | ...)
+  const tGates = [...factory.matchAll(/^\|\s*T([1-5])\s/gm)].map(m => `T${m[1]}`);
+  return {
+    exists: true,
+    factoryStages: pStages,
+    qualityGates: tGates,
+    hasFullPipeline: pStages.length >= 7,
+    hasFiveT: tGates.length >= 5,
+    catalogHasMedce: /MEDCE|MECE/.test(catalog),
+  };
+}
+
 // ── CLI ──
 function main() {
   let spec;
@@ -156,7 +191,16 @@ function main() {
     console.log('[omni-factory] 未指定 --spec, 使用內建範例 ModuleSpec');
   }
 
+  // 真讀 Wiki 規範 (驗證 P1-P7 + 5T 閘門定義可載入)
+  const wiki = loadWikiSpec(wikiDir);
   console.log(`[omni-factory] 讀取 Wiki 規範: ${wikiDir}`);
+  console.log(`  ├─ 萬能工廠.md 流水線: ${wiki.factoryStages.length} 階 (P1-P7 完整=${wiki.hasFullPipeline})`);
+  console.log(`  ├─ 5T 閘門: ${wiki.qualityGates.length} 道 (T1-T5 完整=${wiki.hasFiveT})`);
+  console.log(`  └─ 萬能目錄.md MEDCE 分類: ${wiki.catalogHasMedce ? '✓' : '✗'}`);
+  if (!wiki.hasFullPipeline || !wiki.hasFiveT) {
+    throw new Error('[Wiki] 規範不完整: 需 P1-P7 流水線 + T1-T5 閘門');
+  }
+
   console.log(`[omni-factory] 組裝模組: ${spec.id}`);
   const artifact = assemble(spec);
   console.log('[omni-factory] P1-P7 流水線完成:');
