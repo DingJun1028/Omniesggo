@@ -230,6 +230,14 @@ function engineChain() {
   return chain;
 }
 
+// 測試注入點: 允許單元測試以確定性引擎鏈取代外部網路依賴,
+// 使 5T 溯源合約在 CI (資料中心 IP 常被外部免費翻譯 API 限流) 穩定可驗證, 不再依賴現網可用性。
+// 預設為 null → 走正式 engineChain(); 測試透過 __setTestEngineChain 注入。
+/** @type {ReturnType<typeof engineChain> | null} */
+let _engineOverride = null;
+export function __setTestEngineChain(/** @type {ReturnType<typeof engineChain>} */ list) { _engineOverride = list; }
+export function __resetTestEngineChain() { _engineOverride = null; }
+
 // from='auto' 不預判同語 (否則繁中→英文 被誤判 en→en 跳過); 快取鍵用原始 from/to 保留 zh-TW/zh-CN 區別
 /**
  * @param {string} text
@@ -247,7 +255,8 @@ export async function translateDetailed(text, from, to, ctxHint) {
   const hit = cacheGet(CACHE, k);
   if (hit) { stats.cacheHits++; return { ...hit, cached: true }; }
   stats.calls++;
-  for (const [name, fn] of engineChain()) {
+  const chain = _engineOverride || engineChain();
+  for (const [name, fn] of chain) {
     try {
       // 脈絡增強僅注入 Gemini 引擎; 免費鏈忽略 ctxHint (誠實降級)
       const out = await withRetry(() => fn(text, from, to, name === 'gemini-live-3.5' ? ctxHint : undefined), name);
