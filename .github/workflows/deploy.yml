@@ -27,9 +27,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: deploy-vps
-  cancel-in-progress: false
+# NOTE: the production deploy lock is declared on the `deploy` JOB (see below), NOT here.
+# A workflow-level `concurrency` also applies to `pull_request` runs, which then hold the
+# production lock for the whole ~6h QEMU-emulated ARM64 `docker-build` job while being
+# structurally unable to deploy (the `deploy` job is gated to `push` on main). Because
+# `cancel-in-progress: false` keeps only ONE pending run per group, the next run entering
+# the group cancels a queued main deploy — observed on run 32668189117 (main @ 12f694cf:
+# total_count=0 jobs, conclusion=cancelled). See issue #900.
 
 env:
   NODE_VERSION: '22'
@@ -162,6 +166,14 @@ jobs:
     needs: [security-scan, code-quality, docker-build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
+    # Serialize ONLY genuine production deploys. This is the lock that used to sit at
+    # workflow level (see the NOTE at the top of this file); at job level it is held for
+    # the duration of the SSH deploy instead of the whole ~6h ARM64 build matrix, and it
+    # is never taken by `pull_request` runs (which cannot satisfy the `if:` above).
+    # source_origin: issue #900 / OA-TWINS auto-repair
+    concurrency:
+      group: deploy-vps
+      cancel-in-progress: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
