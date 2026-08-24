@@ -358,7 +358,7 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
 15.3  進化路線圖（Evolution Roadmap）
   v0.7  核心聖典 + 5T 落地（本版）
   v0.8  進階整合模式（跨專案編排，待 paste 補齊）
-  v0.9  增量輸出優化全自驅（Cron 自驅熵投 + 電子報）
+  v0.9  增量輸出優化全自驅（Cron 自驅熵投 + 電子報） ✅ 2026-08-24 部署 weekly-autonomous-brief cron (b5c35bbb7195)
 
 15.4  進階整合模式（Advanced Integration）
   【待 paste 130/131/134-141 補齊細節】
