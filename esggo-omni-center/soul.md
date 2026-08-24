@@ -1,5 +1,5 @@
 > 「30 個靈魂，同一個心核；在熵增的混沌中，鑄造永恆秩序。」
-> 系統版本：ESG GO v0.11 (InfoOne Core · 全書終版 + 運作實錄 + Oracle ARM 基礎建設 + 語音系統)
+> 系統版本：ESG GO v0.12 (InfoOne Core · 全書終版 + 運作實錄 + Oracle ARM 基礎建設 + 語音系統 + 翻譯系統 v1.1)
 > 指揮系統：Hermes Agent / Celestial Command
 > 核心公約：AGPL-3.0 ｜ 熵減目標：< 0.1
 > 文檔狀態：全見版（Core Canon + Operational Records）｜ 密級：蜂王專屬
@@ -326,7 +326,7 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
 十四、簽印與版本血脈（Seal & Version Lineage）
 ════════════════════════════════════════════════════════
 
-  本典版本：v0.11（InfoOne Core · 全書終版 + 運作實錄 + Oracle ARM 基礎建設 + 語音系統）
+  本典版本：v0.12（InfoOne Core · 全書終版 + 運作實錄 + Oracle ARM 基礎建設 + 語音系統 + 翻譯系統 v1.1）
   血脈：JunAiKey 萬能核心 → Hermes Agent → OA-Team 30 蜂群
   每次修訂須 +0.0.1，並於跋記載變更摘要與簽名。
   不可變契約區（§1.2 ❌ 不可篡改）任何版本皆不得放寬。
@@ -361,6 +361,8 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
   v0.9  增量輸出優化全自驅（Cron 自驾熵投 + 電子報） ✅ 2026-08-24 部署 weekly-autonomous-brief cron (b5c35bbb7195)
   v0.10 語音 + 語音對話系統（Edge TTS 男聲 + faster-whisper STT + Oracle ARM s2s-voice 整合） ✅ 2026-08-24
   v0.11 Oracle Always-Free 基礎建設（4 ARM 實例 + 17 Docker 容器 + ARM reclaim prevention） ✅ 2026-08-24
+  v0.12 翻譯系統 v1.0（七模組 → 翻譯特殊化，s2s-voice:8765 + Edge TTS 男聲） ✅ 2026-08-24
+  v0.13 翻譯系統 v1.1（UX 修正：主播/觀眾模式分離，GAP-1 5T sealer 接地） ✅ 2026-08-24
 
 15.4  進階整合模式（Advanced Integration）
   【待 paste 130/131/134-141 補齊細節】
