@@ -366,3 +366,132 @@ export interface ISecondBrainNote {
   source_origin: string;
   sync: 'mirror' | 'up';
 }
+
+// ===== OA-Team 雙蜂戰隊 60 領域契約 (蜂群 / 5T 驗算 / 靈魂產物) =====
+// 終始矩陣: OA 核心契約集中定義於此 (終), 各 consumer (oa-swarm / dashboard) 消費生成檔 (始)
+// 任一端需求變更 → 回饋此處 → 重跑 scripts/export-shared-types.js → 全端同步
+
+/** 雙蜂側: 蜂王 OA-LOCAL (本機) / 蜂后 OA-VPS (雲端) */
+export type HiveSide = 'local' | 'vps';
+
+/** 五陣列 MECE 鍵 */
+export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
+
+/** 單一蜂代理 (雙蜂戰隊 60 員矩陣成員) */
+export interface ISoulAgent {
+  id: number;
+  title: string;
+  tags: string[];
+  array: ArrayKey;
+  side: HiveSide;
+  task: string;
+}
+
+/** 靈魂核心契約: 5T 強制層產物 (Traceable/Trackable/Tangible/Transparent/Trustworthy) */
+export interface IComponentCore {
+  uuid: string;        // 萬能永憶主體唯一識別碼 (Traceable)
+  version: string;     // 語意化版本控制
+  timestamp: number;   // 刻印時間戳
+  evidence: Record<string, unknown>; // 證據佐證庫
+}
+
+/** 5T 凍結靈魂產物 (purify 產出, Object.freeze 後不可篡改) */
+export interface ISoulArtifact extends IComponentCore {
+  source_origin: string; // Traceable: 產物來源標註
+  lifecycle: string[];   // Trackable: 狀態流轉記錄
+  hash_lock: string;     // Trustworthy: 雜湊鎖定
+  author: string;        // Trustworthy: 不可篡改署名
+}
+
+/** 蜂群任務契約 (executeSwarmTask 輸入) */
+export interface ISwarmTask {
+  task: string;
+  source_origin: string; // Traceable
+  array?: ArrayKey;      // 指定陣列 (選填)
+  side?: HiveSide;       // 指定蜂側 (選填)
+}
+
+/** 蜂群任務結果 (5T 驗算後凍結) */
+export type SwarmTaskResult = Readonly<ISoulArtifact>;
+
+/** OAB (OmniAgentBus) 訊息契約 — 跨蜂群 / 跨服務總線 */
+export interface IOABMessage {
+  serviceId: string;
+  topic: string;
+  payload: unknown;
+  trace?: string;       // 5T 溯源碼
+  ts: number;
+}
+
+/** 5T 驗算結果 (零幻覺驗算守門) */
+export interface I5TVerification {
+  traceable: boolean;
+  trackable: boolean;
+  tangible: boolean;
+  transparent: boolean;
+  trustworthy: boolean;
+  passed: boolean;
+}
+
+// ===== OA-Team 缺口補齊 · 終始矩陣契約 (Gap Remediation Terminal-Origin Matrix) =====
+// 雙語 (繁中 + English) | 全域全端全量全面 | 單一真相源 shared/gap-matrix.ts 程式化派生 72 配對
+// 終 (canonical): 本節型別在此一次性定義 → 重跑 scripts/export-shared-types.js → 全端 consumer 雙向同步 (始)
+// 5T: 每一配對皆標 source_origin (Traceable) / 可追蹤 (Trackable) / 體感回饋 (Tangible) /
+//     / 公開推導 (Transparent) / 凍結不可篡改 (Trustworthy)
+
+/** 五大陣列 MECE 鍵 (Five Arrays, MECE) */
+export type GapUnitKey = 'strategy' | 'technology' | 'creative' | 'marketing' | 'guard';
+
+/** 配對角色: 基礎 MECE 1:1 / 樞紐疊加 (base / hub) */
+export type GapRole = 'base' | 'hub';
+
+/** 樞紐種類: 守衛防護 / 蜂后總控 (guard-defense / queen-command) */
+export type GapHubKind = 'guard-defense' | 'queen-command';
+
+/** 單一蜂代理名冊 (30 員, 雙語) — 與 §二 30 矩陣編號歸屬嚴格對齊 */
+export interface IGapAgent {
+  /** 編號 01-30 */
+  id: number;
+  /** 稱號 (繁中) */
+  title: string;
+  /** Title (English) */
+  titleEn: string;
+  /** 所屬陣列 */
+  unit: GapUnitKey;
+}
+
+/** 跨組配對 (成員級) — 基礎或樞紐 */
+export interface IGapPairing {
+  /** 左側代理編號 */
+  a: number;
+  /** 右側代理編號 */
+  b: number;
+  /** 左側陣列 */
+  aUnit: GapUnitKey;
+  /** 右側陣列 */
+  bUnit: GapUnitKey;
+  /** 角色 */
+  role: GapRole;
+  /** 樞紐種類 (role=hub 時) */
+  hubKind?: GapHubKind;
+  /** 樞紐覆蓋陣列 (role=hub 時, 如 '全陣列'→ 五陣列皆列) */
+  coverage?: GapUnitKey[];
+  /** 5T 溯源標籤 (Traceable) */
+  source_origin: 'gap-matrix-canon';
+}
+
+/** 缺口補齊覆蓋率證明 (Coverage Proof) — 深貫廣通無礙圓通 */
+export interface IGapMatrixCoverage {
+  /** 成員總數 */
+  totalAgents: 30;
+  /** 基礎配對數 (C(5,2)×6) */
+  totalBase: 60;
+  /** 樞紐配對數 (守衛防護 6 + 蜂后總控 6) */
+  totalHub: 12;
+  /** 配對總數 (60+12) */
+  totalPairings: 72;
+  /** 陣列對覆蓋 (C(5,2)) */
+  arrayPairs: 10;
+  /** 成員跨組觸達 */
+  reach: '30/30';
+}
