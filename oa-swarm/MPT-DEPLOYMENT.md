@@ -1,26 +1,37 @@
-# MoneyPrinterTurbo × OA-Team 雙蜂戰隊 60 — 影音生產線部署
+# 萬能自動影音 OmniAutoVideo (基於 MoneyPrinterTurbo) — OA-Team 雙蜂戰隊 60 影音生產線
 
 ## 概述
-MoneyPrinterTurbo (MPT) v1.3.5 是 AI 短影音一鍵生成工具，作為 OA-Team 雙蜂戰隊的**影音生產線補強**。
-完全符合硬規「只用免費算立」：Ollama 本地 LLM + Edge TTS + 本地素材，零 API key 成本。
+**萬能自動影音 OmniAutoVideo** 是 OA-Team 雙蜂戰隊 60 的**影音生產線**，底層採用 MoneyPrinterTurbo (MPT) v1.3.5 一鍵短影音生成引擎，作為雙蜂戰隊的影音自動化補強。
+
+完全符合硬規「只用免費算立」：
+- **Ollama 本地 LLM** (qwen2.5:3b) 生成腳本與搜尋詞
+- **Edge TTS** (zh-TW-YunJheNeural) 合成繁中語音，零 key 成本
+- **Pixabay 免費素材** (用戶提供有效 key) 下載 CC0 影片
+- 全程零付費 API、零雲端 DB
 
 ## 部署規格 (VPS 161.118.248.180)
-- Docker 部署 (ghcr.io/harry0703/moneyprinterturbo:latest)
-- WebUI: `https://mpt.esggo.co` (容器 7860→8501, HTTPS+橙雲)
-- API: `https://mpt-api.esggo.co` (容器 7861→8080, HTTPS+橙雲)
-- 配置: `llm_provider=ollama` + `ollama_base_url=http://host.docker.internal:11434/v1` + `ollama_model_name=qwen2.5:3b`
-- TTS: Edge TTS (zh-TW-YunJheNeural, `edge_tts_timeout=120` 修正逾時)
-- 素材: `video_source=pexels` + `pexels_api_keys=[用戶提供]` (免費 Pixabay/Pexels key)
-- 本地素材備用: `material_directory=/MoneyPrinterTurbo/storage/materials` (CC0 影片)
+- Docker 部署 (`ghcr.io/harry0703/moneyprinterturbo:latest`)
+- WebUI: `https://mpt.esggo.co` (容器 7860→8501, HTTPS 灰雲直連)
+- API: `https://mpt-api.esggo.co` (容器 7861→8080, HTTPS 灰雲直連)
+- 配置: `llm_provider=ollama` + `ollama_base_url=http://host.docker.internal:11434/v1` + `ollama_model=qwen2.5:3b`
+- TTS: Edge TTS (`zh-TW-YunJheNeural`, `edge_tts_timeout=120` 修正逾時)
+- 素材源: **`video_source=pixabay`** + `pixabay_api_keys=[用戶提供有效 key]` (免費 CC0 影片)
+- 本地素材備用: `material_directory=/MoneyPrinterTurbo/storage/materials`
 
 ## 免費鏈路驗證 (實測)
-Ollama qwen2.5:3b (文案) → Edge TTS zh-TW (語音) → 本地素材 (clip1-3.mp4) → ffmpeg 合成 → MP4 (10.6MB)
-任務 ID: 7825c426-0521-4415-8354-8036e982435b → state:1 (completed)
+Ollama qwen2.5:3b (文案+英文搜尋詞) → Pixabay 下載素材 → Edge TTS zh-TW (語音) → ffmpeg 合成 → MP4
+- 端到端任務 `d46fe554`：上傳 `esg_doc.txt` → 解析 → MPT 用 pixabay 找到 20 個素材 → `combined-1.mp4`(4.7MB) + `final-1.mp4`(4.9MB) 生成成功，state:1 progress:100
 
 ## 與 OA-Team 整合
-- 萬能動畫蜂/音頻蜂可呼叫 MPT API (`/api/v1/videos`) 生成短影音
+- 萬能動畫蜂/音頻蜂可呼叫 OmniAutoVideo API (`/api/v1/videos`) 生成短影音
 - 雙蜂戰隊儀表板 (oa.esggo.co) 可嵌入 MPT WebUI iframe
 - n8n 排程自動生成每日短影音 (podcast/ESG 報告)
+
+## 檔案上傳 → 自動解析 → 生成影片 (filedrop)
+- 上傳頁面: `https://mpt.esggo.co/filedrop/` (接收 txt/md/pdf/docx)
+- API: `https://mpt.esggo.co/filedrop/upload` (FastAPI, pm2 管理, 純本地無雲端 DB)
+- 流程: 解析文字 → 呼叫 MPT `/api/v1/videos` (video_script + voice_name + video_source=pixabay) → 回 task_id
+- 符合「停用 Google Cloud SQL」要求：filedrop 服務無任何雲端 DB 依賴
 
 ## 啟動命令
 ```bash
@@ -28,22 +39,23 @@ cd /opt/esggo/apps/mpt
 docker compose -f docker-compose.esggo.yml up -d
 ```
 
-## 注意
-- 容器需 `extra_hosts: host.docker.internal:host-gateway` 才能連宿主 Ollama
-- MPT v1.3.5 的 `video_source=pixabay` 仍呼叫 pexels 下載邏輯 (bug)，改用 `video_source=pexels` + pexels key 正常
-- Edge TTS 預設 30s timeout 對長腳本不足，須設 `edge_tts_timeout=120`
-- HTTPS 已通 (Let's Encrypt + 橙雲)，無不安全警告
-- 真實素材: 用戶提供 Pexels/Pixabay 免費 key，符合「只用免費算立」硬規
-- 檔案上傳: `https://mpt.esggo.co/filedrop/` (上傳 txt/md/pdf/docx → 自動解析 → 呼叫 MPT API 生成影片)
-
-## 已知限制
-- **MPT v1.3.5 pexels 下載間歇失敗**：`failed to download video materials from pexels`（MPT 下載邏輯 bug 或 pexels 速率限制）。之前 d58f629a 任務成功過，屬網路波動。filedrop 功能本身正常（解析+呼叫 API 成功）。
-- MPT `video_source=local` 模式在 v1.3.5 未實作（仍走 pexels 邏輯），不可用。
-- filedrop 服務純本地（無 Cloud SQL / 無雲端 DB），符合「停用 Google Cloud SQL」要求。
+## Patch 清單 (VPS 掛載, 已提交 git `oa-swarm/mpt-patches/`)
+| 檔案 | 作用 |
+|------|------|
+| `schema.py` | `video_source: Optional[str] = "pixabay"` (預設改 pixabay，繞過無效 pexels key) |
+| `Main.py` | `video_source = params.get("video_source") or "pixabay"` + WebUI 標題/品牌名改「萬能自動影音 OmniAutoVideo」 |
+| `llm.py` | `generate_terms` 強制產英文搜尋詞 (pixabay 對中文詞不友善) |
+| `material.py` | aspect 寬鬆匹配 (`_matches_video_aspect` 即可，不要求精確解析度) + 下載失敗 traceback 診斷 |
+| `task.py` | local 素材 fall back (無上傳素材時讀 `storage/materials`) |
+| `video.py` | 接受字串路徑作為素材輸入 |
 
 ## 故障排除
 - **WebUI 無畫面 (空白)**：Streamlit 需 websocket，Cloudflare 橙雲免費版不代理長連接 → 改灰雲 (proxied:false) 直連 VPS
 - nginx 需加 `proxy_http_version 1.1` + `Upgrade/Connection` 頭支援 websocket
-- Streamlit 啟動參數 `--browser.serverAddress=mpt.esggo.co` (非 127.0.0.1，否則前端 JS 連錯地址)
-- **`failed to download video materials from pexels`**：MPT v1.3.5 的 `video_source=pixabay` 仍呼叫 pexels 邏輯 (bug)，改用 `video_source=pexels` + pexels key
+- Streamlit 啟動參數 `--browser.serverAddress=mpt.esggo.co` (非 127.0.0.1)
+- **`failed to download video materials from pexels`**：Pexels key 回 401 無效；已改用 pixabay 修復 (`schema.py` + `Main.py` 預設改 pixabay)
 - **`failed to synthesize audio; TTS timeout`**：Edge TTS 預設 30s 對長腳本不足，設 `edge_tts_timeout=120`
+
+## 已知限制
+- MPT v1.3.5 上游 `video_source=local` 模式未實作（仍走線上源邏輯），我們的 `task.py` patch 提供 local fall back 但不穩定；生產環境用 pixabay 線上源
+- Pixabay 免費 API 有速率限制（每小時 ~100-200 次），高併發任務需排程限速
