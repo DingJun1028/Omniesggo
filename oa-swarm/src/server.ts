@@ -6,9 +6,11 @@ import { createServer } from 'node:http';
 import { readFileSync } from 'node:fs';
 import { SwarmCore } from './swarm-core.js';
 import { SOUL_MATRIX_60, ARRAY_NAMES, LOCAL_AGENTS, VPS_AGENTS } from './soul-matrix-60.js';
+import { VoiceBridge } from './s2s-bridge.js';
 
 export function createServerApp(core: SwarmCore, port = 8788) {
   const sseClients = new Set<(d: string) => void>();
+  const voice = new VoiceBridge(core);
 
   // 熵減循環 (每 60s) 推送 SSE
   setInterval(() => {
@@ -52,6 +54,32 @@ export function createServerApp(core: SwarmCore, port = 8788) {
     if (url.pathname === '/oab') {
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(JSON.stringify(core.getState().oab));
+      return;
+    }
+
+    // 語音代理健康
+    if (url.pathname === '/voice/health') {
+      const p = await voice.probe();
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(p));
+      return;
+    }
+
+    // 語音轉錄 → 蜂群執行
+    if (url.pathname === '/voice' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', async () => {
+        try {
+          const { text } = JSON.parse(body || '{}');
+          const r = await voice.handleTranscript(text || '');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify(r));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e) }));
+        }
+      });
       return;
     }
 
