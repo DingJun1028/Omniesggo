@@ -98,12 +98,26 @@ async function refresh(){
 async function execTask(){
   const t=document.getElementById('taskInput').value.trim();
   if(!t)return;
-  document.getElementById('execBtn').disabled=true;
+  const btn=document.getElementById('execBtn');
+  btn.disabled=true;
+  btn.textContent='⏳ 蜂群協同中...';
+  log('⚡ 提交任務: '+t);
   try{
-    const r=await (await fetch(API+'/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:t})})).json();
-    log('✅ '+r.source_origin+' → '+r.hash_lock+' ('+r.evidence_count+' 證據)');
-  }catch(e){log('❌ '+e.message);}
-  document.getElementById('execBtn').disabled=false;
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(),50000);
+    const r=await (await fetch(API+'/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:t}),signal:ctrl.signal})).json();
+    clearTimeout(to);
+    const a=r.artifact||{};
+    const ev=a.evidence||{};
+    const hash=a.hash_lock||'(無)';
+    const collab=(ev.collaborators||[]).length;
+    log('✅ 完成 → '+hash+' | 派遣 '+collab+' 蜂 | 來源: '+ev.llmSource);
+    if(ev.llmEcho) log('🐝 '+ev.llmEcho.slice(0,120));
+  }catch(e){
+    log('❌ 執行失敗: '+(e.name==='AbortError'?'超時(50s)':e.message));
+  }
+  btn.disabled=false;
+  btn.textContent='⚡ 執行蜂群任務';
   refresh();
 }
 
