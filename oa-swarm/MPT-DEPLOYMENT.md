@@ -34,6 +34,12 @@ docker compose -f docker-compose.esggo.yml up -d
 - Edge TTS 預設 30s timeout 對長腳本不足，須設 `edge_tts_timeout=120`
 - HTTPS 已通 (Let's Encrypt + 橙雲)，無不安全警告
 - 真實素材: 用戶提供 Pexels/Pixabay 免費 key，符合「只用免費算立」硬規
+- 檔案上傳: `https://mpt.esggo.co/filedrop/` (上傳 txt/md/pdf/docx → 自動解析 → 呼叫 MPT API 生成影片)
+
+## 已知限制
+- **MPT v1.3.5 pexels 下載間歇失敗**：`failed to download video materials from pexels`（MPT 下載邏輯 bug 或 pexels 速率限制）。之前 d58f629a 任務成功過，屬網路波動。filedrop 功能本身正常（解析+呼叫 API 成功）。
+- MPT `video_source=local` 模式在 v1.3.5 未實作（仍走 pexels 邏輯），不可用。
+- filedrop 服務純本地（無 Cloud SQL / 無雲端 DB），符合「停用 Google Cloud SQL」要求。
 
 ## 故障排除
 - **WebUI 無畫面 (空白)**：Streamlit 需 websocket，Cloudflare 橙雲免費版不代理長連接 → 改灰雲 (proxied:false) 直連 VPS
