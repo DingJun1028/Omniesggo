@@ -1,9 +1,11 @@
 // ═══════════════════════════════════════════════════════════════
-// @esggo/shared/auth — Unified Authentication Module
-// Single source for Firebase Auth + token verification
+// @esggo/shared/auth — Unified Authentication Module (本地模式)
+// 2026-08-25 重構: GCP Firebase 已停用 (力度 1), 移除 firebase-admin 依賴。
+// Token 驗證改用 jose (與 src/middleware.ts 一致), 本地 JWT 不依賴 GCP x509。
 // ═══════════════════════════════════════════════════════════════
 
 import { getConfig } from './config';
+import { adminDb as localAdminDb } from '../../../src/lib/local-store';
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -20,48 +22,23 @@ export interface AuthToken {
   firebaseToken: string;
 }
 
-// ── Firebase Admin (Server-Side) ───────────────────────────────
+// ── Local Mode (no GCP) ────────────────────────────────────────
 
-let adminApp: unknown = null;
+let adminApp: { local: true } | null = null;
 let adminAuth: unknown = null;
-let adminDb: unknown = null;
+let adminDb: unknown = localAdminDb;
 
 /**
- * Get Firebase Admin App (lazy singleton).
+ * Get Admin App (lazy singleton). Local mode — no GCP connection.
  */
-export async function getAdminApp(): Promise<unknown> {
+export async function getAdminApp(): Promise<{ local: true }> {
   if (adminApp) return adminApp;
-
-  const config = getConfig();
-  if (!config.firebase.serviceAccountJson && !config.firebase.projectId) {
-    throw new Error('Firebase Admin not configured: missing FIREBASE_SERVICE_ACCOUNT_JSON');
-  }
-
-  try {
-    const firebaseAdmin = await import('firebase-admin');
-
-    const app = firebaseAdmin.apps.length > 0
-      ? firebaseAdmin.apps[0]
-      : firebaseAdmin.initializeApp({
-          credential: config.firebase.serviceAccountJson
-            ? firebaseAdmin.credential.cert(
-                JSON.parse(config.firebase.serviceAccountJson)
-              )
-            : firebaseAdmin.credential.applicationDefault(),
-        });
-
-    adminApp = app;
-    adminAuth = firebaseAdmin.auth();
-    adminDb = firebaseAdmin.firestore();
-
-    return app;
-  } catch (err) {
-    throw new Error(`Failed to initialize Firebase Admin: ${err}`);
-  }
+  adminApp = { local: true };
+  return adminApp;
 }
 
 /**
- * Get Firebase Auth instance.
+ * Get Auth instance. Local mode — Firebase Auth 功能不可用。
  */
 export async function getAdminAuth(): Promise<unknown> {
   await getAdminApp();
@@ -69,28 +46,38 @@ export async function getAdminAuth(): Promise<unknown> {
 }
 
 /**
- * Get Firestore database instance.
+ * Get Firestore-compatible store (本地 JSON 資料層).
  */
 export async function getAdminDb(): Promise<unknown> {
   await getAdminApp();
   return adminDb;
 }
 
-// ── Token Verification ─────────────────────────────────────────
+// ── Token Verification (jose, 本地模式) ────────────────────────
 
 /**
- * Verify a Firebase ID token.
- * Returns the decoded token or null if invalid.
+ * Verify a JWT token locally (no GCP dependency).
+ * Uses HS256 with LOCAL_JWT_SECRET if set, otherwise rejects (no GCP x509).
+ * Returns the decoded payload or null if invalid.
  */
 export async function verifyToken(
   idToken: string
 ): Promise<{ uid: string; email?: string } | null> {
+  const secret = process.env.LOCAL_JWT_SECRET;
+  if (!secret) {
+    // 本地模式未配置 JWT 金鑰: 不依賴 GCP, 直接回 null (與 middleware jose 降級一致)
+    return null;
+  }
   try {
-    const auth = await getAdminAuth() as {
-      verifyIdToken: (token: string) => Promise<{ uid: string; email?: string }>;
+    const { jwtVerify, importHmacKey } = await import('jose');
+    const key = await importHmacKey(secret, 'HS256');
+    const { payload } = await jwtVerify(idToken, key, {
+      algorithms: ['HS256'],
+    });
+    return {
+      uid: String(payload.sub ?? payload.uid ?? ''),
+      email: payload.email as string | undefined,
     };
-    const decoded = await auth.verifyIdToken(idToken);
-    return { uid: decoded.uid, email: decoded.email };
   } catch {
     return null;
   }
@@ -185,15 +172,15 @@ export async function queryFirestore(
 // ── Health Check ───────────────────────────────────────────────
 
 /**
- * Check if Firebase Admin is properly configured.
+ * Check if local auth store is available (本地模式, 無 GCP).
  */
-export function checkFirebaseHealth(): {
+export function checkAuthHealth(): {
   configured: boolean;
-  projectId?: string;
+  mode: 'local';
 } {
   const config = getConfig();
   return {
-    configured: !!(config.firebase.serviceAccountJson || config.firebase.projectId),
-    projectId: config.firebase.projectId,
+    configured: true,
+    mode: 'local',
   };
 }

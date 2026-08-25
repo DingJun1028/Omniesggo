@@ -7,7 +7,7 @@ import {
   signUpWithEmail,
   signOut,
 } from "@/lib/auth";
-import type { User } from "firebase/auth";
+import type { User } from "@/lib/auth";
 
 export default function LoginButton({ user }: { user: User | null }) {
   const [showEmail, setShowEmail] = useState(false);

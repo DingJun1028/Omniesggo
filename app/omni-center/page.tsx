@@ -109,7 +109,7 @@ function polarPoint(a: number, r: number, cx: number, cy: number) {
 }
 
 import { db } from '@lib/firebase';
-import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy } from '@lib/firebase';
 
 const SCORES = { traceable:0.91, transparent:0.88, tangible:0.90, trustworthy:0.94, trackable:0.87 };
 const overall = Object.values(SCORES).reduce((s,v)=>s+v,0)/5;
