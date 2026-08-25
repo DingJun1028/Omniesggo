@@ -1,12 +1,17 @@
+/// <reference path="../types/generated/esggo-shared.d.ts" />
 /**
  * OA-Team 雙蜂戰隊 60 員矩陣 (Dual-Hive 60 Colony)
  * 來源: oa-team-60-colony 技能 — 蜂王 OA-LOCAL (01-30) + 蜂后 OA-VPS (31-60)
  * 五陣列 MECE: 智庫聖所 / 符文契約 / 光之羽翼 / 煉金熵減 / 5T 驗算 (每陣列 雙蜂×6)
+ *
+ * 終始矩陣: SoulAgent60 契約對齊 canonical ISoulAgent (esggo/shared/types.ts)
  */
+import type { ISoulAgent } from '../types/generated/esggo-shared.js';
+
 export type HiveSide = 'local' | 'vps';
 export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
 
-export interface SoulAgent60 {
+export interface SoulAgent60 extends ISoulAgent {
   id: number;
   title: string;
   tags: string[];

@@ -43,6 +43,29 @@
   .legend span{display:flex;align-items:center;gap:4px}
   .dot{width:10px;height:10px;border-radius:50%}
   .dot.local{background:var(--local)}.dot.vps{background:var(--vps)}
+
+  /* RWD 響應式 — 深貫廣通無礙圓通 (全域全端全量全面) */
+  @media (max-width: 900px){
+    body{padding:14px}
+    h1{font-size:1.35rem}
+    .grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .matrix{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+  }
+  @media (max-width: 600px){
+    body{padding:10px}
+    h1{font-size:1.15rem}
+    .sub{font-size:.75rem;margin-bottom:14px}
+    .grid{grid-template-columns:1fr;gap:10px}
+    .matrix{grid-template-columns:1fr;gap:8px}
+    .bee-row{grid-template-columns:1fr} /* 窄屏單列, 無擠壓 */
+    .card{padding:12px}
+    .metric{font-size:1.6rem}
+    .bee .task{max-height:none} /* 觸控無 hover, 直接展開 */
+  }
+  @media (min-width: 1600px){
+    body{max-width:1700px;margin:0 auto}
+    .matrix{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  }
 </style>
 </head>
 <body>
