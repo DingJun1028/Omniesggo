@@ -126,3 +126,11 @@
 - A 記錄: oa.esggo.co → 161.118.248.180 (TTL 60, proxied=false 灰雲)
 - 驗證: VPS nginx Host: oa.esggo.co → /health 回應正常
 - API Token: cfut_*** (Zone:DNS:Edit, 用戶控制台建立, 不進 git)
+
+## 七、HTTPS + 橙雲 CDN (2026-08-25 完成)
+- Let's Encrypt: certbot --dns-cloudflare (DNS-01 挑戰, 不需開 443 對外)
+- 證書: /etc/letsencrypt/live/oa.esggo.co/ (到期 2026-11-22, 自動續期)
+- nginx: 443 SSL + 80→443 重定向 + /voice/ws WS 升級 (8765)
+- Cloudflare: proxied=true (橙雲 CDN)
+- 驗證: https://oa.esggo.co/health → ok; HTTP→301 HTTPS
+- CF 憑證: /etc/letsencrypt/cloudflare.ini (DNS:Edit token, chmod 600, 不進 git)
