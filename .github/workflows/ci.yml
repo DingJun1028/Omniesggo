@@ -160,9 +160,11 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies (frozen)
         run: pnpm install --frozen-lockfile
-      - name: 終始矩陣型別守門 (tsc 0-error)
+      - name: 終始矩陣型別守門 (tsc 0-error + 5T 驗證閘)
         working-directory: apps/universal-translator
-        run: npx tsc -p tsconfig.ut.json --noEmit
+        run: |
+          npx tsc -p tsconfig.ut.json --noEmit
+          node scripts/verify-float-matrix.mjs
       - name: Run UT test suite
         working-directory: apps/universal-translator
         run: node --test test/ut.test.mjs
