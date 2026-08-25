@@ -132,4 +132,9 @@ export class SwarmCore {
   submitFeedback(uuid: string, rating: number, note: string) {
     this.feedback.submit(uuid, rating, note);
   }
+
+  /** OAB 歷史檢索代理 */
+  async oabQuery(limit = 10) {
+    return this.oab.query(limit);
+  }
 }
