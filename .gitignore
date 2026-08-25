@@ -8,6 +8,13 @@ apps/*/node_modules
 /.next/
 /out/
 
+# misc local scratch (never commit)
+/_tmp_vps/
+/pastes/
+/oracle-always-free/
+my-worker/node_modules/
+oa-swarm/node_modules/
+
 # production
 /build
 
