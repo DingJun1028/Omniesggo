@@ -58,7 +58,7 @@ export class OABClient {
           user_id: 'default',
           agent_id: String(msg.from),
           role: 'user',
-          content: JSON.stringify({ hash_lock: msg.payload.hash, task: msg.payload.task }),
+          content: JSON.stringify({ hash: msg.payload.hash, task: String(msg.payload.task).slice(0, 200) }),
         }),
       });
       if (!r.ok) { console.error('[OAB] add failed', r.status); return false; }
