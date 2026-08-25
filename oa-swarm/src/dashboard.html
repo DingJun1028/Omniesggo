@@ -1,47 +1,119 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-Hant">
 <head>
-<meta charset="utf-8">
-<title>OA-Team 30 萬能蜂群</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OA-Team 雙蜂戰隊 60 · 萬能蜂群儀表板</title>
 <style>
-body{font-family:system-ui,sans-serif;margin:0;background:#0d1117;color:#e6edf3}
-header{background:linear-gradient(135deg,#10243f,#c9a24b);padding:20px;color:#fff}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:16px}
-.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px}
-.id{color:#c9a24b;font-weight:bold}
-.arr{font-size:11px;color:#7d8590}
-#stream{white-space:pre-wrap;background:#0d1117;border:1px solid #30363d;padding:10px;margin:16px;height:160px;overflow:auto}
-button{background:#c9a24b;color:#10243f;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:bold}
-input{width:60%;padding:8px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3}
+  :root{--bg:#0a0e17;--card:#131a28;--accent:#c9a24b;--ok:#3c6e47;--txt:#f3ede1;--mut:#8a93a6}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);padding:20px;line-height:1.5}
+  h1{color:var(--accent);font-size:1.6rem;margin-bottom:4px}
+  .sub{color:var(--mut);font-size:.85rem;margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid #233; border-radius:12px;padding:16px}
+  .card h2{font-size:1rem;color:var(--accent);margin-bottom:10px}
+  .metric{font-size:2rem;font-weight:700}
+  .small{font-size:.8rem;color:var(--mut)}
+  .agents{display:flex;flex-wrap:wrap;gap:6px;max-height:300px;overflow:auto}
+  .agent{background:#1c2433;border:1px solid #2a3344;border-radius:6px;padding:4px 8px;font-size:.72rem}
+  .agent.vps{border-color:var(--accent)}
+  .agent b{color:var(--accent)}
+  .log{max-height:200px;overflow:auto;font-family:monospace;font-size:.72rem;color:var(--ok)}
+  button{background:var(--accent);color:#0a0e17;border:none;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;margin-top:10px}
+  button:disabled{opacity:.5}
+  input{width:100%;padding:8px;border-radius:8px;border:1px solid #2a3344;background:#0f1622;color:var(--txt);margin-top:8px}
+  .bar{height:8px;background:#1c2433;border-radius:4px;overflow:hidden;margin-top:8px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--accent));transition:width .5s}
 </style>
 </head>
 <body>
-<header><h1>🐝 OA-Team 30 萬能蜂群</h1><p>5T 合規 · 熵減守護 · 背景運行</p></header>
-<div style="padding:16px">
-  <input id="task" placeholder="輸入蜂群任務..." />
-  <button onclick="exec()">提交任務</button>
-  <span id="entropy"></span>
+<h1>🐝 OA-Team 雙蜂戰隊 60</h1>
+<div class="sub">萬能蜂群靈魂核心 · 5T 協定 · OAB 共享記憶 · 語音橋接</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>熵值 (Entropy)</h2>
+    <div class="metric" id="entropy">--</div>
+    <div class="bar"><i id="entropyBar" style="width:0%"></i></div>
+    <div class="small" id="tasks">任務完成: --</div>
+  </div>
+  <div class="card">
+    <h2>蜂群狀態</h2>
+    <div class="small" id="oab">OAB: --</div>
+    <div class="small" id="voice">語音: --</div>
+    <div class="small" id="uptime">運行: --</div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>任務提交 / 語音觸發</h2>
+    <input id="taskInput" placeholder="輸入任務，例如：設計新的品牌視覺..." />
+    <button id="execBtn" onclick="execTask()">⚡ 執行蜂群任務</button>
+    <button id="voiceBtn" onclick="startVoice()">🎤 語音輸入 (s2s)</button>
+    <div class="log" id="execLog"></div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>60 蜂群矩陣</h2>
+    <div class="agents" id="agents">載入中...</div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>OAB 共享記憶 (雙蜂隊歷史)</h2>
+    <div class="log" id="oabHistory">載入中...</div>
+  </div>
 </div>
-<div id="stream">串流狀態...</div>
-<div class="grid" id="matrix"></div>
+
 <script>
-async function loadMatrix(){
-  const r=await fetch('/matrix');const d=await r.json();
-  document.getElementById('matrix').innerHTML=d.agents.map(a=>
-    '<div class="card"><div class="id">#'+a.id+' '+a.title+'</div>'+
-    '<div class="arr">'+d.arrays[a.array]+'</div><div style="font-size:12px;margin-top:6px">'+a.task+'</div></div>').join('');
+const API = location.origin; // 同源 (oa.esggo.co)
+function log(msg){const d=document.getElementById('execLog');d.innerHTML+=msg+'<br>';d.scrollTop=d.scrollHeight;}
+
+async function refresh(){
+  try{
+    const h=await (await fetch(API+'/health')).json();
+    document.getElementById('entropy').textContent=h.state.entropy.toFixed(4);
+    document.getElementById('entropyBar').style.width=Math.min(100,h.state.entropy*500)+'%';
+    document.getElementById('tasks').textContent='任務完成: '+h.state.tasksDone;
+    document.getElementById('uptime').textContent='運行: '+h.state.uptimeSec+'s';
+    document.getElementById('oab').textContent='OAB: '+(h.state.oab.connected?'✅ 連線 ('+h.state.oab.synced+')':'❌');
+  }catch(e){log('❌ health: '+e.message);}
+
+  try{
+    const v=await (await fetch(API+'/voice/health')).json();
+    document.getElementById('voice').textContent='語音: '+(v.connected?'✅ s2s 已連':'❌');
+  }catch(e){}
+
+  try{
+    const m=await (await fetch(API+'/matrix')).json();
+    document.getElementById('agents').innerHTML=m.agents.map(a=>
+      `<span class="agent ${a.side}"><b>${a.id}</b> ${a.title} <span style="color:var(--mut)">${a.array}</span></span>`
+    ).join('');
+  }catch(e){document.getElementById('agents').textContent='載入失敗';}
+
+  try{
+    const o=await (await fetch(API+'/oab/history')).json();
+    document.getElementById('oabHistory').innerHTML=o.records.slice(0,20).map(r=>
+      `[${r.ts.slice(11,19)}] ${r.hash||r.task||'(空)'}`
+    ).join('<br>');
+  }catch(e){document.getElementById('oabHistory').textContent='載入失敗';}
 }
-async function exec(){
-  const t=document.getElementById('task').value;
-  const r=await fetch('/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:t})});
-  const d=await r.json();
-  alert(d.ok?'任務完成! Hash: '+d.artifact.hash_lock.slice(0,20)+'...':'失敗: '+d.error);
+
+async function execTask(){
+  const t=document.getElementById('taskInput').value.trim();
+  if(!t)return;
+  document.getElementById('execBtn').disabled=true;
+  try{
+    const r=await (await fetch(API+'/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:t})})).json();
+    log('✅ '+r.source_origin+' → '+r.hash_lock+' ('+r.evidence_count+' 證據)');
+  }catch(e){log('❌ '+e.message);}
+  document.getElementById('execBtn').disabled=false;
+  refresh();
 }
-const es=new EventSource('/stream');
-es.onmessage=e=>{const d=JSON.parse(e.data);if(d.state){document.getElementById('stream').textContent=
-  '熵值: '+d.state.entropy.toFixed(4)+' | 任務數: '+d.state.tasksDone+' | 運行: '+d.state.uptimeSec+'s';
-  document.getElementById('entropy').textContent=' 熵 '+d.state.entropy.toFixed(4);}};
-loadMatrix();
+
+async function startVoice(){
+  log('🎤 語音模式需瀏覽器麥克風權限 (OpenAI Realtime WS) — 當前經 /voice 端點轉錄');
+  // 實際語音: 連 ws://<host>:8765/v1/realtime (需前端 WS 實作)
+}
+
+refresh();
+setInterval(refresh,5000);
 </script>
 </body>
 </html>
