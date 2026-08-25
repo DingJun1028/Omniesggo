@@ -57,6 +57,14 @@ export function createServerApp(core: SwarmCore, port = 8788) {
       return;
     }
 
+    // OAB 歷史記憶檢索 (雙蜂隊共享)
+    if (url.pathname === '/oab/history') {
+      const data = await core.oabQuery(10);
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ count: data.length, records: data }));
+      return;
+    }
+
     // 語音代理健康
     if (url.pathname === '/voice/health') {
       const p = await voice.probe();
