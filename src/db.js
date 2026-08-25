@@ -38,6 +38,9 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 
+// 2026-08-25 無縫轉移: 新增 NCBDB 作為跨裝置共用後端 (對齊根專案 ncbQuery)
+import { isNcbEnabled, ncbSubmissions, ncbProfiles, ncbTAs, ncbPairings } from './ncb-client';
+
 /** @type {import('firebase/app').FirebaseOptions} */
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FB_API_KEY,
@@ -70,6 +73,9 @@ let auth = null;
 let db = null;
 /** @type {boolean} Whether Firebase is active. */
 export let useFirebase = false;
+
+/** @type {boolean} Whether NCBDB (NoCodeBackend) is active. 無縫轉移後端. */
+export let useNcb = isNcbEnabled();
 
 const isConfigComplete = () =>
   !!(
@@ -259,6 +265,8 @@ export const addSubmission = async (submission, attachments, id) => {
 
   if (useFirebase && db) {
     await setDoc(doc(db, 'platforms', APP_ID, 'submissions', docId), payload);
+  } else if (useNcb) {
+    await ncbSubmissions.set(docId, { ...payload, APP_ID });
   } else {
     const item = { id: docId, ...payload, createdAt: new Date().toISOString() };
     const all = loadLocal();
@@ -319,6 +327,8 @@ export const subscribeSubmissions = (userId, onData) => {
 export const deleteSubmission = async (id) => {
   if (useFirebase && db) {
     await deleteDoc(doc(db, 'platforms', APP_ID, 'submissions', id));
+  } else if (useNcb) {
+    await ncbSubmissions.delete(id, APP_ID);
   } else {
     const all = loadLocal().filter((item) => item.id !== id);
     saveLocal(all);
@@ -363,6 +373,8 @@ export const upsertProfile = async (uid, updates = {}) => {
     if (snap.exists()) {
       current = snap.data();
     }
+  } else if (useNcb) {
+    current = await ncbProfiles.get(uid, APP_ID);
   } else {
     try {
       current = JSON.parse(localStorage.getItem(profileLocalStorageKey(uid)) || '{}');
@@ -374,6 +386,8 @@ export const upsertProfile = async (uid, updates = {}) => {
   const next = { ...current, ...updates, updatedAt: new Date().toISOString() };
   if (useFirebase && db) {
     await setDoc(profileRef(uid), next, { merge: true });
+  } else if (useNcb) {
+    await ncbProfiles.set(uid, APP_ID, next);
   } else {
     localStorage.setItem(profileLocalStorageKey(uid), JSON.stringify(next));
   }
@@ -391,6 +405,8 @@ export const getProfile = async (uid) => {
       return snap.data();
     }
     return null;
+  } else if (useNcb) {
+    return await ncbProfiles.get(uid, APP_ID);
   }
 
   try {
@@ -423,6 +439,8 @@ export const upsertTAProfile = async (uid, updates = {}) => {
   if (useFirebase && db) {
     const snap = await getDoc(taRef(uid));
     if (snap.exists()) current = snap.data();
+  } else if (useNcb) {
+    current = await ncbTAs.get(uid, APP_ID);
   } else {
     try {
       current = JSON.parse(localStorage.getItem(taLocalStorageKey(uid)) || '{}');
@@ -434,6 +452,8 @@ export const upsertTAProfile = async (uid, updates = {}) => {
   const next = { ...current, ...updates, updatedAt: new Date().toISOString() };
   if (useFirebase && db) {
     await setDoc(taRef(uid), next, { merge: true });
+  } else if (useNcb) {
+    await ncbTAs.set(uid, APP_ID, next);
   } else {
     localStorage.setItem(taLocalStorageKey(uid), JSON.stringify(next));
   }
@@ -449,6 +469,8 @@ export const getTAProfile = async (uid) => {
     const snap = await getDoc(taRef(uid));
     if (snap.exists()) return snap.data();
     return null;
+  } else if (useNcb) {
+    return await ncbTAs.get(uid, APP_ID);
   }
 
   try {
@@ -526,6 +548,9 @@ const setPairing = async (id, payload) => {
     const ref = doc(db, 'platforms', APP_ID, 'pairings', id);
     await setDoc(ref, payload);
     return;
+  } else if (useNcb) {
+    await ncbPairings.set(id, APP_ID, payload);
+    return;
   }
 
   const storeKey = pairingCollectionLocalStoragePrefix() + id;
@@ -538,6 +563,10 @@ const updatePairing = async (id, patch) => {
   if (useFirebase && db) {
     const ref = doc(db, 'platforms', APP_ID, 'pairings', id);
     await setDoc(ref, patch, { merge: true });
+    return;
+  } else if (useNcb) {
+    const current = await ncbPairings.list(APP_ID).then((arr) => arr.find((p) => p.id === id) || {});
+    await ncbPairings.set(id, APP_ID, { ...current, ...patch });
     return;
   }
 
@@ -552,6 +581,8 @@ export const deletePairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
   if (useFirebase && db) {
     await deleteDoc(doc(db, 'platforms', APP_ID, 'pairings', docId));
+  } else if (useNcb) {
+    await ncbPairings.delete(docId, APP_ID);
   } else {
     localStorage.removeItem(pairingCollectionLocalStoragePrefix() + docId);
     emitPairingLocalEvent();
@@ -571,6 +602,10 @@ export const loadPairing = async (mentorUid, menteeUid) => {
       return { id: snap.id, ...snap.data() };
     }
     return null;
+  } else if (useNcb) {
+    const all = await ncbPairings.list(APP_ID);
+    const found = all.find((p) => p.id === docId);
+    return found ? { id: docId, ...found } : null;
   }
 
   try {
@@ -587,6 +622,9 @@ export const listPairingsForMentor = async (mentorUid) => {
     const q = query(ref, where('mentorUid', '==', mentorUid));
     const snap = await getDocs(q);
     return snap.docs.map((document) => ({ id: document.id, ...document.data() }));
+  } else if (useNcb) {
+    const all = await ncbPairings.list(APP_ID);
+    return all.filter((p) => p.mentorUid === mentorUid).map((p) => ({ id: p.id, ...p }));
   }
 
   const out = [];
@@ -613,6 +651,9 @@ export const listPairingsForMentee = async (menteeUid) => {
     const q = query(ref, where('menteeUid', '==', menteeUid));
     const snap = await getDocs(q);
     return snap.docs.map((document) => ({ id: document.id, ...document.data() }));
+  } else if (useNcb) {
+    const all = await ncbPairings.list(APP_ID);
+    return all.filter((p) => p.menteeUid === menteeUid).map((p) => ({ id: p.id, ...p }));
   }
 
   const out = [];
@@ -668,6 +709,23 @@ export const subscribePairings = (onData) => {
       }
     );
     return unsubscribe;
+  } else if (useNcb) {
+    let stopped = false;
+    const run = async () => {
+      if (stopped) return;
+      try {
+        const items = (await ncbPairings.list(APP_ID)).map((p) => ({ id: p.id, ...p }));
+        onData(items);
+      } catch (e) {
+        console.error('NCB pairings poll error', e);
+      }
+    };
+    run();
+    const interval = setInterval(run, 3000);
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
   }
 
   const next = (store) => onData(store);
@@ -739,6 +797,62 @@ export const fetchOracleHealth = async () => {
     return { enabled: true, healthy: true, data };
   } catch (error) {
     return { enabled: true, healthy: false, reason: error?.message || String(error) };
+  }
+};
+
+// ============================================================
+// 無縫遷移: localStorage → NCBDB
+// 當 useNcb 啟用時, 呼叫一次即可把瀏覽器內既有 localStorage 資料
+// 搬移到 NCBDB (使用者無感, 不丟資料)
+// ============================================================
+export const migrateLocalToNcb = async () => {
+  if (!useNcb) {
+    console.info('[NCB Migration] skipped (NCBDB not enabled)');
+    return { migrated: 0, reason: 'NCB_DISABLED' };
+  }
+  let count = 0;
+  try {
+    // submissions
+    const subs = loadLocal();
+    for (const s of subs) {
+      await ncbSubmissions.set(s.id, { ...s, APP_ID });
+      count++;
+    }
+    // profiles
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(profileLocalStoragePrefix())) {
+        const uid = key.replace(profileLocalStoragePrefix(), '');
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        await ncbProfiles.set(uid, APP_ID, data);
+        count++;
+      }
+    }
+    // tas
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(LOCAL_TA_PREFIX)) {
+        const uid = key.replace(LOCAL_TA_PREFIX, '');
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        await ncbTAs.set(uid, APP_ID, data);
+        count++;
+      }
+    }
+    // pairings
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(pairingCollectionLocalStoragePrefix())) {
+        const id = key.replace(pairingCollectionLocalStoragePrefix(), '');
+        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        await ncbPairings.set(id, APP_ID, data);
+        count++;
+      }
+    }
+    console.info(`[NCB Migration] done: ${count} records migrated`);
+    return { migrated: count };
+  } catch (e) {
+    console.error('[NCB Migration] failed', e);
+    return { migrated: count, error: e?.message || String(e) };
   }
 };
 
