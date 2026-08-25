@@ -3,13 +3,15 @@ packages:
   - 'apps/*/functions'
   - 'cli/*'
   - 'packages/*'
+  - 'libs/*'
   - '.'
   # oa-swarm 為獨立可部署 App (自有 Dockerfile/ecosystem/lock)，排除出根 workspace
   # 避免根 pnpm-lock.yaml 需同步其 devDeps 導致 --frozen-lockfile 失敗
-  # '!oa-swarm' 排除「版控中的根層 oa-swarm/」(有 package.json，須保留)
   # '!apps/oa-swarm' 排除「部署標的殘留的 apps/oa-swarm/」(未版控，僅存在於 VPS 工作樹)
   #   ↑ 缺此行導致 VPS 上 'apps/*' 收進第 22 個 project → ERR_PNPM_OUTDATED_LOCKFILE
-  - '!oa-swarm'
+  # 注意: 源碼層 oa-swarm/ 已納回根 workspace (上方未排除)，使 @esggo/incremental (libs/*)
+  #   的 workspace:* 依賴可被 pnpm 解析並 symlink，消除「紙上依賴、實際未解析」的 drift。
+  #   VPS 部署仍走 apps/oa-swarm (自有 lock)，不受根 workspace 影響。
   - '!apps/oa-swarm'
 
 overrides:

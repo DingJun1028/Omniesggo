@@ -1,78 +1,44 @@
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-var-requires */
 /**
- * Firebase Admin SDK — Server-only singleton (lazy init)
+ * Firebase Admin 相容層 (本地模式) — GCP Firebase 已停用，改為本地資料層。
  *
- * 使用方式：僅限 API Routes / Server Components 呼叫。
- * 不可在 'use client' 元件中 import。
+ * 2026-08-25 重構: 移除 firebase-admin 依賴 (GCP 託管基礎設施移除, 力度 1)。
+ * 保留與原 firebase-admin 相同的導出介面 (adminDb / getAdminApp / getAdminAuth)
+ * 以最小化對既有 route 的改動。實際資料存取委託 src/lib/local-store.ts。
  *
- * firebase-admin v14 API：apps→getApps(), credential.applicationDefault(),
- * firestore 改用 require('firebase-admin/firestore').getFirestore(app)。
+ * 注意: getAdminAuth().verifyIdToken / getUser / setCustomUserClaims 等
+ * Firebase Auth 專屬功能在本地模式下不可用 — 呼叫端 (claims route) 已改為
+ * 優雅降級 (無憑證回 503)。本地認證請改用 middleware.ts 的 jose 實作。
  */
 
-import * as firebaseAdmin from 'firebase-admin';
-import { cert } from 'firebase-admin/app';
-import type { App } from 'firebase-admin/app';
+import adminDb from './local-store';
 
-// Firebase Admin namespace export can be awkwardly typed; use a narrower cast
-const admin = firebaseAdmin as typeof firebaseAdmin & Record<string, unknown>;
+// 本地模式下不初始化任何 GCP 連線
+let _app: { local: true } | null = null;
 
-let _app: App | null = null;
-let _db: ReturnType<typeof import('firebase-admin/firestore').getFirestore> | null = null;
-
-function initAdminApp(): App {
-  if (typeof admin.getApps === 'function' && admin.getApps().length > 0) {
-    return admin.getApps()[0];
-  }
-
-  const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-
-  if (serviceAccountJson) {
-    try {
-      const serviceAccount = JSON.parse(serviceAccountJson);
-      return admin.initializeApp({
-        credential: cert(serviceAccount),
-        projectId: serviceAccount.project_id,
-      });
-    } catch (e) {
-      console.error('[FirebaseAdmin] Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON:', e);
-    }
-  }
-
-  const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.FIREBASE_PROJECT_ID;
-  const appCred = cert(serviceAccountJson ? JSON.parse(serviceAccountJson) : undefined);
-  return admin.initializeApp({ credential: appCred, projectId });
-}
-
-export function getAdminApp(): App {
+export function getAdminApp(): { local: true } {
   if (_app) return _app;
-  _app = initAdminApp();
+  _app = { local: true };
   return _app;
 }
 
-function getDb(): ReturnType<typeof import('firebase-admin/firestore').getFirestore> | null {
-  if (_db) return _db;
-  try {
-    const firestoreNS = require('firebase-admin/firestore');
-    _db = firestoreNS.getFirestore
-      ? firestoreNS.getFirestore(getAdminApp())
-      : firestoreNS.firestore?.(getAdminApp());
-  } catch {
-    try {
-      const firestoreFn = (admin as Record<string, unknown>)['firestore'] as ((app: App) => unknown) | undefined;
-      _db = firestoreFn?.(getAdminApp()) as ReturnType<typeof import('firebase-admin/firestore').getFirestore> | null;
-    } catch {
-      console.warn('[FirebaseAdmin] Firestore unavailable');
-    }
-  }
-  return _db;
-}
-
-export const adminDb = {
-  collection: (path: string) => getDb()?.collection(path),
-  doc: (path: string) => getDb()?.doc(path),
-  runTransaction: <T>(fn: (transaction: import('firebase-admin/firestore').Transaction) => Promise<T>) =>
-    getDb()?.runTransaction(fn) as Promise<T> | undefined,
-  batch: () => getDb()?.batch(),
+// 占位 auth 物件 — 本地模式不支援 Firebase Auth 功能
+// 2026-08-25 力度 1: 方法接受可選參數以相容既有 call site, 但一律 throw (本地模式停用)
+export const adminAuth = {
+  async verifyIdToken(_token?: string, _force?: boolean): Promise<never> {
+    throw new Error('[LocalMode] Firebase Auth 已停用; 請使用 jose 本地 JWT 驗證 (見 middleware.ts)');
+  },
+  async getUser(_uid?: string): Promise<never> {
+    throw new Error('[LocalMode] Firebase Auth 已停用');
+  },
+  async setCustomUserClaims(_uid?: string, _claims?: Record<string, unknown>): Promise<never> {
+    throw new Error('[LocalMode] Firebase Auth 已停用');
+  },
 };
+
+export { adminDb };
+
+// 相容舊 call site: getAuth(getAdminApp()) 形式
+export function getAuth(_app: unknown): typeof adminAuth {
+  return adminAuth;
+}

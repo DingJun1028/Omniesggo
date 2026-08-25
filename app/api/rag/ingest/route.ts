@@ -1,7 +1,7 @@
 import pdfParse from 'pdf-parse';
 import { agnesApi } from '@/lib/agnes-api';
 import { db } from '@lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc } from '@lib/firebase';
 import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';

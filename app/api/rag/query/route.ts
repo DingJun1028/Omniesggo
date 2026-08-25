@@ -1,5 +1,5 @@
 import { db } from '@lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where } from '@lib/firebase';
 import { jsonResponse, jsonError, validateParams, jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';
@@ -73,17 +73,20 @@ export async function POST(req: Request) {
 
     const scoredDocs: { content: string, score: number, source: string }[] = [];
     
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.embedding && data.embedding.length > 0 && promptEmbedding.length > 0) {
-        const score = cosineSimilarity(promptEmbedding, data.embedding);
+    for (const doc of snapshot.docs) {
+      const data = doc.data() as Record<string, unknown>;
+      const embedding = data.embedding as number[] | undefined;
+      const content = data.content as string | undefined;
+      const source = data.source as string | undefined;
+      if (embedding && embedding.length > 0 && promptEmbedding.length > 0 && content && source) {
+        const score = cosineSimilarity(promptEmbedding, embedding);
         scoredDocs.push({
-          content: data.content,
+          content,
           score,
-          source: data.source
+          source,
         });
       }
-    });
+    }
 
     // 3. Sort by similarity and pick top 3
     scoredDocs.sort((a, b) => b.score - a.score);

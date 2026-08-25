@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@lib/firebase';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot } from '@lib/firebase';
 import { ShieldCheck, Hash, Clock, Heart, ChevronDown, ChevronUp } from 'lucide-react';
 import { UniversalOmniConsole } from './universal-omni-console';
 
