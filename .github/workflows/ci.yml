@@ -319,11 +319,10 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "build-placeholder"
 
-  # ─── OA-Team 缺口補齊 終始矩陣 5T 實證閉環 ─────────────────
-  # 雙語 / 全域全端全量全面 / 72 配對(60基礎+12樞紐) / 30·30 觸達
-  # 任一違反 (成員數/陣列對/配對數/觸達) → exit 1 (5T Trustworthy 不可篡改閉環)
-  gap-matrix:
-    name: OA Gap-Matrix 終始矩陣 5T Gate
+  # ─── 終始矩陣 統一驗證閘 (缺口補齊 72 + OmniLive Float 5柱) ──
+  # 雙向同步拓撲一致性比對: 兩套矩陣共用同一套 5T 守門, 任一失敗 exit 1
+  terminal-origin:
+    name: OA 終始矩陣 統一驗證閘 (缺口補齊 + Float)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -339,8 +338,8 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: 終→始 雙向同步再生 (scripts/export-shared-types.js)
         run: node scripts/export-shared-types.js
-      - name: 缺口補齊終始矩陣 5T 實證
-        run: npx tsx scripts/verify_gap_matrix.ts
+      - name: 終始矩陣統一驗證閘 (缺口補齊 72 + Float 5柱)
+        run: node scripts/verify-terminal-origin.mjs
 
   # ─── agents.yaml 框架驗證 ─────────────────────────────────────
   agents-yaml:
