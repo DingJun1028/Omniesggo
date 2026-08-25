@@ -24,6 +24,8 @@ import { translateDetailed, translateToMany, stats, hashOf } from './translate.m
 import { speechToSubtitle } from './stt_client.mjs';
 import { s2sStatus, isS2SEnabled } from './s2s_gemini_live.mjs';
 import { recordUtterance, getContext, buildContextHint, resetRoom, contextStatus, isContextEnabled } from './context_buffer.mjs';
+// 深貫廣通: 共享記憶整合 (TencentDB Agent Memory)
+import { storeSubtitleAsMemory, retrieveMemoryContext } from './src/memory-integration.mjs';
 
 // 讀取 .env（零依賴實作，優先於 process.env 已存在值）
 try {
@@ -81,6 +83,16 @@ const sseClients = new Set();
  */
 function broadcastTranslation(payload) {
   const data = `event: translation\ndata: ${JSON.stringify(payload)}\n\n`;
+  // 深貫廣通: 同步到共享記憶 (非阻塞, 失敗不影響廣播)
+  if (payload.room && payload.text) {
+    storeSubtitleAsMemory({
+      text: payload.text,
+      translation: typeof payload.tgt === 'string' ? payload.tgt : (payload.translations ? Object.values(payload.translations).join(' / ') : ''),
+      source_origin: payload.speaker || 'sse',
+      lang_from: payload.from || 'auto',
+      lang_to: payload.to || 'zh-TW',
+    }, payload.room, payload.speaker === 'caster' ? 'caster' : 'viewer').catch(() => {});
+  }
   for (const c of sseClients) {
     try {
       // room 過濾：客戶端指定 room 時，只收相同 room 的轉播
