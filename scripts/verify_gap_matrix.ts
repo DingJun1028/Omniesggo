@@ -3,7 +3,7 @@
 // 用法: npx tsx scripts/verify_gap_matrix.ts
 import {
   GAP_AGENTS, GAP_COVERAGE, UNIT_PAIRS,
-  deriveBasePairings, deriveHubPairings, deriveAllPairings,
+  deriveBasePairings, deriveHubPairings, deriveAllPairings, deriveNamedExemplars,
 } from '../shared/gap-matrix.js';
 
 let failures = 0;
@@ -70,6 +70,15 @@ else ok('每一配對皆帶 source_origin (Traceable 5T)');
 const badBase = base.filter((p) => p.a < 1 || p.a > 30 || p.b < 1 || p.b > 30 || p.aUnit === p.bUnit);
 if (badBase.length > 0) fail(`基礎配對異常: ${badBase.length}`);
 else ok('基礎配對 MECE (跨陣列 1:1, 編號 1-30 不越界)');
+
+// 10. §4.1 具名配對 (15 對) 由名冊單一真相源解析為合法跨陣列配對 (漂移即抓)
+const named = deriveNamedExemplars();
+if (named.length !== 15) fail(`具名配對應為 15, 實得 ${named.length}`);
+else {
+  const bad = named.filter((p) => p.aUnit === p.bUnit || p.a < 1 || p.a > 30 || p.b < 1 || p.b > 30);
+  if (bad.length > 0) fail(`具名配對含同陣列/越界: ${JSON.stringify(bad)}`);
+  else ok('§4.1 具名配對 15 對 皆為合法跨陣列 (單一真相源解析, 不盲從漂移標頭)');
+}
 
 console.log('----------------------------------------');
 if (failures > 0) {

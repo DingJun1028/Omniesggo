@@ -150,6 +150,48 @@ export function deriveHubPairings(): IGapPairing[] {
   return out;
 }
 
+/**
+ * §4.1 具名跨組配對範例 (15 對) — 人類可讀層 (documentation exemplars)
+ * 不影響 72 數理不變式；此處以名冊 title 為單一真相源解析出 (a,b) 編號，
+ * 故若 canon §4.1 標頭與名冊單位不符（例: 設計蜂實屬技術組而非創意組），
+ * 以名冊單位為準 (5T 誠實, 不盲從漂移標頭)。
+ */
+const NAMED_TITLES: ReadonlyArray<readonly [string, string]> = [
+  // 策略×創意(實解析為 strat×tech/crea)
+  ['萬能規劃蜂', '萬能設計蜂'],
+  ['萬能分析蜂', '萬能圖像蜂'],
+  ['萬能策効蜂', '萬能動畫蜂'],
+  ['萬能風險蜂', '萬能文案蜂'],
+  ['萬能優化蜂', '萬能音頻蜂'],
+  // 技術×營銷
+  ['萬能編碼蜂', '萬能市場蜂'],
+  ['萬能算法蜂', '萬能社群蜂'],
+  ['萬能架構蜂', '萬能增長蜂'],
+  ['萬能數據蜂', '萬能運營蜂'],
+  ['萬能測試蜂', '萬能商業分析蜂'],
+  // 探險(營銷)×策略
+  ['萬能探路蜂', '萬能規劃蜂'],
+  ['萬能外交蜂', '萬能策効蜂'],
+  ['萬能調研蜂', '萬能分析蜂'],
+  ['萬能測場蜂', '萬能風險蜂'],
+  ['萬能追蹤蜂', '萬能優化蜂'],
+];
+
+/** 由名冊 title 解析出具名配對 (跨陣列 MECE 斷言由 verify 守門) */
+export function deriveNamedExemplars(): IGapPairing[] {
+  const byTitle = new Map(GAP_AGENTS.map((a) => [a.title, a]));
+  return NAMED_TITLES.map(([ta, tb]) => {
+    const A = byTitle.get(ta)!;
+    const B = byTitle.get(tb)!;
+    return {
+      a: A.id, b: B.id,
+      aUnit: A.unit, bUnit: B.unit,
+      role: 'base',
+      source_origin: SRC,
+    };
+  });
+}
+
 /** 全量配對 (基礎 + 樞紐) */
 export function deriveAllPairings(): IGapPairing[] {
   return [...deriveBasePairings(), ...deriveHubPairings()];
