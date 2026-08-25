@@ -34,3 +34,10 @@ docker compose -f docker-compose.esggo.yml up -d
 - Edge TTS 預設 30s timeout 對長腳本不足，須設 `edge_tts_timeout=120`
 - HTTPS 已通 (Let's Encrypt + 橙雲)，無不安全警告
 - 真實素材: 用戶提供 Pexels/Pixabay 免費 key，符合「只用免費算立」硬規
+
+## 故障排除
+- **WebUI 無畫面 (空白)**：Streamlit 需 websocket，Cloudflare 橙雲免費版不代理長連接 → 改灰雲 (proxied:false) 直連 VPS
+- nginx 需加 `proxy_http_version 1.1` + `Upgrade/Connection` 頭支援 websocket
+- Streamlit 啟動參數 `--browser.serverAddress=mpt.esggo.co` (非 127.0.0.1，否則前端 JS 連錯地址)
+- **`failed to download video materials from pexels`**：MPT v1.3.5 的 `video_source=pixabay` 仍呼叫 pexels 邏輯 (bug)，改用 `video_source=pexels` + pexels key
+- **`failed to synthesize audio; TTS timeout`**：Edge TTS 預設 30s 對長腳本不足，設 `edge_tts_timeout=120`
