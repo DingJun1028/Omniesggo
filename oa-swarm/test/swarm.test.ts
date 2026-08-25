@@ -1,11 +1,37 @@
 /**
  * OA-Team 蜂群核心測試 — 5T 合規 + 30 矩陣 + 靈魂執行鏈
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// 超能力 TDD: 測試隔離外部副作用 (Ollama / OAB / VPS 網路)
+// 避免 CI 環境下 fetch/http 掛起導致 flaky timeout
+vi.mock('../src/llm', () => ({
+  callLLM: vi.fn(async (prompt: string) => ({
+    text: `[MOCK] 蜂群收到任務：「${prompt.slice(0, 60)}」。測試隔離模式。`,
+    model: 'mock',
+    source: 'mock' as const,
+  })),
+}));
+
+vi.mock('../src/oab', () => ({
+  OABClient: class {
+    async publish() { return true; }
+    async query() { return []; }
+  },
+  DualHiveTunnel: class {
+    async syncToVps() { return true; }
+  },
+}));
+
+vi.mock('../src/incremental', () => ({
+  ETLPipeline: class {
+    async process() { return [{ version: 1, id: 1, title: 'mock' }]; }
+  },
+}));
+
 import { purify, verifyZeroHallucination, hashLock, FeedbackCollector } from '../src/protocol-5t';
 import { SOUL_MATRIX, getAgent } from '../src/soul-matrix';
 import { SwarmCore } from '../src/swarm-core';
-import { callLLM } from '../src/llm';
 
 describe('5T 協定強制層', () => {
   it('Traceable: 產物帶 source_origin', () => {
