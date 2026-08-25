@@ -1,3 +1,4 @@
+/// <reference path="../types/generated/esggo-shared.d.ts" />
 /**
  * OA-Team 5T 協定強制層 (5T Protocol Enforcement)
  * 來源: OA-Team 靈魂核心聖典 §一 5T 數據與行為協議
@@ -7,9 +8,13 @@
  * Tangible    (可感知): 使用者回饋介面數據
  * Transparent (可透明): 演算邏輯公開、零幻覺驗算
  * Trustworthy (不可篡改): 寫入後 HashLock + Object.freeze + 署名
+ *
+ * 終始矩陣: SoulArtifact 契約對齊 canonical ISoulArtifact (esggo/shared/types.ts)
  */
 
-export interface SoulArtifact {
+import type { ISoulArtifact } from '../types/generated/esggo-shared.js';
+
+export interface SoulArtifact extends ISoulArtifact {
   uuid: string;
   version: string;
   timestamp: number;
