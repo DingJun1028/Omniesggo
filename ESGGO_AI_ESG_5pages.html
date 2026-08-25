@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>ESGGO · AI × ESG 發展現況與公司效益（5 頁簡報）</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Microsoft JhengHei", "PingFang TC", "Noto Sans TC", sans-serif; background:#0b1620; }
+  .slide { width: 100%; max-width: 1280px; min-height: 720px; margin: 0 auto 8px; padding: 56px 64px; display: flex; flex-direction: column; }
+  .slide.light { background:#FFFFFF; color:#1a2b3c; }
+  .slide.dark { background: linear-gradient(135deg,#0e3b34,#0e7c66); color:#fff; }
+  .kicker { font-size:14px; letter-spacing:3px; color:#1f9e8a; font-weight:700; text-transform:uppercase; }
+  .slide.dark .kicker { color:#9fe7d4; }
+  h1 { font-size:46px; line-height:1.25; margin:14px 0 10px; font-weight:800; }
+  h2 { font-size:32px; margin:6px 0 26px; font-weight:800; }
+  .lead { font-size:18px; line-height:1.7; opacity:.92; max-width:880px; }
+  .grid { display:flex; gap:20px; flex-wrap:wrap; }
+  .card { flex:1 1 280px; background:#f4f8f6; border-radius:14px; padding:22px 24px; }
+  .slide.dark .card { background:rgba(255,255,255,.08); }
+  .card .ic { width:42px; height:42px; border-radius:50%; background:#1f9e8a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; margin-bottom:12px; }
+  .card h3 { font-size:18px; margin-bottom:8px; color:#0e7c66; }
+  .slide.dark .card h3 { color:#9fe7d4; }
+  .card p { font-size:14px; line-height:1.65; opacity:.9; }
+  .pillars { display:flex; gap:18px; }
+  .pillar { flex:1; border-radius:14px; padding:24px; }
+  .pillar.e { background:#e6f4ea; }
+  .pillar.s { background:#fde8f0; }
+  .pillar.g { background:#e6f0fb; }
+  .pillar .tag { font-size:13px; font-weight:700; letter-spacing:1px; }
+  .pillar h3 { font-size:20px; margin:8px 0 12px; }
+  .pillar.e h3 { color:#1e7a46; } .pillar.s h3 { color:#b8336a; } .pillar.g h3 { color:#2a5db0; }
+  .pillar ul { list-style:none; font-size:14px; line-height:1.9; }
+  .stats { display:flex; gap:16px; flex-wrap:wrap; }
+  .stat { flex:1 1 200px; background:#f4f8f6; border-radius:14px; padding:22px; text-align:center; }
+  .stat .num { font-size:40px; font-weight:800; color:#0e7c66; line-height:1; }
+  .stat .lab { font-size:14px; margin-top:8px; opacity:.85; }
+  .foot { margin-top:auto; font-size:12px; opacity:.6; padding-top:18px; }
+  .roadmap { display:flex; flex-direction:column; gap:14px; }
+  .step { display:flex; gap:16px; align-items:flex-start; }
+  .step .n { width:34px; height:34px; border-radius:50%; background:#1f9e8a; color:#fff; font-weight:800; display:flex; align-items:center; justify-content:center; flex:0 0 34px; }
+  .step b { font-size:17px; } .step p { font-size:14px; opacity:.88; line-height:1.6; }
+  @media print { body { background:#fff; } .slide { page-break-after: always; min-height: 720px; } }
+</style>
+</head>
+<body>
+
+<!-- 第 1 頁：封面 -->
+<section class="slide dark">
+  <div class="kicker">ESGGO PLATFORM · 5-PAGE BRIEF</div>
+  <h1>AI × ESG<br>發展現況與公司效益</h1>
+  <p class="lead">本簡報說明 ESGGO 平台在 AI 與 ESG 兩大軸線的發展狀態，以及其為公司帶來的具體效益。涵蓋：AI 代理編隊、ESG 三大支柱、量化成效與後續路線。</p>
+  <div class="foot">OA-Team 30 萬能蜂群 ｜ 2026-08-12 ｜ 5 頁</div>
+</section>
+
+<!-- 第 2 頁：AI 發展狀態 -->
+<section class="slide light">
+  <div class="kicker">AI DEVELOPMENT STATUS</div>
+  <h2>AI 發展狀態</h2>
+  <div class="grid">
+    <div class="card"><div class="ic">蜂</div><h3>OA-Team 30 萬能蜂群</h3><p>30 個專精代理，遵循 5T 協定（可溯源 / 可追蹤 / 可感知 / 可透明 / 不可篡改）與 4 可 1 不可狀態機，協同完成開發與治理任務。</p></div>
+    <div class="card"><div class="ic">控</div><h3>Hermes Agent 總控</h3><p>任務編排、自動修復引擎（.hermes/auto-repair）與 CI/CD 串接，錯誤自動匹配並修復，分身追蹤進度。</p></div>
+    <div class="card"><div class="ic">學</div><h3>學習中心自動化</h3><p>作業上傳、課程回放、諮詢預約、滿意度調查全模組自動化，Firestore 即時訂閱，三語國際化。</p></div>
+    <div class="card"><div class="ic">部</div><h3>雙通道部署</h3><p>GitHub Actions 於 main 推送後自動部署至 Vercel 與 Firebase Hosting 雙通道，Docker/Nginx 支援主站。</p></div>
+  </div>
+  <div class="foot">實測：FTG TOURS 線上運行中 ｜ 主站與學習中心待修復（origin 離線）</div>
+</section>
+
+<!-- 第 3 頁：ESG 發展狀態 -->
+<section class="slide light">
+  <div class="kicker">ESG DEVELOPMENT STATUS</div>
+  <h2>ESG 發展狀態</h2>
+  <div class="pillars">
+    <div class="pillar e"><div class="tag">ENVIRONMENT 環境</div><h3>🌲 環境友善</h3><ul><li>FTG TOURS 無痕山林、低碳交通</li><li>生態保育、垃圾減量</li><li>每趟旅程經 ESG 檢核</li></ul></div>
+    <div class="pillar s"><div class="tag">SOCIAL 社會</div><h3>🤝 社會共益</h3><ul><li>柏克萊人才培育課程</li><li>國際化包容（zh-TW/zh-CN/en）</li><li>在地採購、部落文化尊重</li></ul></div>
+    <div class="pillar g"><div class="tag">GOVERNANCE 治理</div><h3>📊 企業治理</h3><ul><li>Firestore 安全規則（Admin 治理視角）</li><li>5T 可溯源 / 不可篡改</li><li>安全 SOP、Impact Note 成果報告</li></ul></div>
+  </div>
+  <div class="foot">三大品牌共用 OA-Team 靈魂：ESGGO 主站（治理）／ 學習中心（社會）／ FTG TOURS（環境+社會+治理）</div>
+</section>
+
+<!-- 第 4 頁：給公司帶來的好處 -->
+<section class="slide light">
+  <div class="kicker">BENEFITS TO THE COMPANY</div>
+  <h2>給公司帶來的好處</h2>
+  <div class="stats">
+    <div class="stat"><div class="num">↑</div><div class="lab">開發效率：CI/CD 雙通道自動部署，減少人工發布與回滾時間</div></div>
+    <div class="stat"><div class="num">↓</div><div class="lab">營運成本：自動修復機制降低維運人力與停機損失</div></div>
+    <div class="stat"><div class="num">✓</div><div class="lab">合規透明：5T 協定確保可溯源、不可篡改，符合 ESG 揭露要求</div></div>
+    <div class="stat"><div class="num">★</div><div class="lab">品牌價值：ESG 旅遊 + 人才培育強化雇主與永續品牌</div></div>
+    <div class="stat"><div class="num">🎓</div><div class="lab">人才沉澱：柏克萊課程知識庫內化為公司資產</div></div>
+  </div>
+  <div class="foot">效益來源：自動化開發、可溯源治理、ESG 品牌敘事三者疊加</div>
+</section>
+
+<!-- 第 5 頁：總結與下一步 -->
+<section class="slide dark">
+  <div class="kicker">SUMMARY & ROADMAP</div>
+  <h2>總結與下一步</h2>
+  <div class="roadmap">
+    <div class="step"><div class="n">1</div><div><b>短期（本週）</b><p>修復主站 502 與學習中心上線，恢復三大陣列全服務。</p></div></div>
+    <div class="step"><div class="n">2</div><div><b>中期（本季）</b><p>AI 代理擴充至客服與數據分析；FTG 洽詢表單對接 CRM。</p></div></div>
+    <div class="step"><div class="n">3</div><div><b>長期（年度）</b><p>ESG 揭露自動化報表，將 5T 資料流轉為可被審計的永續報告。</p></div></div>
+  </div>
+  <div class="foot">ESGGO · AI 驅動永續 · OA-Team 30 萬能蜂群</div>
+</section>
+
+</body>
+</html>
