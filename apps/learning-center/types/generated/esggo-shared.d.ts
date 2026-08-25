@@ -329,3 +329,107 @@ export interface ISecondBrainNote {
   source_origin: string;
   sync: 'mirror' | 'up';
 }
+
+export type HiveSide = 'local' | 'vps';
+
+export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
+
+export interface ISoulAgent {
+  id: number;
+  title: string;
+  tags: string[];
+  array: ArrayKey;
+  side: HiveSide;
+  task: string;
+}
+
+export interface IComponentCore {
+  uuid: string;        // 萬能永憶主體唯一識別碼 (Traceable)
+  version: string;     // 語意化版本控制
+  timestamp: number;   // 刻印時間戳
+  evidence: Record<string, unknown>; // 證據佐證庫
+}
+
+export interface ISoulArtifact extends IComponentCore {
+  source_origin: string; // Traceable: 產物來源標註
+  lifecycle: string[];   // Trackable: 狀態流轉記錄
+  hash_lock: string;     // Trustworthy: 雜湊鎖定
+  author: string;        // Trustworthy: 不可篡改署名
+}
+
+export interface ISwarmTask {
+  task: string;
+  source_origin: string; // Traceable
+  array?: ArrayKey;      // 指定陣列 (選填)
+  side?: HiveSide;       // 指定蜂側 (選填)
+}
+
+export type SwarmTaskResult = Readonly<ISoulArtifact>;
+
+export interface IOABMessage {
+  serviceId: string;
+  topic: string;
+  payload: unknown;
+  trace?: string;       // 5T 溯源碼
+  ts: number;
+}
+
+export interface I5TVerification {
+  traceable: boolean;
+  trackable: boolean;
+  tangible: boolean;
+  transparent: boolean;
+  trustworthy: boolean;
+  passed: boolean;
+}
+
+export type GapUnitKey = 'strategy' | 'technology' | 'creative' | 'marketing' | 'guard';
+
+export type GapRole = 'base' | 'hub';
+
+export type GapHubKind = 'guard-defense' | 'queen-command';
+
+export interface IGapAgent {
+  /** 編號 01-30 */
+  id: number;
+  /** 稱號 (繁中) */
+  title: string;
+  /** Title (English) */
+  titleEn: string;
+  /** 所屬陣列 */
+  unit: GapUnitKey;
+}
+
+export interface IGapPairing {
+  /** 左側代理編號 */
+  a: number;
+  /** 右側代理編號 */
+  b: number;
+  /** 左側陣列 */
+  aUnit: GapUnitKey;
+  /** 右側陣列 */
+  bUnit: GapUnitKey;
+  /** 角色 */
+  role: GapRole;
+  /** 樞紐種類 (role=hub 時) */
+  hubKind?: GapHubKind;
+  /** 樞紐覆蓋陣列 (role=hub 時, 如 '全陣列'→ 五陣列皆列) */
+  coverage?: GapUnitKey[];
+  /** 5T 溯源標籤 (Traceable) */
+  source_origin: 'gap-matrix-canon';
+}
+
+export interface IGapMatrixCoverage {
+  /** 成員總數 */
+  totalAgents: 30;
+  /** 基礎配對數 (C(5,2)×6) */
+  totalBase: 60;
+  /** 樞紐配對數 (守衛防護 6 + 蜂后總控 6) */
+  totalHub: 12;
+  /** 配對總數 (60+12) */
+  totalPairings: 72;
+  /** 陣列對覆蓋 (C(5,2)) */
+  arrayPairs: 10;
+  /** 成員跨組觸達 */
+  reach: '30/30';
+}
