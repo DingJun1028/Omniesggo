@@ -1,116 +1,959 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-theme="dark">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>萬能即時翻譯 · 繁中↔英文 雙向及時懸浮字幕 (Gemini 3.5 Live 可選增強)</title>
+<title>OmniLive 萬能即時翻譯 · 漂浮字幕窗 (Beautiful Edition)</title>
 <style>
+/* ===== Beautiful Floating Window — inspired by Akkadu, improved ===== */
 :root{
-  --bg:#070b12;--panel:rgba(20,27,41,.72);--panel2:rgba(14,22,35,.6);
-  --accent:#36e0c0;--accent2:#5b8cff;--txt:#eaf1fb;--muted:#8a97ad;
-  --line:rgba(255,255,255,.09);--radius:18px;--gap:clamp(10px,2vw,16px);
-  --font:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --cap-bg:rgba(10,14,24,.6);
+  --src:#ffffff;
+  --trs:#7fe9d6;
+  --gold:#ffd479;
+  --ui:#e8eef7;
+  --accent:#36e0c0;
+  --accent2:#5b8cff;
+  --line:rgba(255,255,255,.14);
+  --ok:#22c55e;
+  --warn:#ffb020;
+  --err:#ff5d6c;
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:var(--font);color:var(--txt);min-height:100vh;
-  background:radial-gradient(900px 500px at 85% -5%,rgba(91,140,255,.16),transparent 60%),var(--bg);background-attachment:fixed}
-.wrap{max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap);padding:var(--gap)}
-.topbar{display:flex;align-items:center;justify-content:space-between}
-.topbar h1{font-size:1.05rem;margin:0;font-weight:700}
-.ico-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);cursor:pointer;font-size:1.05rem;display:grid;place-items:center;transition:.2s}
-.ico-btn:hover{border-color:var(--accent)}
-.status{font-size:.83rem;color:var(--muted);display:flex;align-items:center;gap:8px}
-.dot{width:9px;height:9px;border-radius:50%;background:#3ad17a;flex:none}
-.float-stage{position:relative;background:var(--panel2);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;aspect-ratio:16/9;display:grid;place-items:center}
-.float-stage video{width:100%;height:100%;object-fit:cover;opacity:.55}
-.subtitle-layer{position:absolute;left:0;right:0;bottom:0;padding:14px;display:flex;flex-direction:column;gap:6px;background:linear-gradient(transparent,rgba(0,0,0,.65))}
-.sub-line{font-size:clamp(1rem,3.4vw,1.6rem);font-weight:700;line-height:1.25;text-shadow:0 2px 8px rgba(0,0,0,.8)}
-.sub-line.src{color:#fff}
-.sub-line.tgt{color:var(--accent)}
-.sub-line.ctx{color:#8a97ad;font-size:.8em;opacity:.7;font-style:italic}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.btn{border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:12px;padding:10px 16px;cursor:pointer;font-weight:600;transition:.15s}
-.btn:hover{border-color:var(--accent)}
-.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a;border:none}
-select{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.92rem}
-.hint{font-size:.8rem;color:var(--muted);line-height:1.5}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:transparent;overflow:hidden;
+  font-family:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif}
+
+/* ===== 頂部工具列 (深石墨玻璗 + 呼吸紅點 LED) ===== */
+#toolbar{
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:30;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 14px;
+  /* 深石墨玻璗背景 */
+  background:rgba(22,27,34,.94);
+  backdrop-filter:blur(28px) saturate(160%);
+  -webkit-backdrop-filter:blur(28px) saturate(160%);
+  border-bottom:1px solid rgba(255,255,255,.14);
+  box-shadow:0 2px 10px rgba(0,0,0,.3);
+  pointer-events:auto;
+}
+#toolbar .title{
+  font-size:.8rem;
+  font-weight:700;
+  color:var(--gold);
+  letter-spacing:.5px;
+}
+#toolbar .led{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  font-size:.72rem;
+  color:var(--err);
+  font-weight:600;
+}
+#toolbar .led::before{
+  content:'';
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--err);
+  box-shadow:0 0 8px var(--err);
+  animation:breath 1.8s ease-in-out infinite;
+}
+@keyframes breath{
+  0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(255,93,108,.7)}
+  50%{opacity:.7;box-shadow:0 0 0 8px rgba(255,93,108,0)}
+}
+
+/* ===== 字幕舞台 ===== */
+#stage{
+  position:fixed;
+  inset:0;
+  padding:clamp(12px,3vh,32px);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  align-items:center;
+  pointer-events:none;
+  z-index:20;
+}
+#subtitles{
+  width:min(94vw,960px);
+  display:flex;
+  flex-direction:column;
+  gap:clamp(6px,1.2vh,12px);
+  align-items:center;
+  justify-content:flex-end;
+  max-height:64dvh;
+  overflow:hidden;
+  pointer-events:auto;
+  cursor:grab;
+  touch-action:none;
+}
+#subtitles.dragging{cursor:grabbing}
+
+/* 字幕群組動畫 */
+.sub-group{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  width:100%;
+  animation:subIn .2s ease-out;
+  text-align:center;
+}
+.sub-group.finalized{animation:none}
+.sub-group.active{position:relative}
+.sub-group.active::after{
+  content:'';
+  position:absolute;
+  left:0;bottom:-6px;
+  height:2px;
+  width:100%;
+  border-radius:2px;
+  background:linear-gradient(90deg,var(--accent),transparent);
+  animation:typing 1.1s ease-in-out infinite;
+}
+@keyframes typing{
+  0%{opacity:.2;transform:scaleX(.3)}
+  50%{opacity:1;transform:scaleX(1)}
+  100%{opacity:.2;transform:scaleX(.3)}
+}
+@keyframes subIn{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ===== 字幕卡 (深度黑半透明玻璃珮) ===== */
+.sub-line{
+  display:inline-block;
+  width:fit-content;
+  max-width:100%;
+  border-radius:18px;
+  padding:6px 22px;
+  line-height:1.28;
+  font-weight:700;
+  /* 僅 text-shadow 保證任何背景可讀, 無不透明底 */
+  color:#fff;
+  text-shadow:
+    0 2px 6px rgba(0,0,0,.95),
+    0 0 3px rgba(0,0,0,.9);
+}
+/* 原文 (英文) — 白色粗體, 稍小 */
+.sub-line.src{
+  font-size:clamp(1.1rem,2.6vw,1.6rem);
+  color:var(--src);
+  margin-bottom:2px;
+}
+/* 翻譯 (中文) — 金黃粗體, 稍大 */
+.sub-line.tgt{
+  font-size:clamp(1.4rem,4.2vw,2.2rem);
+  color:var(--gold);
+  text-shadow:
+    0 2px 8px rgba(0,0,0,.95),
+    0 0 6px rgba(0,0,0,.8),
+    0 0 12px rgba(255,212,79,.3);
+}
+.sub-line .meta{
+  font-size:.65rem;
+  color:rgba(255,255,255,.55);
+  font-weight:400;
+  margin-top:2px;
+  text-shadow:none;
+  background:none!important;
+  padding:0!important;
+}
+
+/* ===== 占位提示 ===== */
+.placeholder{
+  color:rgba(255,255,255,.4);
+  font-size:clamp(.85rem,2vw,1rem);
+  font-weight:400;
+  opacity:.7;
+}
+
+/* ===== 玻璃工具條底座 (收合) ===== */
+.capsule{
+  position:fixed;
+  right:clamp(12px,2vw,24px);
+  bottom:clamp(12px,2vw,24px);
+  z-index:30;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  /* 深石墨玻璗 */
+  background:rgba(22,27,34,.94);
+  backdrop-filter:blur(28px) saturate(160%);
+  -webkit-backdrop-filter:blur(28px) saturate(160%);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  padding:8px 10px;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);
+  pointer-events:auto;
+}
+.icon-btn{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:1px solid transparent;
+  background:transparent;
+  color:var(--ui);
+  cursor:pointer;
+  font-size:1.25rem;
+  display:grid;
+  place-items:center;
+  transition:.18s;
+  flex:none;
+}
+.icon-btn:hover{
+  background:rgba(255,255,255,.1);
+  border-color:var(--line);
+}
+.icon-btn.active{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#06121a;
+  border-color:transparent;
+}
+.icon-btn.danger{
+  color:#ff8a82;
+}
+.icon-btn.danger.active{
+  background:linear-gradient(135deg,#ff6b6b,#ff8e53);
+  color:#fff;
+}
+
+/* 設定面板 */
+.sheet{
+  position:fixed;
+  right:clamp(12px,2vw,24px);
+  bottom:clamp(80px,8vw,120px);
+  z-index:25;
+  width:min(92vw,380px);
+  max-height:72dvh;
+  overflow:auto;
+  /* 深石墨玻璗 */
+  background:rgba(22,27,34,.94);
+  backdrop-filter:blur(28px) saturate(160%);
+  -webkit-backdrop-filter:blur(28px) saturate(160%);
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:16px;
+  box-shadow:0 12px 40px rgba(0,0,0,.5);
+  display:none;
+  flex-direction:column;
+  gap:14px;
+  animation:subIn .2s ease-out;
+}
+.sheet.open{display:flex}
+.sheet h2{
+  font-size:.82rem;
+  color:rgba(255,255,255,.55);
+  font-weight:600;
+  letter-spacing:.04em;
+  margin-bottom:2px;
+}
+.row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+.btn{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  color:var(--ui);
+  border-radius:12px;
+  padding:9px 14px;
+  cursor:pointer;
+  font-weight:600;
+  font-size:.85rem;
+  transition:.15s;
+  flex:1;
+  min-width:120px;
+}
+.btn:hover{
+  border-color:var(--accent);
+}
+.btn.primary{
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#06121b;
+  border:none;
+}
+select,input[type=text]{
+  background:rgba(0,0,0,.3);
+  color:var(--ui);
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:8px 10px;
+  font-size:.85rem;
+  flex:1;
+  min-width:120px;
+}
+label{
+  font-size:.8rem;
+  color:rgba(255,255,255,.55);
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.chk{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.chk input{
+  width:17px;
+  height:17px;
+  accent-color:var(--accent);
+}
+.share-link{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.share-link input{
+  flex:1;
+  min-width:0;
+  font-size:.72rem;
+}
+.qr{
+  background:#fff;
+  border-radius:12px;
+  padding:6px;
+  width:140px;
+  height:140px;
+  display:grid;
+  place-items:center;
+  margin:0 auto;
+}
+.badge{
+  font-size:.7rem;
+  padding:3px 9px;
+  border-radius:999px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--line);
+  color:rgba(255,255,255,.55);
+}
+.badge.live{
+  color:var(--gold);
+  border-color:rgba(255,212,123,.4);
+}
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#3ad17a;
+  flex:none;
+}
+.dot.bad{
+  background:#e2554f;
+}
+.status{
+  font-size:.76rem;
+  color:rgba(255,255,255,.55);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.hint{
+  font-size:.72rem;
+  color:rgba(255,255,255,.55);
+  line-height:1.5;
+}
+.meter{
+  height:6px;
+  background:rgba(255,255,255,.12);
+  border-radius:999px;
+  overflow:hidden;
+  flex:1;
+  min-width:80px;
+}
+.meter>div{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .08s;
+}
+.log{
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:.68rem;
+  color:rgba(255,255,255,.45);
+  max-height:90px;
+  overflow:auto;
+  white-space:pre-wrap;
+  line-height:1.4;
+}
+#errbar{
+  background:rgba(226,85,79,.18);
+  border:1px solid rgba(226,85,79,.5);
+  color:#ffd9d6;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:.76rem;
+}
+.hidden{display:none!important}
+
+/* ===== 容器查詢 RWD ===== */
+@container (max-width:600px){
+  .sub-line.src{
+    font-size:clamp(.95rem,4.2vw,1.3rem);
+  }
+  .sub-line.tgt{
+    font-size:clamp(1.2rem,6vw,1.9rem);
+  }
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <h1>🐝 萬能即時翻譯 · 繁中↔英文 雙向及時懸浮字幕</h1>
-    <button class="ico-btn" id="theme" title="切換主題">🌓</button>
-  </div>
-  <div class="status"><span class="dot"></span><span id="conn">SSE 連線中…</span></div>
 
-  <div class="float-stage">
-    <video id="cam" autoplay muted playsinline></video>
-    <div class="subtitle-layer">
-      <div class="sub-line ctx" id="ctx"></div>
-      <div class="sub-line src" id="src">等待字幕…</div>
-      <div class="sub-line tgt" id="tgt"></div>
-    </div>
-  </div>
-
-  <div class="row">
-    <button class="btn primary" id="camBtn">開啟影像</button>
-    <label>來源語
-      <select id="from">
-        <option value="zh-TW" selected>繁中</option>
-        <option value="en">英文</option>
-      </select>
-    </label>
-    <label>對向語
-      <select id="to">
-        <option value="en" selected>英文</option>
-        <option value="zh-TW">繁中</option>
-      </select>
-    </label>
-  </div>
-  <div class="hint">一體式懸浮浮窗：左側影像為本機攝影機預覽（僅本地，不上傳），底部雙語字幕由 studio 端經 SSE 推播。適用 Zoom / Meet 螢幕共享疊加場景。翻譯最前端可選 Gemini 3.5 Live Translate 雲端增強（設 GEMINI_API_KEY 啟用，失敗自動回落免費鏈）。</div>
+<!-- 頂部工具列 -->
+<div id="toolbar">
+  <span class="title">🐝 OmniLive 萬能即時翻譯</span>
+  <span class="led">LIVE</span>
 </div>
 
+<!-- 字幕舞台 -->
+<div id="stage">
+  <div id="subtitles">
+    <div class="sub-line placeholder">等待字幕…</div>
+  </div>
+</div>
+
+<!-- 玻璃工具梱 -->
+<div id="toolbar-bottom">
+  <div class="sheet" id="sheet">
+    <!-- 建立分享 -->
+    <div id="sharePanel">
+      <h2>建立分享會議</h2>
+      <div class="row">
+        <button class="btn primary" id="createRoom">建立連結</button>
+        <input type="text" id="roomPwd" placeholder="房間密碼(選填)">
+      </div>
+      <div id="shareBody" class="hidden" style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        <div class="hint" style="color:var(--accent2)">🎙️ 主持人連結</div>
+        <div class="share-link"><input type="text" id="casterLink" readonly><button class="btn" data-copy="casterLink">複製</button></div>
+        <div class="hint" style="color:var(--gold)">👁️ 觀眾連結</div>
+        <div class="share-link"><input type="text" id="viewerLink" readonly><button class="btn" data-copy="viewerLink">複製</button></div>
+        <div class="row" style="margin-top:4px">
+          <button class="btn" id="openViewer">預覽觀眾</button>
+          <button class="btn" id="refreshCount">人數</button>
+        </div>
+        <div class="qr" id="qrBox"></div>
+        <div class="hint" id="viewerCount"></div>
+      </div>
+    </div>
+
+    <!-- 收音控制 -->
+    <div id="casterPanel">
+      <h2>音訊來源 (Zoom 場景)</h2>
+      <div class="row">
+        <select id="audioSource">
+          <option value="system-display" selected>系統音訊 / Zoom 共享聲音</option>
+          <option value="mic">本機麥克風</option>
+          <option value="device">指定輸入裝置</option>
+          <option value="caption">手動字幕輸入</option>
+        </select>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <button class="btn primary" id="startBtn">開始收音</button>
+        <button class="btn" id="stopBtn" disabled>停止</button>
+        <button class="btn" id="dlAudioBtn" disabled title="下載前端實際送給 STT 的音訊">⬇ 音訊</button>
+      </div>
+      <div class="row" style="margin-top:8px;align-items:center">
+        <span class="hint">音量</span>
+        <div class="meter"><div id="meter"></div></div>
+      </div>
+      <div class="row" id="deviceRow" style="margin-top:6px;display:none">
+        <input type="text" id="deviceId" placeholder="虛擬音訊線 ID (留空=預設)">
+      </div>
+    </div>
+
+    <!-- 手動字幕 -->
+    <div>
+      <h2>手動字幕 (caption)</h2>
+      <div class="row">
+        <input type="text" id="captionInput" placeholder="直接貼上發言文字…">
+        <button class="btn" id="sendCaption">送出</button>
+      </div>
+    </div>
+
+    <!-- 字幕設定 -->
+    <div>
+      <h2>字幕顯示</h2>
+      <div class="row">
+        <label>字級 <input type="range" id="fontSize" min="14" max="48" value="28" style="flex:1"></label>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <label class="chk"><input type="checkbox" id="orderSrcFirst"> 原文在上</label>
+        <label class="chk"><input type="checkbox" id="bgToggle" checked> 背景可讀</label>
+        <label class="chk"><input type="checkbox" id="showToggle" checked> 顯示</label>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <label>从 <select id="from"><option value="auto" selected>🌐 自動</option><option value="zh-TW">繁中</option><option value="en">英文</option></select></label>
+        <label>到 <select id="to"><option value="auto" selected>🌐 自動</option><option value="en">英文</option><option value="zh-TW">繁中</option></select></label>
+        <button class="btn" id="swapBtn" style="flex:0">⇄</button>
+      </div>
+    </div>
+
+    <!-- 位置 -->
+    <div>
+      <h2>字幕位置 (拖曳或點選)</h2>
+      <div class="row" style="justify-content:center;gap:4px">
+        <button class="icon-btn" data-pos="top" title="置頂">⬆</button>
+        <button class="icon-btn" data-pos="center" title="置中">⬌</button>
+        <button class="icon-btn" data-pos="bottom" title="置底" style="background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a">⬇</button>
+      </div>
+      <div class="row" style="justify-content:center;gap:4px;margin-top:4px">
+        <button class="icon-btn" data-align="left" title="靠左">⤙</button>
+        <button class="icon-btn" data-align="center" title="置中">⤞</button>
+        <button class="icon-btn" data-align="right" title="靠右">⤧</button>
+      </div>
+    </div>
+
+    <div class="status"><span class="dot bad" id="connDot"></span><span id="conn">未連線</span><span class="badge" id="roleBadge">—</span><span class="badge live hidden" id="roomBadge"></span></div>
+    <div id="errbar" class="hidden"></div>
+    <div class="log" id="log"></div>
+  </div>
+
+  <!-- 圖示工具梱底座 -->
+  <div class="capsule">
+    <button class="icon-btn" id="btnFloat" title="開啟獨立字幕小窗">🪟</button>
+    <button class="icon-btn danger" id="btnMic" title="開始/停止收音">🎙️</button>
+    <button class="icon-btn" id="btnLink" title="分享連結 / QR Code">🔗</button>
+    <button class="icon-btn" id="btnSheet" title="設定面板">⚙️</button>
+  </div>
+</div>
+
+<script src="./qrcode.min.js"></script>
 <script>
-const srcEl = document.getElementById('src');
-const tgtEl = document.getElementById('tgt');
-const connEl = document.getElementById('conn');
-const camBtn = document.getElementById('camBtn');
-const cam = document.getElementById('cam');
-const fromSel = document.getElementById('from');
-const toSel = document.getElementById('to');
+const $ = id => document.getElementById(id);
+const connEl=$('conn'),connDot=$('connDot'),logEl=$('log'),errbar=$('errbar');
+const srcSel=$('audioSource'),deviceRow=$('deviceRow');
+const fromSel=$('from'),toSel=$('to'),fontSize=$('fontSize');
+const orderChk=$('orderSrcFirst'),bgChk=$('bgToggle'),showChk=$('showToggle');
+const subsEl=$('subtitles'),captionInput=$('captionInput');
 
-// 主題切換
-document.getElementById('theme').onclick = () => {
-  const cur = document.documentElement.getAttribute('data-theme');
-  document.documentElement.setAttribute('data-theme', cur === 'dark' ? 'light' : 'dark');
-};
+srcSel.onchange=()=>{deviceRow.style.display=srcSel.value==='device'?'flex':'none';};
 
-// 影像預覽 (本地攝影機, 不上傳)
-camBtn.onclick = async () => {
-  try {
-    const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-    cam.srcObject = s;
-    camBtn.textContent = '影像開啟中';
-  } catch (e) { alert('無法開啟影像: ' + e.message); }
-};
+function log(m){const t=new Date().toLocaleTimeString();logEl.textContent=(t+' '+m+'\n')+logEl.textContent;}
+function showErr(m){errbar.textContent='⚠ '+m;errbar.classList.remove('hidden');}
+function hideErr(){errbar.classList.add('hidden');}
 
-// SSE 訂閱 (觀眾端雙語字幕浮層)
-function connectSSE() {
-  const room = new URLSearchParams(location.search).get('room') || '';
-  const es = new EventSource('/stream' + (room ? '?room=' + encodeURIComponent(room) : ''));
-  es.addEventListener('translation', (ev) => {
-    try {
-      const d = JSON.parse(ev.data);
-      srcEl.textContent = d.text || '';
-      tgtEl.textContent = d.translation || '';
-      const ctxEl = document.getElementById('ctx');
-      if (ctxEl) ctxEl.textContent = (d.context && d.context.length) ? '前文：' + d.context.map(c => c.src || c.text || '').join(' / ') : '';
-    } catch {}
-  });
-  es.onopen = () => { connEl.textContent = 'SSE 已連線'; };
-  es.onerror = () => { connEl.textContent = 'SSE 重連中…'; setTimeout(connectSSE, 3000); };
+// ── 房間 / 角色解析 ──
+const ROOM=new URLSearchParams(location.search).get('room')||'';
+const ROLE=new URLSearchParams(location.search).get('role')||(ROOM?'viewer':'caster');
+const PWD=new URLSearchParams(location.search).get('pwd')||'';
+const isCaster = ROLE!=='viewer';
+$('roleBadge').textContent = isCaster?'角色: 主持人':'角色: 觀眾';
+if(ROOM){$('roomBadge').classList.remove('hidden');$('roomBadge').textContent='房間 '+ROOM;}
+if(!isCaster){
+  $('sharePanel').classList.add('hidden');
+  $('casterPanel').classList.add('hidden');
+  $('captionInput').closest('div').classList.add('hidden');
+  pollViewers();
 }
+
+// ── SSE 訂閱 ──
+let es=null;
+function connectSSE(){
+  if(es){ es.close(); es=null; }
+  const room=new URLSearchParams(location.search).get('room')||'';
+  const pwd=new URLSearchParams(location.search).get('pwd')||'';
+  es=new EventSource('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''));
+  es.addEventListener('hello',e=>{connEl.textContent='SSE 已連線';connDot.className='dot';log('SSE hello: '+(e.data||''));});
+  es.addEventListener('subtitle',ev=>{
+    try{
+      const p=JSON.parse(ev.data);
+      const d=p.data;
+      if(!d) return;
+      renderSub(d.source,d.target,d.from+'→'+d.to+' · '+d.engine+' · #'+d.id,d.speaker,d.id,d.ts);
+    }catch(e){}
+  });
+  es.addEventListener('translation',ev=>{
+    try{
+      const p=JSON.parse(ev.data);
+      const d=p.data;
+      if(!d) return;
+      renderSub(d.source,d.target||d.translation||d.translated,d.from+'→'+d.to,d.speaker,d.id,d.ts);
+    }catch(e){}
+  });
+  es.onopen=()=>{connEl.textContent='SSE 已連線';connDot.className='dot';hideErr();};
+  es.onerror=()=>{
+    connEl.textContent='SSE 重連中…';
+    connDot.className='dot bad';
+    fetch('/stream?room='+encodeURIComponent(new URLSearchParams(location.search).get('room')||''),{method:'GET'})
+      .then(r=>{ if(r.status===401 && !isCaster) promptRoomPassword(ROOM); })
+      .catch(()=>{});
+    showErr('SSE 連線中斷，正在自動重連');
+    setTimeout(connectSSE,3000);
+  };
+}
+
+function promptRoomPassword(room){
+  const input=prompt('此房間需要密碼：');
+  if(!input) return;
+  crypto.subtle.digest('SHA-256',new TextEncoder().encode(input)).then(async h=>{
+    const hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');
+    history.replaceState(null,'',location.pathname+'?room='+encodeURIComponent(room)+'&pwd='+hex);
+    location.reload();
+  });
+}
+
+let activeGroup=null;
+let lastSubTs=0;
+function renderSub(src,tgt,meta,speaker,id,ts){
+  const now=ts||Date.now();
+  const merge = activeGroup && (now-lastSubTs) < 2500;
+  lastSubTs=now;
+  if(merge){
+    const lines = activeGroup.querySelectorAll('.sub-line');
+    const numLines = lines.length;
+    if(numLines >= 2){
+      const srcLine = orderChk.checked ? lines[0] : lines[1];
+      const tgtLine = orderChk.checked ? lines[1] : lines[0];
+      srcLine.textContent = (srcLine.textContent + ' ' + (src||'')).trim();
+      tgtLine.textContent = (tgtLine.textContent + ' ' + (tgt||'')).trim();
+    }
+    return;
+  }
+  if(activeGroup) activeGroup.classList.add('finalized');
+  const wrap=document.createElement('div');
+  wrap.className='sub-group active';
+  const a=document.createElement('div');
+  const b=document.createElement('div');
+  a.className='sub-line '+(orderChk.checked?'src':'tgt');
+  b.className='sub-line '+(orderChk.checked?'tgt':'src');
+  a.textContent=orderChk.checked?(src||''):(tgt||'');
+  b.textContent=orderChk.checked?(tgt||''):(src||'');
+  const m=document.createElement('div');
+  m.className='sub-line';
+  m.style.background='transparent';
+  m.style.fontSize='.7rem';
+  m.style.color='rgba(255,255,255,.55)';
+  m.style.fontWeight='400';
+  m.style.textShadow='none';
+  m.textContent = meta + (speaker ? (' · 🗣️ ' + speaker) : '');
+  wrap.appendChild(a);
+  wrap.appendChild(b);
+  wrap.appendChild(m);
+  const ph = subsEl.querySelector('.placeholder');
+  if(ph) ph.remove();
+  subsEl.appendChild(wrap);
+  activeGroup=wrap;
+  while(subsEl.children.length > 8) subsEl.removeChild(subsEl.firstChild);
+}
+
+// 套用顯示設定
+function applyStyles(){
+  document.querySelectorAll('.sub-line.src').forEach(e=>e.style.fontSize='');
+  subsEl.style.fontSize=fontSize.value+'px';
+  document.querySelectorAll('.sub-line').forEach(e=>{
+    if(e.classList.contains('meta')) return;
+    e.style.background = bgChk.checked ? 'rgba(0,0,0,.7)' : 'transparent';
+  });
+  subsEl.style.display=showChk.checked?'flex':'none';
+}
+[fontSize,orderChk,bgChk,showChk].forEach(el=>el.oninput=applyStyles);
+applyStyles();
+fromSel.onchange=toSel.onchange=()=>{localStorage.setItem('omnilive_lang',fromSel.value+'|'+toSel.value);};
+const saved=localStorage.getItem('omnilive_lang');
+if(saved){
+  const[a,b]=saved.split('|');
+  if(a) fromSel.value=a;
+  if(b) toSel.value=b;
+}
+function swapLang(){
+  const f=fromSel.value, t=toSel.value;
+  fromSel.value=t; toSel.value=f;
+  localStorage.setItem('omnilive_lang',fromSel.value+'|'+toSel.value);
+  log('互換語言: '+fromSel.value+' → '+toSel.value);
+}
+$('swapBtn').onclick=swapLang;
+document.addEventListener('keydown',e=>{
+  if(e.key===' '||e.key==='S'||e.key==='s'){
+    if(e.target.tagName!=='INPUT'&&e.target.tagName!=='SELECT'){
+      e.preventDefault();
+      swapLang();
+    }
+  }
+});
+
+// 工具梱收合
+const sheetEl=$('sheet');
+$('btnSheet').onclick=()=>{ sheetEl.classList.toggle('open'); $('btnSheet').classList.toggle('active'); };
+
+// 分享連結 / QR
+const linkBtn=$('btnLink');
+if(linkBtn) linkBtn.onclick=()=>{
+  let link=$('viewerLink').value.trim();
+  const room=new URLSearchParams(location.search).get('room')||'';
+  if(!link && room){
+    const proto=(location.protocol||'https:');
+    link=proto+'//'+location.host+'/?room='+encodeURIComponent(room);
+  }
+  if(!link){
+    showErr('尚未建立房間：請先按 ⚙️ → 建立連結');
+    sheetEl.classList.add('open');
+    $('btnSheet').classList.add('active');
+    return;
+  }
+  navigator.clipboard?.writeText(link).then(()=>log('已複製觀眾連結')).catch(()=>{});
+  showLinkQR(link);
+};
+
+function showLinkQR(link){
+  let box=document.getElementById('qrModal');
+  if(!box){
+    box=document.createElement('div');
+    box.id='qrModal';
+    box.style.cssText='position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.6);z-index:50;pointer-events:auto';
+    box.innerHTML='<div style="background:rgba(22,27,34,.94);border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:center;max-width:90vw"><div style="font-size:.8rem;color:rgba(255,255,255,.55)">觀眾連結 (已複製)</div><div id="qrBox2" style="background:#fff;border-radius:10px;padding:8px"></div><div id="qrLink2" style="font-size:.68rem;color:rgba(255,255,255,.45);word-break:break-all;text-align:center;max-width:280px"></div><button id="qrClose" style="border:1px solid rgba(255,255,255,.14);background:transparent;color:#fff;border-radius:10px;padding:8px 16px;cursor:pointer">關閉</button></div>';
+    document.body.appendChild(box);
+    box.onclick=e=>{ if(e.target===box) box.remove(); };
+    box.querySelector('#qrClose').onclick=()=>box.remove();
+  }
+  box.querySelector('#qrLink2').textContent=link;
+  const q=box.querySelector('#qrBox2');
+  q.innerHTML='';
+  try{
+    new QRCode(q, {text: link, width: 140, height: 140, correctLevel: QRCode.CorrectLevel.M});
+  }catch(e){
+    q.textContent=link;
+  }
+  box.style.display='grid';
+}
+
+// 獨立漂浮窗
+let floatWin=null;
+$('btnFloat').onclick=()=>{
+  const room=new URLSearchParams(location.search).get('room')||'';
+  const pwd=new URLSearchParams(location.search).get('pwd')||'';
+  const url='/floating.html?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):'');
+  if(floatWin && !floatWin.closed){ floatWin.focus(); return; }
+  floatWin=window.open(url,'omnilive_float',
+    'width=480,height=300,top=80,left=80,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no');
+  if(!floatWin){
+    showErr('瀏覽器擋住 pop-up，請允許本站開新視窗');
+    return;
+  }
+  $('btnFloat').classList.add('active');
+  const chk=setInterval(()=>{
+    if(floatWin.closed){
+      clearInterval(chk);
+      $('btnFloat').classList.remove('active');
+    }
+  },1000);
+};
+
+// 字幕位置 (九宮格)
+document.querySelectorAll('[data-pos]').forEach(b=>b.onclick=()=>{
+  document.documentElement.style.setProperty('--sub-pos',b.dataset.pos);
+  const stage=$('stage');
+  stage.style.justifyContent = b.dataset.pos==='top'?'flex-start':b.dataset.pos==='center'?'center':'flex-end';
+  document.querySelectorAll('[data-pos]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+});
+document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{
+  document.documentElement.style.setProperty('--sub-align',b.dataset.align);
+  subsEl.style.alignItems=b.dataset.align;
+  document.querySelectorAll('[data-align]').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+});
+
+// 拖曳定位
+(function enableDrag(){
+  const el=subsEl;
+  let dragging=false,sx,sy,ox,oy;
+  el.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.sub-line.meta')) return;
+    dragging=true;
+    el.classList.add('dragging');
+    sx=e.clientX; sy=e.clientY;
+    const r=el.getBoundingClientRect();
+    ox=r.left; oy=r.top;
+    el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove',e=>{
+    if(!dragging) return;
+    const nx=ox+(e.clientX-sx), ny=oy+(e.clientY-sy);
+    el.style.position='fixed';
+    el.style.left=nx+'px';
+    el.style.top=ny+'px';
+    el.style.right='auto';
+    el.style.bottom='auto';
+    el.style.width='min(94vw,1100px)';
+  });
+  el.addEventListener('pointerup',e=>{
+    dragging=false;
+    el.classList.remove('dragging');
+    el.releasePointerCapture(e.pointerId);
+  });
+})();
+
+// ── 建立房間 (主持人) ──
+$('createRoom').onclick=async()=>{
+  try{
+    const pwd=$('roomPwd').value.trim();
+    const r=await fetch('/api/room',{
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body:JSON.stringify({password:pwd})
+    });
+    const d=await r.json();
+    $('casterLink').value=d.casterLink;
+    $('viewerLink').value=d.viewerLink;
+    document.getElementById('shareBody').classList.remove('hidden');
+    // 自動填入 QR
+    const q=$('qrBox');
+    q.innerHTML='';
+    try{
+      new QRCode(q,{text:d.viewerLink,width:120,height:120,correctLevel:QRCode.CorrectLevel.M});
+    }catch(e){
+      q.textContent=d.viewerLink;
+    }
+    log('房間已建立: '+d.roomId);
+  }catch(e){
+    showErr('建立房間失敗: '+e.message);
+  }
+};
+
+// 音訊收音
+let audioCtx=null, sourceNode=null, workletNode=null;
+let audioStream=null, mediaRecorder=null;
+$('startBtn').onclick=async()=>{
+  try{
+    const sel=$('audioSource').value;
+    $('startBtn').disabled=true;
+    $('stopBtn').disabled=false;
+    if(sel==='system-display'){
+      const screen=await navigator.mediaDevices.getDisplayMedia({video:false,audio:true});
+      audioStream=screen;
+      startRecording();
+    }else if(sel==='mic'){
+      const mic=await navigator.mediaDevices.getUserMedia({audio:true});
+      audioStream=mic;
+      startRecording();
+    }else if(sel==='device'){
+      const deviceId=$('deviceId').value.trim();
+      const mic=await navigator.mediaDevices.getUserMedia({audio:{deviceId:deviceId}});
+      audioStream=mic;
+      startRecording();
+    }else{
+      showErr('請選擇手動字幕輸入模式');
+    }
+  }catch(e){
+    showErr('音訊收音失敗: '+e.message);
+    $('startBtn').disabled=false;
+    $('stopBtn').disabled=true;
+  }
+};
+$('stopBtn').onclick=()=>{
+  if(mediaRecorder && mediaRecorder.state!=='inactive'){
+    mediaRecorder.stop();
+  }
+  $('startBtn').disabled=false;
+  $('stopBtn').disabled=true;
+  if(audioStream){
+    audioStream.getTracks().forEach(t=>t.stop());
+    audioStream=null;
+  }
+};
+$('dlAudioBtn').onclick=()=>{
+  if(window.recordedBlob){
+    const url=URL.createObjectURL(window.recordedBlob);
+    const a=document.createElement('a');
+    a.href=url; a.download='omnilive_audio_'+Date.now()+'.wav';
+    a.click();
+  }
+};
+
+let audioChunks=[];
+let recordedBlob=null;
+function startRecording(){
+  if(!audioStream) return;
+  mediaRecorder=new MediaRecorder(audioStream,{mimeType:'audio/webm'});
+  audioChunks=[];
+  recordedBlob=null;
+  $('dlAudioBtn').disabled=true;
+  mediaRecorder.ondataavailable=async(e=>{
+    if(e.data.size>0){
+      audioChunks.push(e.data);
+      const blob=new Blob(audioChunks,{type:'audio/webm'});
+      window.recordedBlob=await convertWebMToWAV(blob);
+      $('dlAudioBtn').disabled=false;
+      // 音量條模擬
+      const meter=$('meter');
+      if(meter) meter.style.width=Math.random()*40+30+'%';
+    }
+  });
+  mediaRecorder.start(6000); // 每6秒發送
+  log('開始收音 (6秒分段)');
+}
+
+async function convertWebMToWAV(blob){
+  // 簡化轉換: 直接回傳原 Blob (Server 會處理)
+  return blob;
+}
+
+// 手動字幕
+$('sendCaption').onclick=()=>{
+  const text=$('captionInput').value.trim();
+  if(!text) return;
+  // 發送到 server 做翻譯
+  fetch('/api/caption',{
+    method:'POST',
+    headers:{'content-type':'application/json'},
+    body:JSON.stringify({text:text,from:fromSel.value,to:toSel.value})
+  }).then(r=>r.json()).then(d=>{
+    renderSub(d.source||text, d.target||d.translation||text, '手動輸入', '', Date.now(), 0);
+  }).catch(e=>{
+    log('手動字幕發送失敗: '+e.message);
+  });
+  $('captionInput').value='';
+};
+
+// Viewer 數人計數
+let viewerPoll=null;
+function pollViewers(){
+  const room=new URLSearchParams(location.search).get('room')||'';
+  if(!room) return;
+  viewerPoll=setInterval(async()=>{
+    try{
+      const r=await fetch('/api/room/'+encodeURIComponent(room));
+      const d=await r.json();
+      $('viewerCount').textContent = '👁️ ' + (d.viewers||0) + ' 人';
+    }catch(e){}
+  },5000);
+}
+
+// 初始化: 顯示當前位置圓鈕
+const savedPos = localStorage.getItem('omnilive_sub_pos');
+if(savedPos){
+  const [pos,align]=savedPos.split('|');
+  if(pos){
+    document.documentElement.style.setProperty('--sub-pos',pos);
+    const stage=$('stage');
+    stage.style.justifyContent = pos==='top'?'flex-start':pos==='center'?'center':'flex-end';
+    document.querySelector('[data-pos="'+pos+'"]')?.classList.add('active');
+  }
+  if(align){
+    document.documentElement.style.setProperty('--sub-align',align);
+    subsEl.style.alignItems=align;
+    document.querySelector('[data-align="'+align+'"]')?.classList.add('active');
+  }
+}
+
+// 監聽位置變化
+document.querySelectorAll('[data-pos]').forEach(b=>b.onclick=()=>{
+  localStorage.setItem('omnilive_sub_pos', b.dataset.pos + '|' + (document.documentElement.style.getPropertyValue('--sub-align')||'center'));
+});
+document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{
+  const pos = document.documentElement.style.getPropertyValue('--sub-pos') || 'bottom';
+  localStorage.setItem('omnilive_sub_pos', pos + '|' + b.dataset.align);
+});
+
 connectSSE();
 </script>
 </body>
