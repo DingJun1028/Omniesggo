@@ -9,6 +9,7 @@ import { callLLM } from './llm.js';
 import { OABClient, DualHiveTunnel, OABMessage } from './oab.js';
 import { ETLPipeline } from './incremental.js';
 import type { IVideoGenerationTask, IVideoGenerationResult } from '../types/generated/esggo-shared.js';
+import { EvolutionEngine, EvolutionLesson } from './evolution.js';
 
 /// <reference path="../types/generated/esggo-shared.d.ts" />
 
@@ -39,7 +40,11 @@ export class SwarmCore {
   private tunnel = new DualHiveTunnel();
   private etl = new ETLPipeline();
   private oabSynced = 0;
+  private evolution = new EvolutionEngine();
 
+  constructor() {
+    this.evolution.bootstrap().catch((e) => console.error('[EVOLUTION] bootstrap error', (e as Error).message));
+  }
   getState(): SwarmState {
     return {
       entropy: this.entropy,
@@ -112,6 +117,19 @@ export class SwarmCore {
     };
     if (await this.oab.publish(msg)) this.oabSynced++;
     await this.tunnel.syncToVps(msg);
+
+    // 7. 自我學習 · 無限進化 (從任務萃取經驗 → 熵減反思 → 寫入 TDAI)
+    const entropyBefore = this.entropy;
+    const t0 = (msg.ts);
+    const lesson = this.evolution.extractLesson({
+      task,
+      artifact,
+      latencyMs: Date.now() - t0,
+      entropyBefore,
+      entropyAfter: Math.max(0.01, entropyBefore * 0.97),
+    });
+    this.evolution.reflect(lesson);
+    this.evolution.persist(lesson).catch(() => {});
 
     this.lastPurified = artifact;
     this.tasksDone++;
