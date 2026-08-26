@@ -1,0 +1,50 @@
+{
+  "id": "nextsteps",
+  "name": "Next Steps & Improvement Recommendations",
+  "elementId": "next-steps",
+  "filename": "next-steps-replacement",
+  "priority": "P0",
+  "owner": "T06 Optimization Bee + T05 Risk Bee",
+  "rwdBreakpoints": [
+    "desktop",
+    "tablet",
+    "mobile",
+    "compact"
+  ],
+  "rwdSizes": [
+    {
+      "breakpoint": "desktop",
+      "dimensions": {
+        "width": 1024,
+        "height": 768
+      },
+      "specFile": "next-steps-replacement-desktop.spec.json"
+    },
+    {
+      "breakpoint": "tablet",
+      "dimensions": {
+        "width": 768,
+        "height": 1024
+      },
+      "specFile": "next-steps-replacement-tablet.spec.json"
+    },
+    {
+      "breakpoint": "mobile",
+      "dimensions": {
+        "width": 480,
+        "height": 800
+      },
+      "specFile": "next-steps-replacement-mobile.spec.json"
+    },
+    {
+      "breakpoint": "compact",
+      "dimensions": {
+        "width": 360,
+        "height": 640
+      },
+      "specFile": "next-steps-replacement-compact.spec.json"
+    }
+  ],
+  "fullPreview": "next-steps-replacement-desktop-full.png",
+  "status": "ready-for-generation"
+}
