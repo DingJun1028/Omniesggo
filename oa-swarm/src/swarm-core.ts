@@ -81,10 +81,13 @@ export class SwarmCore {
     const picks = this.dispatch(task);
     const summary = picks.map((a) => `【${a.title}】${a.task}`).join('\n');
 
-    // 3. LLM 本質回應 (VPS Ollama qwen2.5:3b)
+    // 3. LLM 本質回應 (VPS Ollama qwen2.5:3b / 14b, 環境變數驅動)
     let llm;
     try {
-      llm = await callLLM(`${brief}\n協作名單:\n${summary}\n請以蜂后口吻回應 50 字內。`);
+      llm = await callLLM(`${brief}\n協作名單:\n${summary}\n請以蜂后口吻回應 50 字內。`, {
+        model: process.env.OLLAMA_MODEL || 'qwen2.5:3b',
+        baseUrl: process.env.OLLAMA_BASE || 'http://localhost:11434',
+      });
     } catch (e) {
       console.error('[LLM_ERR]', (e as Error).message);
       llm = { text: `[MOCK] 蜂群收到任務：「${task.slice(0, 60)}」。Ollama 未連線。`, model: 'mock', source: 'mock' as const };
