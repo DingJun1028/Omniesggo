@@ -81,7 +81,6 @@ export class OmniOrchestrator {
         version: '1.0.0-audit',
         timestamp: context.timestamp,
         evidence: auditEvidence,
-        hash: `0x${context.traceId.replace(/-/g, '').substring(0, 16)}`,
         hashLock,
         entropyControl: 0.1,
         status: 'dormant'
