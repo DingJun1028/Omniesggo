@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESG Impact Note Placeholders</title>
+  <!-- FTG Brand Colors -->
+  <style>
+    :root {
+      --ftg-green: #3c6e47;
+      --ftg-gold: #c9a24b;
+      --ftg-cream: #f3ede1;
+      --ftg-navy: #10243f;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans TC', sans-serif; background: var(--ftg-cream); }
+    
+    /* Layout containers */
+    .canvas-container { 
+      position: relative; 
+      width: 100vw; 
+      height: 100vh; 
+      overflow: hidden; 
+      background: var(--ftg-cream);
+    }
+    
+    /* Employee Feedback */
+    #employee-feedback {
+      padding: 60px;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      min-height: 100vh;
+    }
+    .feedback-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .feedback-header h1 { color: var(--ftg-navy); font-size: 2.5rem; }
+    .feedback-header p { color: var(--ftg-green); margin-top: 8px; }
+    .feedback-summary {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+    .summary-item {
+      background: white;
+      padding: 15px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: center;
+      border-top: 4px solid var(--ftg-green);
+    }
+    .summary-item .value { font-size: 2rem; font-weight: 700; color: var(--ftg-green); }
+    .summary-item .label { font-size: 0.9rem; color: var(--ftg-navy); }
+    
+    .feedback-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .feedback-card {
+      background: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .feedback-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--ftg-green);
+    }
+    .employee-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--ftg-green), var(--ftg-navy));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .employee-details h3 { color: var(--ftg-navy); font-size: 1.1rem; }
+    .employee-details p { color: #666; font-size: 0.85rem; }
+    .rating {
+      color: #ffd700;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+    .quote {
+      font-style: italic;
+      color: #444;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      margin: 15px 0;
+    }
+    .category {
+      display: inline-block;
+      background: var(--ftg-green);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    /* RWD */
+    @media (max-width: 1024px) {
+      #employee-feedback { padding: 40px; }
+      .feedback-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .feedback-grid { grid-template-columns: 1fr; }
+      .feedback-header h1 { font-size: 2rem; }
+    }
+    @media (max-width: 480px) {
+      #employee-feedback { padding: 20px; }
+      .summary-item { padding: 10px 15px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Page 1: Employee Feedback -->
+  <div id="employee-feedback">
+    <div class="feedback-header">
+      <h1>員工回饋</h1>
+      <p>Employee Feedback &amp; Visual Stories</p>
+    </div>
+    
+    <div class="feedback-summary">
+      <div class="summary-item">
+        <div class="value">96%</div>
+        <div class="label">參與滿意度</div>
+      </div>
+      <div class="summary-item">
+        <div class="value">12/12</div>
+        <div class="label">參與人數回饋率</div>
+      </div>
+      <div class="summary-item">
+        <div class="value">3</div>
+        <div class="label">回饋類別</div>
+      </div>
+    </div>
+    
+    <div class="feedback-grid">
+      <div class="feedback-card">
+        <div class="employee-info">
+          <div class="avatar">JT</div>
+          <div class="employee-details">
+            <h3>張雅婷</h3>
+            <p>運營經理 | ESG 團隊</p>
+          </div>
+        </div>
+        <div class="rating">★★★★★</div>
+        <p class="quote">「參與這次永續之旅不僅讓我了解生態保育的重要性，更感受到團隊凝聚力的提升。看著幼苗長成，每天打卡的樹洞記錄，讓工作和生活找到了平衡點。」</p>
+        <span class="category">社會價值</span>
+      </div>
+      
+      <div class="feedback-card">
+        <div class="employee-info">
+          <div class="avatar">ML</div>
+          <div class="employee-details">
+            <h3>李明</h3>
+            <p>技術專員 | 數據分析部</p>
+          </div>
+        </div>
+        <div class="rating">★★★★★</div>
+        <p class="quote">「看到復育的樹苗生長，每天打卡的樹洞記錄，讓我重新思考如何將永續融入技術工作流程中。非常有意義的體驗。」</p>
+        <span class="category">環境友善</span>
+      </div>
+      
+      <div class="feedback-card">
+        <div class="employee-info">
+          <div class="avatar">SW</div>
+          <div class="employee-details">
+            <h3>王思穎</h3>
+            <p>設計師 | 品牌體驗部</p>
+          </div>
+        </div>
+        <div class="rating">★★★★☆</div>
+        <p class="quote">「現場的按壓植物紀錄，讓我重新思考如何將永續融入設計流程中。收集的素材將用於我們的永續品牌故事說述。」</p>
+        <span class="category">個人成長</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Page 2: Next Steps -->
+  <script>
+    // Dynamically create the next steps and activity info pages
+    // This would be used for PNG capture
+    
+    // Next Steps Page
+    const nextStepsHTML = `
+    <div id="next-steps" style="padding:60px; background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%); min-height:100vh;">
+      <div style="max-width:1200px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:40px;">
+          <h1 style="color:#10243f; font-size:2.5rem;">後續改善與行動建議</h1>
+          <p style="color:#3c6e47; margin-top:8px;">Next Steps & Improvement Recommendations</p>
+        </div>
+        
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:20px; margin-bottom:30px;">
+          <div style="background:#fff; border-radius:12px; padding:15px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+            <div style="font-size:2rem; font-weight:700; color:#3c6e47;">5</div>
+            <div style="font-size:0.9rem; color:#10243f;">總行動項目</div>
+          </div>
+          <div style="background:#fff; border-radius:12px; padding:15px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+            <div style="font-size:2rem; font-weight:700; color:#e74c3c;">1</div>
+            <div style="font-size:0.9rem; color:#10243f;">緊急 (P0)</div>
+          </div>
+          <div style="background:#fff; border-radius:12px; padding:15px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+            <div style="font-size:2rem; font-weight:700; color:#f39c12;">2</div>
+            <div style="font-size:0.9rem; color:#10243f;">高優先 (P1)</div>
+          </div>
+          <div style="background:#fff; border-radius:12px; padding:15px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+            <div style="font-size:2rem; font-weight:700; color:#3498db;">2</div>
+            <div style="font-size:0.9rem; color:#10243f;">中優先 (P2)</div>
+          </div>
+          <div style="background:#fff; border-radius:12px; padding:15px; text-align:center; box-shadow:0 4px 12px rgba(0,0,0,0.08);">
+            <div style="font-size:2rem; font-weight:700; color:#27ae60;">80%</div>
+            <div style="font-size:0.9rem; color:#10243f;">已規劃</div>
+          </div>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; gap:15px;">
+          <!-- P0 -->
+          <div style="background:white; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.1); border-left:4px solid #e74c3c;">
+            <span style="background:#e74c3c; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem;">P0</span>
+            <h3 style="color:#10243f; margin-top:10px;">建立碳足跡追蹤系統</h3>
+            <p style="color:#666; margin:8px 0;">整合 GPS 軌跡數據與環保里程計算 API，提供即時碳排量監控</p>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:0.85rem; color:#888;">
+              <span>👤 擁有者: 編碼蜂 + 測試蜂</span>
+              <span>📅 截止: 2026-10-15</span>
+              <span style="color:#e74c3c;">● 進行中</span>
+            </div>
+          </div>
+          
+          <!-- P1 -->
+          <div style="background:white; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.1); border-left:4px solid #f39c12;">
+            <span style="background:#f39c12; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem;">P1</span>
+            <h3 style="color:#10243f; margin-top:10px;">擴大社區合作網絡</h3>
+            <p style="color:#666; margin:8px 0;">增加 15 個合作社區，涵蓋東南亞 3 國的農村社區</p>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:0.85rem; color:#888;">
+              <span>👤 擁有者: 增長蜂 + 社群蜂</span>
+              <span>📅 截止: 2026-11-30</span>
+              <span style="color:#f39c12;">○ 計劃中</span>
+            </div>
+          </div>
+          
+          <div style="background:white; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.1); border-left:4px solid #f39c12;">
+            <span style="background:#f39c12; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem;">P1</span>
+            <h3 style="color:#10243f; margin-top:10px;">建立員工永續績效指標</h3>
+            <p style="color:#666; margin:8px 0;">將 ESG 參與率與永續行動整入 KPI 評估框架</p>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:0.85rem; color:#888;">
+              <span>👤 擁有者: 商業分析蜂 + 質控蜂</span>
+              <span>📅 截止: 2026-10-31</span>
+              <span style="color:#f39c12;">○ 計劃中</span>
+            </div>
+          </div>
+          
+          <!-- P2 -->
+          <div style="background:white; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.1); border-left:4px solid #3498db;">
+            <span style="background:#3498db; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem;">P2</span>
+            <h3 style="color:#10243f; margin-top:10px;">開發永續旅行手機應用程式</h3>
+            <p style="color:#666; margin:8px 0;">提供離線地圖、碳足跡計算、社區故事分享功能</p>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:0.85rem; color:#888;">
+              <span>👤 擁有者: 編碼蜂 + 設計蜂</span>
+              <span>📅 截止: 2027-01-15</span>
+              <span style="color:#3498db;">○ 積壖中</span>
+            </div>
+          </div>
+          
+          <div style="background:white; border-radius:16px; padding:20px; box-shadow:0 4px 16px rgba(0,0,0,0.1); border-left:4px solid #3498db;">
+            <span style="background:#3498db; color:white; padding:4px 12px; border-radius:20px; font-size:0.8rem;">P2</span>
+            <h3 style="color:#10243f; margin-top:10px;">建立永續攝影文化手冊</h3>
+            <p style="color:#666; margin:8px 0;">定義永續旅拍拍攝規範與故事脈絡模板</p>
+            <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:0.85rem; color:#888;">
+              <span>👤 擁有者: 動畫蜂 + 文案蜂</span>
+              <span>📅 截止: 2026-12-15</span>
+              <span style="color:#3498db;">○ 積壖中</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+    
+    // Activity Info Page
+    const activityInfoHTML = `
+    <div id="activity-info" style="padding:60px; background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%); min-height:100vh;">
+      <div style="max-width:1200px; margin:0 auto;">
+        <div style="text-align:center; margin-bottom:40px;">
+          <h1 style="color:#10243f; font-size:2.5rem;">活動基本資訊與行程摘要</h1>
+          <p style="color:#3c6e47; margin-top:8px;">Activity Information & Itinerary Summary</p>
+        </div>
+        
+        <div style="background:white; border-radius:16px; padding:30px; box-shadow:0 4px 16px rgba(0,0,0,0.1); margin-bottom:30px;">
+          <h2 style="color:#3c6e47; margin-bottom:20px; font-size:1.5rem;">ESG 深耕系列: 山林復育之旅</h2>
+          <p style="color:#10243f; font-size:1.2rem; margin-bottom:20px;">ESG Deep Farming Series: Mountain Forest Restoration Journey</p>
+          
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:15px;">
+            <div style="background:rgba(60,110,71,0.1); padding:15px; border-radius:12px;">
+              <strong style="color:#10243f;">📅 日期</strong>
+              <div style="color:#666; font-size:0.9rem; margin-top:5px;">2026 年 8 月 15 日 (週六) 09:00–17:00</div>
+            </div>
+            <div style="background:rgba(60,110,71,0.1); padding:15px; border-radius:12px;">
+              <strong style="color:#10243f;">📍 地點</strong>
+              <div style="color:#666; font-size:0.9rem; margin-top:5px;">花蓮縣秀林鄉森林復育站</div>
+              <div style="color:#666; font-size:0.8rem;">(32.2158°N, 120.7854°E)</div>
+            </div>
+            <div style="background:rgba(60,110,71,0.1); padding:15px; border-radius:12px;">
+              <strong style="color:#10243f;">👥 參與者</strong>
+              <div style="color:#666; font-size:0.9rem; margin-top:5px;">12 人 (8 員工 + 4 社區夥伴)</div>
+              <div style="color:#666; font-size:0.8rem;">難度: 中等 (步行 3km)</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style="background:white; border-radius:16px; padding:30px; box-shadow:0 4px 16px rgba(0,0,0,0.1);">
+          <h2 style="color:#3c6e47; margin-bottom:20px; font-size:1.5rem;">行程時間表</h2>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; gap:15px; padding:12px; background:rgba(201,162,75,0.1); border-radius:12px;">
+              <span style="background:#c9a24b; color:white; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:600;">09:00</span>
+              <div><strong>集合與安全說明</strong><br><span style="color:#666; font-size:0.85rem;">森林復育站大廳</span></div>
+            </div>
+            <div style="display:flex; gap:15px; padding:12px; background:rgba(60,110,71,0.1); border-radius:12px;">
+              <span style="background:#3c6e47; color:white; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:600;">09:30</span>
+              <div><strong>樹苗種植與議裰架設</strong><br><span style="color:#666; font-size:0.85rem;">A 區復育林 (150 棵)</span></div>
+            </div>
+            <div style="display:flex; gap:15px; padding:12px; background:rgba(201,162,75,0.1); border-radius:12px;">
+              <span style="background:#c9a24b; color:white; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:600;">12:00</span>
+              <div><strong>永續餐會</strong><br><span style="color:#666; font-size:0.85rem;">現地農家料理</span></div>
+            </div>
+            <div style="display:flex; gap:15px; padding:12px; background:rgba(60,110,71,0.1); border-radius:12px;">
+              <span style="background:#3c6e47; color:white; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:600;">15:00</span>
+              <div><strong>數據記錄與回饋討論</strong><br><span style="color:#666; font-size:0.85rem;">森林數據中心</span></div>
+            </div>
+          </div>
+          
+          <div style="margin-top:25px; display:flex; justify-content:space-around; text-align:center;">
+            <div style="text-align:center;">
+              <div style="font-size:1.5rem; font-weight:700; color:#3c6e47;">150</div>
+              <div style="color:#666; font-size:0.85rem;">棵樹苗種植</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:1.5rem; font-weight:700; color:#3c6e47;">100%</div>
+              <div style="color:#666; font-size:0.85rem;">參與回饋率</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:1.5rem; font-weight:700; color:#3c6e47;">3 年</div>
+              <div style="color:#666; font-size:0.85rem;">碳吸存預計值</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    `;
+    
+    // Append other pages
+    document.body.insertAdjacentHTML('beforeend', nextStepsHTML + activityInfoHTML);
+  </script>
+</body>
+</html>
