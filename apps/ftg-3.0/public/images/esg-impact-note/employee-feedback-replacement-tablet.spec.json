@@ -1,0 +1,19 @@
+{
+  "id": "feedback",
+  "name": "Employee Feedback & Visual Stories",
+  "elementId": "employee-feedback",
+  "filename": "employee-feedback-replacement-tablet.png",
+  "breakpoint": "tablet",
+  "dimensions": "768x1024",
+  "priority": "P1",
+  "owner": "T17 Market Bee + T30 Quality Control Bee",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#employee-feedback",
+  "rwdGuidelines": {
+    "layout": "2-column",
+    "fontSize": "medium",
+    "elements": "full-content"
+  },
+  "generatedAt": "2026-08-26T01:57:24.275Z",
+  "status": "spec-ready"
+}
