@@ -3,7 +3,7 @@
  * Trackable: 命中率增量 | Tangible: 用戶回饋
  * Transparent: 日誌增量 | Trustworthy: 快取驗證
  */
-import { hashLock } from './stream-buffer';
+import { hashLock } from './stream-buffer.js';
 
 interface CachedItem {
   data: unknown;

@@ -349,3 +349,6 @@ watchdog_*.log
 
 # OmniFactory 本地設施配置 (含 Vault ID, 不進版本控制)
 apps/omni-factory/.obsidian-config.json
+
+# 封存區 (archive-protocol: 不可入 git)
+/archive/
