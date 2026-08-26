@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ESG 旅程回饋 | ESG Journey Feedback</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green: #3c6e47;
+      --gold: #c9a24b;
+      --cream: #f3ede1;
+      --ink: #10243f;
+      --ink-soft: #2b3a4f;
+      --paper: #fbf8f2;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Noto Sans TC", sans-serif;
+      background: var(--paper);
+      color: var(--ink-soft);
+      line-height: 1.7;
+    }
+    .feedback-form {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      background: white;
+      border-radius: 18px;
+      box-shadow: 0 10px 40px rgba(16, 36, 63, 0.1);
+    }
+    .form-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .form-header h1 {
+      color: var(--ink);
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    .form-header p {
+      color: var(--ink-soft);
+      font-size: 1rem;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid rgba(16, 36, 63, 0.1);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 1rem;
+    }
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+    .rating-stars {
+      display: flex;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .rating-stars input {
+      display: none;
+    }
+    .rating-stars label {
+      font-size: 24px;
+      color: #ddd;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+      color: var(--gold);
+    }
+    .form-actions {
+      display: flex;
+      gap: 16px;
+      margin-top: 30px;
+    }
+    .btn {
+      flex: 1;
+      padding: 14px 24px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn-primary {
+      background: var(--green);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2a3d29;
+      transform: translateY(-2px);
+    }
+    .btn-reset {
+      background: var(--cream);
+      color: var(--ink);
+      border: 1px solid rgba(16, 36, 63, 0.1);
+    }
+    .btn-reset:hover {
+      background: #e8e0d5;
+    }
+    @media (max-width: 480px) {
+      .feedback-form {
+        padding: 20px;
+        margin: 10px;
+      }
+      .form-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <form class="feedback-form" id="esgFeedbackForm" action="https://ftg-api.esggo.co/feedback" method="POST">
+    <div class="form-header">
+      <h1 data-zh="ESG 旅程回饋" data-en="ESG Journey Feedback">ESG 旅程回饋</h1>
+      <p data-zh="您的意見是我們持續進步的動力" data-en="Your feedback drives our continuous improvement">您的意見是我們持續進步的動力</p>
+    </div>
+    
+    <div class="form-group">
+      <label for="name" data-zh="姓名 / Name" data-en="Name">姓名 / Name</label>
+      <input type="text" id="name" name="name" required placeholder="如：林小趣 / Lin Hsin-Yi">
+    </div>
+    
+    <div class="form-group">
+      <label for="email" data-zh="電子郵件 / Email" data-en="Email">電子郵件 / Email</label>
+      <input type="email" id="email" name="email" required placeholder="you@example.com">
+    </div>
+    
+    <div class="form-group">
+      <label for="tripDate" data-zh="旅程日期 / Date" data-en="Date">旅程日期 / Date</label>
+      <input type="date" id="tripDate" name="tripDate" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="overallRating" data-zh="整體體驗評分 (5 星最高)" data-en="Overall Experience (5 stars max)">整體體驗評分 (5 星最高) ★</label>
+      <div class="rating-stars">
+        <input type="radio" id="star5" name="rating" value="5" required>
+        <label for="star5" title="5 星">★</label>
+        <input type="radio" id="star4" name="rating" value="4">
+        <label for="star4" title="4 星">★</label>
+        <input type="radio" id="star3" name="rating" value="3">
+        <label for="star3" title="3 星">★</label>
+        <input type="radio" id="star2" name="rating" value="2">
+        <label for="star2" title="2 星">★</label>
+        <input type="radio" id="star1" name="rating" value="1">
+        <label for="star1" title="1 星">★</label>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="esgImpact" data-zh="ESG 影響感受" data-en="ESG Impact Feeling">ESG 影響感受</label>
+      <select id="esgImpact" name="esgImpact" required>
+        <option value="">請選擇 / Select</option>
+        <option value="high" data-zh="非常顯著" data-en="Very Significant">非常顯著</option>
+        <option value="medium" data-zh="有所感受" data-en="Noticeable">有所感受</option>
+        <option value="low" data-zh="待加強" data-en="Needs Improvement">待加強</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="feedback" data-zh="詳細回饋 / Detailed Feedback" data-en="Detailed Feedback">詳細回饋 / Detailed Feedback</label>
+      <textarea id="feedback" name="feedback" required placeholder="請分享您的ESG旅程體驗、感想和建議..." rows="6"></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="recommend" data-zh="推薦好友 / Recommend Friends" data-en="Recommend Friends">
+        <input type="checkbox" id="recommend" name="recommend" value="yes"> 我會推薦好友參加 (I would recommend friends)
+      </label>
+    </div>
+    
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" data-zh="提交回饋" data-en="Submit Feedback">提交回饋</button>
+      <button type="reset" class="btn btn-reset" data-zh="清空" data-en="Reset">清空</button>
+    </div>
+    
+    <input type="hidden" name="timestamp" value="">
+    <input type="hidden" name="source" value="esg-impact-note">
+  </form>
+  
+  <script>
+    document.getElementById('tripDate').valueAsDate = new Date();
+    
+    document.getElementById('esgFeedbackForm').addEventListener('submit', function(e) {
+      document.querySelector('input[name="timestamp"]').value = new Date().toISOString();
+      
+      alert('感謝您的回饋！ Thank you for your feedback!');
+    });
+    
+    document.getElementById('esgFeedbackForm').addEventListener('reset', function() {
+      document.querySelectorAll('.rating-stars input').forEach(i => i.checked = false);
+    });
+  </script>
+</body>
+</html>
