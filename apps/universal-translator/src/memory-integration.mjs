@@ -8,8 +8,6 @@
 // 圓通: 記憶 ↔ 字幕 ↔ 音訊 ↔ RWD 配置 四向同步
 // ============================================================
 
-import { FLOAT_CANONICAL } from '../shared/float-matrix.mjs';
-
 /**
  * 記憶層 API 客戶端
  * TDAI Gateway: http://tdai-memory-gateway:8420
@@ -41,5 +39,81 @@ export async function storeSubtitleAsMemory(subtitle, roomId, role = 'caster') {
     rwd_breakpoint: subtitle.rwd_breakpoint || 'desktop',
   };
 
+  // 無礪: 非阻塞記憶寫入, 失敗不影響主流程
   try {
-    const res...[truncated]
+    const res = await fetch(`${MEMORY_GATEWAY}/v1/memory`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${MEMORY_TOKEN}`,
+      },
+      body: JSON.stringify(memory),
+      signal: AbortSignal.timeout(3000), // 3 秒超時
+    });
+
+    if (!res.ok) {
+      // 深貫廣通: 失敗不阻斷主流程, 記錄日誌
+      return null;
+    }
+
+    const data = await res.json();
+    return data.memory_id || data.id || null;
+  } catch (err) {
+    // 無礪: 記憶寫入失敗不影響翻譯流程
+    return null;
+  }
+}
+
+/**
+ * 廣通: 從共享記憶檢索上下文 (供翻譯前文增強)
+ */
+export async function retrieveMemoryContext(roomId, limit = 5) {
+  if (!roomId) return [];
+
+  try {
+    const res = await fetch(`${MEMORY_GATEWAY}/v1/memory/query`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${MEMORY_TOKEN}`,
+      },
+      body: JSON.stringify({
+        filter: { room_id: roomId },
+        sort: { created_at: -1 },
+        limit,
+      }),
+      signal: AbortSignal.timeout(3000),
+    });
+
+    if (!res.ok) return [];
+
+    const data = await res.json();
+    return Array.isArray(data.results) ? data.results : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+/**
+ * 圓通: 同步 5T 驗算結果到共享記憶
+ */
+export async function storeFiveTResult(hashLock, score, details) {
+  try {
+    await fetch(`${MEMORY_GATEWAY}/v1/memory`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${MEMORY_TOKEN}`,
+      },
+      body: JSON.stringify({
+        source_origin: '5t-verification',
+        type: 'five_t_result',
+        data: { hashLock, score, details },
+        created_at: Date.now(),
+      }),
+      signal: AbortSignal.timeout(3000),
+    });
+  } catch {
+    // 無礪: 失敗不影響
+  }
+}
