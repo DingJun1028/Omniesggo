@@ -17,7 +17,22 @@ const MEMORY_GATEWAY = process.env.MEMORY_CORE_GATEWAY_URL || 'http://localhost:
 const MEMORY_TOKEN = process.env.MEMORY_CORE_GATEWAY_API_KEY || 'local';
 
 /**
+ * 字幕記憶輸入契約 (深貫: 對齊 SSE 廣播事件實際可得欄位)
+ * @typedef {object} SubtitleMemoryInput
+ * @property {string} text 原文字幕
+ * @property {string} [translation] 譯文 (多語時以 ' / ' 併接)
+ * @property {string} [source_origin] Traceable 來源標記
+ * @property {string} [lang_from] 來源語碼
+ * @property {string} [lang_to] 目標語碼
+ * @property {string} [rwd_breakpoint] 圓通: RWD 斷點
+ */
+
+/**
  * 深貫: 將字幕行存為共享記憶 (Traceable provenance)
+ * @param {SubtitleMemoryInput} subtitle
+ * @param {string} roomId
+ * @param {'caster'|'viewer'} [role]
+ * @returns {Promise<string|null>}
  */
 export async function storeSubtitleAsMemory(subtitle, roomId, role = 'caster') {
   if (!subtitle || !subtitle.text) return null;
@@ -66,6 +81,9 @@ export async function storeSubtitleAsMemory(subtitle, roomId, role = 'caster') {
 
 /**
  * 廣通: 從共享記憶檢索上下文 (供翻譯前文增強)
+ * @param {string} roomId
+ * @param {number} [limit]
+ * @returns {Promise<Array<Record<string, unknown>>>}
  */
 export async function retrieveMemoryContext(roomId, limit = 5) {
   if (!roomId) return [];
@@ -96,6 +114,10 @@ export async function retrieveMemoryContext(roomId, limit = 5) {
 
 /**
  * 圓通: 同步 5T 驗算結果到共享記憶
+ * @param {string} hashLock
+ * @param {number} score
+ * @param {unknown} [details]
+ * @returns {Promise<void>}
  */
 export async function storeFiveTResult(hashLock, score, details) {
   try {

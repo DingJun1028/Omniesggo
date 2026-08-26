@@ -47,16 +47,22 @@ const floatOk = runGate(
   'node', ['scripts/verify-float-matrix.mjs'], path.join(root, 'apps/universal-translator')
 );
 
-// 一致性比對: 兩套終始矩陣必須共用同一套 5T 守門 (全綠)
-const allPass = gapOk && floatOk;
+// 3. Learning-Center 消費端終始矩陣 (consumer 契約完整性 + 72 重放)
+const lcOk = runGate(
+  'Learning-Center 消費端終始矩陣',
+  'node', ['scripts/verify-matrix.mjs'], path.join(root, 'apps/learning-center')
+);
+
+// 一致性比對: 三套終始矩陣必須共用同一套 5T 守門 (全綠)
+const allPass = gapOk && floatOk && lcOk;
 
 console.log('\n══════════════════════════════════════════');
 if (allPass) {
-  console.log(`${GREEN}✅ 終始矩陣統一驗證閘: 缺口補齊(72) + Float(5柱) 全數通過 — 雙向同步拓撲一致, 5T 同一套守門${RESET}`);
+  console.log(`${GREEN}✅ 終始矩陣統一驗證閘: 缺口補齊(72) + Float(5柱) + Learning-Center(消費端) 全數通過 — 雙向同步拓撲一致, 5T 同一套守門${RESET}`);
   console.log('═'.repeat(40));
   process.exit(0);
 } else {
-  console.log(`${RED}❌ 終始矩陣統一驗證閘: 有矩陣未通過 (缺口補齊=${gapOk}, Float=${floatOk}) — 不得宣稱通過${RESET}`);
+  console.log(`${RED}❌ 終始矩陣統一驗證閘: 有矩陣未通過 (缺口補齊=${gapOk}, Float=${floatOk}, Learning-Center=${lcOk}) — 不得宣稱通過${RESET}`);
   console.log('═'.repeat(40));
   process.exit(1);
 }
