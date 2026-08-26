@@ -3,7 +3,7 @@
  * Trustworthy: HMAC 認證 | Trackable: 速率限制增量
  * Transparent: 訪問日誌 | Tangible: 分頁返回
  */
-import { hashLock } from './stream-buffer';
+import { hashLock } from './stream-buffer.js';
 
 export interface APIRequest {
   clientId: string;
