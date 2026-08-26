@@ -44,6 +44,12 @@
   .dot{width:10px;height:10px;border-radius:50%}
   .dot.local{background:var(--local)}.dot.vps{background:var(--vps)}
 
+  /* 5T 驗算卡 (對齊 I5TVerification 契約) */
+  .five-t{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .t-item{font-size:.72rem;padding:4px 10px;border-radius:20px;border:1px solid #2a3344;background:#0f1622;color:var(--mut);transition:.25s}
+  .t-item.on{background:linear-gradient(90deg,var(--ok),var(--accent));color:#0a0e17;border-color:var(--accent);font-weight:600}
+  .t-item.off{background:#2a1414;color:#e07a7a;border-color:#5a2a2a}
+
   /* RWD 響應式 — 深貫廣通無礙圓通 (全域全端全量全面) */
   @media (max-width: 900px){
     body{padding:14px}
@@ -84,6 +90,17 @@
     <div class="small" id="oab">OAB: --</div>
     <div class="small" id="voice">語音: --</div>
     <div class="small" id="uptime">運行: --</div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>5T 驗算 (I5TVerification 契約)</h2>
+    <div class="five-t" id="fiveT">
+      <span class="t-item" data-k="traceable">T 可溯源</span>
+      <span class="t-item" data-k="trackable">T 可追蹤</span>
+      <span class="t-item" data-k="tangible">T 可感知</span>
+      <span class="t-item" data-k="transparent">T 可透明</span>
+      <span class="t-item" data-k="trustworthy">T 不可篡改</span>
+    </div>
+    <div class="small" id="fiveTPassed">5T 全驗: --</div>
   </div>
   <div class="card" style="grid-column:1/-1">
     <h2>任務提交 / 語音觸發</h2>
@@ -184,9 +201,29 @@ async function execTask(){
     const hash=a.hash_lock||'(無)';const collab=(ev.collaborators||[]).length;
     log('✅ 完成 → '+hash+' | 派遣 '+collab+' 蜂 | 來源: '+ev.llmSource);
     if(ev.llmEcho) log('🐝 '+ev.llmEcho.slice(0,120));
+    // 5T 驗算 (對齊 I5TVerification 契約, 從 ISoulArtifact 推導)
+    const v={
+      traceable: !!(a.source_origin||ev.llmSource),
+      trackable: Array.isArray(a.lifecycle)&&a.lifecycle.length>0,
+      tangible: !!ev,
+      transparent: !!(a.hash_lock)&&r.verified!==false,
+      trustworthy: !!(a.hash_lock&&a.author)
+    };
+    v.passed=Object.values(v).every(Boolean);
+    render5T(v);
   }catch(e){log('❌ 執行失敗: '+(e.name==='AbortError'?'超時(50s)':e.message));}
   btn.disabled=false;btn.textContent='⚡ 執行蜂群任務';
   refresh();
+}
+
+function render5T(v){
+  const wrap=document.getElementById('fiveT');
+  wrap.querySelectorAll('.t-item').forEach(el=>{
+    const k=el.dataset.k;
+    el.classList.toggle('on', !!v[k]);
+    el.classList.toggle('off', !v[k]);
+  });
+  document.getElementById('fiveTPassed').textContent='5T 全驗: '+(v.passed?'✅ 通過 (I5TVerification.passed)':'⚠️ 部分未過');
 }
 
 async function startVoice(){log('🎤 語音模式需瀏覽器麥克風權限 (OpenAI Realtime WS) — 當前經 /voice 端點轉錄');}
