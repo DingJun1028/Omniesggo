@@ -191,6 +191,8 @@
     
     <input type="hidden" name="timestamp" value="">
     <input type="hidden" name="source" value="esg-impact-note">
+    <!-- 5T Traceability Hash -->
+    <input type="hidden" name="data-hash" id="dataHash" value="">
   </form>
   
   <script>
@@ -198,6 +200,11 @@
     
     document.getElementById('esgFeedbackForm').addEventListener('submit', function(e) {
       document.querySelector('input[name="timestamp"]').value = new Date().toISOString();
+      
+      // Generate 5T traceability hash
+      const formData = new FormData(this);
+      const hashContent = JSON.stringify(Object.fromEntries(formData.entries()));
+      document.getElementById('dataHash').value = btoa(hashContent).substring(0, 32);
       
       alert('感謝您的回饋！ Thank you for your feedback!');
     });
