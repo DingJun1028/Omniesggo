@@ -157,11 +157,13 @@ export class EvolutionEngine {
 
   /** 持久化: 寫入 TDAI (跨晝夜/跨重啟不丟) + 本地 JSONL (可驗證證據) */
   async persist(lesson: EvolutionLesson): Promise<boolean> {
-    // 1. 本地 JSONL (5T Traceable + 可驗證)
+    // 1. 本地 JSONL (5T Traceable + 可驗證) — 絕對路徑避免 cwd 解析歧義
     try {
-      const fs = await import('node:fs/promises');
+      const { appendFile } = await import('node:fs/promises');
+      const { resolve } = await import('node:path');
+      const logPath = resolve(process.cwd(), 'evolution-log.jsonl');
       const line = JSON.stringify({ ...lesson, _content: undefined }) + '\n';
-      await fs.appendFile('evolution-log.jsonl', line);
+      await appendFile(logPath, line);
     } catch (e) {
       console.error('[EVOLUTION] local log failed', (e as Error).message);
     }
