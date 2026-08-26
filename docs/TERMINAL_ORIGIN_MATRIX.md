@@ -21,13 +21,14 @@
  .d.ts            esggo-shared.d.ts esggo-shared.d.ts
 ```
 
-## 二、已建置的三套終始矩陣
+## 二、已建置的四套終始矩陣
 
 | # | 矩陣 | canonical | consumer | 自有 verify 閘 | 不變式 |
 |---|------|-----------|----------|----------------|--------|
 | 1 | **缺口補齊** (Gap Remediation) | `shared/types.ts` + `shared/gap-matrix.ts` | `types/`, `apps/*/types/generated/esggo-shared.d.ts` | `scripts/verify_gap_matrix.ts` (tsx) | 30 成員 / 10 陣列對 / 60 基礎 / 12 樞紐 / **72 全量** / 30·30 觸達 |
 | 2 | **OmniLive Float** (漂浮窗 RWD) | `apps/universal-translator/types/float-matrix.ts` + `shared/float-matrix.mjs` | `public/float.html` (CSS `:root` 變數) | `apps/universal-translator/scripts/verify-float-matrix.mjs` | 5 柱 (RWD×字幕×音訊×房間×分享) / 19 CSS 變數 / 4 斷點 / SHA-256 Hash Lock |
 | 3 | **Learning-Center** (消費端) | 同 #1 canonical | `apps/learning-center/types/generated/esggo-shared.d.ts` | `apps/learning-center/scripts/verify-matrix.mjs` | consumer 契約完整性 + 重放 #1 的 72 不變式 |
+| 4 | **OA-Swarm 雙蜂** (60 員) | `oa-swarm/src/soul-matrix-60.ts` + `shared/types.ts` (OA 型別) | `oa-swarm/types/generated/esggo-shared.d.ts` | `oa-swarm/scripts/verify-oa-gap.mjs` | OA 型別 canonical↔consumer 同步 / 五陣列 MECE 10 對 / 雙蜂 60 員觸達 / 5T 協定 purify+verifyZeroHallucination |
 
 ## 三、統一驗證閘 (Unified Gate)
 
@@ -40,6 +41,7 @@
   1. `verify_gap_matrix.ts` → 缺口補齊 72
   2. `verify-float-matrix.mjs` → OmniLive Float 5 柱
   3. `verify-matrix.mjs` (learning-center) → consumer 契約 + 72 重放
+  4. `verify-oa-gap.mjs` (oa-swarm) → 雙蜂 60 員 + 五陣列 MECE + 5T 協定
 
 ## 四、5T 對應表
 
