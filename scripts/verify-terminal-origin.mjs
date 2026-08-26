@@ -59,16 +59,22 @@ const oaOk = runGate(
   'node', ['scripts/verify-oa-gap.mjs'], path.join(root, 'oa-swarm')
 );
 
-// 一致性比對: 四套終始矩陣必須共用同一套 5T 守門 (全綠)
-const allPass = gapOk && floatOk && lcOk && oaOk;
+// 5. 增量輸出優化引擎 (soul.md §12 / §15.5: 增量 delta + Hash Lock + 5T 閘)
+const incrOk = runGate(
+  '增量輸出優化引擎 (§12/§15.5)',
+  'npx', ['tsx', 'scripts/verify-incremental.mjs'], root
+);
+
+// 一致性比對: 五套終始矩陣必須共用同一套 5T 守門 (全綠)
+const allPass = gapOk && floatOk && lcOk && oaOk && incrOk;
 
 console.log('\n══════════════════════════════════════════');
 if (allPass) {
-  console.log(`${GREEN}✅ 終始矩陣統一驗證閘: 缺口補齊(72) + Float(5柱) + Learning-Center(消費端) + OA-Swarm(雙蜂60) 全數通過 — 雙向同步拓撲一致, 5T 同一套守門${RESET}`);
+  console.log(`${GREEN}✅ 終始矩陣統一驗證閘: 缺口補齊(72) + Float(5柱) + Learning-Center(消費端) + OA-Swarm(雙蜂60) + 增量輸出(§12) 全數通過 — 雙向同步拓撲一致, 5T 同一套守門${RESET}`);
   console.log('═'.repeat(40));
   process.exit(0);
 } else {
-  console.log(`${RED}❌ 終始矩陣統一驗證閘: 有矩陣未通過 (缺口補齊=${gapOk}, Float=${floatOk}, Learning-Center=${lcOk}, OA-Swarm=${oaOk}) — 不得宣稱通過${RESET}`);
+  console.log(`${RED}❌ 終始矩陣統一驗證閘: 有矩陣未通過 (缺口補齊=${gapOk}, Float=${floatOk}, Learning-Center=${lcOk}, OA-Swarm=${oaOk}, 增量輸出=${incrOk}) — 不得宣稱通過${RESET}`);
   console.log('═'.repeat(40));
   process.exit(1);
 }

@@ -29,6 +29,7 @@ access: public-research
 - [[GapRemediation]] — 缺口補齊 72 配對（單一真相源派生 30/10/60/12/72）
 - [[FloatMatrix]] — OmniLive 漂浮窗 RWD 五柱（19 CSS 變數 / SHA-256）
 - [[OA60Matrix]] — OA-Swarm 雙蜂 60 員（五陣列 MECE / 5T 協定）
+- [[IncrementalOutput]] — 增量輸出優化引擎（§12/§15.5：delta + Hash Lock + 5T 閘）
 
 ## 進階項目（已落地）
 - [[BDAgenticEvicence]] — Agentic Twin Ollama + Evidence MinIO
