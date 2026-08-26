@@ -6,8 +6,10 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, '..', '..', 'esggo', 'shared', 'types.ts');
+const ROOT = path.resolve(__dirname, '..'); // esggo/oa-swarm
+// 穩健解析 canonical: ROOT 上透一層即 repo 根 (esggo), 再 shared/types.ts
+// (原寫法 ROOT/../../esggo/shared 依賴目錄巧合, 搬目錄即壞)
+const SRC = path.resolve(ROOT, '..', 'shared', 'types.ts');
 const DEST = path.join(ROOT, 'types', 'generated', 'esggo-shared.d.ts');
 
 let fail = 0;
