@@ -260,6 +260,12 @@ const server = http.createServer(async (req, res) => {
     else if (urlPath === '/player' || urlPath === '/player.html') file = '/player.html';
     else if (/^\/(qrcode\.min\.js|esggo-shared\.d\.ts)$/.test(urlPath)) { file = urlPath; ctype = 'application/javascript; charset=utf-8'; }
     else if (urlPath.endsWith('.html') && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) file = urlPath;
+    // 深貫廣通: 圖片榮 (Image Gallery) 路由
+    else if (urlPath === '/gallery' || urlPath === '/gallery.json' || urlPath === '/omni-gallery/index.json') {
+      file = '/omni-gallery/index.json'; ctype = 'application/json; charset=utf-8';
+    }
+    else if (/^\/omni-gallery\/.+\.png$/i.test(urlPath) && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) { file = urlPath; ctype = 'image/png'; }
+    else if (/^\/omni-gallery\/.+\.jpg$/i.test(urlPath) && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) { file = urlPath; ctype = 'image/jpeg'; }
     if (file) {
       const fp = path.join(PUBLIC_DIR, file);
       if (fs.existsSync(fp)) {
