@@ -46,8 +46,9 @@ export class OABClient {
 
   async publish(msg: OABMessage): Promise<boolean> {
     try {
-      const content = (msg.payload as Record<string, unknown>)._content
-        ?? JSON.stringify({ hash: msg.payload.hash, task: String(msg.payload.task).slice(0, 200) });
+      const p = msg.payload as Record<string, unknown>;
+      const content = (p._content as string | undefined)
+        ?? JSON.stringify({ hash: p.hash ?? '', task: String(p.task ?? '').slice(0, 200) });
       const r = await fetch(`${this.base}/v3/conversation/add`, {
         method: 'POST',
         headers: {
@@ -60,7 +61,7 @@ export class OABClient {
           user_id: 'default',
           agent_id: String(msg.from),
           role: 'user',
-          content,
+          messages: [{ role: 'user', content }],
         }),
       });
       if (!r.ok) { console.error('[OAB] add failed', r.status); return false; }
