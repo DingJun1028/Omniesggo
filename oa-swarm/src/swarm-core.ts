@@ -8,6 +8,9 @@ import { SOUL_MATRIX_60, SoulAgent60, ARRAY_NAMES, agentsByArray } from './soul-
 import { callLLM } from './llm.js';
 import { OABClient, DualHiveTunnel, OABMessage } from './oab.js';
 import { ETLPipeline } from './incremental.js';
+import type { IVideoGenerationTask, IVideoGenerationResult } from '../types/generated/esggo-shared.js';
+
+/// <reference path="../types/generated/esggo-shared.d.ts" />
 
 export interface SwarmState {
   entropy: number;
@@ -18,6 +21,12 @@ export interface SwarmState {
   uptimeSec: number;
   oab: { connected: boolean; synced: number };
 }
+
+/// 影片生成任務契約 (對齊 canonical IVideoGenerationTask / OmniAutoVideo)
+export interface VideoGenerationTask extends IVideoGenerationTask {}
+
+/// 影片生成結果契約 (對齊 canonical IVideoGenerationResult)
+export interface VideoGenerationResult extends IVideoGenerationResult {}
 
 export class SwarmCore {
   private entropy = 0.08;

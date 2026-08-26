@@ -382,3 +382,79 @@ export interface I5TVerification {
   trustworthy: boolean;
   passed: boolean;
 }
+
+export interface IVideoGenerationTask {
+  /** 影片主題 (AI 生成腳本依據) */
+  video_subject: string;
+  /** 自訂腳本 (選填, 優先於主題生成) */
+  video_script?: string;
+  /** 素材源: pixabay (有效 key) / pexels / local (MPT 預設修正為 pixabay) */
+  video_source?: 'pixabay' | 'pexels' | 'local';
+  /** 語言: zh-TW / zh-CN / en (MPT 預設 zh-TW) */
+  video_language?: string;
+  /** 語音: Edge TTS 繁中語音 (如 zh-TW-YunJheNeural) */
+  voice_name?: string;
+  /** 5T 溯源: 任務來源 (如 filedrop / webui / oa-swarm) */
+  source_origin: string;
+}
+
+export interface IVideoGenerationResult {
+  task_id: string;
+  /** 狀態: 1=完成, -1=失敗, 4=處理中 */
+  state: 1 | -1 | 4;
+  /** 生成影片路徑 (state=1 時) */
+  combined?: string[];
+  /** 5T 凍結產物 (關聯 ISoulArtifact) */
+  artifact?: ISoulArtifact;
+}
+
+export type GapUnitKey = 'strategy' | 'technology' | 'creative' | 'marketing' | 'guard';
+
+export type GapRole = 'base' | 'hub';
+
+export type GapHubKind = 'guard-defense' | 'queen-command';
+
+export interface IGapAgent {
+  /** 編號 01-30 */
+  id: number;
+  /** 稱號 (繁中) */
+  title: string;
+  /** Title (English) */
+  titleEn: string;
+  /** 所屬陣列 */
+  unit: GapUnitKey;
+}
+
+export interface IGapPairing {
+  /** 左側代理編號 */
+  a: number;
+  /** 右側代理編號 */
+  b: number;
+  /** 左側陣列 */
+  aUnit: GapUnitKey;
+  /** 右側陣列 */
+  bUnit: GapUnitKey;
+  /** 角色 */
+  role: GapRole;
+  /** 樞紐種類 (role=hub 時) */
+  hubKind?: GapHubKind;
+  /** 樞紐覆蓋陣列 (role=hub 時, 如 '全陣列'→ 五陣列皆列) */
+  coverage?: GapUnitKey[];
+  /** 5T 溯源標籤 (Traceable) */
+  source_origin: 'gap-matrix-canon';
+}
+
+export interface IGapMatrixCoverage {
+  /** 成員總數 */
+  totalAgents: 30;
+  /** 基礎配對數 (C(5,2)×6) */
+  totalBase: 60;
+  /** 樞紐配對數 (守衛防護 6 + 蜂后總控 6) */
+  totalHub: 12;
+  /** 配對總數 (60+12) */
+  totalPairings: 72;
+  /** 陣列對覆蓋 (C(5,2)) */
+  arrayPairs: 10;
+  /** 成員跨組觸達 */
+  reach: '30/30';
+}
