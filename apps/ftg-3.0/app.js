@@ -47,7 +47,7 @@
   }
 
   // 4) Reveal + 數字 + bar 進場（IntersectionObserver）
-  const reveals = document.querySelectorAll('.card, .feat, .stat, .step, .impact-card, .voice, .bar-row');
+  const reveals = document.querySelectorAll('.card, .feat, .stat, .step, .impact-card, .voice, .bar-row, .esg-card');
   reveals.forEach(function (el) { el.classList.add('reveal'); });
 
   const io = new IntersectionObserver(function (entries) {
