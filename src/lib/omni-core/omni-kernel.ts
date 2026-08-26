@@ -108,7 +108,7 @@ export class OmniRegistry {
   private readonly store = new Map<string, RegistryEntry>();
   private readonly typeIndex = new Map<string, Set<string>>();
 
-  register<T>(component: IComponentCore<T>, type: string = 'generic'): void {
+  register<T>(component: IComponentCore, type: string = 'generic'): void {
     this.store.set(component.uuid, {
       component: component as IComponentCore,
       registeredAt: Date.now(),

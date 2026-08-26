@@ -131,7 +131,7 @@ export function UniversalOmniConsole() {
         { demo: '5T 元件', generatedAt: new Date().toISOString() },
         { actor: 'omni-console' },
       );
-      setResult({ ok: true, kind: 'component', id: comp.uuid, data: comp, hash: comp.hash, registered: false });
+      setResult({ ok: true, kind: 'component', id: comp.uuid, data: comp, hash: (comp as any).hash, registered: false });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }

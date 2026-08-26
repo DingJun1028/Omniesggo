@@ -106,7 +106,6 @@ function createResult(
       finalEffect: 'unknown',
       ...(evidence ?? {})
     },
-    hash: `0x${uuid.replace(/-/g, '').substring(0, 16)}`,
     status,
     logs,
     durationMs,
