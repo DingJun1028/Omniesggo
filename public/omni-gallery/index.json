@@ -1,7 +1,7 @@
 {
   "name": "ESGGO 萬能圖庫",
-  "version": "1.0.0",
-  "total": 8,
+  "version": "1.1.0",
+  "total": 9,
   "images": [
     {
       "id": "IMG-001",
@@ -9,7 +9,9 @@
       "url": "/omni-gallery/ME1E4Y7C.jpg",
       "size": 27029,
       "format": "jpg",
-      "uploadedAt": "2026-06-26T09:57:30.876Z"
+      "uploadedAt": "2026-06-26T09:57:30.876Z",
+      "tags": ["concept-art", "ommi-jules"],
+      "description": "OmmiJules concept art (Aiqn, 2023)"
     },
     {
       "id": "IMG-002",
@@ -17,7 +19,9 @@
       "url": "/omni-gallery/ME1E4Y7D.jpg",
       "size": 33266,
       "format": "jpg",
-      "uploadedAt": "2026-06-26T09:57:30.877Z"
+      "uploadedAt": "2026-06-26T09:57:30.877Z",
+      "tags": ["concept-art", "ommi-jules"],
+      "description": "OmmiJules concept art variant"
     },
     {
       "id": "IMG-003",
@@ -25,7 +29,9 @@
       "url": "/omni-gallery/ME1E4Y7E.jpg",
       "size": 26605,
       "format": "jpg",
-      "uploadedAt": "2026-06-26T09:57:30.877Z"
+      "uploadedAt": "2026-06-26T09:57:30.877Z",
+      "tags": ["concept-art", "ommi-jules"],
+      "description": "OmmiJules concept art variant"
     },
     {
       "id": "IMG-004",
@@ -33,7 +39,9 @@
       "url": "/omni-gallery/ME1E4Y7F.jpg",
       "size": 34390,
       "format": "jpg",
-      "uploadedAt": "2026-06-26T09:57:30.877Z"
+      "uploadedAt": "2026-06-26T09:57:30.877Z",
+      "tags": ["concept-art", "ommi-jules"],
+      "description": "OmmiJules concept art variant"
     },
     {
       "id": "IMG-005",
@@ -41,7 +49,9 @@
       "url": "/omni-gallery/ME1E4Y7G.jpg",
       "size": 32423,
       "format": "jpg",
-      "uploadedAt": "2026-06-26T09:57:30.877Z"
+      "uploadedAt": "2026-06-26T09:57:30.877Z",
+      "tags": ["concept-art", "ommi-jules"],
+      "description": "OmmiJules concept art variant"
     },
     {
       "id": "IMG-006",
@@ -49,7 +59,9 @@
       "url": "/omni-gallery/ME1E4Y7H.jpg",
       "size": 30182,
       "format": "jpg",
-      "uploadedAt": "2026-06-26T09:57:30.877Z"
+      "uploadedAt": "2026-06-26T09:57:30.877Z",
+      "tags": ["concept-art", "ommi-jules"],
+      "description": "OmmiJules concept art variant"
     },
     {
       "id": "IMG-007",
@@ -57,7 +69,9 @@
       "url": "/omni-gallery/ME1E4Y7I.jpg",
       "size": 19054,
       "format": "jpg",
-      "uploadedAt": "2026-06-26T09:57:30.877Z"
+      "uploadedAt": "2026-06-26T09:57:30.877Z",
+      "tags": ["concept-art", "ommi-jules"],
+      "description": "OmmiJules concept art variant"
     },
     {
       "id": "IMG-008",
@@ -65,7 +79,23 @@
       "url": "/omni-gallery/ME1E4Y7J.png",
       "size": 68080,
       "format": "png",
-      "uploadedAt": "2026-06-26T09:57:30.877Z"
+      "uploadedAt": "2026-06-26T09:57:30.877Z",
+      "tags": ["concept-art", "omni-live", "ui-design"],
+      "description": "OmmiJules concept art (PNG)"
+    },
+    {
+      "id": "IMG-009",
+      "filename": "float-window-preview.png",
+      "url": "/omni-gallery/float-window-preview.png",
+      "size": 410316,
+      "format": "png",
+      "uploadedAt": "2026-08-26T23:55:00.000Z",
+      "tags": ["ui-design", "floating-window", "oa-team-30", "5t-compliant"],
+      "description": "OmniLive Beautiful Floating Window — Akkadu-inspired, 19 CSS vars, RWD matrix, deep stone-ink glassmorphism with gold accents (#ffd479) and breathing red LED badge",
+      "5t_compliant": true,
+      "source_origin": "oa-team-30-soul-matrix/phase3",
+      "rwd_breakpoints": ["mobile", "tablet", "desktop", "ultrawide"],
+      "dimensions": { "width": 1920, "height": 1080, "aspect_ratio": "16:9" }
     }
   ]
 }
