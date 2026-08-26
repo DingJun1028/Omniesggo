@@ -139,7 +139,15 @@ jobs:
   # ─── Docker Build Test ───────────────────────────────────────
   docker-build:
     name: Docker Build Test
-    runs-on: ubuntu-latest
+    # NATIVE arm64 runner (free for public repos). Previously `ubuntu-latest`,
+    # which forced buildx to emulate arm64 through QEMU; `RUN pnpm run build`
+    # then died with `qemu: uncaught target signal 4 (Illegal instruction)` /
+    # `Command was killed with SIGILL` inside corepack's pnpm.mjs. The stack
+    # frames land in pnpm.mjs, which makes it LOOK like a dependency/build bug —
+    # it is not: do NOT "fix" it by touching pnpm-lock.yaml. Building natively
+    # removes the emulator from the path entirely.
+    # source_origin: OA-TWINS auto-repair / brief _repair_pr_957.txt / run 32947717773
+    runs-on: ubuntu-24.04-arm
     needs: [security-scan, code-quality]
     steps:
       - name: Checkout code
