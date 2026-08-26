@@ -155,15 +155,24 @@ export class EvolutionEngine {
     this.state.entropy = Math.max(0.01, this.state.entropy * 0.97);
   }
 
-  /** 持久化: 寫入 TDAI (跨晝夜/跨重啟不丟) */
+  /** 持久化: 寫入 TDAI (跨晝夜/跨重啟不丟) + 本地 JSONL (可驗證證據) */
   async persist(lesson: EvolutionLesson): Promise<boolean> {
+    // 1. 本地 JSONL (5T Traceable + 可驗證)
+    try {
+      const fs = await import('node:fs/promises');
+      const line = JSON.stringify({ ...lesson, _content: undefined }) + '\n';
+      await fs.appendFile('evolution-log.jsonl', line);
+    } catch (e) {
+      console.error('[EVOLUTION] local log failed', (e as Error).message);
+    }
+    // 2. TDAI (蜂寫層, 跨重啟持久)
     const ok = await this.oab.publish({
       id: `evo_${lesson.ts}`,
       from: 0,
       to: 'tdai-memory',
       channel: 'evolution',
       payload: {
-        hash: `[EVOLUTION] ${lesson.pattern}`,
+        _content: `[EVOLUTION] ${lesson.pattern}`,
         task: `[EVOLUTION] ${JSON.stringify({
           outcome: lesson.outcome,
           violations: lesson.violations,
@@ -175,7 +184,7 @@ export class EvolutionEngine {
       },
       ts: lesson.ts,
     });
-    if (ok) console.log(`[EVOLUTION] 經驗已沉澱 TDAI (#${this.state.iterations}, 熵=${this.state.entropy.toFixed(3)})`);
+    if (ok) console.log(`[EVOLUTION] 經驗已沉澱 TDAI+本地 (#${this.state.iterations}, 熵=${this.state.entropy.toFixed(3)})`);
     return ok;
   }
 

@@ -129,7 +129,8 @@ export class SwarmCore {
       entropyAfter: Math.max(0.01, entropyBefore * 0.97),
     });
     this.evolution.reflect(lesson);
-    this.evolution.persist(lesson).catch(() => {});
+    const persisted = await this.evolution.persist(lesson);
+    if (!persisted) console.error('[EVOLUTION] 經驗寫入 TDAI 失敗');
 
     this.lastPurified = artifact;
     this.tasksDone++;
