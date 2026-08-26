@@ -68,6 +68,9 @@ const map = [
   ['SwarmTaskResult', 'type'],
   ['IOABMessage', 'interface'],
   ['I5TVerification', 'interface'],
+  // --- 萬能自動影音 OmniAutoVideo (MPT 影音生產線) 契約 — 終始矩陣新納入 ---
+  ['IVideoGenerationTask', 'interface'],
+  ['IVideoGenerationResult', 'interface'],
   // --- OA-Team 缺口補齊 · 終始矩陣契約 (Gap Remediation Terminal-Origin Matrix) ---
   ['GapUnitKey', 'type'],
   ['GapRole', 'type'],

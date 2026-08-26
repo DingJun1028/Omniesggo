@@ -433,6 +433,37 @@ export interface I5TVerification {
   passed: boolean;
 }
 
+// ===== 萬能自動影音 OmniAutoVideo (MPT 影音生產線) 契約 =====
+// 終始矩陣: oa-swarm 編排影片生成任務的型別契約, 對齊 MPT API (video_subject/script/source/voice)
+// 任一端需求 → 回饋此處 → 重跑 scripts/export-shared-types.js → 全端同步
+
+/** 影片生成任務契約 (對齊 MPT /api/v1/videos) */
+export interface IVideoGenerationTask {
+  /** 影片主題 (AI 生成腳本依據) */
+  video_subject: string;
+  /** 自訂腳本 (選填, 優先於主題生成) */
+  video_script?: string;
+  /** 素材源: pixabay (有效 key) / pexels / local (MPT 預設修正為 pixabay) */
+  video_source?: 'pixabay' | 'pexels' | 'local';
+  /** 語言: zh-TW / zh-CN / en (MPT 預設 zh-TW) */
+  video_language?: string;
+  /** 語音: Edge TTS 繁中語音 (如 zh-TW-YunJheNeural) */
+  voice_name?: string;
+  /** 5T 溯源: 任務來源 (如 filedrop / webui / oa-swarm) */
+  source_origin: string;
+}
+
+/** 影片生成結果契約 (對齊 MPT 任務狀態) */
+export interface IVideoGenerationResult {
+  task_id: string;
+  /** 狀態: 1=完成, -1=失敗, 4=處理中 */
+  state: 1 | -1 | 4;
+  /** 生成影片路徑 (state=1 時) */
+  combined?: string[];
+  /** 5T 凍結產物 (關聯 ISoulArtifact) */
+  artifact?: ISoulArtifact;
+}
+
 // ===== OA-Team 缺口補齊 · 終始矩陣契約 (Gap Remediation Terminal-Origin Matrix) =====
 // 雙語 (繁中 + English) | 全域全端全量全面 | 單一真相源 shared/gap-matrix.ts 程式化派生 72 配對
 // 終 (canonical): 本節型別在此一次性定義 → 重跑 scripts/export-shared-types.js → 全端 consumer 雙向同步 (始)
