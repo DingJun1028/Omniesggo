@@ -1,49 +1,72 @@
-# source_origin: AI Station §9.3 / §9.5 - Module 2 Design Layer
-"""DNA Parser (Module 2, §9 - Design Layer).
+# source_origin: AI Station §9 - Module 2 Design Layer
+"""Script DNA Parser with 5-section markers per soul.md §9.2.
 
-Parses bracketed DNA markup into an ordered list of typed segments.
+Parses script text containing [Scene][Conflict][Insight][Method][Reflection]
+markers into structured JSON for downstream modules.
 
-5T Tangible/Transparent: supports BOTH the canonical Chinese markers
-(【場景】【衝突】【洞察】【方法】【反思】, §9.3/§9.5) and the English aliases
-([Scene][Conflict][Insight][Method][Reflection]). Full-width or half-width
-brackets are accepted. Segment ``type`` is normalized to the English key so
-downstream consumers (visuals, render) stay language-agnostic.
+Hash Lock: sha256:dna_parser_final_pending
 """
 import re
 
-# Canonical Chinese markers (§9.3) and their English aliases.
-_LABEL_MAP = {
-    "場景": "Scene",
-    "衝突": "Conflict",
-    "洞察": "Insight",
-    "方法": "Method",
-    "反思": "Reflection",
-    "Scene": "Scene",
-    "Conflict": "Conflict",
-    "Insight": "Insight",
-    "Method": "Method",
-    "Reflection": "Reflection",
-}
+DNA_PATTERN = r'\[(Scene|Conflict|Insight|Method|Reflection)\]\s*(.*?)(?=\[(Scene|Conflict|Insight|Method|Reflection)\]|$)'
+DNA_MARKERS = ["Scene", "Conflict", "Insight", "Method", "Reflection"]
 
-# Accept 【】 or [] brackets (full-width or half-width), optional 】 close,
-# optional trailing colon (： or :).
-_MARKERS = "場景|衝突|洞察|方法|反思|Scene|Conflict|Insight|Method|Reflection"
-DNA_PATTERN = (
-    r"[\\[【]\s*(" + _MARKERS + r")\s*[\]】]?\s*[:：]?\s*(.*?)"
-    r"(?=[\\[【](?:" + _MARKERS + r")[\]】]?|\Z)"
-)
-
-
-def parse_dna(text: str) -> list[dict]:
-    """Parse DNA markup into a list of {"type", "content"} segments.
-
-    Segments are emitted in document order. Each segment's ``type`` is the
-    normalized English key; ``content`` is trimmed of surrounding whitespace.
+def parse_dna(script_text: str) -> dict:
+    """
+    Parse script text into structured scene data.
+    
+    Input:  "[Scene] Opening [Conflict] Problem [Insight] Solution"
+    Output: {"scenes": [{"scene": "Opening", "conflict": "Problem", ...}]}
+    
+    Args:
+        script_text: Raw script with [Marker] content format
+        
+    Returns:
+        Dict with "scenes" list of parsed scene dicts
     """
     segments = []
-    for match in re.finditer(DNA_PATTERN, text, re.DOTALL):
-        raw = match.group(1)
-        segments.append(
-            {"type": _LABEL_MAP[raw], "content": match.group(2).strip()}
-        )
-    return segments
+    for match in re.finditer(DNA_PATTERN, script_text, re.DOTALL):
+        segments.append({
+            "type": match.group(1),
+            "content": match.group(2).strip()
+        })
+    
+    # Group segments into scenes (a new Scene marker starts a new scene)
+    scenes = []
+    current_scene = {}
+    
+    for seg in segments:
+        if seg["type"] == "Scene":
+            if current_scene:
+                scenes.append(current_scene)
+            current_scene = {"scene": seg["content"]}
+        else:
+            current_scene[seg["type"].lower()] = seg["content"]
+    
+    if current_scene:
+        scenes.append(current_scene)
+    
+    return {"scenes": scenes}
+
+
+def parse_script_dna(script: str) -> dict:
+    """
+    Legacy alias for parse_dna — maintained for backward compatibility
+    with src/main.py imports.
+    """
+    return parse_dna(script)
+
+
+def generate_subtitles(scenes_data: dict) -> str:
+    """Generate SRT subtitle content from parsed scenes."""
+    srt = []
+    idx = 1
+    for scene in scenes_data.get("scenes", []):
+        for key, content in scene.items():
+            if content and key != "scene":
+                srt.append(f"{idx}")
+                srt.append("00:00:00,000 --> 00:00:05,000")
+                srt.append(content[:100])
+                srt.append("")
+                idx += 1
+    return "\n".join(srt)

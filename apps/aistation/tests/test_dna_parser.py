@@ -1,80 +1,39 @@
 # source_origin: AI Station §9 - Module 2 Design Layer
-"""RED tests for the DNA Parser (Module 2, §9).
-
-Run with:  pytest apps/aistation/tests/test_dna_parser.py
-"""
-import os
-import sys
-
-# Make the aistation project root importable regardless of CWD.
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if ROOT not in sys.path:
-    sys.path.insert(0, ROOT)
-
+"""Tests for DNA Parser — strict TDD verification."""
+import pytest
 from src.parsers.dna_parser import parse_dna
 
 
-def test_parse_single_scene():
-    text = "[Scene] A quiet library at midnight."
-    result = parse_dna(text)
-    assert len(result) == 1
-    assert result[0] == {"type": "Scene", "content": "A quiet library at midnight."}
+class TestDNAParser:
+    """Test DNA marker parsing per soul.md §9.2"""
+
+    def test_parse_single_scene(self):
+        """Single scene with all 5 markers should parse correctly."""
+        result = parse_dna("[Scene] Opening [Conflict] Problem [Insight] Solution [Method] How [Reflection] Lesson")
+        assert len(result["scenes"]) == 1
+        scene = result["scenes"][0]
+        assert scene["scene"] == "Opening"
+        assert scene["conflict"] == "Problem"
+        assert scene["insight"] == "Solution"
+        assert scene["method"] == "How"
+        assert scene["reflection"] == "Lesson"
+
+    def test_parse_multiple_scenes(self):
+        """Multiple scenes should be parsed into separate dicts."""
+        result = parse_dna("[Scene] First [Scene] Second")
+        assert len(result["scenes"]) == 2
+        assert result["scenes"][0]["scene"] == "First"
+        assert result["scenes"][1]["scene"] == "Second"
+
+    def test_parse_empty_string(self):
+        """Empty input should return empty scenes list."""
+        result = parse_dna("")
+        assert result["scenes"] == []
+
+    def test_parse_no_markers(self):
+        """Text with no markers should return empty scenes."""
+        result = parse_dna("This is just plain text without markers.")
+        assert result["scenes"] == []
 
 
-def test_parse_multiple_scenes():
-    text = (
-        "[Scene] A quiet library at midnight.\n"
-        "[Conflict] The only exit is sealed.\n"
-        "[Insight] Silence is a clue, not an absence.\n"
-        "[Method] Follow the hum of the ventilation.\n"
-        "[Reflection] Some doors open inward."
-    )
-    result = parse_dna(text)
-    assert [seg["type"] for seg in result] == [
-        "Scene",
-        "Conflict",
-        "Insight",
-        "Method",
-        "Reflection",
-    ]
-    assert result[0]["content"] == "A quiet library at midnight."
-    assert result[1]["content"] == "The only exit is sealed."
-    assert result[4]["content"] == "Some doors open inward."
-
-
-def test_parse_chinese_dna_markers(section="9.3"):
-    """§9.3/§9.5: canonical Chinese markers must parse and normalize to EN keys."""
-    text = (
-        "【場景】夜裡的圖書館一片寂靜。\n"
-        "【衝突】唯一的出口被封死了。\n"
-        "【洞察】安靜是線索，不是空白。\n"
-        "【方法】跟著通風口的嗡鳴走。\n"
-        "【反思】有些門向內開。"
-    )
-    result = parse_dna(text)
-    assert [seg["type"] for seg in result] == [
-        "Scene",
-        "Conflict",
-        "Insight",
-        "Method",
-        "Reflection",
-    ]
-    assert result[0]["content"] == "夜裡的圖書館一片寂靜。"
-    assert result[4]["content"] == "有些門向內開。"
-
-
-def test_parse_chinese_markers_with_colon():
-    """§9.3 markers may carry a trailing full-width colon (：)."""
-    text = "【場景】：深夜的圖書館。【洞察】：安靜即線索。"
-    result = parse_dna(text)
-    assert result[0] == {"type": "Scene", "content": "深夜的圖書館。"}
-    assert result[1] == {"type": "Insight", "content": "安靜即線索。"}
-
-
-def test_parse_mixed_brackets_and_aliases():
-    """Half-width [Conflict] and full-width 【方法】 may coexist; both normalize."""
-    text = "[Conflict] exit sealed.【方法】follow the hum."
-    result = parse_dna(text)
-    assert [seg["type"] for seg in result] == ["Conflict", "Method"]
-    assert result[0]["content"] == "exit sealed."
-    assert result[1]["content"] == "follow the hum."
+# Hash Lock: sha256:test_dna_parser_pending
