@@ -87,4 +87,21 @@ describe('靈魂執行鏈', () => {
     core.tickEntropyReduction();
     expect(core.getState().entropy).toBeLessThan(before);
   });
+  it('自我學習: 任務後萃取經驗含 5T 狀態 (v5 傳遞)', async () => {
+    // RED: 驗證 executeSwarmTask 將 5T 驗算結果傳入 evolution
+    // 產物通過 5T (verifyZeroHallucination=true) → 經驗應為 success + violations 空
+    const core = new SwarmCore();
+    await core.executeSwarmTask('測試 v5 傳遞', 'unit-test');
+    const fs = await import('node:fs/promises');
+    const { readdir } = fs;
+    const files = await readdir(process.cwd());
+    const log = files.find((f) => f.endsWith('.jsonl'));
+    expect(log).toBeTruthy();
+    const content = await fs.readFile(log!, 'utf-8');
+    const lastLine = content.trim().split('\n').pop()!;
+    const rec = JSON.parse(lastLine);
+    // v5 傳遞正確 → outcome=success → violations 應為空
+    expect(rec.outcome).toBe('success');
+    expect(rec.violations).toEqual([]);
+  }, 15000);
 });

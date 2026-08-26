@@ -109,6 +109,16 @@ export class SwarmCore {
       throw new Error('5T 驗算失敗: 產物被竄改');
     }
 
+    // 5T 驗算結果 (供自我學習萃取)
+    const v5 = {
+      traceable: !!artifact.source_origin,
+      trackable: Array.isArray(artifact.lifecycle) && artifact.lifecycle.length > 0,
+      tangible: !!artifact.evidence,
+      transparent: !!artifact.hash_lock,
+      trustworthy: !!artifact.hash_lock && !!artifact.author,
+      passed: true,
+    };
+
     // 6. OAB 上鏈 (Trackable 軌跡) — 雙蜂隧道同步
     const msg: OABMessage = {
       id: artifact.uuid,
@@ -127,6 +137,7 @@ export class SwarmCore {
     const lesson = this.evolution.extractLesson({
       task,
       artifact,
+      v5,
       latencyMs: Date.now() - t0,
       entropyBefore,
       entropyAfter: Math.max(0.01, entropyBefore * 0.97),

@@ -68,9 +68,16 @@ export class EvolutionEngine {
       // 歷史經驗以 task 內容含 [EVOLUTION] 標記識別
       const lessons = history.filter((h) => h.task.startsWith('[EVOLUTION]'));
       this.state.iterations = lessons.length;
-      // 簡單啟發: 成功多則提高 5t-strict 權重
+      // 從歷史 JSON 解析 outcome 統計 (無限進化: 成功多則提高 5t-strict 權重)
+      let success = 0;
+      for (const l of lessons) {
+        try {
+          const j = JSON.parse(l.task.replace('[EVOLUTION] ', ''));
+          if (j.outcome === 'success') success++;
+        } catch { /* ignore parse */ }
+      }
       if (lessons.length > 0) {
-        const successRate = this.state.tasksSuccess / Math.max(1, this.state.tasksTotal);
+        const successRate = success / lessons.length;
         this.state.weights['5t-strict'] = Math.min(2.0, 0.5 + successRate);
         console.log(`[EVOLUTION] bootstrap: ${lessons.length} 歷史經驗載入, 5t-strict 權重=${this.state.weights['5t-strict'].toFixed(2)}`);
       }
