@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import os
 import sys
+from typing import Optional
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
@@ -20,22 +21,48 @@ def create_app():
     from fastapi import FastAPI
     from pydantic import BaseModel
 
+    from src.brand import BRAND, PALETTE, get_brand
+    from src.parsers.dna_parser import parse_dna
+    from src.visuals.image_gen import generate_image
+
     app = FastAPI(title="AI Station", version="0.1.0")
 
     class GenerateRequest(BaseModel):
         script: str
         voice: str = "zh-TW-YunJheNeural"
+        output_path: Optional[str] = None
 
     @app.get("/health")
     def health():
         return {"status": "ok"}
 
+    @app.get("/v1/brand")
+    def brand():
+        return get_brand()
+
     @app.post("/v1/generate")
     def generate(req: GenerateRequest):
+        brand = get_brand()
+        segments = parse_dna(req.script) or []
+        preview = brand.get("intro_line", "") + "\n" + req.script[:120]
+        image_path = None
+        try:
+            first_beat = req.script.split("【")[1].split("】")[1].strip() if "【" in req.script and "】" in req.script else req.script[:60]
+            image_path = generate_image(first_beat, output_path=req.output_path)
+        except Exception as exc:
+            return {
+                "status": "accepted",
+                "voice": req.voice,
+                "preview": preview,
+                "segments": segments,
+                "image_error": str(exc),
+            }
         return {
-            "status": "accepted",
+            "status": "ok",
             "voice": req.voice,
-            "preview": req.script[:120],
+            "preview": preview,
+            "segments": segments,
+            "image": image_path,
         }
 
     return app
