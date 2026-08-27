@@ -1,0 +1,17 @@
+{
+  "plugins": {
+    "obsidian-git": true,
+    "daily-notes": true,
+    "calendar": true,
+    "obsidian42-brat": true,
+    "obsidian-local-rest-api": true,
+    "hermes-agent": true
+  },
+  "livePreview": false,
+  "strictLineBreaks": false,
+  "showFrontmatter": true,
+  "showInlineTitle": false,
+  "alwaysUpdateLinks": false,
+  "autoAddLinks": true,
+  "autoEmbed": true
+}
