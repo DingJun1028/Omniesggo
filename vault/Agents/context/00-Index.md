@@ -11,7 +11,7 @@ access: public-research
 
 # 🗂️ OA-Team 第二大腦 · 知識地圖（MOC）
 
-> 萬能知識分身迴路: 213 結點孵化, 213 已吸收反饋本體 (零時差)
+> 萬能知識分身迴路: 234 結點孵化, 234 已吸收反饋本體 (零時差)
 
 > 全域全端全量全面 · 雙向同步 TypeScript 終始矩陣
 > 此頁為 Maps of Content（MOC），所有筆記的入口。
@@ -50,3 +50,5 @@ vault 筆記(sync:up) → SyncVaultTypes → shared/types.ts(canonical)
 ## 相關
 - 主典：esggo-omni-center/soul-full.md §26
 - 喚醒技能：oa-dual-agent-obsidian
+
+> 知識分身日報: hatched=234 synced=0 failed=0 recall=0 healthy=false 2026-08-27T07:43:12.659Z
