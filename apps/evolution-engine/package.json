@@ -1,0 +1,14 @@
+{
+  "name": "evolution-engine",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "OA-Team 自我進化引擎 — 觀測/學習/改進/驗證/回寫 閉環 (5T 對齊)",
+  "scripts": {
+    "observe": "node observe.mjs",
+    "learn": "node learn.mjs",
+    "improve": "node improve.mjs",
+    "verify": "node verify.mjs",
+    "evolve": "node evolve.mjs"
+  }
+}
