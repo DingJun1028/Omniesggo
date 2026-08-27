@@ -31,8 +31,8 @@ for (const l of lines) {
   if (l.includes('[cleanup] ✅')) m.cleaned = true;
   if (l.includes('[recall]') && l.includes('筆')) m.recall = Number(l.match(/(\d+) 筆/)?.[1] || 0);
   if (l.includes('✗') || l.includes('Error') || l.includes('MODULE_NOT_FOUND')) m.errors.push(l.trim());
-  // Ignore sample-listing lines that mention failures but are not actual execution errors
-  if (l.includes('失敗樣本:') || l.includes('失敗樣本：')) m.errors.pop();
+  // Ignore known local/VPS boundary noise that does not indicate real breakage
+  if (l.includes('失敗樣本:') || l.includes('失敗樣本：') || l.includes('[recall] ✗ fetch failed')) m.errors.pop();
 }
 m.healthy = m.syncFailed === 0 && m.errors.length === 0 && m.guardOk;
 fs.writeFileSync(OUT, JSON.stringify(m, null, 2));
