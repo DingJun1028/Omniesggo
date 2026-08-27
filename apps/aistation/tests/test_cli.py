@@ -34,7 +34,7 @@ def test_v1_generate_returns_visual_and_beats():
         "【衝突】唯一的出口被封死了。\n"
         "【洞察】安靜是線索，不是空白。"
     )
-    resp = _client().post("/v1/generate", params={"script": script, "series": "創價實驗室"})
+    resp = _client().post("/v1/generate", json={"script": script, "series": "創價實驗室"})
     assert resp.status_code == 200, resp.text
     data = resp.json()
     assert "beat_count" in data
@@ -44,7 +44,7 @@ def test_v1_generate_returns_visual_and_beats():
 
 def test_v1_generate_single_beat():
     script = "【場景】深夜的圖書館。"
-    resp = _client().post("/v1/generate", params={"script": script})
+    resp = _client().post("/v1/generate", json={"script": script})
     assert resp.status_code == 200
     data = resp.json()
     assert data["beat_count"] == 1
