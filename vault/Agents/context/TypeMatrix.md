@@ -1,10 +1,11 @@
 ---
 source_origin: esggo/shared/types.ts
 created: 2026-08-13
-modified: 2026-08-26
+modified: 2026-08-27
 sync: mirror
 co_authors: []
 lifecycle: active
+access: public-research
 ---
 
 # 型別矩陣鏡像（TypeScript 終始矩陣 · vault 端）
