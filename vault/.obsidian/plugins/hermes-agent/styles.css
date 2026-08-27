@@ -1,0 +1,735 @@
+/* Hermes Agent plugin styles */
+
+.hermes-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+}
+
+.hermes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.hermes-title {
+  font-weight: 600;
+}
+
+.hermes-header-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.hermes-icon-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hermes-icon-btn:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.hermes-icon-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.hermes-tabbar {
+  display: flex;
+  gap: 4px;
+  padding: 6px 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.hermes-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--background-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: var(--font-ui-smaller);
+}
+
+.hermes-tab.is-active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.hermes-tab-label {
+  cursor: pointer;
+}
+
+.hermes-tab-close {
+  display: inline-flex;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.hermes-tab-close:hover {
+  opacity: 1;
+}
+
+.hermes-body-host {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.hermes-body {
+  display: none;
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  padding: 10px;
+  /* Obsidian's app.css sets `body { user-select: none }` and only re-enables
+     selection for contenteditable, markdown-preview-view, diff-view and PDF
+     text layers. A custom ItemView inherits `none`, so the transcript must
+     opt back in or its text cannot be selected or copied. Scoped to the
+     message body so the header, tab bar and input chrome stay unselectable. */
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.hermes-body.is-active {
+  display: block;
+}
+
+.hermes-msg {
+  margin-bottom: 14px;
+}
+
+.hermes-msg-role {
+  font-size: var(--font-ui-smaller);
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.hermes-msg-user .hermes-msg-content {
+  background: var(--background-secondary);
+  border-radius: 6px;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+}
+
+.hermes-msg-assistant .hermes-msg-content {
+  padding: 2px 0;
+}
+
+/* Shared reading rhythm for both bubble kinds — a touch looser than the
+   default UI line-height so prose doesn't feel cramped in the sidebar. */
+.hermes-msg-content {
+  line-height: 1.65;
+  letter-spacing: 0.01em;
+}
+
+/* ---- Markdown rendering inside assistant bubbles --------------------------
+   Obsidian's default markdown-rendered CSS is tuned for full-page reading
+   view (generous vertical rhythm, large headings). In a narrow chat bubble
+   that reads as too loose and top-heavy, so tighten spacing/sizing here
+   without touching the vault-wide reading view. */
+
+.hermes-msg-assistant .hermes-msg-content > *:first-child {
+  margin-top: 0;
+}
+
+.hermes-msg-assistant .hermes-msg-content > *:last-child {
+  margin-bottom: 0;
+}
+
+.hermes-msg-assistant .hermes-msg-content p,
+.hermes-msg-assistant .hermes-msg-content ul,
+.hermes-msg-assistant .hermes-msg-content ol,
+.hermes-msg-assistant .hermes-msg-content blockquote,
+.hermes-msg-assistant .hermes-msg-content pre,
+.hermes-msg-assistant .hermes-msg-content table,
+.hermes-msg-assistant .hermes-msg-content h1,
+.hermes-msg-assistant .hermes-msg-content h2,
+.hermes-msg-assistant .hermes-msg-content h3,
+.hermes-msg-assistant .hermes-msg-content h4,
+.hermes-msg-assistant .hermes-msg-content h5,
+.hermes-msg-assistant .hermes-msg-content h6 {
+  margin: 0.5em 0;
+}
+
+.hermes-msg-assistant .hermes-msg-content h1,
+.hermes-msg-assistant .hermes-msg-content h2,
+.hermes-msg-assistant .hermes-msg-content h3,
+.hermes-msg-assistant .hermes-msg-content h4,
+.hermes-msg-assistant .hermes-msg-content h5,
+.hermes-msg-assistant .hermes-msg-content h6 {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Full-document heading scale (up to 2em) overwhelms a chat bubble; cap it
+   to a small, flat ramp so h1..h6 stay legible but don't dominate. */
+.hermes-msg-assistant .hermes-msg-content h1 { font-size: 1.25em; }
+.hermes-msg-assistant .hermes-msg-content h2 { font-size: 1.15em; }
+.hermes-msg-assistant .hermes-msg-content h3 { font-size: 1.05em; }
+.hermes-msg-assistant .hermes-msg-content h4,
+.hermes-msg-assistant .hermes-msg-content h5,
+.hermes-msg-assistant .hermes-msg-content h6 {
+  font-size: 1em;
+}
+
+.hermes-msg-assistant .hermes-msg-content ul,
+.hermes-msg-assistant .hermes-msg-content ol {
+  padding-inline-start: 1.4em;
+}
+
+.hermes-msg-assistant .hermes-msg-content li {
+  margin: 0.15em 0;
+}
+
+.hermes-msg-assistant .hermes-msg-content li > p {
+  margin: 0;
+}
+
+.hermes-msg-assistant .hermes-msg-content code {
+  font-size: 0.85em;
+  background: var(--background-secondary);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+.hermes-msg-assistant .hermes-msg-content pre {
+  background: var(--background-secondary);
+  border-radius: 6px;
+  padding: 8px 10px;
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.hermes-msg-assistant .hermes-msg-content pre code {
+  background: transparent;
+  padding: 0;
+  white-space: pre;
+}
+
+.hermes-msg-assistant .hermes-msg-content blockquote {
+  border-left: 3px solid var(--background-modifier-border);
+  padding: 0 0.8em;
+  color: var(--text-muted);
+}
+
+.hermes-msg-assistant .hermes-msg-content a {
+  color: var(--text-accent);
+}
+
+.hermes-msg-assistant .hermes-msg-content hr {
+  margin: 0.8em 0;
+  border-color: var(--background-modifier-border);
+}
+
+.hermes-msg-assistant .hermes-msg-content img {
+  max-width: 100%;
+  border-radius: 4px;
+}
+
+/* Tables often exceed the sidebar's width; scroll horizontally inside the
+   bubble instead of blowing out the whole view. */
+.hermes-msg-assistant .hermes-msg-content table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.hermes-msg-assistant .hermes-msg-content th,
+.hermes-msg-assistant .hermes-msg-content td {
+  border: 1px solid var(--background-modifier-border);
+  padding: 4px 8px;
+}
+
+.hermes-msg-assistant .hermes-msg-content th {
+  background: var(--background-secondary);
+}
+
+/* Attached note/selection content on a user bubble — collapsed by default
+   so a long note doesn't drown out the actual typed message. */
+.hermes-attachment {
+  margin-top: 6px;
+  font-size: var(--font-ui-smaller);
+}
+
+.hermes-attachment-title {
+  display: inline-block;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.hermes-attachment-title:hover {
+  color: var(--text-normal);
+  text-decoration: underline;
+}
+
+.hermes-attachment-body {
+  display: none;
+  white-space: pre-wrap;
+  margin-top: 4px;
+  padding: 6px 8px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  color: var(--text-muted);
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.hermes-attachment.is-expanded .hermes-attachment-body {
+  display: block;
+}
+
+.hermes-reasoning {
+  display: none;
+  border-left: 2px solid var(--background-modifier-border);
+  padding: 2px 8px;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: var(--font-ui-smaller);
+}
+
+/* Reveals the title bar once there's reasoning content to toggle — the body
+   stays collapsed (see .hermes-reasoning-body below) until the user clicks
+   it. */
+.hermes-reasoning.is-visible {
+  display: block;
+}
+
+.hermes-reasoning-title {
+  display: inline-block;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+  cursor: pointer;
+  user-select: none;
+}
+
+.hermes-reasoning-title:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.hermes-reasoning-body {
+  display: none;
+  white-space: pre-wrap;
+  margin-top: 4px;
+}
+
+.hermes-reasoning.is-expanded .hermes-reasoning-body {
+  display: block;
+}
+
+.hermes-tools {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.hermes-tool {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.hermes-tool-completed {
+  color: var(--text-success, var(--text-muted));
+}
+
+.hermes-tool-failed {
+  color: var(--text-error);
+}
+
+.hermes-tool-preview {
+  opacity: 0.7;
+  font-family: var(--font-monospace);
+}
+
+.hermes-usage {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-faint);
+  margin-top: 4px;
+}
+
+.hermes-error {
+  color: var(--text-error);
+  background: var(--background-modifier-error);
+  border-radius: 6px;
+  padding: 6px 8px;
+  white-space: pre-wrap;
+}
+
+.hermes-context-row {
+  display: flex;
+  gap: 14px;
+  padding: 6px 10px 0;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.hermes-context-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.hermes-input-wrap {
+  padding: 8px 10px 10px;
+  border-top: 1px solid var(--background-modifier-border);
+}
+
+.hermes-input {
+  width: 100%;
+  resize: vertical;
+  min-height: 52px;
+  font-family: inherit;
+}
+
+.hermes-input-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+
+.hermes-input-actions-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.hermes-input-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.hermes-meta-item {
+  white-space: nowrap;
+}
+
+.hermes-meta-model,
+.hermes-meta-thinking {
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 1px 4px;
+}
+
+.hermes-meta-model:hover,
+.hermes-meta-thinking:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.hermes-meta-model {
+  color: var(--text-accent);
+  font-weight: 600;
+}
+
+.hermes-meta-val {
+  color: var(--text-normal);
+}
+
+.hermes-meta-tokens {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-faint);
+}
+
+/* Context-usage donut gauge (conic-gradient ring, like Claudian's gauge). */
+.hermes-gauge {
+  --hermes-gauge-pct: 0;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--text-accent) calc(var(--hermes-gauge-pct) * 1%),
+    var(--background-modifier-border) 0
+  );
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hermes-gauge::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--background-primary);
+}
+
+.hermes-gauge-pct {
+  white-space: nowrap;
+}
+
+.hermes-hidden {
+  display: none;
+}
+
+/* Empty-chat greeting. */
+.hermes-greeting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 120px;
+  padding: 16px;
+}
+
+.hermes-greeting-text {
+  font-size: 1.5em;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.hermes-folder-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 180px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--background-secondary);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--font-ui-smaller);
+}
+
+.hermes-folder-chip:hover {
+  background: var(--background-modifier-hover);
+  color: var(--text-normal);
+}
+
+.hermes-folder-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hermes-folder-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.hermes-folder-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hermes-folder-chip.is-readonly {
+  opacity: 0.55;
+}
+
+.hermes-status {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+}
+
+.hermes-send-btn {
+  padding: 4px 14px;
+}
+
+/* While a turn is streaming, the same button switches to "Stop" in place —
+   give it a distinct warning tint so the state change is obvious. */
+.hermes-send-btn.is-running {
+  background: var(--background-modifier-error, var(--interactive-accent));
+  color: var(--text-on-accent);
+}
+
+.hermes-send-btn.is-running:hover {
+  background: var(--text-error);
+}
+
+.hermes-test-result {
+  margin-top: 4px;
+}
+
+.hermes-test-ok {
+  color: var(--text-success, var(--text-normal));
+}
+
+.hermes-test-fail {
+  color: var(--text-error);
+}
+
+/* Chat history modal */
+.hermes-history-modal h3 {
+  margin: 0 0 10px 0;
+}
+
+.hermes-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.hermes-history-empty {
+  color: var(--text-muted);
+  padding: 8px 2px;
+}
+
+.hermes-history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.hermes-history-row:hover {
+  background: var(--background-modifier-hover);
+}
+
+.hermes-history-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.hermes-history-title {
+  font-size: var(--font-ui-small);
+  color: var(--text-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hermes-history-preview {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.hermes-history-meta {
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.hermes-history-del {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  opacity: 0.7;
+  padding: 2px;
+}
+
+.hermes-history-del:hover {
+  color: var(--text-error);
+  opacity: 1;
+}
+
+/* ---- Smart graph view ---------------------------------------------------- */
+
+.hermes-graph-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+}
+
+.hermes-graph-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--background-modifier-border);
+  flex: 0 0 auto;
+}
+
+.hermes-graph-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.hermes-graph-btn-icon {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hermes-graph-status {
+  margin-left: auto;
+  font-size: var(--font-ui-smaller);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hermes-graph-canvas-wrap {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hermes-graph-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.hermes-graph-canvas.is-hovering-node {
+  cursor: pointer;
+}
+
+.hermes-graph-empty {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.hermes-graph-empty.is-visible {
+  display: flex;
+}
+
+/* ---- Settings tab -------------------------------------------------------- */
+
+.hermes-settings-textarea {
+  width: 100%;
+  min-width: 100%;
+  font-family: var(--font-monospace);
+  font-size: var(--font-ui-small);
+}
