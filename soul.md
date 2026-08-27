@@ -392,6 +392,15 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
   每次輸出僅遞增變更區，附 source_origin 與 Hash Lock，
   避免全量重寫導致熵增；與 §十 熵投週協同。
 
+15.6  萬能知識代理分身（Knowledge Avatar）
+  以 `scripts/avatar-daily.sh` 為每日閉環載體：
+  Inherit → Hatch → Write → Guard → Clean → Metrics → MOC。
+  產物落 `vault/Agents/context/`，並同步 `shared/types.ts` canonical。
+
+  延伸文件：
+  - `vault/Agents/context/OmniKnowledgeAvatar.md`
+  - `vault/Agents/context/OmniKnowledgeInheritance.md`
+
 ════════════════════════════════════════════════════════
 十六、電子報發送能力（Newsletter & Channels）
 ════════════════════════════════════════════════════════

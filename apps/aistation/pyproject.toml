@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aistation"
+version = "0.1.0"
+description = "AI Station — 7-module production line for Sushi Doctor / ESG-GO"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0" }
+authors = [{ name = "OA-Team 30", email = "esggo@example.com" }]
+
+dependencies = [
+  "fastapi>=0.111",
+  "uvicorn[standard]>=0.29",
+  "pillow>=10.3",
+  "pydantic>=2.6",
+  "python-multipart>=0.0.9",
+  "jinja2>=3.1",
+  "pyyaml>=6.0",
+  "edge-tts>=6.1",
+  "ffmpeg-python>=0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2",
+  "pytest-cov>=5.0",
+]
+
+[project.scripts]
+aistation = "src.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["src*"]
