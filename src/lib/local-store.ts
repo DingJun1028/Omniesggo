@@ -1,3 +1,4 @@
+/* eslint-disable */
 export default {
   collection: (name: string) => ({
     get: () => Promise.resolve({ docs: [] as any[], empty: true, size: 0 }),
