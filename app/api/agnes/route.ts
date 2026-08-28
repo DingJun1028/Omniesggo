@@ -1,4 +1,4 @@
-import { agnesApi } from '@/lib/agnes-api';
+import { agnesApi } from '@lib/agnes-api';
 import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 export async function POST(req: Request) {

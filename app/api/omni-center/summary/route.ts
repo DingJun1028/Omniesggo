@@ -7,7 +7,7 @@
  */
 
 import { jsonResponse } from '@lib/api-utils';
-import { prisma } from '@/lib/storage-service';
+import { prisma } from '@lib/storage-service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

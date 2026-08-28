@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import type { MemoryEntry, MemoryQuery } from '@esggo/shared';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { verifyWebhookSignature } from '@/lib/webhook-auth';
+import { verifyWebhookSignature } from '@lib/webhook-auth';
 
 /**
  * 寫入/刪除守門：memory 為對內共享總線（Next.js 內部 + Gateway 經 HTTP 呼叫），

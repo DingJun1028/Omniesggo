@@ -4,7 +4,7 @@
 
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError, validateParams } from '@lib/api-utils';
-import { getNCBClient } from '@/lib/ncb-client';
+import { getNCBClient } from '@lib/ncb-client';
 // Tags route
 
 // GET /api/ai-notes/tags - 取得標籤列表
