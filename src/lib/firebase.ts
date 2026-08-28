@@ -20,9 +20,9 @@ const isServer = typeof window === 'undefined';
 
 function getStore(): Map<string, Record<string, DocData>> {
   if (isServer) {
-    // @ts-ignore - globalThis 在 server 端持久
+    // @ts-expect-error - globalThis 在 server 端持久
     if (!globalThis.__esggoLocalStore) globalThis.__esggoLocalStore = new Map();
-    // @ts-ignore
+    // @ts-expect-error - localStore is attached to globalThis temporarily
     return globalThis.__esggoLocalStore as Map<string, Record<string, DocData>>;
   }
   return memoryFallback;
