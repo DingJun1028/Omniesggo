@@ -1,8 +1,8 @@
 import { db } from '@lib/firebase';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit } from '@lib/firebase';
 import { v4 as uuidv4 } from 'uuid';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { runGeminiWithWorkersAIFallback } from '@/lib/cloudflare';
+import { runGeminiWithWorkersAIFallback } from '@lib/cloudflare';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { db } from '@lib/firebase';
-import { collection, onSnapshot, query, orderBy, deleteDoc, doc, writeBatch } from 'firebase/firestore';
+import { collection, onSnapshot, query, orderBy, deleteDoc, doc, writeBatch } from '@lib/firebase';
 import { Trash2, ChevronDown, ChevronUp, Database, FileText } from 'lucide-react';
 
 interface RagChunk {

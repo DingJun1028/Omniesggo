@@ -1,15 +1,7 @@
 name = "esggo"
-main = "my-worker/src/index.ts"
+main = "worker/src/index.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
-
-[assets]
-directory = "my-worker/dist"
-binding = "ASSETS"
-not_found_handling = "single-page-application"
-
-[build]
-command = "npx --yes pnpm install --frozen-lockfile && npx tsc -p my-worker/tsconfig.json"
 
 [vars]
 ENVIRONMENT = "production"

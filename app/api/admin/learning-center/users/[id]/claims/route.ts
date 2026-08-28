@@ -1,92 +1,25 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/**
+ * Admin Learning-Center User Claims API — 本地模式 (GCP Firebase 已停用, 力度 1, 2026-08-25)
+ *
+ * GCP Firebase Auth custom claims (verifyIdToken / setCustomUserClaims) 已移除。
+ * 本地模式: 此管理功能依賴 GCP 身分系統, 故回傳 503 明確標註停用, 避免半殘或誤導。
+ * 若需啟用, 應接本地 RBAC (見 src/lib/local-rbac.ts) 並設定 LOCAL_JWT_SECRET。
+ */
+
 import { NextResponse } from 'next/server';
-import { getAuth } from 'firebase-admin/auth';
-import { getAdminApp } from '@/lib/firebase-admin';
-
-function getAdminAuth() {
-  return getAuth(getAdminApp());
-}
-
-async function getRequesterRole(request: Request): Promise<'admin' | 'TA' | 'student' | null> {
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-  if (!token) return null;
-
-  try {
-    const decoded = await getAdminAuth().verifyIdToken(token);
-    const role = decoded['role'];
-    if (role === 'admin' || role === 'TA' || role === 'student') {
-      return role;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-async function requireAdmin(request: Request): Promise<{ uid: string } | null> {
-  const role = await getRequesterRole(request);
-  if (role === 'admin') {
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null;
-    if (!token) return null;
-    try {
-      const decoded = await getAdminAuth().verifyIdToken(token);
-      return { uid: decoded.uid };
-    } catch {
-      return null;
-    }
-  }
-  return null;
-}
 
 function jsonError(message: string, status: number) {
   return NextResponse.json({ ok: false, message }, { status });
 }
 
-export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const requester = await requireAdmin(request);
-  if (!requester) return jsonError('Forbidden', 403);
-  const { id } = await params;
+const DISABLED_MESSAGE =
+  'GCP Firebase Auth 已停用 (力度 1)。User claims 管理功能需本地 RBAC 重建，目前未啟用。';
 
-  try {
-    const userRecord = await getAdminAuth().getUser(id);
-    const claims = (userRecord.customClaims ?? {}) as Record<string, unknown>;
-
-    return NextResponse.json({
-      ok: true,
-      uid: userRecord.uid,
-      email: userRecord.email,
-      claims,
-    });
-  } catch (error) {
-    console.error('[Admin] getUserClaims error:', error);
-    return jsonError('User not found', 404);
-  }
+export async function GET() {
+  return jsonError(DISABLED_MESSAGE, 503);
 }
 
-export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  const requester = await requireAdmin(request);
-  if (!requester) return jsonError('Forbidden', 403);
-  const { id } = await params;
-
-  try {
-    const payload = await request.json();
-    const role = payload.role;
-
-    if (!['student', 'TA', 'admin'].includes(role)) {
-      return jsonError('Invalid role. Must be student, TA, or admin', 400);
-    }
-
-    await getAdminAuth().setCustomUserClaims(id, { role });
-
-    return NextResponse.json({
-      ok: true,
-      uid: id,
-      role,
-      message: 'Custom claims updated',
-    });
-  } catch (error) {
-    console.error('[Admin] setCustomUserClaims error:', error);
-    return jsonError('Failed to update claims', 500);
-  }
+export async function PUT() {
+  return jsonError(DISABLED_MESSAGE, 503);
 }
