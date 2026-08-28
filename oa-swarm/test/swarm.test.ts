@@ -79,7 +79,10 @@ describe('靈魂執行鏈', () => {
     const art = await core.executeSwarmTask('設計一個登入頁面', 'unit-test');
     expect(art.hash_lock).toMatch(/^0x/);
     expect(verifyZeroHallucination(art)).toBe(true);
-    expect(art.evidence.collaborators.length).toBeGreaterThan(0);
+    // evidence 對齊 canonical: { originCause, processTrace, finalEffect }
+    expect(art.evidence.originCause).toBeTruthy();
+    expect(Array.isArray(art.evidence.processTrace)).toBe(true);
+    expect(art.evidence.processTrace.length).toBeGreaterThan(0);
   }, 15000);
   it('熵減循環降低熵值', () => {
     const core = new SwarmCore();
