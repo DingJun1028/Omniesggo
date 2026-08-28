@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-08-28T02:38:35Z",
+  "energy": 38.4,
+  "metrics": {
+    "experiences": 4,
+    "vault_notes": 22,
+    "git_commits": 1760,
+    "recent_fixes": 21
+  },
+  "status": "DORMANT"
+}

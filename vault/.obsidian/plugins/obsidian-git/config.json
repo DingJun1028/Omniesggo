@@ -1,0 +1,16 @@
+{
+  "autoPullInterval": 0,
+  "autoPush": false,
+  "autoPull": false,
+  "bashPath": "C:\\Program Files\\Git\\bin\\bash.exe",
+  "gitPush": true,
+  "useSymbolicLinks": false,
+  "autoPushInterval": 0,
+  "commitMessage": "obsidian-sync: auto-commit by 30-bee-colony",
+  "authorName": "OA-Team 30",
+  "authorEmail": "swarm@esggo.co",
+  "defaultHideMissingLink": true,
+  "automatedCommit": true,
+  "startDifferCommit": true,
+  "ignoreSaveFailures": true
+}

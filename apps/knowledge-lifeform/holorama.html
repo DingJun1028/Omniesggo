@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HoloLense v1.0 — 永恆生命力儀表板</title>
+<style>
+  body{margin:0;font-family:system-ui,sans-serif;background:radial-gradient(circle at 50% 0%,#1a2a4a,#0a0e1a);color:#e6edf3;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem}
+  h1{font-weight:300;letter-spacing:.2em;color:#7fd1ff}
+  .card{background:rgba(255,255,255,.05);border:1px solid rgba(127,209,255,.2);border-radius:16px;padding:1.5rem 2rem;margin:1rem;min-width:280px;text-align:center;backdrop-filter:blur(8px)}
+  .energy{font-size:3rem;font-weight:200;color:#5fff9f}
+  .status{font-size:1.2rem;letter-spacing:.1em}
+  .ALIVE{color:#5fff9f}.DORMANT{color:#ffcf5f}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;max-width:900px;width:100%}
+  .metric{font-size:2rem;color:#7fd1ff}
+  .label{opacity:.6;font-size:.85rem;letter-spacing:.1em}
+  footer{margin-top:2rem;opacity:.4;font-size:.8rem}
+</style>
+</head>
+<body>
+  <h1>🌌 HOLOLENSE v1.0</h1>
+  <p style="opacity:.6">Obsidian × Hermes 永恆知識生命體</p>
+  <div class="card">
+    <div class="energy" id="energy">--</div>
+    <div class="status" id="status">載入中…</div>
+  </div>
+  <div class="grid" id="metrics"></div>
+  <footer>life-force-energy.json · evolution-report.json · 5T 不可篡改</footer>
+<script>
+async function load(){
+  try{
+    const r=await fetch('life-force-energy.json');const d=await r.json();
+    document.getElementById('energy').textContent=d.energy;
+    const s=document.getElementById('status');s.textContent=d.status;s.className='status '+d.status;
+    const m=document.getElementById('metrics');
+    for(const[k,v]of Object.entries(d.metrics)){
+      const div=document.createElement('div');div.className='card';
+      div.innerHTML=`<div class="metric">${v}</div><div class="label">${k}</div>`;m.appendChild(div);
+    }
+  }catch(e){document.getElementById('status').textContent='無法讀取生命力數據';}
+}
+load();setInterval(load,30000);
+</script>
+</body>
+</html>
