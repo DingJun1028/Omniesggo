@@ -22,9 +22,14 @@ def create_app():
 
     from src.brand import get_brand
     from src.parsers.dna_parser import parse_dna
+    from src.pipeline import build_pipeline
     from src.visuals.image_gen import generate_image
 
     app = FastAPI(title="AI Station", version="0.1.0")
+
+    # §12 global wiring: a single pipeline instance backs the incremental
+    # endpoints so every request flows through the optimizer + 5T gate.
+    _pipeline = build_pipeline()
 
     @app.get("/health")
     def health():
@@ -66,6 +71,15 @@ def create_app():
             "visual_path": image_path,
         }
 
+    @app.post("/v1/generate/inc")
+    def generate_incremental(
+        script: str = Body(...),
+        series: Optional[str] = Body(None),
+        voice: str = Body("zh-TW-YunJheNeural"),
+    ):
+        """§12 global landing: run the 7-module line through the incremental
+        optimizer + 5T hash-lock gate (soul.md §12 / §18)."""
+        return _pipeline.run(script, series=series, voice=voice)
     return app
 
 

@@ -7,7 +7,7 @@ import { NextRequest } from 'next/server';
 import { crawlerScheduler } from '@/services/scheduler/crawler-scheduler';
 import { jsonError, jsonResponse } from '@lib/api-utils';
 import type { SubscriptionMatch } from '@/core/sonnar/sonar-bridge';
-import { verifyWebhookSignature } from '@/lib/webhook-auth';
+import { verifyWebhookSignature } from '@lib/webhook-auth';
 
 // GET /api/sonnar/crawl — Get scheduler status & job list
 export async function GET() {

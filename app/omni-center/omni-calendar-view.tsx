@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { db } from '@lib/firebase';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, onSnapshot, query } from '@lib/firebase';
 
 export interface OmniTask {
   id: string;

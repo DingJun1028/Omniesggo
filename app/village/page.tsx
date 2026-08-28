@@ -12,7 +12,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { db } from '@lib/firebase';
-import { onSnapshot } from 'firebase/firestore';
+import { onSnapshot } from '@lib/firebase';
 // seedVillageData removed — should be API route, not client import
 import { OmniBaseCard } from '@/components/omni-base-card';
 

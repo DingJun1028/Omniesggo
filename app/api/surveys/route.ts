@@ -1,6 +1,13 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/**
+ * Surveys API — NCBDB 模式 (GCP Firebase 已停用, 力度 1, 2026-08-25)
+ *
+ * 2026-08-25 用戶指示「改用 NCBDB」: firebase backend 分支改接 ncbQuery。
+ * NCBDB 無 API Key 時優雅回傳空陣列 (模擬模式), 故保留 memory fallback 作為開發期降級。
+ */
+
 import { NextResponse } from 'next/server';
-import type { QueryDocumentSnapshot } from 'firebase-admin/firestore';
-import { adminDb } from '@/lib/firebase-admin';
+import { ncbQuery } from '@lib/ncb-utils';
 
 type SurveyRow = {
   id?: string;
@@ -22,11 +29,6 @@ type SurveyRow = {
 const memoryStore: SurveyRow[] = [];
 let memoryId = 1;
 
-function isFirebaseBackend(): boolean {
-  const backend = (process.env.SURVEY_BACKEND || '').trim().toLowerCase();
-  return backend === 'firebase';
-}
-
 function addMemoryRow(row: SurveyRow): SurveyRow {
   const record = { ...row, id: String(memoryId++) };
   memoryStore.push(record);
@@ -37,12 +39,8 @@ function getMemoryRows(): SurveyRow[] {
   return memoryStore.slice().sort((a, b) => (b.submittedAt || '').localeCompare(a.submittedAt || '')).slice(0, 200);
 }
 
-function asLoadableCollection(path: string) {
-  const ref = adminDb.collection(path);
-  if (!ref) {
-    throw new Error('Survey storage is not configured');
-  }
-  return ref;
+function isNcbdbConfigured(): boolean {
+  return !!process.env.NCB_API_KEY;
 }
 
 export async function POST(request: Request) {
@@ -56,36 +54,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ ok: false, message: 'Missing required fields: ' + missing.join(', ') }, { status: 400 });
     }
 
-    const backend = (process.env.SURVEY_BACKEND || '').trim().toLowerCase();
-
-    if (backend === 'firebase') {
-      const { adminDb } = await import('@/lib/firebase-admin');
-      const db = adminDb as any;
-      if (!adminDb || !adminDb.collection) {
-        return NextResponse.json({ ok: false, message: 'Survey storage is not configured' }, { status: 500 });
-      }
-      const docRef = await db.collection('surveys').add({
-        week: payload.week,
-        date: payload.date,
-        topic: payload.topic,
-        instructor: payload.instructor,
-        studentName: payload.studentName ?? null,
-        organization: payload.organization ?? null,
-        ratings: payload.ratings ?? {},
-        feedbacks: {
-          valuable: payload.feedbacks?.valuable ?? null,
-          improvement: payload.feedbacks?.improvement ?? null,
-          question: payload.feedbacks?.question ?? null,
-        },
-        submittedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-
-      return NextResponse.json({ ok: true, id: docRef.id }, { status: 200 });
-    }
-
-    const row = addMemoryRow({
+    const row: SurveyRow = {
       week: payload.week as number,
       date: payload.date as string,
       topic: payload.topic as string,
@@ -99,9 +68,20 @@ export async function POST(request: Request) {
         question: payload.feedbacks?.question ?? null,
       },
       submittedAt: new Date().toISOString(),
-    });
+    };
 
-    return NextResponse.json({ ok: true, id: row.id }, { status: 200 });
+    if (isNcbdbConfigured()) {
+      const result = await ncbQuery<{ id?: string }>({
+        table: 'surveys',
+        method: 'POST',
+        body: row,
+      });
+      return NextResponse.json({ ok: true, id: result?.id ?? String(memoryId++) }, { status: 200 });
+    }
+
+    // NCBDB 未設定 → memory fallback (開發期)
+    const memRow = addMemoryRow(row);
+    return NextResponse.json({ ok: true, id: memRow.id }, { status: 200 });
   } catch (error) {
     console.error('[API] /api/surveys POST error:', error);
     return NextResponse.json({ ok: false, message: 'Failed to save survey' }, { status: 500 });
@@ -110,19 +90,13 @@ export async function POST(request: Request) {
 
 export async function GET() {
   try {
-    const backend = (process.env.SURVEY_BACKEND || '').trim().toLowerCase();
-    if (backend === 'firebase') {
-      const { adminDb } = await import('@/lib/firebase-admin');
-      const db = adminDb as any;
-      if (!adminDb || !adminDb.collection) {
-        return NextResponse.json({ ok: false, message: 'Survey storage is not configured' }, { status: 500 });
-      }
-      const snap = await db.collection('surveys').orderBy('submittedAt', 'desc').limit(200).get();
-      if (!snap) {
-        return NextResponse.json({ ok: false, message: 'Survey storage is not configured' }, { status: 500 });
-      }
-      const rows = snap.docs.map((doc: QueryDocumentSnapshot) => ({ id: doc.id, ...doc.data() }));
-      return NextResponse.json({ ok: true, rows }, { status: 200 });
+    if (isNcbdbConfigured()) {
+      const rows = await ncbQuery<SurveyRow[]>({
+        table: 'surveys',
+        method: 'GET',
+        params: { orderBy: 'submittedAt', order: 'desc', limit: '200' },
+      });
+      return NextResponse.json({ ok: true, rows: Array.isArray(rows) ? rows : [] }, { status: 200 });
     }
 
     return NextResponse.json({ ok: true, rows: getMemoryRows() }, { status: 200 });

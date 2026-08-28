@@ -4,8 +4,15 @@
 Implements the six patterns described in soul.md §12.1:
     EventBus, ServiceOrchestrator, ETLPipeline, APIGateway, CacheManager,
     ErrorHandler. Every pattern records a ``source_origin`` (Traceable), a
-    timestamp (Trackable), freezes state (Trustworthy), and exposes a
-    paginated / delta interface (Tangible / Transparent).
+    timestamp (Trackable), freezes state (Trustworthy), exposes a
+    paginated / delta interface (Tangible / Transparent), and now ALSO
+    stamps every emitted record with a §18 cross-package Hash Lock
+    (``sha256(f"{source}|{content}|{timestamp}")``) so the Python-side
+    records are ISOMORPHIC to ``src.core.verification.generate_hash_lock``
+    and to the TypeScript ``generateHashLock``.
+
+This closes the gap noted in the §12.1 review: the six patterns froze
+their payloads but did NOT carry the §18 hash lock.
 """
 import hashlib
 import hmac
@@ -27,14 +34,20 @@ class EventBus:
         # Traceable: record event source; Transparent: broadcast-ready.
         self._seq += 1
         eid = f"{self._seq:016x}"
+        payload = event.get("payload", {})
+        # §18 Trustworthy: Hash Lock over (source|content|ts).
+        hash_lock = generate_hash_lock(
+            "EventBus", str(payload), self._seq
+        )
         self._events.append(
             {
                 "id": eid,
                 "source": event.get("source"),
                 # Trackable
                 "timestamp": self._seq,
-                # Trustworthy: freeze the payload
-                "payload": freeze(event.get("payload", {})),
+                # Trustworthy: freeze the payload + carry hash lock
+                "payload": freeze(payload),
+                "hash_lock": hash_lock,
             }
         )
         return eid
@@ -59,8 +72,10 @@ class ServiceOrchestrator:
             for i in range(0, len(items), self.page_size)
         ] or [[]]
         self._store[eid] = items
+        # §18 Trustworthy: Hash Lock over (source|content|ts).
+        hash_lock = generate_hash_lock("ServiceOrchestrator", str(items), 0)
         # Transparent: log execution start.
-        return {"execution_id": eid, "pages": pages}
+        return {"execution_id": eid, "pages": pages, "hash_lock": hash_lock}
 
     def get_page(self, execution_id: str, page: int) -> List[Any]:
         items = self._store.get(execution_id, [])
@@ -77,10 +92,13 @@ class ETLPipeline:
     def process(self, source: Dict[str, Any]) -> Dict[str, Any]:
         # Trackable: data lineage via delta.
         delta = {k: v for k, v in source.items() if self._last.get(k) != v}
+        version = len(self._last) + 1
+        # §18 Trustworthy: Hash Lock over (source|content|ts).
+        hash_lock = generate_hash_lock("ETLPipeline", str(source), version)
         # Trustworthy: freeze the loaded snapshot.
-        locked = freeze({"data": dict(source), "version": len(self._last) + 1})
+        locked = freeze({"data": dict(source), "version": version})
         self._last = dict(source)
-        return {"delta": delta, "locked": locked}
+        return {"delta": delta, "locked": locked, "hash_lock": hash_lock}
 
 
 class APIGateway:
@@ -104,12 +122,15 @@ class APIGateway:
         cid = request.get("client_id", "anon")
         self._rate[cid] = self._rate.get(cid, 0) + 1
         items = request.get("items", [])
+        # §18 Trustworthy: Hash Lock over (source|content|ts).
+        ts = int(time.time() * 1000)
+        hash_lock = generate_hash_lock("APIGateway", body, ts)
         # Tangible: paginated response.
         pages = [
             items[i : i + self.page_size]
             for i in range(0, len(items), self.page_size)
         ] or [[]]
-        return {"pages": pages}
+        return {"pages": pages, "hash_lock": hash_lock}
 
 
 class CacheManager:
@@ -138,6 +159,10 @@ class CacheManager:
         # record it as the current cache state.
         val = loader()
         self._cache[key] = val
+        # §18 Trustworthy: Hash Lock over (source|content|ts).
+        ts = int(time.time() * 1000)
+        hash_lock = generate_hash_lock("CacheManager", str(val), ts)
+        setattr(self, f"_hash_{key}", hash_lock)
         return val
 
 
@@ -149,13 +174,17 @@ class ErrorHandler:
         self._queue: List[Dict[str, Any]] = []
 
     def handle(self, error: Exception, context: Dict[str, Any]) -> Dict[str, bool]:
+        ts = int(time.time() * 1000)
+        # §18 Trustworthy: Hash Lock over (source|content|ts).
+        hash_lock = generate_hash_lock("ErrorHandler", str(error), ts)
         record = freeze(
             {
                 "id": f"err-{len(self._logs) + 1}",
-                "timestamp": int(time.time() * 1000),
+                "timestamp": ts,
                 "error": str(error),
                 "stack": list(getattr(error, "args", [])),
                 "context": dict(context),
+                "hash_lock": hash_lock,
             }
         )
         self._logs.append(record)
@@ -182,4 +211,6 @@ if __name__ == "__main__":
 
     sig = _h.new(b"s", b"hello", hashlib.sha256).hexdigest()
     assert gw.handle_request({"body": "hello", "signature": sig, "client_id": "c"})
-    print("§12.1 patterns self-check: PASS")
+    etl = ETLPipeline()
+    assert "hash_lock" in etl.process({"a": 1})
+    print("§12.1 patterns §18 hash-lock self-check: PASS")

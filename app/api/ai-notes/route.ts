@@ -4,7 +4,7 @@
 
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError, validateParams } from '@lib/api-utils';
-import { getNCBClient } from '@/lib/ncb-client';
+import { getNCBClient } from '@lib/ncb-client';
 
 // GET /api/ai-notes - 取得筆記列表
 export async function GET(request: NextRequest) {

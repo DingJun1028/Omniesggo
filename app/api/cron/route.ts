@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { jsonError, jsonResponse } from '@lib/api-utils';
-import { verifyWebhookSignature } from '@/lib/webhook-auth';
+import { verifyWebhookSignature } from '@lib/webhook-auth';
 
 /**
  * 認證守門：cron 手動觸發端點僅供內部排程或持有 CRON_SECRET 的服務呼叫。
