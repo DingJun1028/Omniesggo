@@ -6,33 +6,46 @@ co_authors: [oa-team, hermes]
 lifecycle: active
 access: public-research
 tags: [cloudflare, cache, debugging, d1, worker]
-related: [[WebsiteGapAudit]] [[OracleAlwaysFreeResearch]]
+related: [[WebsiteGapAudit]] [[FTGJourneyAppArchitecture]]
 ---
 
 # Cloudflare 快取 404 陷阱 · 知識分身
 
-> 檔案已上傳 GitHub Pages 卻仍 404？可能是 Cloudflare 邊緣快取了舊的 404 回應。
+> 部署新資源（如 og-image.svg）後線上仍 404，實際是 Cloudflare 邊緣快取了舊的 404 回應。實戰診斷法。
 
 ## 症狀
-- `curl https://domain/og-image.svg` → `404`（content-type: text/html）
-- 但帶 cache-bust `?v=2` → `200`（image/svg+xml）
-- 回應頭含 `cf-cache-status: HIT` + `x-github-request-id`（來自 GitHub Pages）
+- GitHub Pages 檔案實際已上線（`curl .../og-image.svg?v=2` → 200）
+- 但標準網址回 404 + `cf-cache-status: HIT`（命中舊快取）
+- `x-github-request-id` 出現（源站是 GitHub Pages，非 Cloudflare 源）
 
-## 根因
-Cloudflare 在檔案存在**之前**就收到請求並快取了 404 回應（預設 Cache Everything 或 Edge Cache TTL）。之後檔案上傳了，但邊緣節點仍回舊 404。
+## 診斷步驟（5T Traceable）
+```bash
+# 1. 帶 cache-bust query 驗證源站是否有檔
+curl -s -o /dev/null -w "%{http_code}" "https://ftgtours.esggo.co/og-image.svg?v=2"
+# → 200 表示檔在，只是快取舊
 
-## 解決（5T Transparent 驗證閉環）
-1. 確認源站真的有檔：`curl 'https://domain/file?v=2'` 得 200 → 源站 OK，是快取問題
-2. 清 Cloudflare 快取（需 Zone 權限，非 DNS-only token）：
-   - API Key 認證：`X-Auth-Email` + `X-Auth-Key`（非 Bearer）
-   - `POST /zones/{zone}/purge_cache` body `{"files":["https://domain/file"]}`
-   - 帳號全域 Key 在 `secret-vault/cloudflare_global_key.env`（CF_KEY=cfk_...）
-3. 清後再驗證 → 200
+# 2. 查回應頭確認快取命中
+curl -s -I "https://ftgtours.esggo.co/og-image.svg" | grep -iE "cf-cache-status|x-github"
+# → cf-cache-status: HIT + x-github-request-id 出現
 
-## 預防
-- 部署新靜態資源後主動 purge 該檔案
-- 或設 Page Rule / Cache Rule 對 `/public-assets/*` 設 `Cache Level: Bypass` 開發期
+# 3. 清 Cloudflare 快取（用全域 API Key，非 Bearer）
+curl -X POST "https://api.cloudflare.com/client/v4/zones/$ZONE/purge_cache" \
+  -H "X-Auth-Email: $CF_EMAIL" -H "X-Auth-Key: $CF_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"files":["https://ftgtours.esggo.co/og-image.svg"]}'
+# → {"success":true}
+```
+
+## 關鍵知識
+- Cloudflare API：**全域 API Key** 用 `X-Auth-Email` + `X-Auth-Key` header（不是 `Bearer $TOKEN`）
+- Bearer token 若報 `code:10000 Authentication error` → 改用全域 Key
+- Zone ID：`8dda3653e490290412f7be84a84e0dc9`（ftgtours.esggo.co）
+- Account ID：`d9d7ecd92cbad6d858fba3e529b9cb7b`
+
+## 反模式（避免）
+- ⚠️ 用 DNS token（`cfut_...`）清快取 → 權限不足 code:9109
+- ⚠️ 用 `cfk_...` 當 Bearer → 401/10000
 
 ## 關聯
-- [[WebsiteGapAudit]] — og-image.svg 404 即此陷阱
-- [[OracleAlwaysFreeResearch]] — VPS/Worker 部署鏈路
+- [[WebsiteGapAudit]] — og-image 是這次補齊的資源之一
+- [[FTGJourneyAppArchitecture]] — 子域部署同套 Cloudflare 邏輯
