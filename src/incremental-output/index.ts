@@ -12,6 +12,8 @@
  *   4. 可觀測生命週期 hook (Trackable)
  */
 
+import { createHash } from 'node:crypto';
+
 export type FiveT =
   | 'Traceable'
   | 'Trackable'
@@ -43,14 +45,14 @@ export interface IncrementalArtifact extends IComponentCore {
   readonly frozen: true;
 }
 
-/** 簡易 FNV-1a 32-bit hash (零依賴, 可驗證) */
-function fnv1a(str: string): string {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < str.length; i++) {
-    h ^= str.charCodeAt(i);
-    h = Math.imul(h, 0x01000193);
-  }
-  return (h >>> 0).toString(16).padStart(8, '0');
+/** §18 跨語言同構 Hash Lock: SHA-256 64-hex, 與 Python generate_hash_lock 完全一致.
+ *
+ * 演算法: sha256(f"{source}|{content}|{timestamp}")
+ * 對齊 src.core.verification.generate_hash_lock 與 src.incremental.gate.generate_hash_lock.
+ */
+export function generateHashLock(source: string, content: string, timestamp: number): string {
+  const payload = `${source}|${content}|${timestamp}`;
+  return createHash('sha256').update(payload, 'utf-8').digest('hex');
 }
 
 function uuidV4(): string {
@@ -69,7 +71,7 @@ export function verifyFiveTGate(artifact: IncrementalArtifact): void {
     Traceable: !!artifact.sourceOrigin,
     Trackable: Array.isArray(artifact.ops) && artifact.ops.length > 0,
     Tangible: artifact.frozen === true,
-    Transparent: artifact.hashLock.length === 8,
+    Transparent: artifact.hashLock.length === 64,
     Trustworthy: Object.isFrozen(artifact) === true,
   };
   const failed = (Object.keys(checks) as FiveT[]).filter((k) => !checks[k]);
@@ -123,12 +125,14 @@ export class IncrementalOutputOptimizer {
     sourceOrigin: string,
   ): IncrementalArtifact {
     this.emit('seal:start');
-    const payload = JSON.stringify({ ops, baseVersion, fiveT, sourceOrigin });
-    const hashLock = fnv1a(payload);
+    // §18 同構: hash_lock = generateHashLock(source_origin, content, ts)
+    // 此處 content 取 ops 的 JSON 表徵, 使封存可被 Python 端複現.
+    const timestamp = Date.now();
+    const hashLock = generateHashLock(sourceOrigin, JSON.stringify(ops), timestamp);
     const artifact: IncrementalArtifact = Object.freeze({
       uuid: uuidV4(),
       version: this.version,
-      timestamp: Date.now(),
+      timestamp,
       sourceOrigin,
       fiveT,
       hashLock,

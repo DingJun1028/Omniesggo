@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { AgenticTwin } from '@/lib/omni-reports/agentic-twin';
+import { AgenticTwin } from '@lib/omni-reports/agentic-twin';
 
 export const dynamic = 'force-dynamic';
 

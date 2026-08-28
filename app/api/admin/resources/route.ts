@@ -7,7 +7,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { ncbQuery } from '@/lib/ncb-utils';
+import { ncbQuery } from '@lib/ncb-utils';
 
 export const runtime = 'nodejs';
 

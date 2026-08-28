@@ -3,7 +3,7 @@
 // Uses @esggo/errors/api for unified error handling
 // ═══════════════════════════════════════════════════════════════
 
-import { getOmniCoreStatus } from '@/lib/omni-core';
+import { getOmniCoreStatus } from '@lib/omni-core';
 import { apiSuccess, apiInternalError } from '@esggo/errors/api';
 
 export const dynamic = 'force-dynamic';
