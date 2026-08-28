@@ -1,0 +1,47 @@
+﻿name: Deploy Bilingual Translator (3-tier)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['apps/stt/**','apps/universal-translator/**','ecosystem.config.cjs']
+env:
+  VPS_HOST: ${{ secrets.VPS_HOST }}
+  VPS_USER: ${{ secrets.VPS_USER || 'root' }}
+  AGENTIC_TWIN_OLLAMA_URL: ${{ secrets.AGENTIC_TWIN_OLLAMA_URL }}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H -T 10 "$VPS_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+      - name: Deploy STT + Translator
+        run: |
+          set -e
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" bash -s <<VPS
+            set -e
+            cd /var/www/esggo
+            git fetch origin main && git reset --hard origin/main
+            pm2 start ecosystem.config.cjs --only stt-whisper --update-env
+            pm2 start ecosystem.config.cjs --only universal-translator --update-env
+            pm2 save
+          VPS
+      - name: Health-loop
+        run: |
+          set -e
+          for url in "http://${VPS_HOST}:8791/health" "http://${VPS_HOST}:8788/health"; do
+            for i in $(seq 1 20); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' -m 5 "$url" || echo 000)
+              echo "$url -> $code (try $i)"
+              [ "$code" = "200" ] && break
+              sleep 3
+            done
+            [ "$code" = "200" ] || { echo "HEALTH_FAIL: $url"; exit 1; }
+          done
+          echo "=== Gemma core (Brev GPU) ==="
+          curl -s -m 8 "$AGENTIC_TWIN_OLLAMA_URL/v1/models" | head -c 200 || echo "(core check skipped)"
