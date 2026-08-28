@@ -42,7 +42,7 @@ jobs:
             val="${!var}"
             [ -n "$val" ] || { echo "$var=<EMPTY>"; continue; }
             f=~/.ssh/$var
-            printf '%s' "$val" > "$f"
+            printf '%s\n' "$val" > "$f"
             chmod 600 "$f"
             echo "=== $var ==="
             head -2 "$f" || true

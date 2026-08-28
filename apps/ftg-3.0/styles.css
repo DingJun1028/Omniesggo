@@ -259,22 +259,60 @@ h2 { font-size: clamp(26px, 4.5vw, 44px); margin-bottom: 18px; }
   .section { padding: 56px 0; }
 }
 
+/* ESG Impact Note Grid */
+.esg-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+.esg-card {
+  background: white;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.esg-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+}
+.esg-card img,
+.esg-card picture {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.esg-caption {
+  padding: 12px 16px;
+  font-size: clamp(12px, 1.5vw, 14px);
+  color: var(--ink-soft);
+  background: var(--cream);
+  font-weight: 600;
+}
+
 /* Small mobile */
 @media (max-width: 480px) {
-  .container { padding: 0 18px; }
-  .stats { grid-template-columns: 1fr; gap: 14px; }
-  .impact-grid { grid-template-columns: 1fr; }
-  .steps { grid-template-columns: 1fr; }
-  .hero-cta { flex-direction: column; }
-  .hero-cta .btn, .hero-cta .btn-ghost { width: 100%; text-align: center; }
-  .brand .badge-version { display: none; }
-  .nav-actions .btn-sm { padding: 8px 14px; font-size: 13px; }
+  .esg-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .esg-card:hover {
+    transform: none;
+  }
+  .esg-caption {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
 }
 
 /* Very small */
 @media (max-width: 360px) {
   .hero h1 { font-size: 28px; }
   .stat .num { font-size: 24px; }
+  .esg-grid {
+    gap: 12px;
+  }
 }
 
 /* Reduced motion */

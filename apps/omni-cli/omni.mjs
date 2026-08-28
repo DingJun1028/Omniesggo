@@ -4,10 +4,13 @@
 // 對齊 OA-Team 萬能分身操作（status / health / 5t / branches）
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 
 const execFileP = promisify(execFile);
 const API = process.env.OMNI_API || 'http://127.0.0.1:8789';
-const REPO = process.env.ESGRO_REPO || 'C:/Project/esggo';
+// 跨平台預設: 由本檔位置 (apps/omni-cli) 上溯兩層取得倉庫根, 不再寫死 Windows 路徑
+const REPO = process.env.ESGRO_REPO || resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 const HELP = `OmniCLI — esggo 統一命令行入口
 
@@ -20,7 +23,7 @@ const HELP = `OmniCLI — esggo 統一命令行入口
 
 環境變數:
   OMNI_API     OmniAPI 基址 (預設 http://127.0.0.1:8789)
-  ESGRO_REPO   esggo 倉庫路徑 (預設 C:/Project/esggo)
+  ESGRO_REPO   esggo 倉庫路徑 (預設: 由本檔位置自動推導倉庫根, 可用 env 覆寫)
 `;
 
 async function git(args) {
@@ -33,8 +36,22 @@ async function git(args) {
 }
 
 async function getJSON(path) {
-  const r = await fetch(API + path);
-  return r.json();
+  let r;
+  try {
+    r = await fetch(API + path);
+  } catch (e) {
+    throw new Error(`OmniAPI 無法連線 (${API}${path}): ${e instanceof Error ? e.message : String(e)}`);
+  }
+  if (!r.ok) {
+    throw new Error(`OmniAPI 回傳 ${r.status} (${API}${path})`);
+  }
+  let d;
+  try {
+    d = await r.json();
+  } catch {
+    throw new Error(`OmniAPI 回傳非 JSON 內容 (${API}${path})`);
+  }
+  return d;
 }
 
 async function main() {

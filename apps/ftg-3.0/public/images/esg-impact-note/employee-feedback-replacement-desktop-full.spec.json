@@ -1,0 +1,11 @@
+{
+  "id": "feedback",
+  "name": "Employee Feedback & Visual Stories",
+  "filename": "employee-feedback-replacement-desktop-full.png",
+  "dimensions": "1920x1080",
+  "elementId": "employee-feedback",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#employee-feedback",
+  "generatedAt": "2026-08-26T01:57:24.351Z",
+  "status": "spec-ready"
+}

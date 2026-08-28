@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useFirebase, initAuth, subscribeSubmissions, addSubmission, uploadFiles, signInWithGoogle, signOut } from './db';
+import { useFirebase, initAuth, subscribeSubmissions, addSubmission, uploadFiles, signInWithGoogle, signOut, migrateLocalToNcb } from './db';
 import { getKnowledgeEntries } from './repositories/rag.repository';
 import { refreshRoleFromClaims, setupProfileIfMissing } from './repositories/auth.repository';
 import { getUserProfile, upsertUserProfile } from './repositories/profile.repository';
@@ -223,6 +223,9 @@ export default function App() {
       if (!u) return;
       refreshRoleFromClaims(u).then((r) => setRole(r));
     });
+    // 2026-08-25 無縫轉移: 若啟用 NCBDB (VITE_NCB_API_KEY 已設), 自動把 localStorage 資料遷移至 NCBDB
+    // 無 Key 時 migrateLocalToNcb 內部自動 skip, 不影響現有 localStorage 行為
+    migrateLocalToNcb().catch((e) => console.warn('[NCB Migration] skipped:', e?.message || e));
     return () => { if (unsub) unsub(); };
   }, []);
 

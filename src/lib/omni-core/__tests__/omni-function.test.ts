@@ -147,8 +147,8 @@ describe('createFiveTComponent 實作範例', () => {
   it('建立通過 5T 門檻的組件', () => {
     const c = createFiveTComponent({ metric: 'carbon', value: 1200 }, { actor: 'tester' });
     expect(c.uuid).toMatch(/^OC-/);
-    expect(c.hash).toMatch(/^[0-9a-f]{64}$/);
-    const status = FiveTGatekeeper.evaluate(c.fiveT);
+    expect((c as any).hash).toMatch(/^[0-9a-f]{64}$/);
+    const status = FiveTGatekeeper.evaluate((c as any).fiveT);
     expect(FiveTGatekeeper.allPass(status)).toBe(true);
   });
 });

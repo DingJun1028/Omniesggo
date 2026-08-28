@@ -8,6 +8,10 @@ import { SOUL_MATRIX_60, SoulAgent60, ARRAY_NAMES, agentsByArray } from './soul-
 import { callLLM } from './llm.js';
 import { OABClient, DualHiveTunnel, OABMessage } from './oab.js';
 import { ETLPipeline } from './incremental.js';
+import type { IVideoGenerationTask, IVideoGenerationResult } from '../types/generated/esggo-shared.js';
+import { EvolutionEngine, EvolutionLesson } from './evolution.js';
+
+/// <reference path="../types/generated/esggo-shared.d.ts" />
 
 export interface SwarmState {
   entropy: number;
@@ -18,6 +22,12 @@ export interface SwarmState {
   uptimeSec: number;
   oab: { connected: boolean; synced: number };
 }
+
+/// 影片生成任務契約 (對齊 canonical IVideoGenerationTask / OmniAutoVideo)
+export interface VideoGenerationTask extends IVideoGenerationTask {}
+
+/// 影片生成結果契約 (對齊 canonical IVideoGenerationResult)
+export interface VideoGenerationResult extends IVideoGenerationResult {}
 
 export class SwarmCore {
   private entropy = 0.08;
@@ -30,7 +40,11 @@ export class SwarmCore {
   private tunnel = new DualHiveTunnel();
   private etl = new ETLPipeline();
   private oabSynced = 0;
+  private evolution = new EvolutionEngine();
 
+  constructor() {
+    this.evolution.bootstrap().catch((e) => console.error('[EVOLUTION] bootstrap error', (e as Error).message));
+  }
   getState(): SwarmState {
     return {
       entropy: this.entropy,
@@ -67,10 +81,13 @@ export class SwarmCore {
     const picks = this.dispatch(task);
     const summary = picks.map((a) => `【${a.title}】${a.task}`).join('\n');
 
-    // 3. LLM 本質回應 (VPS Ollama qwen2.5:3b)
+    // 3. LLM 本質回應 (VPS Ollama qwen2.5:3b / 14b, 環境變數驅動)
     let llm;
     try {
-      llm = await callLLM(`${brief}\n協作名單:\n${summary}\n請以蜂后口吻回應 50 字內。`);
+      llm = await callLLM(`${brief}\n協作名單:\n${summary}\n請以蜂后口吻回應 50 字內。`, {
+        model: process.env.OLLAMA_MODEL || 'qwen2.5:3b',
+        baseUrl: process.env.OLLAMA_BASE || 'http://localhost:11434',
+      });
     } catch (e) {
       console.error('[LLM_ERR]', (e as Error).message);
       llm = { text: `[MOCK] 蜂群收到任務：「${task.slice(0, 60)}」。Ollama 未連線。`, model: 'mock', source: 'mock' as const };
@@ -92,6 +109,16 @@ export class SwarmCore {
       throw new Error('5T 驗算失敗: 產物被竄改');
     }
 
+    // 5T 驗算結果 (供自我學習萃取)
+    const v5 = {
+      traceable: !!artifact.source_origin,
+      trackable: Array.isArray(artifact.lifecycle) && artifact.lifecycle.length > 0,
+      tangible: !!artifact.evidence,
+      transparent: !!artifact.hash_lock,
+      trustworthy: !!artifact.hash_lock && !!artifact.author,
+      passed: true,
+    };
+
     // 6. OAB 上鏈 (Trackable 軌跡) — 雙蜂隧道同步
     const msg: OABMessage = {
       id: artifact.uuid,
@@ -103,6 +130,21 @@ export class SwarmCore {
     };
     if (await this.oab.publish(msg)) this.oabSynced++;
     await this.tunnel.syncToVps(msg);
+
+    // 7. 自我學習 · 無限進化 (從任務萃取經驗 → 熵減反思 → 寫入 TDAI)
+    const entropyBefore = this.entropy;
+    const t0 = (msg.ts);
+    const lesson = this.evolution.extractLesson({
+      task,
+      artifact,
+      v5,
+      latencyMs: Date.now() - t0,
+      entropyBefore,
+      entropyAfter: Math.max(0.01, entropyBefore * 0.97),
+    });
+    this.evolution.reflect(lesson);
+    const persisted = await this.evolution.persist(lesson);
+    if (!persisted) console.error('[EVOLUTION] 經驗寫入 TDAI 失敗');
 
     this.lastPurified = artifact;
     this.tasksDone++;
@@ -131,5 +173,10 @@ export class SwarmCore {
 
   submitFeedback(uuid: string, rating: number, note: string) {
     this.feedback.submit(uuid, rating, note);
+  }
+
+  /** OAB 歷史檢索代理 */
+  async oabQuery(limit = 10) {
+    return this.oab.query(limit);
   }
 }

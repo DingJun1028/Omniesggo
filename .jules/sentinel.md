@@ -29,3 +29,8 @@
 **Vulnerability:** Cloudflare Worker CI builds were failing because the worker's `wrangler.toml` lacked a specific build command. In a pnpm monorepo, Cloudflare's default fallback to `npm install` fails when it encounters `workspace:*` dependencies in the lockfile or package configurations.
 **Learning:** Cloudflare Workers running in a pnpm monorepo environment require explicit package manager configuration during the build phase to resolve workspace dependencies properly.
 **Prevention:** Always include a `[build]` block in `wrangler.toml` with `command = "npx --yes pnpm install --frozen-lockfile"` for any Cloudflare Worker deployed from a pnpm monorepo. The `--yes` flag ensures the process does not hang on interactive prompts in CI.
+
+## 2025-01-22 - Fail-Open Authentication in Cloudflare Worker Gateway
+**Vulnerability:** The Cloudflare Worker gateway (`worker/src/index.ts`) contained a fail-open authentication vulnerability in its `bearerOk` function. If the `OMNI_GATEWAY_KEY` environment variable was missing or not configured, it would return `true` (`if (!expected) return true;`), essentially allowing unauthenticated requests to pass through as if they were valid.
+**Learning:** This occurred due to an attempt to "allow local only if not configured". However, deploying such logic to production without environment safeguards essentially disables authentication by default if there's an environment configuration error or omission. This violates the fail-secure principle.
+**Prevention:** Remove fail-open conditions that fallback to `true` when secrets are absent. Authentication logic must default to `false` (fail-secure) to ensure that misconfigurations result in denied access rather than unauthorized access.

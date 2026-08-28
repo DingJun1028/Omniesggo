@@ -3,7 +3,7 @@
  * Trustworthy: 錯誤鎖定 | Transparent: 日誌流式
  * Trackable: 重試計數 | Tangible: 用戶通知分頁
  */
-import { StreamBuffer, hashLock, generateTraceableId } from './stream-buffer';
+import { StreamBuffer, hashLock, generateTraceableId } from './stream-buffer.js';
 
 export interface ErrorRecord {
   id: string;

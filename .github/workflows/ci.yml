@@ -160,9 +160,11 @@ jobs:
           cache: "pnpm"
       - name: Install dependencies (frozen)
         run: pnpm install --frozen-lockfile
-      - name: 終始矩陣型別守門 (tsc 0-error)
+      - name: 終始矩陣型別守門 (tsc 0-error + 5T 驗證閘)
         working-directory: apps/universal-translator
-        run: npx tsc -p tsconfig.ut.json --noEmit
+        run: |
+          npx tsc -p tsconfig.ut.json --noEmit
+          node scripts/verify-float-matrix.mjs
       - name: Run UT test suite
         working-directory: apps/universal-translator
         run: node --test test/ut.test.mjs
@@ -318,6 +320,64 @@ jobs:
           GEMINI_API_KEY: "build-placeholder"
           NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "build-placeholder"
+
+  # ─── 終始矩陣 統一驗證閘 (五套 parallel + 聚合) ──
+  # 雙向同步拓撲一致性比對: 五套矩陣共用同一套 5T 守門
+  # 設計: matrix strategy 平行跑 5 子閘 (共享一次 pnpm install), 聚合 job 跑最終閘
+  terminal-origin:
+    name: OA 終始矩陣子閘 (parallel ${{ matrix.gate }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - gate: gap        # 缺口補齊 72
+            cmd: npx tsx scripts/verify_gap_matrix.ts
+          - gate: float      # OmniLive Float 5柱
+            cmd: node apps/universal-translator/scripts/verify-float-matrix.mjs
+          - gate: lc         # Learning-Center 消費端
+            cmd: node apps/learning-center/scripts/verify-matrix.mjs
+          - gate: oa-swarm   # OA-Swarm 雙蜂 60
+            cmd: node oa-swarm/scripts/verify-oa-gap.mjs
+          - gate: incremental # 增量輸出 §12/§15.5
+            cmd: npx tsx scripts/verify-incremental.mjs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+      - name: Install dependencies (frozen)
+        run: pnpm install --frozen-lockfile
+      - name: 終→始 雙向同步再生 (缺口補齊 canonical 變更時)
+        if: matrix.gate == 'gap'
+        run: node scripts/export-shared-types.js
+      - name: 子閘驗證 ${{ matrix.gate }}
+        run: ${{ matrix.cmd }}
+
+  # 聚合閘: 五子閘全綠才過 (任一壞整體壞, 5T Trustworthy 不可篡改)
+  terminal-origin-gate:
+    name: OA 終始矩陣統一閘 (五套匯總)
+    needs: [terminal-origin]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "pnpm"
+      - name: Install dependencies (frozen)
+        run: pnpm install --frozen-lockfile
+      - name: 聚合閘 (確認五子閘皆綠)
+        run: node scripts/verify-terminal-origin.mjs
 
   # ─── agents.yaml 框架驗證 ─────────────────────────────────────
   agents-yaml:

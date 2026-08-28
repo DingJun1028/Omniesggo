@@ -10,7 +10,10 @@
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "desktop": "node dist/index.js --desktop",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sync:types": "node C:/Project/esggo/scripts/export-shared-types.js",
+    "check:types-sync": "node scripts/check-oa-types-sync.mjs",
+    "typecheck": "tsc -p tsconfig.ut.json"
   },
   "devDependencies": {
     "typescript": "^5.5.0",

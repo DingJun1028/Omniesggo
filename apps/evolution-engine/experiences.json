@@ -1,0 +1,50 @@
+[
+  {
+    "id": "EXP-mtbhtirk-timeout",
+    "theme": "timeout",
+    "count": 2,
+    "lesson": "SSH/CI/LLM 呼叫需設 command_timeout 與模型 fallback，避免 45s 阻塞",
+    "tag": "T3-robustness",
+    "created_at": "2026-08-27T12:22:36.608Z",
+    "source": "git-log-recurring"
+  },
+  {
+    "id": "EXP-mtbhtirk-boundary noise",
+    "theme": "boundary noise",
+    "count": 1,
+    "lesson": "local/VPS 邊界噪聲不應計入健康失敗，需過濾 sample lines",
+    "tag": "T1-truth",
+    "created_at": "2026-08-27T12:22:36.608Z",
+    "source": "git-log-recurring"
+  },
+  {
+    "id": "EXP-mtbhtirk-ignore",
+    "theme": "ignore",
+    "count": 1,
+    "lesson": "重複 ignore 模式表示該噪聲源應被永久排除 (gitignore/健康計算)",
+    "tag": "T4-trust",
+    "created_at": "2026-08-27T12:22:36.608Z",
+    "source": "git-log-recurring"
+  },
+  {
+    "id": "EXP-mtbhtirk-loose",
+    "theme": "loose-artifact",
+    "count": 21,
+    "lesson": "偵測到 21 個未追蹤檔，應定期封存 (archive-protocol) 或補 commit",
+    "tag": "T2-tidy",
+    "artifacts": [
+      ".hermes/reports/",
+      ".hermes/tmp/",
+      ".obsidian/",
+      "K2YGwQVq9Nl5PklIf1hkt_4i6FC7UF.png",
+      "apps/evolution-engine/",
+      "apps/omnilive/USER_GUIDE.md",
+      "apps/omnilive/public/overlay.html",
+      "apps/tencentdb-memory/references/",
+      "avatar-metrics-test.json",
+      "deploy-ftg-assets.sh"
+    ],
+    "created_at": "2026-08-27T12:22:36.608Z",
+    "source": "untracked"
+  }
+]

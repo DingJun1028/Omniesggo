@@ -2,4 +2,6 @@ node_modules/
 dist/
 *.log
 .DS_Store
-/*.js
+# 生成檔契約 (終始矩陣 consumer 端) 需版本控制, 不忽略
+!types/generated/esggo-shared.d.ts
+evolution-log.jsonl

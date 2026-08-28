@@ -50,7 +50,7 @@ export async function callLLM(prompt: string, opts?: { model?: string; baseUrl?:
   const base = opts?.baseUrl ?? process.env.OLLAMA_BASE ?? 'http://localhost:11434';
 
   try {
-    const j = await postJson(`${base}/api/generate`, { model, prompt, stream: false }, 12000);
+    const j = await postJson(`${base}/api/generate`, { model, prompt, stream: false }, 25000);
     if (!j?.response) throw new Error('empty response');
     return { text: j.response, model, source: 'ollama' };
   } catch (e) {

@@ -4,10 +4,13 @@
 import http from 'node:http';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
 
 const execFileP = promisify(execFile);
 const PORT = Number(process.env.PORT || 8789);
-const REPO = process.env.ESGRO_REPO || 'C:/Project/esggo';
+// 跨平台預設: 由本檔位置 (apps/omni-api) 上溯兩層取得倉庫根, 不再寫死 Windows 路徑
+const REPO = process.env.ESGRO_REPO || resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 // 5T 協定內部結構（對齊 OA-Team soul.md）
 const FIVE_T = {

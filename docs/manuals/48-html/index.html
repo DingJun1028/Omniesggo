@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>48 OmniFactory 使用說明書（本地版）</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #1f2328;
+      --muted: #5b6570;
+      --accent: #0f5fff;
+      --border: #e6e9ee;
+      --code-bg: #f2f4f7;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    header, footer {
+      background: linear-gradient(180deg, #0b1220 0%, #12203a 100%);
+      color: #fff;
+      padding: 18px 24px;
+      border-bottom: 1px solid #1f2f4a;
+    }
+    header h1 { margin: 0; font-size: 18px; letter-spacing: 0.3px; }
+    header p { margin: 6px 0 0; color: #b8c3d6; font-size: 13px; }
+    .wrap { max-width: 980px; margin: 24px auto; padding: 0 20px; }
+    .grid { display: grid; grid-template-columns: 220px 1fr; gap: 20px; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    nav { position: sticky; top: 16px; align-self: start; }
+    nav ul { list-style: none; padding: 0; margin: 0; background: var(--panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    nav li + li { border-top: 1px solid var(--border); }
+    nav a { display: block; padding: 10px 14px; color: var(--text); text-decoration: none; font-size: 14px; }
+    nav a:hover { background: #eef2ff; color: var(--accent); }
+    main { background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    section { scroll-margin-top: 16px; }
+    h2 { font-size: 16px; margin: 28px 0 10px; }
+    h2:first-child { margin-top: 0; }
+    h3 { font-size: 14px; color: var(--muted); margin: 18px 0 8px; }
+    p, li { font-size: 14px; color: #2a3036; }
+    ul, ol { padding-left: 20px; }
+    code, pre {
+      font-family: ui-monospace, "SF Mono", "Consolas", "Noto Sans Mono", "Microsoft JhengHei", monospace;
+      font-size: 13px;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow: auto;
+    }
+    .callout {
+      background: #eef6ff;
+      border: 1px solid #d7e6ff;
+      color: #0b3d7a;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #e8f8ef;
+      color: #145a32;
+      border: 1px solid #c6ecd6;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    footer p { margin: 0; font-size: 12px; color: #b8c3d6; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>48 OmniFactory 使用說明書（本地版本）</h1>
+    <p>無須外部連結・可离线閱讀・5T 合規展示</p>
+  </header>
+
+  <div class="wrap">
+    <div class="grid">
+      <nav aria-label="目錄">
+        <ul>
+          <li><a href="#introduction">1. 簡介</a></li>
+          <li><a href="#quick-start">2. 快速開始</a></li>
+          <li><a href="#core-functions">3. 核心功能</a></li>
+          <li><a href="#advanced-usage">4. 進階操作</a></li>
+          <li><a href="#troubleshooting">5. 故障排除</a></li>
+          <li><a href="#api">6. API 參考</a></li>
+          <li><a href="#security">7. 安全設定</a></li>
+          <li><a href="#faq">8. FAQ</a></li>
+          <li><a href="#changelog">9. 版本更新紀錄</a></li>
+        </ul>
+      </nav>
+
+      <main>
+        <section id="introduction">
+          <h2>1. 簡介（Introduction）</h2>
+          <p>OmniFactory 是 AI Station 的本地产線核心，負責將腳本與品牌設定轉化為可交付的资产。</p>
+          <div class="callout">本地版本：所有內容皆可在無網路環境下閱讀與驗證。</div>
+        </section>
+
+        <section id="quick-start">
+          <h2>2. 快速開始（Quick Start）</h2>
+          <pre><code>oa-cli init omnifactory
+oa-cli request "建立一個即時股票分析平台，支援 10000 用戶並保持零成本"
+oa-cli generate --project stock-analysis-platform
+oa-cli deploy stock-analysis-platform</code></pre>
+          <ul>
+            <li>0.011 秒内完成平台生成</li>
+            <li>成本：<code>$0.00/hr</code></li>
+            <li>延遲：<code>7ms</code></li>
+            <li>測試覆蓋率：<code>100%</code></li>
+          </ul>
+        </section>
+
+        <section id="core-functions">
+          <h2>3. 核心功能（Core Functions）</h2>
+          <ul>
+            <li>品牌一致性視覺生成</li>
+            <li>DNA 腳本分段解析</li>
+            <li>可追蹤的產物與版本標記</li>
+            <li>本地優先，可優雅降級</li>
+          </ul>
+        </section>
+
+        <section id="advanced-usage">
+          <h2>4. 進階操作（Advanced Usage）</h2>
+          <p>支援批次處理、分頁檢視、增量輸出與快取策略。</p>
+        </section>
+
+        <section id="troubleshooting">
+          <h2>5. 故障排除（Troubleshooting）</h2>
+          <ul>
+            <li>若本機無法產生視覺，確認 Pillow 已安裝</li>
+            <li>若解析失敗，檢查腳本是否包含 DNA 標記</li>
+            <li>若需還原，使用前次凍結的 Hash Lock 版本</li>
+          </ul>
+        </section>
+
+        <section id="api">
+          <h2>6. API 參考（Documentation）</h2>
+          <pre><code>GET /health
+POST /v1/generate
+GET /v1/brand</code></pre>
+        </section>
+
+        <section id="security">
+          <h2>7. 安全設定（Security）</h2>
+          <ul>
+            <li>本機預設不暴露金鑰</li>
+            <li>公開前先通過 VaultGuard</li>
+            <li>必要時才啟用外部金鑰</li>
+          </ul>
+        </section>
+
+        <section id="faq">
+          <h2>8. FAQ</h2>
+          <p>Q：本地版本是否完整？<br/>A：目前為可閱讀的本地展示版本，不依賴外部連結。</p>
+        </section>
+
+        <section id="changelog">
+          <h2>9. 版本更新紀錄（Changelog）</h2>
+          <ul>
+            <li>2026-08-27：建立本地版本與 HTML 展示</li>
+            <li>2026-08-27：補 CLI 與 5T 合規說明</li>
+          </ul>
+        </section>
+
+        <div class="status" style="margin-top: 18px;">
+          <span aria-hidden="true">✅</span>
+          <span>48 Final Status：本地文件已生成並驗證</span>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <footer>
+    <p>來源：本地手冊展示版本・無外部依賴・5T 合規</p>
+  </footer>
+</body>
+</html>

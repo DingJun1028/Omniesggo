@@ -80,7 +80,6 @@ def create_app():
         """§12 global landing: run the 7-module line through the incremental
         optimizer + 5T hash-lock gate (soul.md §12 / §18)."""
         return _pipeline.run(script, series=series, voice=voice)
-
     return app
 
 

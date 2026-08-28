@@ -3,7 +3,7 @@
  * Traceable: 記錄事件來源 | Trackable: 事件流增量寫入
  * Transparent: 廣播可查 | Trustworthy: Object.freeze 防篡改
  */
-import { StreamBuffer, hashLock, generateTraceableId, TraceableRecord } from './stream-buffer';
+import { StreamBuffer, hashLock, generateTraceableId, TraceableRecord } from './stream-buffer.js';
 
 export type DomainEvent<T = unknown> = TraceableRecord & { payload: T };
 
