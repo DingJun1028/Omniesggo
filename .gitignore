@@ -352,3 +352,4 @@ apps/omni-factory/.obsidian-config.json
 
 # 封存區 (archive-protocol: 不可入 git)
 /archive/
+apps/ftg-journey-web/cloudflare.ini
