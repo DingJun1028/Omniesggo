@@ -6,34 +6,38 @@ co_authors: [oa-team, hermes]
 lifecycle: active
 access: public-research
 tags: [ftg, website-audit, gap-remediation, seo]
-related: [[FTGToursShareCopy]] [[FTGJourneyAppArchitecture]] [[CloudflareCache404]]
+related: [[FTGToursShareCopy]] [[CloudflareCache404]] [[FTGJourneyAppArchitecture]]
 ---
 
-# 官網缺口補齊清單 · 知識分身
+# 官網缺口補齊 Audit · 知識分身
 
-> `ftgtours.esggo.co` 成熟度審計與補齊記錄。生產級官網應具備的基礎設施。
+> 2026-08-28 對 `ftgtours.esggo.co` 做的系統化缺口審計與補齊實錄。
 
-## 已補齊缺口（2026-08-29）
+## 發現並補齊的缺口
 | 缺口 | 修正 | 狀態 |
 |------|------|------|
-| 無 404 頁 | `NotFound.jsx` + App.jsx `path="*"` + i18n `notFound` 鍵 | ✅ |
-| 無 robots.txt | `public/robots.txt`（Allow + Sitemap） | ✅ 200 |
-| 無 sitemap.xml | `public/sitemap.xml`（8 頁 URL） | ✅ 200 |
-| favicon 404 | `public/favicon.svg` + apple-touch-icon | ✅ 200 |
-| 分享無圖 | `public/og-image.svg`（1200×630）+ index.html og:image | ✅ 200 |
-| 聯絡表單後端 | 既有 `ftgtours-api` Worker 已處理 /api/contact → D1 | ✅ 驗證寫入成功 |
+| 無 404 頁（打錯網址白屏） | `NotFound.jsx` + App.jsx `path="*"` + i18n `notFound` 鍵 | ✅ |
+| 無 robots.txt | `public/robots.txt` | ✅ 200 |
+| 無 sitemap.xml | `public/sitemap.xml`（8 頁） | ✅ 200 |
+| favicon 404（index.html 引用但無檔） | `public/favicon.svg` + apple-touch-icon | ✅ 200 |
+| 分享無圖（無 og:image） | `public/og-image.svg` + index.html `og:image`/`twitter:image` | ✅ 200 |
+| i18n notFound 中英鍵缺失 | zh/en 加 `notFound.{title,desc,back}` | ✅ |
 
-## 第二輪審計（確認無功能缺口）
-- 聯絡表單 POST `/api/contact` → 既有 `ftgtours-api` Worker 佔用路由，寫入 D1 `ftgtours_contact.contact_inquiries` 成功（`{"ok":true,"id":6}`）
-- 各頁 `keywords` SEO 8 頁全有
-- 誤建 `ftgtours-contact-worker` 因路由被佔 → 已刪除，避免冗餘
+## 第二輪審計（2026-08-29）
+| 檢查項 | 結果 |
+|--------|------|
+| 聯絡表單 `/api/contact` 後端 | ✅ 由 `ftgtours-api` Worker 處理（非新建 Worker） |
+| D1 `ftgtours_contact` + `contact_inquiries` 表 | ✅ 存在 |
+| 端到端 POST 測試 | ✅ `{"ok":true,"id":6}` 寫入成功 |
+| 各頁 `keywords` SEO | ✅ 8 頁全有 |
 
-## 增強項（後續）
-- schema.org TravelAgency JSON-LD（搜尋富摘要）
-- reCAPTCHA v3 前端（VITE_RECAPTCHA_SITE_KEY）
-- 首頁 Hero 橫幅圖 LCP 優化（preload + fetchpriority）
+## 誤判與修正（5T 誠實回報）
+- 初判「聯絡表單無後端」→ 新建 `ftgtours-contact-worker` + wrangler.toml
+- 部署發現路由被既有 `ftgtours-api` 佔用（error 10020）
+- 驗證確認 `ftgtours-api` 正常服務 `/api/contact`
+- **已刪除冗餘 Worker + 本地 wrangler.toml**
 
 ## 關聯
-- [[FTGToursShareCopy]] — 分享文案
-- [[CloudflareCache404]] — Cloudflare 快取 404 陷阱
-- [[FTGJourneyAppArchitecture]] — FTG App 與官網同源
+- [[FTGToursShareCopy]] — 分享文案規範
+- [[CloudflareCache404]] — og-image 404 是快取陷阱非檔案缺失
+- [[FTGJourneyAppArchitecture]] — 品牌生態
