@@ -10,6 +10,7 @@ import { dirname, resolve, isAbsolute } from 'node:path';
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
+import { sendTelegramMessage, notifyTelegramFixComplete, notifyTelegramFixFailed } from './telegram-notifier.mjs';
 
 const execFileP = promisify(execFile);
 const PORT = Number(process.env.PORT || 8790);
@@ -457,9 +458,11 @@ function extractTargetFile(errorLog) {
         .then(record => {
           console.log(`[修復完成] UUID: ${record.uuid} 狀態: ${record.governance.trackable.lifecycle_stage}`);
           notifyStatusWebhook(record);
+          notifyTelegramFixComplete(record).catch(() => {});
         })
         .catch(err => {
           console.error(`[修復失敗]`, err);
+          notifyTelegramFixFailed({ uuid: taskUuid, governance: { traceable: { source_origin: 'GitHub-Actions-Error' }, trackable: { lifecycle_stage: 'FAILED', attempt_count: 0 }, trustworthy: { hash_lock: '' } }, timestamp: Date.now() }, err).catch(() => {});
         });
 
       return json(res, 202, {
@@ -504,9 +507,11 @@ function extractTargetFile(errorLog) {
       .then(record => {
         console.log(`[修復完成] UUID: ${record.uuid} 狀態: ${record.governance.trackable.lifecycle_stage}`);
         notifyStatusWebhook(record);
+        notifyTelegramFixComplete(record).catch(() => {});
       })
       .catch(err => {
         console.error(`[修復失敗]`, err);
+        notifyTelegramFixFailed({ uuid: taskUuid, governance: { traceable: { source_origin: 'Gmail-Notification' }, trackable: { lifecycle_stage: 'FAILED', attempt_count: 0 }, trustworthy: { hash_lock: '' } }, timestamp: Date.now() }, err).catch(() => {});
       });
 
     return json(res, 202, {
