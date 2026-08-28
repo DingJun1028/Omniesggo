@@ -1,0 +1,10 @@
+{
+  "gateway": "https://agent.esggo.co",
+  "apiKey": "***",
+  "model": "",
+  "transport": "auto",
+  "workspace": "vault",
+  "autoApprove": true,
+  "maxTokens": 4096,
+  "temperature": 0.6
+}

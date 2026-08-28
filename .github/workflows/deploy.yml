@@ -202,6 +202,17 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
+            # Sync FTG 3.0 static files to nginx
+            rsync -avz --delete \
+              --include="*.png" --include="*.html" --include="*.css" --include="*.js" \
+              --include="*.json" --include="*.sql" --include="*.md" \
+              --exclude="*" \
+              apps/ftg-3.0/public/images/esg-impact-note/ \
+              /var/www/ftg.esggo.co/images/esg-impact-note/
+            rsync -avz \
+              apps/ftg-3.0/index.html apps/ftg-3.0/styles.css apps/ftg-3.0/app.js apps/ftg-3.0/feedback.html \
+              /var/www/ftg.esggo.co/
+
             # Build and deploy the LIVE stack (docker-compose.yml = host nginx + containers).
             # NOTE: do NOT use docker-compose.prod.yml here — its nginx service publishes
             # 80/443 and would conflict with the host nginx that terminates TLS.
