@@ -19,3 +19,6 @@
 ## 2025-02-20 - Ensure screen reader accessibility and keyboard focus for icon buttons
 **Learning:** Icon-only buttons (like the floating action buttons in `FloatingFunctionKey428.tsx` and the close button in `DrThothResonance.tsx`) often lack context for screen readers and visible focus indicators for keyboard navigation, leading to poor accessibility in complex UI tools.
 **Action:** When adding or reviewing icon-only interactive elements, ensure `aria-label` is applied to describe the action, and use Tailwind `focus-visible` classes (e.g., `focus-visible:outline-none focus-visible:ring-2`) to provide a clear, accessible focus ring without breaking the default visual design.
+## 2024-05-24 - Accessibility for Filter Toggle Buttons
+**Learning:** Screen readers cannot infer that a custom filter button acts as a toggle state just by its visual styling or click handler. When custom filter buttons (like ESG pillars or difficulty levels) toggle between active and inactive states, the lack of `aria-pressed` prevents screen reader users from understanding which filters are currently applied.
+**Action:** Always add `aria-pressed={isActive}` to any `<button>` that behaves as a toggle switch or filter chip, ensuring its active/inactive state is programmatically announced.

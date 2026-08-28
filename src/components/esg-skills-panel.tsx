@@ -72,6 +72,7 @@ export function ESGSkillsPanel({ onSelectSkill }: ESGSkillsPanelProps) {
           {(['all', 'E', 'S', 'G'] as const).map((pillar) => (
             <button
               key={pillar}
+              aria-pressed={selectedPillar === pillar}
               onClick={() => setSelectedPillar(pillar)}
               className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
                 selectedPillar === pillar
