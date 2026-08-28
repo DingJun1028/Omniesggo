@@ -38,8 +38,6 @@ aistation = "apps.aistation.src.cli:main"
 where = ["."]
 include = ["esggo*", "scripts*"]
 
-[tool.setuptools.scripts]
-bin = ["scripts/aistation"]
 
 [tool.ruff]
 target-version = "py311"

@@ -140,6 +140,7 @@ export function MECEBestPracticesView() {
           {(['all', 'E', 'S', 'G'] as const).map((pillar) => (
             <button
               key={pillar}
+              aria-pressed={filterPillar === pillar}
               onClick={() => setFilterPillar(pillar)}
               className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
                 filterPillar === pillar
@@ -155,6 +156,7 @@ export function MECEBestPracticesView() {
           {(['all', 'basic', 'intermediate', 'advanced'] as const).map((level) => (
             <button
               key={level}
+              aria-pressed={filterLevel === level}
               onClick={() => setFilterLevel(level)}
               className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
                 filterLevel === level ? 'bg-accentGold text-white' : 'bg-surface text-textSecondary'

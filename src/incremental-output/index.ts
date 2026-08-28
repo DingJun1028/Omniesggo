@@ -49,6 +49,9 @@ export interface IncrementalArtifact extends IComponentCore {
   readonly baseVersion: string;
   readonly ops: ReadonlyArray<DeltaOp>;
   readonly frozen: true;
+  readonly sourceOrigin: string;
+  readonly fiveT: FiveT;
+  readonly hashLock: string;
 }
 
 /** §18 跨語言同構 Hash Lock: SHA-256 64-hex, 與 Python generate_hash_lock 完全一致.
@@ -139,6 +142,11 @@ export class IncrementalOutputOptimizer {
       uuid: uuidV4(),
       version: this.version,
       timestamp,
+      evidence: {
+        originCause: sourceOrigin,
+        processTrace: ['seal'],
+        finalEffect: 'sealed'
+      },
       sourceOrigin,
       fiveT,
       hashLock,

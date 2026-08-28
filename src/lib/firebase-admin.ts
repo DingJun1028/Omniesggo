@@ -1,3 +1,4 @@
+import adminDb from './local-store';
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * Firebase Admin 相容層 (本地模式) — GCP Firebase 已停用，改為本地資料層。
@@ -11,7 +12,7 @@
  * 優雅降級 (無憑證回 503)。本地認證請改用 middleware.ts 的 jose 實作。
  */
 
-import adminDb from './local-store';
+
 
 // 本地模式下不初始化任何 GCP 連線
 let _app: { local: true } | null = null;
@@ -36,9 +37,11 @@ export const adminAuth = {
   },
 };
 
-export { adminDb };
+
 
 // 相容舊 call site: getAuth(getAdminApp()) 形式
 export function getAuth(_app: unknown): typeof adminAuth {
   return adminAuth;
 }
+
+export { adminDb };
