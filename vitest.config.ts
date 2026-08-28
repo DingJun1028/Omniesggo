@@ -42,6 +42,12 @@ export default defineConfig({
       // 兩者皆 import { test } from 'node:test'，由 apps/omnilive 自身的
       // `pnpm test` (= node --test test/*.test.mjs) 執行，覆蓋率不減。
       'apps/omnilive/test/**',
+      // Self-Healing Engine 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
+      //   - server.test.mjs → import { test } from 'node:test'，根 vitest 抓取時報
+      //                       "No test suite found in file"
+      // 由 apps/self-healing 自身的 `pnpm test` (= node --test test/*.test.mjs) 執行，
+      // 該套件 dependencies 為空，純 Node 即可跑，覆蓋率不減。
+      'apps/self-healing/test/**',
     ],
   },
   resolve: {
