@@ -1,47 +1,235 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-Hant">
 <head>
-<meta charset="utf-8">
-<title>OA-Team 30 萬能蜂群</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OA-Team 雙蜂戰隊 60 · 萬能蜂群儀表板</title>
 <style>
-body{font-family:system-ui,sans-serif;margin:0;background:#0d1117;color:#e6edf3}
-header{background:linear-gradient(135deg,#10243f,#c9a24b);padding:20px;color:#fff}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;padding:16px}
-.card{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:12px}
-.id{color:#c9a24b;font-weight:bold}
-.arr{font-size:11px;color:#7d8590}
-#stream{white-space:pre-wrap;background:#0d1117;border:1px solid #30363d;padding:10px;margin:16px;height:160px;overflow:auto}
-button{background:#c9a24b;color:#10243f;border:none;padding:10px 16px;border-radius:6px;cursor:pointer;font-weight:bold}
-input{width:60%;padding:8px;border-radius:6px;border:1px solid #30363d;background:#0d1117;color:#e6edf3}
+  :root{--bg:#0a0e17;--card:#131a28;--accent:#c9a24b;--ok:#3c6e47;--txt:#f3ede1;--mut:#8a93a6;--local:#4a9da8;--vps:#c9a24b}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:system-ui,'Segoe UI',sans-serif;background:radial-gradient(circle at 20% 0%,#16203a 0%,var(--bg) 60%);color:var(--txt);padding:20px;line-height:1.5}
+  h1{color:var(--accent);font-size:1.6rem;margin-bottom:4px;letter-spacing:1px}
+  .sub{color:var(--mut);font-size:.85rem;margin-bottom:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .card{background:var(--card);border:1px solid #233;border-radius:12px;padding:16px}
+  .card h2{font-size:1rem;color:var(--accent);margin-bottom:10px}
+  .metric{font-size:2rem;font-weight:700}
+  .small{font-size:.8rem;color:var(--mut)}
+  .log{max-height:200px;overflow:auto;font-family:monospace;font-size:.72rem;color:var(--ok)}
+  button{background:var(--accent);color:#0a0e17;border:none;border-radius:8px;padding:8px 16px;font-weight:600;cursor:pointer;margin-top:10px;transition:.2s}
+  button:hover:not(:disabled){filter:brightness(1.15)}
+  button:disabled{opacity:.5;cursor:wait}
+  input{width:100%;padding:8px;border-radius:8px;border:1px solid #2a3344;background:#0f1622;color:var(--txt);margin-top:8px}
+  .bar{height:8px;background:#1c2433;border-radius:4px;overflow:hidden;margin-top:8px}
+  .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--accent));transition:width .5s}
+
+  /* 矩陣設計 */
+  .matrix{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;margin-top:8px}
+  .array-block{background:linear-gradient(160deg,#16203a,#101627);border:1px solid #2a3344;border-radius:14px;padding:14px;position:relative;overflow:hidden}
+  .array-block::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--local),var(--vps))}
+  .array-title{font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:2px;display:flex;align-items:center;gap:6px}
+  .array-en{font-size:.65rem;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+  .bee-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .bee{background:#0f1622;border:1px solid #233;border-left:3px solid var(--local);border-radius:8px;padding:7px 9px;font-size:.74rem;transition:.2s;cursor:default}
+  .bee.vps{border-left-color:var(--vps);background:#1a160f}
+  .bee:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.4);border-color:var(--accent)}
+  .bee .id{font-size:.6rem;color:var(--mut)}
+  .bee .name{font-weight:600;color:var(--txt)}
+  .bee .tags{font-size:.6rem;color:var(--local)}
+  .bee.vps .tags{color:var(--vps)}
+  .bee .task{font-size:.62rem;color:var(--mut);margin-top:3px;line-height:1.3;max-height:0;overflow:hidden;transition:.25s}
+  .bee:hover .task{max-height:60px}
+  .legend{display:flex;gap:14px;font-size:.7rem;color:var(--mut);margin-bottom:10px}
+  .legend span{display:flex;align-items:center;gap:4px}
+  .dot{width:10px;height:10px;border-radius:50%}
+  .dot.local{background:var(--local)}.dot.vps{background:var(--vps)}
+
+  /* 5T 驗算卡 (對齊 I5TVerification 契約) */
+  .five-t{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+  .t-item{font-size:.72rem;padding:4px 10px;border-radius:20px;border:1px solid #2a3344;background:#0f1622;color:var(--mut);transition:.25s}
+  .t-item.on{background:linear-gradient(90deg,var(--ok),var(--accent));color:#0a0e17;border-color:var(--accent);font-weight:600}
+  .t-item.off{background:#2a1414;color:#e07a7a;border-color:#5a2a2a}
+
+  /* RWD 響應式 — 深貫廣通無礙圓通 (全域全端全量全面) */
+  @media (max-width: 900px){
+    body{padding:14px}
+    h1{font-size:1.35rem}
+    .grid{grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .matrix{grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+  }
+  @media (max-width: 600px){
+    body{padding:10px}
+    h1{font-size:1.15rem}
+    .sub{font-size:.75rem;margin-bottom:14px}
+    .grid{grid-template-columns:1fr;gap:10px}
+    .matrix{grid-template-columns:1fr;gap:8px}
+    .bee-row{grid-template-columns:1fr} /* 窄屏單列, 無擠壓 */
+    .card{padding:12px}
+    .metric{font-size:1.6rem}
+    .bee .task{max-height:none} /* 觸控無 hover, 直接展開 */
+  }
+  @media (min-width: 1600px){
+    body{max-width:1700px;margin:0 auto}
+    .matrix{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+  }
 </style>
 </head>
 <body>
-<header><h1>🐝 OA-Team 30 萬能蜂群</h1><p>5T 合規 · 熵減守護 · 背景運行</p></header>
-<div style="padding:16px">
-  <input id="task" placeholder="輸入蜂群任務..." />
-  <button onclick="exec()">提交任務</button>
-  <span id="entropy"></span>
+<h1>🐝 OA-Team 雙蜂戰隊 60</h1>
+<div class="sub">萬能蜂群靈魂核心 · 5T 協定 · OAB 共享記憶 · 語音橋接</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>熵值 (Entropy)</h2>
+    <div class="metric" id="entropy">--</div>
+    <div class="bar"><i id="entropyBar" style="width:0%"></i></div>
+    <div class="small" id="tasks">任務完成: --</div>
+  </div>
+  <div class="card">
+    <h2>蜂群狀態</h2>
+    <div class="small" id="oab">OAB: --</div>
+    <div class="small" id="voice">語音: --</div>
+    <div class="small" id="uptime">運行: --</div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>5T 驗算 (I5TVerification 契約)</h2>
+    <div class="five-t" id="fiveT">
+      <span class="t-item" data-k="traceable">T 可溯源</span>
+      <span class="t-item" data-k="trackable">T 可追蹤</span>
+      <span class="t-item" data-k="tangible">T 可感知</span>
+      <span class="t-item" data-k="transparent">T 可透明</span>
+      <span class="t-item" data-k="trustworthy">T 不可篡改</span>
+    </div>
+    <div class="small" id="fiveTPassed">5T 全驗: --</div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>任務提交 / 語音觸發</h2>
+    <input id="taskInput" placeholder="輸入任務，例如：設計新的品牌視覺..." />
+    <button id="execBtn" onclick="execTask()">⚡ 執行蜂群任務</button>
+    <button id="voiceBtn" onclick="startVoice()">🎤 語音輸入 (s2s)</button>
+    <div class="log" id="execLog"></div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>60 蜂群矩陣 · 五陣列雙蜂</h2>
+    <div class="legend">
+      <span><i class="dot local"></i> 蜂王 OA-LOCAL (01-30)</span>
+      <span><i class="dot vps"></i> 蜂后 OA-VPS (31-60)</span>
+    </div>
+    <div class="matrix" id="matrix">載入中...</div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>OAB 共享記憶 (雙蜂隊歷史)</h2>
+    <div class="log" id="oabHistory">載入中...</div>
+  </div>
 </div>
-<div id="stream">串流狀態...</div>
-<div class="grid" id="matrix"></div>
+
 <script>
-async function loadMatrix(){
-  const r=await fetch('/matrix');const d=await r.json();
-  document.getElementById('matrix').innerHTML=d.agents.map(a=>
-    '<div class="card"><div class="id">#'+a.id+' '+a.title+'</div>'+
-    '<div class="arr">'+d.arrays[a.array]+'</div><div style="font-size:12px;margin-top:6px">'+a.task+'</div></div>').join('');
+const API = location.origin;
+const ARRAY_META = {
+  sanctum:{zh:'智庫聖所',en:'Sanctum'},
+  rune:{zh:'符文契約',en:'Rune'},
+  wing:{zh:'光之羽翼',en:'Wing'},
+  alchemy:{zh:'煉金熵減',en:'Alchemy'},
+  audit:{zh:'5T 驗算',en:'Audit'},
+};
+function log(msg){const d=document.getElementById('execLog');d.innerHTML+=msg+'<br>';d.scrollTop=d.scrollHeight;}
+
+function renderMatrix(agents){
+  const byArray={};
+  agents.forEach(a=>{(byArray[a.array]=byArray[a.array]||[]).push(a);});
+  const order=['sanctum','rune','wing','alchemy','audit'];
+  return order.map(key=>{
+    const list=byArray[key]||[];
+    const local=list.filter(a=>a.side==='local').sort((a,b)=>a.id-b.id);
+    const vps=list.filter(a=>a.side==='vps').sort((a,b)=>a.id-b.id);
+    const bees=[...local,...vps].map(a=>
+      `<div class="bee ${a.side}">
+        <div class="id">#${a.id}</div>
+        <div class="name">${a.title}</div>
+        <div class="tags">${(a.tags||[]).join(' ')}</div>
+        <div class="task">${a.task||''}</div>
+      </div>`).join('');
+    const m=ARRAY_META[key]||{zh:key,en:key};
+    return `<div class="array-block">
+      <div class="array-title">🐝 ${m.zh}</div>
+      <div class="array-en">${m.en} · ${list.length} 蜂</div>
+      <div class="bee-row">${bees}</div>
+    </div>`;
+  }).join('');
 }
-async function exec(){
-  const t=document.getElementById('task').value;
-  const r=await fetch('/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:t})});
-  const d=await r.json();
-  alert(d.ok?'任務完成! Hash: '+d.artifact.hash_lock.slice(0,20)+'...':'失敗: '+d.error);
+
+async function refresh(){
+  try{
+    const h=await (await fetch(API+'/health')).json();
+    document.getElementById('entropy').textContent=h.state.entropy.toFixed(4);
+    document.getElementById('entropyBar').style.width=Math.min(100,h.state.entropy*500)+'%';
+    document.getElementById('tasks').textContent='任務完成: '+h.state.tasksDone;
+    document.getElementById('uptime').textContent='運行: '+h.state.uptimeSec+'s';
+    document.getElementById('oab').textContent='OAB: '+(h.state.oab.connected?'✅ 連線 ('+h.state.oab.synced+')':'❌');
+  }catch(e){log('❌ health: '+e.message);}
+
+  try{
+    const v=await (await fetch(API+'/voice/health')).json();
+    document.getElementById('voice').textContent='語音: '+(v.connected?'✅ s2s 已連':'❌');
+  }catch(e){}
+
+  try{
+    const m=await (await fetch(API+'/matrix')).json();
+    document.getElementById('matrix').innerHTML=renderMatrix(m.agents);
+  }catch(e){document.getElementById('matrix').textContent='載入失敗';}
+
+  try{
+    const o=await (await fetch(API+'/oab/history')).json();
+    document.getElementById('oabHistory').innerHTML=o.records.slice(0,20).map(r=>
+      `[${r.ts.slice(11,19)}] ${r.hash||r.task||'(空)'}`
+    ).join('<br>');
+  }catch(e){document.getElementById('oabHistory').textContent='載入失敗';}
 }
-const es=new EventSource('/stream');
-es.onmessage=e=>{const d=JSON.parse(e.data);if(d.state){document.getElementById('stream').textContent=
-  '熵值: '+d.state.entropy.toFixed(4)+' | 任務數: '+d.state.tasksDone+' | 運行: '+d.state.uptimeSec+'s';
-  document.getElementById('entropy').textContent=' 熵 '+d.state.entropy.toFixed(4);}};
-loadMatrix();
+
+async function execTask(){
+  const t=document.getElementById('taskInput').value.trim();
+  if(!t)return;
+  const btn=document.getElementById('execBtn');
+  btn.disabled=true;btn.textContent='⏳ 蜂群協同中...';
+  log('⚡ 提交任務: '+t);
+  try{
+    const ctrl=new AbortController();
+    const to=setTimeout(()=>ctrl.abort(),50000);
+    const r=await (await fetch(API+'/execute',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({task:t}),signal:ctrl.signal})).json();
+    clearTimeout(to);
+    const a=r.artifact||{};const ev=a.evidence||{};
+    const hash=a.hash_lock||'(無)';const collab=(ev.collaborators||[]).length;
+    log('✅ 完成 → '+hash+' | 派遣 '+collab+' 蜂 | 來源: '+ev.llmSource);
+    if(ev.llmEcho) log('🐝 '+ev.llmEcho.slice(0,120));
+    // 5T 驗算 (對齊 I5TVerification 契約, 從 ISoulArtifact 推導)
+    const v={
+      traceable: !!(a.source_origin||ev.llmSource),
+      trackable: Array.isArray(a.lifecycle)&&a.lifecycle.length>0,
+      tangible: !!ev,
+      transparent: !!(a.hash_lock)&&r.verified!==false,
+      trustworthy: !!(a.hash_lock&&a.author)
+    };
+    v.passed=Object.values(v).every(Boolean);
+    render5T(v);
+  }catch(e){log('❌ 執行失敗: '+(e.name==='AbortError'?'超時(50s)':e.message));}
+  btn.disabled=false;btn.textContent='⚡ 執行蜂群任務';
+  refresh();
+}
+
+function render5T(v){
+  const wrap=document.getElementById('fiveT');
+  wrap.querySelectorAll('.t-item').forEach(el=>{
+    const k=el.dataset.k;
+    el.classList.toggle('on', !!v[k]);
+    el.classList.toggle('off', !v[k]);
+  });
+  document.getElementById('fiveTPassed').textContent='5T 全驗: '+(v.passed?'✅ 通過 (I5TVerification.passed)':'⚠️ 部分未過');
+}
+
+async function startVoice(){log('🎤 語音模式需瀏覽器麥克風權限 (OpenAI Realtime WS) — 當前經 /voice 端點轉錄');}
+
+refresh();
+setInterval(refresh,5000);
 </script>
 </body>
 </html>

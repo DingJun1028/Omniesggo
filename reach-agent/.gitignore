@@ -1,0 +1,7 @@
+# 個資/機密
+my_resume.txt
+.env
+
+# 測試腳本
+_smoke.py
+_draft_test.py

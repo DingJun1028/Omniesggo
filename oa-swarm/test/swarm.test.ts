@@ -1,11 +1,37 @@
 /**
  * OA-Team 蜂群核心測試 — 5T 合規 + 30 矩陣 + 靈魂執行鏈
  */
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+
+// 超能力 TDD: 測試隔離外部副作用 (Ollama / OAB / VPS 網路)
+// 避免 CI 環境下 fetch/http 掛起導致 flaky timeout
+vi.mock('../src/llm', () => ({
+  callLLM: vi.fn(async (prompt: string) => ({
+    text: `[MOCK] 蜂群收到任務：「${prompt.slice(0, 60)}」。測試隔離模式。`,
+    model: 'mock',
+    source: 'mock' as const,
+  })),
+}));
+
+vi.mock('../src/oab', () => ({
+  OABClient: class {
+    async publish() { return true; }
+    async query() { return []; }
+  },
+  DualHiveTunnel: class {
+    async syncToVps() { return true; }
+  },
+}));
+
+vi.mock('../src/incremental', () => ({
+  ETLPipeline: class {
+    async process() { return [{ version: 1, id: 1, title: 'mock' }]; }
+  },
+}));
+
 import { purify, verifyZeroHallucination, hashLock, FeedbackCollector } from '../src/protocol-5t';
 import { SOUL_MATRIX, getAgent } from '../src/soul-matrix';
 import { SwarmCore } from '../src/swarm-core';
-import { callLLM } from '../src/llm';
 
 describe('5T 協定強制層', () => {
   it('Traceable: 產物帶 source_origin', () => {
@@ -53,7 +79,10 @@ describe('靈魂執行鏈', () => {
     const art = await core.executeSwarmTask('設計一個登入頁面', 'unit-test');
     expect(art.hash_lock).toMatch(/^0x/);
     expect(verifyZeroHallucination(art)).toBe(true);
-    expect(art.evidence.collaborators.length).toBeGreaterThan(0);
+    // evidence 對齊 canonical: { originCause, processTrace, finalEffect }
+    expect(art.evidence.originCause).toBeTruthy();
+    expect(Array.isArray(art.evidence.processTrace)).toBe(true);
+    expect(art.evidence.processTrace.length).toBeGreaterThan(0);
   }, 15000);
   it('熵減循環降低熵值', () => {
     const core = new SwarmCore();
@@ -61,4 +90,21 @@ describe('靈魂執行鏈', () => {
     core.tickEntropyReduction();
     expect(core.getState().entropy).toBeLessThan(before);
   });
+  it('自我學習: 任務後萃取經驗含 5T 狀態 (v5 傳遞)', async () => {
+    // RED: 驗證 executeSwarmTask 將 5T 驗算結果傳入 evolution
+    // 產物通過 5T (verifyZeroHallucination=true) → 經驗應為 success + violations 空
+    const core = new SwarmCore();
+    await core.executeSwarmTask('測試 v5 傳遞', 'unit-test');
+    const fs = await import('node:fs/promises');
+    const { readdir } = fs;
+    const files = await readdir(process.cwd());
+    const log = files.find((f) => f.endsWith('.jsonl'));
+    expect(log).toBeTruthy();
+    const content = await fs.readFile(log!, 'utf-8');
+    const lastLine = content.trim().split('\n').pop()!;
+    const rec = JSON.parse(lastLine);
+    // v5 傳遞正確 → outcome=success → violations 應為空
+    expect(rec.outcome).toBe('success');
+    expect(rec.violations).toEqual([]);
+  }, 15000);
 });

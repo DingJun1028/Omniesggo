@@ -3,7 +3,7 @@
  * Traceable: 數據來源追蹤 | Trackable: 血統流式轉換
  * Trustworthy: 鎖定 | Transparent: 批量載入
  */
-import { DeltaTracker, hashLock, generateTraceableId } from './stream-buffer';
+import { DeltaTracker, hashLock, generateTraceableId } from './stream-buffer.js';
 
 export class ETLPipeline {
   private readonly trackers = new Map<string, DeltaTracker<any>>();

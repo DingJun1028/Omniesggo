@@ -3,7 +3,7 @@
  * Trustworthy: 服務認證 | Trackable: 執行追蹤增量
  * Transparent: 日誌流式 | Tangible: 分頁返回
  */
-import { hashLock } from './stream-buffer';
+import { hashLock } from './stream-buffer.js';
 
 export interface PaginatedResult<T> {
   page: number;

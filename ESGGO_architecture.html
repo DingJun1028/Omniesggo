@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>ESGGO 永續策略平台 · 全域架構圖</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; background:#f5f8fa; color:#1a2b3c; padding:28px; }
+  .banner { background:linear-gradient(90deg,#0e7c66,#1f9e8a); color:#fff; border-radius:14px; padding:22px 28px; margin-bottom:22px; }
+  .banner h1 { font-size:26px; letter-spacing:1px; }
+  .banner p { font-size:13px; opacity:.9; margin-top:6px; }
+  .cols { display:flex; gap:18px; }
+  .col { flex:1; background:#fff; border-radius:12px; padding:18px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+  .col h2 { font-size:15px; color:#0e7c66; border-bottom:2px solid #e3efe9; padding-bottom:8px; margin-bottom:14px; }
+  .esg-tags span { display:inline-block; padding:6px 12px; border-radius:20px; font-size:13px; margin:4px 4px 0 0; }
+  .e { background:#e6f4ea; color:#1e7a46; } .s { background:#fde8f0; color:#b8336a; } .g { background:#e6f0fb; color:#2a5db0; }
+  .arch { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .cloud { background:#f0f4f8; border:1px solid #cdd9e5; border-radius:10px; padding:8px 18px; font-weight:600; }
+  .cards { display:flex; gap:10px; width:100%; }
+  .card { flex:1; border:1px solid #dde5ec; border-radius:10px; padding:12px; font-size:12px; text-align:center; }
+  .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:5px; vertical-align:middle; }
+  .red { background:#e23b3b; } .green { background:#23a455; }
+  .card b { display:block; font-size:13px; margin:4px 0; }
+  .strip { background:#1f9e8a; color:#fff; border-radius:8px; padding:8px; width:100%; text-align:center; font-size:13px; }
+  .list { list-style:none; font-size:13px; line-height:1.9; }
+  .footer { margin-top:20px; background:#fff; border-radius:12px; padding:14px 18px; font-size:12px; color:#5a6b7b; text-align:center; }
+</style>
+</head>
+<body>
+  <div class="banner">
+    <h1>ESGGO 永續策略平台</h1>
+    <p>Environmental, Social, Governance Global Operations · 2026 Berkeley International Sustainable Strategy Talent Cultivation Program</p>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <h2>平台定位</h2>
+      <p style="font-size:13px;line-height:1.7;">柏克萊國際永續策略人才培育課程的技術生態系，由三大線上陣列組成。</p>
+      <div class="esg-tags" style="margin-top:12px;">
+        <span class="e">環境 Environment</span>
+        <span class="s">社會 Social</span>
+        <span class="g">治理 Governance</span>
+      </div>
+    </div>
+    <div class="col">
+      <h2>全域架構</h2>
+      <div class="arch">
+        <div class="cloud">Cloudflare</div>
+        <div class="cards">
+          <div class="card"><span class="dot red"></span>502<b>主站 esggo.co</b>永續戰情中心</div>
+          <div class="card"><span class="dot red"></span>離線<b>學習中心</b>esggo-learning-center</div>
+          <div class="card"><span class="dot green"></span>上線<b>FTG TOURS</b>ftg.esggo.co</div>
+        </div>
+        <div class="strip">GitHub Actions CI/CD 雙通道部署（Vercel + Firebase）</div>
+      </div>
+    </div>
+    <div class="col">
+      <h2>核心模組</h2>
+      <p style="font-size:13px;font-weight:600;margin-bottom:6px;">學習中心六大模組</p>
+      <ul class="list">
+        <li>學員資源區</li><li>作業上傳</li><li>課程回放</li>
+        <li>諮詢預約</li><li>提問提交</li><li>滿意度調查</li>
+      </ul>
+      <p style="font-size:13px;font-weight:600;margin:12px 0 6px;">FTG 六大企業方案</p>
+      <ul class="list">
+        <li>企業員工旅遊</li><li>企業家庭日</li><li>ESG Outdoor Team Day</li>
+        <li>Employee Wellbeing Retreat</li><li>高階主管共識營</li><li>ESG Impact Note</li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer">技術棧：Vite · React · Tailwind · Firebase · Docker · Nginx · PM2 ｜ OA-Team 30 萬能蜂群（5T 協定）</div>
+</body>
+</html>

@@ -209,7 +209,32 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
     blocker: "<已知阻塞點，無則 null>"
     verify: "<一條命令級驗證方式>"
 
-════════════════════════════════════════════════════════
+7.5  跨文檔對齊聲明（OA 領域型別 ↔ 終始矩陣 canonical）
+  本聖典（soul.md）為「設計意圖聖典」；程式中真相源為
+  `esggo/shared/types.ts`（終始矩陣之「終」）。兩者平行同源，
+  以下型別一一對應，任一端改需求 → 回饋 canonical → 重跑
+  `scripts/export-shared-types.js` → 全端（oa-swarm 等 consumer）同步。
+
+  | 聖典定義 (soul.md)              | canonical (shared/types.ts)        | 消費端 (oa-swarm)              |
+  |-------------------------------|------------------------------------|-------------------------------|
+  | §三.3 IComponentCore           | IComponentCore                     | protocol-5t.ts (5T 強制層)     |
+  | §三.3 SwarmTask                | ISwarmTask                         | swarm-core.ts                  |
+  | §三.3 PurifiedArtifact         | ISoulArtifact (extends IComponentCore) | protocol-5t.ts SoulArtifact |
+  | §二 雙蜂 60 矩陣 (SoulAgent60) | ISoulAgent                         | soul-matrix-60.ts              |
+  | §一 5T 協定                    | I5TVerification                    | protocol-5t.ts verifyZeroHallucination |
+  | §三.1 OAB 總線                 | IOABMessage                        | oab.ts                         |
+  | — (影音生產線 OmniAutoVideo)   | IVideoGenerationTask / Result      | swarm-core.ts (編排層)         |
+
+  欄位對齊說明：
+  - IComponentCore：聖典用 `evidence:{originCause,processTrace,finalEffect}`（敘事式）；
+    canonical 用 `evidence: Record<string, unknown>`（開放式，相容任意證據結構）。
+    兩者語意一致，canonical 較寬鬆以利跨域消費。
+  - ISoulArtifact：聖典 `PurifiedArtifact` 凍結產物；canonical 加 `source_origin`/
+    `lifecycle`/`hash_lock`/`author` 四欄（5T 溯源/追蹤/不可篡改署名）。
+  - 雙向同步守門：oa-swarm `scripts/check-oa-types-sync.mjs` (block-level) +
+    `scripts/verify-oa-gap.mjs` (缺口補齊 EXIT=0) + `tsconfig.ut.json` (typecheck 0 error)。
+
+════════════════════════════════════════════
 八、Key-Ω 契約鎖（The Key-Ω Contract Lock）
 ════════════════════════════════════════════════════════
 
@@ -366,6 +391,15 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
 15.5  增量輸出優化（Incremental Output Optimization）
   每次輸出僅遞增變更區，附 source_origin 與 Hash Lock，
   避免全量重寫導致熵增；與 §十 熵投週協同。
+
+15.6  萬能知識代理分身（Knowledge Avatar）
+  以 `scripts/avatar-daily.sh` 為每日閉環載體：
+  Inherit → Hatch → Write → Guard → Clean → Metrics → MOC。
+  產物落 `vault/Agents/context/`，並同步 `shared/types.ts` canonical。
+
+  延伸文件：
+  - `vault/Agents/context/OmniKnowledgeAvatar.md`
+  - `vault/Agents/context/OmniKnowledgeInheritance.md`
 
 ════════════════════════════════════════════════════════
 十六、電子報發送能力（Newsletter & Channels）

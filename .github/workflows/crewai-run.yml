@@ -16,8 +16,9 @@ jobs:
       run:
         working-directory: oa-team-crewai
     env:
-      # CREWAI_API_KEY 由 GitHub Secrets 注入 (user stored via gh secret set)
-      CREWAI_API_KEY: ${{ secrets.CREWAI_API_KEY }}
+      # LLM 憑證：優先用 CREWAI_API_KEY（若日後設定），否則回落到倉庫既有的 OPENAI_API_KEY。
+      # 註：GitHub Actions 運算式中空字串為 falsy，故未設定的 secret 會自動回落。
+      CREWAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
 
@@ -26,9 +27,13 @@ jobs:
 
       - name: Run OA-Team 30 Swarm (via uv run)
         env:
-          OPENAI_API_KEY: ${{ secrets.CREWAI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
           OPENAI_MODEL_NAME: gpt-4o-mini
         run: |
           export PATH="$HOME/.local/bin:$PATH"
-          echo "DEBUG: CREWAI_API_KEY length = ${#CREWAI_API_KEY}"
+          echo "DEBUG: injected OPENAI_API_KEY length = ${#OPENAI_API_KEY}"
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::error::LLM 憑證缺失：secrets.CREWAI_API_KEY 與 secrets.OPENAI_API_KEY 皆為空，無法載入 agents/*.jsonc"
+            exit 1
+          fi
           uv run --python 3.13 --with 'crewai[litellm]' python main.py "為 ESG-GO 產出一個 5T 合規的元件骨架"

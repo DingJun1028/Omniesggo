@@ -27,9 +27,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: deploy-vps
-  cancel-in-progress: false
+# NOTE: the production deploy lock is declared on the `deploy` JOB (see below), NOT here.
+# A workflow-level `concurrency` also applies to `pull_request` runs, which then hold the
+# production lock for the whole ~6h QEMU-emulated ARM64 `docker-build` job while being
+# structurally unable to deploy (the `deploy` job is gated to `push` on main). Because
+# `cancel-in-progress: false` keeps only ONE pending run per group, the next run entering
+# the group cancels a queued main deploy — observed on run 32668189117 (main @ 12f694cf:
+# total_count=0 jobs, conclusion=cancelled). See issue #900.
 
 env:
   NODE_VERSION: '22'
@@ -135,7 +139,15 @@ jobs:
   # ─── Docker Build Test ───────────────────────────────────────
   docker-build:
     name: Docker Build Test
-    runs-on: ubuntu-latest
+    # NATIVE arm64 runner (free for public repos). Previously `ubuntu-latest`,
+    # which forced buildx to emulate arm64 through QEMU; `RUN pnpm run build`
+    # then died with `qemu: uncaught target signal 4 (Illegal instruction)` /
+    # `Command was killed with SIGILL` inside corepack's pnpm.mjs. The stack
+    # frames land in pnpm.mjs, which makes it LOOK like a dependency/build bug —
+    # it is not: do NOT "fix" it by touching pnpm-lock.yaml. Building natively
+    # removes the emulator from the path entirely.
+    # source_origin: OA-TWINS auto-repair / brief _repair_pr_957.txt / run 32947717773
+    runs-on: ubuntu-24.04-arm
     needs: [security-scan, code-quality]
     steps:
       - name: Checkout code
@@ -162,6 +174,14 @@ jobs:
     needs: [security-scan, code-quality, docker-build]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
+    # Serialize ONLY genuine production deploys. This is the lock that used to sit at
+    # workflow level (see the NOTE at the top of this file); at job level it is held for
+    # the duration of the SSH deploy instead of the whole ~6h ARM64 build matrix, and it
+    # is never taken by `pull_request` runs (which cannot satisfy the `if:` above).
+    # source_origin: issue #900 / OA-TWINS auto-repair
+    concurrency:
+      group: deploy-vps
+      cancel-in-progress: false
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -174,12 +194,24 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           timeout: 60m
+          command_timeout: 60m
           script: |
             cd /opt/esggo
 
             # Pull latest changes
             git fetch origin main
             git reset --hard origin/main
+
+            # Sync FTG 3.0 static files to nginx
+            rsync -avz --delete \
+              --include="*.png" --include="*.html" --include="*.css" --include="*.js" \
+              --include="*.json" --include="*.sql" --include="*.md" \
+              --exclude="*" \
+              apps/ftg-3.0/public/images/esg-impact-note/ \
+              /var/www/ftg.esggo.co/images/esg-impact-note/
+            rsync -avz \
+              apps/ftg-3.0/index.html apps/ftg-3.0/styles.css apps/ftg-3.0/app.js apps/ftg-3.0/feedback.html \
+              /var/www/ftg.esggo.co/
 
             # Build and deploy the LIVE stack (docker-compose.yml = host nginx + containers).
             # NOTE: do NOT use docker-compose.prod.yml here — its nginx service publishes

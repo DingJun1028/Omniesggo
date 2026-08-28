@@ -1,0 +1,10 @@
+{
+  "gateway": "http://127.0.0.1:8642",
+  "apiKey": "***",
+  "model": "",
+  "transport": "auto",
+  "workspace": "vault",
+  "autoApprove": true,
+  "maxTokens": 4096,
+  "temperature": 0.6
+}

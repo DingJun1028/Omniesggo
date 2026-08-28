@@ -24,6 +24,8 @@ import { translateDetailed, translateToMany, stats, hashOf } from './translate.m
 import { speechToSubtitle } from './stt_client.mjs';
 import { s2sStatus, isS2SEnabled } from './s2s_gemini_live.mjs';
 import { recordUtterance, getContext, buildContextHint, resetRoom, contextStatus, isContextEnabled } from './context_buffer.mjs';
+// 深貫廣通: 共享記憶整合 (TencentDB Agent Memory)
+import { storeSubtitleAsMemory, retrieveMemoryContext } from './src/memory-integration.mjs';
 
 // 讀取 .env（零依賴實作，優先於 process.env 已存在值）
 try {
@@ -81,6 +83,19 @@ const sseClients = new Set();
  */
 function broadcastTranslation(payload) {
   const data = `event: translation\ndata: ${JSON.stringify(payload)}\n\n`;
+  // 深貫廣通: 同步到共享記憶 (非阻塞, 失敗不影響廣播)
+  if (payload.room && payload.text) {
+    // 廣通: 譯文與目標語碼一律取自 translations — ISseTranslationEvent 契約中唯一可得來源
+    const translations = payload.translations || {};
+    const targetLangs = Object.keys(translations);
+    storeSubtitleAsMemory({
+      text: payload.text,
+      translation: Object.values(translations).filter(Boolean).join(' / '),
+      source_origin: payload.speaker || 'sse',
+      lang_from: 'auto',
+      lang_to: targetLangs[0] || 'zh-TW',
+    }, payload.room, payload.speaker === 'caster' ? 'caster' : 'viewer').catch(() => {});
+  }
   for (const c of sseClients) {
     try {
       // room 過濾：客戶端指定 room 時，只收相同 room 的轉播
@@ -245,6 +260,12 @@ const server = http.createServer(async (req, res) => {
     else if (urlPath === '/player' || urlPath === '/player.html') file = '/player.html';
     else if (/^\/(qrcode\.min\.js|esggo-shared\.d\.ts)$/.test(urlPath)) { file = urlPath; ctype = 'application/javascript; charset=utf-8'; }
     else if (urlPath.endsWith('.html') && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) file = urlPath;
+    // 深貫廣通: 圖片榮 (Image Gallery) 路由
+    else if (urlPath === '/gallery' || urlPath === '/gallery.json' || urlPath === '/omni-gallery/index.json') {
+      file = '/omni-gallery/index.json'; ctype = 'application/json; charset=utf-8';
+    }
+    else if (/^\/omni-gallery\/.+\.png$/i.test(urlPath) && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) { file = urlPath; ctype = 'image/png'; }
+    else if (/^\/omni-gallery\/.+\.jpg$/i.test(urlPath) && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) { file = urlPath; ctype = 'image/jpeg'; }
     if (file) {
       const fp = path.join(PUBLIC_DIR, file);
       if (fs.existsSync(fp)) {

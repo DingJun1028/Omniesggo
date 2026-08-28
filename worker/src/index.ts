@@ -163,7 +163,7 @@ function bearerOk(req: Request, env: Env): boolean {
   const auth = req.headers.get('authorization') || '';
   const token = req.headers.get('x-omni-token') || '';
   const expected = env.OMNI_GATEWAY_KEY || '';
-  if (!expected) return true; // allow local only if not configured
+  if (!expected) return false;
   const parts = auth.split(' ');
   const bearer = parts[0]?.toLowerCase() === 'bearer' ? parts[1] : auth;
   return bearer === expected || token === expected;

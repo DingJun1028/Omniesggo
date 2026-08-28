@@ -80,7 +80,6 @@ export class OmniSingularity implements IOmniSingularity {
         purpose: "the_one_and_only_origin",
         philosophy: "道生一，一生二，二生三，三生萬物",
        },
-      hash: `0x${uuid.replace(/-/g, '').substring(0, 16)}`,
     });
 
     // 初始化狀態
@@ -162,7 +161,6 @@ export class OmniSingularity implements IOmniSingularity {
         processTrace: [],
         finalEffect: 'unknown',
        },
-      hash: `0x${uuid.replace(/-/g, '').substring(0, 16)}`,
     };
 
     // 凍結為不可變

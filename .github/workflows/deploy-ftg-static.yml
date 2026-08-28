@@ -1,0 +1,68 @@
+name: Deploy FTG Static Files
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "apps/ftg-3.0/**"
+
+jobs:
+  deploy-ftg:
+    name: Sync FTG Static Files to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare SSH key config
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          cat > ~/.ssh/config <<EOF
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            Port 22
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          EOF
+
+      - name: Sync FTG static files to VPS
+        run: |
+          FTG_SRC="apps/ftg-3.0/public/images/esg-impact-note"
+          FTG_DST="/var/www/ftg.esggo.co/images/esg-impact-note"
+          echo "Syncing FTG images to VPS..."
+          rsync -avz --delete \
+            --include="*.png" \
+            --include="*.json" \
+            --include="*.sql" \
+            --include="*.md" \
+            --include="*.ts" \
+            --include="*.html" \
+            --exclude="*" \
+            "$FTG_SRC/" "vps:$FTG_DST/"
+          echo "Sync complete!"
+
+      - name: Sync FTG app files
+        run: |
+          echo "Syncing FTG app files..."
+          rsync -avz \
+            --include="index.html" \
+            --include="styles.css" \
+            --include="app.js" \
+            --include="feedback.html" \
+            --exclude="*" \
+            "apps/ftg-3.0/" "vps:/var/www/ftg.esggo.co/"
+          echo "App files synced!"
+
+      - name: Verify deployment
+        run: |
+          sleep 5
+          curl -sL -o /dev/null -w "Site status: %{http_code}\n" "https://ftg.esggo.co/"
+          curl -sL -o /dev/null -w "Team dialogue image: %{http_code}\n" "https://ftg.esggo.co/images/esg-impact-note/team-dialogue-soul-replacement.png"
+          curl -sL -o /dev/null -w "Feedback form: %{http_code}\n" "https://ftg.esggo.co/feedback.html"
+        continue-on-error: true

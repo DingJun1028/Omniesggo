@@ -24,18 +24,67 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '../..'); // C:/Project/esggo
-const WIKI_DIR = path.join(ROOT, 'wiki', 'wiki');
-const REGISTRY = path.join(WIKI_DIR, '萬能模組-註冊表.md');
+
+// Wiki 目錄預設值; --wiki 會在 main() 中解析並真正影響註冊表讀寫位置
+const DEFAULT_WIKI_DIR = path.join(ROOT, 'wiki', 'wiki');
+
+const REGISTRY_HEADER =
+  '# 萬能模組註冊表\n\n' +
+  '| 模組 ID | MEDCE | 主題 | 函數 | 元件 | 符文 | hashLock |\n' +
+  '|---|---|---|---|---|---|---|\n';
 
 const args = process.argv.slice(2);
 const getArg = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const specPath = getArg('--spec', null);
-const wikiDir = getArg('--wiki', WIKI_DIR);
+
+// ── 工具: Markdown 儲存格跳脫 (防止 | 或換行破壞表格欄/列) ──
+function mdCell(v) {
+  return String(v == null ? '' : v)
+    .replace(/\|/g, '\\|')   // 管線符轉義, 避免多出欄位
+    .replace(/\r?\n/g, ' ')  // 換行壓成空白, 避免多出列
+    .trim();
+}
+
+// ── 工具: 正規化序列化 (key 排序) → 讓 hashLock 具備第三方確定性重算能力 ──
+function canonicalize(obj) {
+  if (Array.isArray(obj)) return obj.map(canonicalize);
+  if (obj && typeof obj === 'object') {
+    const out = {};
+    for (const k of Object.keys(obj).sort()) out[k] = canonicalize(obj[k]);
+    return out;
+  }
+  return obj;
+}
 
 // ── 工具: 5T hashLock ──
 function hashLock(obj) {
-  const s = typeof obj === 'string' ? obj : JSON.stringify(obj);
+  const s = typeof obj === 'string' ? obj : JSON.stringify(canonicalize(obj));
   return 'R-SEAL:' + crypto.createHash('sha256').update(s).digest('hex').slice(0, 32);
+}
+
+// ── 工具: 解析註冊表列 (只取 hash 為 R-SEAL: 開頭的資料列, 自動跳過表頭/分隔列) ──
+function parseRegistryRows(reg) {
+  const rows = [];
+  for (const line of reg.split('\n')) {
+    if (!line.trim().startsWith('|')) continue;
+    const cells = line.split('|').map((c) => c.trim());
+    if (cells.length < 3) continue;
+    const id = cells[1];
+    const hash = cells[cells.length - 2];
+    if (!id || !hash || !hash.startsWith('R-SEAL:')) continue;
+    rows.push({ id, hash });
+  }
+  return rows;
+}
+
+// ── 工具: 判定 ModuleSpec 陣列是否含「有意義」的實證 (拒絕佔位/空值) ──
+const PLACEHOLDERS = new Set([
+  'unverified', 'todo', 'tbd', 'placeholder', 'xxx', 'x', '-', '?',
+  'n/a', 'na', 'none', 'unknown', 'test', 'dummy', '未驗證', '待補',
+]);
+function meaningful(arr) {
+  if (!Array.isArray(arr)) return false;
+  return arr.some((x) => typeof x === 'string' && x.trim().length > 0 && !PLACEHOLDERS.has(x.trim().toLowerCase()));
 }
 
 // ── P1: 需求解析 (對照萬能目錄 MEDCE 分類) ──
@@ -74,14 +123,17 @@ function p5_runeMark(spec) {
 
 // ── P6: 5T 品質閘門 ──
 // T1 真: 數值/單位/時間戳; T2 善: 來源標記; T3 美: 稽核軌跡
-// T4 信: hash_lock; T5 通: 第三方可驗算
-function p6_qualityGate(spec, artifact) {
+// T4 信: hash_lock; T5 通: 第三方可驗算 (與註冊表獨立比對, 防竄改)
+function p6_qualityGate(spec, artifact, registryPath) {
   const gates = [];
-  // T1 真: spec 含可量化指標或明確契約
-  const t1 = !!(spec.medce && spec.id && (spec.functions?.length || spec.components?.length));
+  // T1 真: spec 含可量化契約證據 (拒絕佔位 / 空陣列)
+  const t1 = !!(
+    spec.medce && spec.medce.primary && spec.id &&
+    (meaningful(spec.functions) || meaningful(spec.components))
+  );
   gates.push(['T1真', t1]);
-  // T2 善: 來源標記 (functions/components 引用自四族原料目錄)
-  const t2 = !!(spec.functions?.length || spec.components?.length);
+  // T2 善: 來源標記 (functions/components 須為有意義實證, 非佔位)
+  const t2 = !!(meaningful(spec.functions) || meaningful(spec.components));
   gates.push(['T2善', t2]);
   // T3 美: 稽核軌跡 (artifact 含 buildTrace)
   const t3 = !!artifact.buildTrace;
@@ -89,35 +141,74 @@ function p6_qualityGate(spec, artifact) {
   // T4 信: hash_lock 不可篡改
   const t4 = !!artifact.hashLock && artifact.hashLock.startsWith('R-SEAL:');
   gates.push(['T4信', t4]);
-  // T5 通: 第三方可驗算 (hashLock 可重算)
-  const t5 = hashLock(artifact.spec) === artifact.hashLock;
+  // T5 通: 第三方可驗算 — 與註冊表「已記錄」的 hashLock 獨立比對
+  // (不再對記憶體內同一物件重算自證, 避免永遠為 true 的同義反覆)
+  let t5 = true;
+  let t5Reason = '新模組 (註冊表尚無記錄, 封印後可第三方重算驗證)';
+  try {
+    const reg = fs.readFileSync(registryPath, 'utf8');
+    const rows = parseRegistryRows(reg);
+    const hit = rows.find((r) => r.id === mdCell(spec.id));
+    if (hit) {
+      if (hit.hash === artifact.hashLock) {
+        t5 = true;
+        t5Reason = '註冊表 hashLock 一致 (可第三方重算驗證)';
+      } else {
+        t5 = false;
+        t5Reason = `註冊表 hashLock 不一致 (${hit.hash} ≠ ${artifact.hashLock}) — 內容遭竄改或需升版 id`;
+      }
+    }
+  } catch {
+    /* 註冊表尚未存在 → 視為新模組 */
+  }
   gates.push(['T5通', t5]);
 
   const failed = gates.filter(([, ok]) => !ok).map(([g]) => g);
-  if (failed.length) throw new Error('[P6] 5T 閘門退件: ' + failed.join(', '));
-  return { stage: 'P6', ok: true, gates: gates.map(([g, ok]) => `${g}=${ok ? '✓' : '✗'}`).join(' ') };
+  if (failed.length) {
+    throw new Error('[P6] 陷入 5T 閘門退件: ' + failed.join(', ') + (t5 ? '' : ` | ${t5Reason}`));
+  }
+  return {
+    stage: 'P6',
+    ok: true,
+    gates: gates.map(([g, ok]) => `${g}=${ok ? '✓' : '✗'}`).join(' '),
+    note: 'T5: ' + t5Reason,
+  };
 }
 
 // ── P7: 代理封印 (寫入註冊表) ──
-function p7_seal(spec, artifact) {
+function p7_seal(spec, artifact, registryPath) {
   const entry = [
-    `| ${spec.id} | ${spec.medce?.primary || '?'} | ${spec.theme || '?'} | ${spec.functions?.join(',') || '-'} | ${spec.components?.join(',') || '-'} | ${spec.runes?.join(',') || '-'} | ${artifact.hashLock} |`,
+    `| ${mdCell(spec.id)} ` +
+    `| ${mdCell(spec.medce?.primary || '?')} ` +
+    `| ${mdCell(spec.theme || '?')} ` +
+    `| ${(spec.functions || []).map(mdCell).join(', ') || '-'} ` +
+    `| ${(spec.components || []).map(mdCell).join(', ') || '-'} ` +
+    `| ${(spec.runes || []).map(mdCell).join(', ') || '-'} ` +
+    `| ${artifact.hashLock} |`,
   ].join('\n');
 
   let registry = '';
-  try { registry = fs.readFileSync(REGISTRY, 'utf8'); } catch { registry = '# 萬能模組註冊表\n\n| 模組 ID | MEDCE | 主題 | 函數 | 元件 | 符文 | hashLock |\n|---|---|---|---|---|---|---|\n'; }
+  try {
+    registry = fs.readFileSync(registryPath, 'utf8');
+  } catch {
+    registry = REGISTRY_HEADER;
+  }
 
-  // 避免重複: 若已含該 id 則跳過
-  if (registry.includes(`| ${spec.id} |`)) {
+  // 避免重複: 以解析後的 id 欄精確比對 (不再用脆弱的 substring includes)
+  const rows = parseRegistryRows(registry);
+  if (rows.some((r) => r.id === mdCell(spec.id))) {
     return { stage: 'P7', ok: true, note: '已存在註冊表 (跳過重複寫入)', skipped: true };
   }
+
+  // 確保註冊表所在目錄存在 (--wiki 指向不存在目錄時不再 ENOENT 崩潰)
+  fs.mkdirSync(path.dirname(registryPath), { recursive: true });
   const newReg = registry.trimEnd() + '\n' + entry + '\n';
-  fs.writeFileSync(REGISTRY, newReg, 'utf8');
+  fs.writeFileSync(registryPath, newReg, 'utf8');
   return { stage: 'P7', ok: true, note: '已寫入萬能模組-註冊表.md', skipped: false };
 }
 
 // ── 主流程 ──
-function assemble(spec) {
+function assemble(spec, registryPath) {
   const buildTrace = [];
   buildTrace.push(p1_requirementParse(spec));
   buildTrace.push(p2_functionSelect(spec));
@@ -131,8 +222,8 @@ function assemble(spec) {
     hashLock: hashLock(spec),
     buildTrace,
   };
-  buildTrace.push(p6_qualityGate(spec, artifact));
-  const seal = p7_seal(spec, artifact);
+  buildTrace.push(p6_qualityGate(spec, artifact, registryPath));
+  const seal = p7_seal(spec, artifact, registryPath);
   buildTrace.push(seal);
 
   return artifact;
@@ -175,6 +266,11 @@ function loadWikiSpec(wikiDir) {
 
 // ── CLI ──
 function main() {
+  // 解析 --wiki: 相對路徑以倉庫根目錄為基準, 並真正驅動註冊表讀寫位置
+  const rawWiki = getArg('--wiki', DEFAULT_WIKI_DIR);
+  const wikiDir = path.isAbsolute(rawWiki) ? rawWiki : path.resolve(ROOT, rawWiki);
+  const registryPath = path.join(wikiDir, '萬能模組-註冊表.md');
+
   let spec;
   if (specPath) {
     spec = JSON.parse(fs.readFileSync(specPath, 'utf8'));
@@ -200,9 +296,9 @@ function main() {
   if (!wiki.hasFullPipeline || !wiki.hasFiveT) {
     throw new Error('[Wiki] 規範不完整: 需 P1-P7 流水線 + T1-T5 閘門');
   }
-
+  console.log(`[omni-factory] 註冊表路徑: ${registryPath}`);
   console.log(`[omni-factory] 組裝模組: ${spec.id}`);
-  const artifact = assemble(spec);
+  const artifact = assemble(spec, registryPath);
   console.log('[omni-factory] P1-P7 流水線完成:');
   for (const step of artifact.buildTrace) {
     console.log(`  ${step.stage}: ${step.ok ? '✓' : '✗'} ${step.note || ''}`);

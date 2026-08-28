@@ -13,7 +13,8 @@
     "deploy:all": "pnpm build && firebase deploy",
     "deploy:hosting": "pnpm build && firebase deploy --only hosting",
     "deploy:rules": "firebase deploy --only firestore:rules",
-    "check:types-sync": "node scripts/check-types-sync.js"
+    "check:types-sync": "node scripts/check-types-sync.js",
+    "verify:matrix": "node scripts/verify-matrix.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

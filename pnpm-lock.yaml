@@ -208,6 +208,8 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  apps/evolution-engine: {}
+
   apps/ftg-tools: {}
 
   apps/gateway:
