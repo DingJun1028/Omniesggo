@@ -43,25 +43,25 @@ describe('POST /api/cron — 認證守門', () => {
 
   it('有 CRON_SECRET 時正確 x-cron-secret → 放行 (非 401)', async () => {
     process.env.CRON_SECRET = 'test-secret-123';
-    const res = await POST(makeReq({ job: 'daily-report' }, { 'x-cron-secret': 'test-secret-123' }));
+    const res = await POST(makeReq({ job: 'auth-check' }, { 'x-cron-secret': 'test-secret-123' }));
     expect(res.status).not.toBe(401);
   });
 
   it('有 CRON_SECRET 時正確 Bearer → 放行 (非 401)', async () => {
     process.env.CRON_SECRET = 'test-secret-123';
-    const res = await POST(makeReq({ job: 'daily-report' }, { authorization: 'Bearer test-secret-123' }));
+    const res = await POST(makeReq({ job: 'auth-check' }, { authorization: 'Bearer test-secret-123' }));
     expect(res.status).not.toBe(401);
   });
 
   it('無 CRON_SECRET 時缺少 x-user-id → 401', async () => {
     delete process.env.CRON_SECRET;
-    const res = await POST(makeReq({ job: 'daily-report' }));
+    const res = await POST(makeReq({ job: 'auth-check' }));
     expect(res.status).toBe(401);
   });
 
   it('無 CRON_SECRET 時有 x-user-id → 放行 (非 401)', async () => {
     delete process.env.CRON_SECRET;
-    const res = await POST(makeReq({ job: 'daily-report' }, { 'x-user-id': 'internal-scheduler' }));
+    const res = await POST(makeReq({ job: 'auth-check' }, { 'x-user-id': 'internal-scheduler' }));
     expect(res.status).not.toBe(401);
   });
 });
