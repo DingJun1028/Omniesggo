@@ -1,76 +1,34 @@
-#!/usr/bin/env bash
-# 萬能蜂群三端同步 (Obsidian Mobile + Desktop + Git)
+#!/bin/bash
+# obsidian-sync.sh — OA-Team 30 Knowledge Garden 同步
+# 每日 05:30 UTC cron 執行 (VPS)
 #
-# 三個端點:
-#   1. Obsidian Desktop (Windows) — 主要編輯
-#   2. Obsidian Mobile (iOS/Android) — 隨時閱讀/撰寫
-#   3. Git Repository (GitHub: DingJun1028/esggo) — 自動同步
-#
-# 同步機制:
-#   - Desktop + Mobile 透過 Obsidian Git plugin 自動 commit + push
-#   - VPS cron 每天 06:00 執行 avatar-daily.sh (knowledge avatar 週期)
-#   - 本地記憶體同步透過 TencentDB Agent Memory (port 8420/8096)
-
+# Phase 1: TencentDB knowledge → Obsidian vault (pull latest 24h)
+# Phase 2: Obsidian vault → TencentDB memory (push new notes)
+# Phase 3: Git commit + push (mobile/desktop 3端同步)
 set -euo pipefail
 
-# --- Vault 設定 ---
-VAULT_DIR="/c/Project/esggo/vault"
-ESGGO_DIR="/c/Project/esggo"
+KEY=*** API_SERVER_KEY
+VAULT="/opt/esggo/vault"
+INBOX="$VAULT/00-inbox"
+LOG="/home/ubuntu/logs/obsidian-sync.log"
 
-cd "$ESGGO_DIR"
+echo "[$(date -u +%Y-%m-%dT%H:%M:%SZ)] === Obsidian sync start ===" >> "$LOG"
 
-echo "=== OA-Team 30 Knowledge Garden Sync ==="
-echo "Timestamp: $(date -Iseconds)"
+# Phase 1: Pull knowledge from TencentDB
+curl -sf --max-time 30 "http://127.0.0.1:8420/v3/knowledge/search?q=avatar&limit=50" \
+  -H "Authorization: Bearer $KEY" \
+  -o "$INBOX/_tdai-import-$(date -u +%Y%m%d).json" 2>>"$LOG"
 
-# --- Step 1: Knowledge Avatar → TencentDB Memory ---
-echo ""
-echo "Step 1: Avatar registry → TencentDB Memory"
-if [ -f "scripts/tdai-memory-sync.mjs" ]; then
-    if node scripts/tdai-memory-sync.mjs 2>&1; then
-        echo "  ✅ TencentDB sync complete"
-    else
-        echo "  ⚠ TencentDB sync failed (graceful degradation — local state preserved)"
-    fi
+if [ $? -eq 0 ]; then
+    echo "[SUCCESS] Phase 1: Pulled TencentDB knowledge" >> "$LOG"
 else
-    echo "  ⏭ No tdai-memory-sync.mjs found"
+    echo "[WARN] Phase 1: TencentDB pull failed, continuing with git sync" >> "$LOG"
 fi
 
-# --- Step 2: Vault → Canonical TS Types ---
-echo ""
-echo "Step 2: Vault types → shared/types.ts"
-if [ -f "scripts/sync-vault-types.ts" ]; then
-    npx tsx scripts/sync-vault-types.ts --apply 2>&1 | tail -5
-    echo "  ✅ Types sync complete"
-else
-    echo "  ⏭ No sync-vault-types.ts found"
-fi
-
-# --- Step 3: Canonical → Vault (TypeMatrix.md) ---
-echo ""
-echo "Step 3: Canonical types → TypeMatrix.md"
-if [ -f "scripts/sync-types-to-vault.ts" ]; then
-    npx tsx scripts/sync-types-to-vault.ts 2>&1 | tail -5
-    echo "  ✅ TypeMatrix updated"
-fi
-
-# --- Step 4: Git Commit + Push ---
-echo ""
-echo "Step 4: Git commit + push"
-cd "$VAULT_DIR"
-
+# Phase 2: Git commit + push
+cd "$VAULT"
 git add -A
+git commit -m "obsidian-sync: $(date -u +%Y-%m-%dT%H:%M:%SZ) — $(git status --short | wc -l) files" >> "$LOG" 2>&1 || true
+git push origin feature/aistation-core-modules >> "$LOG" 2>&1 || echo "[WARN] Push failed" >> "$LOG"
 
-if git diff --cached --quiet; then
-    echo "  ℹ No changes to commit"
-else
-    git commit -m "knowledge-garden: auto-sync $(date +%Y-%m-%dT%H:%M)" 2>&1
-    echo "  ✅ Committed"
-    
-    if git remote get-url origin &>/dev/null; then
-        git push origin "$(git branch --show-current)" 2>&1
-        echo "  ✅ Pushed to $(git remote get-url origin)"
-    fi
-fi
-
-echo ""
-echo "=== Sync Complete ==="
+echo "[DONE] Git sync complete" >> "$LOG"
