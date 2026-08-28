@@ -10,7 +10,7 @@
  * 使用限制：僅能在伺服器/API Route 使用
  */
 
-import { getAuth } from 'firebase-admin/auth';
+import { getAuth } from './firebase-admin';
 import { getAdminApp } from './firebase-admin';
 
 export type UserRole = 'student' | 'TA' | 'admin';
@@ -48,11 +48,9 @@ export async function getIdTokenClaims(uid: string, force = false): Promise<Reco
   }
 
   try {
-    const auth = getAuth(getAdminApp());
-    const user = await auth.getUser(uid);
-    const claims = (user.customClaims ?? {}) as Record<string, unknown>;
-    memoryCache.set(cacheKey, { claims, exp: Date.now() + 60_000 });
-    return claims;
+    // 2026-08-25 力度 1: GCP Firebase Auth 已停用 (本地模式)。
+    // 此 helper 原依賴 Firebase custom claims; 本地模式無對等機制, 直接回 null 降級。
+    return null;
   } catch {
     return null;
   }
@@ -71,9 +69,9 @@ export async function requireRole(uid: string, allowed: UserRole[]): Promise<Use
 
 export async function forceRefreshIdToken(token: string): Promise<string | null> {
   try {
-    const auth = getAuth(getAdminApp());
-    const decoded = await auth.verifyIdToken(token, true);
-    return decoded.uid ?? null;
+    // 2026-08-25 力度 1: GCP Firebase Auth 已停用 (本地模式)。
+    // 本地驗證請改用 middleware.ts 的 jose 實作; 此處直接降級回 null。
+    return null;
   } catch {
     return null;
   }

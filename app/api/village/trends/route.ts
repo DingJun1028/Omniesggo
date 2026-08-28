@@ -3,7 +3,7 @@ import { jsonResponse, jsonError } from '@lib/api-utils';
 interface GeminiPart { text?: string }
 interface GeminiContent { parts?: GeminiPart[] }
 type InteractionStep = { type?: string; content?: GeminiContent };
-import { runGeminiWithWorkersAIFallback } from '@/lib/cloudflare';
+import { runGeminiWithWorkersAIFallback } from '@lib/cloudflare';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';

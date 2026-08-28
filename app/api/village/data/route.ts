@@ -1,4 +1,4 @@
-import { seedVillageData } from '@/lib/village-seeder';
+import { seedVillageData } from '@lib/village-seeder';
 import { jsonResponse, jsonError } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';

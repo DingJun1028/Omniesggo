@@ -22,7 +22,8 @@ export interface SoulArtifact extends ISoulArtifact {
   lifecycle: string[];   // Trackable
   hash_lock: string;     // Trustworthy
   author: string;        // Trustworthy (不可篡改署名)
-  evidence: Record<string, unknown>;
+  // evidence 結構對齊 canonical ISoulArtifact: { originCause, processTrace, finalEffect }
+  evidence: { originCause: string; processTrace: string[]; finalEffect: string };
 }
 
 const HEX = '0123456789abcdef';
@@ -55,7 +56,12 @@ export function purify(sourceOrigin: string, author: string, payload: Record<str
     lifecycle: ['extract', 'dispatch', 'purify'], // Trackable
     hash_lock: '', // 先空，下面算
     author, // Trustworthy 署名
-    evidence: payload,
+    // evidence 對齊 canonical: payload 包裝為 originCause + processTrace + finalEffect
+    evidence: {
+      originCause: sourceOrigin,
+      processTrace: ['extract', 'dispatch', 'purify'],
+      finalEffect: JSON.stringify(payload).slice(0, 200),
+    },
   };
   artifact.hash_lock = hashLock(artifact); // Trustworthy
   return Object.freeze(artifact) as Readonly<SoulArtifact>; // Trustworthy: 凍結

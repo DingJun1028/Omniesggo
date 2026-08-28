@@ -1,5 +1,5 @@
-import { rateLimit } from '@/lib/rate-limit';
-import { CelestialController } from '@/lib/celestial/implementation';
+import { rateLimit } from '@lib/rate-limit';
+import { CelestialController } from '@lib/celestial/implementation';
 import { jsonResponse, jsonError, validateParams, validatePositiveNumber, jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';

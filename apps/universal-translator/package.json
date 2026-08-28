@@ -1,6 +1,6 @@
 {
   "name": "universal-translator",
-  "version": "1.0.0",
+  "version": "1.7.0",
   "description": "OA-Team 萬能即時翻譯服務 (LibreTranslate → MyMemory → 原文兜底) + Ollama+Gemma 選用 + 繁中英碼終始矩陣",
   "type": "module",
   "main": "server.mjs",

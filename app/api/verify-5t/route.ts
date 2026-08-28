@@ -13,8 +13,8 @@
 //       transparent_audit (bool) | frozen (bool)
 // ============================================================================
 import { NextResponse } from 'next/server';
-import { calculateFiveTScore, FiveTGatekeeper, FiveTHashLock } from '@/lib/five-t-protocol';
-import { verifyWebhookSignature } from '@/lib/webhook-auth';
+import { calculateFiveTScore, FiveTGatekeeper, FiveTHashLock } from '@lib/five-t-protocol';
+import { verifyWebhookSignature } from '@lib/webhook-auth';
 
 export const dynamic = 'force-dynamic';
 
