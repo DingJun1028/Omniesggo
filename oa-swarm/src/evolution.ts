@@ -31,6 +31,33 @@ export interface EvolutionLesson {
   ts: number;
 }
 
+/**
+ * 可復用 Skill 資產 (對齊 TencentDB-Agent-Memory v2.0.0 Skill 結構)
+ * 經驗 (EvolutionLesson) 經審核後可升級為 Skill, 具備版本/觸發/步驟/驗證
+ */
+export interface EvolutionSkill {
+  /** Skill 唯一 ID */
+  id: string;
+  /** 名稱 (繁中) */
+  name: string;
+  /** 版本 (語義化) */
+  version: string;
+  /** 觸發邊界: 何時適用此 Skill */
+  trigger: string;
+  /** 執行步驟 (可復用 SOP) */
+  steps: string[];
+  /** 驗證規則: 如何確認成功 */
+  verify: string;
+  /** 來源經驗指紋 */
+  fromLesson: string;
+  /** 可見性 (對齊 v2.0.0: private/team/restricted) */
+  visibility: 'private' | 'team' | 'restricted';
+  /** 使用次數 */
+  uses: number;
+  source_origin: string;
+  ts: number;
+}
+
 export interface EvolutionState {
   /** 累計任務數 */
   tasksTotal: number;
@@ -199,5 +226,27 @@ export class EvolutionEngine {
 
   getState(): EvolutionState {
     return { ...this.state, weights: { ...this.state.weights } };
+  }
+
+  /**
+   * 經驗升級為可復用 Skill (對齊 v2.0.0 Skill 強制歸檔)
+   * 僅當 outcome=success 且無違規時, 才值得固化為團隊資產
+   */
+  promoteToSkill(lesson: EvolutionLesson, name: string, trigger: string, steps: string[], verify: string): EvolutionSkill {
+    const skill: EvolutionSkill = {
+      id: `skill_${lesson.taskFingerprint}_${lesson.ts}`,
+      name,
+      version: '1.0.0',
+      trigger,
+      steps,
+      verify,
+      fromLesson: lesson.taskFingerprint,
+      visibility: 'team', // 預設團隊共享 (對齊 v2.0.0)
+      uses: 0,
+      source_origin: SOURCE_ORIGIN,
+      ts: Date.now(),
+    };
+    console.log(`[EVOLUTION] 經驗升級為 Skill: ${name} v${skill.version} (visibility=${skill.visibility})`);
+    return skill;
   }
 }
