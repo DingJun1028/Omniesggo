@@ -10,7 +10,7 @@
 // ============================================================================
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { FiveTHashLock } from '@/lib/five-t-protocol';
+import { FiveTHashLock } from '@lib/five-t-protocol';
 
 export const dynamic = 'force-dynamic';
 

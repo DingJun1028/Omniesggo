@@ -5,7 +5,7 @@
  */
 
 import { ncbQuery } from './ncb-utils';
-import type { User } from 'firebase/auth';
+import type { User } from './auth';
 
 export interface UserProfile {
   user_id: string;
@@ -48,7 +48,7 @@ export async function getOrCreateUserProfile(firebaseUser: User): Promise<UserPr
     email: firebaseUser.email || '',
     display_name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
     photo_url: firebaseUser.photoURL || undefined,
-    provider: firebaseUser.providerData[0]?.providerId || 'password',
+    provider: (firebaseUser as { provider?: string; providerData?: Array<{ providerId?: string }> }).providerData?.[0]?.providerId || (firebaseUser as { provider?: string }).provider || 'local',
     created_at: new Date().toISOString(),
     last_login: new Date().toISOString(),
     total_points: 0,

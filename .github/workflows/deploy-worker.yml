@@ -41,5 +41,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          workingDirectory: worker
+          # 從 repo 根執行，與根 wrangler.toml 的根相對路徑（main = "worker/src/index.ts"）基準一致。
+          # 原 workingDirectory: worker 會讓 wrangler 在 worker/ 找不到 wrangler.toml 而上溯到根，
+          # 再以 cwd=worker/ 解析 [build].command 中的 my-worker/tsconfig.json → TS5058。
+          command: deploy --config wrangler.toml
 

@@ -4,7 +4,7 @@
  * Requires X-Signature-256 webhook auth when WEBHOOK_SECRET is set.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { zenrowsFetch, verifyZenrowsWebhookSignature } from '@/lib/zenrows-client';
+import { zenrowsFetch, verifyZenrowsWebhookSignature } from '@lib/zenrows-client';
 
 export const dynamic = 'force-dynamic';
 

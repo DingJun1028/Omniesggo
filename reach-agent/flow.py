@@ -102,28 +102,52 @@ async def fetch_all(urls: list[str], concurrency: int = 6) -> list[dict]:
     return await asyncio.gather(*tasks)
 
 
-# ── Analyze (結構化抽取 personalization 信號) ──────────────────
+# ── Analyze (啟發式關鍵字萃取 personalization 信號) ──────────
 def analyze_page(page: dict, factors: list[dict]) -> dict:
-    """LLM 抽取該頁的 personalization 信號 (含重試 + 降級)"""
-    if not page.get("text"):
+    """從網頁萃取 personalization 信號 (啟發式, 免 LLM 結構化 — CPU 推論慢)
+
+    設計: 免費算立環境下 LLM 結構化對長文本太慢 (>45s/頁),
+    改用啟發式關鍵字 + 公司/專案識別, 可靠且即時。
+    Draft 階段仍用 LLM (短 prompt, 快) 引用這些信號。
+    """
+    text = page.get("text", "")
+    if not text:
         return {"url": page["url"], "signals": []}
-    factors_str = "\n".join(f"- {f['name']}: {f['description']} → {f['action']}" for f in factors)
-    prompt = f"""分析此網頁關於目標人物的公開資訊, 萃取個人化信號。
-目標信號維度:
-{factors_str}
-
-網頁內容:
-{page['text'][:2000]}
-
-抽取具體、可引用的信號 (公司/專案/論文/演講/興趣/校友)。無則回空陣列。"""
-    schema = '{"url": str, "signals": [{"dimension": str, "evidence": str, "quote": str}]}'
-    # 重試 2 次 (qwen3b 結構化偶失敗)
-    for _ in range(2):
-        res = call_ollama_structured(prompt, schema, timeout=45)
-        if res.get("signals"):
-            return res
-    # 降級: 從 snippet 抓關鍵字 (確保至少有信號, 不讓個人化完全失效)
-    return {"url": page["url"], "signals": []}
+    low = text.lower()
+    kw = []
+    # 公司 / 機構
+    orgs = ["Anthropic", "OpenAI", "Google", "DeepMind", "Meta", "Microsoft",
+            "Stanford", "MIT", "Berkeley", "CMU", "Tsinghua", "Peking", "Tencent", "Alibaba"]
+    for o in orgs:
+        if o.lower() in low:
+            kw.append(o)
+    # 角色 / 成就
+    roles = ["founder", "co-founder", "CTO", "CEO", "lead", "principal",
+             "phd", "researcher", "scientist", "professor", "author", "speaker"]
+    for r in roles:
+        if r.lower() in low:
+            kw.append(r)
+    # 技術 / 興趣
+    tech = ["transformer", "rlhf", "rag", "llm", "diffusion", "agent", "ml", "deep learning"]
+    for t in tech:
+        if t.lower() in low:
+            kw.append(t)
+    if not kw:
+        return {"url": page["url"], "signals": []}
+    # 去重, 取前 4
+    seen = []
+    for k in kw:
+        if k.lower() not in [s.lower() for s in seen]:
+            seen.append(k)
+    seen = seen[:4]
+    return {
+        "url": page["url"],
+        "signals": [{
+            "dimension": "recent_work",
+            "evidence": f"頁面提及: {', '.join(seen)}",
+            "quote": "",
+        }],
+    }
 
 
 # ── Draft (依信號 + 簡歷寫郵件) ───────────────────────────────

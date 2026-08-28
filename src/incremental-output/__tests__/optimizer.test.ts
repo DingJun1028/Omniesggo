@@ -35,7 +35,7 @@ describe('§15.5 Incremental Output Optimization', () => {
     const art = optimizer.seal(ops, 'v1', 'Trustworthy', 'soul.md§15.5');
     expect(Object.isFrozen(art)).toBe(true);
     expect(Object.isFrozen(art.ops)).toBe(true);
-    expect(art.hashLock).toMatch(/^[0-9a-f]{8}$/);
+    expect(art.hashLock).toMatch(/^[0-9a-f]{64}$/); // §18 SHA-256 64-hex
     expect(art.sourceOrigin).toBe('soul.md§15.5');
   });
 

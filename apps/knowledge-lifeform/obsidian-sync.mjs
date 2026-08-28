@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// obsidian-sync.mjs — 把 evolution-engine 經驗鏡像成 vault 筆記 (5T frontmatter)
+// obsidian-sync.mjs — 把 evolution-engine 經驗鏡像成 vault 筆記 (5T frontmatter, 過質控蜂)
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -15,21 +15,19 @@ let n = 0;
 for (const e of exps.slice(-5)) {
   const safe = (e.theme || 'exp').replace(/[^a-z0-9-]/gi, '_');
   const fn = path.join(VAULT, `EXP-${safe}.md`);
-  const md = [
-    '---',
-    'type: experience',
-    'source_origin: evolution-engine',
-    'co_authors: [evolution-engine]',
-    'tag: ' + e.tag,
-    'source: ' + e.source,
-    'created: ' + e.created_at,
-    '---',
-    '',
-    '# ' + e.theme,
-    '',
-    e.lesson,
-    ''
-  ].join('\n');
+  const md = `---
+type: experience
+source_origin: evolution-engine
+co_authors: [evolution-engine]
+tag: ${e.tag}
+source: ${e.source}
+created: ${e.created_at}
+---
+
+# ${e.theme}
+
+${e.lesson}
+`;
   fs.writeFileSync(fn, md);
   n++;
 }

@@ -8,6 +8,8 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/archive/**',
+      'archive/**',
       // 腳本式驗證（頂層 console.log + assert + process.exit），非 vitest 套件，不應被抓取執行
       '**/__test__/**',
       'apps/gateway/sync/__test__/**',
@@ -45,7 +47,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@lib': path.resolve(__dirname, './lib'),
+      '@lib': path.resolve(__dirname, './src/lib'),
     },
   },
 });

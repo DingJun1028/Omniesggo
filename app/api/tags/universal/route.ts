@@ -4,7 +4,7 @@
 // ============================================================
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@lib/prisma';
 import { syncEsgTags, getEntityTags } from '@/core/tags/universal-tag-service';
 
 // GET /api/tags/universal?entityType=&entityId= -> 查詢實體標籤配對
