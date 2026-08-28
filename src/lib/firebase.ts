@@ -22,7 +22,7 @@ function getStore(): Map<string, Record<string, DocData>> {
   if (isServer) {
     // @ts-expect-error - globalThis 在 server 端持久
     if (!globalThis.__esggoLocalStore) globalThis.__esggoLocalStore = new Map();
-    // @ts-expect-error
+    // @ts-expect-error - localStore is attached to globalThis temporarily
     return globalThis.__esggoLocalStore as Map<string, Record<string, DocData>>;
   }
   return memoryFallback;
