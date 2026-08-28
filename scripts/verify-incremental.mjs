@@ -27,7 +27,7 @@ try {
   );
   log(typeof artifact.uuid === 'string' && artifact.uuid.length > 0, '產物 uuid 存在');
   log(artifact.frozen === true && Object.isFrozen(artifact), '產物 Object.freeze (Trustworthy)');
-  log(artifact.hashLock.length === 8, 'Hash Lock 生成 (Transparent, FNV-1a)');
+  log(artifact.hashLock.length === 64, 'Hash Lock 生成 (Transparent, FNV-1a)');
 
   // 3. 5T 閘: 缺欄位拋錯
   let gateThrew = false;
