@@ -13,3 +13,5 @@ max_batch_size = 5
 max_retries = 3
 max_batch_timeout = 1
 dead_letter_queue = "esggo-repair-dlq"
+[build]
+command = "cd esggo-auto-repair/worker && npx --yes npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && npx tsc -p tsconfig.json"
