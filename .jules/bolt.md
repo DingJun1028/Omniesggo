@@ -13,3 +13,6 @@
 ## 2026-08-28 - [OmniAgent Console Rendering Optimization]
 **Learning:** In React components, static configuration arrays like `PANEL_TABS` created inside the render cycle (specifically within the JSX or component function) cause the array to be recreated on every re-render. This triggers unnecessary re-renders of mapped child elements depending on referential equality, which is a common performance anti-pattern.
 **Action:** Hoist static arrays and configuration objects out of the component function to the module scope to avoid garbage collection and recreation overhead.
+## 2024-05-18 - Lazy initialization in React forms
+**Learning:** In React functional components, `useState` initialization code runs on every render, even if the result is only used on the first render. This is particularly problematic when the initial state is computed dynamically from props, such as reducing over an array to build a form data object.
+**Action:** Always wrap expensive or dynamic `useState` initializations (e.g. `Array.reduce` over schema fields) in a callback function `() => ({ ... })`. This leverages React's lazy initial state feature, ensuring the expensive computation only runs once during component mount, preventing redundant work on every keystroke or subsequent render.
