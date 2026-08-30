@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 // ============================================================
 // src/ncb-client.js — NCBDB (NoCodeBackend) 客戶端
 // ------------------------------------------------------------
