@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,16 +13,25 @@ const STAGE_CONFIG = {
 };
 
 const SERVICE_TYPES = [
-  { value: 'all', label: '全部類型' },
-  { value: 'corporate', label: '企業旅遊' },
-  { value: 'family', label: '家庭日' },
-  { value: 'esg', label: 'ESG 永續' },
-  { value: 'wellbeing', label: '身心健康' },
-  { value: 'executive', label: '共識營' },
+  { value: 'all', label: '全部類型', icon: '🌐' },
+  { value: 'corporate', label: '企業旅遊', icon: '🏢' },
+  { value: 'family', label: '家庭日', icon: '👨‍👩‍👧' },
+  { value: 'esg', label: 'ESG 永續', icon: '🌱' },
+  { value: 'wellbeing', label: '身心健康', icon: '🧘' },
+  { value: 'executive', label: '共識營', icon: '🤝' },
 ];
+
+const SERVICE_ROUTES = {
+  corporate: '/journey/',
+  family: '/journey/',
+  esg: '/journey/',
+  wellbeing: '/journey/',
+  executive: '/journey/',
+};
 
 export function Dashboard() {
   const { user, token } = useAuth();
+  const navigate = useNavigate();
   const [journeys, setJourneys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -79,9 +89,24 @@ export function Dashboard() {
       body: JSON.stringify(newJourney),
     });
     const data = await res.json();
-    setJourneys([{ ...newJourney, id: data.id, stage: 'planning' }, ...journeys]);
+    const created = { ...newJourney, id: data.id, stage: 'planning' };
+    setJourneys([created, ...journeys]);
     setShowCreate(false);
     setNewJourney({ title: '', destination: '', service_type: 'corporate', start_date: '', end_date: '', purpose: '' });
+    // Navigate to the new journey
+    navigate(`/journey/${data.id}`);
+  };
+
+  const handleJourneyClick = (j) => {
+    if (j.service_type === 'wellbeing') {
+      navigate(`/journey/${j.id}/wellbeing`);
+    } else if (j.service_type === 'executive') {
+      navigate(`/journey/${j.id}/executive`);
+    } else if (j.service_type === 'family') {
+      navigate(`/journey/${j.id}/family-day`);
+    } else {
+      navigate(`/journey/${j.id}`);
+    }
   };
 
   return (
@@ -95,6 +120,21 @@ export function Dashboard() {
         <button className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors shadow-sm" onClick={() => setShowCreate(true)}>
           + 新增旅程
         </button>
+      </div>
+
+      {/* Quick Actions - Six Streams */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {SERVICE_TYPES.filter(t => t.value !== 'all').map((type) => (
+          <button
+            key={type.value}
+            className="flex flex-col items-center gap-2 p-4 rounded-xl bg-white border border-gray-100 hover:border-emerald-300 hover:shadow-md transition-all"
+            onClick={() => setFilterType(type.value)}
+          >
+            <span className="text-2xl">{type.icon}</span>
+            <span className="text-xs font-medium text-gray-700">{type.label}</span>
+            <span className="text-xs text-gray-400">{journeys.filter(j => j.service_type === type.value).length} 個</span>
+          </button>
+        ))}
       </div>
 
       {/* Stats */}
@@ -153,7 +193,7 @@ export function Dashboard() {
           <h3 className="text-lg font-semibold mb-2">{searchQuery || filterStage !== 'all' ? '沒有符合條件的旅程' : '還沒有旅程'}</h3>
           <p className="text-gray-500 mb-6 text-sm">{searchQuery || filterStage !== 'all' ? '試試其他搜尋條件' : '建立你的第一個 ESG 旅程，開始追蹤影響力'}</p>
           {!searchQuery && filterStage === 'all' && (
-            <button className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors" onClick={() => setShowCreate(true)}>建立第一個旅程</button>
+            <button className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors" onClick={() => setShowCreate(true)}>建立第一个旅程</button>
           )}
         </div>
       ) : (
@@ -167,7 +207,7 @@ export function Dashboard() {
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: i * 0.03 }}
               >
-                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-emerald-200 transition-all cursor-pointer h-full" onClick={() => (window.location.hash = `/journey/${j.id}`)}>
+                <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-md hover:border-emerald-200 transition-all cursor-pointer h-full" onClick={() => handleJourneyClick(j)}>
                   <div className="flex justify-between items-start mb-3">
                     <h3 className="text-base font-bold text-gray-900 line-clamp-1">{j.title}</h3>
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${STAGE_CONFIG[j.stage]?.color || 'bg-gray-100 text-gray-600'}`}>
@@ -177,7 +217,7 @@ export function Dashboard() {
                   <div className="text-sm text-gray-500 space-y-1.5">
                     <div className="flex items-center gap-1.5">📍 {j.destination || '未設定目的地'}</div>
                     <div className="flex items-center gap-1.5">📅 {j.start_date} ~ {j.end_date}</div>
-                    <div className="flex items-center gap-1.5">🏷️ {SERVICE_TYPES.find((t) => t.value === j.service_type)?.label || j.service_type}</div>
+                    <div className="flex items-center gap-1.5">{SERVICE_TYPES.find((t) => t.value === j.service_type)?.icon} {SERVICE_TYPES.find((t) => t.value === j.service_type)?.label || j.service_type}</div>
                   </div>
                 </div>
               </motion.div>
