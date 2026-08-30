@@ -34,3 +34,7 @@
 **Vulnerability:** The Cloudflare Worker gateway (`worker/src/index.ts`) contained a fail-open authentication vulnerability in its `bearerOk` function. If the `OMNI_GATEWAY_KEY` environment variable was missing or not configured, it would return `true` (`if (!expected) return true;`), essentially allowing unauthenticated requests to pass through as if they were valid.
 **Learning:** This occurred due to an attempt to "allow local only if not configured". However, deploying such logic to production without environment safeguards essentially disables authentication by default if there's an environment configuration error or omission. This violates the fail-secure principle.
 **Prevention:** Remove fail-open conditions that fallback to `true` when secrets are absent. Authentication logic must default to `false` (fail-secure) to ensure that misconfigurations result in denied access rather than unauthorized access.
+## 2024-05-15 - Hardcoded Secrets in Config Files
+**Vulnerability:** Found hardcoded secrets (WEBHOOK_SECRET, TELEGRAM_BOT_TOKEN, GMAIL_APP_PASSWORD) in deployment configuration files (`ecosystem.config.cjs`, `webhook-config.json`).
+**Learning:** Configuration files are often committed as artifacts to the repository, inadvertently leaking the secrets used during a specific deployment.
+**Prevention:** Always use environment variable references (`process.env.VAR_NAME`) in JavaScript/Node config files and placeholder strings in JSON templates, rather than hardcoding actual credentials.
