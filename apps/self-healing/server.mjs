@@ -371,6 +371,23 @@ async function readBody(req) {
   });
 }
 
+
+/**
+ * 從錯誤日誌中提取目標檔案路徑
+ */
+function extractTargetFile(errorLog) {
+  // 匹配 TypeScript 錯誤路徑：apps/xxx/xxx.ts(行,列)
+  const tsMatch = errorLog.match(/([\w\-./]+\.(?:ts|tsx|js|jsx))[(（]\d+,\d+[)）]/);
+  if (tsMatch) return tsMatch[1];
+
+  // 匹配一般檔案路徑
+  const pathMatch = errorLog.match(/(?:src|apps|lib|packages)\/[\w\-./]+\.(?:ts|tsx|js|jsx)/);
+  if (pathMatch) return pathMatch[0];
+
+  // 預設：在 self-healing 目錄建立一個佔位目標檔
+  return 'apps/self-healing/patch-target.ts';
+}
+
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
   const p = url.pathname;
@@ -422,22 +439,6 @@ const server = http.createServer(async (req, res) => {
         return json(res, 401, { error: 'invalid_signature' });
       }
     }
-
-/**
- * 從錯誤日誌中提取目標檔案路徑
- */
-function extractTargetFile(errorLog) {
-  // 匹配 TypeScript 錯誤路徑：apps/xxx/xxx.ts(行,列)
-  const tsMatch = errorLog.match(/([\w\-./]+\.(?:ts|tsx|js|jsx))[(（]\d+,\d+[)）]/);
-  if (tsMatch) return tsMatch[1];
-
-  // 匹配一般檔案路徑
-  const pathMatch = errorLog.match(/(?:src|apps|lib|packages)\/[\w\-./]+\.(?:ts|tsx|js|jsx)/);
-  if (pathMatch) return pathMatch[0];
-
-  // 預設：在 self-healing 目錄建立一個佔位目標檔
-  return 'apps/self-healing/patch-target.ts';
-}
 
     // 偵測 Workflow 失敗事件
     if (
