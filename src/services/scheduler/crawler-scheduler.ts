@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+/* eslint-disable @typescript-eslint/no-var-requires */
 // ============================================================
 // Crawler Scheduler — Manages periodic
 // src/services/scheduler/crawler-scheduler.ts

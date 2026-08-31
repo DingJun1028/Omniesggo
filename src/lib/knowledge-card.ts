@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * src/lib/knowledge-card.ts — Why/What/How 知識小卡服務
  */
@@ -85,6 +86,7 @@ export class KnowledgeCardService {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
+    [key: string]: unknown;
       type?: string;
       fields?: Record<string, string>;
       tags?: string[];
@@ -118,6 +120,7 @@ export class KnowledgeCardService {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
+    [key: string]: unknown;
       type?: string;
       fields?: Record<string, string>;
       tags?: string[];
@@ -203,6 +206,7 @@ export function createKnowledgeCard(
     originCause: string;
     processTrace: string[];
     finalEffect: string;
+    [key: string]: unknown;
     type?: string;
     fields?: Record<string, string>;
     tags?: string[];

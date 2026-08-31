@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // ============================================================
 // Oracle ADB Sync Service — 萬能標籤配對合成層的 Oracle 雙向同步
 // src/core/tags/oracle-sync-service.ts

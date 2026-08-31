@@ -1,3 +1,5 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * ESGGO UI Design System v3.7 — 固態極簡光學
  * 

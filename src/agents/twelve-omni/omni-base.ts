@@ -1,3 +1,4 @@
+ 
 /**
  * ==========================================
  * 🌌 OmniBase — 萬能基礎實現
@@ -34,7 +35,7 @@ export class OmniBase implements IOmniBase {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+  } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
 
   readonly constants: OmniConstants = {
     MAX_EVENT_PAYLOAD: 1024 * 1024, // 1MB

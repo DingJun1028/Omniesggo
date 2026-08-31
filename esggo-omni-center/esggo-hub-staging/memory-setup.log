@@ -1,8 +1,0 @@
-﻿[2026-08-01 12:42:45] === TencentDB Agent Memory setup start ===
-[2026-08-01 12:42:45] node: v24.18.1
-[2026-08-01 12:42:48] npm: 11.16.0
-[2026-08-01 12:42:48] hermes home = C:\Users\dingj\AppData\Local\hermes
-[2026-08-01 12:42:48] config.yaml = C:\Users\dingj\AppData\Local\hermes\config.yaml (exists: True)
-[2026-08-01 12:42:48] .env        = C:\Users\dingj\AppData\Local\hermes\.env (exists: True)
-[2026-08-01 12:42:48] installing @tencentdb-agent-memory/memory-tencentdb@latest (npm) ...
-[2026-08-01 12:53:34] ERROR: npm warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead

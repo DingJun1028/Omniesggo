@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniNote v1.0 — 萬能筆記系統
  *
@@ -171,8 +172,8 @@ export function createNote(
 // SECTION 4: OmniNoteManager
 // ═══════════════════════════════════════════════════════════════
 
-import { db } from '../firebase';
-import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { db, collection, doc, setDoc, getDocs, deleteDoc } from '../firebase';
+// 2026-08-25: firebase/firestore 已停用 (GCP 移除, 力度 1); 改用本地 shim
 
 export class OmniNoteManager {
   private notes: OmniNote[] = [];
@@ -182,10 +183,7 @@ export class OmniNoteManager {
     if (this.dbLoaded) return;
     try {
       const querySnapshot = await getDocs(collection(db, 'omni-notes'));
-      const dbNotes: OmniNote[] = [];
-      querySnapshot.forEach((doc) => {
-        dbNotes.push(doc.data() as OmniNote);
-      });
+      const dbNotes: OmniNote[] = querySnapshot.docs.map((doc) => doc.data() as unknown as OmniNote);
       if (dbNotes.length > 0) {
         this.notes = dbNotes;
       }

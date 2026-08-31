@@ -6,7 +6,7 @@
 FROM --platform=linux/arm64 node:22-alpine AS deps
 WORKDIR /app
 RUN apk upgrade --no-cache && apk add --no-cache libc6-compat build-base python3
-RUN corepack enable pnpm
+RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 COPY packages/errors/package.json packages/errors/
 COPY packages/shared/package.json packages/shared/
@@ -15,10 +15,15 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 
 FROM --platform=linux/arm64 node:22-alpine AS builder
 WORKDIR /app
-RUN apk upgrade --no-cache && corepack enable pnpm && rm -rf /var/cache/apk/*
+RUN apk upgrade --no-cache && npm install -g pnpm && rm -rf /var/cache/apk/*
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production CI=true
+# Build-time placeholder ONLY. scripts/validate-env.ts requires DATABASE_URL to be
+# non-empty (presence check, no URL validation). This builder stage is discarded —
+# the runner below is a fresh FROM — so the real DATABASE_URL is still injected at
+# runtime by docker-compose / pm2 env and is never baked into the shipped image.
+ENV DATABASE_URL="postgresql://build:build@localhost:5432/build"
 RUN npx prisma generate
 RUN pnpm run build
 

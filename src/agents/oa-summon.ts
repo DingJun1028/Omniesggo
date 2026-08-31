@@ -336,24 +336,33 @@ export class OASummon {
 
     console.log(`  🔗 Stage 4: 糾纏 — 建立量子糾纏連接並實際探活...`);
     let connected = false;
-    for (const url of candidates) {
+
+    const fetchPromises = candidates.map(async (url) => {
       try {
         const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
         if (res.ok) {
           const body = await res.json().catch(() => ({}));
-          this._gatewayUrl = url;
-          connected = true;
-          console.log(`     ✅ 量子糾纏通道已建立 → ${url} (HTTP ${res.status})`);
-          console.log(`     📡 閘道: ${body.gateway_name ?? 'unknown'} v${body.version ?? '?'} · status=${body.status ?? '?'}`);
-          const warn = this._checkGatewayHealth(body);
-          if (warn) this._warnings.push(warn);
-          break;
+          return { url, res, body };
         } else {
           console.log(`     ⚠ ${url} 回應 HTTP ${res.status}`);
+          throw new Error(`HTTP ${res.status}`);
         }
       } catch (e) {
         console.log(`     ⚠ ${url} 連線失敗: ${e instanceof Error ? e.message : String(e)}`);
+        throw e;
       }
+    });
+
+    try {
+      const result = await Promise.any(fetchPromises);
+      this._gatewayUrl = result.url;
+      connected = true;
+      console.log(`     ✅ 量子糾纏通道已建立 → ${result.url} (HTTP ${result.res.status})`);
+      console.log(`     📡 閘道: ${result.body.gateway_name ?? 'unknown'} v${result.body.version ?? '?'} · status=${result.body.status ?? '?'}`);
+      const warn = this._checkGatewayHealth(result.body);
+      if (warn) this._warnings.push(warn);
+    } catch {
+      // All fetch attempts failed
     }
 
     if (!connected) {

@@ -1,9 +1,0 @@
-// Test JSON file for design token validation - SHOULD FAIL (missing required tokens)
-{
-  "colors": {
-    "primary": "#0066CC"
-  },
-  "spacing": {
-    "small": 4
-  }
-}

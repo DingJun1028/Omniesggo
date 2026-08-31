@@ -80,7 +80,6 @@ export class OmniSingularity implements IOmniSingularity {
         purpose: "the_one_and_only_origin",
         philosophy: "道生一，一生二，二生三，三生萬物",
        },
-      hash: `0x${uuid.replace(/-/g, '').substring(0, 16)}`,
     });
 
     // 初始化狀態
@@ -161,13 +160,7 @@ export class OmniSingularity implements IOmniSingularity {
         originCause: 'unknown',
         processTrace: [],
         finalEffect: 'unknown',
-        type: intent.type,
-        name: intent.name,
-        purpose: intent.purpose,
-        manifestFrom: this.signature.uuid,
-        manifestAt: Date.now(),
        },
-      hash: `0x${uuid.replace(/-/g, '').substring(0, 16)}`,
     };
 
     // 凍結為不可變
@@ -234,7 +227,7 @@ export class OmniSingularity implements IOmniSingularity {
       // 記錄事件
       this._recordEvent("singularity.retrieved", {
         entityUuid: targetUuid,
-        entityName: entity.evidence?.name,
+        entityName: entity.evidence?.finalEffect || "unknown",
       });
 
       console.log(`[OmniSingularity] ✅ 回歸完成: ${targetUuid.substring(0, 8)}...`);

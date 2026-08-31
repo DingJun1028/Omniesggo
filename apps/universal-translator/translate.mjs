@@ -7,7 +7,6 @@
 //   各引擎不再手刻 normalize —— 改由 toCanonical(輸入容錯) + toEngineLang(碼矩陣查表) 統一
 // @ts-check
 /// <reference path="./types/generated/esggo-shared.d.ts" />
-/// <reference path="./types/generated/lang-matrix.d.ts" />
 // ============================================================
 import crypto from 'node:crypto';
 import { toCanonical, toEngineLang } from './types/generated/lang-matrix.mjs';
@@ -17,7 +16,7 @@ const CACHE_MAX = Number(process.env.TRANSLATE_CACHE_MAX || 1000);
 const TIMEOUT_MS = Number(process.env.TRANSLATE_TIMEOUT_MS || 8000);
 const RETRIES = Number(process.env.TRANSLATE_RETRIES || 2);
 
-const cacheKey = (t, from, to) => `${from}|${to}|${t}`;
+const cacheKey = (/** @type {string} */ t, /** @type {string} */ from, /** @type {string} */ to) => `${from}|${to}|${t}`;
 /**
  * @template V
  * @param {Map<string, V>} cache
@@ -35,7 +34,7 @@ function cacheSet(cache, k, v) { cache.set(k, v); if (cache.size > CACHE_MAX) { 
 
 export const stats = { calls: 0, cacheHits: 0, errors: 0, byEngine: /** @type {Record<string, number>} */ (Object.create(null)) };
 
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+const sleep = (/** @type {number} */ ms) => new Promise(r => setTimeout(r, ms));
 
 /**
  * @template T
@@ -57,6 +56,12 @@ async function withRetry(fn, label) {
 }
 
 // --- 引擎 0: Ollama + Gemma (本地 LLM, 翻譯更準, 需自行部署 ollama 並 pull 模型) ---
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string} to
+ * @returns {Promise<string>}
+ */
 async function viaOllama(text, from, to) {
   const base = process.env.OLLAMA_URL || 'http://localhost:11434';
   const model = process.env.OLLAMA_MODEL || 'gemma3';
@@ -85,6 +90,13 @@ async function viaOllama(text, from, to) {
 // 預設關閉: 未設 GEMINI_API_KEY 時不進入引擎鏈, 維持純免費零 key 運作. 設了 key 但失敗 → 優雅回落免費鏈.
 const GEMINI_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS || 10000);
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash'; // 3.5 Live 正式模型以 GEMINI_MODEL 覆寫
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string} to
+ * @param {string} [ctxHint]
+ * @returns {Promise<string>}
+ */
 async function viaGeminiLive35(text, from, to, ctxHint) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY not configured');
@@ -109,12 +121,18 @@ async function viaGeminiLive35(text, from, to, ctxHint) {
   if (!r.ok) throw new Error('gemini HTTP ' + r.status);
   const d = await r.json();
   const parts = (d?.candidates?.[0]?.content?.parts) || [];
-  const out = parts.map((p) => p.text || '').join('').trim();
+  const out = parts.map((/** @type {{text?:string}} */ p) => p.text || '').join('').trim();
   if (!out) throw new Error('gemini empty');
   return postProcess(out);
 }
 
 // --- 引擎 1: Google Translate 非官方 gtx endpoint (免費, 零 key, 支援 auto 偵測) ---
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string} to
+ * @returns {Promise<string>}
+ */
 async function viaGoogleGtx(text, from, to) {
   const sl = toEngineLang('google-gtx', toCanonical(from));
   const tl = toEngineLang('google-gtx', toCanonical(to));
@@ -123,14 +141,20 @@ async function viaGoogleGtx(text, from, to) {
   if (!r.ok) throw new Error('gtx HTTP ' + r.status);
   const d = await r.json();
   const segments = d[0] || [];
-  const out = segments.map((x) => x[0]).join('');
+  const out = segments.map((/** @type {Array<string>} */ x) => x[0]).join('');
   if (!out) throw new Error('gtx empty');
   return out;
 }
 
 // --- 引擎 2: LibreTranslate (自建, env LIBRETRANSLATE_URL) ---
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string} to
+ * @returns {Promise<string>}
+ */
 async function viaLibre(text, from, to) {
-  const base = process.env.LIBRETRANSLATE_URL;
+  const base = process.env.LIBRETRANSLATE_URL || '';
   const sf = toEngineLang('libretranslate', toCanonical(from)); // 矩陣: auto→en, zh-TW→zh
   const st = toEngineLang('libretranslate', toCanonical(to));
   /** @type {any} */
@@ -144,6 +168,12 @@ async function viaLibre(text, from, to) {
 }
 
 // --- 引擎 3: MyMemory (免費, 零 key) — 加 email 參數提升配額與品質 ---
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string} to
+ * @returns {Promise<string>}
+ */
 async function viaMyMemory(text, from, to) {
   const srcN = toEngineLang('mymemory', toCanonical(from)); // 矩陣: auto→en, zh-TW→zh-CN
   const tgtNorm = toEngineLang('mymemory', toCanonical(to));
@@ -161,6 +191,7 @@ async function viaMyMemory(text, from, to) {
 const GLOSSARY = parseGlossaryEnv();
 function parseGlossaryEnv() {
   const raw = process.env.GLOSSARY || '';
+  /** @type {Record<string, string>} */
   const map = {};
   for (const line of raw.split('|')) {
     const i = line.indexOf('=');
@@ -168,12 +199,12 @@ function parseGlossaryEnv() {
   }
   return map;
 }
-function applyGlossary(text) {
+function applyGlossary(/** @type {string} */ text) {
   let t = text;
-  for (const [k, v] of Object.entries(GLOSSARY)) { if (k) t = t.split(k).join(v); }
+  for (const [/** @type {string} */ k, /** @type {string} */ v] of Object.entries(GLOSSARY)) { if (k) t = t.split(k).join(v); }
   return t;
 }
-function postProcess(text) {
+function postProcess(/** @type {string} */ text) {
   if (!text) return text;
   let t = text;
   t = t.replace(/\*/g, '').replace(/\[[^\]]*\]/g, '').trim();
@@ -184,7 +215,11 @@ function postProcess(text) {
 }
 
 // 引擎鏈: 碼規範已由 toEngineLang 處理, 此處只排順序
+/**
+ * @returns {Array<[string, (text: string, from: string, to: string, ctxHint?: string) => Promise<string>]>}
+ */
 function engineChain() {
+  /** @type {Array<[string, (text: string, from: string, to: string, ctxHint?: string) => Promise<string>]>} */
   const chain = [];
   // 可選雲端增強: 設 GEMINI_API_KEY 才啟用 Gemini 3.5 Live Translate 最前端; 失敗自動回落免費鏈
   if (process.env.GEMINI_API_KEY) chain.push(['gemini-live-3.5', viaGeminiLive35]);
@@ -195,7 +230,22 @@ function engineChain() {
   return chain;
 }
 
+// 測試注入點: 允許單元測試以確定性引擎鏈取代外部網路依賴,
+// 使 5T 溯源合約在 CI (資料中心 IP 常被外部免費翻譯 API 限流) 穩定可驗證, 不再依賴現網可用性。
+// 預設為 null → 走正式 engineChain(); 測試透過 __setTestEngineChain 注入。
+/** @type {ReturnType<typeof engineChain> | null} */
+let _engineOverride = null;
+export function __setTestEngineChain(/** @type {ReturnType<typeof engineChain>} */ list) { _engineOverride = list; }
+export function __resetTestEngineChain() { _engineOverride = null; }
+
 // from='auto' 不預判同語 (否則繁中→英文 被誤判 en→en 跳過); 快取鍵用原始 from/to 保留 zh-TW/zh-CN 區別
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string} to
+ * @param {string} [ctxHint]
+ * @returns {Promise<import('./types/generated/esggo-shared.d.ts').ITranslateResult>}
+ */
 export async function translateDetailed(text, from, to, ctxHint) {
   if (!text) return { text, engine: 'passthrough', cached: false };
   const cFrom = toCanonical(from); // 僅用於同語短路判斷
@@ -205,7 +255,8 @@ export async function translateDetailed(text, from, to, ctxHint) {
   const hit = cacheGet(CACHE, k);
   if (hit) { stats.cacheHits++; return { ...hit, cached: true }; }
   stats.calls++;
-  for (const [name, fn] of engineChain()) {
+  const chain = _engineOverride || engineChain();
+  for (const [name, fn] of chain) {
     try {
       // 脈絡增強僅注入 Gemini 引擎; 免費鏈忽略 ctxHint (誠實降級)
       const out = await withRetry(() => fn(text, from, to, name === 'gemini-live-3.5' ? ctxHint : undefined), name);
@@ -219,24 +270,38 @@ export async function translateDetailed(text, from, to, ctxHint) {
   return { text, engine: 'fallback-origin', cached: false };
 }
 
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string} to
+ * @returns {Promise<string>}
+ */
 export async function translateText(text, from, to) {
   return (await translateDetailed(text, from, to)).text;
 }
 
 // 平行翻譯多語: 以原始碼 (zh-TW/zh-CN) 為展示 key, 不預先 normalize (防繁中變簡中)
+/**
+ * @param {string} text
+ * @param {string} from
+ * @param {string[]} targets
+ * @returns {Promise<{translations: Record<string, string>, engines: Record<string, string>}>}
+ */
 export async function translateToMany(text, from, targets) {
   const normMap = new Map();
   for (const t of targets) {
-    const key = (t || 'zh-TW').trim();
+    const key = toCanonical(t);
     if (!normMap.has(key)) normMap.set(key, key);
   }
   const results = await Promise.all(
-    [...normMap.keys()].map(async (n) => [normMap.get(n), await translateDetailed(text, from, n)])
+    [...normMap.keys()].map(async (/** @type {string} */ n) => [normMap.get(n), await translateDetailed(text, from, n)])
   );
+  /** @type {Record<string, string>} */
   const out = {};
+  /** @type {Record<string, string>} */
   const engines = {};
   for (const pair of results) { const t = pair[0]; const r = pair[1]; out[t] = r.text; engines[t] = r.engine; }
   return { translations: out, engines };
 }
 
-export function hashOf(s) { return crypto.createHash('sha256').update(s).digest('hex'); }
+export function hashOf(/** @type {string} */ s) { return crypto.createHash('sha256').update(s).digest('hex'); }

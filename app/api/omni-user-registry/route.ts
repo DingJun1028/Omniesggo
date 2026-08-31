@@ -10,7 +10,7 @@
 import { NextRequest } from 'next/server';
 import { getOmniUserRegistry } from '@/agents/omni-user-registry';
 import type { UserInteraction } from '@/agents/omni-user-registry';
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +25,7 @@ export async function GET() {
   } catch (err) {
     const error = err as Error;
     console.error('OmniUserRegistry GET Error:', error);
-    return jsonError('INTERNAL_ERROR', error.message);
+    return jsonErrorInternal(error);
   }
 }
 
@@ -111,6 +111,6 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const error = err as Error;
     console.error('OmniUserRegistry POST Error:', error);
-    return jsonError('INTERNAL_ERROR', error.message);
+    return jsonErrorInternal(error);
   }
 }

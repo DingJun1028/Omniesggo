@@ -1,6 +1,6 @@
-import { rateLimit } from '@/lib/rate-limit';
-import { CelestialController } from '@/lib/celestial/implementation';
-import { jsonResponse, jsonError, validateParams, validatePositiveNumber } from '@lib/api-utils';
+import { rateLimit } from '@lib/rate-limit';
+import { CelestialController } from '@lib/celestial/implementation';
+import { jsonResponse, jsonError, validateParams, validatePositiveNumber, jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -109,6 +109,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error('Village Vote Error:', error);
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }

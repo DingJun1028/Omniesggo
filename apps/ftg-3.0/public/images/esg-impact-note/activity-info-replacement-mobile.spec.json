@@ -1,0 +1,19 @@
+{
+  "id": "activity",
+  "name": "Activity Information & Itinerary Summary",
+  "elementId": "activity-info",
+  "filename": "activity-info-replacement-mobile.png",
+  "breakpoint": "mobile",
+  "dimensions": "480x800",
+  "priority": "P1",
+  "owner": "T24 Guard Bee + T20 Operations Bee",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#activity-info",
+  "rwdGuidelines": {
+    "layout": "single-column",
+    "fontSize": "small",
+    "elements": "full-content"
+  },
+  "generatedAt": "2026-08-26T01:57:24.335Z",
+  "status": "spec-ready"
+}

@@ -1,4 +1,4 @@
-import { seedVillageData } from '@/lib/village-seeder';
+import { seedVillageData } from '@lib/village-seeder';
 import { jsonResponse, jsonError } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';
@@ -70,7 +70,7 @@ export async function GET() {
 
   } catch (error: unknown) {
     console.error('Village Data Error:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return jsonError('INTERNAL_ERROR', message);
+    console.error('[api] INTERNAL_ERROR:', error);
+    return jsonError('INTERNAL_ERROR');
   }
 }

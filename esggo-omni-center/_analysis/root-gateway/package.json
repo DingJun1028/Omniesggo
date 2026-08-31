@@ -1,1 +1,0 @@
-{"name":"esggo-omnigateway","version":"3.0.0","type":"module","dependencies":{"express":"^4.21.0","cors":"^2.8.5","helmet":"^8.0.0","express-rate-limit":"^7.4.0","ws":"^8.18.0","@google/generative-ai":"^0.21.0"}}

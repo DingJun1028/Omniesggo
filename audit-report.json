@@ -1,0 +1,787 @@
+{
+  "advisories": {
+    "1112659": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1112659,
+      "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+      "module_name": "tar",
+      "vulnerable_versions": "<7.5.7",
+      "patched_versions": ">=7.5.7",
+      "severity": "high",
+      "cwe": "CWE-22, CWE-59",
+      "github_advisory_id": "GHSA-34x7-hfp2-rc4v",
+      "url": "https://github.com/advisories/GHSA-34x7-hfp2-rc4v"
+    },
+    "1113300": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1113300,
+      "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.2",
+      "patched_versions": ">=7.5.3",
+      "severity": "high",
+      "cwe": "CWE-22",
+      "github_advisory_id": "GHSA-8qq5-rm4j-mr97",
+      "url": "https://github.com/advisories/GHSA-8qq5-rm4j-mr97"
+    },
+    "1113375": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1113375,
+      "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+      "module_name": "tar",
+      "vulnerable_versions": "<7.5.8",
+      "patched_versions": ">=7.5.8",
+      "severity": "high",
+      "cwe": "CWE-22",
+      "github_advisory_id": "GHSA-83g3-92jg-28cx",
+      "url": "https://github.com/advisories/GHSA-83g3-92jg-28cx"
+    },
+    "1114200": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1114200,
+      "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.9",
+      "patched_versions": ">=7.5.10",
+      "severity": "high",
+      "cwe": "CWE-22, CWE-59",
+      "github_advisory_id": "GHSA-qffp-2rhf-9h96",
+      "url": "https://github.com/advisories/GHSA-qffp-2rhf-9h96"
+    },
+    "1114302": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1114302,
+      "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.10",
+      "patched_versions": ">=7.5.11",
+      "severity": "high",
+      "cwe": "CWE-22",
+      "github_advisory_id": "GHSA-9ppj-qmqm-q256",
+      "url": "https://github.com/advisories/GHSA-9ppj-qmqm-q256"
+    },
+    "1114680": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1114680,
+      "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.3",
+      "patched_versions": ">=7.5.4",
+      "severity": "high",
+      "cwe": "CWE-176, CWE-367",
+      "github_advisory_id": "GHSA-r6q2-hw4h-h46w",
+      "url": "https://github.com/advisories/GHSA-r6q2-hw4h-h46w"
+    },
+    "1119438": {
+      "findings": [
+        {
+          "version": "1.1.2",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>http-proxy-agent>@tootallnate/once",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>http-proxy-agent>@tootallnate/once"
+          ],
+          "dev": false,
+          "optional": true,
+          "bundled": false
+        }
+      ],
+      "id": 1119438,
+      "title": "@tootallnate/once vulnerable to Incorrect Control Flow Scoping",
+      "module_name": "@tootallnate/once",
+      "vulnerable_versions": "<2.0.1",
+      "patched_versions": ">=2.0.1",
+      "severity": "low",
+      "cwe": "CWE-705",
+      "github_advisory_id": "GHSA-vpq2-c234-7xj6",
+      "url": "https://github.com/advisories/GHSA-vpq2-c234-7xj6"
+    },
+    "1120251": {
+      "findings": [
+        {
+          "version": "0.49.2",
+          "paths": [
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node",
+            "packages__oa-framework>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node"
+          ],
+          "dev": false,
+          "optional": true,
+          "bundled": false
+        }
+      ],
+      "id": 1120251,
+      "title": "Prometheus exporter process crash via malformed HTTP request",
+      "module_name": "@opentelemetry/auto-instrumentations-node",
+      "vulnerable_versions": "<0.75.0",
+      "patched_versions": ">=0.75.0",
+      "severity": "high",
+      "cwe": "CWE-755",
+      "github_advisory_id": "GHSA-q7rr-3cgh-j5r3",
+      "url": "https://github.com/advisories/GHSA-q7rr-3cgh-j5r3"
+    },
+    "1120252": {
+      "findings": [
+        {
+          "version": "0.52.1",
+          "paths": [
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@opentelemetry/sdk-node",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node",
+            "packages__oa-framework>genkit>@genkit-ai/core>@opentelemetry/sdk-node",
+            "packages__oa-framework>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node",
+            "packages__oa-framework>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1120252,
+      "title": "Prometheus exporter process crash via malformed HTTP request",
+      "module_name": "@opentelemetry/sdk-node",
+      "vulnerable_versions": "<0.217.0",
+      "patched_versions": ">=0.217.0",
+      "severity": "high",
+      "cwe": "CWE-755",
+      "github_advisory_id": "GHSA-q7rr-3cgh-j5r3",
+      "url": "https://github.com/advisories/GHSA-q7rr-3cgh-j5r3"
+    },
+    "1120782": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1120782,
+      "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.15",
+      "patched_versions": ">=7.5.16",
+      "severity": "moderate",
+      "cwe": "CWE-436",
+      "github_advisory_id": "GHSA-vmf3-w455-68vh",
+      "url": "https://github.com/advisories/GHSA-vmf3-w455-68vh"
+    },
+    "1120821": {
+      "findings": [
+        {
+          "version": "1.25.1",
+          "paths": [
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-grpc-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-grpc>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-trace-otlp-proto>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-zipkin>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-zipkin>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-zipkin>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/exporter-zipkin>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-b3>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@google-cloud/opentelemetry-cloud-monitoring-exporter>@google-cloud/opentelemetry-resource-util>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@google-cloud/opentelemetry-cloud-monitoring-exporter>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@google-cloud/opentelemetry-cloud-monitoring-exporter>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@google-cloud/opentelemetry-cloud-monitoring-exporter>@opentelemetry/sdk-metrics>@opentelemetry/core"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        },
+        {
+          "version": "1.30.1",
+          "paths": [
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-alibaba-cloud>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-container>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-alibaba-cloud>@opentelemetry/core",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-container>@opentelemetry/core",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-alibaba-cloud>@opentelemetry/core",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-container>@opentelemetry/core",
+            "packages__oa-framework>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-alibaba-cloud>@opentelemetry/core",
+            "packages__oa-framework>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/resource-detector-container>@opentelemetry/core"
+          ],
+          "dev": false,
+          "optional": true,
+          "bundled": false
+        },
+        {
+          "version": "2.1.0",
+          "paths": [
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-logs-otlp-http>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-metrics-otlp-http>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-exporter-base>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-metrics>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/otlp-transformer>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/sdk-trace-base>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/exporter-trace-otlp-http>@opentelemetry/sdk-trace-base>@opentelemetry/resources>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/sdk-logs>@opentelemetry/core",
+            "packages__oa-framework>@google/adk>@opentelemetry/sdk-logs>@opentelemetry/resources>@opentelemetry/core"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1120821,
+      "title": "OpenTelemetry Core: Unbounded memory allocation in W3C Baggage propagation",
+      "module_name": "@opentelemetry/core",
+      "vulnerable_versions": "<2.8.0",
+      "patched_versions": ">=2.8.0",
+      "severity": "moderate",
+      "cwe": "CWE-770",
+      "github_advisory_id": "GHSA-8988-4f7v-96qf",
+      "url": "https://github.com/advisories/GHSA-8988-4f7v-96qf"
+    },
+    "1123686": {
+      "findings": [
+        {
+          "version": "0.5.18",
+          "paths": [
+            "packages__oa-framework>@google/adk>adm-zip"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1123686,
+      "title": "adm-zip: Crafted ZIP file triggers 4GB memory allocation",
+      "module_name": "adm-zip",
+      "vulnerable_versions": "<0.6.0",
+      "patched_versions": ">=0.6.0",
+      "severity": "high",
+      "cwe": "CWE-400, CWE-789",
+      "github_advisory_id": "GHSA-xcpc-8h2w-3j85",
+      "url": "https://github.com/advisories/GHSA-xcpc-8h2w-3j85"
+    },
+    "1123939": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1123939,
+      "title": "node-tar: Process crash via PAX numeric path type confusion",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.17",
+      "patched_versions": ">=7.5.18",
+      "severity": "moderate",
+      "cwe": "CWE-704",
+      "github_advisory_id": "GHSA-w8wr-v893-vjvp",
+      "url": "https://github.com/advisories/GHSA-w8wr-v893-vjvp"
+    },
+    "1123940": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1123940,
+      "title": "node-tar: Decompression/parse DoS via unlimited input",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.18",
+      "patched_versions": ">=7.5.19",
+      "severity": "critical",
+      "cwe": "CWE-770",
+      "github_advisory_id": "GHSA-23hp-3jrh-7fpw",
+      "url": "https://github.com/advisories/GHSA-23hp-3jrh-7fpw"
+    },
+    "1123941": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1123941,
+      "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.17",
+      "patched_versions": ">=7.5.18",
+      "severity": "high",
+      "cwe": "CWE-835",
+      "github_advisory_id": "GHSA-8x88-c5mf-7j5w",
+      "url": "https://github.com/advisories/GHSA-8x88-c5mf-7j5w"
+    },
+    "1123942": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1123942,
+      "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.16",
+      "patched_versions": ">=7.5.17",
+      "severity": "moderate",
+      "cwe": "CWE-248",
+      "github_advisory_id": "GHSA-gvwx-54wh-qm9j",
+      "url": "https://github.com/advisories/GHSA-gvwx-54wh-qm9j"
+    },
+    "1124011": {
+      "findings": [
+        {
+          "version": "1.25.1",
+          "paths": [
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>@genkit-ai/google-genai>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>genkit>@genkit-ai/ai>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>genkit>@genkit-ai/core>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/auto-instrumentations-node>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger",
+            "packages__oa-framework>genkit>@genkit-ai/core>@genkit-ai/firebase>@genkit-ai/google-cloud>@opentelemetry/sdk-node>@opentelemetry/sdk-trace-node>@opentelemetry/propagator-jaeger"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1124011,
+      "title": "OpenTelemetry JavaScript: Denial of service in `JaegerPropagator` via unhandled exception on a malformed header",
+      "module_name": "@opentelemetry/propagator-jaeger",
+      "vulnerable_versions": "<2.9.0",
+      "patched_versions": ">=2.9.0",
+      "severity": "high",
+      "cwe": "CWE-248",
+      "github_advisory_id": "GHSA-45rx-2jwx-cxfr",
+      "url": "https://github.com/advisories/GHSA-45rx-2jwx-cxfr"
+    },
+    "1124066": {
+      "findings": [
+        {
+          "version": "0.34.5",
+          "paths": [
+            ".>next>sharp"
+          ],
+          "dev": true,
+          "optional": true,
+          "bundled": false
+        }
+      ],
+      "id": 1124066,
+      "title": "sharp inherited vulnerabilities in libvips: CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591",
+      "module_name": "sharp",
+      "vulnerable_versions": "<0.35.0",
+      "patched_versions": ">=0.35.0",
+      "severity": "high",
+      "cwe": "CWE-1395",
+      "github_advisory_id": "GHSA-f88m-g3jw-g9cj",
+      "url": "https://github.com/advisories/GHSA-f88m-g3jw-g9cj"
+    },
+    "1124287": {
+      "findings": [
+        {
+          "version": "6.2.1",
+          "paths": [
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>@mikro-orm/knex>knex>sqlite3>node-gyp>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>make-fetch-happen>cacache>tar",
+            "packages__oa-framework>@google/adk>@mikro-orm/sqlite>sqlite3>node-gyp>tar"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1124287,
+      "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+      "module_name": "tar",
+      "vulnerable_versions": "<=7.5.20",
+      "patched_versions": ">=7.5.21",
+      "severity": "moderate",
+      "cwe": "CWE-400, CWE-674",
+      "github_advisory_id": "GHSA-r292-9mhp-454m",
+      "url": "https://github.com/advisories/GHSA-r292-9mhp-454m"
+    },
+    "1138115": {
+      "findings": [
+        {
+          "version": "4.3.0",
+          "paths": [
+            ".>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>@typescript-eslint/eslint-plugin>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>eslint-module-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-import-resolver-typescript>eslint-plugin-import>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-import>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-import>eslint-module-utils>eslint-import-resolver-typescript>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-import>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-jsx-a11y>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-react>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>eslint-plugin-react-hooks>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/eslint-plugin>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-config-next>typescript-eslint>eslint>@eslint/eslintrc>js-yaml",
+            ".>eslint-plugin-react-hooks>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/eslint-plugin>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            ".>typescript-eslint>eslint>@eslint/eslintrc>js-yaml",
+            "apps__learning-center>eslint>@eslint/eslintrc>js-yaml",
+            "apps__learning-center>eslint-plugin-react>eslint>@eslint/eslintrc>js-yaml",
+            "apps__learning-center>eslint-plugin-react-hooks>eslint>@eslint/eslintrc>js-yaml",
+            "packages__oa-framework>@google/adk>js-yaml",
+            "packages__omni-agent>@typescript-eslint/eslint-plugin>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>@typescript-eslint/eslint-plugin>@typescript-eslint/type-utils>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>@eslint-community/eslint-utils>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>@typescript-eslint/eslint-plugin>@typescript-eslint/utils>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>@typescript-eslint/eslint-plugin>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>@typescript-eslint/parser>eslint>@eslint/eslintrc>js-yaml",
+            "packages__omni-agent>eslint>@eslint/eslintrc>js-yaml"
+          ],
+          "dev": false,
+          "optional": false,
+          "bundled": false
+        }
+      ],
+      "id": 1138115,
+      "title": "JS-YAML: Quadratic CPU consumption in !!omap resolution (3.x and 4.x) — CVE-2026-59870 fix not backported",
+      "module_name": "js-yaml",
+      "vulnerable_versions": ">=4.0.0 <4.3.1",
+      "patched_versions": ">=4.3.1",
+      "severity": "high",
+      "cwe": "CWE-407",
+      "github_advisory_id": "GHSA-5p4m-2wfm-xmqj",
+      "url": "https://github.com/advisories/GHSA-5p4m-2wfm-xmqj"
+    }
+  },
+  "metadata": {
+    "vulnerabilities": {
+      "info": 0,
+      "low": 1,
+      "moderate": 5,
+      "high": 13,
+      "critical": 1
+    },
+    "dependencies": 885,
+    "devDependencies": 481,
+    "optionalDependencies": 342,
+    "totalDependencies": 1561
+  }
+}

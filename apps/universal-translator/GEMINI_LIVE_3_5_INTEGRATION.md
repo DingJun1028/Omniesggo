@@ -92,3 +92,31 @@ GEMINI_MODEL=gemini-2.5-flash   # 可改為 3.5 Live 正式模型名
   - **根 pnpm-lock.yaml 僅剩 #1428 sharp <0.35.0** (AGENTS.md #7 排除: next devDep 傳遞依賴, 0 處用 next/image, next@16 鎖 ^0.34.5; pnpm audit --prod=0)。
 - #1428 需在具 `security_events:write` 權限的 token 下手動 dismiss (reason=not_used); 本環境 gh token 缺此 scope, 故留待授權後結案。
 - 結論: 本交付物 (universal-translator) 生產依賴零漏洞, 剩餘警示均屬其他子專案, 不影響本產品安全態勢。
+
+---
+
+## 三元一體 Zoom 線上會議雙語字幕撥放器 (v1.7 延伸)
+
+檔案：`public/player.html`（一做三員一體：載入 + 撥放 + 字幕同一頁）。
+
+### 三元來源
+1. **檔案**：選擇本地影片/音檔 → `<video>` 撥放 + 切片轉字幕
+2. **網址**：貼上影片/音訊 URL 載入撥放
+3. **Zoom 會議**：按「🎥 Zoom 會議」→ `getDisplayMedia({video:true,audio:true})` 選取 Zoom 應用程式視窗（含系統音）→ 會議畫面直接顯示在撥放器 + MediaRecorder 4s 切片轉雙語字幕
+
+### 終始矩陣接入
+- `player.html` 頂部 `/// <reference path="./types/generated/esggo-shared.d.ts" />`
+- canonical (`shared/types.ts`) 新增領域契約：
+  - `PlayerSourceKind = 'file' | 'url' | 'zoom'`
+  - `IPlayerSource` 聯合型別
+  - `IZoomMeeting` / `IPlayerState` 狀態機
+  - `ISseTranslationEvent.context`（跨句脈絡前文，v1.7 加）
+- 型別守門：`npx tsc -p tsconfig.ut.json --noEmit` 須 0 error（見下「矩陣閉合」章）
+
+### 免費算立紅線
+- Zoom 模式純前端 `getDisplayMedia`，**零 key、零費用**，轉字幕走本專案免費鏈（google-gtx/Libre/MyMemory）
+- Gemini 3.5 Live Translate 仍為可選增強（設 GEMINI_API_KEY 才啟用），不影響 Zoom 模式基礎功能
+
+### 已知限制（誠實聲明）
+- Zoom 會議音訊擷取依賴瀏覽器 `getDisplayMedia` 系統音支援；若用戶作業系統/瀏覽器不給系統音（如部分 Firefox），則僅能擷取 Zoom 視窗畫面、字幕需改用麥克風
+- 需由使用者在瀏覽器 picker 中實際選取 Zoom 視窗（無法靜默自動連線，符合隱私規範）

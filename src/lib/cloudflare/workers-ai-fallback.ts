@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * Gemini 主推理 × Workers AI 備援 薄封裝層
  * ---------------------------------------------------------------------------

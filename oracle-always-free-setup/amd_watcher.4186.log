@@ -1,0 +1,1291 @@
+[2026-08-21T04:53:16Z] attempt 43: launching AMD E2.1.Micro
+[2026-08-21T04:53:20Z] attempt 43: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "C7A1384F56BA42999BB3FA2964FC160C/E25AE07299CCA8DEBFD9876A53494E23/2452C2879405A56E8FC31403C43CF9EB",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T04:53:19.688569+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T04:54:20Z] attempt 44: launching AMD E2.1.Micro
+[2026-08-21T04:54:24Z] attempt 44: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "74550CF328F3483CB1BD25077760AB52/B0CF6C1C02E847D1FFD9876A53494EB0/043E740B04FEDA93D2F7FCF4D4506E4D",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T04:54:23.958577+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T04:55:24Z] attempt 45: launching AMD E2.1.Micro
+[2026-08-21T04:56:29Z] attempt 46: launching AMD E2.1.Micro
+[2026-08-21T04:56:34Z] attempt 46: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "86EFF41FC511488E8E76AA24AB59D184/30645F36841F60AD81DA876A53494E19/9AA5CFB837A1C8636DBC8E57498B0B64",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T04:56:33.695919+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T04:57:34Z] attempt 47: launching AMD E2.1.Micro
+[2026-08-21T04:57:38Z] attempt 47: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "4855D1A75A2F4CB7B317189384DD6A72/F5717A44B9920484C1DA876A53494EEF/421F231BB670395C484CCC1183393904",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T04:57:38.107543+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T04:58:38Z] attempt 48: launching AMD E2.1.Micro
+[2026-08-21T04:58:42Z] attempt 48: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "FD02DA49FB1546E782900909971C313E/ACBA33FA50DEFDAF01DB876A53494E63/62451E286BF56F399F6FA04040068CB2",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T04:58:42.130566+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T04:59:42Z] attempt 49: launching AMD E2.1.Micro
+[2026-08-21T04:59:46Z] attempt 49: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "3A700587B2B4470893FB614A637CCF3D/E914C444C12C903241DB876A53494E03/605DC9FE90DBC23773BB9B4017DBC647",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T04:59:46.321292+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:00:47Z] attempt 50: launching AMD E2.1.Micro
+[2026-08-21T05:00:52Z] attempt 50: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "06228946989D4F78813B01717C692EDE/7552EDDC4FF826FC83DB876A53494EEE/F90E379B62CB4905BB3FE91B341F8C46",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:00:51.941300+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:01:52Z] attempt 51: launching AMD E2.1.Micro
+[2026-08-21T05:01:56Z] attempt 51: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "5C122C9AFF584DB7810898008D5EDC51/E5E5029B29C29FCAC3DB876A53494EB9/5CE06825B05E7E052D7100D4D6756DD9",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:01:56.374634+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:02:57Z] attempt 52: launching AMD E2.1.Micro
+[2026-08-21T05:03:00Z] attempt 52: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "50D829D7CAD74F63AFB6DFACAAF7C55C/BBFDE3126481D7D303DC876A53494EC0/8A5AC9FCF0D87C25CBE7F60376FF06A0",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:03:00.170270+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:04:00Z] attempt 53: launching AMD E2.1.Micro
+[2026-08-21T05:04:04Z] attempt 53: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "AE9AE0783C5F4F92BDC1547D575281A9/F680B37352A5893A43DC876A53494E06/0AED971C261CA29EEDB0F23E45D5172C",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:04:04.072610+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:05:04Z] attempt 54: launching AMD E2.1.Micro
+[2026-08-21T05:05:08Z] attempt 54: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "1E8F52951A3A442F9F5EB2BE3920E362/F64BCE120C6B255483DC876A53494EF8/004D9CD608C4929EEBD44845D34E6ADD",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:05:08.046060+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:06:08Z] attempt 55: launching AMD E2.1.Micro
+[2026-08-21T05:06:12Z] attempt 55: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "BEFA7C886DF24B2AA44B59C4FA5E8D87/5EC0A46F5CE24095C3DC876A53494E20/E84EB2C3A9430C3C9D8376250446F49B",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:06:11.938429+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:07:12Z] attempt 56: launching AMD E2.1.Micro
+[2026-08-21T05:07:16Z] attempt 56: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "816FF553730545558588C0B6A776409D/D574D2B7E3D9E3E303DD876A53494EAA/DC9236A2E504CB47B3C8BAD16FFC2AA4",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:07:15.973795+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:08:16Z] attempt 57: launching AMD E2.1.Micro
+[2026-08-21T05:08:20Z] attempt 57: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "9E115F6E6C4240FA816EAE7901B4BE0D/3390954B49ADBF4E43DD876A53494E7F/BB4387D1F30470E9A6DF8DCD9BFFF89F",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:08:19.931631+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:09:20Z] attempt 58: launching AMD E2.1.Micro
+[2026-08-21T05:09:24Z] attempt 58: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "79E066B592F147369F9BE899E0C19D4D/F6F7B89E7A5F34FC83DD876A53494EA5/1D929BA27491B606147B38E620CEEB2F",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:09:23.859786+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:10:24Z] attempt 59: launching AMD E2.1.Micro
+[2026-08-21T05:10:28Z] attempt 59: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "E73A1EB1B1104AC3901B7E8A2511A91C/594E669A2FDA942EC3DD876A53494E7D/188EA21EE1B2C7C7B62327216D7598E6",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:10:28.101990+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:11:28Z] attempt 60: launching AMD E2.1.Micro
+[2026-08-21T05:11:32Z] attempt 60: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "2F794D8AAE2C43E3A559ACF18354D89E/2FBA3AF4AE711E0003DE876A53494EA2/A9A707EE0485BA56D0A824C834AB2ED8",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:11:32.371172+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:12:33Z] attempt 61: launching AMD E2.1.Micro
+[2026-08-21T05:12:36Z] attempt 61: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "C6BA80D15F3F44FBA20EE9AB3C3F8E62/FCF61F3C556D69D943DE876A53494EC4/676112EA315D322CA8D83AA380A04DC9",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:12:36.208266+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:13:36Z] attempt 62: launching AMD E2.1.Micro
+[2026-08-21T05:13:41Z] attempt 62: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "BED2FD00756145118C29DF71E6172EA8/B16570D07380D71383DE876A53494E7A/D1706C9250F0DAA7FCD75C44B5D60008",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:13:40.446861+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:14:41Z] attempt 63: launching AMD E2.1.Micro
+[2026-08-21T05:14:45Z] attempt 63: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "73D4FC855B3B42B59D39B0D9B7E395F0/3C9EE002275C64ADC4DE876A53494EA7/BB9BDE9E4AB0776DB9686D26B96186DE",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:14:44.704446+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:15:45Z] attempt 64: launching AMD E2.1.Micro
+[2026-08-21T05:15:49Z] attempt 64: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "BD7CFB442F38454BBB316AC2D02152CF/4D37526B7BDF2E7C04DF876A53494EBE/41E37CBE3C618C3E47CB7ED9819C2694",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:15:48.643239+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:16:49Z] attempt 65: launching AMD E2.1.Micro
+[2026-08-21T05:16:53Z] attempt 65: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "D32ED91B8BE14E8BBF9C1D53301E264D/0115D6D9E5DA6A1144DF876A53494EA3/581409BFA5BF2A107D7D6EAD71C3BA52",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:16:52.498045+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:17:53Z] attempt 66: launching AMD E2.1.Micro
+[2026-08-21T05:17:57Z] attempt 66: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "2F9E01650F354F9EA45C36DC762C1ACF/8F722F12BD168F3E84DF876A53494EBA/F976275C40D6E67FA7927B63A4146465",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:17:56.585871+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:18:57Z] attempt 67: launching AMD E2.1.Micro
+[2026-08-21T05:19:01Z] attempt 67: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "329FEA10097043E188F92C6CA2362548/CE3A0ABD2082ACBAC4DF876A53494E14/50A665EC6C17E87BD4D33EF9F8B140B5",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:19:00.577053+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:20:01Z] attempt 68: launching AMD E2.1.Micro
+[2026-08-21T05:20:04Z] attempt 68: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "EBF5BC4B3948422DADB2864DD39706F9/13D11F52919B845604E0876A53494E2D/C72FEAFB7DBF5AE10A38D6B4E22EF9AB",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:20:04.490211+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:21:05Z] attempt 69: launching AMD E2.1.Micro
+[2026-08-21T05:21:09Z] attempt 69: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "A03E7E4682D246BF9AE61FC8DCA500CD/F9C151D829F1D8F343E0876A53494EB5/6ABA71D389CEB602CB4A46C022D3FC73",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:21:08.455223+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:22:09Z] attempt 70: launching AMD E2.1.Micro
+[2026-08-21T05:22:14Z] attempt 70: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "4EB1A21AFCD44A30BA1E949C56844560/89EA809FD8C70FC484E0876A53494EAD/ECC4C03950255F3952DC8050A32A0250",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:22:13.283774+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:23:14Z] attempt 71: launching AMD E2.1.Micro
+[2026-08-21T05:23:18Z] attempt 71: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "886C77D868C947188683CBF85556AA25/8DAB53DDD5F1D277C5E0876A53494EDF/3799A4275709C9EB8CAD7B714C4ECE97",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:23:17.683672+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:24:18Z] attempt 72: launching AMD E2.1.Micro
+[2026-08-21T05:24:22Z] attempt 72: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "AB68B2781ECD4D51B8508F1E0D99A828/C19E65F595A91ECC05E1876A53494E29/EF9D2FDB2CC73348CF9E74A3CA4E3670",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:24:22.320442+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:25:23Z] attempt 73: launching AMD E2.1.Micro
+[2026-08-21T05:26:01Z] attempt 73: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "16256318052C48C9BFA6A7201DA4E639/30C18D94000177A967E1876A53494E3D/D9EB8D9A3A7FC77F986BD4A61EF223B4",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:26:00.401122+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:27:01Z] attempt 74: launching AMD E2.1.Micro
+[2026-08-21T05:27:05Z] attempt 74: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "A20FA19278ED4B9E91AA99170B68D892/8F72D9560E87E73FA8E1876A53494EA1/E44DAB06147032A0F3911238553178E9",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:27:05.331017+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:28:06Z] attempt 75: launching AMD E2.1.Micro
+[2026-08-21T05:28:11Z] attempt 75: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "FD5D6CC0B3E54E7AAE31D975196F37BA/C16765C590EE7225E9E1876A53494EBA/40DC6B615AF32C6842DC36DE81298E9E",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:28:10.421668+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:29:11Z] attempt 76: launching AMD E2.1.Micro
+[2026-08-21T05:29:16Z] attempt 76: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "1B4BCDE8F4814C3DAF9A350AE1B7B82D/B295787129D382CE2BE2876A53494E30/879E5E08DAB6E8470F18A2FE94B50C14",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:29:15.818962+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:30:17Z] attempt 77: launching AMD E2.1.Micro
+[2026-08-21T05:30:22Z] attempt 77: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "3EF2C15F2F144BF9B7C97FA2AF113E7B/D6FC81C4E7D34BE96DE2876A53494E99/FFA6623665D9507197C6A3A192361744",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:30:21.628925+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:31:22Z] attempt 78: launching AMD E2.1.Micro
+[2026-08-21T05:31:28Z] attempt 78: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "0C9376763599414989821F5F10F288AB/6AD11B838F088FDAAEE2876A53494E26/A8CB24DBAA5132C4B2E62A39B269F0B3",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:31:27.192726+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:32:28Z] attempt 79: launching AMD E2.1.Micro
+[2026-08-21T05:32:34Z] attempt 79: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "FF8A5C45C7144A0DAD087DCB767223C8/EAE8748AEF417229F1E2876A53494E0C/C23EE6685B8D7DC916B126B0EF402C5C",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:32:33.794195+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:33:34Z] attempt 80: launching AMD E2.1.Micro
+[2026-08-21T05:33:40Z] attempt 80: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "910D8677F97F4F6399706F0A816D105D/2091E154E90AC99F32E3876A53494EE6/203E39A004D545AD5BB0A3198CBAFDD3",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:33:39.485955+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:34:40Z] attempt 81: launching AMD E2.1.Micro
+[2026-08-21T05:34:45Z] attempt 81: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "AB37CCDB3ED54B3284F7BF601DF0A559/6CED20A5A0B9E73F74E3876A53494EAF/B5DD827CE28A3864D6333F2B2715B07E",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:34:44.987781+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T05:35:45Z] attempt 82: launching AMD E2.1.Micro
+[2026-08-21T05:35:51Z] attempt 82: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "EDC493A92F1D48C0AFAA99327CE006ED/C6A0567EE3C4EE57B6E3876A53494E72/D6974A99EE1519CC98C0B7931A6BB20A",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T05:35:50.672500+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:09:39Z] attempt 113: launching AMD E2.1.Micro
+[2026-08-21T06:09:43Z] attempt 113: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "48FD605DDE5148C082A6ABE4C27A8B1F/E8F75D9288546525A6EB876A53494EBD/62AEF7ECD5ADFEB331A6DEE613D134E8",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:09:42.918220+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:10:43Z] attempt 114: launching AMD E2.1.Micro
+[2026-08-21T06:10:47Z] attempt 114: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "6EAB58529E1D46C7BF88DE8B87A64757/7D3399D3623EEC53E6EB876A53494E03/B811EA7206A0241449BD6E2BC34036F8",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:10:47.201009+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:11:48Z] attempt 115: launching AMD E2.1.Micro
+[2026-08-21T06:11:52Z] attempt 115: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "CD61E9519AFF4CDBB9EB74681EF5021D/F5A307310BB73F4027EC876A53494EFA/7CBC9D44A158D277123974354B8B2730",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:11:51.522831+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:12:52Z] attempt 116: launching AMD E2.1.Micro
+[2026-08-21T06:12:56Z] attempt 116: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "77772E62C9F741C6A283D6689CB68293/3AC5388920E1F9C367EC876A53494EAF/7A37E770A74D676DA0297B3617DB26A8",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:12:55.844780+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:13:56Z] attempt 117: launching AMD E2.1.Micro
+[2026-08-21T06:14:00Z] attempt 117: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "75747C2781654918B6BE989A28D0F983/E1B5DE65310DC653A7EC876A53494E7E/6B4E307510977EC187AA434C2D0EABC2",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:14:00.057596+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:15:00Z] attempt 118: launching AMD E2.1.Micro
+[2026-08-21T06:15:10Z] attempt 118: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "00CB70D0F8F243F2A55A5D4C8795F96A/0F1370992B573A74EDEC876A53494EF4/3D45CD4C1577758DA409C53BFA7DC81F",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:15:09.785671+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:16:11Z] attempt 119: launching AMD E2.1.Micro
+[2026-08-21T06:16:15Z] attempt 119: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "6073E2049C7F4689935A513D04A7CD5F/BC5BA2D3AF8616942EED876A53494EDB/C6CB75EE12135FF102170C3E5A6959C5",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:16:14.665000+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:17:15Z] attempt 120: launching AMD E2.1.Micro
+[2026-08-21T06:17:19Z] attempt 120: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "ACEC8428174F4C189D9480D1FD71EF40/E9E493382CD1A73A6EED876A53494E00/1F8354176CED19A853D5026941685F3D",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:17:18.606036+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:18:19Z] attempt 121: launching AMD E2.1.Micro
+[2026-08-21T06:18:24Z] attempt 121: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "940340E4F529491E80EC63B8DC1618D5/33869CF3846C5809AFED876A53494E49/D2113A9684A350D96F08BA1FD13BE113",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:18:23.747397+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:19:24Z] attempt 122: launching AMD E2.1.Micro
+[2026-08-21T06:19:30Z] attempt 122: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "CACFC217B48543D580747822DAD4D85A/96AF65D629CB42A1F0ED876A53494E61/855B0EB54532BEE2652E71216BAFA982",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:19:29.573145+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:20:30Z] attempt 123: launching AMD E2.1.Micro
+[2026-08-21T06:20:35Z] attempt 123: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "A532E8A7E71B43BB863947E2849E5BA5/EA3FBCBF25DDA5BE32EE876A53494ED8/E1CB40D752807815774C17B8E0F9136C",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:20:34.944449+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:21:36Z] attempt 124: launching AMD E2.1.Micro
+[2026-08-21T06:21:39Z] attempt 124: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "E366396FC9554D33893E4104D83AA8AB/6B94DDB36CCC45AD72EE876A53494EED/E42B5060B2B4EB73A32631EDFF22FB2B",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:21:39.420709+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:22:40Z] attempt 125: launching AMD E2.1.Micro
+[2026-08-21T06:22:44Z] attempt 125: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "76C2E01C2957451690370DC56FD4A189/DF448C6D7DE4CDCFB3EE876A53494E81/F3916A9D6BE0B8FA5E655C0B8478EA73",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:22:44.177621+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:23:44Z] attempt 126: launching AMD E2.1.Micro
+[2026-08-21T06:23:49Z] attempt 126: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "D995D818436644DF84DE7AC850A61FB9/8434E5A6E6B9A1D2F3EE876A53494EAF/ADDE50C46218EBC34E12E651550B2618",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:23:48.395208+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:24:49Z] attempt 127: launching AMD E2.1.Micro
+[2026-08-21T06:24:57Z] attempt 127: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "59DEBDA28DF94460982DF4571EED0424/08F16D479FBC533937EF876A53494E58/6F45D282C57CB602DE9671212B22E16F",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:24:56.213366+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:25:57Z] attempt 128: launching AMD E2.1.Micro
+[2026-08-21T06:26:01Z] attempt 128: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "B2E5942B1AB546E5B79E470F7A85FF83/FC8E43CC6484E52B78EF876A53494E91/F936E5C011D6054C7F17AD9174A8E1B7",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:26:00.801387+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:27:01Z] attempt 129: launching AMD E2.1.Micro
+[2026-08-21T06:27:05Z] attempt 129: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "B8C27AAA746544EA8365D0E060FD5479/07ECFAAC910B7391B8EF876A53494EFC/679F123E98780BD0704F22400E3184C2",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:27:05.182944+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:28:05Z] attempt 130: launching AMD E2.1.Micro
+[2026-08-21T06:28:09Z] attempt 130: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "0EBB0AB2E0CB4572A1CBA8E636254614/2973B788FD3966F5F8EF876A53494E2E/7D779D35B37F4DA55EADCB766A7524A0",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:28:09.031208+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:29:09Z] attempt 131: launching AMD E2.1.Micro
+[2026-08-21T06:29:13Z] attempt 131: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "5E7E42ABC0FB4F759FCF9F30A6A3DD64/2802F4B5BD54BA3A38F0876A53494E32/7BE66DF39CFFD2BB6D06D8DA7C930E54",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:29:13.334116+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:30:14Z] attempt 132: launching AMD E2.1.Micro
+[2026-08-21T06:30:18Z] attempt 132: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "B5F9E44BD3B24DA086541B1A13E31C19/C0D150421524BDE279F0876A53494E67/2E9B78B6D13944B9E3AB87509E2C50DD",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:30:17.811323+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:31:18Z] attempt 133: launching AMD E2.1.Micro
+[2026-08-21T06:31:23Z] attempt 133: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "0D366C2FC02F432084A57270FA4A053A/B017516360D27831B9F0876A53494E83/5E1B487F5868CBFF291A3C15D0A7A55A",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:31:22.456203+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:33:11Z] attempt 134: launching AMD E2.1.Micro
+[2026-08-21T06:33:28Z] attempt 134: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "167983B1345340958CB8C49779D4AA23/321259FDEADDAD2635F1876A53494E91/F71D01074CF7251CCB18DAF2C579A4C2",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:33:26.315838+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:34:28Z] attempt 135: launching AMD E2.1.Micro
+[2026-08-21T06:34:35Z] attempt 135: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "906F876613C14E5CAB0D940C0359DD34/8B69782049945FA57AF1876A53494E90/A4451A8004C6B7A268D333D619FC9A06",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:34:34.859646+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:35:35Z] attempt 136: launching AMD E2.1.Micro
+[2026-08-21T06:35:49Z] attempt 136: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "1DCBF2A87EE24D5E9C8487E8A27B282D/3C0D2E43093F3DC4C2F1876A53494E64/1B6DFEE6689DAC2EE1DB3E7ED6F52DDC",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:35:47.531917+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:36:49Z] attempt 137: launching AMD E2.1.Micro
+[2026-08-21T06:36:59Z] attempt 137: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "103669633C2E4BDDA38DF4CB91E10E95/6543CA7376A4EC7709F2876A53494EBA/E54E22B835ECB4FA10FDA25A0F4D6EFD",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:36:58.362916+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:37:59Z] attempt 138: launching AMD E2.1.Micro
+[2026-08-21T06:38:05Z] attempt 138: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "C84ADAA2EFBD40EFBCDEA65FC9990105/3FA6F59A952247454BF2876A53494EA1/6245C1B059FC079C6621F9DECC563828",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:38:04.300019+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:39:05Z] attempt 139: launching AMD E2.1.Micro
+[2026-08-21T06:39:11Z] attempt 139: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "83D71B3901FA43D7979CD1B219858CF5/AD698A6C668360718EF2876A53494E07/E1870B612FE36C191D95FD359A8C880E",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:39:10.639627+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:40:12Z] attempt 140: launching AMD E2.1.Micro
+[2026-08-21T06:40:22Z] attempt 140: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "FA13772870194F04A94D7EE403A7DBBF/9B23D3A52A659D4ED4F2876A53494E01/09B0E78A7BE3119CE26999A36CBF2914",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:40:21.557520+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:41:23Z] attempt 141: launching AMD E2.1.Micro
+[2026-08-21T06:41:29Z] attempt 141: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "56D8B14686B94065A4EAD1A8BE066EB6/D9292146D227C56718F3876A53494EEC/70E0FF0EEDF3B6FEB3022B2FA14153F1",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:41:28.738704+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:42:29Z] attempt 142: launching AMD E2.1.Micro
+[2026-08-21T06:42:37Z] attempt 142: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "85EBDA7E68274DBFAC77E24E7CFA3760/F4EDA5574962ACBE5CF3876A53494E43/ED780762411C51A959C559CE325DCEF3",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:42:36.412016+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:43:37Z] attempt 143: launching AMD E2.1.Micro
+[2026-08-21T06:43:46Z] attempt 143: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "F341BBA3515343048904163245DB5E47/98280A0F8D05B2AAA0F3876A53494E88/E384D7144D08DBBB3354B3A62538FFFF",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:43:45.438560+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:44:47Z] attempt 144: launching AMD E2.1.Micro
+[2026-08-21T06:44:56Z] attempt 144: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "4AD5AB7487514C478FB591047228E3F5/FD052E3F4C277FB9E7F3876A53494E20/E3E81D0162067809C38C44EA50D3DFCB",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:44:55.684084+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:45:56Z] attempt 145: launching AMD E2.1.Micro
+[2026-08-21T06:46:03Z] attempt 145: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "56EEAF6A86B540E3B5D6FE03575ACD7E/B2A999EA061271452AF4876A53494E51/F4CC93509AB34919BC82A903FA11A90E",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:46:02.643808+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:47:04Z] attempt 146: launching AMD E2.1.Micro
+[2026-08-21T06:47:10Z] attempt 146: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "EEBE6E66E6C245B8B0C538F48D9783A9/4FB22CE0344B35FC6CF4876A53494EBE/9283C6BA9DB6CE8B95F3E4229D8B3800",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:47:09.518604+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:48:10Z] attempt 147: launching AMD E2.1.Micro
+[2026-08-21T06:48:17Z] attempt 147: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "1CB8CC5FAB9B4B67952B572CAB122E9E/8E1CB8857BA444E9AFF4876A53494E74/2F27DE79710700DC390E381D8F27E327",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:48:16.252209+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:49:17Z] attempt 148: launching AMD E2.1.Micro
+[2026-08-21T06:49:25Z] attempt 148: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "9845ED25A76F40CC88698671BC94B69C/8A6E95E891AA2260F3F4876A53494E15/10319512FAB187CA17486F809AF0B812",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:49:24.040875+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:50:25Z] attempt 149: launching AMD E2.1.Micro
+[2026-08-21T06:50:35Z] attempt 149: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "4C8EF433B9434CB086AD4BDBBDEAE77C/34B457D6F78768FD39F5876A53494E1A/88B4C96497CA4705B5998D431D75B3C2",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:50:33.807162+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:51:35Z] attempt 150: launching AMD E2.1.Micro
+[2026-08-21T06:51:43Z] attempt 150: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "A3B925AB1FF94AD783FEB7593E6BB76F/7672B53144C445317EF5876A53494E5D/47B531301C9B5BB51CE366E6A9E7F2EB",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:51:42.765256+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:52:44Z] attempt 151: launching AMD E2.1.Micro
+[2026-08-21T06:52:54Z] attempt 151: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "AB9D98BB662F498D9D54C667C5A88BD1/1ACC6121E3A738C0C2F5876A53494E7C/1CB82CCC7DC18DFE4FCEE799EB042830",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:52:51.647919+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:53:54Z] attempt 152: launching AMD E2.1.Micro
+[2026-08-21T06:54:01Z] attempt 152: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "AE0A27724F374E68845811987A1AF267/65ACDD409B05494D08F6876A53494EF2/5FC5DD1CF62C49BD3BA61A9653CA8B2E",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:54:00.636515+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:55:01Z] attempt 153: launching AMD E2.1.Micro
+[2026-08-21T06:55:09Z] attempt 153: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "09EEAFDBE57544468F79D55E38AFBCED/14185082F91CED6B4BF6876A53494EC8/DC005F46944DA9E2868749B89C014381",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:55:08.117890+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:56:09Z] attempt 154: launching AMD E2.1.Micro
+[2026-08-21T06:56:20Z] attempt 154: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "2B009DC03BA44EDC988AF98347E10F94/5E26266E5B0FD69F91F6876A53494E5C/DAE6E691D692D2839E879CCF55BC112C",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:56:18.342467+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:57:21Z] attempt 155: launching AMD E2.1.Micro
+[2026-08-21T06:57:29Z] attempt 155: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "DD3FDB974C994097AA1B1F439A0DEA3E/4838F7B71A53D013D7F6876A53494E3A/519A0BCCDC319F9EBC43FBEE0E92CF73",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:57:27.997950+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:58:31Z] attempt 156: launching AMD E2.1.Micro
+[2026-08-21T06:58:54Z] attempt 156: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "0824CE2A5DDF4398BC959BCF1276B195/6BFBAC2307EDBB4E2CF7876A53494EE3/0E73BD43EB7E6F0DB278DFA6253FCE1F",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T06:58:53.054525+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T06:59:55Z] attempt 157: launching AMD E2.1.Micro
+[2026-08-21T07:00:17Z] attempt 157: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "C09878567A424A77ACF9835BDD4FB63D/C5BE613E854B5C557DF7876A53494E94/0696A2D1404E5715812252BB52268EC2",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T07:00:13.687719+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T07:01:18Z] attempt 158: launching AMD E2.1.Micro
+[2026-08-21T07:01:35Z] attempt 158: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "9CB238A90FB843F18A7AB0C781AFB43B/7D2BA2A1BAC36451CCF7876A53494EBC/C65127F1E8300B082C00DEEEFA1AD9CB",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T07:01:32.694362+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}
+[2026-08-21T07:02:35Z] attempt 159: launching AMD E2.1.Micro
+[2026-08-21T07:02:51Z] attempt 159: other error -> ServiceError:
+{
+    "client_version": "Oracle-PythonSDK/2.184.0, Oracle-PythonCLI/3.90.1",
+    "code": "LimitExceeded",
+    "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",
+    "message": "The following service limits were exceeded: standard-e2-micro-core-count. You can request a service limit increase from the Console's Limits, Quotas and Usage page or from the Help menu.",
+    "opc-request-id": "87907AC8C9574AA7AD9E75A17131D90F/81268C68709E52E919F8876A53494EDE/CB3630B8C02EE9EB33078E348E111BD8",
+    "operation_name": "launch_instance",
+    "request_endpoint": "POST https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",
+    "status": 400,
+    "target_service": "compute",
+    "timestamp": "2026-08-21T07:02:50.351021+00:00",
+    "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message."
+}

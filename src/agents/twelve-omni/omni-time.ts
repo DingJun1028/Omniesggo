@@ -1,3 +1,5 @@
+ 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * ==========================================
  * 🌌 OmniTime — 萬能時間實現
@@ -31,7 +33,7 @@ export class OmniTime implements IOmniTime {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+    } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
 
   /** 事件存儲 */
   private _events: IBusEvent[] = [];

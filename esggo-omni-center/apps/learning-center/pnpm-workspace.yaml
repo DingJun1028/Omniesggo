@@ -1,9 +1,0 @@
-packages:
-  - '.'
-  - 'esggo-auto-repair/worker'
-
-allowBuilds:
-  '@firebase/util': true
-  esbuild: true
-  protobufjs: true
-  workerd: set this to true or false

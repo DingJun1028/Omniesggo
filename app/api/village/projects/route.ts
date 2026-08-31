@@ -1,5 +1,5 @@
-import { jsonResponse, jsonError } from '@lib/api-utils';
-import { EntropyForge } from '@/lib/omni-core/entropy-forge';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
+import { EntropyForge } from '@lib/omni-core/entropy-forge';
 
 // ----------------------------------------------------------------------------
 // OmniVillage Projects Database (Mock)
@@ -70,6 +70,6 @@ export async function POST(req: Request) {
 
     return jsonError('INVALID_ACTION', 'Invalid action');
   } catch (error) {
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }

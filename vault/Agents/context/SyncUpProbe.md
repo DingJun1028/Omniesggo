@@ -5,6 +5,7 @@ created: 2026-08-13
 modified: 2026-08-13
 sync: up
 lifecycle: active
+access: public-research
 ---
 
 # SyncUp 測試（回流證明）

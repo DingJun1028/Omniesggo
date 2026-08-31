@@ -13,7 +13,8 @@
     "deploy:all": "pnpm build && firebase deploy",
     "deploy:hosting": "pnpm build && firebase deploy --only hosting",
     "deploy:rules": "firebase deploy --only firestore:rules",
-    "check:types-sync": "node scripts/check-types-sync.js"
+    "check:types-sync": "node scripts/check-types-sync.js",
+    "verify:matrix": "node scripts/verify-matrix.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
@@ -30,12 +31,9 @@
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
     "jsdom": "^29.1.1",
-    "postcss": "^8.4.39",
+    "postcss": "^8.5.26",
     "tailwindcss": "^3.4.19",
-    "vite": "^6.4.3",
-    "postcss": "^8.5.25",
-    "tailwindcss": "^3.4.19",
-    "vite": "^6.4.3",
+    "vite": "^7.3.6",
     "vitest": "^4.1.10"
   },
   "packageManager": "pnpm@11.5.2"

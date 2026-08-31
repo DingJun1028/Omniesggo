@@ -3,8 +3,8 @@
  */
 
 import { NextRequest } from 'next/server';
-import { jsonResponse, jsonError } from '@lib/api-utils';
-import { ESGSonnarService } from '@/lib/esg-sonnar';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
+import { ESGSonnarService } from '@lib/esg-sonnar';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +32,6 @@ export async function GET(request: NextRequest) {
       stats,
     });
   } catch (error) {
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }

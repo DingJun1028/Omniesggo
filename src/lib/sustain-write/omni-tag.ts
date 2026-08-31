@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniTag 萬能標籤系統 — ESGGO C版專業永續報告
  * 

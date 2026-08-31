@@ -6,6 +6,7 @@ modified: 2026-08-13
 sync: mirror
 lifecycle: active
 tags: [oa-team, 5t, protocol]
+access: public-research
 ---
 
 # 5T 協定（五大真理原則）

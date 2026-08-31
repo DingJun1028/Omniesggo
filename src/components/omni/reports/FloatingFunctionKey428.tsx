@@ -84,7 +84,8 @@ export default function FloatingFunctionKey428() {
               <motion.button
                 onClick={handleSummonThoth}
                 whileHover={{ scale: 1.1, x: -5 }}
-                className="p-4 rounded-full liquid-glass-button text-emerald-300 hover:text-emerald-100 group relative shadow-neon-emerald"
+                className="p-4 rounded-full liquid-glass-button text-emerald-300 hover:text-emerald-100 group relative shadow-neon-emerald focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                aria-label="召喚 Dr. Thoth"
               >
                 <Sparkles size={24} />
                 <span className="absolute right-14 top-1/2 -translate-y-1/2 px-3 py-1 rounded-lg bg-black/50 border border-white/10 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
@@ -99,7 +100,8 @@ export default function FloatingFunctionKey428() {
                 <motion.button
                   key={idx}
                   whileHover={{ scale: 1.1, x: -5 }}
-                  className="p-4 rounded-full liquid-glass-button text-cyan-300 hover:text-cyan-100 group relative"
+                  className="p-4 rounded-full liquid-glass-button text-cyan-300 hover:text-cyan-100 group relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                  aria-label={item.label}
                 >
                   {item.icon}
                   <span className="absolute right-14 top-1/2 -translate-y-1/2 px-3 py-1 rounded-lg bg-black/50 border border-white/10 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
@@ -119,11 +121,14 @@ export default function FloatingFunctionKey428() {
           }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className={`relative w-16 h-16 rounded-full flex items-center justify-center border transition-colors duration-500 backdrop-blur-2xl shadow-[0_0_40px_rgba(14,165,233,0.4)] ${
+          className={`relative w-16 h-16 rounded-full flex items-center justify-center border transition-colors duration-500 backdrop-blur-2xl shadow-[0_0_40px_rgba(14,165,233,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-[#060b14] ${
             mode === 'edit'
               ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-neon-amber'
               : 'bg-cyan-500/20 border-cyan-400 text-cyan-300 shadow-neon-cyan'
           }`}
+          aria-expanded={isExpanded}
+          aria-label={isExpanded ? '關閉功能表' : '開啟功能表'}
+          aria-pressed={mode === 'edit'}
         >
           <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/5 to-white/20 animate-spin-slow pointer-events-none" />
           <div className="z-10 flex flex-col items-center">

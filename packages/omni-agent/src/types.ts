@@ -2,19 +2,19 @@ export interface Task {
   id: string
   type: 'analysis' | 'refactor' | 'test' | 'build' | 'deploy' | 'monitor' | 'optimize' | 'security'
   description: string
-  parameters: Record<string, any>
+  parameters: Record<string, unknown>
   dependencies: string[]
   priority: 'high' | 'medium' | 'low'
   timeout: number
   retryCount: number
   tags: string[]
   createdAt: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface TaskResult {
   success: boolean
-  result?: any
+  result?: unknown
   error?: string
   metrics?: {
     executionTime: number
@@ -133,7 +133,7 @@ export interface Recommendation {
 export interface StepResult {
   taskId: string
   success: boolean
-  result?: any
+  result?: unknown
   error?: string
   executionTime: number
   qualityScore: number

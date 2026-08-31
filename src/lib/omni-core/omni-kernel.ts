@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniKernel v1.0 — 萬能中心核心引擎
  *
@@ -107,7 +108,7 @@ export class OmniRegistry {
   private readonly store = new Map<string, RegistryEntry>();
   private readonly typeIndex = new Map<string, Set<string>>();
 
-  register<T>(component: IComponentCore<T>, type: string = 'generic'): void {
+  register<T>(component: IComponentCore, type: string = 'generic'): void {
     this.store.set(component.uuid, {
       component: component as IComponentCore,
       registeredAt: Date.now(),

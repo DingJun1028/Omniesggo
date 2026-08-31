@@ -3,7 +3,7 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { NextRequest } from 'next/server';
-import { jsonError, jsonResponse } from '@lib/api-utils';
+import { jsonError, jsonResponse, jsonErrorInternal } from '@lib/api-utils';
 import { OmniTodoEngine } from '@/core/omni-todo';
 import type { TodoSort } from '@/core/omni-todo';
 
@@ -200,6 +200,6 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error('[OmniTodo API] Error:', error);
-    return jsonError('INTERNAL_ERROR', (error as Error).message || 'Internal server error');
+    return jsonErrorInternal(error, 'INTERNAL_ERROR');
   }
 }

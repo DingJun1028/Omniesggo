@@ -1,3 +1,4 @@
+// [agent:15][squad:光之羽翼][lifecycle:active][p2][platform:esggo][best-practice:结界]
 import { readFileSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';

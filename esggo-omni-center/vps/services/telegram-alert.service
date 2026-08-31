@@ -1,1 +1,0 @@
-['Unit]\nDescription=Telegram Alert Service\nAfter=network.target\n\n[Service]\nType=simple\nUser=www-data\nExecStart=/var/www/esggo/vps/scripts/telegram-alert.sh\nRestart=always\nRestartSec=5\n\n[Install]\nWantedBy=multi-user.target']

@@ -6,6 +6,7 @@ modified: 2026-08-13
 sync: mirror
 lifecycle: active
 tags: [oa-team, swarm, 30-matrix]
+access: public-research
 ---
 
 # 30 萬能蜂群矩陣（Thirty Matrix）

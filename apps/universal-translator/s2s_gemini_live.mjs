@@ -44,12 +44,12 @@ export function s2sStatus() {
  * 建立 S2S 會話 (概念實作骨架 — 實際音訊管線需搭配 LiveKit/Pipecat 媒體層)
  * 僅在 isS2SEnabled() 為 true 時呼叫。任何失敗都應由呼叫方回落 free chain。
  *
- * @param {object} opts { source='zh-TW', target='en', voice? }
- * @returns {Promise<{ws: WebSocket, sessionId: string}>}
+ * @param {{source?:string, target?:string, voice?:string}} opts
+ * @returns {Promise<{sessionId: string, url: string, model: string, source: string, target: string, ready: boolean}>}
  */
 export async function createS2SSession(opts = {}) {
   if (!isS2SEnabled()) throw new Error('S2S not enabled — falling back to free chain');
-  const key = process.env.GEMINI_API_KEY;
+  const key = process.env.GEMINI_API_KEY || '';
   const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash'; // 3.5 Live 正式模型以 GEMINI_MODEL 覆寫
   const url = `${GEMINI_LIVE_WS}?key=${encodeURIComponent(key)}`;
 

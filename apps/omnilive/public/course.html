@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>OmniLive 課程即時解說</title>
+<style>
+:root{
+  --bg:#0e0e14;--panel:rgba(22,22,31,.66);--panel2:rgba(30,30,42,.5);
+  --accent:#7c5cff;--accent2:#36e0c0;--txt:#f4f6fb;--muted:#9aa3b8;
+  --line:rgba(255,255,255,.10);--radius:18px;
+  --font:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{font-family:var(--font);color:var(--txt);
+  background:radial-gradient(1200px 700px at 80% -10%,rgba(124,92,255,.18),transparent 55%),radial-gradient(900px 600px at 10% 110%,rgba(54,224,192,.12),transparent 55%),var(--bg);
+  background-attachment:fixed;min-height:100vh;padding:16px}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px;padding:8px 16px;margin-bottom:14px}
+.topbar h1{font-size:.95rem;margin:0;font-weight:700;display:flex;align-items:center;gap:8px}
+.status{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;border-radius:50%;background:#3ad17a;box-shadow:0 0 8px rgba(58,209,122,.7)}
+.dot.bad{background:#e2554f;box-shadow:0 0 8px rgba(226,85,79,.7)}
+.badge{font-size:.72rem;padding:3px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:calc(100vh - 90px)}
+@media(max-width:760px){.grid{grid-template-columns:1fr;height:auto}}
+.col{background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.col h2{font-size:.82rem;margin:0 0 10px;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+#subs{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;justify-content:flex-end}
+.sg{display:flex;flex-direction:column;gap:5px;animation:subIn .2s ease-out}
+@keyframes subIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.sg .src{font-size:.95rem;font-weight:500;color:rgba(255,255,255,.55)}
+.sg .tgt{font-size:1.4rem;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+.course{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px}
+.section{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
+.section h3{font-size:.85rem;margin:0 0 8px;color:var(--accent2);font-weight:700;display:flex;align-items:center;gap:6px}
+.section ul{margin:0;padding-left:18px}
+.section li{font-size:.85rem;line-height:1.55;margin-bottom:5px;color:var(--txt)}
+.summary{font-size:1.05rem;font-weight:700;line-height:1.5;color:#fff}
+.term{display:block;margin-bottom:10px}
+.term b{color:var(--accent);font-size:.92rem}
+.term .en{color:var(--muted);font-size:.78rem;margin-left:6px}
+.term .ex{display:block;font-size:.82rem;color:var(--txt);margin-top:2px;line-height:1.4}
+.term a{color:var(--accent2);font-size:.78rem;text-decoration:none}
+.term a:hover{text-decoration:underline}
+.loading{font-size:.82rem;color:var(--muted);font-style:italic}
+.meta{font-size:.72rem;color:var(--muted);margin-top:auto;padding-top:8px}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>📚 OmniLive 課程即時解說</h1>
+  <div class="status"><span class="dot bad" id="connDot"></span><span id="conn">未連線</span><span class="badge" id="roomBadge">—</span></div>
+</div>
+<div class="grid">
+  <div class="col">
+    <h2>🎙️ 即時雙語字幕</h2>
+    <div id="subs"><div class="sg"><span class="tgt" style="opacity:.6">等待字幕…</span></div></div>
+  </div>
+  <div class="col">
+    <h2>📋 課程解說 <span class="badge" id="genStatus">待生成</span></h2>
+    <div class="course" id="course">
+      <div class="loading">字幕累積中，約每 45 秒自動生成一次課程重點…</div>
+    </div>
+    <div class="meta" id="meta">房間: —</div>
+  </div>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const params=new URLSearchParams(location.search);
+const room=params.get('room')||'';
+$('roomBadge').textContent=room?('房間 '+room):'—';
+$('meta').textContent='房間: '+(room||'—')+(params.get('pwd')?' (受保護)':'');
+let es=null;
+function connectSSE(){
+  const pwd=params.get('pwd')||'';
+  es=new EventSource('/stream?room='+encodeURIComponent(room)+'&pwd='+encodeURIComponent(pwd));
+  es.addEventListener('hello',e=>{$('conn').textContent='已連線';$('connDot').className='dot';});
+  es.addEventListener('subtitle',ev=>{try{const p=JSON.parse(ev.data);const d=p.data;if(!d)return;addSub(d);}catch(e){}});
+  es.onopen=()=>{$('conn').textContent='已連線';$('connDot').className='dot';};
+  es.onerror=()=>{$('conn').textContent='重連中…';$('connDot').className='dot bad';};
+}
+function addSub(d){
+  const ph=$('subs').querySelector('.sg');
+  if(ph&&ph.textContent.includes('等待字幕'))ph.remove();
+  const g=document.createElement('div');g.className='sg';
+  const s=document.createElement('div');s.className='src';s.textContent=d.source||'';
+  const t=document.createElement('div');t.className='tgt';t.textContent=d.target||'';
+  g.appendChild(s);g.appendChild(t);
+  $('subs').appendChild(g);
+  while($('subs').children.length>20)$('subs').removeChild($('subs').firstChild);
+}
+// 課程解說輪詢
+let lastGen=0;
+async function genCourse(){
+  const now=Date.now();
+  if(now-lastGen<40000)return; // 節流 40s
+  lastGen=now;
+  $('genStatus').textContent='生成中…';
+  try{
+    const r=await fetch('/api/course',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({room})});
+    if(!r.ok){$('genStatus').textContent='失敗';return;}
+    const c=await r.json();
+    renderCourse(c);
+    $('genStatus').textContent='已更新 '+new Date().toLocaleTimeString('zh-TW');
+  }catch(e){$('genStatus').textContent='錯誤';}
+}
+function renderCourse(c){
+  const el=$('course');el.innerHTML='';
+  if((!c.summary)&&(!c.keypoints||!c.keypoints.length)&&(!c.terms||!c.terms.length)&&(!c.similar_cases||!c.similar_cases.length)){
+    el.innerHTML='<div class="loading">尚無足夠字幕內容生成課程解說。</div>';return;
+  }
+  if(c.summary){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>📌 本節概要</h3>';const p=document.createElement('div');p.className='summary';p.textContent=c.summary;s.appendChild(p);el.appendChild(s);}
+  if(c.keypoints&&c.keypoints.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>🔑 重點項目</h3>';const u=document.createElement('ul');c.keypoints.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
+  if(c.terms&&c.terms.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>🔤 重要名詞</h3>';c.terms.forEach(t=>{const d=document.createElement('div');d.className='term';const wiki=t.wiki?`<a href="${t.wiki}" target="_blank" rel="noopener">🔗 維基</a>`:'';d.innerHTML=`<b>${t.term||''}</b><span class="en">${t.en||''}</span>${wiki}<span class="ex">${t.explain||''}</span>`;s.appendChild(d);});el.appendChild(s);}
+  if(c.similar_cases&&c.similar_cases.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>🔁 類似案例 / 變體整理</h3>';const u=document.createElement('ul');c.similar_cases.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
+}
+connectSSE();
+setInterval(genCourse,15000); // 每 15s 檢查 (內部節流 40s)
+genCourse();
+</script>
+</body>
+</html>

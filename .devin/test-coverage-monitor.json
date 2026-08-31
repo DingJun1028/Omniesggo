@@ -1,9 +1,9 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-08-13T10:00:00Z",
+  "lastUpdated": "2026-08-13T06:07:07.391Z",
   "targets": {
     "overall": {
-      "current": 8,
+      "current": 0,
       "target": 80,
       "priority": "P0",
       "deadline": "2026-09-13"
@@ -28,19 +28,19 @@
         "estimatedEffort": "medium"
       },
       "app/api/**/*.ts": {
-        "current": 5,
+        "current": 0,
         "target": 85,
         "priority": "P1",
         "estimatedEffort": "high"
       },
       "src/core/services/*.ts": {
-        "current": 10,
+        "current": 0,
         "target": 80,
         "priority": "P1",
         "estimatedEffort": "high"
       },
       "src/components/**/*.tsx": {
-        "current": 3,
+        "current": 0,
         "target": 70,
         "priority": "P2",
         "estimatedEffort": "medium"

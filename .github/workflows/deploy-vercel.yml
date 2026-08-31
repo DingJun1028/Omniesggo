@@ -1,0 +1,58 @@
+# .github/workflows/deploy-vercel.yml — Vercel production deploy (replaces missing GitHub→Vercel webhook)
+# Triggered on every main push that touches app code. Runs independently of VPS deploy pipeline.
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "app/**"
+      - "packages/**"
+      - "apps/**"
+      - "public/**"
+      - "prisma/**"
+      - "next.config.*"
+      - "package.json"
+      - "vercel.json"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-prod-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-vercel:
+    name: Deploy esggo to Vercel (production)
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11.5.2'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy to Vercel (production)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          npm i -g vercel@latest
+          vercel deploy --prod --yes --archive=tgz --token "$VERCEL_TOKEN"
+
+      - name: Notify
+        if: success()
+        run: echo "✅ Vercel production deployment successful"

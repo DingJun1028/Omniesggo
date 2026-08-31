@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -22,25 +23,32 @@ export function OmniPieChart({
   const cx = viewBoxSize / 2;
   const cy = viewBoxSize / 2;
 
-  const total = data && data.length > 0 ? data.reduce((sum, d) => sum + d.value, 0) : 0;
-
-  const getCoordinatesForPercent = (percent: number) => {
-    const x = Math.cos(2 * Math.PI * percent) * radius;
-    const y = Math.sin(2 * Math.PI * percent) * radius;
-    return [x, y];
-  };
-
   // Pre-compute slice data to avoid mutating variables during render
-  const sliceData = useMemo(() => {
-    if (!data || data.length === 0 || total === 0) return [];
+  const { total, sliceData } = useMemo(() => {
+    const computedTotal = data && data.length > 0 ? data.reduce((sum, d) => sum + d.value, 0) : 0;
+    if (!data || data.length === 0 || computedTotal === 0) return { total: 0, sliceData: [] };
+
+    const getCoordinatesForPercent = (percent: number) => {
+      const x = Math.cos(2 * Math.PI * percent) * radius;
+      const y = Math.sin(2 * Math.PI * percent) * radius;
+      return [x, y];
+    };
+
     let cumulative = 0;
-    return data.map((slice, i) => {
-      const slicePercent = slice.value / total;
-      const startX = getCoordinatesForPercent(cumulative)[0];
-      const startY = getCoordinatesForPercent(cumulative)[1];
+    // Track previous coordinates to halve Math.sin/Math.cos operations
+    let [prevX, prevY] = getCoordinatesForPercent(0);
+    const computedSliceData = data.map((slice, i) => {
+      const slicePercent = slice.value / computedTotal;
+      const startX = prevX;
+      const startY = prevY;
+
       cumulative += slicePercent;
-      const endX = getCoordinatesForPercent(cumulative)[0];
-      const endY = getCoordinatesForPercent(cumulative)[1];
+      const [endX, endY] = getCoordinatesForPercent(cumulative);
+
+      // Save end coordinates for the next slice
+      prevX = endX;
+      prevY = endY;
+
       const largeArcFlag = slicePercent > 0.5 ? 1 : 0;
       const pathData = [
         `M ${startX} ${startY}`,
@@ -49,7 +57,9 @@ export function OmniPieChart({
       ].join(' ');
       return { slice, i, slicePercent, pathData };
     });
-  }, [data, total, radius]);
+
+    return { total: computedTotal, sliceData: computedSliceData };
+  }, [data, radius]);
 
   if (!data || data.length === 0) return <div>No data available</div>;
 

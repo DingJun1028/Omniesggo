@@ -1,1 +1,0 @@
-['eq 2 ]; then\n    MESSAGE="$2', 'elif [ $# -eq 1 ]; then\n    MESSAGE="$1"\nelse\n    echo "Usage: $0 "Subject" "Message""\n    exit 1\nfi\n\n# Send message via Telegram Bot API\ncurl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \n    -d parse_mode=HTML \n    -d chat_id="${CHAT_ID}" \n    -d text="<b>${MESSAGE}</b>']

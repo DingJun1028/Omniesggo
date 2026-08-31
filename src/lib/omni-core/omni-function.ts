@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * omni-function.ts — 萬能函數（Universal Omni Function）
  *
@@ -144,7 +145,7 @@ export function omni(req: OmniRequest): OmniResult {
           kind: 'component',
           id: comp.uuid,
           data: comp,
-          hash: comp.hash,
+          hash: (comp as any).hash,
           registered: shouldRegister,
         };
       }

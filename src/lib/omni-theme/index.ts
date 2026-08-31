@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniTheme v2.0 — 萬能主題（5 種主題 + 設計令牌 + CSS 生成器）
  *

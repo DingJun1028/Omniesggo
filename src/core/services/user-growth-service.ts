@@ -90,7 +90,6 @@ class UserGrowthService {
       version: '1.0.0-genesis',
       timestamp: Date.now(),
       evidence: genesisEvidence,
-      hash: `0x${userId.replace(/-/g, '').substring(0, 16)}`,
       hashLock,
       entropyControl: 0.1,
       status: 'dormant'

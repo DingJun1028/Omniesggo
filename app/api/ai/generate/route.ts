@@ -8,7 +8,7 @@
 
 import { NextRequest } from 'next/server';
 import { generateAIReport, ReportRequest, ReportSection } from '../../../../src/core/ai/report-generator';
-import { jsonResponse, jsonError, validateParams } from '@lib/api-utils';
+import { jsonResponse, jsonError, validateParams, jsonErrorInternal } from '@lib/api-utils';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('[AI Report API] Error:', error);
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }
 

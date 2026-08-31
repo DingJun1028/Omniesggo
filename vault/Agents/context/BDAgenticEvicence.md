@@ -6,6 +6,7 @@ modified: 2026-08-13
 sync: mirror
 lifecycle: active
 tags: [b-d, ollama, minio, free-tier]
+access: public-research
 ---
 
 # B/D 進階項目（Agentic Twin + Evidence Vault）

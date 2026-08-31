@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // ============================================================
 // Oracle 雙向同步協調器 — 終始矩陣 / hydration / 定時對帳
 // src/core/tags/oracle-sync-matrix.ts

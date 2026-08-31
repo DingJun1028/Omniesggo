@@ -1,10 +1,18 @@
-## 2024-05-24 - API Request Optimization in OmniTodoPanel
-**Learning:** Frequent, unfiltered state updates connected to API requests (like search query typing) can cause unnecessary backend load and degraded frontend performance.
-**Action:** Implement debouncing on input fields that trigger API requests to delay the execution until the user has stopped typing.
+## 2025-02-18 - [OmniPieChart Optimization]
+**Learning:** In interactive SVG charts, values calculated in the render scope (like `total`) or helper functions declared outside of `useMemo` can cause excessive redundant work during frequent state updates like `onMouseMove`. In addition, array functions returning coordinates should be destructured `const [x, y] = getCoords()` to halve expensive math calls.
+**Action:** Always wrap heavy data aggregations and geometry mapping in `useMemo` with appropriate dependency arrays. Review chart components with frequent hover states for redundant calculations.
 
-## 2026-08-09 - Array Mapping in Render Phase
-**Learning:** Re-creating complex charting data arrays via `.map` and multiple nested `.filter` calls inside a functional component's render body forces deep re-renders of child components like Recharts' `BarChart`, as they receive new object references on every render cycle.
-**Action:** Always wrap expensive array transformations and charting data generation inside a `useMemo` hook, especially when dealing with data that doesn't change on every UI interaction.
-## 2024-10-25 - Chart Geometry Computation in Render Phase
-**Learning:** Re-computing charting geometries (like mapping bar heights, grid line coordinates, and array spacings) directly inside a component's render function forces the layout logic to run on every state update, even unrelated interactive state like `hoveredPoint` in `omni-bar-chart.tsx`.
-**Action:** Extract static charting logic and layout coordinates into a `useMemo` block separate from dynamic visual states, allowing Recharts or SVG elements to reuse geometry while conditionally applying hover styles.
+## 2026-08-18 - [OmniAgent Console Rendering Optimization]
+**Learning:** In React components, static configuration arrays (like `CHAT_SUGGESTIONS`) created inside the render cycle (specifically within the JSX) cause the array to be recreated on every re-render. This triggers unnecessary re-renders of mapped child elements depending on referential equality, which is a common performance anti-pattern.
+**Action:** Hoist static arrays and configuration objects out of the component function to the module scope to avoid garbage collection and recreation overhead.
+
+## 2025-02-18 - [SVG Path Math Optimization]
+**Learning:** Generating continuous SVG paths (like pie chart slices) often calculates the boundary coordinates twice for shared edges. In `omni-pie-chart.tsx`, `getCoordinatesForPercent` was computing both `startX`/`startY` and `endX`/`endY` per slice, recalculating `Math.cos` and `Math.sin` for the start coordinate that already matched the previous slice's end coordinate.
+**Action:** When rendering adjacent SVG path segments, initialize a starting coordinate state (like `prevX` and `prevY`) before the loop, then reuse the previous slice's `endX` and `endY` as the current slice's `startX` and `startY`. This removes one heavy `getCoordinatesForPercent` call per iteration.
+
+## 2026-08-28 - [OmniAgent Console Rendering Optimization]
+**Learning:** In React components, static configuration arrays like `PANEL_TABS` created inside the render cycle (specifically within the JSX or component function) cause the array to be recreated on every re-render. This triggers unnecessary re-renders of mapped child elements depending on referential equality, which is a common performance anti-pattern.
+**Action:** Hoist static arrays and configuration objects out of the component function to the module scope to avoid garbage collection and recreation overhead.
+## 2024-05-18 - Lazy initialization in React forms
+**Learning:** In React functional components, `useState` initialization code runs on every render, even if the result is only used on the first render. This is particularly problematic when the initial state is computed dynamically from props, such as reducing over an array to build a form data object.
+**Action:** Always wrap expensive or dynamic `useState` initializations (e.g. `Array.reduce` over schema fields) in a callback function `() => ({ ... })`. This leverages React's lazy initial state feature, ensuring the expensive computation only runs once during component mount, preventing redundant work on every keystroke or subsequent render.

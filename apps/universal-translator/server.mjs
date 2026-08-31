@@ -24,6 +24,8 @@ import { translateDetailed, translateToMany, stats, hashOf } from './translate.m
 import { speechToSubtitle } from './stt_client.mjs';
 import { s2sStatus, isS2SEnabled } from './s2s_gemini_live.mjs';
 import { recordUtterance, getContext, buildContextHint, resetRoom, contextStatus, isContextEnabled } from './context_buffer.mjs';
+// 深貫廣通: 共享記憶整合 (TencentDB Agent Memory)
+import { storeSubtitleAsMemory, retrieveMemoryContext } from './src/memory-integration.mjs';
 
 // 讀取 .env（零依賴實作，優先於 process.env 已存在值）
 try {
@@ -81,6 +83,19 @@ const sseClients = new Set();
  */
 function broadcastTranslation(payload) {
   const data = `event: translation\ndata: ${JSON.stringify(payload)}\n\n`;
+  // 深貫廣通: 同步到共享記憶 (非阻塞, 失敗不影響廣播)
+  if (payload.room && payload.text) {
+    // 廣通: 譯文與目標語碼一律取自 translations — ISseTranslationEvent 契約中唯一可得來源
+    const translations = payload.translations || {};
+    const targetLangs = Object.keys(translations);
+    storeSubtitleAsMemory({
+      text: payload.text,
+      translation: Object.values(translations).filter(Boolean).join(' / '),
+      source_origin: payload.speaker || 'sse',
+      lang_from: 'auto',
+      lang_to: targetLangs[0] || 'zh-TW',
+    }, payload.room, payload.speaker === 'caster' ? 'caster' : 'viewer').catch(() => {});
+  }
   for (const c of sseClients) {
     try {
       // room 過濾：客戶端指定 room 時，只收相同 room 的轉播
@@ -132,10 +147,11 @@ async function doTranslateAndBroadcast({ text, from, to, targets, room, speaker 
   if (Array.isArray(targets) && targets.length) {
     const r = await translateToMany(text, String(from), /** @type {string[]} */ (targets));
     /** @type {import('./types/generated/esggo-shared.d.ts').ISseTranslationEvent} */
-    const out = { text, translations: r.translations, engines: r.engines, trace, room: room || '', speaker: speaker || 'studio' };
+    const out = { text, translations: r.translations || {}, engines: r.engines || {}, trace, room: room || '', speaker: speaker || 'studio' };
     broadcastTranslation(out);
-    recordUtterance({ room, src: text, tgt: r.translations[targets[0]] || '', from, to: targets[0] });
-    return { ...out, engine: Object.values(r.engines)[0] || 'n/a', cached: false };
+    const tgt0a = /** @type {Record<string, string>} */ (r.translations || {})[String(targets[0])] || '';
+    recordUtterance({ room, src: text, tgt: tgt0a, from: String(from), to: String(targets[0]) });
+    return { ...out, engine: Object.values(r.engines || {})[0] || 'n/a', cached: false };
   }
   const rec = await translateDetailed(text, String(from), String(to), ctxHint);
   /** @type {Record<string, string>} */
@@ -244,6 +260,12 @@ const server = http.createServer(async (req, res) => {
     else if (urlPath === '/player' || urlPath === '/player.html') file = '/player.html';
     else if (/^\/(qrcode\.min\.js|esggo-shared\.d\.ts)$/.test(urlPath)) { file = urlPath; ctype = 'application/javascript; charset=utf-8'; }
     else if (urlPath.endsWith('.html') && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) file = urlPath;
+    // 深貫廣通: 圖片榮 (Image Gallery) 路由
+    else if (urlPath === '/gallery' || urlPath === '/gallery.json' || urlPath === '/omni-gallery/index.json') {
+      file = '/omni-gallery/index.json'; ctype = 'application/json; charset=utf-8';
+    }
+    else if (/^\/omni-gallery\/.+\.png$/i.test(urlPath) && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) { file = urlPath; ctype = 'image/png'; }
+    else if (/^\/omni-gallery\/.+\.jpg$/i.test(urlPath) && fs.existsSync(path.join(PUBLIC_DIR, urlPath))) { file = urlPath; ctype = 'image/jpeg'; }
     if (file) {
       const fp = path.join(PUBLIC_DIR, file);
       if (fs.existsSync(fp)) {
@@ -258,7 +280,8 @@ const server = http.createServer(async (req, res) => {
     const MAX_PROXY_BYTES = 50 * 1024 * 1024; // 50MB 上限
     const PROXY_TIMEOUT_MS = 20000;
     try {
-      const raw = req.url.split('?')[1] ? new URLSearchParams(req.url.split('?')[1]).get('url') || '' : '';
+      const rawUrl = req.url || '';
+      const raw = rawUrl.split('?')[1] ? new URLSearchParams(rawUrl.split('?')[1]).get('url') || '' : '';
       const target = new URL(raw, 'http://x');
       if (!/^https?:$/.test(target.protocol)) { res.writeHead(400); return res.end('invalid protocol'); }
       // SSRF 防護: 阻內網/link-local/metadata
@@ -291,7 +314,7 @@ const server = http.createServer(async (req, res) => {
         res.write(Buffer.from(value));
       }
       res.end();
-    } catch (e) {
+    } catch (/** @type {any} */ e) {
       res.writeHead(500); return res.end('proxy fail: ' + e.message);
     }
   }
@@ -324,9 +347,10 @@ const server = http.createServer(async (req, res) => {
     // 多語平行翻譯 (即時轉播場景)
     if (Array.isArray(targets) && targets.length) {
       const r = await translateToMany(text, String(from), /** @type {string[]} */ (targets));
-      const firstEngine = Object.values(r.engines)[0] || 'n/a';
-      recordUtterance({ room, src: text, tgt: r.translations[targets[0]] || '', from, to: targets[0] });
-      broadcastTranslation({ text, translations: r.translations, engines: r.engines, trace: hashOf(text).slice(0, 16), room, speaker: 'rest' });
+      const firstEngine = Object.values(r.engines || {})[0] || 'n/a';
+      const tgt0b = /** @type {Record<string, string>} */ (r.translations || {})[String(targets[0])] || '';
+      recordUtterance({ room, src: text, tgt: tgt0b, from: String(from), to: String(targets[0]) });
+      broadcastTranslation({ text, translations: r.translations || {}, engines: r.engines || {}, trace: hashOf(text).slice(0, 16), room, speaker: 'rest' });
       return writeJson(res, { ...r, version: APP_VERSION }, {
         'X-OA-Engine': String(firstEngine), 'X-OA-Cached': 'false', 'X-OA-Trace': hashOf(text).slice(0, 16),
       });

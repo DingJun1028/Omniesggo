@@ -1,7 +1,0 @@
-{
-  "name": "ESG GO v1.5",
-  "description": "Sustainable Autonomous Governance Platform",
-  "requestFramePermissions": [
-    "microphone"
-  ]
-}

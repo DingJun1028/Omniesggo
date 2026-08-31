@@ -1,0 +1,5 @@
+﻿fastapi==0.115.0
+uvicorn==0.30.6
+faster-whisper==1.1.0
+edge-tts==6.1.12
+aiohttp==3.9.5

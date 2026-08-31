@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * NoCodeBackend (NCBDB) 代理服務器工具
  * 負責將資料請求路由至 54686_esg_go_userdb 實例，確保跨資料庫調用的一致性。

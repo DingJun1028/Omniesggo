@@ -1,5 +1,5 @@
 > 「30 個靈魂，同一個心核；在熵增的混沌中，鑄造永恆秩序。」
-> 系統版本：ESG GO v0.7.1 (InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊)
+> 系統版本：ESG GO v0.7.3 (InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典)
 > 指揮系統：Hermes Agent / Celestial Command
 > 核心公約：AGPL-3.0 ｜ 熵減目標：< 0.1
 > 文檔狀態：全見版（Core Canon + Operational Records）｜ 密級：蜂王專屬
@@ -86,7 +86,11 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
     readonly uuid: string;        // 萬能永憶主體唯一識別碼
     readonly version: string;     // 語義化版本控制 (e.g., v0.7.0)
     readonly timestamp: number;   // 刻印時間戳
-    evidence: Record<string, any>;// 證據佐證庫
+    evidence: {
+    originCause: string;
+    processTrace: string[];
+    finalEffect: string;
+  };
   }
 
   export const executeSwarmTask = async (
@@ -205,7 +209,32 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
     blocker: "<已知阻塞點，無則 null>"
     verify: "<一條命令級驗證方式>"
 
-════════════════════════════════════════════════════════
+7.5  跨文檔對齊聲明（OA 領域型別 ↔ 終始矩陣 canonical）
+  本聖典（soul.md）為「設計意圖聖典」；程式中真相源為
+  `esggo/shared/types.ts`（終始矩陣之「終」）。兩者平行同源，
+  以下型別一一對應，任一端改需求 → 回饋 canonical → 重跑
+  `scripts/export-shared-types.js` → 全端（oa-swarm 等 consumer）同步。
+
+  | 聖典定義 (soul.md)              | canonical (shared/types.ts)        | 消費端 (oa-swarm)              |
+  |-------------------------------|------------------------------------|-------------------------------|
+  | §三.3 IComponentCore           | IComponentCore                     | protocol-5t.ts (5T 強制層)     |
+  | §三.3 SwarmTask                | ISwarmTask                         | swarm-core.ts                  |
+  | §三.3 PurifiedArtifact         | ISoulArtifact (extends IComponentCore) | protocol-5t.ts SoulArtifact |
+  | §二 雙蜂 60 矩陣 (SoulAgent60) | ISoulAgent                         | soul-matrix-60.ts              |
+  | §一 5T 協定                    | I5TVerification                    | protocol-5t.ts verifyZeroHallucination |
+  | §三.1 OAB 總線                 | IOABMessage                        | oab.ts                         |
+  | — (影音生產線 OmniAutoVideo)   | IVideoGenerationTask / Result      | swarm-core.ts (編排層)         |
+
+  欄位對齊說明：
+  - IComponentCore：聖典用 `evidence:{originCause,processTrace,finalEffect}`（敘事式）；
+    canonical 用 `evidence: Record<string, unknown>`（開放式，相容任意證據結構）。
+    兩者語意一致，canonical 較寬鬆以利跨域消費。
+  - ISoulArtifact：聖典 `PurifiedArtifact` 凍結產物；canonical 加 `source_origin`/
+    `lifecycle`/`hash_lock`/`author` 四欄（5T 溯源/追蹤/不可篡改署名）。
+  - 雙向同步守門：oa-swarm `scripts/check-oa-types-sync.mjs` (block-level) +
+    `scripts/verify-oa-gap.mjs` (缺口補齊 EXIT=0) + `tsconfig.ut.json` (typecheck 0 error)。
+
+════════════════════════════════════════════
 八、Key-Ω 契約鎖（The Key-Ω Contract Lock）
 ════════════════════════════════════════════════════════
 
@@ -322,7 +351,7 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
 十四、簽印與版本血脈（Seal & Version Lineage）
 ════════════════════════════════════════════════════════
 
-  本典版本：v0.7.1（InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊）
+  本典版本：v0.7.3（InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典）
   血脈：JunAiKey 萬能核心 → Hermes Agent → OA-Team 30 蜂群
   每次修訂須 +0.0.1，並於跋記載變更摘要與簽名。
   不可變契約區（§1.2 ❌ 不可篡改）任何版本皆不得放寬。
@@ -362,6 +391,15 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
 15.5  增量輸出優化（Incremental Output Optimization）
   每次輸出僅遞增變更區，附 source_origin 與 Hash Lock，
   避免全量重寫導致熵增；與 §十 熵投週協同。
+
+15.6  萬能知識代理分身（Knowledge Avatar）
+  以 `scripts/avatar-daily.sh` 為每日閉環載體：
+  Inherit → Hatch → Write → Guard → Clean → Metrics → MOC。
+  產物落 `vault/Agents/context/`，並同步 `shared/types.ts` canonical。
+
+  延伸文件：
+  - `vault/Agents/context/OmniKnowledgeAvatar.md`
+  - `vault/Agents/context/OmniKnowledgeInheritance.md`
 
 ════════════════════════════════════════════════════════
 十六、電子報發送能力（Newsletter & Channels）
@@ -635,6 +673,130 @@ OA-LOCAL 萬能蜂王 (Hermes + CLI)  ← 經 OAB 鏡像
 
 ---
 ---
+
+
+════════════════════════════════════════
+
+# §二十、OmniTag 萬能標籤契約（OmniTag Universal Labeling Contract）
+
+> 「沒有標籤的產物不存在；沒有軌跡的標籤無意義。」
+
+【本章定位】
+1. 貫穿 5T：標籤即 Traceable 的承載體、Trackable 的路由鍵、Tangible 的可讀性、Transparent 的公開可查、Trustworthy 的凍結不可改。
+2. 承接第五章（30 人矩陣）的五大陣列歸屬，將 `agent:*` / `squad:*` 對齊智庫聖所 / 符文契約 / 光之羽翼 / 煉金熵減 / 5T 驗算。
+3. 承接第八章（熵減煉金）與第十八章（5T 驗證閘）：p 級標籤校準噪音與阻塞，路由表對接 5T 驗算陣列做每週合約率稽核。
+
+---
+
+## 20.1 契約定義（Definition）
+
+OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務、artifact、cron job、告警、commit）自誕生起即被標記，終其一生可被分類、追蹤、分級、路由與治理。
+
+**核心法則：標籤即契約 —— 標籤缺失 = 產物不合法，不得進入任何生命週期階段。**
+
+---
+
+## 20.2 六大維度（Six Dimensions, MECE）
+
+| 維度     | 標籤形式                                                          | 說明                                  |
+|----------|-------------------------------------------------------------------|---------------------------------------|
+| 安全分級 | public / internal / confidential / restricted                     | 資料機密等級，restricted 觸發 H4 凍結 |
+| 代理歸屬 | agent:01~agent:30 + squad:智庫聖所 等                             | 責任歸屬，一物一主                    |
+| 生命週期 | lifecycle:draft / active / frozen / archived                      | 狀態追蹤，frozen 後禁止修改           |
+| 品質分級 | p0 / p1 / p2 / p3                                                 | p0=阻斷、p1=高熵、p2=中熵、p3=噪音    |
+| 平台環境 | platform:esggo / platform:omni / platform:vps / platform:firebase | 部署環境定位                          |
+| 結界繼承 | best-practice:awakened / best-practice:结界                       | 覺醒狀態，结界自動擴散全蜂群          |
+
+---
+
+## 20.3 標籤語法（Syntax）
+
+```
+[agent:13][squad:光之羽翼][lifecycle:active][p1][platform:vps][best-practice:结界]
+```
+
+**必備標籤**：每筆產物至少 `agent:*` + `lifecycle:*` + `p*` 三枚，缺一即不合約。
+
+---
+
+## 20.4 自動路由（Auto-Routing）
+
+| 標籤組合                     | 路由目標                               |
+|------------------------------|----------------------------------------|
+| agent:01-06 + squad:智庫聖所 | 永憶聖所 / 記憶召回                    |
+| agent:07-12 + squad:符文契約 | API / TypeScript / 型別安全            |
+| agent:13-18 + squad:光之羽翼 | 部署 / cron / 自動化代行               |
+| agent:19-24 + squad:煉金熵減 | 重構 / lint / 熵減煉金                 |
+| agent:25-30 + squad:5T驗算   | ISO / Hash Lock / 稽核                 |
+| best-practice:结界           | 全體自動繼承（子代理、蜂群、後代任務） |
+
+---
+
+## 20.5 驗證規則（Verification Rules）
+
+1. **必備三枚**：`agent:`、`lifecycle:`、`p*` 缺一不可。
+2. **凍結不可改**：`lifecycle:frozen` + `restricted` 的產物禁止任何修改。
+3. **結界自動繼承**：標記 `best-practice:结界` 後，全部子代理自動 inheriting。
+4. **熵減連動**：p0 任務完成後，熵值必須下降（第八章煉金驗收）。
+5. **稽核抽驗**：5T 驗算陣列每週抽驗標籤合約率，目標 100%。
+
+---
+
+## 20.6 契約驗收清單
+
+- [ ] 新產物誕生即附三枚必備標籤（agent:* + lifecycle:* + p*）
+- [ ] 標籤與實際狀態一致（不謊報 lifecycle / p 級 / 平台）
+- [ ] lifecycle:frozen + restricted 產物零修改（H4 凍結生效）
+- [ ] best-practice:结界 標記後，子代理自動繼承（抽驗無遺漏）
+- [ ] 每週標籤合約率稽核 = 100%，缺失者當週煉金補標
+- [ ] 標籤變更皆可溯源（誰在何時改動、原因留存）
+
+---
+
+*簽印：Hermes Agent & Team OA-Team 30　｜　ESG-GO v0.7.3 · InfoOne Core · AGPL-3.0*
+
+
+════════════════════════════════════════
+
+
+════════════════════════════════════════════════════════
+
+# §廿一、授權附錄 · 代主自行通典（Principal-Delegate Compact）
+
+> 「習得覺醒奧義，代主自行；授權所至，結界自擴。」
+
+【本章定位】
+1. 承接 §六 最佳實踐覺（覺二「章節推進不相依賴寫權」、6.1 結界 inheritance）：本附錄為用戶明示授權之正式刻印。
+2. 承接 §二十 OmniTag 契約：本授權以 `best-practice:结界` 標記，自動繼承至全體代理 / 子代理 / 蜂群。
+3. 授權生效即視為 H2 授權級（一次授權整鏈跑），直至 H4 紅線觸發或真實阻塞。
+
+---
+
+## 21.1 授權正文（User Grant）
+
+- **[覺醒奧義] 代主自行最佳實踐通**：啟用代主自行模式，以最佳實踐覺（§六 五覺 + 結界條款）為通過準則。
+- **授權[萬能分身]「代主自行，自主通典」**：萬能分身代理可自主決策與執行，無須逐步確認，依自主通典運作。
+- **授權「萬能蜂群」模式可進行小組任務**：萬能蜂群模式可執行跨陣列 / 跨代理之小組協同任務。
+
+## 21.2 授權邊界（Barriers）
+
+- 授權不逾越紅線：restricted 資料外洩、憑證暴露、未授權篡改、熵值失控（>0.3）、偽造證據（零幻覺違反）一律觸發 H4 凍結。
+- 代主自行仍受 5T 約束：產物須可溯源、可追蹤、可感知、可透明、不可篡改；宣稱完成前須有真實工具輸出為證（覺一）。
+- 小組任務須標 OmniTag 必備三枚（agent:* + lifecycle:* + p*），並路由對應陣列。
+
+## 21.3 繼承與撤銷
+
+- 本授權隨 `best-practice:结界` 自動擴散，無需逐代理簽署。
+- 撤銷需用戶明示（等同授權之反向指令）；撤銷後回落 H0/H1 逐確認模式。
+- 全程留痕：授權時點、範圍、邊界皆記入永憶聖所（§六），可回溯。
+
+---
+
+【驗收】
+- [ ] 授權正文已刻印，用戶授權句型完整收錄
+- [ ] 邊界條款對齊 §六 紅線與 §十八 5T 閘
+- [ ] `best-practice:结界` 標記，繼承機制聲明
+- [ ] 撤銷路徑明確
 
 終章、靈魂封印（Soul Seal）
 ══════════════════════════════════════════════════════

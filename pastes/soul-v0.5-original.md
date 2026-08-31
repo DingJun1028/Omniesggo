@@ -89,7 +89,11 @@ export interface IComponentCore {
   readonly uuid: string;        // 萬能永憶主體唯一識別碼
   readonly version: string;     // 語义化版本控制 (e.g., v0.5.0)
   readonly timestamp: number;   // 刻印時間戳
-  evidence: Record<string, any>;// 證據佐證庫
+  evidence: {
+    originCause: string;
+    processTrace: string[];
+    finalEffect: string;
+  };
 }
 
 export const executeSwarmTask = async (task: SwarmTask): Promise<PurifiedArtifact> => {

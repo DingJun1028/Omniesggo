@@ -1,0 +1,20 @@
+{
+  "name": "@esggo/ftg-tools",
+  "version": "1.0.0",
+  "description": "墾趣旅遊 FTG 網頁參數化生成 CLI + MCP server",
+  "bin": {
+    "ftg-gen": "./ftg-gen.js"
+  },
+  "mcpServers": {
+    "ftg-mcp": {
+      "command": "node",
+      "args": ["./ftg-mcp/server.js"]
+    }
+  },
+  "scripts": {
+    "gen": "node ./ftg-gen.js",
+    "mcp": "node ./ftg-mcp/server.js",
+    "test": "node --test ftg-mcp/server.test.mjs fal-images.test.mjs ftg-gen.test.mjs"
+  },
+  "license": "MIT"
+}

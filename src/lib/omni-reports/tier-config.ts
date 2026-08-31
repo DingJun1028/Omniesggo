@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * SaaS 多租戶與訂閱制模組 (mod-agc-billing-0001)
  * 對齊《永續報告書架構補強建議》路徑二：商業化落地。

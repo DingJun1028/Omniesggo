@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * ==========================================
  * 🌌 OmniAgent — 萬能代理實現 (增強版)
@@ -31,7 +32,7 @@ export class OmniAgentV2 implements IOmniAgentV2 {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+  } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
 
   readonly signature: IComponentCore;
   readonly config: AgentConfig;
@@ -153,7 +154,7 @@ export class OmniAgentV2 implements IOmniAgentV2 {
    */
   onMartialLaw(reason: string): void {
     this._backpressure = { ...this._backpressure, pressureLevel: 'critical' };
-    this.evidence['martial_law'] = { reason, timestamp: Date.now() };
+    Object.assign((this as any).evidence, { martial_law: { reason, timestamp: Date.now() } });
   }
 
   /**

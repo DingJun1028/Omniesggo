@@ -1,3 +1,4 @@
+ 
 /*
 * ==========================================
 */
@@ -35,7 +36,7 @@ export class OmniAgent implements IOmniAgent {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+  } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
   readonly hash: string = "";
   readonly salt?: string = undefined;
   readonly signature?: string = undefined;
@@ -165,7 +166,7 @@ export class OmniAgentGateway implements IOmniAgentGateway {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+  } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
   readonly hash: string = "<gateway-hash>";
   readonly salt?: string = undefined;
   readonly signature?: string = undefined;

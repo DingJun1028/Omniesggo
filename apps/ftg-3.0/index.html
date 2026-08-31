@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>墾趣旅遊 FTG 3.0 — 永續深度旅遊 · 與土地共好的旅行設計</title>
+  <meta name="description" content="墾趣旅遊 FTG 3.0：以農村生態、在地文化與 ESG 影響力為核心的深度旅遊品牌。雙向滋養，讓土地與旅客共好。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260817b" />
+</head>
+<body>
+  <!-- SCROLL PROGRESS -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- NAV -->
+  <nav class="nav" id="nav">
+    <div class="container">
+      <a class="brand" href="#top">
+        <img src="assets/logo.svg" alt="墾趣旅遊 FTG 3.0" class="brand-logo" width="148" height="44" />
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#story" data-zh="品牌" data-en="Story">品牌</a>
+        <a href="#services" data-zh="行程" data-en="Trips">行程</a>
+        <a href="#impact" data-zh="影響" data-en="Impact">影響</a>
+        <a href="#features" data-zh="永續" data-en="Pledge">永續</a>
+        <a href="#esg-impact" data-zh="ESG 足跡" data-en="ESG Trail">ESG 足跡</a>
+        <a href="#voices" data-zh="回響" data-en="Voices">回響</a>
+        <a href="#process" data-zh="預訂" data-en="Book">預訂</a>
+        <a href="#contact" data-zh="聯絡" data-en="Contact">聯絡</a>
+        <button class="lang-toggle lang-toggle-mobile" id="langToggleMobile" aria-label="切換語言">EN</button>
+      </div>
+      <div class="nav-actions">
+        <button class="lang-toggle" id="langToggle" aria-label="切換語言">EN</button>
+        <a class="btn btn-sm" href="#contact" data-zh="預約諮詢" data-en="Book a Call">預約諮詢</a>
+        <button class="hamburger" id="hamburger" aria-label="選單"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero" id="top">
+    <div class="hero-bg" style="background-image:url('assets/hero.jpg')"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="container">
+      <div class="hero-copy">
+        <span class="eyebrow">Keng-Chu Travel · FTG 3.0</span>
+        <h1 data-zh="深入土地，<br><span class='accent'>墾</span>一份永續的<span class='accent'>趣</span>。"
+            data-en="Travel deep.<br><span class='accent'>Cultivate</span> a sustainable joy.">深入土地，<br><span class="accent">墾</span>一份永續的<span class="accent">趣</span>。</h1>
+        <p data-zh="墾趣旅遊 3.0 把農村、生態與在地文化編織成深度旅程——不是走馬看花，而是與土地共呼吸的永續體驗，讓每一次出發都留下正向的痕跡。"
+           data-en="FTG 3.0 weaves rural life, ecology and local culture into deep journeys — not sightseeing, but sustainable experiences that breathe with the land.">墾趣旅遊 3.0 把農村、生態與在地文化編織成深度旅程——不是走馬看花，而是與土地共呼吸的永續體驗，讓每一次出發都留下正向的痕跡。</p>
+        <div class="hero-cta">
+          <a class="btn" href="#services" data-zh="探索行程" data-en="Explore Trips">探索行程</a>
+          <a class="btn-ghost" href="#impact" data-zh="我們的影響" data-en="Our Impact"><svg class="btn-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="1.2" fill="#fff"/></svg>我們的影響</a>
+        </div>
+        <div class="stats" id="stats">
+          <div class="stat"><div class="num" data-target="42">0</div><div class="lbl" data-zh="永續合作村落" data-en="Partner Villages">永續合作村落</div></div>
+          <div class="stat"><div class="num" data-target="180" data-suffix="+">0</div><div class="lbl" data-zh="在地體驗路線" data-en="Local Routes">在地體驗路線</div></div>
+          <div class="stat"><div class="num" data-target="96" data-suffix="%">0</div><div class="lbl" data-zh="旅客滿意回訪" data-en="Return Satisfaction">旅客滿意回訪</div></div>
+          <div class="stat"><div class="num" data-target="0">0</div><div class="lbl" data-zh="一次性塑料承諾" data-en="Single-Use Plastic">一次性塑料承諾</div></div>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="big">FTG</div>
+          <div class="sub">墾 · 趣 · 旅 · 遊</div>
+          <div class="hero-tags">
+            <span>🌾 農村共創</span><span>🍃 生態低痕</span><span>📚 文化沉浸</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- STORY -->
+  <section class="section" id="story">
+    <div class="container">
+      <span class="eyebrow">Our Story</span>
+      <h2 data-zh="從一片田地開始的旅行" data-en="A Journey That Begins With a Field">從一片田地開始的旅行</h2>
+      <p class="lead" data-zh="「墾」是翻土、是開創；「趣」是好奇、是歡喜。FTG 3.0 相信旅遊可以是雙向的滋養——旅客帶走回憶，土地留下永續，社區獲得尊嚴。"
+           data-en="'Keng' means to till; 'Chu' means joy. FTG 3.0 believes travel can be mutual nourishment — guests take memories, the land keeps sustainability, communities gain dignity.">「墾」是翻土、是開創；「趣」是好奇、是歡喜。FTG 3.0 相信旅遊可以是雙向的滋養——旅客帶走回憶，土地留下永續，社區獲得尊嚴。</p>
+      <div class="grid-3" style="margin-top:40px">
+        <div class="card card-img"><div class="card-pic" style="background-image:url('assets/market.jpg')"></div><div class="ico">🌾</div><h3 data-zh="農村共創" data-en="Rural Co-creation">農村共創</h3><p data-zh="與在地小農、手藝職人共設路線，讓旅費直接回流社區。" data-en="Co-design routes with local farmers and artisans; fees flow straight back to the community.">與在地小農、手藝職人共設路線，讓旅費直接回流社區。</p></div>
+        <div class="card card-img"><div class="card-pic" style="background-image:url('assets/eco.jpg')"></div><div class="ico">🍃</div><h3 data-zh="生態低痕" data-en="Low-Impact Eco">生態低痕</h3><p data-zh="小團制、在地食材、大眾運輸優先，把碳足跡降到最低。" data-en="Small groups, local food, public transit first — minimizing the carbon footprint.">小團制、在地食材、大眾運輸優先，把碳足跡降到最低。</p></div>
+        <div class="card card-img"><div class="card-pic" style="background-image:url('assets/craft.jpg')"></div><div class="ico">📚</div><h3 data-zh="文化沉浸" data-en="Cultural Immersion">文化沉浸</h3><p data-zh="不只是看，而是跟著耆老學一門手藝、聽一段地名的故事。" data-en="Not just seeing — learn a craft from elders, hear the story behind a place name.">不只是看，而是跟著耆老學一門手藝、聽一段地名的故事。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="section" id="services" style="background:var(--cream)">
+    <div class="container">
+      <span class="eyebrow">Experiences</span>
+      <h2 data-zh="三類深度行程" data-en="Three Kinds of Deep Trips">三類深度行程</h2>
+      <p class="lead" data-zh="無論想慢遊、想學習、想冒險，FTG 3.0 都有對應的永續路線。" data-en="Whether you want to slow down, learn, or adventure — FTG 3.0 has a sustainable route for you.">無論想慢遊、想學習、想冒險，FTG 3.0 都有對應的永續路線。</p>
+      <div class="grid-3">
+        <div class="card card-img"><div class="card-pic" style="background-image:url('assets/stay.jpg')"></div><div class="ico">🏡</div><h3 data-zh="慢旅宿行" data-en="Slow Stay">慢旅宿行</h3><p data-zh="入住百年三合院改造民宿，清晨採茶、黃昏煮飯，把日子過成詩。" data-en="Stay in a century-old remodeled homestead; pick tea at dawn, cook at dusk — live the days like poetry.">入住百年三合院改造民宿，清晨採茶、黃昏煮飯，把日子過成詩。</p></div>
+        <div class="card card-img"><div class="card-pic" style="background-image:url('assets/eco.jpg')"></div><div class="ico">🌿</div><h3 data-zh="生態向導" data-en="Eco Guide">生態向導</h3><p data-zh="跟着保育員巡溪、認識蕨類與蛙類，理解一座森林的呼吸。" data-en="Patrol streams with conservationists; learn ferns and frogs; feel how a forest breathes.">跟着保育員巡溪、認識蕨類與蛙類，理解一座森林的呼吸。</p></div>
+        <div class="card card-img"><div class="card-pic" style="background-image:url('assets/craft.jpg')"></div><div class="ico">🎨</div><h3 data-zh="手藝學徒" data-en="Craft Apprentice">手藝學徒</h3><p data-zh="竹編、藍染、醃漬——用雙手把地方記憶帶回家。" data-en="Bamboo weaving, indigo dyeing, pickling — carry local memory home with your own hands.">竹編、藍染、醃漬——用雙手把地方記憶帶回家。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT (NEW in 3.0) -->
+  <section class="section impact" id="impact">
+    <div class="container">
+      <span class="eyebrow">ESG Impact Dashboard</span>
+      <h2 data-zh="我們留下的正向痕跡" data-en="The Positive Trace We Leave">我們留下的正向痕跡</h2>
+      <p class="lead" data-zh="FTG 3.0 把影響力量化、公開、可驗證——每年發布旅程碳足跡與社區回饋報告（GRI 對齊）。" data-en="FTG 3.0 quantifies, publishes and verifies its impact — annual reports on carbon and community giveback (GRI-aligned).">FTG 3.0 把影響力量化、公開、可驗證——每年發布旅程碳足跡與社區回饋報告（GRI 對齊）。</p>
+      <div class="impact-grid">
+        <div class="impact-card"><div class="impact-num" data-target="1280" data-suffix=" t">0</div><div class="impact-lbl" data-zh="年度減碳量（CO₂e）" data-en="Annual CO₂e Reduced">年度減碳量（CO₂e）</div></div>
+        <div class="impact-card"><div class="impact-num" data-target="63" data-suffix="%">0</div><div class="impact-lbl" data-zh="在地採購佔比" data-en="Local Sourcing Share">在地採購佔比</div></div>
+        <div class="impact-card"><div class="impact-num" data-target="3200" data-suffix="+">0</div><div class="impact-lbl" data-zh="社區回饋人次" data-en="Community Beneficiaries">社區回饋人次</div></div>
+        <div class="impact-card"><div class="impact-num" data-target="100" data-suffix="%">0</div><div class="impact-lbl" data-zh="公平薪資承諾" data-en="Fair-Wage Commitment">公平薪資承諾</div></div>
+      </div>
+      <div class="impact-bars">
+        <div class="bar-row"><span data-zh="在地經濟回流" data-en="Local Economy Loop">在地經濟回流</span><div class="bar"><i style="--w:88%"></i></div></div>
+        <div class="bar-row"><span data-zh="零廢棄達成率" data-en="Zero-Waste Rate">零廢棄達成率</span><div class="bar"><i style="--w:94%"></i></div></div>
+        <div class="bar-row"><span data-zh="旅客滿意度" data-en="Guest Satisfaction">旅客滿意度</span><div class="bar"><i style="--w:96%"></i></div></div>
+        <div class="bar-row"><span data-zh="原生種復育覆蓋" data-en="Native Restoration">原生種復育覆蓋</span><div class="bar"><i style="--w:72%"></i></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES (sustainability) -->
+  <section class="section features" id="features">
+    <div class="container">
+      <span class="eyebrow">Sustainability Pledge</span>
+      <h2 data-zh="我們對土地的承諾" data-en="Our Pledge to the Land">我們對土地的承諾</h2>
+      <p class="lead" data-zh="FTG 3.0 把 ESG 原則寫進每一段旅程的設計裡，六項承諾公開可查。" data-en="FTG 3.0 writes ESG principles into every journey's design — six pledges, publicly verifiable.">FTG 3.0 把 ESG 原則寫進每一段旅程的設計裡，六項承諾公開可查。</p>
+      <div class="feat-grid">
+        <div class="feat"><h3>🌱 在地採購</h3><p data-zh="餐食與物料優先來自合作村落，縮短供應鏈、撐住小微經濟。" data-en="Food and materials优先 from partner villages — shorter supply chains, stronger micro-economy.">餐食與物料優先來自合作村落，縮短供應鏈、撐住小微經濟。</p></div>
+        <div class="feat"><h3>♻️ 零廢棄</h3><p data-zh="全程不主動提供一次性塑料，旅客自備杯袋可換限定徽章。" data-en="No single-use plastic by default; bring your own cup/bag for a limited badge.">全程不主動提供一次性塑料，旅客自備杯袋可換限定徽章。</p></div>
+        <div class="feat"><h3>🚍 低碳移動</h3><p data-zh="市區集合點接駁、偏好大眾運輸與共享車輛。" data-en="City meet-up shuttles; prefer public transit and shared vehicles.">市區集合點接駁、偏好大眾運輸與共享車輛。</p></div>
+        <div class="feat"><h3>🤝 公平回饋</h3><p data-zh="每筆行程提撥 3% 進入村落永續基金。" data-en="3% of every trip flows into the village sustainability fund.">每筆行程提撥 3% 進入村落永續基金。</p></div>
+        <div class="feat"><h3>📊 透明揭露</h3><p data-zh="年度發布旅程碳足跡與社區回饋報告（GRI 對齊）。" data-en="Annual carbon & community reports, GRI-aligned and open.">年度發布旅程碳足跡與社區回饋報告（GRI 對齊）。</p></div>
+        <div class="feat"><h3>🌳 復育參與</h3><p data-zh="旅客可認養一棵原生樹，三年後收到森林照片。" data-en="Guests can adopt a native tree and receive a forest photo in three years.">旅客可認養一棵原生樹，三年後收到森林照片。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VOICES (NEW in 3.0) -->
+  <section class="section voices" id="voices" style="background:var(--cream)">
+    <div class="container">
+      <span class="eyebrow">Traveler Voices</span>
+      <h2 data-zh="他們帶走的，不只是風景" data-en="What They Took Home">他們帶走的，不只是風景</h2>
+      <div class="voice-grid">
+        <blockquote class="voice"><p data-zh="「跟著阿嬤學藍染那天下午，我第一次覺得自己和一片土地有了牽絆。」" data-en='"The afternoon learning indigo dye from grandma — for the first time I felt tied to a place."'>「跟著阿嬤學藍染那天下午，我第一次覺得自己和一片土地有了牽絆。」</p><footer>— 小趣，台北</footer></blockquote>
+        <blockquote class="voice"><p data-zh="「企業 ESG 團隊行程結束後，同事們主動開始做零廢棄挑戰，這比任何簡報都管用。」" data-en='"After our corporate ESG trip, colleagues started a zero-waste challenge — more powerful than any deck."'>「企業 ESG 團隊行程結束後，同事們主動開始做零廢棄挑戰，這比任何簡報都管用。」</p><footer>— 林先生，某科技 ESG 組</footer></blockquote>
+        <blockquote class="voice"><p data-zh="「孩子認養的那棵樹，是我們家每年最期待的信。」" data-en='"The tree our child adopted is the letter our family awaits most each year."'>「孩子認養的那棵樹，是我們家每年最期待的信。」</p><footer>— 陳一家，高雄</footer></blockquote>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESG IMPACT NOTE (NEW) -->
+  <section class="section esg-impact" id="esg-impact" style="background:var(--ftg-cream);">
+    <div class="container">
+      <span class="eyebrow" data-zh="ESG Impact Note" data-en="ESG Impact Note">ESG Impact Note</span>
+      <h2 data-zh="永續足跡與社會價值" data-en="Sustainability Trail &amp; Social Value">永續足跡與社會價值</h2>
+      <p class="lead" data-zh="透過 30 人萬能蜂群的 5T 驗證，我們將 ESG 影響力量化為可驗證的足跡與可信賴的數據。" data-en="Through the 30-Bee Swarm's 5T verification, we quantify ESG impact into verifiable footprints and trustworthy metrics."></p>
+
+      <!-- ESG Impact Note Grid -->
+      <div class="esg-grid">
+        <!-- Employee Feedback -->
+        <div class="esg-card">
+          <img src="images/esg-impact-note/員工回饋與影像故事.png"
+               alt="員工回饋與影像故事 | Employee Feedback & Visual Stories"
+               loading="lazy">
+          <div class="esg-caption" data-zh="員工回饋 (96% 滿意度)" data-en="Employee Feedback (96% satisfaction)"></div>
+        </div>
+
+        <!-- Next Steps -->
+        <div class="esg-card">
+          <img src="images/esg-impact-note/後續改善與行動建議.png"
+               alt="後續改善與行動建議 | Next Steps & Improvement Recommendations"
+               loading="lazy">
+          <div class="esg-caption" data-zh="5 個行動項目 (P0-P2)" data-en="5 Action Items (P0-P2)"></div>
+        </div>
+
+        <!-- Activity Info -->
+        <div class="esg-card">
+          <img src="images/esg-impact-note/活動基本資訊與行程摘要.png"
+               alt="活動基本資訊與行程摘要 | Activity Information & Itinerary Summary"
+               loading="lazy">
+          <div class="esg-caption" data-zh="山林復育之旅 (12 人 | 150 棵樹苗)" data-en="Mountain Forest Restoration (12 people | 150 saplings)"></div>
+        </div>
+
+        <!-- Internal Reflection -->
+        <div class="esg-card">
+          <img src="images/esg-impact-note/地方及環境貢獻.png"
+               alt="內在反思：山林復育 | Internal Reflection: Forest Restoration"
+               loading="lazy">
+          <div class="esg-caption" data-zh="內在反思 (個人靜思)" data-en="Internal Reflection (Personal contemplation)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROCESS -->
+  <section class="section" id="process">
+    <div class="container">
+      <span class="eyebrow">How to Book</span>
+      <h2 data-zh="四步預訂旅程" data-en="Book in Four Steps">四步預訂旅程</h2>
+      <div class="steps">
+        <div class="step"><h3 data-zh="說出嚮往" data-en="Share Your Wish">說出嚮往</h3><p data-zh="填寫需求：人數、天數、想體驗的主題。" data-en="Tell us: group size, days, themes you want.">填寫需求：人數、天數、想體驗的主題。</p></div>
+        <div class="step"><h3 data-zh="客製路線" data-en="Custom Route">客製路線</h3><p data-zh="旅行設計師 48 小時內回傳專屬提案。" data-en="A travel designer returns a tailor-made proposal within 48h.">旅行設計師 48 小時內回傳專屬提案。</p></div>
+        <div class="step"><h3 data-zh="確認出發" data-en="Confirm & Go">確認出發</h3><p data-zh="線上簽約、永續須知確認，準備行囊。" data-en="Sign online, confirm sustainability notes, pack your bag.">線上簽約、永續須知確認，準備行囊。</p></div>
+        <div class="step"><h3 data-zh="共創回憶" data-en="Co-create Memories">共創回憶</h3><p data-zh="出發、體驗、回饋，旅程結束才是關係開始。" data-en="Depart, experience, give back — the end of the trip is where the bond begins.">出發、體驗、回饋，旅程結束才是關係開始。</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="section contact" id="contact">
+    <div class="container">
+      <span class="eyebrow">Get in Touch</span>
+      <h2 data-zh="預約你的永續旅程" data-en="Book Your Sustainable Journey">預約你的永續旅程</h2>
+      <div class="contact-grid">
+        <form onsubmit="return handleSubmit(event)">
+          <div class="field"><label data-zh="姓名 / 單位" data-en="Name / Org">姓名 / 單位</label><input required placeholder="如：林小趣 / 某企業ESG組" /></div>
+          <div class="field"><label>Email</label><input type="email" required placeholder="you@example.com" /></div>
+          <div class="field"><label data-zh="想體驗的主題" data-en="Theme You Want">想體驗的主題</label><textarea placeholder="例如：想帶團隊做一日藍染 + 慢食體驗"></textarea></div>
+          <button class="btn" type="submit" data-zh="送出諮詢" data-en="Send Inquiry">送出諮詢</button>
+          <p id="form-msg" style="margin-top:12px;color:var(--gold-soft);font-weight:600"></p>
+        </form>
+        <div class="info">
+          <p>📍 <span data-zh="總部：臺灣·花蓮（合作村落遍及東部與中南部的 42 個社區）" data-en="HQ: Hualien, Taiwan (42 partner communities across east & central-south Taiwan)">總部：臺灣·花蓮（合作村落遍及東部與中南部的 42 個社區）</span></p>
+          <p>✉️ hello@ftg-travel.example</p>
+          <p>☎️ +886-3-000-0000</p>
+          <p>🕘 <span data-zh="服務時間：週二至週日 09:00–18:00" data-en="Hours: Tue–Sun 09:00–18:00">服務時間：週二至週日 09:00–18:00</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div>© 2026 墾趣旅遊 FTG 3.0 · 永續深度旅遊設計</div>
+      <div>
+        <a href="#story">品牌</a> · <a href="#services">行程</a> · <a href="#impact">影響</a> · <a href="#features">永續</a> · <a href="#contact">聯絡</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

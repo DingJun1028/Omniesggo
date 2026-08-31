@@ -85,7 +85,9 @@ npx tsx test/smoke.ts  # 7 框架並行 + 5T 鑄造 → ALL_7_FRAMEWORKS_OK
   - 部署：`git clone https://github.com/Tencent/TencentDB-Agent-Memory.git && cd deploy/global-images && cp .env.example .env && ./start-all.sh`
   - 端點：core `:8420` / hub `:8125` / proxy `:8096`
   - 對齊 OA-Team 30 蜂群：每個 Agent 可經 `saveAsset`+`callTool` 實作 Agent Loadout (綁定不同記憶資產)
-  - 當前 VPS `:8420` 未部署 → `health()` 回 `down` (graceful 降級, 不阻斷其他框架)
+  - 當前 VPS `:8420` **已部署並運行** (Ollama 自託管, gemma4:e4b + nomic-embed-text)。`health()` → `ok`。
+  - 認證：Bearer `TDAI_GATEWAY_API_KEY` + 必帶 `x-tdai-service-id` header (預設 `oa-team-swarm`)；核心寫入/召回路由為 `POST /v3/conversation/add` + `/v3/conversation/search` (經實測驗證 L0 存可取)。
+  - 已知限制：`embeddingService:false` (core 啟動探測時序)，向量語意檢索弱，但 BM25/sqlite 檢索可用。
 - [ ] **Agent Reach**：使用者未提供文檔，`agentreach.ts` 為占位骨架（`health()` 回 `down`），待補協議細節後實作通道分發。
 - [ ] 各 adapter `dispatch` 目前為 scaffold（回傳標記字串），需注入真實 SDK 調用（@google/adk / genkit / Agent0 A2A / crewai-runtime / DeerFlow API / TencentDB gateway）。
 - [ ] 與 `omni-agent` 5T Gate 串接（將 `verify5T` 作為部署前閘門）。

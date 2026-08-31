@@ -1,8 +1,0 @@
-{
-  "compilerOptions": {
-    "allowJs": true,
-    "checkJs": false,
-    "skipLibCheck": true
-  },
-  "exclude": ["src/lib/prisma-omni.ts"]
-}

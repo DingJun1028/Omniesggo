@@ -64,16 +64,27 @@ export default function ESGReportsCenter() {
             mod-src-hub-0001 | UNIVERSE
           </p>
         </div>
-        <div className="flex gap-2 p-1.5 rounded-2xl liquid-glass-container">
+        <div
+          className="flex gap-2 p-1.5 rounded-2xl liquid-glass-container"
+          role="group"
+          aria-label="版面切換"
+        >
           {[
-            { id: 'grid', icon: <LayoutGrid /> },
-            { id: 'list', icon: <List /> },
-            { id: 'board', icon: <KanbanSquare /> },
+            { id: 'grid', icon: <LayoutGrid />, label: '網格檢視' },
+            { id: 'list', icon: <List />, label: '列表檢視' },
+            { id: 'board', icon: <KanbanSquare />, label: '看板檢視' },
           ].map((btn) => (
             <button
               key={btn.id}
               onClick={() => setLayout(btn.id as LayoutType)}
-              className={`p-2 rounded-xl transition-all ${layout === btn.id ? 'bg-cyan-500/30 text-cyan-300 shadow-neon-cyan' : 'text-gray-500 hover:text-gray-300'}`}
+              aria-label={btn.label}
+              title={btn.label}
+              aria-pressed={layout === btn.id}
+              className={`p-2 rounded-xl transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 ${
+                layout === btn.id
+                  ? 'bg-cyan-500/30 text-cyan-300 shadow-neon-cyan'
+                  : 'text-gray-500 hover:text-gray-300 hover:bg-white/5'
+              }`}
             >
               {btn.icon}
             </button>

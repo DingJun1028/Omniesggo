@@ -1,2 +1,0 @@
-﻿components/views/omni-src-view-fixed.tsx(1,1): error TS1490: File appears to be binary.
-components/views/omni-src-view-fixed.tsx(119,1): error TS1128: Declaration or statement expected.

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateV5Report, reportV5ToHtml, reportV5ToMarkdown } from '@/core/services/report-generator-v5';
-import { jsonError } from '@lib/api-utils';
+import { jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +39,6 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (error: unknown) {
-    return jsonError('INTERNAL_ERROR', error instanceof Error ? error.message : 'Server Error', 500);
+    return jsonErrorInternal(error, 'INTERNAL_ERROR', 500);
   }
 }

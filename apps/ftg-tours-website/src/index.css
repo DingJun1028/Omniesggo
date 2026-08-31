@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .section-label {
+    @apply inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wide uppercase;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-4xl lg:text-5xl font-bold leading-tight;
+  }
+
+  .section-subtitle {
+    @apply text-lg md:text-xl leading-relaxed;
+  }
+
+  .card-elevated {
+    @apply bg-white rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow border border-gray-100;
+  }
+}

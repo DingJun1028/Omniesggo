@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * Smart AI Router - 健康檢查與監控端點
  * 整合到 Next.js API Route 或 Express 中

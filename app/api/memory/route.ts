@@ -2,10 +2,35 @@
 // app/api/memory/route.ts
 // Both Next.js (internal) and Gateway (via HTTP) can use this
 
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import type { MemoryEntry, MemoryQuery } from '@esggo/shared';
 import { jsonResponse, jsonError } from '@lib/api-utils';
+import { verifyWebhookSignature } from '@lib/webhook-auth';
+
+/**
+ * 寫入/刪除守門：memory 為對內共享總線（Next.js 內部 + Gateway 經 HTTP 呼叫），
+ * GET 保留開放供內部讀取；POST/DELETE 需 MEMORY_API_KEY 或內部使用者上下文。
+ * 對齊倉庫令牌式慣例（omni/sync 的 GATEWAY_API_KEY、cron 的 CRON_SECRET）。
+ */
+function assertMemoryWriteAuth(req: NextRequest): NextResponse | null {
+  const secret = process.env.MEMORY_API_KEY;
+  const provided = req.headers.get('x-memory-key') || req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+  if (secret) {
+    if (!provided) {
+      return jsonError('UNAUTHORIZED', 'Invalid or missing memory key', 401);
+    }
+    const payload = `${req.method}:${req.url}`;
+    if (verifyWebhookSignature(payload, provided, secret) || provided === secret) {
+      return null;
+    }
+    return jsonError('UNAUTHORIZED', 'Invalid or missing memory key', 401);
+  }
+  if (!req.headers.get('x-user-id')) {
+    return jsonError('UNAUTHORIZED', 'Authentication required', 401);
+  }
+  return null;
+}
 
 // Redis client type definition
 interface RedisClient {
@@ -97,6 +122,8 @@ export async function GET(req: NextRequest) {
 
 // POST /api/memory — Create/Update entry
 export async function POST(req: NextRequest) {
+  const authErr = assertMemoryWriteAuth(req);
+  if (authErr) return authErr;
   const body = await req.json();
   if (!body.key || body.value === undefined) {
     return jsonError('INVALID_PARAMS', '缺少必要參數: key, value');
@@ -131,6 +158,8 @@ export async function POST(req: NextRequest) {
 
 // DELETE /api/memory?key=xxx
 export async function DELETE(req: NextRequest) {
+  const authErr = assertMemoryWriteAuth(req);
+  if (authErr) return authErr;
   const key = req.nextUrl.searchParams.get('key');
   if (!key) {
     return jsonError('INVALID_PARAMS', '缺少必要參數: key');

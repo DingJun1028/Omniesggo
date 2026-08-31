@@ -1,3 +1,5 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // ============================================================
 // 向量搜尋服務 - 整合 NCB + pgvector
 // ============================================================

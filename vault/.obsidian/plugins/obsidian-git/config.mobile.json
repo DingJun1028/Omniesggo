@@ -1,0 +1,17 @@
+{
+  "autoPullInterval": 60,
+  "autoPush": true,
+  "autoPull": true,
+  "bashPath": "",
+  "gitPush": true,
+  "useSymbolicLinks": false,
+  "autoPushInterval": 60,
+  "commitMessage": "mobile-sync: auto-commit by obsidian-git",
+  "authorName": "OA-Team 30 Mobile",
+  "authorEmail": "swarm@esggo.co",
+  "automatedCommit": true,
+  "startDifferCommit": true,
+  "ignoreSaveFailures": true,
+  "autoPullInterval": 60,
+  "pushOnCommit": true
+}

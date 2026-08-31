@@ -1,9 +1,0 @@
-{
-  "name": "@esggo/omni-one",
-  "version": "1.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "scripts": { "build": "tsc" },
-  "dependencies": { "@google/genai": "^0.1.1" },
-  "devDependencies": { "typescript": "^5.0.0" }
-}

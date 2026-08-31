@@ -8,20 +8,26 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "tsx test/smoke.ts"
+    "test": "tsx test/smoke.ts && node test/tencent-mem-shared-memory.mjs"
   },
   "peerDependencies": {
+    "@genkit-ai/google-genai": "*",
     "@google/adk": "*",
-    "genkit": "*",
-    "@genkit-ai/google-genai": "*"
+    "genkit": "*"
   },
   "dependencies": {
     "@everworker/oneringai": "^1.0.0"
   },
   "peerDependenciesMeta": {
-    "@google/adk": { "optional": true },
-    "genkit": { "optional": true },
-    "@genkit-ai/google-genai": { "optional": true }
+    "@google/adk": {
+      "optional": true
+    },
+    "genkit": {
+      "optional": true
+    },
+    "@genkit-ai/google-genai": {
+      "optional": true
+    }
   },
   "license": "MIT"
 }

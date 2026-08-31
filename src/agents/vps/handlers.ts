@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * ==========================================
  * ⚡ VPS 任務處理器 (Task Handlers)
@@ -92,7 +93,7 @@ function createResult(
   status: TaskResultBase["status"],
   logs: string[],
   durationMs: number,
-  evidence?: { originCause: string; processTrace: string[]; finalEffect: string; [key: string]: any }
+  evidence?: { originCause: string; processTrace: string[]; finalEffect: string; }
 ): TaskResultBase {
   const uuid = uuidv4();
   return {
@@ -105,7 +106,6 @@ function createResult(
       finalEffect: 'unknown',
       ...(evidence ?? {})
     },
-    hash: `0x${uuid.replace(/-/g, '').substring(0, 16)}`,
     status,
     logs,
     durationMs,
@@ -234,13 +234,10 @@ export async function handleDeploy(params: DeployParams = {}): Promise<DeployRes
     const duration = Date.now() - startTime;
     logs.push(`[Deploy] ✅ 部署完成 (耗時: ${duration}ms)`);
 
-    return createResult("success", logs, duration, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown',
-      action: "deploy",
-      target,
-      services: target === "all" ? ["esggo-core", "omniagent-gateway"] : [target],
-      dryRun,
-    }) as DeployResult;
+    return {
+      ...createResult("success", logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: "deploy", target, services: target === "all" ? ["esggo-core", "omniagent-gateway"] : [target], dryRun,
+    } as any as DeployResult;
 
   } catch (error) {
     const duration = Date.now() - startTime;
@@ -255,13 +252,10 @@ export async function handleDeploy(params: DeployParams = {}): Promise<DeployRes
       logs.push(`[Deploy] 回滾: ${rollbackResult.stdout.trim()}`);
     }
     
-    return createResult("failed", logs, duration, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown',
-      action: "deploy",
-      target,
-      error: String(error),
-      rolledBack: true,
-    }) as DeployResult;
+    return {
+      ...createResult("failed", logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: "deploy", target, error: String(error), rolledBack: true,
+    } as any as DeployResult;
   }
 }
 
@@ -415,26 +409,22 @@ export async function handleHealthCheck(): Promise<HealthCheckResult> {
     logs.push(`[HealthCheck] ✅ 健康檢查完成 (耗時: ${duration}ms)`);
     logs.push(`[HealthCheck] 📈 發現 ${issues.length} 個問題`);
 
-    return createResult(
-      issues.some(i => i.severity === "critical") ? "failed" : "success",
-      logs,
-      duration,
-      {
-        originCause: 'unknown', processTrace: [], finalEffect: 'unknown', action: "health_check",
-        system,
-        services,
-        issues,
-      }
-    ) as HealthCheckResult;
+    return {
+      ...createResult(
+        issues.some(i => i.severity === "critical") ? "failed" : "success",
+        logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }
+      ),
+      action: "health_check", system, services, issues
+    } as HealthCheckResult;
 
   } catch (error) {
     const duration = Date.now() - startTime;
     logs.push(`[HealthCheck] ❌ 健康檢查失敗: ${error}`);
     
-    return createResult("failed", logs, duration, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown', action: "health_check",
-      error: String(error),
-    }) as HealthCheckResult;
+    return {
+      ...createResult("failed", logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: "health_check", error: String(error)
+    } as any as HealthCheckResult;
   }
 }
 
@@ -518,21 +508,19 @@ export async function handleBackup(params: BackupParams = {}): Promise<BackupRes
     logs.push(`[Backup] ✅ 備份完成 (大小: ${(sizeBytes / 1024 / 1024).toFixed(2)} MB)`);
     logs.push(`[Backup] ⏱️ 耗時: ${duration}ms`);
 
-    return createResult("success", logs, duration, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown', action: "backup",
-      backupPath,
-      sizeBytes,
-      type,
-    }) as BackupResult;
+    return {
+      ...createResult("success", logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: "backup", backupPath, sizeBytes, type
+    } as any as BackupResult;
 
   } catch (error) {
     const duration = Date.now() - startTime;
     logs.push(`[Backup] ❌ 備份失敗: ${error}`);
     
-    return createResult("failed", logs, duration, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown', action: "backup",
-      error: String(error),
-    }) as BackupResult;
+    return {
+      ...createResult("failed", logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: "backup", error: String(error)
+    } as any as BackupResult;
   }
 }
 
@@ -607,21 +595,19 @@ export async function handleLogCleanup(params: LogCleanupParams = {}): Promise<L
     logs.push(`[LogCleanup] ✅ 清理完成`);
     logs.push(`[LogCleanup] 📊 當前日誌大小: ${(totalLogSize / 1024 / 1024).toFixed(2)} MB`);
 
-    return createResult("success", logs, duration, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown', action: "log_cleanup",
-      maxSizeMb,
-      retainDays,
-      currentLogSizeBytes: totalLogSize,
-    }) as LogCleanupResult;
+    return {
+      ...createResult("success", logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: "log_cleanup", maxSizeMb, retainDays, currentLogSizeBytes: totalLogSize
+    } as any as LogCleanupResult;
 
   } catch (error) {
     const duration = Date.now() - startTime;
     logs.push(`[LogCleanup] ❌ 清理失敗: ${error}`);
     
-    return createResult("failed", logs, duration, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown', action: "log_cleanup",
-      error: String(error),
-    }) as LogCleanupResult;
+    return {
+      ...createResult("failed", logs, duration, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: "log_cleanup", error: String(error)
+    } as any as LogCleanupResult;
   }
 }
 
@@ -650,10 +636,10 @@ export async function executeTask(
 ): Promise<TaskResultBase> {
   const handler = taskHandlers[type];
   if (!handler) {
-    return createResult("failed", [`Unknown task type: ${type}`], 0, {
-      originCause: 'unknown', processTrace: [], finalEffect: 'unknown', action: type,
-      error: `Unknown task type: ${type}`,
-    });
+    return {
+      ...createResult("failed", [`Unknown task type: ${type}`], 0, { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' }),
+      action: type, error: `Unknown task type: ${type}`
+    } as TaskResultBase;
   }
   
   // health_check doesn't accept params

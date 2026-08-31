@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { runGeminiWithWorkersAIFallback } from '@/lib/cloudflare';
+import { runGeminiWithWorkersAIFallback } from '@lib/cloudflare';
 
 /**
  * 安全柵欄：預設 FREE_TIER_ONLY 為 true

@@ -1,4 +1,4 @@
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 export async function GET() {
   try {
@@ -17,6 +17,6 @@ export async function GET() {
     return jsonResponse(fallbackMembers);
   } catch (error) {
     console.error('Village Members GET Error:', error);
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }

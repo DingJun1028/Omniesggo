@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     const reports = await service.listReports(limit, 'published');
     return jsonResponse({ success: true, reports, count: reports.length });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return jsonError('INTERNAL_ERROR', message, 500);
+    console.error('[api] INTERNAL_ERROR:', error);
+    return jsonError('INTERNAL_ERROR', undefined, 500);
   }
 }

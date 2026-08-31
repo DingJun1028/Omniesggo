@@ -4,6 +4,9 @@
   "buildCommand": "pnpm prisma generate && pnpm run build",
   "installCommand": "pnpm install --no-frozen-lockfile",
   "devCommand": "pnpm run dev",
+  "env": {
+    "NODE_OPTIONS": "--max-old-space-size=1536"
+  },
   "github": {
     "autoJobCancelation": true
   }
