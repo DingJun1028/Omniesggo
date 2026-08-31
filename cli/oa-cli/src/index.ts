@@ -124,6 +124,8 @@ program
       }
     } catch (e) {
       console.log('[BLOCKER] weekly-report 失敗:', (e as Error).message);
+    }
+    });
 
 // ── §20 OmniTag 契約閘：產物誕生即過閘（§5 喚醒命令體系入口）──
 program
