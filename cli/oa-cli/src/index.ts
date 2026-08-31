@@ -80,6 +80,51 @@ task
     }
   });
 
+
+// §23-24: Weekly swarm report (n8n cron bridge → KPI + 5T audit + entropy)
+program
+  .command('weekly-report')
+  .description('生成 OA-Team 週報 (KPI + 5T 稽核 + 熵減) — n8n cron 與手動皆可呼叫')
+  .option('--dry-run', '預演模式：僅輸出 markdown，不寄送')
+  .option('--channels <list>', '逗號分隔: telegram,slack,email')
+  .option('--pairing <pct>', '跨組配對率 (real measured)')
+  .option('--entropy <val>', '當前熵值')
+  .option('--security <n>', '安全事件數')
+  .option('--satisfaction <val>', '用戶滿意度 /5')
+  .action(async (opts) => {
+    if (opts.dryRun) {
+      console.log('[DRY-RUN] oa weekly-report → 將呼叫 aistation scripts/weekly_report.py --dry-run');
+      console.log('[5T:Traceable] source_origin=oa-cli weekly-report');
+      return;
+    }
+    try {
+      const { spawnSync } = await import('node:child_process');
+      const projectAistation = join(process.cwd(), 'aistation');
+      const { existsSync } = await import('node:fs');
+      if (!existsSync(join(projectAistation, 'src', 'kpi.py'))) {
+        console.log('[BLOCKER] aistation 目錄不存在 — 請確認 aistation 專案位於 esggo 根目錄下');
+        return;
+      }
+      const args = [join(projectAistation, 'scripts', 'weekly_report.py'), '--dry-run'];
+      if (opts.channels) args.push('--channels', opts.channels);
+      if (opts.pairing) args.push('--pairing', opts.pairing);
+      if (opts.entropy) args.push('--entropy', opts.entropy);
+      if (opts.security) args.push('--security', opts.security);
+      if (opts.satisfaction) args.push('--satisfaction', opts.satisfaction);
+      const result = spawnSync('python3', args, {
+        encoding: 'utf-8',
+        shell: process.platform === 'win32',
+        cwd: projectAistation,
+      });
+      if (result.error) {
+        console.log('[BLOCKER] python3 執行失敗:', result.error.message);
+      } else {
+        console.log(result.stdout);
+        if (result.stderr) console.error(result.stderr);
+      }
+    } catch (e) {
+      console.log('[BLOCKER] weekly-report 失敗:', (e as Error).message);
+
 // ── §20 OmniTag 契約閘：產物誕生即過閘（§5 喚醒命令體系入口）──
 program
   .command('tag')
@@ -203,6 +248,7 @@ program
       } else {
         console.log(`[OK] 全部帶標籤檔案通過 §20.5 契約，合約率 100%`);
       }
+
     }
   });
 

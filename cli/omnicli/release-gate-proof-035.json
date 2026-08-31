@@ -1,0 +1,17 @@
+{
+  "issue": 35,
+  "release_ready": true,
+  "omnicli_patch": "auth-route-fixed",
+  "build_pass": true,
+  "real_route": "/v2/conversation/query",
+  "service_id_header": true,
+  "entropy": 0.0,
+  "5t": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "timestamp": "2026-08-24"
+}

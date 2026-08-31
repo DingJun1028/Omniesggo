@@ -1,0 +1,22 @@
+{
+  "active_tasks": {},
+  "completed_tasks": {
+    "TASK-CCA36E1A": {
+      "description": "修復 Dependabot 高優先漏洞",
+      "steps": [
+        "分析告警",
+        "添加 override",
+        "更新 lockfile",
+        "驗證修復",
+        "建立 PR"
+      ],
+      "current_step": 4,
+      "status": "success",
+      "created_at": "2026-08-06T15:18:27.676400",
+      "updated_at": "2026-08-06T15:18:30.746392",
+      "completed_at": "2026-08-06T15:18:30.796397",
+      "final_output": ""
+    }
+  },
+  "failed_tasks": {}
+}
