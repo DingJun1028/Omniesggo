@@ -7,6 +7,7 @@ export function Layout({ children }) {
 
   const navItems = [
     { path: '/', label: '儀表板', icon: '📊' },
+    { path: '/philosophy', label: '六流哲學', icon: '🌊' },
   ];
 
   return (

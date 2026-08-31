@@ -7,6 +7,7 @@ import { LoginPage } from './pages/LoginPage';
 import { FamilyDayFeature as FamilyDay } from './features/FamilyDay';
 import { WellbeingFeature as Wellbeing } from './features/Wellbeing';
 import { ExecutiveTools as Executive } from './features/Executive';
+import { Philosophy } from './features/Philosophy';
 import { Layout } from './components/Layout';
 import { useParams } from 'react-router-dom';
 
@@ -55,6 +56,7 @@ function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+      <Route path="/philosophy" element={<ProtectedRoute><Layout><Philosophy /></Layout></ProtectedRoute>} />
       <Route path="/journey/:id" element={<ProtectedRoute><Layout><JourneyDetail /></Layout></ProtectedRoute>} />
       <Route path="/journey/:id/impact-note" element={<ProtectedRoute><Layout><ImpactNotePage /></Layout></ProtectedRoute>} />
       <Route path="/family-day" element={<ProtectedRoute><Layout><FamilyDay /></Layout></ProtectedRoute>} />
