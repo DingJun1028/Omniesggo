@@ -1,0 +1,14 @@
+[Unit]
+Description=Hermes Agent WebUI Serve (Hermex backend)
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+Environment=HERMES_HOME=/home/ubuntu/.hermes
+ExecStart=/opt/hermes-venv/bin/hermes serve --port 9119 --skip-build
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
