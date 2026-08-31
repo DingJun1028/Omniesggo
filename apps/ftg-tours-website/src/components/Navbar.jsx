@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 
 // 企業方案下拉選單
 const corporateItems = [
+  { path: '/streams', label: '六流體系', desc: '覺曉 / 凝聚 / 復元 / 共好 / 留念 / 基礎' },
   { path: '/corporate-travel', label: '企業員工旅遊', desc: '客製化員工旅遊，凝聚團隊與永續行動' },
   { path: '/family-day', label: '企業家庭日', desc: '親子共融的戶外健康家庭日活動' },
   { path: '/esg-team-day', label: 'ESG Outdoor Team Day', desc: '結合環境與社會共益的戶外團隊日' },
