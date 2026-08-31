@@ -350,6 +350,10 @@ watchdog_*.log
 # OmniFactory 本地設施配置 (含 Vault ID, 不進版本控制)
 apps/omni-factory/.obsidian-config.json
 
+# FTG Journey 執行期產物 (SQLite 資料庫 + 健康日誌，不進版本控制)
+apps/ftg-journey-server/*.db
+oa-team-crewai/swarm-health-*.log
+
 # 封存區 (archive-protocol: 不可入 git)
 /archive/
 apps/ftg-journey-web/cloudflare.ini
