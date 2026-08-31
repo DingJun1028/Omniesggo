@@ -51,10 +51,12 @@ overrides:
   "undici": ">=7.29.0 <8"
   "js-yaml": ">=5.0.0 <6"
   "hono": ">=4.0.0 <5"
-  # 排除 (AGENTS.md #7)：sharp <0.35.0 — next 為 devDep、專案 0 處用 next/image、next@16 只接受 ^0.34.5
-  #   chromadb (pip critical) — 僅出現在 .venv 虛擬環境，非提交之 requirements，不納入 pnpm 管線
+  # sharp 修補升級（原 AGENTS.md #7 排除，現 0.35.0 已修 CVE-2026-33327/33328/35590/35591）
+  "sharp": ">=0.35.0"
   # ── 2026-08-21 Dependabot 修補 (pnpm audit --prod 剩 1 high) ──
   "deepmerge-ts": ">=8.0.0 <9"
+  # 2026-08-31 安全修補：mariadb GHSA-cqhc-2h57-wpxf (MitM password leak)
+  "mariadb": ">=3.4.6"
 
 allowBuilds:
   '@firebase/util': false
