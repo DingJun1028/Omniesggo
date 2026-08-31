@@ -1,7 +1,8 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniCore v1.0 — 萬能中心核心類型定義
  *
- * 底層數據契約 IComponentCore<T>:
+ * 底層數據契約 IComponentCore:
  * 所有進入 OmniCore 的數據必須通過 5T 協議，轉化為「知識結晶」。
  *
  * 5T 協議維度：
@@ -46,7 +47,7 @@ export const FIVE_T_META: Record<FiveTDimension, { zh: string; en: string; symbo
 };
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 2: Core Component Contract (IComponentCore<T>)
+// SECTION 2: Core Component Contract (IComponentCore)
 // ═══════════════════════════════════════════════════════════════
 
 export type ExtractionMethod = 'OCR' | 'IoT' | 'Manual' | 'AI' | 'API';
@@ -66,21 +67,19 @@ export interface ComponentLifecycleEntry {
   readonly note?: string;
 }
 
-export interface IComponentCore<T = unknown> {
-  readonly uuid: string;             // 萬能永憶主體分發的唯一 ID
-  readonly version: string;          // 語義化版本 (semver)
-  readonly timestamp: number;        // 刻印時間戳
+export interface IComponentCore {
+  // 萬能永憶主體唯一識別碼 (Immutable)
+  readonly uuid: string;
+  // 語義化版本控制
+  readonly version: string;
+  // 刻印時間戳 (溯源起點)
+  readonly timestamp: number;
+  // 證據左證庫 (儲存觀因循果的執行軌跡)
   evidence: {
-    originCause: string;
-    processTrace: string[];
-    finalEffect: string;
-    [key: string]: any;
+    originCause: string;    // 因：原始觸發條件
+    processTrace: string[]; // 循：InfoOne 流轉路徑
+    finalEffect: string;    // 果：最終執行結果與狀態
   };
-  readonly lifecycle_events: ReadonlyArray<ComponentLifecycleEntry>;
-  readonly data: T;
-  readonly isFrozen: boolean;        // Object.freeze 狀態
-  readonly fiveT: FiveTScore;        // 5T 評分快照
-  readonly hash: string;             // SHA-256 整體指紋
 }
 
 /** 建立 IComponentCore 實例 */
@@ -89,7 +88,7 @@ export function createComponent<T>(
   evidence: ComponentEvidence,
   fiveT?: Partial<FiveTScore>,
   actor?: string,
-): IComponentCore<T> {
+): IComponentCore {
   const uuid = `OC-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
   const version = '1.0.0';
   const timestamp = Date.now();
@@ -113,7 +112,7 @@ export function createComponent<T>(
     .update(EntropyForge.purify(JSON.stringify({ uuid, version, timestamp, data: purifiedDataStr, evidence: purifiedEvidence })))
     .digest('hex');
 
-  const component: IComponentCore<T> = {
+  const component = {
     uuid,
     version,
     timestamp,
@@ -125,7 +124,7 @@ export function createComponent<T>(
     hash: bodyHash,
   };
 
-  return Object.freeze(component);
+  return Object.freeze(component) as unknown as IComponentCore;
 }
 
 // ═══════════════════════════════════════════════════════════════

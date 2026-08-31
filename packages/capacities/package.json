@@ -1,0 +1,16 @@
+{
+  "name": "@esggo/capacities",
+  "version": "0.1.0",
+  "description": "Capacities API client + OA-Team knowledge garden sync (Bearer / OAuth PKCE)",
+  "type": "module",
+  "main": "src/client.ts",
+  "types": "src/client.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "license": "MIT"
+}

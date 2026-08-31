@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * src/lib/five-t-protocol.ts — 5T 協議完整實作
  *
@@ -429,4 +430,188 @@ export function generateFiveTReport(score: FiveTScore): string {
   }
 
   return report;
+}
+
+// ── §20.5 OmniTag 契約閘（5T 驗算陣列 25-30 接線） ──────────
+// 零侵入掛接 src/lib/omnitag-contract.ts，產物誕生/變更即過契約閘。
+// 用相對 import 避免 @/ alias 在 core tsconfig 解析爭議（參見 universal-tag-service.ts 註解）。
+import {
+  verifyOmniTagContract,
+  routeOmniTag,
+  type OmniTagSet,
+  type ContractCheck,
+} from './omnitag-contract';
+
+export class OmniTagContractViolation extends Error {
+  constructor(public readonly check: ContractCheck) {
+    super(`§20.5 OmniTag 契約違規: ${check.violations.join('; ')}`);
+    this.name = 'OmniTagContractViolation';
+  }
+}
+
+// ── §20.6 契約持久化抽象層（對齊 oa-cli OmniTagRegistry 同構）──
+// src/lib 跨瀏覽器/Node 環境，禁止硬依賴 node:fs（會炸 Vite 建置）。
+// 定義 ArtifactStore 介面 + 預設 MemoryArtifactStore（零依賴）。
+// Node 環境可透過 FiveTOmniTagGate.setStore() 注入檔案版（見 omnitag-registry-file.ts）。
+
+export interface PersistedArtifact {
+  entityId: string;
+  tag: OmniTagSet;
+  content?: string;
+  hashLock: string;
+  sealedAt: number;
+  sourceOrigin: string;
+}
+
+export interface ArtifactStore {
+  write(record: PersistedArtifact): void;
+  read(entityId: string): PersistedArtifact | null;
+  list(): PersistedArtifact[];
+}
+
+/** 預設記憶體儲存：零依賴，供瀏覽器/測試使用。 */
+export class MemoryArtifactStore implements ArtifactStore {
+  private _map = new Map<string, PersistedArtifact>();
+
+  write(record: PersistedArtifact): void {
+    this._map.set(record.entityId, record);
+  }
+
+  read(entityId: string): PersistedArtifact | null {
+    return this._map.get(entityId) ?? null;
+  }
+
+  list(): PersistedArtifact[] {
+    return [...this._map.values()];
+  }
+}
+
+/**
+ * FiveTOmniTagGate — 產物誕生/變更時的自動契約閘。
+ * 對齊 §18 5T 驗證閘 + §20.5 五規則 + §20.4 自動路由，預設即合規（§6.2）。
+ */
+export class FiveTOmniTagGate {
+  private static _sealedArtifacts = new Set<string>();
+  private static _store: ArtifactStore = new MemoryArtifactStore();
+
+  /** 注入持久化後端（Node 環境用檔案版，瀏覽器用預設記憶體）。 */
+  static setStore(store: ArtifactStore): void {
+    this._store = store;
+  }
+
+  static getStore(): ArtifactStore {
+    return this._store;
+  }
+
+  /**
+   * 產物誕生：通過 5T 評分 + OmniTag 契約閘 + 自動路由後才放行。
+   * @throws OmniTagContractViolation 契約不合規時
+   */
+  static emitArtifact(params: {
+    entityId: string;
+    tag: OmniTagSet;
+    ctx?: Parameters<typeof verifyOmniTagContract>[1];
+  }): { entityId: string; contract: ContractCheck; route: ReturnType<typeof routeOmniTag> } {
+    const check = verifyOmniTagContract(params.tag, params.ctx);
+    if (!check.valid) {
+      throw new OmniTagContractViolation(check);
+    }
+    const route = routeOmniTag(params.tag);
+    FiveTTrackable.recordEvent(params.entityId, 'omnitag:sealed', {
+      tag: params.tag,
+      routeKey: route.target?.routeKey,
+      source_origin: `agent:${params.tag.agent ?? '??'}`,
+    });
+    if (!route.consistent) {
+      FiveTTrackable.recordEvent(params.entityId, 'omnitag:route-warn', {
+        agent: params.tag.agent,
+        squad: params.tag.squad,
+      });
+    }
+    return { entityId: params.entityId, contract: check, route };
+  }
+
+  /**
+   * §20.6 寫入即凍結：過閘後將產物持久化到 store。
+   * 對齊 oa-cli OmniTagRegistry.persistArtifact 語意。
+   * @throws OmniTagContractViolation 契約不合規
+   * @throws Error frozen+restricted 實體已存在（H4 不可改）
+   */
+  static persistArtifact(params: {
+    entityId: string;
+    tag: OmniTagSet;
+    content?: string;
+    ctx?: Parameters<typeof verifyOmniTagContract>[1];
+  }): PersistedArtifact {
+    // 1. 過閘
+    this.emitArtifact(params);
+
+    // 2. 凍結不可改：若已存在 frozen+restricted 實體，拒絕
+    const existing = this._store.read(params.entityId);
+    if (existing) {
+      const isSealed =
+        existing.tag.lifecycle === 'frozen' && existing.tag.security === 'restricted';
+      if (isSealed) {
+        throw new Error(
+          `H4 frozen: entity ${params.entityId} is sealed (frozen+restricted) — immutable`,
+        );
+      }
+    }
+
+    // 3. 寫入即凍結（含 Hash Lock，對齊 §18 FiveTHashLock 同構）
+    const sealedAt = Date.now();
+    const hashLock = FiveTHashLock.generate(
+      params.tag.agent ?? 'unknown',
+      params.content ?? JSON.stringify(params.tag),
+      sealedAt,
+    );
+    const record: PersistedArtifact = {
+      entityId: params.entityId,
+      tag: params.tag,
+      content: params.content,
+      hashLock,
+      sealedAt,
+      sourceOrigin: `agent:${params.tag.agent ?? 'unknown'}`,
+    };
+    this._store.write(record);
+    return record;
+  }
+
+  /** 讀取持久化實體 */
+  static getPersisted(entityId: string): PersistedArtifact | null {
+    return this._store.read(entityId);
+  }
+
+  /**
+   * §5 Trustworthy 篡改驗證：重算 hashLock 比對寫入後是否未被改動。
+   */
+  static verifyPersisted(entityId: string): {
+    exists: boolean;
+    tampered: boolean;
+    record?: PersistedArtifact;
+  } {
+    const rec = this._store.read(entityId);
+    if (!rec) return { exists: false, tampered: false };
+    const expected = FiveTHashLock.generate(
+      rec.tag.agent ?? 'unknown',
+      rec.content ?? JSON.stringify(rec.tag),
+      rec.sealedAt,
+    );
+    return { exists: true, tampered: expected !== rec.hashLock, record: rec };
+  }
+
+  /**
+   * 凍結不可改（規則 2 / H4）：試圖變更 lifecycle:frozen+restricted 時拒絕。
+   */
+  static mutateArtifact(entityId: string, tag: OmniTagSet): void {
+    const check = verifyOmniTagContract(tag, { attemptedMutation: true });
+    if (!check.valid) {
+      throw new OmniTagContractViolation(check);
+    }
+    this._sealedArtifacts.delete(entityId);
+  }
+
+  static isSealed(entityId: string): boolean {
+    return this._sealedArtifacts.has(entityId);
+  }
 }

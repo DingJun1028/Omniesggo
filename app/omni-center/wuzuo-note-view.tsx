@@ -9,7 +9,7 @@ import {
   updateDoc,
   addDoc,
   query,
-} from "firebase/firestore";
+} from "@lib/firebase";
 import { omniOne } from "../../sdks/omni-one/src";
 
 // ==========================================

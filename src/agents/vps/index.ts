@@ -143,7 +143,6 @@ export class VPSAgent {
         host: config.host,
         quantum: true, // 標記為量子糾纏代理
        },
-      hash: `0x${uuid.replace(/-/g, '').substring(0, 16)}`,
     });
 
     // 2. 初始化量子態（初始為疊加態）
@@ -255,7 +254,6 @@ export class VPSAgent {
           version: "1.0.0",
           timestamp: Date.now(),
           evidence: { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' },
-          hash: `0x${uuidv4().replace(/-/g, '').substring(0, 16)}`,
           eventName: "vps.result",
           source_origin: `vps-agent:${this._globalState.vpsId}`,
           topic: "vps.result",
@@ -294,7 +292,6 @@ export class VPSAgent {
         version: "1.0.0",
         timestamp: Date.now(),
         evidence: { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' },
-        hash: `0x${uuidv4().replace(/-/g, '').substring(0, 16)}`,
         eventName: "vps.state",
         source_origin: `vps-agent:${this._globalState.vpsId}`,
         topic: "vps.state",
@@ -494,7 +491,6 @@ export class VPSAgent {
         version: "1.0.0",
         timestamp: Date.now(),
         evidence: { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' },
-        hash: `0x${uuidv4().replace(/-/g, '').substring(0, 16)}`,
         eventName: "vps.decohere",
         source_origin: `vps-agent:${this._globalState.vpsId}`,
         topic: "vps.decohere",

@@ -1,3 +1,5 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // ============================================================
 // ESG 商情偵測系統 — 七大模組核心引擎
 // M2: Entity Watchlist 實體監測清單

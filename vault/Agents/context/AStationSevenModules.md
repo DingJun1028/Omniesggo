@@ -6,6 +6,7 @@ modified: 2026-08-13
 sync: mirror
 lifecycle: active
 tags: [ai-station, seven-modules, sushi-doctor]
+access: public-research
 ---
 
 # AI Station 七模組生產線（AStation Seven Modules）

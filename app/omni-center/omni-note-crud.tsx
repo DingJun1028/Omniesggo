@@ -24,18 +24,21 @@ function loadNotes(): Promise<NoteData[]> {
   }).then((data) => {
     const notes = Array.isArray(data?.notes) ? data.notes : [];
     return notes
-      .map((n: any) => ({
-        id: String(n.id ?? n._id ?? ""),
-        title: String(n.title ?? ""),
-        content: String(n.content ?? ""),
-        tags: Array.isArray(n.tags) ? n.tags : [],
-        fiveTGate: n.fiveTGate ?? n.five_t_gate ?? undefined,
-        createdAt: typeof n.createdAt === "number"
-          ? n.createdAt
-          : n.created_at
-            ? new Date(n.created_at).getTime()
+      .map((n: unknown) => {
+        const raw = n as Record<string, unknown>;
+        return {
+        id: String(raw.id ?? raw._id ?? ""),
+        title: String(raw.title ?? ""),
+        content: String(raw.content ?? ""),
+        tags: Array.isArray(raw.tags) ? raw.tags : [],
+        fiveTGate: raw.fiveTGate ?? raw.five_t_gate ?? undefined,
+        createdAt: typeof raw.createdAt === "number"
+          ? raw.createdAt
+          : typeof raw.created_at === "string" || typeof raw.created_at === "number"
+            ? new Date(raw.created_at).getTime()
             : Date.now(),
-      }))
+        };
+      })
       .filter((n: NoteData) => n.id);
   });
 }

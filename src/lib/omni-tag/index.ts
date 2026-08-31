@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniTag v2.0 - Zero-Knowledge Proof, Quantum Entanglement and 5T Gate Factory
  *

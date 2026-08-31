@@ -62,8 +62,17 @@ async def transcribe(req: Request, lang: str = ""):
     audio = await req.body()
     if not audio:
         raise HTTPException(status_code=400, detail="empty audio")
-    # whisper 需要檔案; 寫入臨時 wav/ogg 讓 faster-whisper 讀
-    suffix = ".webm"
+    # whisper 依副檔名選容器解析器; 依 body 魔數判斷真實格式, 避免「前端送 WAV 卻存成 .webm」導致 whisper 讀不到音
+    if audio[:4] == b"RIFF" and audio[8:12] == b"WAVE":
+        suffix = ".wav"
+    elif audio[:4] == b"\x1a\x45\xdf\xa3":
+        suffix = ".webm"
+    elif audio[:3] == b"ID3" or audio[:2] == b"\xff\xfb" or audio[:2] == b"\xff\xf3" or audio[:2] == b"\xff\xf2":
+        suffix = ".mp3"
+    elif audio[:4] == b"OggS":
+        suffix = ".ogg"
+    else:
+        suffix = ".webm"  # 未知: 退回 webm 探測
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as f:
         f.write(audio)
         tmp = f.name
@@ -79,7 +88,13 @@ async def transcribe(req: Request, lang: str = ""):
             language=lang_hint,
             task="transcribe",
             beam_size=5,
-            vad_filter=False,
+            temperature=[0.0, 0.2, 0.4],
+            condition_on_previous_text=False,
+            vad_filter=True,
+            vad_parameters=dict(min_silence_duration_ms=500, speech_pad_ms=200, threshold=0.35),
+            no_speech_threshold=0.8,
+            compression_ratio_threshold=2.2,
+            log_prob_threshold=-0.8,
         )
         text = "".join(s.text for s in segments)
         detected = info.language or (lang_hint or "en")

@@ -1,3 +1,4 @@
+ 
 /**
  * ==========================================
  * 🌌 OmniMemory — 萬能永憶實現
@@ -25,7 +26,7 @@ export class OmniMemory implements IOmniMemory {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+    } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
 
   /** 記憶體存儲 (mutable, renamed to avoid conflict with store() method) */
   private _entries: Map<MemoryId, MemoryEntry> = new Map();

@@ -85,5 +85,17 @@ createOAFrame(config).run(task)
   對齊 soul.md §30 Souls Matrix.
 - **驗證**: `test/deep-connect.smoke.ts` — DEEP_CONNECT_OK 確認 chain + 廣通 + 30 蜂群映射全綠.
 
+## 九、Oracle Always Free 額度變動與 OA_VPS 映射 (用戶 2026-08-15 提供報告)
+
+- **2026-06 砍額**: Arm Ampere A1 從 4 OCPU/24GB → **2 OCPU/12GB** (官方文件已改, 控制台可能仍顯舊值)
+- **Autonomous AI DB**: **2 個實例** (非單一 DW), 各 1 OCPU/20GB/20 session
+- **OA_VPS 現狀**: aarch64 Ubuntu 24.04, **1 OCPU A1** → 吃 2OCPU 池的一半; 剩餘 1 OCPU 可再開一台
+  (上次救援機險些觸頂 2OCPU 上限, 已刪除釋放)
+- **收割風險**: A1 若 7天 CPU<20% & 網路<20% & 記憶體<20% → Oracle 回收
+  → 建 `oa-vps-keepalive` cronjob (每 5m) 探活+CPU 負載防護
+- **OmniDB 三 Schema**: OMNI_PROFILE_VECTOR / OMNI_TRUST_LEDGER / OMNI_LIFECYCLE_LOG
+  → 對應 Autonomous AI DB ×2 實例 (部署腳本: esggo-learning-center/ommidb-deploy.sh, 需 OCI 憑證執行)
+- **對齊 5T**: OMNI_TRUST_LEDGER.hash_lock = SHA-256 (對齊 OA 框架 HashLock 哲學)
+
 ---
-*本附錄由 Hermes Agent (OA-TWINS) 於 2026-08-11 依實測產出，非重寫 soul.md 本體。*
+*本附錄由 Hermes Agent (OA-TWINS) 於 2026-08-15 依用戶提供之 Oracle 報告 + 實測產出。*

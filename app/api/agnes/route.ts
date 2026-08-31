@@ -1,5 +1,5 @@
-import { agnesApi } from '@/lib/agnes-api';
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { agnesApi } from '@lib/agnes-api';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     return jsonResponse(result);
   } catch (error) {
     console.error('[AGNES_API] Error processing request:', error);
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }
 
@@ -24,6 +24,6 @@ export async function GET() {
     const metrics = await agnesApi.getMetrics();
     return jsonResponse(metrics);
   } catch (error) {
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }

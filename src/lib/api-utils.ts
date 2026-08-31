@@ -1,3 +1,5 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/* eslint-disable @typescript-eslint/no-require-imports */
 // ═══════════════════════════════════════════════════════════════
 // src/lib/api-utils.ts — Next.js API Route 通用工具函式
 // 單一事實來源使用 @esggo/errors 錯誤代碼
@@ -31,6 +33,20 @@ export function jsonError(
     },
     { status: status || error.httpStatus }
   );
+}
+
+/**
+ * 5T Transparent — 內部錯誤統一截斷。
+ * 不在回應中洩漏原始 error.message（避免資訊洩漏），僅於伺服器端 console.error 留存供排查。
+ * catch 區應改用此函式取代 jsonError('INTERNAL_ERROR', error.message)。
+ */
+export function jsonErrorInternal(
+  error: unknown,
+  errorKey: ErrorCodeKey = 'INTERNAL_ERROR',
+  status?: number
+): NextResponse {
+  console.error(`[api] ${errorKey}:`, error);
+  return jsonError(errorKey, undefined, status);
 }
 
 /**

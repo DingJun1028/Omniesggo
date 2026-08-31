@@ -307,12 +307,16 @@ export interface ISpeechToSubtitleResult {
   text: string;
   /** STT 偵測語 (鎖定雙向) */
   detected: 'zh-TW' | 'en';
-  /** 即時翻譯對向: zh-TW→en 或 en→zh-TW */
+  /** 即時翻譯對向 (單語場景): zh-TW→en 或 en→zh-TW */
   translation: string;
   /** 翻譯目標語 */
   target: 'zh-TW' | 'en';
+  /** 平行翻譯多語場景: 語碼 → 譯文 (translateToMany 輸出) */
+  translations?: Partial<Record<LanguageCode, string>>;
   /** 引擎識別字串 (5T 溯源: stt:whisper + ollama:<model>) */
   engine: string;
+  /** 平行翻譯多語場景: 語碼 → 引擎 (translateToMany 輸出) */
+  engines?: Partial<Record<LanguageCode, string>>;
   /** 是否命中快取 */
   cached: boolean;
   /** 溯源追蹤碼 */
@@ -361,4 +365,172 @@ export interface ISecondBrainNote {
   tags: string[];
   source_origin: string;
   sync: 'mirror' | 'up';
+}
+
+// ===== OA-Team 雙蜂戰隊 60 領域契約 (蜂群 / 5T 驗算 / 靈魂產物) =====
+// 終始矩陣: OA 核心契約集中定義於此 (終), 各 consumer (oa-swarm / dashboard) 消費生成檔 (始)
+// 任一端需求變更 → 回饋此處 → 重跑 scripts/export-shared-types.js → 全端同步
+
+/** 雙蜂側: 蜂王 OA-LOCAL (本機) / 蜂后 OA-VPS (雲端) */
+export type HiveSide = 'local' | 'vps';
+
+/** 五陣列 MECE 鍵 */
+export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
+
+/** 單一蜂代理 (雙蜂戰隊 60 員矩陣成員) */
+export interface ISoulAgent {
+  id: number;
+  title: string;
+  tags: string[];
+  array: ArrayKey;
+  side: HiveSide;
+  task: string;
+}
+
+/** 靈魂核心契約: 5T 強制層產物 (Traceable/Trackable/Tangible/Transparent/Trustworthy) */
+export interface IComponentCore {
+  // 萬能永憶主體唯一識別碼 (Immutable)
+  readonly uuid: string;
+  // 語義化版本控制
+  readonly version: string;
+  // 刻印時間戳 (溯源起點)
+  readonly timestamp: number;
+  // 證據左證庫 (儲存觀因循果的執行軌跡)
+  evidence: {
+    originCause: string;    // 因：原始觸發條件
+    processTrace: string[]; // 循：InfoOne 流轉路徑
+    finalEffect: string;    // 果：最終執行結果與狀態
+  };
+}
+
+/** 5T 凍結靈魂產物 (purify 產出, Object.freeze 後不可篡改) */
+export interface ISoulArtifact extends IComponentCore {
+  source_origin: string; // Traceable: 產物來源標註
+  lifecycle: string[];   // Trackable: 狀態流轉記錄
+  hash_lock: string;     // Trustworthy: 雜湊鎖定
+  author: string;        // Trustworthy: 不可篡改署名
+}
+
+/** 蜂群任務契約 (executeSwarmTask 輸入) */
+export interface ISwarmTask {
+  task: string;
+  source_origin: string; // Traceable
+  array?: ArrayKey;      // 指定陣列 (選填)
+  side?: HiveSide;       // 指定蜂側 (選填)
+}
+
+/** 蜂群任務結果 (5T 驗算後凍結) */
+export type SwarmTaskResult = Readonly<ISoulArtifact>;
+
+/** OAB (OmniAgentBus) 訊息契約 — 跨蜂群 / 跨服務總線 */
+export interface IOABMessage {
+  serviceId: string;
+  topic: string;
+  payload: unknown;
+  trace?: string;       // 5T 溯源碼
+  ts: number;
+}
+
+/** 5T 驗算結果 (零幻覺驗算守門) */
+export interface I5TVerification {
+  traceable: boolean;
+  trackable: boolean;
+  tangible: boolean;
+  transparent: boolean;
+  trustworthy: boolean;
+  passed: boolean;
+}
+
+// ===== 萬能自動影音 OmniAutoVideo (MPT 影音生產線) 契約 =====
+// 終始矩陣: oa-swarm 編排影片生成任務的型別契約, 對齊 MPT API (video_subject/script/source/voice)
+// 任一端需求 → 回饋此處 → 重跑 scripts/export-shared-types.js → 全端同步
+
+/** 影片生成任務契約 (對齊 MPT /api/v1/videos) */
+export interface IVideoGenerationTask {
+  /** 影片主題 (AI 生成腳本依據) */
+  video_subject: string;
+  /** 自訂腳本 (選填, 優先於主題生成) */
+  video_script?: string;
+  /** 素材源: pixabay (有效 key) / pexels / local (MPT 預設修正為 pixabay) */
+  video_source?: 'pixabay' | 'pexels' | 'local';
+  /** 語言: zh-TW / zh-CN / en (MPT 預設 zh-TW) */
+  video_language?: string;
+  /** 語音: Edge TTS 繁中語音 (如 zh-TW-YunJheNeural) */
+  voice_name?: string;
+  /** 5T 溯源: 任務來源 (如 filedrop / webui / oa-swarm) */
+  source_origin: string;
+}
+
+/** 影片生成結果契約 (對齊 MPT 任務狀態) */
+export interface IVideoGenerationResult {
+  task_id: string;
+  /** 狀態: 1=完成, -1=失敗, 4=處理中 */
+  state: 1 | -1 | 4;
+  /** 生成影片路徑 (state=1 時) */
+  combined?: string[];
+  /** 5T 凍結產物 (關聯 ISoulArtifact) */
+  artifact?: ISoulArtifact;
+}
+
+// ===== OA-Team 缺口補齊 · 終始矩陣契約 (Gap Remediation Terminal-Origin Matrix) =====
+// 雙語 (繁中 + English) | 全域全端全量全面 | 單一真相源 shared/gap-matrix.ts 程式化派生 72 配對
+// 終 (canonical): 本節型別在此一次性定義 → 重跑 scripts/export-shared-types.js → 全端 consumer 雙向同步 (始)
+// 5T: 每一配對皆標 source_origin (Traceable) / 可追蹤 (Trackable) / 體感回饋 (Tangible) /
+//     / 公開推導 (Transparent) / 凍結不可篡改 (Trustworthy)
+
+/** 五大陣列 MECE 鍵 (Five Arrays, MECE) */
+export type GapUnitKey = 'strategy' | 'technology' | 'creative' | 'marketing' | 'guard';
+
+/** 配對角色: 基礎 MECE 1:1 / 樞紐疊加 (base / hub) */
+export type GapRole = 'base' | 'hub';
+
+/** 樞紐種類: 守衛防護 / 蜂后總控 (guard-defense / queen-command) */
+export type GapHubKind = 'guard-defense' | 'queen-command';
+
+/** 單一蜂代理名冊 (30 員, 雙語) — 與 §二 30 矩陣編號歸屬嚴格對齊 */
+export interface IGapAgent {
+  /** 編號 01-30 */
+  id: number;
+  /** 稱號 (繁中) */
+  title: string;
+  /** Title (English) */
+  titleEn: string;
+  /** 所屬陣列 */
+  unit: GapUnitKey;
+}
+
+/** 跨組配對 (成員級) — 基礎或樞紐 */
+export interface IGapPairing {
+  /** 左側代理編號 */
+  a: number;
+  /** 右側代理編號 */
+  b: number;
+  /** 左側陣列 */
+  aUnit: GapUnitKey;
+  /** 右側陣列 */
+  bUnit: GapUnitKey;
+  /** 角色 */
+  role: GapRole;
+  /** 樞紐種類 (role=hub 時) */
+  hubKind?: GapHubKind;
+  /** 樞紐覆蓋陣列 (role=hub 時, 如 '全陣列'→ 五陣列皆列) */
+  coverage?: GapUnitKey[];
+  /** 5T 溯源標籤 (Traceable) */
+  source_origin: 'gap-matrix-canon';
+}
+
+/** 缺口補齊覆蓋率證明 (Coverage Proof) — 深貫廣通無礙圓通 */
+export interface IGapMatrixCoverage {
+  /** 成員總數 */
+  totalAgents: 30;
+  /** 基礎配對數 (C(5,2)×6) */
+  totalBase: 60;
+  /** 樞紐配對數 (守衛防護 6 + 蜂后總控 6) */
+  totalHub: 12;
+  /** 配對總數 (60+12) */
+  totalPairings: 72;
+  /** 陣列對覆蓋 (C(5,2)) */
+  arrayPairs: 10;
+  /** 成員跨組觸達 */
+  reach: '30/30';
 }

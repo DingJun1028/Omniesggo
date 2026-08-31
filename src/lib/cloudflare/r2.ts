@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * Cloudflare R2 — S3 相容物件儲存適配器（零依賴，自簽 SigV4）
  * ---------------------------------------------------------------------------

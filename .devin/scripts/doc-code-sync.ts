@@ -234,7 +234,7 @@ class DocCodeSync {
   }
 
   public generateJSDoc(file: string): string {
-    """自動生成 JSDoc 註解"""
+    // 自動生成 JSDoc 註解
     const filePath = path.resolve(file);
     const content = fs.readFileSync(filePath, 'utf-8');
     
@@ -360,7 +360,7 @@ class DocCodeSync {
   }
 
   public generateTypeDocTypes(): void {
-    """生成 TypeScript 類型定義文檔"""
+    // 生成 TypeScript 類型定義文檔
     console.log('🔧 生成 TypeScript 類型定義文檔...');
     
     try {

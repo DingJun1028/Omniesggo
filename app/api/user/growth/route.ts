@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
 
     return jsonResponse({ success: true, profile });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return jsonError('INTERNAL_ERROR', message);
+    console.error('[api] INTERNAL_ERROR:', error);
+    return jsonError('INTERNAL_ERROR');
   }
 }

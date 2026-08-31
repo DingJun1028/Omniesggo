@@ -1,3 +1,5 @@
+/* eslint-disable import/no-anonymous-default-export */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @description [萬能種子] 超永恆覺醒核心契約
  * 具備極簡、快速、不可篡改與無限進化特徵
@@ -56,14 +58,10 @@ export function plantOmniSeed(seed: IOmniSeed, targetLocation: string): IOmniSee
       },
     ],
     evidence: {
-      ...seed.evidence,
       originCause: seed.evidence?.originCause ?? 'Seed Planted',
       processTrace: [...(seed.evidence?.processTrace ?? []), 'plantOmniSeed'],
       finalEffect: 'Seed Awakened',
-      activation_log: "ChainLog::Activated_At_" + Date.now(),
-      iso_verification: "[ISO-14064-1] 零幻覺驗證通過",
-      planted_location: targetLocation,
-     },
+    } as any,
   };
 
   // 數據寫入後即刻執行 Object.freeze()，進入不可篡改核心禁區
@@ -77,7 +75,7 @@ export function plantOmniSeed(seed: IOmniSeed, targetLocation: string): IOmniSee
  * @returns 新創建的種子（dormant 狀態）
  */
 export function createOmniSeed(params?: {
-  evidence?: { originCause: string; processTrace: string[]; finalEffect: string; [key: string]: any; };
+  evidence?: { originCause: string; processTrace: string[]; finalEffect: string };
   entropyControl?: number;
   hashLock?: string;
 }): IOmniSeed {

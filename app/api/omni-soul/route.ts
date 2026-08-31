@@ -2,7 +2,7 @@
 // POST /api/omni-soul — OmniSoul 系統端點
 // ═══════════════════════════════════════════════════════════════
 
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 import { createOmniSoul, getOmniSoul } from '@/agents/omni-soul';
 import type { SoulAwakeningState } from '@/types/omni-soul';
 import { initSoul } from '@/agents/omni-soul-auto-seed';
@@ -62,7 +62,7 @@ export async function GET() {
 
     return jsonResponse(state);
   } catch (error) {
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }
 
@@ -119,6 +119,6 @@ export async function POST(request: Request) {
         return jsonError('INVALID_PARAMS', `Unknown action: ${(body as { action: string }).action}`, 400);
     }
   } catch (error) {
-    return jsonError('INTERNAL_ERROR', (error as Error).message);
+    return jsonErrorInternal(error);
   }
 }

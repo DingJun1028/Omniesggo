@@ -32,4 +32,5 @@ export interface TeamMemoryConfig {
   hubUrl: string;  // Memory Hub panel — 資產管理/團隊/Loadout 預設 :8125
   proxyUrl?: string; // Proxy 預設 :8096
   apiKey?: string;   // Bearer auth (server.apiKey / TDAI_GATEWAY_API_KEY)
+  serviceId?: string; // x-tdai-service-id header (區分蜂群/服務來源)
 }

@@ -1,5 +1,12 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/impl/**/*.ts", "src/lib/omni-core/**/*.ts", "src/lib/cloudflare/**/*.ts"],
-  "exclude": []
+  "include": [
+    "src/impl/**/*.ts",
+    "src/lib/omni-core/**/*.ts",
+    "src/lib/cloudflare/**/*.ts"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "strict": true
+  }
 }

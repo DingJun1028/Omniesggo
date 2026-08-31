@@ -1,7 +1,0 @@
-[Unit]
-Description=OA-VPS Keepalive Probe (anti-idle-reclaim)
-After=network.target
-
-[Service]
-Type=oneshot
-ExecStart=/opt/keepalive/keepalive.sh

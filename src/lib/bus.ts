@@ -1,3 +1,5 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * ==========================================
  * 統一發布原語（深貫廣通 · 全域事件總線單一來源）

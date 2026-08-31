@@ -1,3 +1,5 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * ==========================================
  * 🛡️ 萬能元件心核與基礎數據契約
@@ -6,14 +8,17 @@
 
 // 核心識別與數據完整性介面
 export interface IComponentCore {
+  // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
+  // 語義化版本控制
   readonly version: string;
+  // 刻印時間戳 (溯源起點)
   readonly timestamp: number;
+  // 證據左證庫 (儲存觀因循果的執行軌跡)
   evidence: {
-    originCause: string;
-    processTrace: string[];
-    finalEffect: string;
-    [key: string]: any;
+    originCause: string;    // 因：原始觸發條件
+    processTrace: string[]; // 循：InfoOne 流轉路徑
+    finalEffect: string;    // 果：最終執行結果與狀態
   };
 }
 
@@ -80,16 +85,24 @@ export class OmniCoreEcosystem {
   private bus!: IOmniAgentBus;
   private agents: Map<string, IOmniAgent> = new Map();
 
-  private static hasEvidence(obj: unknown): obj is { evidence: { originCause: string; processTrace: string[]; finalEffect: string; [key: string]: any; } } {
+  private static hasEvidence(obj: unknown): obj is { evidence: {
+    originCause: string;
+    processTrace: string[];
+    finalEffect: string;
+  } } {
     return typeof obj === 'object' && obj !== null && 'evidence' in obj;
   }
 
   // 核心禁區：鎖定數據並防止篡改的具體執行常式
   public static lockAndFreeze<T extends object>(obj: T): T {
     if (!OmniCoreEcosystem.hasEvidence(obj)) {
-      (obj as { evidence: { originCause: string; processTrace: string[]; finalEffect: string; [key: string]: any; } }).evidence = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+      (obj as { evidence: {
+    originCause: string;
+    processTrace: string[];
+    finalEffect: string;
+  } }).evidence = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
     }
-    (obj as { evidence: { originCause: string; processTrace: string[]; finalEffect: string; [key: string]: any; } }).evidence['hash_lock'] = `0xCELESTIAL_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    (obj as any).evidence['hash_lock'] = `0xCELESTIAL_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     return Object.freeze(obj);
   }
 }

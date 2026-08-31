@@ -16,14 +16,20 @@ const ENABLED = process.env.CONTEXT_AWARE !== '0';
 const MAX_PER_ROOM = Number(process.env.CONTEXT_MAX || 12);   // 每房保留最近 N 句
 const TTL_MS = Number(process.env.CONTEXT_TTL_MS || 10 * 60 * 1000); // 10 分鐘無活動即過期
 
-/** @type {Map<string, Array<{src:string, tgt:string, ts:number}>>} */
+/** @type {Map<string, Array<{src:string, tgt:string, from?:string, to?:string, ts:number}>>} */
 const rooms = new Map();
 
+/**
+ * 產生 room 鍵 (空 room 落到 default)
+ * @param {string} [room]
+ * @returns {string}
+ */
 function roomKey(room) {
   return room && room.length ? room : '__default__';
 }
 
-/** 記錄一句 (來源文字 + 其翻譯), 滾動視窗管理 */
+/** 記錄一句 (來源文字 + 其翻譯), 滾動視窗管理
+ * @param {{room?:string, src:string, tgt?:string, from?:string, to?:string}} u */
 export function recordUtterance({ room = '', src, tgt, from, to }) {
   if (!ENABLED || !src) return;
   const key = roomKey(room);
@@ -37,7 +43,11 @@ export function recordUtterance({ room = '', src, tgt, from, to }) {
   rooms.set(key, pruned);
 }
 
-/** 取回某房近期前文 (舊→新), 用於注入翻譯提示 */
+/**
+ * 取回某房近期前文 (舊→新), 用於注入翻譯提示
+ * @param {{room?:string, lastN?:number}} [opt]
+ * @returns {Array<{src:string, tgt:string, from?:string, to?:string, ts:number}>}
+ */
 export function getContext({ room = '', lastN } = {}) {
   if (!ENABLED) return [];
   const arr = rooms.get(roomKey(room)) || [];
@@ -45,7 +55,11 @@ export function getContext({ room = '', lastN } = {}) {
   return arr.slice(-n);
 }
 
-/** 把前文壓成「可注入提示」的文字 (供 Gemini systemInstruction 使用) */
+/**
+ * 把前文壓成「可注入提示」的文字 (供 Gemini systemInstruction 使用)
+ * @param {{room?:string, lastN?:number}} [opt]
+ * @returns {string}
+ */
 export function buildContextHint({ room = '', lastN } = {}) {
   const ctx = getContext({ room, lastN });
   if (!ctx.length) return '';
@@ -60,6 +74,7 @@ export function resetRoom(room = '') {
 }
 
 export function contextStatus() {
+  /** @type {Record<string, number>} */
   const snapshot = {};
   for (const [k, arr] of rooms.entries()) snapshot[k] = arr.length;
   return {

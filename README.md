@@ -1,44 +1,39 @@
-# ESG-GO 專案
+# 實踐技書 (Practical Skills Handbook)
 
-## 📁 專案概述
-ESG-GO 自動化工作區域，承載 OA-Team 雙蜂隊（蜂王 OA-LOCAL + 蜂后 OA-VPS，共 60 員）的萬能代理編制。
+> 將 Hermes Agent 實戰經驗與專案知識沉澱為可重用的方法論章節。
 
-## 🐝 快速開始
+## 章節索引
 
-- **TencentDB Agent Memory（共享記憶後端）** → [apps/tencentdb-memory/QUICKSTART.md](apps/tencentdb-memory/QUICKSTART.md)
-- **萬能藍圖中心** → [apps/omni-blueprint-hub/](apps/omni-blueprint-hub/)
-- **聖櫃（架構/神器/角色畫像）** → [Omni-Sanctuary/](Omni-Sanctuary/)
+| 章 | 主題 | 狀態 |
+|---|------|------|
+| Ch.01 | 5T 協議實作 | ✅ |
+| Ch.02 | VPS 部署與 pm2 管理 | ✅ |
+| Ch.03 | Webhook HMAC 守門 | ✅ |
+| Ch.04 | Zenrows 資料擷取整合 | ✅ |
+| Ch.05 | Next.js Health + Metrics | ✅ |
+| Ch.06 | n8n 自動化排程 | ✅ |
+| Ch.07 | OmniTag 標籤契約 | ✅ |
+| Ch.08 | 熵減煉金與重構 | ✅ |
+| Ch.09 | Kill Switch 與治理 | ✅ |
+| Ch.10 | 結界誓約 | ✅ |
 
-## 🖥️ VPS 服務架構（Oracle Always-Free A1.Flex · 4 OCPU / 24GB）
+## 品質門檻與 CI 守則 (OmniTag 合約率 100%)
 
-部署於 `ubuntu@161.118.248.180`，由 `ecosystem.config.cjs` + pm2 管理，依賴分層、故障隔離：
+本專案所有 `.ts` 產物必須攜帶合規 OmniTag 標頭（見 Ch.07）。合約率由 CI 強制把關：
 
-| 層級 | 服務 | Port | 說明 | 依賴 |
-|---|---|---|---|---|
-| L2 推理 | `stt-whisper` | 8791 | 本地 faster-whisper（零 key，免費算立） | 無 |
-| L3 應用 | `universal-translator` | 8788 | 萬能即時雙語字幕（[README](apps/stt/README.md)） | 8791 |
-| L3 應用 | `omniagent-gateway` | 8642 | Omni 閘道（需 `apps/gateway/.env` 的 `GATEWAY_API_KEY`） | 獨立 |
-| L3 應用 | `deerflow` | 2026 | DeerFlow 多智能體（Docker Compose，domain `deerflow.esggo.co`） | 獨立（Docker） |
-| L4 主站 | `esggo-core` | 3000 | Next.js 主站（需 `pnpm build`） | 獨立 |
+- **驗證入口**：`pnpm oa:audit`
+  掃描 `src/lib` + `cli/oa-cli/src`，輸出帶標籤數 / 合約數 / 合約率；違規即非零退出。
+- **CI 閘**：`.github/workflows/ci.yml` 的 `omnitag-audit` job 強制合約率 **100%**（`agent` + `lifecycle` + `p` 三枚必備且值合法），未達標 PR 不予合併。
+- **自動補標**：`npx tsx cli/oa-cli/src/index.ts tag --init --write --dir <dirs>`
+  為無標頭 `.ts` 依路徑推測陣列並自動補合規標頭（§6.2 預設即合規）。
+- **跨語言一致性**：Python 端 `src/core/verification.py` 與 TS 端 `src/lib/five-t-protocol.ts` 共用同構 Hash Lock 算法，位元級吻合（見 Ch.01）。
 
-**運維約定**
-- 各服務 `max_restarts: 20`、`restart_delay: 5–8s`，避免連鎖崩潰（詳見 [AGENTS.md](AGENTS.md) 自動修復機制）
-- 部署不用全量 `pm2 start ecosystem`，改 `--only <svc>` 增量重啟
-- 密鑰外置於 `apps/*/.env`（不進 git），`GATEWAY_API_KEY` 等經 GitHub Secrets 注入
+> 任何並發 session / PR 都應先跑 `pnpm oa:audit` 確認 100% 再推送，避免 CI 紅。
 
-## 📊 OMNI ESG Reports Center（萬能永續報告書）
+## 導覽
 
-對齊《OMNI ESG 萬能永續報告書 - 開發與架構對照書》v1.1.0-Universe 補強建議，落實於 Next.js App Router：
-
-- **路由**：`/omni/reports`（報告總樞紐，Grid/Board/List 三布局）、`/omni/reports/[reportId]/edit`（動態表單生成器 + 9式果因引擎零幻覺驗算）
-- **核心庫** `src/lib/omni-reports/`：`IComponentCore` 心核、`jules-validator`（Zod 零幻覺）、`registry`（Schema 註冊）、`ncb-client`（NCB 雲端同源 + Hash Lock）、`agentic-twin`（Dr. Thoth 雙棲決策）、`tier-config`（SaaS 三階權限）
-- **UI** `src/components/omni/reports/`：Liquid Glass 4D 玻璃質感 + 428 懸浮鍵（召喚 Dr. Thoth 側欄）、`OmniGlassChart` 霓虹 3D 圖表
-- **驗證**：`vitest` 17/17（零幻覺驗算 + 欄位警告）、`node --test` 6/6、Next build 通過
-- **SonarQube agentic**：`apps/universal-translator` 已接 `sonar analyze agentic`（`ci.yml` 加 `sonar-agentic` job，`SONAR_TOKEN` 選用閘門，對齊「只用免費算立」）
-
-## 🔐 機密管理
-- GitHub Secrets (推薦)
-- GCP Secret Manager (備援)
-
-## ⚠️ 安全注意事項
-請立即輪換所有已暴露的機密！
+- `INDEX.md` — 依任務 / 工具 / 組合流程查章節
+- `MECE.md` — 支柱地圖 + 生命週期缺口分析
+- `chapters/` — 章節原文
+- `references/` — 校正後知識庫
+- `templates/` — 章節模板

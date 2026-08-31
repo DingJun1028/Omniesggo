@@ -1,8 +1,0 @@
-$headers = @{ 'X-Auth-Token' = 'esggo-relay-20260706' }
-try {
-  $body = Invoke-RestMethod -Uri 'http://127.0.0.1:9999/result' -Method Get -Headers $headers | ConvertTo-Json -Depth 5 -Compress
-  Write-Output $body
-} catch {
-  Write-Output "ERROR"
-  Write-Output $_.Exception.Message
-}

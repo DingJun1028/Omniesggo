@@ -37,25 +37,29 @@ MEMORY_CORE_GATEWAY_API_KEY="${MEMORY_CORE_GATEWAY_API_KEY:-local}"
 # 显式设为空字符串则 Panel 前端回落到 gateway_endpoint（老行为）。
 # Panel 后端 → Kernel 的转发地址始终走 REMOTE_INSTANCE_URL，不受此变量影响。
 detect_host_ip() {
+  # 只接受合法 IPv4；任何分支抓到非 IP 垃圾（如 Windows ipconfig 的 help 文）都忽略，
+  # 最終回落 host.docker.internal，避免 Panel 卡片 URL 變 "http://:8096" 或帶 \r 破解容器配置。
   local ip=""
+  local ip_re='^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$'
   # Linux
   if command -v hostname >/dev/null 2>&1; then
-    ip=$(hostname -I 2>/dev/null | tr ' ' '\n' | awk '/^[0-9]+\./ && $0 !~ /^127\./ && $0 !~ /^169\.254\./' | head -n1)
-    [[ -n "$ip" ]] && { echo "$ip"; return; }
+    ip=$(hostname -I 2>/dev/null | tr -d '\r' | tr ' ' '\n' | awk '/^[0-9]+\./ && $0 !~ /^127\./ && $0 !~ /^169\.254\./' | head -n1)
+    [[ -n "$ip" && "$ip" =~ $ip_re ]] && { echo "$ip"; return; }
   fi
-  # macOS
+  # macOS (ipconfig getifaddr 僅 macOS 有效；Windows 上會印 help 且抓不到 IP，故用正則擋掉)
   if command -v ipconfig >/dev/null 2>&1; then
     for iface in en0 en1 en2; do
-      ip=$(ipconfig getifaddr "$iface" 2>/dev/null)
-      [[ -n "$ip" ]] && { echo "$ip"; return; }
+      ip=$(ipconfig getifaddr "$iface" 2>/dev/null | tr -d '\r')
+      [[ -n "$ip" && "$ip" =~ $ip_re ]] && { echo "$ip"; return; }
     done
   fi
   # 兜底：ip route（Linux 无 hostname -I 时）
   if command -v ip >/dev/null 2>&1; then
-    ip=$(ip -4 route get 1 2>/dev/null | awk '/src/ {for (i=1;i<=NF;i++) if ($i=="src") print $(i+1); exit}')
-    [[ -n "$ip" ]] && { echo "$ip"; return; }
+    ip=$(ip -4 route get 1 2>/dev/null | tr -d '\r' | awk '/src/ {for (i=1;i<=NF;i++) if ($i=="src") print $(i+1); exit}')
+    [[ -n "$ip" && "$ip" =~ $ip_re ]] && { echo "$ip"; return; }
   fi
-  echo "localhost"
+  # Windows Docker Desktop / 探测失败：用 host.docker.internal 让容器内回环到宿主。
+  echo "host.docker.internal"
 }
 
 if [[ -z "${MEMORY_HUB_PROXY_PUBLIC_URL+x}" ]]; then

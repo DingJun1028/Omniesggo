@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * ESGGO Cron Jobs — 自動化任務調度器
  *

@@ -1,0 +1,23 @@
+{
+  "name": "@esggo/oa-swarm",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OA-Team 30 萬能蜂群桌面背景 AI App — 5T 合規、可佈署 VPS",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/index.js",
+    "dev": "tsx watch src/index.ts",
+    "desktop": "node dist/index.js --desktop",
+    "test": "vitest run",
+    "sync:types": "node C:/Project/esggo/scripts/export-shared-types.js",
+    "check:types-sync": "node scripts/check-oa-types-sync.mjs",
+    "typecheck": "tsc -p tsconfig.ut.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0",
+    "tsx": "^4.19.0",
+    "vitest": "^2.1.0"
+  }
+}

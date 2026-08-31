@@ -83,7 +83,7 @@ export async function POST(req: Request) {
     }
 
     // Process through the 5T Gateway
-    const processedIntel = processReconnaissanceIntel(rawData, category as any);
+    const processedIntel = processReconnaissanceIntel(rawData, category);
 
     // [5T-Protocol Verification] Intelligence is successfully hashed and locked.
     // In current orchestration phase, data is kept in the 5T Memory Hub.
@@ -99,10 +99,10 @@ export async function POST(req: Request) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("5T Gateway Error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error processing intelligence.", details: error.message },
+      { error: 'Internal Server Error processing intelligence.' },
       { status: 500 }
     );
   }

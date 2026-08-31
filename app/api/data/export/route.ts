@@ -216,8 +216,8 @@ export async function POST(request: NextRequest) {
       downloadUrl: `/api/data/export/download/${jobId}`,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Export failed';
-    return jsonError('INTERNAL_ERROR', message, 500);
+    console.error('[api] INTERNAL_ERROR:', error);
+    return jsonError('INTERNAL_ERROR', undefined, 500);
   }
 }
 

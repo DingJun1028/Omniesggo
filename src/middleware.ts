@@ -28,6 +28,7 @@ const PUBLIC_ROUTES: readonly string[] = [
   '/api/healthz',
   '/api/health',
   '/api/health/metrics',
+  '/api/evidence-upload',
   '/_next/',
   '/favicon.ico',
   '/assets/',
@@ -157,17 +158,21 @@ function cleanupRateLimitStore() {
   }
 }
 
-// ─── Token Verification (Edge-safe: Web Crypto + jose, no firebase-admin) ────
+// ─── Token Verification (Edge-safe: Web Crypto + jose, 本地模式, 無 GCP 依賴) ────
 
+const LOCAL_JWT_SECRET = process.env.LOCAL_JWT_SECRET;
+const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? 'esggo';
+
+// 保留 GCP x509 端點作為選用相容 (設 USE_GCP_JWT=true 才啟用), 預設關閉以移除 GCP 依賴
+const USE_GCP_JWT = process.env.USE_GCP_JWT === 'true';
 const FIREBASE_X509_URL =
   'https://www.googleapis.com/robot/v1/metadata/x509/securetoken@system.gserviceaccount.com';
-
-const FIREBASE_PROJECT_ID = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ?? 'esggo';
 
 let cachedKeys: Array<{ kid: string; pem: string }> | null = null;
 let keysFetchedAt = 0;
 
 async function getFirebaseKeys(): Promise<Array<{ kid: string; pem: string }>> {
+  if (!USE_GCP_JWT) return []; // 本地模式不 fetch GCP
   const now = Date.now();
   if (cachedKeys && now - keysFetchedAt < 3_600_000) return cachedKeys;
   const res = await fetch(FIREBASE_X509_URL, { cache: 'no-store' });
@@ -181,8 +186,22 @@ async function getFirebaseKeys(): Promise<Array<{ kid: string; pem: string }>> {
 async function verifyFirebaseToken(
   token: string
 ): Promise<DecodedUser | null> {
+  const { jwtVerify, importX509, decodeProtectedHeader, importHmacKey } = await import('jose');
+
+  // 1. 本地模式優先: HS256 + LOCAL_JWT_SECRET (完全無 GCP 依賴)
+  if (LOCAL_JWT_SECRET) {
+    try {
+      const key = await importHmacKey(LOCAL_JWT_SECRET, 'HS256');
+      const { payload } = await jwtVerify(token, key, { algorithms: ['HS256'] });
+      return { uid: String(payload.sub ?? ''), email: payload.email as string | undefined };
+    } catch {
+      return null;
+    }
+  }
+
+  // 2. 選用 GCP 相容 (需 USE_GCP_JWT=true)
+  if (!USE_GCP_JWT) return null;
   try {
-    const { jwtVerify, importX509, decodeProtectedHeader } = await import('jose');
     const header = decodeProtectedHeader(token);
     const keys = await getFirebaseKeys();
     const key = header.kid ? keys.find((k) => k.kid === header.kid) : keys[0];

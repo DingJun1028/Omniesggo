@@ -99,9 +99,13 @@ memory:
     timeoutMs: 5000
   storeBackend: sqlite
   embedding:
+    enabled: true
     provider: ollama
     baseUrl: "${MEMORY_LLM_BASE_URL}"
     model: "nomic-embed-text"
+    apiKey: "ollama-local"
+    dimensions: 768
+    sendDimensions: true
 
 # ── Skill 模块 ──
 skill:

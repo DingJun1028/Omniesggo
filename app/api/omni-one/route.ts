@@ -1,4 +1,4 @@
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 import { routeModel, inferTaskType, formatRoutingResult } from '@/core/ai/model-router';
 
 export const dynamic = 'force-dynamic';
@@ -241,6 +241,6 @@ ${input}
 
   } catch (error) {
     console.error('[OmniOne] Critical error:', error);
-    return jsonError('INTERNAL_ERROR', (error as Error).message, 500);
+    return jsonErrorInternal(error, 'INTERNAL_ERROR', 500);
   }
 }

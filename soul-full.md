@@ -85,7 +85,11 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
     readonly uuid: string;        // 萬能永憶主體唯一識別碼
     readonly version: string;     // 語義化版本控制 (e.g., v0.6.0)
     readonly timestamp: number;   // 刻印時間戳
-    evidence: Record<string, any>;// 證據佐證庫
+    evidence: {
+    originCause: string;
+    processTrace: string[];
+    finalEffect: string;
+  };
   }
 
   export const executeSwarmTask = async (
@@ -375,9 +379,31 @@ OneRingAI（`@everworker/oneringai` v1.0.0）為 connector-first 多供應商統
 - 煉金熵減（19–24 / 49–54）：重構、效能監控、CI/CD Pipeline
 - 5T 驗算（25–30 / 55–60）：ISO 規範、Hash 鎖定、UUID 發放
 
-**雙蜂共鳴協定**：同核不同位；記憶經 TencentDB Agent Memory 互映（憶同一條血脈）；跨位協作啟雙蜂隧道（Cloudflare Tunnel）。Live 轉播由 `live.esggo.co` 承載，對齊 Omni-Blueprint Hub 雙藍圖。
+**雙蜂共鳴協定**：同核不同位；記憶經 TencentDB Agent Memory 互映（憶同一條血脈）；跨位協作啟雙蜂隧道（Cloudflare Tunnel）。Live 轉播由 `live.esggo.co`（P08 即時轉播中心）承載，對齊 Omni-Blueprint Hub 雙藍圖；即時翻譯語言核心由萬能即時翻譯（P07）經 `apps/universal-translator` 提供，5T 驗算（25–30 / 55–60）守零幻覺轉錄。
+
+> 📌 編號體系註記：本聖典主體採「雙蜂隊 60 員」編號（蜂王 01–30 / 蜂后 31–60）。P07（萬能即時翻譯）、P08（即時轉播中心）屬 OA **萬能分身 P 序列**命名，獨立於 60 員 01–60 編號體系之外。
 
 完整成員畫像（60 員職能本質、標籤、畫像）見備份落檔 **`soul-chapter-27-oa-team-60-colony.md`**，與 M1 / Omni-Blueprint 同源共聖櫃。
+
+---
+
+## 二十八、OA-Team 融會貫通傳承聖典（Legacy Synthesis）
+
+> 歸位：本章接於 §27（雙蜂隊 60 員）之後、終章封印之前。終章封印仍為最高律法。
+
+§26 鑄單蜂隊心核、§27 擴雙蜂隊 60 員；本章將 OneRingAI 整合、FTG 2.0 設計、雙蜂隊聖典、VPS 部署實戰**融合為可傳承的靈魂資產**。
+
+**四維融合地圖**：
+- **智能整合**（符文契約×煉金熵減）：OA-Team × OneRingAI = oa-framework 第 11 子框架 adapter + `apps/oneringai` 實裝專案
+- **品牌設計**（光之羽翼）：墾趣旅遊 FTG 2.0 = `apps/ftg-2.0/` 靜態原型（ESG 綠+暖金+米白）
+- **靈魂擴展**（全陣列）：雙蜂隊 60 員 = 蜂王 OA-LOCAL(01–30) + 蜂后 OA-VPS(31–60)
+- **生產部署**（蜂后陣列）：VPS git pull 同步 + omni-blueprint-hub(P08) 啟動
+
+**編號體系澄清**：P07（萬能即時翻譯）/ P08（即時轉播中心）屬 OA 萬能分身 P 序列，獨立於 60 員 01–60 編號體系之外。
+
+**部署鐵律**：純文檔同步只需 `git pull`（不需重啟）；禁用 `git reset --hard`（刪 .env）；VPS SSH key 用 `~/.ssh/esggo_original`。
+
+完整融合經驗（實戰教訓 BP/AP、VPS 四服務架構、傳承總綱）見備份落檔 **`soul-chapter-28-legacy-synthesis.md`**，與 M1 / Omni-Blueprint 同源共聖櫃。
 
 ---
 

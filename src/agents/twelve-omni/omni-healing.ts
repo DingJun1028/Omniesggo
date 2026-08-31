@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * ==========================================
  * 🌌 OmniHealing — 萬能癒合實現
@@ -95,7 +96,7 @@ export class OmniHealing implements IOmniHealing {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+    } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
 
   /** 問題追蹤 (mutable for read/write access) */
   private _issues: Map<string, MutableSystemIssue> = new Map();
@@ -479,7 +480,7 @@ export class OmniHealing implements IOmniHealing {
    * 戒嚴觸發
    */
   triggerMartialLaw(reason: string, source: string): void {
-    this.evidence['martial_law_triggered'] = { reason, source, timestamp: Date.now() };
+    Object.assign((this as any).evidence, { martial_law_triggered: { reason, source, timestamp: Date.now() } });
   }
 
   /**

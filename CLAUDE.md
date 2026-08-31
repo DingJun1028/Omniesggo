@@ -42,6 +42,11 @@ Required tags — each artifact must have **at least** `agent:*` + `lifecycle:*`
 
 Reference: `.agents/skills/omnitag/SKILL.md`.
 
+**Contract enforcement (§20.5 / §6.2)**: OmniTag 合約率必須達 **100%**（`agent`+`lifecycle`+`p` 三枚必備，且值合法）。
+驗證入口：`pnpm oa:audit`（掃描 `src/lib` + `cli/oa-cli/src`，違規即非零退出）。
+CI 閘：`.github/workflows/ci.yml` 的 `omnitag-audit` job 強制此門檻，未達 100% 合約率 PR 不予合併。
+自動補標：`npx tsx cli/oa-cli/src/index.ts tag --init --write --dir <dirs>` 為無標頭 .ts 自動補合規 OmniTag 標頭（§6.2 預設即合規）。
+
 ---
 
 ## 1. TypeScript Strictness (型別嚴格度)

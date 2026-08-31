@@ -12,8 +12,8 @@ export async function POST(request: Request) {
     const report = await ReportGeneratorServer.generateStrategicReport(metrics);
     
     return NextResponse.json(report);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[API Report] Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

@@ -41,7 +41,7 @@ export default function DrThothResonance({
                   <p className="text-xs text-emerald-400 font-mono tracking-widest">AGENTIC TWIN ONLINE</p>
                 </div>
               </div>
-              <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors">
+              <button onClick={onClose} className="p-2 text-gray-400 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 rounded-lg" aria-label="關閉 Dr. Thoth">
                 <X size={24} />
               </button>
             </div>

@@ -1,10 +1,11 @@
 ---
 source_origin: esggo/shared/types.ts
 created: 2026-08-13
-modified: 2026-08-12
+modified: 2026-08-27
 sync: mirror
 co_authors: []
 lifecycle: active
+access: public-research
 ---
 
 # 型別矩陣鏡像（TypeScript 終始矩陣 · vault 端）
@@ -14,10 +15,10 @@ lifecycle: active
 > 若需新增型別：先在 vault 筆記標 `sync:up` 寫 ts code-block → 跑 `sync-vault-types.ts` → 合入 canonical。
 
 ## 統計
-- 總型別：36
+- 總型別：53
 - enum：5
-- interface：27
-- type：4
+- interface：38
+- type：10
 
 ## 索引（wikilink）
 ### Enum
@@ -55,12 +56,29 @@ lifecycle: active
 - [[IZoomMeeting]] (interface)
 - [[IPlayerState]] (interface)
 - [[ISecondBrainNote]] (interface)
+- [[ISoulAgent]] (interface)
+- [[IComponentCore]] (interface)
+- [[ISoulArtifact]] (interface)
+- [[ISwarmTask]] (interface)
+- [[IOABMessage]] (interface)
+- [[I5TVerification]] (interface)
+- [[IVideoGenerationTask]] (interface)
+- [[IVideoGenerationResult]] (interface)
+- [[IGapAgent]] (interface)
+- [[IGapPairing]] (interface)
+- [[IGapMatrixCoverage]] (interface)
 
 ### Type
 - [[LanguageCode]] (type)
 - [[BilingualPair]] (type)
 - [[PlayerSourceKind]] (type)
 - [[IPlayerSource]] (type)
+- [[HiveSide]] (type)
+- [[ArrayKey]] (type)
+- [[SwarmTaskResult]] (type)
+- [[GapUnitKey]] (type)
+- [[GapRole]] (type)
+- [[GapHubKind]] (type)
 
 ## 定義詳列
 ### ESGKnowledgeBase
@@ -457,12 +475,16 @@ export interface ISpeechToSubtitleResult {
   text: string;
   /** STT 偵測語 (鎖定雙向) */
   detected: 'zh-TW' | 'en';
-  /** 即時翻譯對向: zh-TW→en 或 en→zh-TW */
+  /** 即時翻譯對向 (單語場景): zh-TW→en 或 en→zh-TW */
   translation: string;
   /** 翻譯目標語 */
   target: 'zh-TW' | 'en';
+  /** 平行翻譯多語場景: 語碼 → 譯文 (translateToMany 輸出) */
+  translations?: Partial<Record<LanguageCode, string>>;
   /** 引擎識別字串 (5T 溯源: stt:whisper + ollama:<model>) */
   engine: string;
+  /** 平行翻譯多語場景: 語碼 → 引擎 (translateToMany 輸出) */
+  engines?: Partial<Record<LanguageCode, string>>;
   /** 是否命中快取 */
   cached: boolean;
   /** 溯源追蹤碼 */
@@ -524,6 +546,230 @@ export interface ISecondBrainNote {
   tags: string[];
   source_origin: string;
   sync: 'mirror' | 'up';
+}
+```
+
+### HiveSide
+```ts
+export type HiveSide = 'local' | 'vps';
+
+/** 五陣列 MECE 鍵 */
+export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
+
+/** 單一蜂代理 (雙蜂戰隊 60 員矩陣成員) */
+export interface ISoulAgent {
+  id: number;
+  title: string;
+  tags: string[];
+  array: ArrayKey;
+  side: HiveSide;
+  task: string;
+}
+```
+
+### ArrayKey
+```ts
+export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
+
+/** 單一蜂代理 (雙蜂戰隊 60 員矩陣成員) */
+export interface ISoulAgent {
+  id: number;
+  title: string;
+  tags: string[];
+  array: ArrayKey;
+  side: HiveSide;
+  task: string;
+}
+```
+
+### ISoulAgent
+```ts
+export interface ISoulAgent {
+  id: number;
+  title: string;
+  tags: string[];
+  array: ArrayKey;
+  side: HiveSide;
+  task: string;
+}
+```
+
+### IComponentCore
+```ts
+export interface IComponentCore {
+  uuid: string;        // 萬能永憶主體唯一識別碼 (Traceable)
+  version: string;     // 語意化版本控制
+  timestamp: number;   // 刻印時間戳
+  evidence: Record<string, unknown>; // 證據佐證庫
+}
+```
+
+### ISoulArtifact
+```ts
+export interface ISoulArtifact extends IComponentCore {
+  source_origin: string; // Traceable: 產物來源標註
+  lifecycle: string[];   // Trackable: 狀態流轉記錄
+  hash_lock: string;     // Trustworthy: 雜湊鎖定
+  author: string;        // Trustworthy: 不可篡改署名
+}
+```
+
+### ISwarmTask
+```ts
+export interface ISwarmTask {
+  task: string;
+  source_origin: string; // Traceable
+  array?: ArrayKey;      // 指定陣列 (選填)
+  side?: HiveSide;       // 指定蜂側 (選填)
+}
+```
+
+### SwarmTaskResult
+```ts
+export type SwarmTaskResult = Readonly<ISoulArtifact>;
+
+/** OAB (OmniAgentBus) 訊息契約 — 跨蜂群 / 跨服務總線 */
+export interface IOABMessage {
+  serviceId: string;
+  topic: string;
+  payload: unknown;
+  trace?: string;       // 5T 溯源碼
+  ts: number;
+}
+```
+
+### IOABMessage
+```ts
+export interface IOABMessage {
+  serviceId: string;
+  topic: string;
+  payload: unknown;
+  trace?: string;       // 5T 溯源碼
+  ts: number;
+}
+```
+
+### I5TVerification
+```ts
+export interface I5TVerification {
+  traceable: boolean;
+  trackable: boolean;
+  tangible: boolean;
+  transparent: boolean;
+  trustworthy: boolean;
+  passed: boolean;
+}
+```
+
+### IVideoGenerationTask
+```ts
+export interface IVideoGenerationTask {
+  /** 影片主題 (AI 生成腳本依據) */
+  video_subject: string;
+  /** 自訂腳本 (選填, 優先於主題生成) */
+  video_script?: string;
+  /** 素材源: pixabay (有效 key) / pexels / local (MPT 預設修正為 pixabay) */
+  video_source?: 'pixabay' | 'pexels' | 'local';
+  /** 語言: zh-TW / zh-CN / en (MPT 預設 zh-TW) */
+  video_language?: string;
+  /** 語音: Edge TTS 繁中語音 (如 zh-TW-YunJheNeural) */
+  voice_name?: string;
+  /** 5T 溯源: 任務來源 (如 filedrop / webui / oa-swarm) */
+  source_origin: string;
+}
+```
+
+### IVideoGenerationResult
+```ts
+export interface IVideoGenerationResult {
+  task_id: string;
+  /** 狀態: 1=完成, -1=失敗, 4=處理中 */
+  state: 1 | -1 | 4;
+  /** 生成影片路徑 (state=1 時) */
+  combined?: string[];
+  /** 5T 凍結產物 (關聯 ISoulArtifact) */
+  artifact?: ISoulArtifact;
+}
+```
+
+### GapUnitKey
+```ts
+export type GapUnitKey = 'strategy' | 'technology' | 'creative' | 'marketing' | 'guard'
+```
+
+### GapRole
+```ts
+export type GapRole = 'base' | 'hub'
+```
+
+### GapHubKind
+```ts
+export type GapHubKind = 'guard-defense' | 'queen-command';
+
+/** 單一蜂代理名冊 (30 員, 雙語) — 與 §二 30 矩陣編號歸屬嚴格對齊 */
+export interface IGapAgent {
+  /** 編號 01-30 */
+  id: number;
+  /** 稱號 (繁中) */
+  title: string;
+  /** Title (English) */
+  titleEn: string;
+  /** 所屬陣列 */
+  unit: GapUnitKey;
+}
+```
+
+### IGapAgent
+```ts
+export interface IGapAgent {
+  /** 編號 01-30 */
+  id: number;
+  /** 稱號 (繁中) */
+  title: string;
+  /** Title (English) */
+  titleEn: string;
+  /** 所屬陣列 */
+  unit: GapUnitKey;
+}
+```
+
+### IGapPairing
+```ts
+export interface IGapPairing {
+  /** 左側代理編號 */
+  a: number;
+  /** 右側代理編號 */
+  b: number;
+  /** 左側陣列 */
+  aUnit: GapUnitKey;
+  /** 右側陣列 */
+  bUnit: GapUnitKey;
+  /** 角色 */
+  role: GapRole;
+  /** 樞紐種類 (role=hub 時) */
+  hubKind?: GapHubKind;
+  /** 樞紐覆蓋陣列 (role=hub 時, 如 '全陣列'→ 五陣列皆列) */
+  coverage?: GapUnitKey[];
+  /** 5T 溯源標籤 (Traceable) */
+  source_origin: 'gap-matrix-canon';
+}
+```
+
+### IGapMatrixCoverage
+```ts
+export interface IGapMatrixCoverage {
+  /** 成員總數 */
+  totalAgents: 30;
+  /** 基礎配對數 (C(5,2)×6) */
+  totalBase: 60;
+  /** 樞紐配對數 (守衛防護 6 + 蜂后總控 6) */
+  totalHub: 12;
+  /** 配對總數 (60+12) */
+  totalPairings: 72;
+  /** 陣列對覆蓋 (C(5,2)) */
+  arrayPairs: 10;
+  /** 成員跨組觸達 */
+  reach: '30/30';
 }
 ```
 

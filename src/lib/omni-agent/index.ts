@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 // Minimal implementation for TypeScript compilation.
 // The full implementation lives in other parts of the codebase (e.g., src/impl).
 

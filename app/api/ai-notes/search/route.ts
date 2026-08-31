@@ -4,10 +4,15 @@
 
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError, validateParams } from '@lib/api-utils';
-import { getNCBClient } from '@/lib/ncb-client';
-import type { SearchResult } from '@/types/notes';
+import { getNCBClient } from '@lib/ncb-client';
+import type { SearchResult, NoteWithTags } from '@/types/notes';
 
 import type { Pool } from 'pg';
+
+interface VectorRow {
+  note_id: string;
+  similarity: number;
+}
 
 // PostgreSQL 連接池（pgvector）— lazy dynamic import 避免 build 期依賴 @types/pg
 // TODO: 待 PGVECTOR_URL 與 pgvector 函數 search_notes_semantic 就緒後啟用
@@ -52,11 +57,11 @@ export async function POST(request: NextRequest) {
     }
 
     // 從 NoCodeBackend 取得完整筆記資料
-    const noteIds = vectorResults.rows.map((r: any) => r.note_id);
+    const noteIds = vectorResults.rows.map((r: VectorRow) => r.note_id);
     const ncb = getNCBClient();
 
     const notes = await Promise.all(
-      noteIds.map(async (noteId: string): Promise<any> => {
+      noteIds.map(async (noteId: string): Promise<NoteWithTags | null> => {
         try {
           return await ncb.getNoteWithTags(noteId);
         } catch {
@@ -67,11 +72,10 @@ export async function POST(request: NextRequest) {
 
     // 合併結果
     const results: SearchResult[] = vectorResults.rows
-      .map((row: any, index: number) => ({
-        note: notes[index],
+      .map((row: VectorRow, index: number) => ({
+        note: notes[index]!,
         similarity: row.similarity,
-      }))
-      .filter((r: any): r is SearchResult => r.note !== null);
+      }));
 
     return jsonResponse({
       data: results,

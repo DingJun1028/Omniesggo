@@ -8,6 +8,8 @@ export default defineConfig({
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
+      '**/archive/**',
+      'archive/**',
       // 腳本式驗證（頂層 console.log + assert + process.exit），非 vitest 套件，不應被抓取執行
       '**/__test__/**',
       'apps/gateway/sync/__test__/**',
@@ -27,12 +29,31 @@ export default defineConfig({
       // 被根 vitest 抓取時會報 "Cannot find package '@playwright/test'" (ERR_MODULE_NOT_FOUND)。
       // 該套件應由 Playwright 自身執行，非 vitest。
       'e2e-k1/**',
+      // ftg-tools 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
+      //   - fal-images.test.mjs      → 根 vitest 報 "No test suite found in file"
+      //   - ftg-mcp/server.test.mjs  → 以 process.cwd() 解析 ftg-gen.js / ftg-mcp/server.js，
+      //                                 被根 vitest 從倉庫根執行時報 MODULE_NOT_FOUND
+      // 該套件由 ci.yml 的 "FTG-Tools test suite (node --test)" 步驟以 working-directory
+      // apps/ftg-tools 執行（本機實測 5/5 pass），覆蓋率不減。
+      'apps/ftg-tools/**/*.test.mjs',
+      // OmniLive 萬能即時轉譯字幕測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
+      //   - server.test.mjs   → 根 vitest 報 "No test suite found in file"
+      //   - subtitle.test.mjs → 同上
+      // 兩者皆 import { test } from 'node:test'，由 apps/omnilive 自身的
+      // `pnpm test` (= node --test test/*.test.mjs) 執行，覆蓋率不減。
+      'apps/omnilive/test/**',
+      // Self-Healing Engine 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
+      //   - server.test.mjs → import { test } from 'node:test'，根 vitest 抓取時報
+      //                       "No test suite found in file"
+      // 由 apps/self-healing 自身的 `pnpm test` (= node --test test/*.test.mjs) 執行，
+      // 該套件 dependencies 為空，純 Node 即可跑，覆蓋率不減。
+      'apps/self-healing/test/**',
     ],
   },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@lib': path.resolve(__dirname, './lib'),
+      '@lib': path.resolve(__dirname, './src/lib'),
     },
   },
 });

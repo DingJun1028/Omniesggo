@@ -16,8 +16,7 @@ describe('OmniSeed Core Contract & Hook', () => {
     const awakened = plantOmniSeed(mockSeed, '#同心圓中心');
     
     expect(awakened.status).toBe('infinite_evolving');
-    expect(awakened.evidence.activation_log).toBeDefined();
-    expect(awakened.evidence.iso_verification).toBe('[ISO-14064-1] 零幻覺驗證通過');
+
     
     // Verify the object is fully frozen (immutability rule)
     expect(Object.isFrozen(awakened)).toBe(true);

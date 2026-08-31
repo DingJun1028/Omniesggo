@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 // ESG 訂閱式商情偵測系統 - 核心引擎
 // 資料位置: src/lib/engines/subscription-engine.ts
 

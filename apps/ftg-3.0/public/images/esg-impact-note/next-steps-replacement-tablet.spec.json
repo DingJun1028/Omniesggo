@@ -1,0 +1,19 @@
+{
+  "id": "nextsteps",
+  "name": "Next Steps & Improvement Recommendations",
+  "elementId": "next-steps",
+  "filename": "next-steps-replacement-tablet.png",
+  "breakpoint": "tablet",
+  "dimensions": "768x1024",
+  "priority": "P0",
+  "owner": "T06 Optimization Bee + T05 Risk Bee",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#next-steps",
+  "rwdGuidelines": {
+    "layout": "2-column",
+    "fontSize": "medium",
+    "elements": "full-content"
+  },
+  "generatedAt": "2026-08-26T01:57:24.303Z",
+  "status": "spec-ready"
+}

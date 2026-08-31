@@ -6,7 +6,7 @@
 
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { getPluginRegistry } from '@/lib/omni-base/plugin-registry';
+import { getPluginRegistry } from '@lib/omni-base/plugin-registry';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,8 +24,8 @@ export async function GET() {
       count: plugins.length,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return jsonError('INTERNAL_ERROR', message);
+    console.error('[api] INTERNAL_ERROR:', error);
+    return jsonError('INTERNAL_ERROR');
   }
 }
 
@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
       lifecycle: registry.get(pluginId)?.lifecycle,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return jsonError('INTERNAL_ERROR', message);
+    console.error('[api] INTERNAL_ERROR:', error);
+    return jsonError('INTERNAL_ERROR');
   }
 }

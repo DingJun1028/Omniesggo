@@ -100,7 +100,7 @@ export const LiquidGlassCard: React.FC<LiquidGlassCardProps> = ({
         {/* 溯源路徑觸發點 */}
         <button 
           onClick={() => onViewTrace?.(data.traceability_chain)}
-          className="w-full mt-4 flex items-center justify-center gap-2 py-2 text-[10px] font-black tracking-widest text-primary hover:bg-primary/5 rounded border border-primary/20 transition-colors uppercase font-mono shadow-sm"
+          className="w-full mt-4 flex items-center justify-center gap-2 py-2 text-[10px] font-black tracking-widest text-primary hover:bg-primary/5 rounded border border-primary/20 transition-colors uppercase font-mono shadow-sm focus-visible:ring-2 focus-visible:ring-primary focus:outline-none"
         >
           <History className="w-3.5 h-3.5" />
           查看全時軌跡軸

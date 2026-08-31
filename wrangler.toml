@@ -1,26 +1,18 @@
 name = "esggo"
-main = "my-worker/src/index.ts"
+main = "worker/src/index.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
-
-[assets]
-directory = "my-worker/dist"
-binding = "ASSETS"
-not_found_handling = "single-page-application"
-
-[build]
-command = "node my-worker/node_modules/typescript/bin/tsc -p my-worker/tsconfig.json"
 
 [vars]
 ENVIRONMENT = "production"
 SMART_ROUTER_VERSION = "2.0.0-beta.1"
 
-# KV 存儲免費模型列表
-# id 改由環境變數注入（避免佔位符硬錯）；部署前須 export FREE_MODELS_KV_ID / FREE_MODELS_KV_PREVIEW_ID
-[[kv_namespaces]]
-binding = "FREE_MODELS_KV"
-id = "${FREE_MODELS_KV_ID}"
-preview_id = "${FREE_MODELS_KV_PREVIEW_ID}"
+# KV 綁定 FREE_MODELS_KV 已移除（2026-08-25，OA-TWINS 自動修復 / 追蹤單 #907）
+# 移除原因（source_origin: CF Workers Builds code 10042）：
+#   1. wrangler 不對 kv_namespaces.id 做 ${VAR} 環境變數插值，佔位字串被當字面值送交 CF API 而遭拒；
+#   2. 該 namespace 於帳號中根本不存在（KV 清單僅有 esggo / 00e41b1e28424cd7affea7d385a56427）；
+#   3. FREE_MODELS_KV 在全 repo 原始碼零引用（git grep 僅命中本檔），屬死設定 ⇒ 移除為零功能變更。
+# 若日後真需此 KV：先 `wrangler kv namespace create free-models`，再以「實際 id 硬寫」於此，勿用 ${VAR}。
 
 # Secret 金鑰（需在 Cloudflare Dashboard 或 wrangler secret put 設定）
 # [secrets]
@@ -31,3 +23,6 @@ preview_id = "${FREE_MODELS_KV_PREVIEW_ID}"
 
 [observability]
 enabled = true
+
+[build]
+command = "npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && cd worker && npx tsc -p tsconfig.json"

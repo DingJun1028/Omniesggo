@@ -9,14 +9,17 @@ import type { ModelConverterConfig } from '../model-discovery/model-converter';
 
 // IComponentCore 核心介面 (來自 SKILL.md)
 export interface IComponentCore {
+  // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
+  // 語義化版本控制
   readonly version: string;
+  // 刻印時間戳 (溯源起點)
   readonly timestamp: number;
+  // 證據左證庫 (儲存觀因循果的執行軌跡)
   evidence: {
-    originCause: string;
-    processTrace: string[];
-    finalEffect: string;
-    [key: string]: any;
+    originCause: string;    // 因：原始觸發條件
+    processTrace: string[]; // 循：InfoOne 流轉路徑
+    finalEffect: string;    // 果：最終執行結果與狀態
   };
 }
 
@@ -260,7 +263,7 @@ export class OmniAgentGateway {
     taskType: string
   ): Promise<any> {
     // 1. 建立證據資料
-    const evidence: { originCause: string; processTrace: string[]; finalEffect: string; [key: string]: any } = {
+    const evidence: { originCause: string; processTrace: string[]; finalEffect: string } = {
       originCause: 'unknown',
       processTrace: [],
       finalEffect: 'unknown',

@@ -183,12 +183,29 @@ describe('FiveTHashLock (T4 Trustworthy)', () => {
   });
 
   it('verifies a lock at any age inside the window (per-ms coverage)', () => {
-    // 驗證修復：容差窗內任何偏移（如 250ms / 3300ms）皆可驗證，不再依賴 1000ms 取樣
-    for (const age of [250, 3300, 4999]) {
+    // 驗證修復：容差窗內任何偏移（如 250ms / 3300ms）皆可驗證，不再依賴 1000ms 取樣。
+    //
+    // 刻意保留餘裕（最大 4500ms < 5000ms 窗），原因是 verify() 以「呼叫當下的 Date.now()」
+    // 為基準回掃 offset ∈ [0, toleranceMs]，因此 generate → verify 之間的執行耗時會
+    // 累加到鎖的實際年齡上。若沿用貼齊邊界的 4999ms，只要這段耗時超過 1ms，
+    // 年齡即達 5000ms 並被實作「正確地」拒絕 —— 那是在測牆上時鐘而非測契約，
+    // 會讓 CI 隨機紅燈 (flake)。實作本身無誤，故修正點在測資選擇。
+    //
+    // 邊界年齡的覆蓋沒有被放棄：改由下一則測試以 race-free 的精確時間戳路徑驗證；
+    // 超窗必須拒絕的語意則由 'rejects a lock created outside the tolerance window' 覆蓋。
+    for (const age of [1, 250, 3300, 4500]) {
       const ts = Date.now() - age;
       const hash = FiveTHashLock.generate('src', 'content', ts);
       expect(FiveTHashLock.verify('src', 'content', hash, 5000)).toBe(true);
     }
+  });
+
+  it('verifies a boundary-age lock deterministically via explicit timestamp', () => {
+    // 貼齊容差窗邊界（4999ms / 5000ms）的年齡走「精確時間戳」比對路徑，
+    // 不經過以 Date.now() 為基準的回掃，故不受執行耗時影響，可穩定斷言。
+    const ts = Date.now() - 4999;
+    const hash = FiveTHashLock.generate('src', 'content', ts);
+    expect(FiveTHashLock.verify('src', 'content', hash, 5000, ts)).toBe(true);
   });
 
   it('rejects a lock created outside the tolerance window', () => {

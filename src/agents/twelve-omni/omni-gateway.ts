@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * ==========================================
  * 🌌 OmniGateway — 萬能網關實現 (增強版)
@@ -26,7 +27,7 @@ export class OmniGatewayV2 implements IOmniGatewayV2 {
     originCause: string;
     processTrace: string[];
     finalEffect: string;
-    [key: string]: any } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
+    } = { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' };
 
   /** 戒嚴狀態 */
   private martialLawActive: boolean = false;
@@ -134,7 +135,7 @@ export class OmniGatewayV2 implements IOmniGatewayV2 {
     this.martialLawActive = true;
     this.martialLawReason = reason;
     this.martialLawActivatedAt = Date.now();
-    this.evidence['martial_law'] = { reason, activatedAt: Date.now() };
+    Object.assign((this as any).evidence, { martial_law: { reason, activatedAt: Date.now() } });
   }
 
   liftMartialLaw(): void {

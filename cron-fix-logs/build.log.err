@@ -1,0 +1,573 @@
+$ cross-env NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--max-old-space-size=1536 tsx scripts/validate-env.ts && next build
+
+> Build error occurred
+Error: Turbopack build failed with 32 errors:
+./src/lib/firebase-admin.ts:14:1
+Module not found: Can't resolve './local-store'
+  [90m12 |[0m [90m */[0m
+  [90m13 |[0m
+[31m[1m>[0m [90m14 |[0m [36mimport[0m adminDb [36mfrom[0m [32m'./local-store'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m15 |[0m
+  [90m16 |[0m [90m// 本地模式下不初始化任何 GCP 連線[0m
+  [90m17 |[0m [36mlet[0m _app: { local: [36mtrue[0m } | [36mnull[0m = [36mnull[0m;
+
+
+
+Import traces:
+  #1 [App Route]:
+    ./src/lib/firebase-admin.ts
+    ./src/core/services/async-task-manager.ts
+    ./app/api/sustain-write/v5/progress/[taskId]/route.ts
+
+  #2 [App Route]:
+    ./src/lib/firebase-admin.ts
+    ./src/core/services/enterprise-data.ts
+    ./src/core/services/report-generator-v5-full.ts
+    ./app/api/sustain-write/v5/route.ts
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/agnes/route.ts:1:1
+Module not found: Can't resolve '@lib/agnes-api'
+[31m[1m>[0m [90m1 |[0m [36mimport[0m { agnesApi } [36mfrom[0m [32m'@lib/agnes-api'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m2 |[0m [36mimport[0m { jsonResponse, jsonError, jsonErrorInternal } [36mfrom[0m [32m'@lib/api-utils'[0m;
+  [90m3 |[0m
+  [90m4 |[0m [36mexport[0m [36masync[0m [36mfunction[0m [33mPOST[0m(req: [33mRequest[0m) {
+
+Import map: aliased to relative './lib/agnes-api' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/rag/ingest/route.ts:2:1
+Module not found: Can't resolve '@lib/agnes-api'
+  [90m1 |[0m [36mimport[0m pdfParse [36mfrom[0m [32m'pdf-parse'[0m;
+[31m[1m>[0m [90m2 |[0m [36mimport[0m { agnesApi } [36mfrom[0m [32m'@lib/agnes-api'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mimport[0m { db } [36mfrom[0m [32m'@lib/firebase'[0m;
+  [90m4 |[0m [36mimport[0m { collection, addDoc } [36mfrom[0m [32m'@lib/firebase'[0m;
+  [90m5 |[0m [36mimport[0m { jsonResponse, jsonError, jsonErrorInternal } [36mfrom[0m [32m'@lib/api-utils'[0m;
+
+Import map: aliased to relative './lib/agnes-api' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/village/vote/route.ts:2:1
+Module not found: Can't resolve '@lib/celestial/implementation'
+  [90m1 |[0m [36mimport[0m { rateLimit } [36mfrom[0m [32m'@lib/rate-limit'[0m;
+[31m[1m>[0m [90m2 |[0m [36mimport[0m { [33mCelestialController[0m } [36mfrom[0m [32m'@lib/celestial/implementation'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m [36mimport[0m { jsonResponse, jsonError, validateParams, validatePositiveNumber, jsonErrorInternal...
+  [90m4 |[0m
+  [90m5 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+
+Import map: aliased to relative './lib/celestial/implementation' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/nexus/route.ts:5:1
+Module not found: Can't resolve '@lib/cloudflare'
+  [90m3 |[0m [36mimport[0m { v4 [36mas[0m uuidv4 } [36mfrom[0m [32m'uuid'[0m;
+  [90m4 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m5 |[0m [36mimport[0m { runGeminiWithWorkersAIFallback } [36mfrom[0m [32m'@lib/cloudflare'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m6 |[0m
+  [90m7 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m8 |[0m [36mexport[0m [36mconst[0m runtime = [32m'nodejs'[0m;
+
+Import map: aliased to relative './lib/cloudflare' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/sustain-write/v5/grammar/route.ts:3:1
+Module not found: Can't resolve '@lib/cloudflare'
+  [90m1 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m2 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m3 |[0m [36mimport[0m { runGeminiWithWorkersAIFallback } [36mfrom[0m [32m'@lib/cloudflare'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m4 |[0m
+  [90m5 |[0m /**
+  [90m6 |[0m  * 安全柵欄：預設 [33mFREE_TIER_ONLY[0m 為 [36mtrue[0m
+
+Import map: aliased to relative './lib/cloudflare' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/village/trends/route.ts:6:1
+Module not found: Can't resolve '@lib/cloudflare'
+  [90m4 |[0m [36minterface[0m [33mGeminiContent[0m { parts?: [33mGeminiPart[0m[] }
+  [90m5 |[0m [36mtype[0m [33mInteractionStep[0m = { [36mtype[0m?: string; content?: [33mGeminiContent[0m };
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { runGeminiWithWorkersAIFallback } [36mfrom[0m [32m'@lib/cloudflare'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m
+  [90m8 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m9 |[0m [36mexport[0m [36mconst[0m runtime = [32m'nodejs'[0m;
+
+Import map: aliased to relative './lib/cloudflare' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/esg-sonnar/route.ts:7:1
+Module not found: Can't resolve '@lib/esg-sonnar'
+  [90m 5 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 6 |[0m [36mimport[0m { jsonResponse, jsonError, jsonErrorInternal } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mESGSonnarService[0m } [36mfrom[0m [32m'@lib/esg-sonnar'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m
+  [90m 9 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m10 |[0m
+
+Import map: aliased to relative './lib/esg-sonnar' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/hashlock/route.ts:13:1
+Module not found: Can't resolve '@lib/five-t-protocol'
+  [90m11 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m12 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m13 |[0m [36mimport[0m { [33mFiveTHashLock[0m } [36mfrom[0m [32m'@lib/five-t-protocol'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m14 |[0m
+  [90m15 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m16 |[0m
+
+Import map: aliased to relative './lib/five-t-protocol' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/verify-5t/route.ts:16:1
+Module not found: Can't resolve '@lib/five-t-protocol'
+  [90m14 |[0m [90m// ============================================================================[0m
+  [90m15 |[0m [36mimport[0m { [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+[31m[1m>[0m [90m16 |[0m [36mimport[0m { calculateFiveTScore, [33mFiveTGatekeeper[0m, [33mFiveTHashLock[0m } [36mfrom[0m [32m'@lib/five-t-protocol'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m17 |[0m [36mimport[0m { verifyWebhookSignature } [36mfrom[0m [32m'@lib/webhook-auth'[0m;
+  [90m18 |[0m
+  [90m19 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+
+Import map: aliased to relative './lib/five-t-protocol' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/ai-notes/route.ts:7:1
+Module not found: Can't resolve '@lib/ncb-client'
+  [90m 5 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 6 |[0m [36mimport[0m { jsonResponse, jsonError, validateParams } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { getNCBClient } [36mfrom[0m [32m'@lib/ncb-client'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m
+  [90m 9 |[0m [90m// GET /api/ai-notes - 取得筆記列表[0m
+  [90m10 |[0m [36mexport[0m [36masync[0m [36mfunction[0m [33mGET[0m(request: [33mNextRequest[0m) {
+
+Import map: aliased to relative './lib/ncb-client' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/ai-notes/search/route.ts:7:1
+Module not found: Can't resolve '@lib/ncb-client'
+  [90m 5 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 6 |[0m [36mimport[0m { jsonResponse, jsonError, validateParams } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { getNCBClient } [36mfrom[0m [32m'@lib/ncb-client'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m [36mtype[0m { [33mSearchResult[0m, [33mNoteWithTags[0m } [36mfrom[0m [32m'@/types/notes'[0m;
+  [90m 9 |[0m
+  [90m10 |[0m [36mimport[0m [36mtype[0m { [33mPool[0m } [36mfrom[0m [32m'pg'[0m;
+
+Import map: aliased to relative './lib/ncb-client' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/ai-notes/tags/route.ts:7:1
+Module not found: Can't resolve '@lib/ncb-client'
+  [90m 5 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 6 |[0m [36mimport[0m { jsonResponse, jsonError, validateParams } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { getNCBClient } [36mfrom[0m [32m'@lib/ncb-client'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [90m// Tags route[0m
+  [90m 9 |[0m
+  [90m10 |[0m [90m// GET /api/ai-notes/tags - 取得標籤列表[0m
+
+Import map: aliased to relative './lib/ncb-client' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/omni/plugins/route.ts:9:1
+Module not found: Can't resolve '@lib/omni-base/plugin-registry'
+  [90m 7 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 8 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 9 |[0m [36mimport[0m { getPluginRegistry } [36mfrom[0m [32m'@lib/omni-base/plugin-registry'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m10 |[0m
+  [90m11 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m12 |[0m
+
+Import map: aliased to relative './lib/omni-base/plugin-registry' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/omni-core/status/route.ts:6:1
+Module not found: Can't resolve '@lib/omni-core'
+  [90m4 |[0m [90m// ═══════════════════════════════════════════════════════════════[0m
+  [90m5 |[0m
+[31m[1m>[0m [90m6 |[0m [36mimport[0m { getOmniCoreStatus } [36mfrom[0m [32m'@lib/omni-core'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m7 |[0m [36mimport[0m { apiSuccess, apiInternalError } [36mfrom[0m [32m'@esggo/errors/api'[0m;
+  [90m8 |[0m
+  [90m9 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+
+Import map: aliased to relative './lib/omni-core' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/village/projects/route.ts:2:1
+Module not found: Can't resolve '@lib/omni-core/entropy-forge'
+  [90m1 |[0m [36mimport[0m { jsonResponse, jsonError, jsonErrorInternal } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m2 |[0m [36mimport[0m { [33mEntropyForge[0m } [36mfrom[0m [32m'@lib/omni-core/entropy-forge'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m
+  [90m4 |[0m [90m// ----------------------------------------------------------------------------[0m
+  [90m5 |[0m [90m// OmniVillage Projects Database (Mock)[0m
+
+Import map: aliased to relative './lib/omni-core/entropy-forge' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/omni-agent/console/route.ts:12:1
+Module not found: Can't resolve '@lib/omni-core/omni-kernel'
+  [90m10 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+  [90m11 |[0m [36mimport[0m { [33mDEFAULT_CAPABILITIES[0m, [33mOMNI_AGENT_META[0m, [33mOmniAgent[0m } [36mfrom[0m [32m'@lib/omni-agent'[0m;
+[31m[1m>[0m [90m12 |[0m [36mimport[0m { omniKernel } [36mfrom[0m [32m'@lib/omni-core/omni-kernel'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m13 |[0m [36mimport[0m { [33mESGGO_PALETTE[0m } [36mfrom[0m [32m'@lib/omni-theme'[0m;
+  [90m14 |[0m
+  [90m15 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+
+Import map: aliased to relative './lib/omni-core/omni-kernel' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/agentic-twin/route.ts:2:1
+Module not found: Can't resolve '@lib/omni-reports/agentic-twin'
+  [90m1 |[0m [36mimport[0m { [33mNextRequest[0m, [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+[31m[1m>[0m [90m2 |[0m [36mimport[0m { [33mAgenticTwin[0m } [36mfrom[0m [32m'@lib/omni-reports/agentic-twin'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m3 |[0m
+  [90m4 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m5 |[0m
+
+Import map: aliased to relative './lib/omni-reports/agentic-twin' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/tags/universal/route.ts:7:1
+Module not found: Can't resolve '@lib/prisma'
+  [90m 5 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 6 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { prisma } [36mfrom[0m [32m'@lib/prisma'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m [36mimport[0m { syncEsgTags, getEntityTags } [36mfrom[0m [32m'@/core/tags/universal-tag-service'[0m;
+  [90m 9 |[0m
+  [90m10 |[0m [90m// GET /api/tags/universal?entityType=&entityId= -> 查詢實體標籤配對[0m
+
+Import map: aliased to relative './lib/prisma' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/village/vote/route.ts:1:1
+Module not found: Can't resolve '@lib/rate-limit'
+[31m[1m>[0m [90m1 |[0m [36mimport[0m { rateLimit } [36mfrom[0m [32m'@lib/rate-limit'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m2 |[0m [36mimport[0m { [33mCelestialController[0m } [36mfrom[0m [32m'@lib/celestial/implementation'[0m;
+  [90m3 |[0m [36mimport[0m { jsonResponse, jsonError, validateParams, validatePositiveNumber, jsonErrorInternal...
+  [90m4 |[0m
+
+Import map: aliased to relative './lib/rate-limit' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/omni-center/summary/route.ts:10:1
+Module not found: Can't resolve '@lib/storage-service'
+  [90m 8 |[0m
+  [90m 9 |[0m [36mimport[0m { jsonResponse } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m10 |[0m [36mimport[0m { prisma } [36mfrom[0m [32m'@lib/storage-service'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m11 |[0m
+  [90m12 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m13 |[0m [36mexport[0m [36mconst[0m runtime = [32m'nodejs'[0m;
+
+Import map: aliased to relative './lib/storage-service' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/village/data/route.ts:1:1
+Module not found: Can't resolve '@lib/village-seeder'
+[31m[1m>[0m [90m1 |[0m [36mimport[0m { seedVillageData } [36mfrom[0m [32m'@lib/village-seeder'[0m;
+  [90m  |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m2 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+  [90m3 |[0m
+  [90m4 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+
+Import map: aliased to relative './lib/village-seeder' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/cron/route.ts:8:1
+Module not found: Can't resolve '@lib/webhook-auth'
+  [90m 6 |[0m [36mimport[0m { [33mNextRequest[0m, [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 7 |[0m [36mimport[0m { jsonError, jsonResponse } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 8 |[0m [36mimport[0m { verifyWebhookSignature } [36mfrom[0m [32m'@lib/webhook-auth'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 9 |[0m
+  [90m10 |[0m /**
+  [90m11 |[0m  * 認證守門：cron 手動觸發端點僅供內部排程或持有 [33mCRON_SECRET[0m 的服務呼叫。
+
+Import map: aliased to relative './lib/webhook-auth' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/memory/route.ts:9:1
+Module not found: Can't resolve '@lib/webhook-auth'
+  [90m 7 |[0m [36mimport[0m [36mtype[0m { [33mMemoryEntry[0m, [33mMemoryQuery[0m } [36mfrom[0m [32m'@esggo/shared'[0m;
+  [90m 8 |[0m [36mimport[0m { jsonResponse, jsonError } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 9 |[0m [36mimport[0m { verifyWebhookSignature } [36mfrom[0m [32m'@lib/webhook-auth'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m10 |[0m
+  [90m11 |[0m /**
+  [90m12 |[0m  * 寫入/刪除守門：memory 為對內共享總線（[33mNext[0m.js 內部 + [33mGateway[0m 經 [33mHTTP[0m 呼叫），
+
+Import map: aliased to relative './lib/webhook-auth' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/sonnar/crawl/route.ts:10:1
+Module not found: Can't resolve '@lib/webhook-auth'
+  [90m 8 |[0m [36mimport[0m { jsonError, jsonResponse } [36mfrom[0m [32m'@lib/api-utils'[0m;
+  [90m 9 |[0m [36mimport[0m [36mtype[0m { [33mSubscriptionMatch[0m } [36mfrom[0m [32m'@/core/sonnar/sonar-bridge'[0m;
+[31m[1m>[0m [90m10 |[0m [36mimport[0m { verifyWebhookSignature } [36mfrom[0m [32m'@lib/webhook-auth'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m11 |[0m
+  [90m12 |[0m [90m// GET /api/sonnar/crawl — Get scheduler status & job list[0m
+  [90m13 |[0m [36mexport[0m [36masync[0m [36mfunction[0m [33mGET[0m() {
+
+Import map: aliased to relative './lib/webhook-auth' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/verify-5t/route.ts:17:1
+Module not found: Can't resolve '@lib/webhook-auth'
+  [90m15 |[0m [36mimport[0m { [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m16 |[0m [36mimport[0m { calculateFiveTScore, [33mFiveTGatekeeper[0m, [33mFiveTHashLock[0m } [36mfrom[0m [32m'@lib/five-t-protocol'[0m;
+[31m[1m>[0m [90m17 |[0m [36mimport[0m { verifyWebhookSignature } [36mfrom[0m [32m'@lib/webhook-auth'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m18 |[0m
+  [90m19 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m20 |[0m
+
+Import map: aliased to relative './lib/webhook-auth' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/zenrows/fetch/route.ts:7:1
+Module not found: Can't resolve '@lib/zenrows-client'
+  [90m 5 |[0m [90m */[0m
+  [90m 6 |[0m [36mimport[0m { [33mNextRequest[0m, [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { zenrowsFetch, verifyZenrowsWebhookSignature } [36mfrom[0m [32m'@lib/zenrows-client'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m
+  [90m 9 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m10 |[0m
+
+Import map: aliased to relative './lib/zenrows-client' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/zkp/route.ts:7:1
+Module not found: Can't resolve '@lib/zkp-service'
+  [90m 5 |[0m [36mimport[0m { [33mNextRequest[0m } [36mfrom[0m [32m'next/server'[0m;
+  [90m 6 |[0m [36mimport[0m { jsonResponse, jsonError, jsonErrorInternal } [36mfrom[0m [32m'@lib/api-utils'[0m;
+[31m[1m>[0m [90m 7 |[0m [36mimport[0m { [33mZKPService[0m } [36mfrom[0m [32m'@lib/zkp-service'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m 8 |[0m
+  [90m 9 |[0m [36mexport[0m [36mconst[0m dynamic = [32m'force-dynamic'[0m;
+  [90m10 |[0m
+
+Import map: aliased to relative './lib/zkp-service' inside of [project]/
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+./app/api/admin/resources/route.ts:10:1
+Export ncbQuery doesn't exist in target module
+  [90m 8 |[0m
+  [90m 9 |[0m [36mimport[0m { [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+[31m[1m>[0m [90m10 |[0m [36mimport[0m { ncbQuery } [36mfrom[0m [32m'@lib/ncb-utils'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m11 |[0m
+  [90m12 |[0m [36mexport[0m [36mconst[0m runtime = [32m'nodejs'[0m;
+  [90m13 |[0m
+
+The export ncbQuery was not found in module [project]/lib/ncb-utils.ts [app-route] (ecmascript).
+Did you mean to import ncbFetch?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+./app/api/learning-center/route.ts:10:1
+Export ncbQuery doesn't exist in target module
+  [90m 8 |[0m
+  [90m 9 |[0m [36mimport[0m { [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+[31m[1m>[0m [90m10 |[0m [36mimport[0m { ncbQuery } [36mfrom[0m [32m'@lib/ncb-utils'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m11 |[0m
+  [90m12 |[0m [36mexport[0m [36masync[0m [36mfunction[0m [33mGET[0m() {
+  [90m13 |[0m   [36mtry[0m {
+
+The export ncbQuery was not found in module [project]/lib/ncb-utils.ts [app-route] (ecmascript).
+Did you mean to import ncbFetch?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+./app/api/learning-center/support/route.ts:9:1
+Export ncbQuery doesn't exist in target module
+  [90m 7 |[0m
+  [90m 8 |[0m [36mimport[0m { [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+[31m[1m>[0m [90m 9 |[0m [36mimport[0m { ncbQuery } [36mfrom[0m [32m'@lib/ncb-utils'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m10 |[0m
+  [90m11 |[0m [36mfunction[0m isNcbdbConfigured(): boolean {
+  [90m12 |[0m   [36mreturn[0m !!process.env.[33mNCB_API_KEY[0m;
+
+The export ncbQuery was not found in module [project]/lib/ncb-utils.ts [app-route] (ecmascript).
+Did you mean to import ncbFetch?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+./app/api/surveys/route.ts:10:1
+Export ncbQuery doesn't exist in target module
+  [90m 8 |[0m
+  [90m 9 |[0m [36mimport[0m { [33mNextResponse[0m } [36mfrom[0m [32m'next/server'[0m;
+[31m[1m>[0m [90m10 |[0m [36mimport[0m { ncbQuery } [36mfrom[0m [32m'@lib/ncb-utils'[0m;
+  [90m   |[0m [31m[1m^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^[0m
+  [90m11 |[0m
+  [90m12 |[0m [36mtype[0m [33mSurveyRow[0m = {
+  [90m13 |[0m   id?: string;
+
+The export ncbQuery was not found in module [project]/lib/ncb-utils.ts [app-route] (ecmascript).
+Did you mean to import ncbFetch?
+All exports of the module are statically known (It doesn't have dynamic exports). So it's known statically that the requested export doesn't exist.
+
+
+    at <unknown> (./src/lib/firebase-admin.ts:14:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/agnes/route.ts:1:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/rag/ingest/route.ts:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/village/vote/route.ts:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/nexus/route.ts:5:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/sustain-write/v5/grammar/route.ts:3:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/village/trends/route.ts:6:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/esg-sonnar/route.ts:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/hashlock/route.ts:13:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/verify-5t/route.ts:16:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/ai-notes/route.ts:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/ai-notes/search/route.ts:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/ai-notes/tags/route.ts:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/omni/plugins/route.ts:9:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/omni-core/status/route.ts:6:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/village/projects/route.ts:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/omni-agent/console/route.ts:12:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/agentic-twin/route.ts:2:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/tags/universal/route.ts:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/village/vote/route.ts:1:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/omni-center/summary/route.ts:10:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/village/data/route.ts:1:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/cron/route.ts:8:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/memory/route.ts:9:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/sonnar/crawl/route.ts:10:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/verify-5t/route.ts:17:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/zenrows/fetch/route.ts:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/zkp/route.ts:7:1)
+    at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+    at <unknown> (./app/api/admin/resources/route.ts:10:1)
+    at <unknown> (./app/api/learning-center/route.ts:10:1)
+    at <unknown> (./app/api/learning-center/support/route.ts:9:1)
+    at <unknown> (./app/api/surveys/route.ts:10:1)

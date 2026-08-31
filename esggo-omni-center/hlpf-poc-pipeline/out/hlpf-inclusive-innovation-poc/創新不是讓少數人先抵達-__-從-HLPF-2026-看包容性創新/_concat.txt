@@ -1,4 +1,0 @@
-file 'C:\Project\esggo-learning-center\hlpf-poc-pipeline\out\hlpf-inclusive-innovation-poc\創新不是讓少數人先抵達-__-從-HLPF-2026-看包容性創新\_clip_01.mp4'
-file 'C:\Project\esggo-learning-center\hlpf-poc-pipeline\out\hlpf-inclusive-innovation-poc\創新不是讓少數人先抵達-__-從-HLPF-2026-看包容性創新\_clip_02.mp4'
-file 'C:\Project\esggo-learning-center\hlpf-poc-pipeline\out\hlpf-inclusive-innovation-poc\創新不是讓少數人先抵達-__-從-HLPF-2026-看包容性創新\_clip_03.mp4'
-file 'C:\Project\esggo-learning-center\hlpf-poc-pipeline\out\hlpf-inclusive-innovation-poc\創新不是讓少數人先抵達-__-從-HLPF-2026-看包容性創新\_clip_04.mp4'

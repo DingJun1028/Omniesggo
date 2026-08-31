@@ -1,0 +1,30 @@
+<svg width="148" height="44" viewBox="0 0 148 44" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="墾趣旅遊 FTG 3.0">
+  <!-- 標誌圖章：葉脈路徑 + 旅遊定點 -->
+  <defs>
+    <linearGradient id="ftgLeaf" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4f8b5d"/>
+      <stop offset="1" stop-color="#274d31"/>
+    </linearGradient>
+    <linearGradient id="ftgGold" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e3c987"/>
+      <stop offset="1" stop-color="#c9a24b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 圓形底章 -->
+  <circle cx="22" cy="22" r="21" fill="url(#ftgLeaf)"/>
+  <circle cx="22" cy="22" r="21" fill="none" stroke="url(#ftgGold)" stroke-width="1.6"/>
+
+  <!-- 葉形（墾=土地/永續）-->
+  <path d="M22 9 C14 14 13 26 22 35 C31 26 30 14 22 9 Z" fill="#f3ede1" opacity="0.92"/>
+  <path d="M22 12 L22 33" stroke="#3c6e47" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M22 18 L17 21 M22 22 L27 25 M22 26 L18 29" stroke="#3c6e47" stroke-width="1.1" stroke-linecap="round"/>
+
+  <!-- 旅遊定點（金點 + 路徑）-->
+  <circle cx="30" cy="15" r="2.6" fill="url(#ftgGold)"/>
+  <path d="M22 30 Q27 24 30 15" stroke="url(#ftgGold)" stroke-width="1.4" stroke-dasharray="2 2.4" fill="none" stroke-linecap="round"/>
+
+  <!-- 文字標誌 -->
+  <text x="54" y="20" font-family="'Noto Sans TC','PingFang TC',sans-serif" font-size="16" font-weight="800" fill="#10243f" letter-spacing="1">墾趣旅遊</text>
+  <text x="55" y="36" font-family="'Noto Sans TC',sans-serif" font-size="9.5" font-weight="600" fill="#c9a24b" letter-spacing="3">FTG·3.0 SUSTAINABLE TRAVEL</text>
+</svg>

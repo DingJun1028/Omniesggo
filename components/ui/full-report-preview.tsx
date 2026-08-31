@@ -95,11 +95,11 @@ export const FullReportAuditPreview = ({ onClose }: { onClose: () => void }) => 
 
         {/* Action Buttons */}
         <div className="flex gap-4">
-          <button className="flex-1 py-4 bg-white text-slate-900 rounded-xl font-bold hover:bg-slate-100 transition-all flex items-center justify-center gap-2">
+          <button className="flex-1 py-4 bg-white text-slate-900 rounded-xl font-bold hover:bg-slate-100 transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-slate-400 focus:outline-none">
             <Download className="w-5 h-5" />
             下載 5T 確信報告全本 (PDF)
           </button>
-          <button className="px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2">
+          <button className="px-8 py-4 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-indigo-400 focus:outline-none">
             <ExternalLink className="w-5 h-5" />
             發布至企業 ESG 官網
           </button>

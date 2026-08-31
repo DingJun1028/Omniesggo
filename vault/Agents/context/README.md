@@ -4,6 +4,7 @@ co_authors: []
 created: 2026-08-13
 modified: 2026-08-13
 lifecycle: active
+access: public-research
 ---
 
 # 知識花園 · 第二大腦上下文

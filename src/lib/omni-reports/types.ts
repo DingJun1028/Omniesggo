@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OMNI ESG Reports Center — 萬能元件心核 (IComponentCore)
  * 對齊《OMNI ESG 萬能永續報告書 - 開發與架構對照書》v1.1.0-Universe
@@ -11,11 +12,18 @@
 
 /** 萬能元件心核介面 (5T 不可篡改禁區) */
 export interface IComponentCore {
-  readonly uuid: string; // 唯一識別碼 (mod- 開頭，英碼繁博準則)
-  readonly version: string; // 語義化版本 (例: 1.1.0-Universe)
-  readonly timestamp: number; // 刻印時間戳 (Epoch ms)
-  source_origin: string; // 數據來源起點 (Traceable 真理)
-  evidence: string[]; // 證據佐證庫 URL 陣列 (S3/R2)
+  // 萬能永憶主體唯一識別碼 (Immutable)
+  readonly uuid: string;
+  // 語義化版本控制
+  readonly version: string;
+  // 刻印時間戳 (溯源起點)
+  readonly timestamp: number;
+  // 證據左證庫 (儲存觀因循果的執行軌跡)
+  evidence: {
+    originCause: string;    // 因：原始觸發條件
+    processTrace: string[]; // 循：InfoOne 流轉路徑
+    finalEffect: string;    // 果：最終執行結果與狀態
+  };
 }
 
 /** 動態表單欄位型別 (Schema-Driven UI) */

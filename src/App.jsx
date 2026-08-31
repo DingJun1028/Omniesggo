@@ -1,23 +1,17 @@
-import React, { useState, useEffect, useRef, Component } from 'react';
-import {
-  useFirebase, initAuth, subscribeSubmissions, addSubmission, deleteSubmission,
-  uploadFiles, signInWithGoogle, signOut
-} from './db';
+import React, { useState, useEffect, useRef } from 'react';
+import { useFirebase, initAuth, subscribeSubmissions, addSubmission, uploadFiles, signInWithGoogle, signOut, migrateLocalToNcb } from './db';
 import { getKnowledgeEntries } from './repositories/rag.repository';
 import { refreshRoleFromClaims, setupProfileIfMissing } from './repositories/auth.repository';
 import { getUserProfile, upsertUserProfile } from './repositories/profile.repository';
 import {
-  BookOpen, Upload, PlayCircle, CalendarCheck, MessageCircleQuestion,
+  BookOpen, Upload, PlayCircle,
   Smile, Database, ShieldCheck, ArrowLeft, Send, ChevronDown, FileText,
-  Globe, Search, Trash2, Filter, X, Users, LogIn, LogOut,
+  Search, Trash2, Filter, Users, LogIn, LogOut,
   User, Download
 } from 'lucide-react';
 import translations from './i18n/translations';
 
 const ADMIN_PASS = import.meta.env?.VITE_ADMIN_PASS || import.meta.env.VITE_ADMIN_PASS || '';
-const ADMIN_UID = import.meta.env?.VITE_ADMIN_UID || import.meta.env.VITE_ADMIN_UID || '';
-const MAX_FILE_BYTES = 5 * 1024 * 1024;
-const MAX_TOTAL_BYTES = 700 * 1024;
 
 const CardLink = ({ href, icon, title }) => (
   <a href={href} target="_blank" rel="noreferrer" className="bg-white p-5 sm:p-6 rounded-xl shadow-sm border border-slate-100 hover:shadow-md hover:border-[#FDB515] transition-all flex flex-col items-center justify-center gap-4 group cursor-pointer min-h-[130px] sm:min-h-[160px]">
@@ -32,33 +26,6 @@ const CardAction = ({ onClick, icon, title }) => (
     <h3 className="text-lg font-bold text-[#003262]">{title}</h3>
   </div>
 );
-
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { error };
-  }
-  componentDidCatch(error, info) {
-    console.error('[ErrorBoundary]', error, info.componentStack);
-  }
-  render() {
-    const { error } = this.state;
-    if (error) {
-      return (
-        <div className="min-h-screen bg-red-50 text-red-900 p-6">
-          <div className="max-w-2xl mx-auto bg-white border border-red-200 rounded-xl shadow-sm p-6">
-            <h2 className="text-lg font-bold mb-2">預期外的錯誤</h2>
-            <pre className="whitespace-pre-wrap font-mono text-sm bg-red-50 border border-red-200 rounded-lg p-4">{error?.message}{'\n'}{error?.stack}</pre>
-          </div>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
 
 const renderFiles = (files) => (
   <div className="flex flex-col gap-2">
@@ -110,31 +77,7 @@ const DetailPanel = ({ t, item }) => {
   );
 };
 
-const AttachmentUploader = ({ value = [], onChange, t }) => {
-  const [error, setError] = useState('');
-  const handleFiles = (fileList) => {
-    const files = Array.from(fileList);
-    const tooBig = files.some((f) => f.size > MAX_FILE_BYTES);
-    if (tooBig) { setError(t.common.attachmentTooBig); return; }
-    const total = (value || []).reduce((s, f) => s + (f.size || 0), 0) + files.reduce((s, f) => s + (f.size || 0), 0);
-    if (total > MAX_TOTAL_BYTES) { setError(t.common.attachmentTotalTooBig); return; }
-    setError('');
-    onChange([...(value || []), ...files]);
-  };
-  return (
-    <div>
-      <input type="file" multiple onChange={(e) => handleFiles(e.target.files)} className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#003262] outline-none file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-slate-100 file:text-[#003262] file:font-semibold hover:file:bg-slate-200" />
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-      {value && value.length > 0 && (
-        <ul className="mt-2 space-y-1 text-xs text-slate-600">
-          {value.map((f, i) => (
-            <li key={i} className="flex items-center gap-2"><FileText size={14} /><span className="truncate">{f.name}</span><span className="text-slate-400">({(f.size / 1024).toFixed(0)} KB)</span><button type="button" onClick={() => onChange(value.filter((_, idx) => idx !== i))} className="ml-auto text-slate-400 hover:text-red-500">✕</button></li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-};
+
 
 const ReplayListView = ({ t, videos, onSelect }) => {
   if (!videos) return <div className="p-6 text-center text-slate-500">{t.replay.loading}</div>;
@@ -253,8 +196,7 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [submissions, setSubmissions] = useState([]);
   const [role, setRole] = useState('student');
-  const [adminOk, setAdminOk] = useState(false);
-  const [adminPrompt, setAdminPrompt] = useState(false);
+    const [adminPrompt, setAdminPrompt] = useState(false);
   const [adminInput, setAdminInput] = useState('');
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const profileMenuRef = useRef(null);
@@ -267,9 +209,7 @@ export default function App() {
   const [replayView, setReplayView] = useState('list');
   const [replayVideos, setReplayVideos] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [knowledgeEntries, setKnowledgeEntries] = useState([]);
-  const [knowledgeQuery, setKnowledgeQuery] = useState('');
-  const [authMessage, setAuthMessage] = useState('');
+      const [authMessage, setAuthMessage] = useState('');
   const [profileSetup, setProfileSetup] = useState(false);
   const [profileForm, setProfileForm] = useState({ displayName: '', email: '', org: '' });
   const [error, setError] = useState(null);
@@ -283,6 +223,9 @@ export default function App() {
       if (!u) return;
       refreshRoleFromClaims(u).then((r) => setRole(r));
     });
+    // 2026-08-25 無縫轉移: 若啟用 NCBDB (VITE_NCB_API_KEY 已設), 自動把 localStorage 資料遷移至 NCBDB
+    // 無 Key 時 migrateLocalToNcb 內部自動 skip, 不影響現有 localStorage 行為
+    migrateLocalToNcb().catch((e) => console.warn('[NCB Migration] skipped:', e?.message || e));
     return () => { if (unsub) unsub(); };
   }, []);
 
@@ -352,24 +295,6 @@ export default function App() {
     return () => { cancelled = true; };
   }, [view]);
 
-  const trySwitchRole = async (next) => {
-    if (next === 'student') { setRole('student'); setView('home'); return; }
-    try {
-      if (!user || user.isLocal || user.isAnonymous) {
-        if (next === 'admin') { setAdminPrompt(true); return; }
-        setAuthMessage(t.auth.signInRequired || '請先使用 Google 登入'); return;
-      }
-      if (user.uid === ADMIN_UID) { setRole('admin'); setView('admin'); return; }
-      const claimsRole = await refreshRoleFromClaims(user);
-      if ((next === 'admin' && claimsRole === 'admin') || (next === 'TA' && (claimsRole === 'TA' || claimsRole === 'admin'))) { setRole(next); setView(next === 'admin' ? 'admin' : 'ta'); return; }
-      if (next === 'admin' && adminOk) { setRole('admin'); setView('admin'); return; }
-      if (next === 'admin') { setAdminPrompt(true); return; }
-      setAuthMessage(t.auth.noPermission || '您的帳號無此權限，請聯繫管理員。');
-    } catch (err) {
-      console.error('[role-switch]', err);
-      setAuthMessage(t.auth.noPermission || '切換角色失敗，請稍後再試。');
-    }
-  };
 
   const confirmAdmin = () => {
     if (!ADMIN_PASS || adminInput === ADMIN_PASS) { setAdminOk(true); setRole('admin'); setView('admin'); }

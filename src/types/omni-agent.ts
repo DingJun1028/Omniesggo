@@ -1,3 +1,4 @@
+ 
 // OA: 智慧代理核心抽象 (OmniAgent Core)
 // 定義 OA 在系統層面的最小行為介面與相關型別。
 
@@ -5,25 +6,18 @@
  * 基礎核心型別 – 所有可追溯資料的共同屬性。
  */
 export interface IComponentCore {
-  /** 萬能永憶主體唯一識別碼（UUID v4） */
+  // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
-  /** 語義化版本控制 (e.g., "2.1.0") */
+  // 語義化版本控制
   readonly version: string;
-  /** 刻印時間戳 (Unix Epoch, ms) */
+  // 刻印時間戳 (溯源起點)
   readonly timestamp: number;
-  /** 證據佐證庫 (用於零幻覺驗算，如 ISO‑14064‑1) */
+  // 證據左證庫 (儲存觀因循果的執行軌跡)
   evidence: {
-    originCause: string;
-    processTrace: string[];
-    finalEffect: string;
-    [key: string]: any;
+    originCause: string;    // 因：原始觸發條件
+    processTrace: string[]; // 循：InfoOne 流轉路徑
+    finalEffect: string;    // 果：最終執行結果與狀態
   };
-  /** 防篡改雜湊值（SHA‑256、Keccak‑256 …） */
-  readonly hash: string;
-  /** （可選）雜湊 Salt，用於提升撞庫抗性 */
-  readonly salt?: string;
-  /** （可選）數位簽章（digital signature） */
-  readonly signature?: string;
 }
 
 /** 生命週期階段枚舉（全局共用） */

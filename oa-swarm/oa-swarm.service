@@ -1,0 +1,18 @@
+# OA-Team 30 萬能蜂群 — systemd 服務 (VPS Ubuntu/Debian)
+# 安裝: sudo cp oa-swarm.service /etc/systemd/system/ && sudo systemctl enable --now oa-swarm
+[Unit]
+Description=OA-Team 30 萬能蜂群守護
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/esggo/apps/oa-swarm
+ExecStart=/usr/bin/node dist/index.js
+Environment=PORT=8788
+Environment=OLLAMA_BASE=http://localhost:11434
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

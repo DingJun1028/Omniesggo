@@ -6,6 +6,7 @@ modified: 2026-08-13
 sync: mirror
 lifecycle: active
 tags: [universal-translator, bilingual, player, rwd]
+access: public-research
 ---
 
 # 雙語字幕撥放器（Bilingual Subtitle Player）

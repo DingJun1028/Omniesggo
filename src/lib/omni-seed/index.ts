@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 export interface SeedRecord {
   id: string;
   type: 'company' | 'indicator' | 'chapter' | 'question' | 'answer';

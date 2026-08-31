@@ -1,8 +1,8 @@
 import pdfParse from 'pdf-parse';
-import { agnesApi } from '@/lib/agnes-api';
+import { agnesApi } from '@lib/agnes-api';
 import { db } from '@lib/firebase';
-import { collection, addDoc } from 'firebase/firestore';
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { collection, addDoc } from '@lib/firebase';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -98,6 +98,6 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error('PDF Ingestion Error:', error);
-    return jsonError('INTERNAL_ERROR', `解析失敗: ${(error as Error).message}`);
+    return jsonErrorInternal(error, 'INTERNAL_ERROR');
   }
 }

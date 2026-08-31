@@ -24,19 +24,19 @@
   "license": "UNLICENSED",
   "description": "OmniJules 5T Gate Verification Engine — 5T 閘道驗證核心 (traceable/transparent/tangible/trustworthy/trackable)",
   "dependencies": {
-    "@esggo/shared": "workspace:*",
     "@esggo/errors": "workspace:*",
-    "zod": "^3.25.76",
-    "typescript": "^5.9.3"
+    "@esggo/shared": "workspace:*",
+    "typescript": "^5.9.3",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/node": "^20.19.43",
     "@typescript-eslint/eslint-plugin": "^8.62.1",
     "@typescript-eslint/parser": "^8.62.1",
     "eslint": "^9.39.4",
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0",
-    "vitest": "^4.1.9",
-    "ts-node": "^10.9.2"
+    "vitest": "^4.1.10"
   },
   "engines": {
     "node": ">=20"

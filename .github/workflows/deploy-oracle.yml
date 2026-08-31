@@ -278,6 +278,10 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             export CI=true
+            # 建置期佔位: scripts/validate-env.ts 要求 DATABASE_URL 非空 (僅存在性檢查)。
+            # /var/www/esggo/.env 目前沒有 DATABASE_URL, 故 next build 前的 gate 直接失敗。
+            # 若環境已有真值則沿用, 否則用佔位讓建置通過; 執行期由 pm2/.env 提供真值。
+            export DATABASE_URL="${DATABASE_URL:-postgresql://build:build@localhost:5432/build}"
             pnpm install --frozen-lockfile
             pnpm run build
             # 重置 PM2 daemon 清掉殘留 (dead/ghost) 進程記錄後重新啟動，

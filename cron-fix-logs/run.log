@@ -1,0 +1,319 @@
+===== ESG-GO fix cron run 2026/08/28 ¶g¤­ 13:57:15.11 ===== 
+DingJun
+dingjun\dingj
+[step1] pwd=C:\Project\esggo 
+git version 2.53.0.windows.2
+true
+--- git remote get-url origin --- 
+git@github.com:DingJun1028/esggo.git
+--- git status --short --branch --- 
+## enhance/omni-factory-wiki-parse...origin/enhance/omni-factory-wiki-parse
+ M src/incremental-output/index.ts
+?? apps/aistation/
+?? archive/
+?? cron-fix-logs/run.log
+?? scripts/obsidian-sync.sh
+--- git rev-parse --short HEAD --- 
+98109f1b9
+[step2+3] running fix-imports.ps1 
+--- [step2+3] fix-imports.ps1 ---
+route.ts files containing "@/lib/": 35
+  [target] app\api\admin\resources\route.ts
+  [target] app\api\admin\surveys\route.ts
+  [target] app\api\agentic-twin\route.ts
+  [target] app\api\agnes\route.ts
+  [target] app\api\ai-notes\route.ts
+  [target] app\api\ai-notes\search\route.ts
+  [target] app\api\ai-notes\tags\route.ts
+  [target] app\api\cron\route.ts
+  [target] app\api\esg-sonnar\route.ts
+  [target] app\api\hashlock\route.ts
+  [target] app\api\health\route.ts
+  [target] app\api\learning-center\route.ts
+  [target] app\api\learning-center\support\route.ts
+  [target] app\api\memory\route.ts
+  [target] app\api\nexus\route.ts
+  [target] app\api\notes\route.ts
+  [target] app\api\omni\plugins\route.ts
+  [target] app\api\omni-agent\console\route.ts
+  [target] app\api\omni-center\summary\route.ts
+  [target] app\api\omni-core\status\route.ts
+  [target] app\api\rag\ingest\route.ts
+  [target] app\api\sonnar\crawl\route.ts
+  [target] app\api\sonnar\document-progress\route.ts
+  [target] app\api\sonnar\enterprise\route.ts
+  [target] app\api\sonnar\sustainability\route.ts
+  [target] app\api\surveys\route.ts
+  [target] app\api\sustain-write\v5\grammar\route.ts
+  [target] app\api\tags\universal\route.ts
+  [target] app\api\verify-5t\route.ts
+  [target] app\api\village\data\route.ts
+  [target] app\api\village\projects\route.ts
+  [target] app\api\village\trends\route.ts
+  [target] app\api\village\vote\route.ts
+  [target] app\api\zenrows\fetch\route.ts
+  [target] app\api\zkp\route.ts
+  [backup] app\api\admin\resources\route.ts
+  [backup] app\api\admin\surveys\route.ts
+  [backup] app\api\agentic-twin\route.ts
+  [backup] app\api\agnes\route.ts
+  [backup] app\api\ai-notes\route.ts
+  [backup] app\api\ai-notes\search\route.ts
+  [backup] app\api\ai-notes\tags\route.ts
+  [backup] app\api\cron\route.ts
+  [backup] app\api\esg-sonnar\route.ts
+  [backup] app\api\hashlock\route.ts
+  [backup] app\api\health\route.ts
+  [backup] app\api\learning-center\route.ts
+  [backup] app\api\learning-center\support\route.ts
+  [backup] app\api\memory\route.ts
+  [backup] app\api\nexus\route.ts
+  [backup] app\api\notes\route.ts
+  [backup] app\api\omni\plugins\route.ts
+  [backup] app\api\omni-agent\console\route.ts
+  [backup] app\api\omni-center\summary\route.ts
+  [backup] app\api\omni-core\status\route.ts
+  [backup] app\api\rag\ingest\route.ts
+  [backup] app\api\sonnar\crawl\route.ts
+  [backup] app\api\sonnar\document-progress\route.ts
+  [backup] app\api\sonnar\enterprise\route.ts
+  [backup] app\api\sonnar\sustainability\route.ts
+  [backup] app\api\surveys\route.ts
+  [backup] app\api\sustain-write\v5\grammar\route.ts
+  [backup] app\api\tags\universal\route.ts
+  [backup] app\api\verify-5t\route.ts
+  [backup] app\api\village\data\route.ts
+  [backup] app\api\village\projects\route.ts
+  [backup] app\api\village\trends\route.ts
+  [backup] app\api\village\vote\route.ts
+  [backup] app\api\zenrows\fetch\route.ts
+  [backup] app\api\zkp\route.ts
+  [fixed] route.ts
+  [unchanged] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [unchanged] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [unchanged] route.ts
+  [unchanged] route.ts
+  [unchanged] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+  [fixed] route.ts
+alias fix applied to files: 30
+VERIFY remaining "@/lib/" in app/api route.ts: 9
+  STILL BROKEN: C:\Project\esggo\app\api\admin\surveys\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\cron\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\notes\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\sonnar\document-progress\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\sonnar\enterprise\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\sonnar\sustainability\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\village\data\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\village\trends\route.ts
+  STILL BROKEN: C:\Project\esggo\app\api\village\vote\route.ts
+--- end fix-imports ---
+[step4] running fix-bootstrap.ps1 
+--- [step4] fix-bootstrap.ps1 ---
+  bootstrap already fixed (async collectHealth + await check present) - skip transform
+VERIFY execSync+curl lines remaining: 0
+VERIFY await check( count: 2
+VERIFY async function collectHealth: 1
+VERIFY await collectHealth(): 1
+--- end fix-bootstrap ---
+[step5] running fix-build.ps1 
+--- [step5] fix-build.ps1 ---
+node --version: v24.19.0
+package.json scripts.build: cross-env NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--max-old-space-size=1536 tsx scripts/validate-env.ts && next build
+pnpm --version: 11.5.2
+npm --version: 11.17.0
+running: pnpm build (15 min cap) - output in cron-fix-logs\build.log
+BUILD RESULT: exit code = 
+--- end fix-build ---
+[step6] final git diff/status 
+--- git diff --stat --- 
+ app/api/admin/resources/route.ts                   |  2 +-
+ app/api/agentic-twin/route.ts                      |  2 +-
+ app/api/agnes/route.ts                             |  2 +-
+ app/api/ai-notes/route.ts                          |  2 +-
+ app/api/ai-notes/search/route.ts                   |  2 +-
+ app/api/ai-notes/tags/route.ts                     |  2 +-
+ app/api/cron/route.ts                              |  2 +-
+ app/api/esg-sonnar/route.ts                        |  2 +-
+ app/api/hashlock/route.ts                          |  2 +-
+ app/api/health/route.ts                            |  2 +-
+ app/api/learning-center/route.ts                   |  2 +-
+ app/api/learning-center/support/route.ts           |  2 +-
+ app/api/memory/route.ts                            |  2 +-
+ app/api/nexus/route.ts                             |  2 +-
+ app/api/omni-agent/console/route.ts                |  2 +-
+ app/api/omni-center/summary/route.ts               |  2 +-
+ app/api/omni-core/status/route.ts                  |  2 +-
+ app/api/omni/plugins/route.ts                      |  2 +-
+ app/api/rag/ingest/route.ts                        |  2 +-
+ app/api/sonnar/crawl/route.ts                      |  2 +-
+ app/api/surveys/route.ts                           |  2 +-
+ app/api/sustain-write/v5/grammar/route.ts          |  2 +-
+ app/api/tags/universal/route.ts                    |  2 +-
+ app/api/verify-5t/route.ts                         |  4 ++--
+ app/api/village/data/route.ts                      |  2 +-
+ app/api/village/projects/route.ts                  |  2 +-
+ app/api/village/trends/route.ts                    |  2 +-
+ app/api/village/vote/route.ts                      |  4 ++--
+ app/api/zenrows/fetch/route.ts                     |  2 +-
+ app/api/zkp/route.ts                               |  2 +-
+ src/incremental-output/__tests__/optimizer.test.ts |  2 +-
+ src/incremental-output/index.ts                    | 28 ++++++++++++----------
+ 32 files changed, 49 insertions(+), 45 deletions(-)
+--- git status --short --branch --- 
+## enhance/omni-factory-wiki-parse...origin/enhance/omni-factory-wiki-parse
+ M app/api/admin/resources/route.ts
+ M app/api/agentic-twin/route.ts
+ M app/api/agnes/route.ts
+ M app/api/ai-notes/route.ts
+ M app/api/ai-notes/search/route.ts
+ M app/api/ai-notes/tags/route.ts
+ M app/api/cron/route.ts
+ M app/api/esg-sonnar/route.ts
+ M app/api/hashlock/route.ts
+ M app/api/health/route.ts
+ M app/api/learning-center/route.ts
+ M app/api/learning-center/support/route.ts
+ M app/api/memory/route.ts
+ M app/api/nexus/route.ts
+ M app/api/omni-agent/console/route.ts
+ M app/api/omni-center/summary/route.ts
+ M app/api/omni-core/status/route.ts
+ M app/api/omni/plugins/route.ts
+ M app/api/rag/ingest/route.ts
+ M app/api/sonnar/crawl/route.ts
+ M app/api/surveys/route.ts
+ M app/api/sustain-write/v5/grammar/route.ts
+ M app/api/tags/universal/route.ts
+ M app/api/verify-5t/route.ts
+ M app/api/village/data/route.ts
+ M app/api/village/projects/route.ts
+ M app/api/village/trends/route.ts
+ M app/api/village/vote/route.ts
+ M app/api/zenrows/fetch/route.ts
+ M app/api/zkp/route.ts
+ M src/incremental-output/__tests__/optimizer.test.ts
+ M src/incremental-output/index.ts
+?? _fix-backup-20260801/
+?? apps/aistation/
+?? archive/
+?? cron-fix-logs/build.log
+?? cron-fix-logs/build.log.err
+?? cron-fix-logs/ps-bootstrap.out.log
+?? cron-fix-logs/ps-build.out.log
+?? cron-fix-logs/ps-imports.out.log
+?? cron-fix-logs/run.log
+?? scripts/obsidian-sync.sh
+--- backup dir listing --- 
+C:\Project\esggo\_fix-backup-20260801\app
+C:\Project\esggo\_fix-backup-20260801\app\api
+C:\Project\esggo\_fix-backup-20260801\app\api\admin
+C:\Project\esggo\_fix-backup-20260801\app\api\agentic-twin
+C:\Project\esggo\_fix-backup-20260801\app\api\agnes
+C:\Project\esggo\_fix-backup-20260801\app\api\ai-notes
+C:\Project\esggo\_fix-backup-20260801\app\api\cron
+C:\Project\esggo\_fix-backup-20260801\app\api\esg-sonnar
+C:\Project\esggo\_fix-backup-20260801\app\api\hashlock
+C:\Project\esggo\_fix-backup-20260801\app\api\health
+C:\Project\esggo\_fix-backup-20260801\app\api\learning-center
+C:\Project\esggo\_fix-backup-20260801\app\api\memory
+C:\Project\esggo\_fix-backup-20260801\app\api\nexus
+C:\Project\esggo\_fix-backup-20260801\app\api\notes
+C:\Project\esggo\_fix-backup-20260801\app\api\omni
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-agent
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-center
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-core
+C:\Project\esggo\_fix-backup-20260801\app\api\rag
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar
+C:\Project\esggo\_fix-backup-20260801\app\api\surveys
+C:\Project\esggo\_fix-backup-20260801\app\api\sustain-write
+C:\Project\esggo\_fix-backup-20260801\app\api\tags
+C:\Project\esggo\_fix-backup-20260801\app\api\verify-5t
+C:\Project\esggo\_fix-backup-20260801\app\api\village
+C:\Project\esggo\_fix-backup-20260801\app\api\zenrows
+C:\Project\esggo\_fix-backup-20260801\app\api\zkp
+C:\Project\esggo\_fix-backup-20260801\app\api\admin\resources
+C:\Project\esggo\_fix-backup-20260801\app\api\admin\surveys
+C:\Project\esggo\_fix-backup-20260801\app\api\admin\resources\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\admin\surveys\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\agentic-twin\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\agnes\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\ai-notes\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\ai-notes\search
+C:\Project\esggo\_fix-backup-20260801\app\api\ai-notes\tags
+C:\Project\esggo\_fix-backup-20260801\app\api\ai-notes\search\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\ai-notes\tags\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\cron\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\esg-sonnar\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\hashlock\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\health\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\learning-center\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\learning-center\support
+C:\Project\esggo\_fix-backup-20260801\app\api\learning-center\support\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\memory\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\nexus\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\notes\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\omni\plugins
+C:\Project\esggo\_fix-backup-20260801\app\api\omni\plugins\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-agent\console
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-agent\console\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-center\summary
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-center\summary\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-core\status
+C:\Project\esggo\_fix-backup-20260801\app\api\omni-core\status\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\rag\ingest
+C:\Project\esggo\_fix-backup-20260801\app\api\rag\ingest\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\crawl
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\document-progress
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\enterprise
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\sustainability
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\crawl\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\document-progress\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\enterprise\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\sonnar\sustainability\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\surveys\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\sustain-write\v5
+C:\Project\esggo\_fix-backup-20260801\app\api\sustain-write\v5\grammar
+C:\Project\esggo\_fix-backup-20260801\app\api\sustain-write\v5\grammar\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\tags\universal
+C:\Project\esggo\_fix-backup-20260801\app\api\tags\universal\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\verify-5t\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\village\data
+C:\Project\esggo\_fix-backup-20260801\app\api\village\projects
+C:\Project\esggo\_fix-backup-20260801\app\api\village\trends
+C:\Project\esggo\_fix-backup-20260801\app\api\village\vote
+C:\Project\esggo\_fix-backup-20260801\app\api\village\data\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\village\projects\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\village\trends\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\village\vote\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\zenrows\fetch
+C:\Project\esggo\_fix-backup-20260801\app\api\zenrows\fetch\route.ts
+C:\Project\esggo\_fix-backup-20260801\app\api\zkp\route.ts
+=== DONE === 

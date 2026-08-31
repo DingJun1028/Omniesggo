@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# oa-cli minimal local manual viewer
+# Usage:
+#   oa-cli manual 48 --view
+#   oa-cli manual 48 --local-only
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+MANUAL_MD="$REPO_ROOT/docs/manuals/48-omnifactory-manual.md"
+MANUAL_HTML="$REPO_ROOT/docs/manuals/48-html/index.html"
+
+cmd="${1:-help}"
+sub="${2:-}"
+option="${3:-}"
+
+if [[ "$cmd" != "manual" ]]; then
+  echo "Usage: oa-cli manual <id> [--view|--local-only]"
+  exit 1
+fi
+
+if [[ "$sub" != "48" ]]; then
+  echo "Only manual 48 is available locally."
+  exit 1
+fi
+
+if [[ "$option" == "--view" ]]; then
+  if command -v python >/dev/null 2>&1; then
+    python -m webbrowser "file:///$MANUAL_HTML" || true
+  fi
+  if command -v start >/dev/null 2>&1; then
+    start "" "$(cygpath -w "$MANUAL_HTML" 2>/dev/null || echo "$MANUAL_HTML")" || true
+  fi
+  echo "[oa-cli] Open manual: $MANUAL_HTML"
+elif [[ "$option" == "--local-only" ]]; then
+  echo "[oa-cli] local-only manual 48"
+  echo "HTML: $MANUAL_HTML"
+  echo "MD: $MANUAL_MD"
+else
+  echo "Usage: oa-cli manual 48 --view|--local-only"
+  exit 1
+fi

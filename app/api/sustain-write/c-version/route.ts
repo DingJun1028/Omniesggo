@@ -4,7 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { assembleCVersionReport, reportToHtml, reportToMarkdown, getAvailableCompanies } from '@lib/sustain-write';
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@lib/api-utils';
 
 interface CVersionReport {
   companyId: string;
@@ -71,7 +71,11 @@ export async function POST(request: NextRequest) {
           chapters: serializedChapters,
           generatedAt: report.generatedAt,
         },
-        markdown: reportToMarkdown(report as any),
+        markdown: reportToMarkdown({
+          companyName: report.companyName,
+          version: (report as { version?: string }).version ?? '1.0.0',
+          generatedAt: report.generatedAt ?? new Date().toISOString(),
+        }),
       });
     }
 
@@ -85,9 +89,12 @@ export async function POST(request: NextRequest) {
         chapters: serializedChapters,
         generatedAt: report.generatedAt,
       },
-      html: reportToHtml(report as any),
+      html: reportToHtml({
+        companyName: report.companyName,
+        version: (report as { version?: string }).version ?? '1.0.0',
+      }),
     });
   } catch (error) {
-    return jsonError('INTERNAL_ERROR', (error as Error).message || '報告生成失敗', 500);
+    return jsonErrorInternal(error, 'INTERNAL_ERROR', 500);
   }
 }

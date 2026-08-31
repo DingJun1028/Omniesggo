@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // ============================================================
 // Sonar Bridge — Connects crawler output to subscription engine
 // src/core/sonnar/sonar-bridge.ts

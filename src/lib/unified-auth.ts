@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * Unified Authentication Middleware - 無作妙德統一認證系統
  * 
@@ -6,6 +7,8 @@
  */
 
 import { NextRequest } from 'next/server';
+import { getAdminApp } from './firebase-admin';
+import { getAuth } from './firebase-admin';
 import { adminDb } from './firebase-admin';
 import { jsonError } from './api-utils';
 import type { ErrorCodeKey } from '@esggo/errors';
@@ -41,7 +44,6 @@ const DEFAULT_AUTH_CONFIG: AuthConfig = {
 // ── 認證類別 ───────────────────────────────────────────────────────
 
 export class UnifiedAuth {
-  private static firebaseAdmin = adminDb;
   
   /**
    * 統一認證入口
@@ -99,33 +101,15 @@ export class UnifiedAuth {
     request: NextRequest,
     config: AuthConfig
   ): Promise<AuthResult> {
+    // 2026-08-25 力度 1: GCP Firebase Auth 已停用 (本地模式)。
+    // verifyIdToken 在本地模式下會 throw; 直接降級回傳失敗, 改用 jose 本地 JWT (見 middleware.ts)。
     try {
-      const authHeader = request.headers.get('authorization');
-      if (!authHeader?.startsWith('Bearer ')) {
+      const token = request.headers.get('authorization')?.replace('Bearer ', '');
+      if (!token) {
         return { success: false, error: 'Missing Bearer token' };
       }
-
-      const token = authHeader.substring(7);
-      
-      // 驗證 Firebase ID Token
-      const decodedToken = await this.firebaseAdmin.auth().verifyIdToken(token);
-      
-      // 檢查用戶權限
-      if (config.requiredLevel === 'admin') {
-        const isAdmin = await this.checkAdminRole(decodedToken.uid);
-        if (!isAdmin) {
-          return { success: false, error: 'Insufficient permissions' };
-        }
-      }
-
-      return {
-        success: true,
-        userId: decodedToken.uid,
-        email: decodedToken.email,
-        role: decodedToken.admin ? 'admin' : 'user',
-        strategy: 'firebase'
-      };
-    } catch (error) {
+      return { success: false, error: 'Firebase authentication disabled (local mode)' };
+    } catch {
       return { success: false, error: 'Firebase authentication failed' };
     }
   }
@@ -197,16 +181,14 @@ export class UnifiedAuth {
    */
   private static async checkAdminRole(userId: string): Promise<boolean> {
     try {
-      const userDoc = await this.firebaseAdmin
-        .firestore()
-        .collection('users')
-        .doc(userId)
-        .get();
+      const userDoc = await adminDb.collection('users').doc(userId).get();
       
       if (!userDoc.exists) return false;
       
-      const userData = userDoc.data();
-      return userData?.role === 'admin' || userData?.permissions?.includes('admin');
+      const userData = userDoc.data() as Record<string, unknown> | null;
+      const role = userData?.role;
+      const permissions = Array.isArray(userData?.permissions) ? (userData!.permissions as unknown[]) : [];
+      return role === 'admin' || permissions.includes('admin');
     } catch {
       return false;
     }
@@ -242,7 +224,7 @@ export class UnifiedAuth {
       return true;
     }
 
-    if (config.resourceAccess && config.resourceAccess.includes(resource)) {
+    if (Array.isArray(config.resourceAccess) && config.resourceAccess.includes(resource)) {
       return true;
     }
 

@@ -56,6 +56,28 @@ const map = [
   ['IPlayerSource', 'type'],
   ['IZoomMeeting', 'interface'],
   ['IPlayerState', 'interface'],
+  // --- 第二大腦知識網 (Second Brain / Knowledge Garden) 領域 ---
+  ['ISecondBrainNote', 'interface'],
+  // --- OA-Team 雙蜂戰隊 60 領域契約 (蜂群 / 5T 驗算 / 靈魂產物) — 終始矩陣新納入 ---
+  ['HiveSide', 'type'],
+  ['ArrayKey', 'type'],
+  ['ISoulAgent', 'interface'],
+  ['IComponentCore', 'interface'],
+  ['ISoulArtifact', 'interface'],
+  ['ISwarmTask', 'interface'],
+  ['SwarmTaskResult', 'type'],
+  ['IOABMessage', 'interface'],
+  ['I5TVerification', 'interface'],
+  // --- 萬能自動影音 OmniAutoVideo (MPT 影音生產線) 契約 — 終始矩陣新納入 ---
+  ['IVideoGenerationTask', 'interface'],
+  ['IVideoGenerationResult', 'interface'],
+  // --- OA-Team 缺口補齊 · 終始矩陣契約 (Gap Remediation Terminal-Origin Matrix) ---
+  ['GapUnitKey', 'type'],
+  ['GapRole', 'type'],
+  ['GapHubKind', 'type'],
+  ['IGapAgent', 'interface'],
+  ['IGapPairing', 'interface'],
+  ['IGapMatrixCoverage', 'interface'],
 ];
 
 const content = fs.readFileSync(SRC, 'utf-8');

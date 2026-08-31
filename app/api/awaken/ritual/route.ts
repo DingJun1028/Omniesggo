@@ -18,8 +18,8 @@ export async function POST() {
       success: true, 
       message: "Apostle agents initialized and sealed on server." 
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ [API] Awakening Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

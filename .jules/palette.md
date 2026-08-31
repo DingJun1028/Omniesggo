@@ -9,3 +9,16 @@
 ## 2024-03-24 - Drag-and-Drop Fallbacks
 **Learning:** Drag-and-drop zones are highly inaccessible for keyboard users and mobile users if they lack a click-to-upload fallback. We must always provide an alternative method to trigger the file input.
 **Action:** When implementing drag-and-drop file uploaders, always include a visually hidden file input, bind `onClick` and `onKeyDown` events to the dropzone, and set `role="button"` and `tabIndex={0}` to make the zone fully keyboard accessible.
+## 2024-05-14 - Keyboard Focus States for Complex Components
+**Learning:** In complex visual components like `full-report-preview.tsx` and `liquid-glass-card.tsx`, basic HTML buttons are sometimes used without inherit focus styles (`focus-visible:ring-2`). This can break keyboard navigation for screen readers or power users.
+**Action:** When auditing or modifying complex components, always explicitly verify focus styles (`focus-visible`) for any newly added or existing interactive elements, particularly buttons mapping to key actions (like downloads or navigation).
+
+## 2026-08-17 - [Toggle Group Accessibility]
+**Learning:** Grouped layout toggle buttons (e.g., Grid/List/Board views) that are icon-only must be grouped using `role="group"` with an `aria-label`. Individual buttons need `aria-label`, `title`, and crucially, `aria-pressed={isActive}` to correctly convey their toggle state to screen readers.
+**Action:** When creating or fixing toggle groups, ensure the parent has `role="group"`, and the children use `aria-pressed` alongside standard icon-only button accessibility attributes (`aria-label`, `focus-visible`).
+## 2025-02-20 - Ensure screen reader accessibility and keyboard focus for icon buttons
+**Learning:** Icon-only buttons (like the floating action buttons in `FloatingFunctionKey428.tsx` and the close button in `DrThothResonance.tsx`) often lack context for screen readers and visible focus indicators for keyboard navigation, leading to poor accessibility in complex UI tools.
+**Action:** When adding or reviewing icon-only interactive elements, ensure `aria-label` is applied to describe the action, and use Tailwind `focus-visible` classes (e.g., `focus-visible:outline-none focus-visible:ring-2`) to provide a clear, accessible focus ring without breaking the default visual design.
+## 2024-05-24 - Accessibility for Filter Toggle Buttons
+**Learning:** Screen readers cannot infer that a custom filter button acts as a toggle state just by its visual styling or click handler. When custom filter buttons (like ESG pillars or difficulty levels) toggle between active and inactive states, the lack of `aria-pressed` prevents screen reader users from understanding which filters are currently applied.
+**Action:** Always add `aria-pressed={isActive}` to any `<button>` that behaves as a toggle switch or filter chip, ensuring its active/inactive state is programmatically announced.

@@ -7,6 +7,7 @@ import { NextRequest } from 'next/server';
 import { crawlerScheduler } from '@/services/scheduler/crawler-scheduler';
 import { jsonError, jsonResponse } from '@lib/api-utils';
 import type { SubscriptionMatch } from '@/core/sonnar/sonar-bridge';
+import { verifyWebhookSignature } from '@lib/webhook-auth';
 
 // GET /api/sonnar/crawl — Get scheduler status & job list
 export async function GET() {
@@ -35,6 +36,14 @@ export async function GET() {
 // Body: { sourceId?: string, all?: boolean }
 export async function POST(req: NextRequest) {
   try {
+    const secret = process.env.SONNAR_CRAWL_SECRET;
+    if (secret) {
+      const signature = req.headers.get('x-signature-256');
+      const payload = await req.clone().text();
+      if (!verifyWebhookSignature(payload, signature, secret)) {
+        return jsonError('UNAUTHORIZED', 'Invalid or missing signature', 401);
+      }
+    }
     const body = await req.json().catch(() => ({}));
     const { sourceId, all } = body;
 

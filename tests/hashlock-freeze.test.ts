@@ -142,8 +142,8 @@ describe('SecureUtils.lockAndFreeze (HexLock freeze)', () => {
     expect(Object.isFrozen(locked)).toBe(true);
     // hash_lock 已寫入 evidence
     const evidence = (locked as { evidence: Record<string, unknown> }).evidence;
-    expect(evidence.hash_lock).toBeDefined();
-    expect(String(evidence.hash_lock)).toMatch(/^0x/);
+    expect((evidence as any).hash_lock).toBeDefined();
+    expect(String((evidence as any).hash_lock)).toMatch(/^0x/);
   });
 
   it('prevents tampering after freeze (strict-mode assignment throws)', () => {
@@ -184,8 +184,8 @@ describe('SecureUtils.lockAndFreeze (HexLock freeze)', () => {
     const a = SecureUtils.lockAndFreeze({ amount: 100, project: 'p-1' });
     const b = SecureUtils.lockAndFreeze({ amount: 101, project: 'p-1' });
 
-    const lockA = (a as { evidence: Record<string, unknown> }).evidence['hash_lock'];
-    const lockB = (b as { evidence: Record<string, unknown> }).evidence['hash_lock'];
+    const lockA = ((a as any).evidence as any)['hash_lock'];
+    const lockB = ((b as any).evidence as any)['hash_lock'];
     expect(String(lockA)).toMatch(/^0x[0-9a-f]{64}$/);
     expect(String(lockA)).not.toBe(String(lockB)); // 內容不同 → 鎖不同
     expect(String(lockA)).not.toContain('CELESTIAL');
@@ -210,7 +210,7 @@ describe('SecureUtils.lockAndFreeze (HexLock freeze)', () => {
 
   it('verifyHashLock detects forged / missing hash_lock', () => {
     const locked = SecureUtils.lockAndFreeze({ amount: 100 }) as { evidence: Record<string, unknown> };
-    locked.evidence['hash_lock'] = '0x' + '0'.repeat(64); // 偽造鎖
+    (locked.evidence as any)['hash_lock'] = '0x' + '0'.repeat(64); // 偽造鎖
     expect(SecureUtils.verifyHashLock(locked)).toBe(false);
 
     expect(SecureUtils.verifyHashLock({ plain: true } as unknown as object)).toBe(false);
@@ -222,7 +222,7 @@ describe('SecureUtils.lockAndFreeze (HexLock freeze)', () => {
 
     expect(Object.isFrozen(locked)).toBe(true);
     const evidence = (locked as unknown as { evidence: Record<string, unknown> }).evidence;
-    expect(evidence.hash_lock).toBeDefined();
+    expect((evidence as any).hash_lock).toBeDefined();
   });
 });
 

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OmniLive 漂浮字幕窗</title>
+<style>
+:root{--accent:#7c5cff;--accent2:#36e0c0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:rgba(0,0,0,.7);font-family:"Segoe UI",system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;overflow:hidden}
+body{display:flex;flex-direction:column;user-select:none}
+#bar{height:24px;background:rgba(20,22,34,.9);display:flex;align-items:center;gap:6px;padding:0 8px;cursor:move;flex:none}
+#bar .t{font-size:.68rem;color:#cfd6e6;font-weight:600}
+#bar .x{margin-left:auto;cursor:pointer;color:#9aa3b8;font-size:.85rem;padding:0 4px;line-height:1}
+#bar .x:hover{color:#fff}
+#subs{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:7px;padding:10px 12px;overflow:hidden}
+.sub{display:flex;flex-direction:column;gap:1px;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sub .src{font-size:1rem;font-weight:700;color:#fff;text-shadow:0 2px 4px #000;padding:3px 10px;border-radius:9px;background:rgba(0,0,0,.7);width:fit-content;max-width:100%}
+.sub .tgt{font-size:1.55rem;font-weight:800;color:#fff;text-shadow:0 2px 6px #000;padding:3px 10px;border-radius:9px;background:rgba(0,0,0,.7);width:fit-content;max-width:100%}
+#ph{color:#ffffff80;font-size:1.05rem;text-align:center;margin:auto}
+.hint{position:absolute;bottom:3px;right:8px;font-size:.58rem;color:#ffffff55}
+</style>
+</head>
+<body>
+<div id="bar"><span class="t">🐝 OmniLive 字幕</span><span class="x" id="close">✕</span></div>
+<div id="subs"><div id="ph">等待字幕…</div></div>
+<div class="hint">拖曳標題列移動</div>
+<script>
+const params=new URLSearchParams(location.search);
+const room=params.get('room')||''; const pwd=params.get('pwd')||'';
+const subs=document.getElementById('subs'); const ph=document.getElementById('ph');
+document.getElementById('close').onclick=()=>window.close();
+const bigFirst = params.get('order')!=='src'; // 預設大中文小英文
+function addSub(d){
+  if(ph){ph.remove();}
+  const wrap=document.createElement('div'); wrap.className='sub';
+  const a=document.createElement('div'); a.className='src';
+  const b=document.createElement('div'); b.className='tgt';
+  if(bigFirst){ a.textContent=d.source||''; b.textContent=d.target||''; } // 大字=翻譯(中文) 在上
+  else { a.textContent=d.target||''; b.textContent=d.source||''; }
+  wrap.appendChild(a); wrap.appendChild(b);
+  subs.appendChild(wrap);
+  while(subs.children.length>8) subs.removeChild(subs.firstChild);
+}
+const es=new EventSource('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''));
+es.addEventListener('subtitle',ev=>{try{const p=JSON.parse(ev.data);const d=p.data;if(!d)return;addSub(d);}catch(e){}});
+es.onerror=()=>{ if(es.readyState===EventSource.CLOSED){ const e2=new EventSource('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):'')); } };
+const bar=document.getElementById('bar');
+bar.addEventListener('pointerdown',e=>{ if(e.target.id==='close')return;
+  bar.setPointerCapture(e.pointerId);
+  const sx=e.screenX,sy=e.screenY, wx=window.screenX,wy=window.screenY;
+  const mv=ev=>window.moveTo(wx+(ev.screenX-sx), wy+(ev.screenY-sy));
+  bar.onpointermove=mv; bar.onpointerup=()=>{bar.onpointermove=null;};
+});
+</script>
+</body>
+</html>

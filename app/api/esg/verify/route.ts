@@ -6,8 +6,8 @@ export async function POST(request: Request) {
     const { metric } = await request.json();
     const result = await DataOrchestratorServer.verifyMetricSingle(metric);
     return NextResponse.json(result);
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[API/ESG/VERIFY] Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

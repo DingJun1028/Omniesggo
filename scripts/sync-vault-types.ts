@@ -67,6 +67,22 @@ function extractSyncedTypes(file: string): VaultType[] {
 const notes = walk(VAULT);
 const vaultTypes = notes.flatMap(extractSyncedTypes);
 
+// C 線深入: 納入萬能知識分身的型別投影 (.avatar-types.d.ts) 作為來源
+const AVATAR_TYPES = path.join(VAULT, 'context', '.avatar-types.d.ts');
+if (fs.existsSync(AVATAR_TYPES)) {
+  const atext = fs.readFileSync(AVATAR_TYPES, 'utf8');
+  const are = /export\s+(type|interface|enum)\s+([A-Za-z0-9_]+)[\s\S]*?\n}/g;
+  let am: RegExpExecArray | null;
+  while ((am = are.exec(atext))) {
+    vaultTypes.push({
+      name: am[2],
+      kind: am[1] as VaultType['kind'],
+      block: am[0],
+      from: 'vault/Agents/context/.avatar-types.d.ts (avatar projection)',
+    });
+  }
+}
+
 const canonical = fs.readFileSync(SRC, 'utf8');
 const canonicalNames = new Set(
   [...canonical.matchAll(/export\s+(?:type|interface|enum)\s+([A-Za-z0-9_]+)/g)].map((x) => x[1])

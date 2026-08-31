@@ -1,3 +1,4 @@
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * Cloudflare Turnstile — 網站防機器人驗證（後端驗證）
  * ---------------------------------------------------------------------------

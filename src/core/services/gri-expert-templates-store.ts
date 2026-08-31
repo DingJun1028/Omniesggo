@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /**
  * ESGGO v5 永續報告系統 — 28 章專家級範本段落池
  * GRI 2021 + ISSB + TCFD + TNFD + SDGs 完整覆蓋

@@ -1,5 +1,9 @@
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { runGeminiWithWorkersAIFallback } from '@/lib/cloudflare';
+
+interface GeminiPart { text?: string }
+interface GeminiContent { parts?: GeminiPart[] }
+type InteractionStep = { type?: string; content?: GeminiContent };
+import { runGeminiWithWorkersAIFallback } from '@lib/cloudflare';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -85,12 +89,12 @@ ${topProjects.join('\n')}
       });
       // model 輸出位於 steps 中 type==="model_output" 的 content.parts[].text
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const steps = (interaction.steps ?? []) as any[];
+      const steps = (interaction.steps ?? []) as InteractionStep[];
       trendText = steps
         .filter((s) => s.type === 'model_output')
         .flatMap((s) => s.content ?? [])
-        .flatMap((c: any) => c.parts ?? [])
-        .map((p: any) => p.text ?? '')
+        .flatMap((c: GeminiContent) => c.parts ?? [])
+        .map((p: GeminiPart) => p.text ?? '')
         .join('')
         .trim();
     } else {
@@ -116,7 +120,7 @@ ${topProjects.join('\n')}
     return jsonResponse({ trend: trendText, provider });
   } catch (error: unknown) {
     console.error('OmniOne Trend API Error:', error);
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    return jsonError('INTERNAL_ERROR', `[OmniOne 錯誤] 無法生成趨勢預測：${message}`);
+    console.error('[api] INTERNAL_ERROR:', error);
+    return jsonError('INTERNAL_ERROR');
   }
 }

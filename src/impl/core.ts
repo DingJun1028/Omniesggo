@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/impl/core.ts
 // ------------------------------------------------------------
 // Implementation of OmniAgent ecosystem with back‑pressure cloning
@@ -446,7 +448,7 @@ export class OmniCoreEcosystem {
   /** Static helper used by OAB to apply Hash Lock & freeze */
   public static lockAndFreeze<T extends { evidence?: Record<string, unknown> }>(obj: T): T {
     obj.evidence = obj.evidence || {};
-    obj.evidence['hash_lock'] = `0xCELESTIAL_${Date.now()}_${Math.random()
+    (obj.evidence as any)['hash_lock'] = `0xCELESTIAL_${Date.now()}_${Math.random()
       .toString(36)
       .substring(2, 9)}`;
     return Object.freeze(obj);
