@@ -41,6 +41,12 @@ describe.skip('oa-cli', () => {
     expect(stdout).toContain('DRY-RUN');
     expect(stdout).toContain('Key-Ω');
   });
+  it('weekly-report --dry-run prints traceable source', () => {
+    const { stdout } = run(['weekly-report', '--dry-run']);
+    expect(stdout).toContain('DRY-RUN');
+    expect(stdout).toContain('weekly_report.py');
+    expect(stdout).toContain('5T:Traceable');
+  });
 });
 
 describe.skip('oa-cli --live gateway fallback', () => {

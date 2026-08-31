@@ -30,9 +30,13 @@
     "turbo:lint": "eslint . --fix",
     "oa:summon": "ts-node --transpile-only scripts/run-summon.ts",
     "oa:summon:core": "ts-node --transpile-only scripts/run-summon.ts -- --core",
+
+    "oa:weekly-report": "tsx cli/oa-cli/src/index.ts weekly-report",
+
     "oa:audit": "tsx cli/oa-cli/src/index.ts audit --dir \"src/lib,cli/oa-cli/src\"",
     "verify:gap-matrix": "node scripts/export-shared-types.js && npx tsx scripts/verify_gap_matrix.ts",
     "verify:matrix": "node scripts/verify-terminal-origin.mjs",
+
     "verify": "pnpm turbo run lint typecheck test build && pnpm -F ./apps/learning-center check:types-sync"
   },
   "dependencies": {
