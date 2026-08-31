@@ -289,6 +289,29 @@ app.post('/api/upload', verifyToken, (req, res) => {
   res.json({ url: '/uploads/' + name });
 });
 
+// ===== 聯絡表單 API =====
+app.post('/api/contact', rateLimit({ windowMs: 60_000, max: 5 }), (req, res) => {
+  const { company, contact_name, email, phone, participants, activity_type, preferred_date, message } = req.body || {};
+  if (!company || !contact_name || !email) {
+    return res.status(400).json({ ok: false, error: '缺少必填欄位' });
+  }
+  try {
+    db.exec(`CREATE TABLE IF NOT EXISTS contacts (
+      id TEXT PRIMARY KEY, company TEXT, contact_name TEXT, email TEXT,
+      phone TEXT, participants TEXT, activity_type TEXT,
+      preferred_date TEXT, message TEXT, created_at INTEGER
+    )`);
+    const id = uid();
+    run('INSERT INTO contacts (id,company,contact_name,email,phone,participants,activity_type,preferred_date,message,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)',
+      id, company, contact_name, email, phone, participants, activity_type, preferred_date, message, Date.now());
+    console.log('[CONTACT]', company, contact_name, email, activity_type);
+    res.json({ ok: true, id });
+  } catch (e) {
+    console.error('[CONTACT_ERROR]', e.message);
+    res.status(500).json({ ok: false, error: '伺服器錯誤' });
+  }
+});
+
 // ===== 成員管理 API =====
 
 // 取得成員列表（擁有者與具存取權限的成員皆可查看）
