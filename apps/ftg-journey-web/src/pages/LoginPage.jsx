@@ -43,6 +43,13 @@ export function LoginPage() {
     }
   };
 
+  // 開發模式跳過 Google OAuth（localhost 未授權時）
+  const handleDevLogin = () => {
+    const devToken = btoa(JSON.stringify({ email: 'dev@ftg.com.tw', name: '開發測試使用者', picture: '', exp: Math.floor(Date.now() / 1000) + 86400 }));
+    localStorage.setItem('ftg_token', `dev.${devToken}.devsig`);
+    window.location.href = '/';
+  };
+
   useEffect(() => {
     if (!sdkLoaded || !GOOGLE_CLIENT_ID) return;
     try {
@@ -75,9 +82,9 @@ export function LoginPage() {
         {error && <p style={{ color: '#ef4444', marginTop: 16, fontSize: 14 }}>{error}</p>}
 
         {!GOOGLE_CLIENT_ID && (
-          <p style={{ color: '#f59e0b', marginTop: 16, fontSize: 13 }}>
-            ⚠️ 未設定 VITE_GOOGLE_CLIENT_ID，請確認 .env 檔案
-          </p>
+          <button onClick={handleDevLogin} style={{ marginTop: 16, background: '#10243f', color: '#fff', border: 'none', borderRadius: 12, padding: '12px 24px', fontSize: 14, cursor: 'pointer' }}>
+            🔓 開發模式登入（跳過 Google）
+          </button>
         )}
       </div>
     </div>
