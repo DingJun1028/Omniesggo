@@ -12,7 +12,7 @@
     "libs/*"
   ],
   "scripts": {
-    "prepare": "node scripts/setup-hooks.mjs",
+    "prepare": "node scripts/setup-hooks.mjs || true",
     "postinstall": "prisma generate || true",
     "dev": "next dev",
     "build": "cross-env NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--max-old-space-size=1536 tsx scripts/validate-env.ts && next build",
