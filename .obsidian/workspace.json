@@ -1,0 +1,213 @@
+{
+  "main": {
+    "id": "f8d3ce2a0c4db8d7",
+    "type": "split",
+    "children": [
+      {
+        "id": "f60b12dd45fd9432",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "c3d180eea5c7f0f3",
+            "type": "leaf",
+            "state": {
+              "type": "bases",
+              "state": {
+                "file": "未命名.base",
+                "viewName": "表格"
+              },
+              "icon": "lucide-table",
+              "title": "未命名"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5155680e0c5ed4f8",
+    "type": "split",
+    "children": [
+      {
+        "id": "c9c3a84b0b9ff882",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d0b026e9c52679b9",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "檔案瀏覽器"
+            }
+          },
+          {
+            "id": "a5c99c2afbd09503",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜尋"
+            }
+          },
+          {
+            "id": "fa0edc1274e3777a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "書籤"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "dd7544f434192d38",
+    "type": "split",
+    "children": [
+      {
+        "id": "e42850bf15432d2c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "43852bd938f25335",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "未命名.base",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向連結"
+            }
+          },
+          {
+            "id": "c32b4672aaf92708",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "未命名.base",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "對外連結"
+            }
+          },
+          {
+            "id": "3e99a32c4d59a21d",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "標籤"
+            }
+          },
+          {
+            "id": "6056d4e3e175f9c6",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "所有屬性"
+            }
+          },
+          {
+            "id": "f1140e1cdf2f0b8a",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "未命名.base",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大綱"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:開啟快速切換": false,
+      "graph:查看關聯圖": false,
+      "canvas:建立新畫布": false,
+      "daily-notes:開啟今天的每日筆記": false,
+      "templates:插入模板": false,
+      "command-palette:開啟命令面板": false,
+      "bases:建立新的 base": false
+    }
+  },
+  "active": "c3d180eea5c7f0f3",
+  "lastOpenFiles": [
+    "_analysis/entropy-audit/ENTROPY-AUDIT-2026-08-01.md",
+    "未命名.base",
+    "tian-cheng-grand-hotel-2day-itinerary.md",
+    "TECHNICAL_README.md",
+    "SPEECH_TO_SPEECH_INTEGRATION.md",
+    "soul-seed.md",
+    "soul-full.md",
+    "soul-final-chapter.md",
+    "OA-TEAM-60-array-25-30.md",
+    "OA-TEAM-60-array-01-06.md",
+    "MERGE-MANUAL-DIFFS.md",
+    "MERGE-GAP-ANALYSIS.md",
+    "MECE.md",
+    "INDEX.md",
+    "IDEA.md",
+    "HERMES_FREE_MODELS_GUIDE.md",
+    "ESGGO_PRODUCT_GUIDE.md",
+    "ESG-SUNSHINE-BRAND.md",
+    "DOCS.md",
+    "DESIGN.md"
+  ]
+}
