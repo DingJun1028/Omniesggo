@@ -4,14 +4,14 @@
 
 ## 蜂王隊（25-30）
 
-| 編號 | 代理 | alignment | archetype | 資產類別 | visibility | 說明 |
-|------|------|-----------|-----------|----------|------------|------|
-| 25 | 萬能測場蜂 | umbra | Purifier | chat_memory | team | 現場回饋會話 |
-| 26 | 萬能追蹤蜂 | umbra | Hawk | codegraph | agent | 競品監控追蹤圖譜 |
-| 27 | 萬能安全蜂 | umbra | Ward | wiki | restricted | 資安規範資產 |
-| 28 | 萬能維護蜂 | umbra | Curator | skill | agent | 維運腳本/步驟 |
-| 29 | 萬能支援蜂 | umbra | Echo | skill | agent | 技術支援 SOP |
-| 30 | 萬能質控蜂 | umbra | Seal | wiki | restricted | 品質標準/驗證規則 |
+| 編號  | 代理    | alignment | archetype | 資產類別        | visibility | 說明        |
+| --- | ----- | --------- | --------- | ----------- | ---------- | --------- |
+| 25  | 萬能測場蜂 | umbra     | Purifier  | chat_memory | team       | 現場回饋會話    |
+| 26  | 萬能追蹤蜂 | umbra     | Hawk      | codegraph   | agent      | 競品監控追蹤圖譜  |
+| 27  | 萬能安全蜂 | umbra     | Ward      | wiki        | restricted | 資安規範資產    |
+| 28  | 萬能維護蜂 | umbra     | Curator   | skill       | agent      | 維運腳本/步驟   |
+| 29  | 萬能支援蜂 | umbra     | Echo      | skill       | agent      | 技術支援 SOP  |
+| 30  | 萬能質控蜂 | umbra     | Seal      | wiki        | restricted | 品質標準/驗證規則 |
 
 ## 蜂后隊（55-60）
 
