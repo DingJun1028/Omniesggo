@@ -1,0 +1,183 @@
+import { program } from "commander";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+import { readFileSync } from "fs";
+import { gatewayRequest } from "./gateway.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const pkg = JSON.parse(readFileSync(join(__dirname, "../package.json"), "utf-8"));
+program.name("oa").description("OA-Team 30 \u842C\u80FD\u4EE3\u7406\u5C0F\u968A\u547D\u4EE4\u63A7\u5236\u4ECB\u9762").version(pkg.version, "-v, --version", "\u986F\u793A\u7248\u672C\u865F").hook("preAction", (thisCommand) => {
+  console.log(`[5T:Traceable] source_origin=oa-cli command=${thisCommand.name()}`);
+});
+program.command("status").description("\u67E5\u8A62 OA-Team 30 \u4EE3\u7406\u9663\u5217\u72C0\u614B\uFF08MECE \u5206\u5DE5/\u8CA0\u8F09/\u5065\u5EB7\uFF09").option("--dry-run", "\u9810\u6F14\u6A21\u5F0F\uFF1A\u4E0D\u5BE6\u969B\u67E5\u8A62\uFF0C\u50C5\u56DE\u5831\u5C07\u57F7\u884C\u52D5\u4F5C").option("--live", "\u5BE6\u67E5\u6A21\u5F0F\uFF1A\u767C\u51FA\u771F\u5BE6 Gateway \u8ACB\u6C42").action(async (opts) => {
+  if (!opts.live || opts.dryRun) {
+    console.log("[DRY-RUN] oa status \u2192 \u5C07\u67E5\u8A62\uFF1Aswarm_matrix, array_health, task_queue");
+    console.log("[5T:Trustworthy] dry-run \u7121\u526F\u4F5C\u7528\uFF0CHash Lock \u9810\u7559");
+    return;
+  }
+  try {
+    const data = await gatewayRequest("/oa/status");
+    console.log("[LIVE]", JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.log("[BLOCKER] Gateway \u67E5\u8A62\u5931\u6557:", e.message);
+  }
+});
+const agents = program.command("agents").description("30 \u4F4D\u4EE3\u7406\u7BA1\u7406");
+agents.command("list").description("\u5217\u51FA 30 \u4F4D\u4EE3\u7406\uFF0801-30\uFF09\u8207\u6240\u5C6C\u9663\u5217").option("--array <id>", "\u7BE9\u9078\u9663\u5217 1-5").option("--dry-run", "\u9810\u6F14\u6A21\u5F0F").option("--live", "\u5BE6\u67E5\u6A21\u5F0F").action(async (opts) => {
+  if (!opts.live || opts.dryRun) {
+    console.log(`[DRY-RUN] oa agents list --array=${opts.array || "all"} \u2192 \u5C07\u56DE\u50B3\u4EE3\u7406\u77E9\u9663`);
+    console.log("[5T:Traceable] source_origin=oa-cli agents list");
+    return;
+  }
+  try {
+    const data = await gatewayRequest(`/oa/agents?array=${opts.array || "all"}`);
+    console.log("[LIVE]", JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.log("[BLOCKER] Gateway \u67E5\u8A62\u5931\u6557:", e.message);
+  }
+});
+const task = program.command("task").description("\u4EFB\u52D9\u6D3E\u767C\u8207\u7BA1\u7406");
+task.command("dispatch <prompt>").description("\u6D3E\u767C\u4EFB\u52D9\u5230\u6307\u5B9A\u9663\u5217\uFF08\u7D93 Hermes \u8DEF\u7531\uFF09").option("--array <id>", "\u76EE\u6A19\u9663\u5217 1-5\uFF0C\u9810\u8A2D\u7531\u8702\u738B\u8DEF\u7531").option("--dry-run", "\u9810\u6F14\u6A21\u5F0F").option("--live", "\u5BE6\u67E5\u6A21\u5F0F").action(async (prompt, opts) => {
+  if (!opts.live || opts.dryRun) {
+    console.log(`[DRY-RUN] oa task dispatch "${prompt}" \u2192 array=${opts.array || "auto"}`);
+    console.log("[5T:Trustworthy] \u6D3E\u767C\u7D93 Key-\u03A9 \u7C3D\u5370\uFF0C\u4E0D\u53EF\u7BE1\u6539");
+    return;
+  }
+  try {
+    const data = await gatewayRequest("/oa/task/dispatch", void 0, { prompt, array: opts.array });
+    console.log("[LIVE]", JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.log("[BLOCKER] Gateway \u6D3E\u767C\u5931\u6557:", e.message);
+  }
+});
+program.command("weekly-report").description("\u751F\u6210 OA-Team \u9031\u5831 (KPI + 5T \u7A3D\u6838 + \u71B5\u6E1B) \u2014 n8n cron \u8207\u624B\u52D5\u7686\u53EF\u547C\u53EB").option("--dry-run", "\u9810\u6F14\u6A21\u5F0F\uFF1A\u50C5\u8F38\u51FA markdown\uFF0C\u4E0D\u5BC4\u9001").option("--channels <list>", "\u9017\u865F\u5206\u9694: telegram,slack,email").option("--pairing <pct>", "\u8DE8\u7D44\u914D\u5C0D\u7387 (real measured)").option("--entropy <val>", "\u7576\u524D\u71B5\u503C").option("--security <n>", "\u5B89\u5168\u4E8B\u4EF6\u6578").option("--satisfaction <val>", "\u7528\u6236\u6EFF\u610F\u5EA6 /5").action(async (opts) => {
+  if (opts.dryRun) {
+    console.log("[DRY-RUN] oa weekly-report \u2192 \u5C07\u547C\u53EB aistation scripts/weekly_report.py --dry-run");
+    console.log("[5T:Traceable] source_origin=oa-cli weekly-report");
+    return;
+  }
+  try {
+    const { spawnSync } = await import("node:child_process");
+    const projectAistation = join(process.cwd(), "aistation");
+    const { existsSync } = await import("node:fs");
+    if (!existsSync(join(projectAistation, "src", "kpi.py"))) {
+      console.log("[BLOCKER] aistation \u76EE\u9304\u4E0D\u5B58\u5728 \u2014 \u8ACB\u78BA\u8A8D aistation \u5C08\u6848\u4F4D\u65BC esggo \u6839\u76EE\u9304\u4E0B");
+      return;
+    }
+    const args = [join(projectAistation, "scripts", "weekly_report.py"), "--dry-run"];
+    if (opts.channels) args.push("--channels", opts.channels);
+    if (opts.pairing) args.push("--pairing", opts.pairing);
+    if (opts.entropy) args.push("--entropy", opts.entropy);
+    if (opts.security) args.push("--security", opts.security);
+    if (opts.satisfaction) args.push("--satisfaction", opts.satisfaction);
+    const result = spawnSync("python3", args, {
+      encoding: "utf-8",
+      shell: process.platform === "win32",
+      cwd: projectAistation
+    });
+    if (result.error) {
+      console.log("[BLOCKER] python3 \u57F7\u884C\u5931\u6557:", result.error.message);
+    } else {
+      console.log(result.stdout);
+      if (result.stderr) console.error(result.stderr);
+    }
+  } catch (e) {
+    console.log("[BLOCKER] weekly-report \u5931\u6557:", e.message);
+  }
+});
+program.command("tag").description("\xA720 OmniTag \u5951\u7D04\u9598 \u2014 \u7522\u7269\u8A95\u751F\u5373\u9644\u5FC5\u5099\u4E09\u679A + \u81EA\u52D5\u8DEF\u7531 + Hash Lock").option("--agent <id>", "\u4EE3\u7406\u6B78\u5C6C agent:01~agent:30 (--init \u6A21\u5F0F\u514D\u586B)").option("--lifecycle <state>", "\u751F\u547D\u9031\u671F draft/active/frozen/archived (--init \u6A21\u5F0F\u514D\u586B)").option("--p <level>", "\u54C1\u8CEA\u5206\u7D1A p0/p1/p2/p3 (--init \u6A21\u5F0F\u514D\u586B)").option("--squad <name>", "\u9663\u5217\u6B78\u5C6C \u667A\u5EAB\u8056\u6240/\u7B26\u6587\u5951\u7D04/\u5149\u4E4B\u7FBD\u7FFC/\u7149\u91D1\u71B5\u6E1B/5T\u9A57\u7B97").option("--security <level>", "\u5B89\u5168\u5206\u7D1A public/internal/confidential/restricted").option("--platform <env>", "\u5E73\u53F0\u74B0\u5883 esggo/omni/vps/firebase").option("--best-practice <state>", "\u7D50\u754C\u7E7C\u627F awakened/\u7ED3\u754C").option("--content <json>", "\u5F85\u7C3D\u5370\u5167\u5BB9 (JSON \u5B57\u4E32)\uFF0C\u7528\u65BC\u7522\u751F Hash Lock").option("--entity <id>", "\u5BE6\u9AD4\u8B58\u5225\u78BC\uFF0C\u9810\u8A2D\u81EA\u52D5\u751F\u6210").option("--persist", "\u5BEB\u5165\u5373\u51CD\u7D50\uFF1A\u5C07\u904E\u9598\u7522\u7269\u6301\u4E45\u5316\u81F3 OmniTag Registry (\xA720.6)").option("--registry <path>", "Registry \u8DEF\u5F91\uFF0C\u9810\u8A2D .oa/omnitag-registry.jsonl").option("--init", "\xA720.6 \u7149\u91D1\u88DC\u6A19\uFF1A\u6383\u63CF\u76EE\u9304\u70BA\u7121\u6A19\u982D .ts \u81EA\u52D5\u88DC OmniTag \u6A19\u7C64 (\u9810\u8A2D dry-run)").option("--write", "\u8207 --init \u642D\u914D\uFF1A\u5BE6\u969B\u5BEB\u5165\u6A19\u982D (\u5426\u5247\u50C5\u9810\u89BD)").option("--dir <paths>", "\u8207 --init \u642D\u914D\uFF1A\u6383\u63CF\u76EE\u9304 (\u9017\u865F\u5206\u9694)\uFF0C\u9810\u8A2D src,cli").option("--json", "\u4EE5 JSON \u683C\u5F0F\u8F38\u51FA\u5B8C\u6574\u904E\u9598\u7D50\u679C").action(async (opts) => {
+  const { emitArtifact, OmniTagContractViolation, OmniTagRegistry } = await import("./omnitag.js");
+  if (!opts.init && (!opts.agent || !opts.lifecycle || !opts.p)) {
+    console.error("[\u932F\u8AA4] tag \u6A21\u5F0F\u9700 --agent / --lifecycle / --p \u4E09\u679A\u5FC5\u5099 (\u6216\u7528 --init \u88DC\u6A19\u6A21\u5F0F)");
+    process.exit(1);
+  }
+  if (opts.init) {
+    const { findUntagged, applyHeader } = await import("./audit.js");
+    const dirs = (opts.dir || "src,cli").split(",").map((d) => d.trim());
+    const untagged = findUntagged(dirs);
+    console.log(`[\xA720.6 \u7149\u91D1\u88DC\u6A19] \u5F85\u88DC\u6A19\u6A94\u6848=${untagged.length} (dry-run=${!opts.write})`);
+    const written = [];
+    for (const f of untagged) {
+      const r = applyHeader(f, !opts.write);
+      if (r.header) {
+        console.log(`  ${opts.write ? "\u270E" : "?"} ${r.file} -> ${r.header.trim()}`);
+        if (r.written) written.push(f);
+      }
+    }
+    if (!opts.write) {
+      console.log(`[\u63D0\u793A] \u52A0 --write \u624D\u5BE6\u969B\u5BEB\u5165\u6A19\u982D (\xA721.2 \u7D05\u7DDA\u9632\u8B77)`);
+    } else {
+      console.log(`[OK] \u5DF2\u88DC\u6A19 ${written.length} \u6A94\u6848`);
+    }
+    return;
+  }
+  const tag = {
+    agent: opts.agent,
+    lifecycle: opts.lifecycle,
+    priority: opts.p,
+    squad: opts.squad,
+    security: opts.security,
+    platform: opts.platform,
+    bestPractice: opts.bestPractice
+  };
+  const entityId = opts.entity || `artifact:${Date.now().toString(36)}`;
+  try {
+    const result = emitArtifact({
+      entityId,
+      tag,
+      content: opts.content
+    });
+    if (opts.json) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      const r = result.route;
+      console.log(`[5T:Traceable] entity=${entityId} agent=${tag.agent}`);
+      console.log(`[\xA720.4 \u8DEF\u7531] squad=${r.target?.squad ?? "N/A"} \u2192 ${r.target?.action ?? "N/A"} (${r.target?.routeKey ?? "-"})`);
+      console.log(`[\xA720.3 \u7D50\u754C] barrierInherited=${r.barrierInherited} consistent=${r.consistent}`);
+      console.log(`[\xA718 HashLock] ${result.hashLock}`);
+      console.log(`[OK] \u7522\u7269\u901A\u904E \xA720.5 \u5951\u7D04\u9598\uFF0C\u5DF2\u51CD\u7D50\u53EF\u6EAF\u6E90`);
+    }
+    if (opts.persist) {
+      const reg = new OmniTagRegistry({ path: opts.registry });
+      reg.persistArtifact({ entityId, tag, content: opts.content });
+      const verify = reg.verifyArtifact(entityId);
+      console.log(`[\xA720.6 \u51CD\u7D50] \u5BEB\u5165 registry=${opts.registry || ".oa/omnitag-registry.jsonl"} entity=${entityId}`);
+      console.log(`[\xA720.6 \u9A57\u8B49] exists=${verify.exists} tampered=${verify.tampered}`);
+      if (verify.tampered) {
+        console.error("[\xA75 Trustworthy] \u5BEB\u5165\u5F8C hash \u6821\u9A57\u5931\u6557\uFF0C\u8CC7\u6599\u5DF2\u88AB\u7BE1\u6539");
+        process.exit(1);
+      }
+    }
+  } catch (e) {
+    if (e instanceof OmniTagContractViolation) {
+      console.error(`[\xA720.5 \u5951\u7D04\u9055\u898F] ${e.check.violations.join("; ")}`);
+      process.exit(1);
+    }
+    console.error("[ERROR]", e.message);
+    process.exit(1);
+  }
+});
+program.command("audit").description("\xA720.5 \u7A3D\u6838\u62BD\u9A57 \u2014 \u6383\u63CF .ts \u6A94 OmniTag \u6A19\u982D\u5408\u7D04\u7387 (\u76EE\u6A19 100%)").option("--dir <paths>", "\u6383\u63CF\u76EE\u9304 (\u9017\u865F\u5206\u9694)\uFF0C\u9810\u8A2D src,cli", "src,cli").option("--json", "\u4EE5 JSON \u683C\u5F0F\u8F38\u51FA\u7A3D\u6838\u7D50\u679C").action(async (opts) => {
+  const { auditOmniTags } = await import("./audit.js");
+  const dirs = opts.dir.split(",").map((d) => d.trim());
+  const result = auditOmniTags(dirs);
+  if (opts.json) {
+    console.log(JSON.stringify(result, null, 2));
+  } else {
+    console.log(`[\xA720.5 \u7A3D\u6838] \u6383\u63CF\u6A94\u6848=${result.scanned} \u5E36\u6A19\u7C64=${result.tagged} \u5408\u7D04=${result.compliant}`);
+    console.log(`[\xA720.5 \u5408\u7D04\u7387] ${(result.rate * 100).toFixed(1)}% (\u76EE\u6A19 100%)`);
+    if (result.violations.length > 0) {
+      console.log(`[\xA720.5 \u9055\u898F] ${result.violations.length} \u9805:`);
+      for (const v of result.violations) {
+        console.log(`  - ${v.file}: ${v.issues.join("; ")}`);
+      }
+      process.exit(1);
+    } else {
+      console.log(`[OK] \u5168\u90E8\u5E36\u6A19\u7C64\u6A94\u6848\u901A\u904E \xA720.5 \u5951\u7D04\uFF0C\u5408\u7D04\u7387 100%`);
+    }
+  }
+});
+program.parseAsync(process.argv).catch((err) => {
+  console.error("[ERROR]", err.message);
+  process.exit(1);
+});

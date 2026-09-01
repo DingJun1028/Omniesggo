@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=ubuntu
 Environment=HERMES_HOME=/home/ubuntu/.hermes
-ExecStart=/opt/hermes-venv/bin/hermes serve --port 9119 --skip-build
+ExecStart=/opt/hermes-venv/bin/hermes serve --port 9119 --skip-build --allow-unauthenticated
 Restart=always
 RestartSec=5
 
