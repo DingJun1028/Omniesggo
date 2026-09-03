@@ -231,17 +231,75 @@ export function Section({ title, subtitle, children, className }: SectionProps) 
 }
 
 export function Grid({ children, columns = 3, gap = 16, style }: { children: React.ReactNode; columns?: number; gap?: number; style?: React.CSSProperties }) {
+  // RWD: 手機 1 欄 / 平板 2 欄 / 桌機 N 欄
+  const minW = columns <= 1 ? '100%' : columns === 2 ? '280px' : '240px';
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(auto-fill, minmax(${columns <= 2 ? '280px' : '240px'}, 1fr))`,
-        gap: `${gap}px`,
+        gridTemplateColumns: `repeat(auto-fill, minmax(${minW}, 1fr))`,
+        gap: `clamp(8px, 2vw, ${gap}px)`,
+        width: '100%',
         ...style,
       }}
       className="solid-grid"
     >
       {children}
+    </div>
+  );
+}
+
+/** RWD 容器查詢容器 — 行動版 100% 寬 */
+export function Container({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return (
+    <div
+      className={`solid-container ${className ?? ''}`}
+      style={{
+        width: '100%',
+        maxWidth: '1440px',
+        margin: '0 auto',
+        padding: 'clamp(12px, 3vw, 24px)',
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** RWD 側邊欄佈局 — 手機單欄、桌機 12 欄 */
+export function PageLayout({ sidebar, children, sidebarWidth = 280 }: { sidebar?: React.ReactNode; children: React.ReactNode; sidebarWidth?: number }) {
+  return (
+    <div
+      className="solid-page-layout"
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 'clamp(12px, 2vw, 24px)',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    >
+      {sidebar && (
+        <aside
+          style={{
+            width: `${sidebarWidth}px`,
+            flexShrink: 0,
+            display: 'block',
+          }}
+          className="solid-sidebar"
+        >
+          {sidebar}
+        </aside>
+      )}
+      <main style={{ flex: 1, minWidth: 0, width: '100%' }}>{children}</main>
+      <style>{`
+        @media (max-width: 768px) {
+          .solid-page-layout { flex-direction: column !important; }
+          .solid-sidebar { width: 100% !important; }
+        }
+      `}</style>
     </div>
   );
 }

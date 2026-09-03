@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@esggo/shared": "workspace:*",
+    "@esggo/omni-agent": "workspace:*",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
   },
