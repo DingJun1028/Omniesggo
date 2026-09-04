@@ -18,7 +18,12 @@ export function loadGatewayConfig(): { url: string; token?: string } {
   return { url: 'http://localhost:8420' };
 }
 
-export async function gatewayRequest(path: string, token?: string, body?: unknown): Promise<any> {
+export async function gatewayRequest(
+  path: string,
+  token?: string,
+  body?: unknown,
+  serviceId?: string,
+): Promise<any> {
   const cfg = loadGatewayConfig();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 3000);
@@ -28,6 +33,9 @@ export async function gatewayRequest(path: string, token?: string, body?: unknow
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token || cfg.token || ''}`,
+        ...(serviceId || process.env.TDAI_SERVICE_ID
+          ? { 'x-tdai-service-id': serviceId || process.env.TDAI_SERVICE_ID || 'oa-team-swarm' }
+          : {}),
       },
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
