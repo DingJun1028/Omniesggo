@@ -132,6 +132,8 @@ const Sparkline = React.memo(function Sparkline({ data, color = 'text-teal-400' 
 
 // ─── Main Dashboard ───────────────────────────────────────────
 
+const SONNAR_TABS = ['overview', 'crawl', 'alerts'] as const;
+
 export default function SonnarDashboard() {
   const [sources, setSources] = useState<Source[]>([]);
   const [signals, setSignals] = useState<RadarSignal[]>([]);
@@ -425,7 +427,7 @@ export default function SonnarDashboard() {
         }}
       >
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '24px' }}>
-          {(['overview', 'crawl', 'alerts'] as const).map((tab) => (
+          {SONNAR_TABS.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
