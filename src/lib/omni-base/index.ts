@@ -17,6 +17,7 @@
  */
 
 import { createHash, randomBytes } from 'crypto';
+import { type TrustLevel, TRUST_LEVEL_SCORE } from '../omni-core/types';
 
 // ═══════════════════════════════════════════════════════════════
 // SECTION 1: Core Types & Interfaces
@@ -1062,6 +1063,45 @@ export function verifyTagPair(
 }
 
 // ═══════════════════════════════════════════════════════════════
+// SECTION 13.5: Trust Label — createTrustTag, updateLifecycle
+// ═══════════════════════════════════════════════════════════════
+
+/** 建立信任標別標籤（§20.7 測試契約：返回扁平物件含 trustLevel/trustScore/hashLock/agent） */
+export function createTrustTag(params: {
+  agent: string;
+  trustLevel: TrustLevel;
+  lifecycle?: TagLifecycleV6;
+}): Record<string, unknown> {
+  const { agent, trustLevel, lifecycle } = params;
+  const trustScore = TRUST_LEVEL_SCORE[trustLevel];
+  const hashLock = createHash('sha256')
+    .update(`${agent}:${trustLevel}:${Date.now()}:${Math.random()}`)
+    .digest('hex');
+  return Object.freeze({
+    agent,
+    trustLevel,
+    trustScore,
+    hashLock,
+    ...(lifecycle !== undefined ? { lifecycle } : {}),
+    createdAt: Date.now(),
+  });
+}
+
+/** 升級生命週期（§20.7 測試契約：保留/升級 trustLevel） */
+export function updateLifecycle(
+  tag: Record<string, unknown>,
+  lifecycle: TagLifecycleV6,
+  opts?: { trustLevel?: TrustLevel },
+): Record<string, unknown> {
+  const newLevel = opts?.trustLevel ?? (tag.trustLevel as TrustLevel | undefined);
+  return Object.freeze({
+    ...tag,
+    lifecycle,
+    ...(newLevel !== undefined ? { trustLevel: newLevel, trustScore: TRUST_LEVEL_SCORE[newLevel] } : {}),
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
 // SECTION 13: Re-exports & Type Guards
 // ═══════════════════════════════════════════════════════════════
 
@@ -1086,6 +1126,17 @@ export function isTagPair(value: unknown): value is TagPair {
   );
 }
 
+export function isTrustLabel(value: unknown): value is TrustLabel {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'tagId' in value &&
+    'trustLevel' in value &&
+    'trustScore' in value &&
+    'verifiedAt' in value
+  );
+}
+
 export function isSealed(tag: OmniTag): boolean {
   return tag.lifecycle === 'sealed';
 }
@@ -1095,4 +1146,4 @@ export function isActive(tag: OmniTag): boolean {
 }
 
 // Re-export constants for external use
-export { EVENT_TOPICS as EventTopics };
+export { EVENT_TOPICS as EventTopics, TRUST_LEVEL_SCORE };

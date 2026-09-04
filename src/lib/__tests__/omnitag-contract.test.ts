@@ -11,6 +11,7 @@ import {
 
 const compliantTag: OmniTagSet = {
   agent: 'agent:25',
+  trustLevel: 'high',
   squad: '5T驗算',
   security: 'internal',
   lifecycle: 'active',
