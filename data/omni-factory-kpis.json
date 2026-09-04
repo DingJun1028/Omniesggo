@@ -1,0 +1,1180 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-09-04T13:45:19.894377+08:00",
+  "dataSource": {
+    "ollama": "no-key",
+    "mode": "local-sensor"
+  },
+  "modules": [
+    {
+      "id": "M01",
+      "array": "Strategy",
+      "name": "萬能Planning蜂",
+      "role": "Planning",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 82.08,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 279.06,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 91.6,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 1,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 97.23,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M02",
+      "array": "Strategy",
+      "name": "萬能Analysis蜂",
+      "role": "Analysis",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 89.88,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 469.25,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 94.87,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 5,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 99.35,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M03",
+      "array": "Strategy",
+      "name": "萬能Creative蜂",
+      "role": "Creative",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 36.67,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 256.9,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 88.97,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 4,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 97.85,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M04",
+      "array": "Strategy",
+      "name": "萬能Risk蜂",
+      "role": "Risk",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 76.54,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 184.97,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 90.37,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 98.02,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M05",
+      "array": "Strategy",
+      "name": "萬能Optimization蜂",
+      "role": "Optimization",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 89.82,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 137.87,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 96.13,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 5,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 94.83,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M06",
+      "array": "Strategy",
+      "name": "萬能QueenBee蜂",
+      "role": "QueenBee",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 38.09,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 96.8,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 95.18,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 5,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 96.89,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M07",
+      "array": "Technology",
+      "name": "萬能Coding蜂",
+      "role": "Coding",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 37.17,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 473.36,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 91.32,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 5,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 97.36,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M08",
+      "array": "Technology",
+      "name": "萬能Algorithm蜂",
+      "role": "Algorithm",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 67.37,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 407.74,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 95.81,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 1,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 97.18,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M09",
+      "array": "Technology",
+      "name": "萬能Architecture蜂",
+      "role": "Architecture",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 73.19,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 225.53,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 86.66,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 3,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 95.07,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M10",
+      "array": "Technology",
+      "name": "萬能Data蜂",
+      "role": "Data",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 78.9,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 320.31,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 91.73,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 94.37,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M11",
+      "array": "Technology",
+      "name": "萬能Testing蜂",
+      "role": "Testing",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 85.88,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 150.77,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 96.16,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 4,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 93.9,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M12",
+      "array": "Technology",
+      "name": "萬能Design蜂",
+      "role": "Design",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 24.52,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 50.46,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 99.01,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 97.03,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M13",
+      "array": "Creative",
+      "name": "萬能Image蜂",
+      "role": "Image",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 10.33,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 236.13,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 87.67,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 3,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 93.54,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M14",
+      "array": "Creative",
+      "name": "萬能Animation蜂",
+      "role": "Animation",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 84.13,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 337.15,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 84.62,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 98.5,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M15",
+      "array": "Creative",
+      "name": "萬能Copy蜂",
+      "role": "Copy",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 66.09,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 466.8,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 90.26,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 0,
+          "trend": "stable"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 100.94,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M16",
+      "array": "Creative",
+      "name": "萬能Audio蜂",
+      "role": "Audio",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 41.6,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 293.58,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 91.13,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 5,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 96.68,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M17",
+      "array": "Creative",
+      "name": "萬能Market蜂",
+      "role": "Market",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 82.16,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 70.69,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 92.89,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 96.48,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M18",
+      "array": "Creative",
+      "name": "萬能Community蜂",
+      "role": "Community",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 92.71,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 116.58,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 97.29,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 0,
+          "trend": "stable"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 98.88,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M19",
+      "array": "Marketing",
+      "name": "萬能Growth蜂",
+      "role": "Growth",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 50.26,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 440.68,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 89.0,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 0,
+          "trend": "stable"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 92.86,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M20",
+      "array": "Marketing",
+      "name": "萬能Operations蜂",
+      "role": "Operations",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 24.55,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 197.53,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 85.54,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 5,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 100.26,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M21",
+      "array": "Marketing",
+      "name": "萬能BusinessAnalysis蜂",
+      "role": "BusinessAnalysis",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 29.82,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 403.55,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 99.18,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 1,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 93.52,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M22",
+      "array": "Marketing",
+      "name": "萬能Exploration蜂",
+      "role": "Exploration",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 48.4,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 250.78,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 87.82,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 0,
+          "trend": "stable"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 96.09,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M23",
+      "array": "Marketing",
+      "name": "萬能Diplomacy蜂",
+      "role": "Diplomacy",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 73.58,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 467.7,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 99.16,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 96.2,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M24",
+      "array": "Marketing",
+      "name": "萬能Research蜂",
+      "role": "Research",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 82.61,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 214.61,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 87.68,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 100.05,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M25",
+      "array": "Guard",
+      "name": "萬能Testing蜂",
+      "role": "Testing",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 82.37,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 138.19,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 91.91,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 4,
+          "trend": "up"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 99.91,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M26",
+      "array": "Guard",
+      "name": "萬能Tracking蜂",
+      "role": "Tracking",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 44.57,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 298.67,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 91.28,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 1,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 95.08,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M27",
+      "array": "Guard",
+      "name": "萬能Security蜂",
+      "role": "Security",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 39.16,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 66.36,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 87.82,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 0,
+          "trend": "stable"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 94.06,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M28",
+      "array": "Guard",
+      "name": "萬能Maintenance蜂",
+      "role": "Maintenance",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 84.53,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 390.98,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 85.91,
+          "trend": "down"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 2,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 93.73,
+          "trend": "down"
+        }
+      ]
+    },
+    {
+      "id": "M29",
+      "array": "Guard",
+      "name": "萬能Support蜂",
+      "role": "Support",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 62.64,
+          "trend": "up"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 395.05,
+          "trend": "up"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 99.82,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 1,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 95.53,
+          "trend": "up"
+        }
+      ]
+    },
+    {
+      "id": "M30",
+      "array": "Guard",
+      "name": "萬能Quality蜂",
+      "role": "Quality",
+      "status": "active",
+      "kpis": [
+        {
+          "name": "throughput",
+          "unit": "tasks/hour",
+          "value": 36.07,
+          "trend": "down"
+        },
+        {
+          "name": "latency",
+          "unit": "ms",
+          "value": 402.33,
+          "trend": "down"
+        },
+        {
+          "name": "quality",
+          "unit": "%",
+          "value": 91.81,
+          "trend": "up"
+        },
+        {
+          "name": "errors",
+          "unit": "count",
+          "value": 1,
+          "trend": "down"
+        },
+        {
+          "name": "uptime",
+          "unit": "%",
+          "value": 101.34,
+          "trend": "up"
+        }
+      ]
+    }
+  ]
+}
