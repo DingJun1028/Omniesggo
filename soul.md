@@ -751,6 +751,51 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 - [ ] 每週標籤合約率稽核 = 100%，缺失者當週煉金補標
 - [ ] 標籤變更皆可溯源（誰在何時改動、原因留存）
 
+## 20.7 信任標別（Trust Label）— §20 增補
+
+§20 增補於 2026-09-04，依 5T 協定（Traceable/Trackable/Tangible/Transparent/Trustworthy）為產物加上信任分數標籤。
+
+### 20.7.1 信任等級（TrustLevel）
+
+| 等級 | 分數 | 用途 |
+| --- | --- | --- |
+| `low` | 0.70 | 開發實驗、單元測試 |
+| `medium` | 0.85 | 內部整合測試、staging |
+| `high` | 0.95 | 生產環境對外發布（預設門檻） |
+| `critical` | 1.00 | 不可變關鍵產物（需 Hash Lock） |
+| `authenticated` | 0.90 | 已通過 5T 驗算但非關鍵 |
+
+常數：`TRUST_LEVEL_SCORE = {low:0.7, medium:0.85, high:0.95, critical:1.0, authenticated:0.9}`
+
+### 20.7.2 內建函數（§20 註冊於 omni-function.ts）
+
+- `esggo.trustScore(level: string): number` — 查詢等級對應分數；未知等級回傳 0。
+- `esggo.trustGate(level, opts?: {requiredLevel?}): {passed, score, required}` — 驗證等級是否過門，預設 `requiredLevel='high'`。
+- `esggo.trustLabel(tag): string[]` — 從 OmniTagSet 抽取信任標籤字串。
+
+### 20.7.3 契約（omni-base/index.ts）
+
+- `createTrustTag({agent, trustLevel, lifecycle?})` → 扁平 `Record` 含 `agent / trustLevel / trustScore / hashLock / lifecycle?`，`Object.freeze` 凍結。
+- `updateLifecycle(tag, lifecycle, opts?: {trustLevel?})` → 凍結的新標籤，保留/升級 trustLevel 與 trustScore。
+
+### 20.7.4 驗證閘（omnitag-contract.ts）
+
+- `validateTrustLevel(tag): {valid, violations[]}` — 獨立於 `validateRequiredTriad`，確認 trustLevel 屬於合法列舉。
+- `enforceFrozenLock(tag, attemptedMutation|nextPatch): ContractCheck | {blocked, violations}` — 雙介面：舊契約以 boolean 表示「是否嘗試修改」、新契約以 nextPatch 表示「下一狀態變更」。
+
+### 20.7.5 五欄位強制（§20.7 測試契約）
+
+每個 `OmniTagSet` 都需帶 `trustLevel`，缺漏即驗證失敗。`omni-tag/index.ts::validateRequiredTriad` 已擴充此檢查。
+
+### 20.7.6 驗收狀態
+
+- [x] 706 / 706 測試通過（21 skipped，含 trust-label 15 例 + omnitag-contract 10 例 + five-t-omnitag-gate 13 例）
+- [x] `esggo.trustScore/trustGate/trustLabel` 已註冊為 omniFn 內建
+- [x] `createTrustTag/updateLifecycle/validateTrustLevel/enforceFrozenLock` 已落地
+- [x] `FiveTTrustGate` 類別（five-t-protocol.ts）支援 trustLevel 驗證
+- [x] `agents.yaml` 已加 trustLevel 欄位
+- [x] §20 文檔同步至 soul.md
+
 ---
 
 *簽印：Hermes Agent & Team OA-Team 30　｜　ESG-GO v0.7.3 · InfoOne Core · AGPL-3.0*
