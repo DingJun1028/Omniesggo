@@ -1126,7 +1126,7 @@ export function isTagPair(value: unknown): value is TagPair {
   );
 }
 
-export function isTrustLabel(value: unknown): value is TrustLabel {
+export function isTrustLevel(value: unknown): value is TrustLevel {
   return (
     typeof value === 'object' &&
     value !== null &&
