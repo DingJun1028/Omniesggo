@@ -143,7 +143,9 @@ export function DelegationDashboard() {
           {error}
           <button
             onClick={() => setError(null)}
-            className="ml-2 text-red-500 hover:text-red-700"
+            className="ml-2 text-red-500 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded"
+            aria-label="關閉錯誤訊息"
+            title="關閉"
           >
             ×
           </button>
@@ -173,10 +175,11 @@ export function DelegationDashboard() {
           <form onSubmit={handleCreate}>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="principalId" className="block text-sm font-medium mb-1">
                   主體 ID *
                 </label>
                 <input
+                  id="principalId"
                   type="text"
                   value={formData.principalId}
                   onChange={(e) =>
@@ -187,10 +190,11 @@ export function DelegationDashboard() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="agentId" className="block text-sm font-medium mb-1">
                   代理者 ID (選填)
                 </label>
                 <input
+                  id="agentId"
                   type="text"
                   value={formData.agentId ?? ''}
                   onChange={(e) =>
@@ -232,10 +236,11 @@ export function DelegationDashboard() {
                 </div>
               </div>
               <div className="col-span-2">
-                <label className="block text-sm font-medium mb-1">
+                <label htmlFor="description" className="block text-sm font-medium mb-1">
                   描述 (選填)
                 </label>
                 <input
+                  id="description"
                   type="text"
                   value={formData.description ?? ''}
                   onChange={(e) =>

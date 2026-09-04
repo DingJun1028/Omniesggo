@@ -22,3 +22,7 @@
 ## 2024-05-24 - Accessibility for Filter Toggle Buttons
 **Learning:** Screen readers cannot infer that a custom filter button acts as a toggle state just by its visual styling or click handler. When custom filter buttons (like ESG pillars or difficulty levels) toggle between active and inactive states, the lack of `aria-pressed` prevents screen reader users from understanding which filters are currently applied.
 **Action:** Always add `aria-pressed={isActive}` to any `<button>` that behaves as a toggle switch or filter chip, ensuring its active/inactive state is programmatically announced.
+
+## 2026-08-01 - [Form and Alert Accessibility]
+**Learning:** Dismissible error alerts with icon-only close buttons (like `×`) often lack screen reader support and keyboard focus styles. Furthermore, forms built with structural `div` tags but lacking programmatic association (like `htmlFor` and `id`) cause severe issues for assistive technologies.
+**Action:** Always add `aria-label` and `focus-visible` classes to dismiss or close buttons. For all form inputs, explicitly pair the `<label>` and `<input>` using the `htmlFor` and `id` attributes respectively, regardless of surrounding structural tags.
