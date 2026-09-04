@@ -26,3 +26,7 @@
 ## 2026-08-01 - [Form and Alert Accessibility]
 **Learning:** Dismissible error alerts with icon-only close buttons (like `×`) often lack screen reader support and keyboard focus styles. Furthermore, forms built with structural `div` tags but lacking programmatic association (like `htmlFor` and `id`) cause severe issues for assistive technologies.
 **Action:** Always add `aria-label` and `focus-visible` classes to dismiss or close buttons. For all form inputs, explicitly pair the `<label>` and `<input>` using the `htmlFor` and `id` attributes respectively, regardless of surrounding structural tags.
+
+## 2024-05-18 - [Icon Button Accessibility and Focus Tracking]
+**Learning:** In complex, highly interactive data views (like `wuzuo-note-view.tsx`), icon-only control buttons (for tasks, mobile menus, creating entries, and deletion) are completely opaque to screen readers if they lack `aria-label`s. Furthermore, the absence of `focus-visible` styles prevents keyboard-only users from understanding their focus location.
+**Action:** Consistently apply `aria-label` (using dynamic strings for toggle states where necessary) and use targeted `focus-visible:ring-2 focus-visible:ring-[Color] focus:outline-none` Tailwind utility classes on all icon buttons to guarantee clear navigation state without polluting pointer-event styles.

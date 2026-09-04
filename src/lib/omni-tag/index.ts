@@ -1,3 +1,4 @@
+import { FiveTHashLock } from "../five-t-protocol";
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniTag v2.0 - Zero-Knowledge Proof, Quantum Entanglement and 5T Gate Factory
@@ -16,7 +17,7 @@
  *   5T Gate        --- maps GRI chapter codes to FiveTDimension semantic gates
  */
 
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { type TrustLevel, TRUST_LEVEL_SCORE } from '../omni-core/types';
 
 import {
@@ -48,14 +49,15 @@ export interface TrustLabelTag {
 }
 
 /** 創建信任標別標籤 */
-export function createTrustTag(params: {
+export function createTrustLabelTag(params: {
   tagId: string;
   agentId: string;
   componentId: string;
   labels?: readonly string[];
+  trustLevel?: TrustLevel;
   verifiedBy: string;
 }): TrustLabelTag {
-  const trustScore = TRUST_LEVEL_SCORE[params.trustLevel] ?? 0.7;
+  const trustScore = params.trustLevel ? TRUST_LEVEL_SCORE[params.trustLevel] : 0.7;
   const hashLock = FiveTHashLock.generate(params.tagId, JSON.stringify(params));
   return Object.freeze<TrustLabelTag>({
     tagId: params.tagId,
@@ -72,13 +74,13 @@ export function createTrustTag(params: {
 }
 
 /** 驗證信任標別 */
-export function verifyTrustLabel(tag: TrustLabelTag): boolean {
+export function verifyTrustLabelTag(tag: TrustLabelTag): boolean {
   const expectedHash = FiveTHashLock.generate(tag.tagId, JSON.stringify(tag));
   return tag.hashLock === expectedHash;
 }
 
 /** 升級信任等級 */
-export function upgradeTrustLevel(
+export function upgradeTrustLabelTag(
   tag: TrustLabelTag,
   newLevel: TrustLevel,
 ): TrustLabelTag {

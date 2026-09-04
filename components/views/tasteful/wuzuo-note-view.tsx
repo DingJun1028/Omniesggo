@@ -180,8 +180,9 @@ export function OmniNoteView() {
               <h2 className="font-bold text-slate-800 text-lg">所有項目</h2>
               <button 
                 onClick={handleCreateEntry}
-                className="p-2 bg-[#219EBC] text-white rounded-lg hover:bg-[#1A829C] transition-colors"
+                className="p-2 bg-[#219EBC] text-white rounded-lg hover:bg-[#1A829C] transition-colors focus-visible:ring-2 focus-visible:ring-[#219EBC] focus:outline-none"
                 title="新增筆記"
+                aria-label="新增筆記"
               >
                 <Plus className="w-5 h-5" />
               </button>
@@ -261,7 +262,8 @@ export function OmniNoteView() {
                     {entry.isTask && (
                       <button 
                         onClick={(e) => toggleTaskCompletion(entry.id, e)}
-                        className="mt-0.5 shrink-0"
+                        className="mt-0.5 shrink-0 rounded focus-visible:ring-2 focus-visible:ring-[#219EBC] focus:outline-none"
+                        aria-label={entry.completed ? "標記為未完成" : "標記為完成"}
                       >
                         {entry.completed ? (
                           <CheckCircle2 className="w-5 h-5 text-emerald-500" />
@@ -314,7 +316,8 @@ export function OmniNoteView() {
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setSelectedEntryId(null)}
-                    className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-[#219EBC] hover:bg-slate-50 rounded-lg transition-colors"
+                    className="lg:hidden p-2 -ml-2 text-slate-400 hover:text-[#219EBC] hover:bg-slate-50 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-[#219EBC] focus:outline-none"
+                    aria-label="返回列表"
                   >
                     <AlignLeft className="w-5 h-5" />
                   </button>
@@ -331,8 +334,9 @@ export function OmniNoteView() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button 
                     onClick={() => handleDeleteEntry(selectedEntry.id)}
-                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors focus-visible:ring-2 focus-visible:ring-red-500 focus:outline-none"
                     title="刪除"
+                    aria-label="刪除筆記"
                   >
                     <Trash2 className="w-5 h-5" />
                   </button>
