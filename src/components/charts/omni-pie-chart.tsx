@@ -5,6 +5,17 @@ import React, { useState, useMemo } from 'react';
 import { OmniPieChartProps, ChartDataPoint } from '@/types/esg-charts';
 import { Lock } from 'lucide-react';
 
+// ⚡ Bolt: Hoisted static color palette outside the component to prevent
+// recreating the array on every render, avoiding unnecessary re-renders
+// of child elements based on referential equality.
+const colors = [
+  'var(--accent-teal)',
+  'var(--accent-gold)',
+  'var(--accent-blue)',
+  'var(--accent-purple)',
+  '#E74C3C'
+];
+
 export function OmniPieChart({
   title,
   description,
@@ -62,15 +73,6 @@ export function OmniPieChart({
   }, [data, radius]);
 
   if (!data || data.length === 0) return <div>No data available</div>;
-
-  // Fallback palette
-  const colors = [
-    'var(--accent-teal)',
-    'var(--accent-gold)',
-    'var(--accent-blue)',
-    'var(--accent-purple)',
-    '#E74C3C'
-  ];
 
   return (
     <div className="flex flex-col gap-2 w-full" style={{ width }}>
