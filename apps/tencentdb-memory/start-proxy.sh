@@ -23,6 +23,8 @@ require_vars \
 
 # 与 memory-core 保持一致的 gateway 内部凭据（默认 local，仅本地体验）
 MEMORY_CORE_GATEWAY_API_KEY="${MEMORY_CORE_GATEWAY_API_KEY:-local}"
+# 使用 127.0.0.1 而非 Docker service name (host network mode 下容器間不能解析服務名)
+MEMORY_CORE_URL="${MEMORY_CORE_URL:-http://127.0.0.1:${MEMORY_CORE_PORT}}"
 
 CONTAINER=tdai-proxy
 NETWORK=host
@@ -93,7 +95,7 @@ log:
 # tdai 内核对接（用于 injection / skill / auth 拉取）
 tdai:
   enabled: $(bool $PROXY_ENABLE_TDAI)
-  endpoint: "http://memory-core:8420"
+  endpoint: "${MEMORY_CORE_URL}"
   apiKey: "${MEMORY_CORE_GATEWAY_API_KEY}"
   serviceId: default
   memory:
@@ -104,12 +106,12 @@ tdai:
     injectL2L3: true
 
 skill:
-  endpoint: "http://memory-core:8420"
+  endpoint: "${MEMORY_CORE_URL}"
   serviceToken: "${MEMORY_CORE_GATEWAY_API_KEY}"
 
 auth:
   enabled: $(bool $PROXY_ENABLE_AUTH)
-  url: "http://memory-core:8420"
+  url: "${MEMORY_CORE_URL}"
   timeoutMs: 5000
 
 sessionInit:
