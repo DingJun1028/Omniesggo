@@ -3,14 +3,48 @@
 # 使用正確的 endpoint: https://ollama.com/v1/models
 # 若 Ollama Cloud 無可用資料，使用本地感測器模擬
 
-DATA_DIR="$(cd "$(dirname "$0")/.." && pwd)/data"
-DATA_FILE="$DATA_DIR/omni-factory-kpis.json"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+DATA_DIR="$REPO_ROOT/data"
+# Windows-friendly path for python3 (MSYS conversion disabled)
+DATA_FILE="$(cygpath -w "$DATA_DIR/omni-factory-kpis.json" 2>/dev/null || echo "$DATA_DIR/omni-factory-kpis.json")"
 OLLAMA_URL="https://ollama.com/v1/models"
 OLLAMA_KEY="${OLLAMA_CLOUD_API_KEY:-}"
 
+# Self-heal: 若 KPI 檔不存在，自動 seed 30 模組預設值
 if [ ! -f "$DATA_FILE" ]; then
-  echo "Error: $DATA_FILE not found"
-  exit 1
+  echo "[WARN] $DATA_FILE not found — auto-seeding 30 modules"
+  mkdir -p "$DATA_DIR"
+  python3 - "$DATA_FILE" <<'SEED'
+import json, random, sys
+from datetime import datetime, timezone, timedelta
+data_file = sys.argv[1]
+arrays = {
+    'Strategy': ['Planning','Analysis','Creative','Risk','Optimization','QueenBee'],
+    'Technology': ['Coding','Algorithm','Architecture','Data','Testing','Design'],
+    'Creative': ['Image','Animation','Copy','Audio','Market','Community'],
+    'Marketing': ['Growth','Operations','BusinessAnalysis','Exploration','Diplomacy','Research'],
+    'Guard': ['Testing','Tracking','Security','Maintenance','Support','Quality'],
+}
+tpls = [
+    ('throughput','tasks/hour', lambda: round(random.uniform(10,100),1)),
+    ('latency','ms', lambda: round(random.uniform(50,500),0)),
+    ('quality','%', lambda: round(random.uniform(85,99),1)),
+    ('errors','count', lambda: random.randint(0,5)),
+    ('uptime','%', lambda: round(random.uniform(95,100),2)),
+]
+mods = []
+i = 1
+for arr, bees in arrays.items():
+    for b in bees:
+        mods.append({
+            'id': f'M{i:02d}','array':arr,'name':f'萬能{b}蜂','role':b,'status':'active',
+            'kpis':[{'name':n,'unit':u,'value':g(),'trend':'stable'} for n,u,g in tpls]
+        }); i += 1
+json.dump({
+    'version':'1.0.0','lastUpdated':datetime.now(timezone(timedelta(hours=8))).isoformat(),
+    'dataSource':{'ollama':'pending','mode':'local-sensor'},'modules':mods
+}, open(data_file,'w',encoding='utf-8'), ensure_ascii=False, indent=2)
+SEED
 fi
 
 # 嘗試從 Ollama Cloud 取得真實資料（若 API Key 存在）
@@ -30,13 +64,13 @@ else
   echo "[INFO] 無 API Key，使用本地感測器模式"
 fi
 
-python3 - "$ollama_status" <<'PYEOF'
+python3 - "$DATA_FILE" "$ollama_status" <<'PYEOF'
 import json, sys, random
 from datetime import datetime, timezone, timedelta
 
-ollama_status = sys.argv[1]
+data_file, ollama_status = sys.argv[1], sys.argv[2]
 
-with open('data/omni-factory-kpis.json', 'r', encoding='utf-8') as f:
+with open(data_file, 'r', encoding='utf-8') as f:
     data = json.load(f)
 
 # 更新時間戳記（台北時區 UTC+8）
@@ -62,7 +96,7 @@ for m in data['modules']:
             kpi['value'] = new_val
             kpi['trend'] = 'up' if variation > 0 else 'down' if variation < 0 else 'stable'
 
-with open('data/omni-factory-kpis.json', 'w', encoding='utf-8') as f:
+with open(data_file, 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=2)
 
 print(f"Updated {len(data['modules'])} modules at {now}")
