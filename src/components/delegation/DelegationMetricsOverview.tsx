@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 
 /**
  * ==========================================
@@ -65,6 +65,12 @@ function MetricChip({ label, value }: { label: string; value: number }) {
 }
 
 function AlertList({ alerts }: { alerts: AlertItem[] }) {
+  // 最近的告警置頂（取最後 5 筆）
+  const recent = useMemo(() => {
+    if (!alerts) return [];
+    return [...alerts].slice(-5).reverse();
+  }, [alerts]);
+
   if (!alerts || alerts.length === 0) {
     return (
       <div className="text-xs text-emerald-300/80 bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2">
@@ -72,8 +78,7 @@ function AlertList({ alerts }: { alerts: AlertItem[] }) {
       </div>
     );
   }
-  // 最近的告警置頂（取最後 5 筆）
-  const recent = [...alerts].slice(-5).reverse();
+
   return (
     <div className="flex flex-col gap-2">
       {recent.map((a) => (
@@ -163,7 +168,13 @@ export default function DelegationMetricsOverview({
     };
   }, [delegationId]);
 
-  const globalTypes = global ? Object.entries(global.byType) : [];
+  const globalTypes = useMemo(() => {
+    return global ? Object.entries(global.byType) : [];
+  }, [global]);
+
+  const delegationTypes = useMemo(() => {
+    return delegation ? Object.entries(delegation.byType) : [];
+  }, [delegation]);
 
   return (
     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 sm:p-6 border border-white/20 mb-6">
@@ -235,9 +246,9 @@ export default function DelegationMetricsOverview({
                   最近：{relativeTime(delegation.lastSeenAt)}
                 </span>
               </div>
-              {Object.keys(delegation.byType).length > 0 ? (
+              {delegationTypes.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {Object.entries(delegation.byType).map(([type, count]) => (
+                  {delegationTypes.map(([type, count]) => (
                     <MetricChip key={type} label={type} value={count} />
                   ))}
                 </div>
