@@ -15,7 +15,7 @@ import React from 'react';
  * Architecture: Connects to /api/omni-agent/console
  */
 
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 // ═══════════════════════════════════════════════════════════════
 // Types
@@ -372,45 +372,45 @@ function SubAgentPanel({
 // ═══════════════════════════════════════════════════════════════
 
 function CoreStatsDisplay({ stats }: { stats: CoreStats | null }) {
-  const statCards = React.useMemo(() => {
+  const statCards = useMemo(() => {
     if (!stats) return [];
     return [
-    {
-      label: '註冊組件',
-      value: stats.kernel.registryCount,
-      color: COLORS.teal,
-      icon: '⊙',
-    },
-    {
-      label: '快取命中率',
-      value: `${(stats.kernel.cacheMetrics.hitRate * 100).toFixed(0)}%`,
-      color: COLORS.zkpBlue,
-      icon: '⚡',
-    },
-    {
-      label: '同步記錄',
-      value: stats.kernel.syncLogCount,
-      color: COLORS.gold,
-      icon: '🔄',
-    },
-    {
-      label: 'AGNES 節點',
-      value: stats.kernel.agnesStatus.activeNodes,
-      color: COLORS.purple,
-      icon: '🤖',
-    },
-    {
-      label: '吞吐量',
-      value: stats.kernel.agnesStatus.throughput,
-      color: COLORS.cyan,
-      icon: '📈',
-    },
-    {
-      label: '運行時間',
-      value: formatUptime(stats.uptime),
-      color: COLORS.green,
-      icon: '⏱',
-    },
+      {
+        label: '註冊組件',
+        value: stats.kernel.registryCount,
+        color: COLORS.teal,
+        icon: '⊙',
+      },
+      {
+        label: '快取命中率',
+        value: `${(stats.kernel.cacheMetrics.hitRate * 100).toFixed(0)}%`,
+        color: COLORS.zkpBlue,
+        icon: '⚡',
+      },
+      {
+        label: '同步記錄',
+        value: stats.kernel.syncLogCount,
+        color: COLORS.gold,
+        icon: '🔄',
+      },
+      {
+        label: 'AGNES 節點',
+        value: stats.kernel.agnesStatus.activeNodes,
+        color: COLORS.purple,
+        icon: '🤖',
+      },
+      {
+        label: '吞吐量',
+        value: stats.kernel.agnesStatus.throughput,
+        color: COLORS.cyan,
+        icon: '📈',
+      },
+      {
+        label: '運行時間',
+        value: formatUptime(stats.uptime),
+        color: COLORS.green,
+        icon: '⏱',
+      },
     ];
   }, [stats]);
 
