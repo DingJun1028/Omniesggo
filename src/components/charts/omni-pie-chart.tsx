@@ -1,20 +1,9 @@
 
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { OmniPieChartProps, ChartDataPoint } from '@/types/esg-charts';
 import { Lock } from 'lucide-react';
-
-// ⚡ Bolt: Hoisted static color palette outside the component to prevent
-// recreating the array on every render, avoiding unnecessary re-renders
-// of child elements based on referential equality.
-const colors = [
-  'var(--accent-teal)',
-  'var(--accent-gold)',
-  'var(--accent-blue)',
-  'var(--accent-purple)',
-  '#E74C3C'
-];
 
 export function OmniPieChart({
   title,
@@ -26,7 +15,7 @@ export function OmniPieChart({
   donut = true
 }: OmniPieChartProps) {
   const [hoveredPoint, setHoveredPoint] = useState<ChartDataPoint | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   // Base SVG configuration (computed before hooks so useMemo can reference them)
   const viewBoxSize = 300;
@@ -74,6 +63,15 @@ export function OmniPieChart({
 
   if (!data || data.length === 0) return <div>No data available</div>;
 
+  // Fallback palette
+  const colors = [
+    'var(--accent-teal)',
+    'var(--accent-gold)',
+    'var(--accent-blue)',
+    'var(--accent-purple)',
+    '#E74C3C'
+  ];
+
   return (
     <div className="flex flex-col gap-2 w-full" style={{ width }}>
       <div className="flex justify-between items-start mb-2">
@@ -94,11 +92,11 @@ export function OmniPieChart({
           style={{ maxHeight: height }}
           onMouseLeave={() => setHoveredPoint(null)}
           onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            setMousePos({
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top
-            });
+            if (tooltipRef.current) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              tooltipRef.current.style.left = `${e.clientX - rect.left}px`;
+              tooltipRef.current.style.top = `${e.clientY - rect.top - 10}px`;
+            }
           }}
         >
           {/* Ensure SVG rotation so it starts at top */}
@@ -164,18 +162,13 @@ export function OmniPieChart({
         </div>
 
         {/* Tooltip Overlay */}
-        {hoveredPoint && (
-          <div 
-            className="absolute z-10 bg-primary/95 backdrop-blur border border-borderColor shadow-lg rounded px-3 py-2 text-xs pointer-events-none transform -translate-x-1/2 -translate-y-full"
-            style={{ 
-              left: mousePos.x, 
-              top: mousePos.y - 10 
-            }}
+        <div
+            ref={tooltipRef}
+            className={`absolute z-10 bg-primary/95 backdrop-blur border border-borderColor shadow-lg rounded px-3 py-2 text-xs pointer-events-none transform -translate-x-1/2 -translate-y-full ${hoveredPoint ? "opacity-100" : "opacity-0"}`}
           >
-            <div className="font-bold text-textPrimary mb-1">{hoveredPoint.label}</div>
-            <div className="text-accentTeal font-mono text-sm">{hoveredPoint.value} ({((hoveredPoint.value / total) * 100).toFixed(1)}%)</div>
+            <div className="font-bold text-textPrimary mb-1">{hoveredPoint?.label || ''}</div>
+            <div className="text-accentTeal font-mono text-sm">{hoveredPoint?.value || ''} ({hoveredPoint ? ((hoveredPoint.value / total) * 100).toFixed(1) : ''}%)</div>
           </div>
-        )}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { OmniBarChartProps, ChartDataPoint } from '@/types/esg-charts';
 import { Lock } from 'lucide-react';
 
@@ -15,7 +15,7 @@ export function OmniBarChart({
   yAxisLabel
 }: OmniBarChartProps) {
   const [hoveredPoint, setHoveredPoint] = useState<ChartDataPoint | null>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const tooltipRef = useRef<HTMLDivElement>(null);
 
   const padding = { top: 40, right: 20, bottom: 40, left: 50 };
   const graphHeight = Number(height) - padding.top - padding.bottom;
@@ -70,11 +70,11 @@ export function OmniBarChart({
           className="w-full h-full overflow-visible"
           onMouseLeave={() => setHoveredPoint(null)}
           onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            setMousePos({
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top
-            });
+            if (tooltipRef.current) {
+              const rect = e.currentTarget.getBoundingClientRect();
+              tooltipRef.current.style.left = `${e.clientX - rect.left}px`;
+              tooltipRef.current.style.top = `${e.clientY - rect.top - 10}px`;
+            }
           }}
         >
           {/* Grid Lines & Y-Axis Labels */}
@@ -155,18 +155,13 @@ export function OmniBarChart({
         </svg>
 
         {/* Tooltip Overlay */}
-        {hoveredPoint && (
-          <div 
-            className="absolute z-10 bg-primary/95 backdrop-blur border border-borderColor shadow-lg rounded px-3 py-2 text-xs pointer-events-none transform -translate-x-1/2 -translate-y-full"
-            style={{ 
-              left: mousePos.x, 
-              top: mousePos.y - 10 
-            }}
+        <div
+            ref={tooltipRef}
+            className={`absolute z-10 bg-primary/95 backdrop-blur border border-borderColor shadow-lg rounded px-3 py-2 text-xs pointer-events-none transform -translate-x-1/2 -translate-y-full ${hoveredPoint ? "opacity-100" : "opacity-0"}`}
           >
-            <div className="font-bold text-textPrimary mb-1">{hoveredPoint.label}</div>
-            <div className="text-accentTeal font-mono text-sm">{hoveredPoint.value}</div>
+            <div className="font-bold text-textPrimary mb-1">{hoveredPoint?.label || ''}</div>
+            <div className="text-accentTeal font-mono text-sm">{hoveredPoint?.value || ''}</div>
           </div>
-        )}
       </div>
     </div>
   );
