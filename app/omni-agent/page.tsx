@@ -372,15 +372,9 @@ function SubAgentPanel({
 // ═══════════════════════════════════════════════════════════════
 
 function CoreStatsDisplay({ stats }: { stats: CoreStats | null }) {
-  if (!stats) {
-    return (
-      <div className="flex items-center justify-center h-32 text-xs text-textSecondary">
-        載入中...
-      </div>
-    );
-  }
-
-  const statCards = [
+  const statCards = React.useMemo(() => {
+    if (!stats) return [];
+    return [
     {
       label: '註冊組件',
       value: stats.kernel.registryCount,
@@ -417,7 +411,16 @@ function CoreStatsDisplay({ stats }: { stats: CoreStats | null }) {
       color: COLORS.green,
       icon: '⏱',
     },
-  ];
+    ];
+  }, [stats]);
+
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center h-32 text-xs text-textSecondary">
+        載入中...
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
