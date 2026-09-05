@@ -367,3 +367,10 @@ apps/evolution-engine/proposals/
 
 # Generated visual assets (local only, not in version control)
 generated/
+
+# Obsidian workspace config (local layout, not version controlled)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Evolution engine log (auto-generated)
+evolution-log.jsonl
