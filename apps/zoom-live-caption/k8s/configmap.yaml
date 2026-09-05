@@ -1,0 +1,46 @@
+# zoom-live-caption/k8s/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: zoom-live-caption-config
+  namespace: zoom-live-caption
+  labels:
+    app: zoom-live-caption
+data:
+  config.yaml: |
+    # 音訊設定
+    audio:
+      sample_rate: 16000
+      channels: 1
+      block_size: 4000
+      mic_device: null
+      loopback_device: null
+
+    # 翻譯設定
+    translation:
+      model: "gemma4:31b"
+      base_url: "https://ollama.com"
+      api_key_env: "OLLAMA_API_KEY"
+      source_lang: "auto"
+      target_lang_primary: "zh-TW"
+      target_lang_secondary: "en"
+
+    # VAD 設定
+    vad:
+      threshold: 0.015
+      silence_duration: 1.0
+      speech_buffer: 0.5
+
+    # 顯示設定
+    display:
+      font_size: 24
+      window_width: 800
+      window_height: 200
+      always_on_top: true
+
+    # Web 即時分享
+    web_stream:
+      enabled: true
+      http_port: 8080
+      ws_port: 8081
+      host: "0.0.0.0"
