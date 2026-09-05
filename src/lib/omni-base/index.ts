@@ -1126,17 +1126,6 @@ export function isTagPair(value: unknown): value is TagPair {
   );
 }
 
-export function isTrustLevel(value: unknown): value is TrustLevel {
-  return (
-    typeof value === 'object' &&
-    value !== null &&
-    'tagId' in value &&
-    'trustLevel' in value &&
-    'trustScore' in value &&
-    'verifiedAt' in value
-  );
-}
-
 export function isSealed(tag: OmniTag): boolean {
   return tag.lifecycle === 'sealed';
 }
