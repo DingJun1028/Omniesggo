@@ -21,7 +21,7 @@ overrides:
   "gaxios": ">=7.1.4"
   "glob": ">=10.5.0"
   "minimatch": ">=9.0.7"
-  "fast-uri": ">=3.1.5 <4"
+  "fast-uri": ">=3.1.6 <4"
   "fast-xml-parser": ">=5.10.1"
   "brace-expansion": ">=5.0.9"
   # 安全修補：必須加 <major 上界，裸 '>=' 會讓 pnpm 跳到跨 major（AGENTS.md #4）
