@@ -24,6 +24,7 @@ export default function LoginButton({ user }: { user: User | null }) {
           {user.displayName || user.email}
         </span>
         <button
+          type="button"
           onClick={() => signOut()}
           className="rounded bg-gray-700 px-3 py-1 text-sm text-white hover:bg-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400"
         >
@@ -36,6 +37,7 @@ export default function LoginButton({ user }: { user: User | null }) {
   return (
     <div className="flex items-center gap-2">
       <button
+        type="button"
         onClick={() => {
           setIsLoading(true);
           signInWithGoogle()
@@ -48,6 +50,7 @@ export default function LoginButton({ user }: { user: User | null }) {
         Google 登入
       </button>
       <button
+        type="button"
         onClick={() => setShowEmail(!showEmail)}
         disabled={isLoading}
         className="rounded bg-gray-700 px-3 py-1.5 text-sm text-white hover:bg-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -55,7 +58,19 @@ export default function LoginButton({ user }: { user: User | null }) {
         Email
       </button>
       {showEmail && (
-        <div className="flex items-center gap-2">
+        <form
+          className="flex items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            setIsLoading(true);
+            const action = isSignUp
+              ? signUpWithEmail(email, password)
+              : signInWithEmail(email, password);
+            action
+              .catch((err) => setError(err.message))
+              .finally(() => setIsLoading(false));
+          }}
+        >
           <input
             type="email"
             placeholder="Email"
@@ -75,28 +90,21 @@ export default function LoginButton({ user }: { user: User | null }) {
             className="rounded border border-gray-600 bg-gray-800 px-2 py-1 text-sm text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
           />
           <button
-            onClick={() => {
-              setIsLoading(true);
-              const action = isSignUp
-                ? signUpWithEmail(email, password)
-                : signInWithEmail(email, password);
-              action
-                .catch((e) => setError(e.message))
-                .finally(() => setIsLoading(false));
-            }}
+            type="submit"
             disabled={isLoading}
             className="rounded bg-teal-600 px-3 py-1 text-sm text-white hover:bg-teal-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? "處理中..." : isSignUp ? "註冊" : "登入"}
           </button>
           <button
+            type="button"
             onClick={() => setIsSignUp(!isSignUp)}
             disabled={isLoading}
             className="text-xs text-gray-400 underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSignUp ? "已有帳號？" : "新用戶註冊"}
           </button>
-        </div>
+        </form>
       )}
       {error && <span className="text-xs text-red-400">{error}</span>}
     </div>
