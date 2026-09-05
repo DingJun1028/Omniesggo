@@ -361,3 +361,9 @@ apps/ftg-journey-web/cloudflare.ini
 # 進化引擎動態產物 (本機生成, 不進 git)
 apps/evolution-engine/evolution-report.json
 apps/evolution-engine/proposals/
+
+# Hermes Auto-Repair & 5T Canon (local only, not in version control)
+.hermes/
+
+# Generated visual assets (local only, not in version control)
+generated/
