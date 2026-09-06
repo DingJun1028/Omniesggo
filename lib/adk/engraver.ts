@@ -9,7 +9,7 @@ export const engraveHashLock = <T>(
   payload: T,
   source: string,
   actor: string = "ADK_STORM_01_04"
-): IComponentCore<T> => {
+): IComponentCore & { payload: T; source_origin: string; traceability_chain: ITraceableLog[]; initialEvidence: IEvidenceHash } => {
   const timestamp = Date.now();
   const uuid = `OMNI-CORE-${crypto.randomUUID().toUpperCase()}`;
 
@@ -34,13 +34,14 @@ export const engraveHashLock = <T>(
   };
 
   // [01] 契約鑄造者：封裝組件核心並執行不可篡改鎖定
-  const core: IComponentCore<T> = {
+  const core: IComponentCore & { payload: T; source_origin: string; traceability_chain: ITraceableLog[]; initialEvidence: IEvidenceHash } = {
     uuid,
     version: 'v1.0.0-immutable',
     timestamp,
     source_origin: source,
     payload,
-    evidence: { originCause: 'unknown', processTrace: [], finalEffect: 'unknown', doc: [initialEvidence] },
+    evidence: { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' },
+    initialEvidence,
     traceability_chain: [genesisLog],
   };
 
