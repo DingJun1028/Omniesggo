@@ -18,6 +18,7 @@ import RestorationStream from './pages/streams/restoration';
 import MutualityStream from './pages/streams/mutuality';
 import MemorialStream from './pages/streams/memorial';
 import FoundationStream from './pages/streams/foundation';
+import HtbHome from './pages/htb-home';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <main className="flex-1">
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/htb" element={<HtbHome />} />
             <Route path="/corporate-travel" element={<CorporateTravel />} />
             <Route path="/family-day" element={<FamilyDay />} />
             <Route path="/esg-team-day" element={<EsgTeamDay />} />
