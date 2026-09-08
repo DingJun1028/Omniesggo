@@ -1,22 +1,22 @@
 ---
 source_origin: OA-Team-30-Swarm::5T-Canon-Daily-Cron::vault-mirror
 co_authors: [萬能質控蜂-#30, 萬能知識分身, 萬能運營蜂-#20]
-generated_at: 2026-09-05T11:03
+generated_at: 2026-09-05T18:00
 triggered_by: cronjob 7a1a6f23a8d4
 ---
 
 # 5T-Canon Daily Report — 2026-09-05
 
-- generated_at: 2026-09-05T11:03:18
+- generated_at: 2026-09-05T18:00:29
 - primary: PASS
 - crossA:  PASS
 - crossB:  PASS
-- modules: 7 total, all_passed=True
+- modules: 7 total, all_passed=False
 
 ## Hash Locks (前 16)
-- primary: `bb53f2598b85570c…`
-- crossA: `bcdcc647f464da5b…`
-- crossB: `c953581aa6f0c97b…`
+- primary: `d0bb75a4d4c41082…`
+- crossA: `3b6c352f1a87e068…`
+- crossB: `c40b9dc2e1ae58af…`
 
 ## Trace
 - source: OA-Team-30-Swarm::5T-Canon-Daily-Cron

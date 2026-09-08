@@ -1,0 +1,21 @@
+# zoom-live-caption/k8s/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: zoom-live-caption
+  namespace: zoom-live-caption
+  labels:
+    app: zoom-live-caption
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
+    - name: ws
+      port: 81
+      targetPort: 8081
+      protocol: TCP
+  selector:
+    app: zoom-live-caption

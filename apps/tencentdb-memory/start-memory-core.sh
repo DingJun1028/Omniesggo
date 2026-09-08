@@ -142,6 +142,29 @@ $DOCKER run -d --name "$CONTAINER" \
 wait_healthy "$CONTAINER" 90
 ok "memory-core 已启动 → http://127.0.0.1:${MEMORY_CORE_PORT}/"
 
+# ── Ollama LLM pre-warm (避免 memory-core 首次调用 LLM 时的 cold-start 空响应) ──
+# 背景: gemma4:latest 是 9GB 模型，首次从磁碟加载需要 ~24s，期间若被调用
+# 会回传空 content 触发 "no content extracted" 警告。在 memory-core init-admin
+# 之前预热一次，让首次 LLM 调用能拿到真实响应。
+#
+# 逻辑:
+#   - 仅当 MEMORY_LLM_BASE_URL 是本地 Ollama 时才做（不污染其他 provider）
+#   - 不阻塞启动：失败只 warn，因为 pre-warm 失败不代表 memory-core 不能用
+#   - 超时 90s（24s 加载 + 60s 余量）
+if [[ "${MEMORY_LLM_BASE_URL:-}" == *"127.0.0.1:11434"* || "${MEMORY_LLM_BASE_URL:-}" == *"localhost:11434"* ]]; then
+  OLLAMA_URL="${MEMORY_LLM_BASE_URL%/v1}/api/generate"
+  OLLAMA_MODEL="${MEMORY_LLM_MODEL:-gemma4:latest}"
+  info "Pre-warming Ollama model '${OLLAMA_MODEL}' (24s cold start → warm)..."
+  if curl -sS --max-time 90 -X POST "$OLLAMA_URL" \
+       -H "Content-Type: application/json" \
+       -d "$(printf '{"model":"%s","prompt":"ok","stream":false,"options":{"num_predict":3}}' "$OLLAMA_MODEL")" \
+       >/dev/null 2>&1; then
+    ok "Ollama pre-warm complete ($OLLAMA_MODEL ready)"
+  else
+    warn "Ollama pre-warm failed (model=${OLLAMA_MODEL}, url=${OLLAMA_URL}). memory-core 仍可启动，但首次 LLM 调用可能 cold-start。"
+  fi
+fi
+
 # ── Admin user 生命周期 ─────────────────────────────────────────
 # 首次启动：init-admin 时**传入我们生成的随机 user_key**，返回体里读回来存文件。
 # 重启且已初始化（409）：优先读 .admin-key；若 volume 是新造的但 .admin-key 是
