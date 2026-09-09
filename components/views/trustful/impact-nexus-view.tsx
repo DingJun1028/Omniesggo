@@ -35,7 +35,7 @@ interface ImpactNode {
   impact_score: number;
   nexus_count: number;
   status: "idle" | "computing" | "sealed";
-  data?: IComponentCore<any>;
+  data?: IComponentCore;
 }
 
 const MOCK_NODES: ImpactNode[] = [
