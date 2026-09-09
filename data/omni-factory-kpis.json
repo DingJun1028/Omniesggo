@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastUpdated": "2026-09-04T13:45:19.894377+08:00",
+  "lastUpdated": "2026-09-09T12:01:35.971153+08:00",
   "dataSource": {
     "ollama": "no-key",
     "mode": "local-sensor"
@@ -16,31 +16,31 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 82.08,
+          "value": 80.65,
           "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 279.06,
-          "trend": "up"
+          "value": 278.09,
+          "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 91.6,
+          "value": 92.83,
           "trend": "up"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 1,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 97.23,
+          "value": 98.78,
           "trend": "up"
         }
       ]
@@ -55,31 +55,31 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 89.88,
+          "value": 89.98,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 469.25,
-          "trend": "down"
+          "value": 475.07,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 94.87,
-          "trend": "up"
+          "value": 93.52,
+          "trend": "down"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 5,
-          "trend": "up"
+          "trend": "down"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 99.35,
+          "value": 99.29,
           "trend": "down"
         }
       ]
@@ -94,20 +94,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 36.67,
-          "trend": "down"
+          "value": 37.17,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 256.9,
+          "value": 259.84,
           "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 88.97,
-          "trend": "up"
+          "value": 88.7,
+          "trend": "down"
         },
         {
           "name": "errors",
@@ -118,7 +118,7 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 97.85,
+          "value": 97.99,
           "trend": "up"
         }
       ]
@@ -133,31 +133,31 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 76.54,
-          "trend": "down"
+          "value": 77.6,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 184.97,
-          "trend": "up"
+          "value": 184.78,
+          "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 90.37,
+          "value": 88.74,
           "trend": "down"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 2,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 98.02,
+          "value": 99.53,
           "trend": "up"
         }
       ]
@@ -172,7 +172,7 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 89.82,
+          "value": 91.51,
           "trend": "up"
         },
         {
@@ -184,7 +184,7 @@
         {
           "name": "quality",
           "unit": "%",
-          "value": 96.13,
+          "value": 94.95,
           "trend": "down"
         },
         {
@@ -196,8 +196,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 94.83,
-          "trend": "down"
+          "value": 95.9,
+          "trend": "up"
         }
       ]
     },
@@ -211,32 +211,32 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 38.09,
+          "value": 38.73,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 96.8,
-          "trend": "down"
+          "value": 97.79,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 95.18,
-          "trend": "up"
+          "value": 94.1,
+          "trend": "down"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 5,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 96.89,
-          "trend": "up"
+          "value": 95.64,
+          "trend": "down"
         }
       ]
     },
@@ -250,20 +250,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 37.17,
-          "trend": "down"
+          "value": 37.27,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 473.36,
-          "trend": "down"
+          "value": 482.68,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 91.32,
-          "trend": "down"
+          "value": 92.92,
+          "trend": "up"
         },
         {
           "name": "errors",
@@ -274,8 +274,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 97.36,
-          "trend": "down"
+          "value": 97.52,
+          "trend": "up"
         }
       ]
     },
@@ -289,31 +289,31 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 67.37,
+          "value": 68.44,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 407.74,
-          "trend": "down"
+          "value": 415.5,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 95.81,
-          "trend": "up"
+          "value": 95.06,
+          "trend": "down"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 1,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 97.18,
+          "value": 96.34,
           "trend": "down"
         }
       ]
@@ -328,19 +328,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 73.19,
-          "trend": "down"
+          "value": 73.37,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 225.53,
+          "value": 226.51,
           "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 86.66,
+          "value": 87.74,
           "trend": "up"
         },
         {
@@ -352,8 +352,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 95.07,
-          "trend": "down"
+          "value": 95.48,
+          "trend": "up"
         }
       ]
     },
@@ -367,19 +367,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 78.9,
+          "value": 77.97,
           "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 320.31,
-          "trend": "up"
+          "value": 315.04,
+          "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 91.73,
+          "value": 91.87,
           "trend": "up"
         },
         {
@@ -391,8 +391,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 94.37,
-          "trend": "up"
+          "value": 93.52,
+          "trend": "down"
         }
       ]
     },
@@ -406,32 +406,32 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 85.88,
+          "value": 86.16,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 150.77,
-          "trend": "up"
+          "value": 149.1,
+          "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 96.16,
+          "value": 94.55,
           "trend": "down"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 4,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 93.9,
-          "trend": "down"
+          "value": 93.93,
+          "trend": "up"
         }
       ]
     },
@@ -445,32 +445,32 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 24.52,
-          "trend": "down"
+          "value": 24.88,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 50.46,
+          "value": 50.44,
           "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 99.01,
+          "value": 98.49,
           "trend": "down"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 2,
-          "trend": "up"
+          "trend": "down"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 97.03,
-          "trend": "up"
+          "value": 96.55,
+          "trend": "down"
         }
       ]
     },
@@ -484,20 +484,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 10.33,
-          "trend": "down"
+          "value": 10.35,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 236.13,
-          "trend": "down"
+          "value": 239.34,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 87.67,
-          "trend": "down"
+          "value": 89.38,
+          "trend": "up"
         },
         {
           "name": "errors",
@@ -508,8 +508,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 93.54,
-          "trend": "down"
+          "value": 95.12,
+          "trend": "up"
         }
       ]
     },
@@ -523,31 +523,31 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 84.13,
-          "trend": "down"
+          "value": 84.15,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 337.15,
-          "trend": "down"
+          "value": 341.44,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 84.62,
-          "trend": "down"
+          "value": 85.01,
+          "trend": "up"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 2,
-          "trend": "up"
+          "trend": "down"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 98.5,
+          "value": 97.2,
           "trend": "down"
         }
       ]
@@ -562,20 +562,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 66.09,
+          "value": 66.1,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 466.8,
-          "trend": "up"
+          "value": 459.28,
+          "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 90.26,
-          "trend": "down"
+          "value": 90.94,
+          "trend": "up"
         },
         {
           "name": "errors",
@@ -586,8 +586,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 100.94,
-          "trend": "up"
+          "value": 99.32,
+          "trend": "down"
         }
       ]
     },
@@ -601,32 +601,32 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 41.6,
+          "value": 42.04,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 293.58,
+          "value": 290.53,
           "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 91.13,
-          "trend": "down"
+          "value": 91.69,
+          "trend": "up"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 5,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 96.68,
-          "trend": "down"
+          "value": 97.03,
+          "trend": "up"
         }
       ]
     },
@@ -640,31 +640,31 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 82.16,
+          "value": 82.86,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 70.69,
+          "value": 69.86,
           "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 92.89,
+          "value": 92.84,
           "trend": "down"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 2,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 96.48,
+          "value": 94.76,
           "trend": "down"
         }
       ]
@@ -679,19 +679,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 92.71,
+          "value": 93.84,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 116.58,
+          "value": 118.28,
           "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 97.29,
+          "value": 98.57,
           "trend": "up"
         },
         {
@@ -703,8 +703,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 98.88,
-          "trend": "up"
+          "value": 97.96,
+          "trend": "down"
         }
       ]
     },
@@ -718,19 +718,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 50.26,
+          "value": 49.8,
           "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 440.68,
+          "value": 447.57,
           "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 89.0,
+          "value": 90.68,
           "trend": "up"
         },
         {
@@ -742,7 +742,7 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 92.86,
+          "value": 92.32,
           "trend": "down"
         }
       ]
@@ -757,20 +757,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 24.55,
-          "trend": "down"
+          "value": 24.83,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 197.53,
+          "value": 198.57,
           "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 85.54,
-          "trend": "up"
+          "value": 84.11,
+          "trend": "down"
         },
         {
           "name": "errors",
@@ -781,7 +781,7 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 100.26,
+          "value": 101.18,
           "trend": "up"
         }
       ]
@@ -796,19 +796,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 29.82,
+          "value": 29.51,
           "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 403.55,
-          "trend": "down"
+          "value": 404.04,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 99.18,
+          "value": 100.09,
           "trend": "up"
         },
         {
@@ -820,8 +820,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 93.52,
-          "trend": "down"
+          "value": 93.79,
+          "trend": "up"
         }
       ]
     },
@@ -835,20 +835,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 48.4,
+          "value": 48.51,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 250.78,
-          "trend": "down"
+          "value": 250.8,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 87.82,
-          "trend": "up"
+          "value": 87.51,
+          "trend": "down"
         },
         {
           "name": "errors",
@@ -859,8 +859,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 96.09,
-          "trend": "up"
+          "value": 94.34,
+          "trend": "down"
         }
       ]
     },
@@ -874,32 +874,32 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 73.58,
-          "trend": "down"
+          "value": 73.85,
+          "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 467.7,
-          "trend": "down"
+          "value": 468.16,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 99.16,
-          "trend": "down"
+          "value": 100.08,
+          "trend": "up"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 2,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 96.2,
-          "trend": "down"
+          "value": 96.25,
+          "trend": "up"
         }
       ]
     },
@@ -913,20 +913,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 82.61,
+          "value": 83.61,
           "trend": "up"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 214.61,
+          "value": 210.7,
           "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 87.68,
-          "trend": "down"
+          "value": 89.05,
+          "trend": "up"
         },
         {
           "name": "errors",
@@ -937,8 +937,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 100.05,
-          "trend": "up"
+          "value": 98.77,
+          "trend": "down"
         }
       ]
     },
@@ -952,19 +952,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 82.37,
+          "value": 82.27,
           "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 138.19,
-          "trend": "down"
+          "value": 139.46,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 91.91,
+          "value": 90.22,
           "trend": "down"
         },
         {
@@ -976,8 +976,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 99.91,
-          "trend": "up"
+          "value": 98.54,
+          "trend": "down"
         }
       ]
     },
@@ -991,32 +991,32 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 44.57,
-          "trend": "up"
+          "value": 43.98,
+          "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 298.67,
+          "value": 301.23,
           "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 91.28,
-          "trend": "down"
+          "value": 91.43,
+          "trend": "up"
         },
         {
           "name": "errors",
           "unit": "count",
           "value": 1,
-          "trend": "down"
+          "trend": "up"
         },
         {
           "name": "uptime",
           "unit": "%",
-          "value": 95.08,
-          "trend": "down"
+          "value": 95.65,
+          "trend": "up"
         }
       ]
     },
@@ -1030,20 +1030,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 39.16,
+          "value": 39.04,
           "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 66.36,
-          "trend": "down"
+          "value": 66.54,
+          "trend": "up"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 87.82,
-          "trend": "down"
+          "value": 88.04,
+          "trend": "up"
         },
         {
           "name": "errors",
@@ -1054,8 +1054,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 94.06,
-          "trend": "up"
+          "value": 92.27,
+          "trend": "down"
         }
       ]
     },
@@ -1069,19 +1069,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 84.53,
-          "trend": "up"
+          "value": 84.17,
+          "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 390.98,
-          "trend": "up"
+          "value": 384.75,
+          "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 85.91,
+          "value": 85.34,
           "trend": "down"
         },
         {
@@ -1093,7 +1093,7 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 93.73,
+          "value": 92.92,
           "trend": "down"
         }
       ]
@@ -1108,19 +1108,19 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 62.64,
-          "trend": "up"
+          "value": 61.41,
+          "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 395.05,
-          "trend": "up"
+          "value": 391.97,
+          "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 99.82,
+          "value": 101.59,
           "trend": "up"
         },
         {
@@ -1132,8 +1132,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 95.53,
-          "trend": "up"
+          "value": 95.27,
+          "trend": "down"
         }
       ]
     },
@@ -1147,20 +1147,20 @@
         {
           "name": "throughput",
           "unit": "tasks/hour",
-          "value": 36.07,
+          "value": 35.83,
           "trend": "down"
         },
         {
           "name": "latency",
           "unit": "ms",
-          "value": 402.33,
+          "value": 394.57,
           "trend": "down"
         },
         {
           "name": "quality",
           "unit": "%",
-          "value": 91.81,
-          "trend": "up"
+          "value": 91.63,
+          "trend": "down"
         },
         {
           "name": "errors",
@@ -1171,8 +1171,8 @@
         {
           "name": "uptime",
           "unit": "%",
-          "value": 101.34,
-          "trend": "up"
+          "value": 99.35,
+          "trend": "down"
         }
       ]
     }
