@@ -19,6 +19,12 @@ module.exports = {
         accentPurple: 'var(--accent-purple)',
         accentCyan: 'var(--accent-cyan)',
         accentGreen: 'var(--accent-green)',
+        htb: {
+          deepSea: 'var(--htb-deep-sea)',
+          sprout: 'var(--htb-sprout-green)',
+          charcoal: 'var(--htb-charcoal)',
+          seaweed: 'var(--htb-seaweed-red)',
+        },
         teal: {
           50: '#f0fdfa',
           100: '#ccfbf1',
