@@ -374,3 +374,4 @@ generated/
 
 # Evolution engine log (auto-generated)
 evolution-log.jsonl
+vault/.obsidian/plugins/github-sync/
