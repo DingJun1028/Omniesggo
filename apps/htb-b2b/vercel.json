@@ -1,7 +1,8 @@
 {
   "version": 2,
   "framework": "vite",
-  "buildCommand": "pnpm run build",
+  "buildCommand": "npx pnpm install && npx pnpm run build",
+  "installCommand": "",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
@@ -19,14 +20,10 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "X-Frame-Options", "value": "DENY" },
         { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
       ]
     }
   ],
-  "env": {
-    "NODE_OPTIONS": "--max-old-space-size=1536"
-  },
   "github": {
     "autoJobCancellation": true,
     "silent": true
