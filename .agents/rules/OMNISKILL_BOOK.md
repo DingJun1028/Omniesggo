@@ -156,7 +156,7 @@ Rules:
 
 ```typescript
 // IComponentCore (src/lib/omni-core/types.ts)
-interface IComponentCore<T = unknown> {
+interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
   // 語義化版本控制
