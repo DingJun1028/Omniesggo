@@ -5,6 +5,14 @@ import React, { useState, useMemo, useRef } from 'react';
 import { OmniPieChartProps, ChartDataPoint } from '@/types/esg-charts';
 import { Lock } from 'lucide-react';
 
+const FALLBACK_COLORS = [
+  'var(--accent-teal)',
+  'var(--accent-gold)',
+  'var(--accent-blue)',
+  'var(--accent-purple)',
+  '#E74C3C'
+];
+
 export function OmniPieChart({
   title,
   description,
@@ -64,13 +72,7 @@ export function OmniPieChart({
   if (!data || data.length === 0) return <div>No data available</div>;
 
   // Fallback palette
-  const colors = [
-    'var(--accent-teal)',
-    'var(--accent-gold)',
-    'var(--accent-blue)',
-    'var(--accent-purple)',
-    '#E74C3C'
-  ];
+  const colors = FALLBACK_COLORS;
 
   return (
     <div className="flex flex-col gap-2 w-full" style={{ width }}>

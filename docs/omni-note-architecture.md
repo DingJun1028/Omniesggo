@@ -57,7 +57,7 @@
 所有萬能筆記的實體化資料，均嚴格遵守 `IComponentCore` 介面，以保障 5T 標準：
 
 ```typescript
-interface IComponentCore<T> {
+interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
   // 語義化版本控制
