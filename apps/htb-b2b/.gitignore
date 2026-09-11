@@ -1,0 +1,25 @@
+# 依賴
+/dist
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# 本地 env 檔
+.env
+.env.local
+.env.*.local
+
+# 建置產出
+/.vitepress
+/build
+/dist
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 編輯快取
+/.tsbuildinfo

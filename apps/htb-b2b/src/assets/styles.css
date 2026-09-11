@@ -1,0 +1,128 @@
+/* High-Tech Seaweed 風格 CSS - 與 Tailwind 集成 */
+
+:root {
+  --htb-deep-sea: #073B4C;
+  --htb-ocean-cyan: #159A9C;
+  --htb-coral-red: #C64B3C;
+  --htb-pasture-green: #5F8463;
+  --htb-sand-white: #F4F1E8;
+  --htb-tech-blue: #2878B5;
+  --htb-evidence-gold: #AE7B24;
+  --htb-ink-gray: #172A32;
+  --htb-brand-deep: #10243f;
+  --htb-brand-gold: #c9a24b;
+  --htb-transition: all 0.3s ease;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: 'Noto Sans TC', 'Inter', system-ui, sans-serif;
+  background-color: var(--htb-sand-white);
+  color: var(--htb-ink-gray);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--htb-ocean-cyan);
+  text-decoration: none;
+  transition: var(--htb-transition);
+}
+
+a:hover {
+  color: var(--htb-coral-red);
+  text-decoration: underline;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--htb-transition);
+  border: none;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--htb-coral-red);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #a33b30;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--htb-deep-sea);
+  color: var(--htb-deep-sea);
+}
+
+.btn-outline:hover {
+  background-color: var(--htb-deep-sea);
+  color: white;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: var(--htb-transition);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.grid { display: grid; gap: 1.5rem; }
+.grid-cols-1 { grid-template-columns: 1fr; }
+.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+@media (min-width: 768px) {
+  .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.theme-dark {
+  --htb-bg-primary: var(--htb-deep-sea);
+  --htb-text-primary: #ffffff;
+}
+
+.theme-light {
+  --htb-bg-primary: var(--htb-sand-white);
+  --htb-text-primary: var(--htb-ink-gray);
+}
+
+.hero-gradient {
+  background: linear-gradient(135deg, var(--htb-tech-blue), var(--htb-deep-sea));
+}

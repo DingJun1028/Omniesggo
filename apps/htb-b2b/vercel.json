@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/htb-b2b/package.json",
+      "use": "@vercel/vite",
+      "config": {
+        "include": ["apps/htb-b2b/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/^/(.*)",
+      "dest": "/apps/htb-b2b"
+    }
+  ],
+  "env": {
+    "NODE_OPTIONS": "--max-old-space-size=1536"
+  },
+  "github": {
+    "autoJobCancellation": true
+  }
+}
