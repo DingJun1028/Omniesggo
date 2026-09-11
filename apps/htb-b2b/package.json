@@ -1,0 +1,25 @@
+{
+  "name": "@esggo/htb-b2b",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .vue,.js,.ts",
+    "format": "prettier --write src"
+  },
+  "dependencies": {
+    "vue": "^3.5.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.0",
+    "autoprefixer": "^10.5.5",
+    "eslint": "^9.39.4",
+    "eslint-plugin-vue": "^9.32.0",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^3.4.19",
+    "vite": "^5.5.11"
+  }
+}
