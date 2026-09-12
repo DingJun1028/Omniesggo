@@ -1,156 +1,185 @@
-<template>
-  <div>
-    <!-- Page Header -->
-    <section class="section-sm bg-light" aria-labelledby="evidence-title">
-      <div class="container">
-        <h1 id="evidence-title">證據中心</h1>
-        <p class="text-muted">透明呈現高科生技的研發證據與品質承諾</p>
-      </div>
-    </section>
+﻿<template>
+  <div class="min-h-screen bg-slate-50 flex flex-col justify-between">
+    <Header />
 
-    <!-- Five Levels of Evidence -->
-    <section class="section">
-      <div class="container">
-        <div class="section-header">
-          <h2>五層證據階梯</h2>
-          <p>從原料到碳資產，每一層都有完整的證據支撐</p>
+    <main class="py-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- 頁面 Hero -->
+        <div class="text-center max-w-3xl mx-auto mb-12">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#F0F8E9] text-[#84C341] border border-[#84C341]/30 mb-4">
+            5T 治理 · 零幻覺驗算
+          </div>
+          <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
+            科學證據與研究成果中心
+          </h1>
+          <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+            減排成果必須放回試驗條件中理解。我們依證據類型公開試驗設計、劑量條件、主要發現與邊界限制，嚴格區分體外試驗、動物試飼與場域量測。
+          </p>
         </div>
 
-        <!-- Level 1 -->
-        <article class="card evidence-card">
-          <div class="card-body">
-            <div class="flex items-center gap-4">
-              <span class="badge badge-warning">L1 原料</span>
-              <h3>種源純化與品質檢驗</h3>
-            </div>
-            <p>每批次海門冬原料都經過嚴格的品質檢驗，確保種源純度與活性成分含量。</p>
-            <ul class="list-check">
-              <li>種源純化紀錄</li>
-              <li>活性成分檢測報告</li>
-              <li>重金屬與微生物檢驗</li>
-              <li>批次追溯系統</li>
-            </ul>
-          </div>
-        </article>
-
-        <!-- Level 2 -->
-        <article class="card evidence-card">
-          <div class="card-body">
-            <div class="flex items-center gap-4">
-              <span class="badge badge-warning">L2 功效</span>
-              <h3>體外/體內試驗</h3>
-            </div>
-            <p>透過嚴格的科學試驗，驗證海門冬對甲烷抑制的功效。</p>
-            <ul class="list-check">
-              <li>體外瘤胃發酵試驗</li>
-              <li>體內動物試驗</li>
-              <li>統計分析與再現性</li>
-              <li>同儕審查發表</li>
-            </ul>
-          </div>
-        </article>
-
-        <!-- Level 3 -->
-        <article class="card evidence-card">
-          <div class="card-body">
-            <div class="flex items-center gap-4">
-              <span class="badge badge-warning">L3 農場</span>
-              <h3>田間試驗數據</h3>
-            </div>
-            <p>在實際牧場環境中驗證海門冬產品的減排效果。</p>
-            <ul class="list-check">
-              <li>基線甲烷量測</li>
-              <li>餵飼監測數據</li>
-              <li>第三方查證程序</li>
-              <li>動物健康評估</li>
-            </ul>
-          </div>
-        </article>
-
-        <!-- Level 4 -->
-        <article class="card evidence-card">
-          <div class="card-body">
-            <div class="flex items-center gap-4">
-              <span class="badge badge-warning">L4 產品</span>
-              <h3>LCA 與追溯</h3>
-            </div>
-            <p>完整的生命週期評估與產品追溯系統。</p>
-            <ul class="list-check">
-              <li>生命週期評估（LCA）</li>
-              <li>產品碳足跡計算</li>
-              <li>供應鏈追溯</li>
-              <li>產品品質認證</li>
-            </ul>
-          </div>
-        </article>
-
-        <!-- Level 5 -->
-        <article class="card evidence-card">
-          <div class="card-body">
-            <div class="flex items-center gap-4">
-              <span class="badge badge-warning">L5 碳資產</span>
-              <h3>碳權開發</h3>
-            </div>
-            <p>協助客戶開發可交易的碳權資產。</p>
-            <ul class="list-check">
-              <li>減量方法學</li>
-              <li>額外性論證</li>
-              <li>監測計畫</li>
-              <li>第三方查證與核發</li>
-            </ul>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Quality Commitment -->
-    <section class="section bg-light" aria-labelledby="quality-title">
-      <div class="container">
-        <div class="section-header">
-          <h2 id="quality-title">品質承諾</h2>
+        <!-- 類別篩選按鈕 -->
+        <div class="flex flex-wrap items-center justify-center gap-2.5 mb-12">
+          <button
+            v-for="cat in categories"
+            :key="cat.id"
+            @click="activeCategory = cat.id"
+            :class="activeCategory === cat.id ? 'bg-[#4280BD] text-white shadow-sm' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'"
+            class="px-4 py-2 rounded-xl text-xs font-bold transition"
+          >
+            {{ cat.name }}
+          </button>
         </div>
-        <div class="grid grid-cols-3">
-          <div class="card stat-card">
-            <div class="stat-value">100%</div>
-            <div class="stat-label">可追溯</div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-value">5</div>
-            <div class="stat-label">證據層級</div>
-          </div>
-          <div class="card stat-card">
-            <div class="stat-value">3rd</div>
-            <div class="stat-label">第三方查證</div>
+
+        <!-- 結構化證據卡片網格 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div
+            v-for="(item, idx) in filteredItems"
+            :key="idx"
+            class="bg-white rounded-2xl p-7 border border-slate-200/80 shadow-sm hover:border-[#84C341] transition flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <span :class="item.badgeStyle" class="text-xs font-bold px-2.5 py-1 rounded-full">
+                  {{ item.badge }}
+                </span>
+                <span class="text-xs font-semibold text-slate-400">{{ item.year }}</span>
+              </div>
+
+              <h3 class="font-bold text-slate-900 text-lg mb-3 leading-snug">
+                {{ item.title }}
+              </h3>
+
+              <div class="space-y-3 mb-6 text-xs text-slate-600">
+                <div>
+                  <span class="font-semibold text-slate-800">【試驗對象】：</span>
+                  <span>{{ item.target }}</span>
+                </div>
+                <div>
+                  <span class="font-semibold text-slate-800">【實驗條件】：</span>
+                  <span>{{ item.condition }}</span>
+                </div>
+                <div class="p-3 bg-[#F8FAFC] rounded-xl border border-slate-100">
+                  <div class="font-bold text-slate-800 text-[11px] mb-1">主要成果數據</div>
+                  <div class="text-slate-700 leading-relaxed">{{ item.result }}</div>
+                </div>
+                <div class="text-slate-400 italic">
+                  <span class="font-medium">限制說明：</span>
+                  <span>{{ item.limitation }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 text-xs text-slate-400 flex items-center justify-between">
+              <span>機構：{{ item.source }}</span>
+              <span class="text-[#4280BD] font-semibold">{{ item.status }}</span>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </main>
+
+    <Footer />
   </div>
 </template>
 
-<style scoped>
-.evidence-card {
-  margin-bottom: 1.5rem;
-}
+<script setup>
+import { ref, computed } from 'vue'
+import Header from '../components/Header.vue'
+import Footer from '../components/Footer.vue'
 
-.list-check {
-  list-style: none;
-  padding: 0;
-  margin: 1rem 0;
-}
+const categories = [
+  { id: 'all', name: '全部成果 (6)' },
+  { id: 'transfer', name: '政府技轉 (1)' },
+  { id: 'vitro', name: '體外抑制試驗 (2)' },
+  { id: 'vivo', name: '動物體內試飼 (2)' },
+  { id: 'methodology', name: '方法學與基地 (1)' }
+]
 
-.list-check li {
-  padding: 0.5rem 0;
-  padding-left: 1.5rem;
-  position: relative;
-  color: var(--htb-gray-600);
-}
+const activeCategory = ref('all')
 
-.list-check li::before {
-  content: '✓';
-  position: absolute;
-  left: 0;
-  color: var(--htb-success);
-  font-weight: bold;
-}
-</style>
+const items = [
+  {
+    category: 'transfer',
+    badge: '政府技術移轉',
+    badgeStyle: 'bg-[#EBF3FA] text-[#4280BD]',
+    year: '2024',
+    title: '海門冬四分孢子體繁育與量產技術',
+    target: 'Asparagopsis taxiformis 在地純化品系',
+    condition: '陸基循環水槽全天候環境控制，營養鹽與光照週期調控。',
+    result: '建立自主繁育體系，突破季節性採集限制，實現四季可控生物量產能。',
+    limitation: '產能規模仍受現有養殖槽體面積限制，正推進示範基地擴建。',
+    source: '農業部水產試驗所',
+    status: '正式專屬授權'
+  },
+  {
+    category: 'vitro',
+    badge: 'R2 實驗室驗證',
+    badgeStyle: 'bg-[#F0F8E9] text-[#84C341]',
+    year: '2024',
+    title: '人工養殖四分孢子體體外瘤胃甲烷抑制活性',
+    target: '瘤胃厭氧微生物群落模擬槽',
+    condition: '添加 0.5%、1.0%、2.0% OM 海門冬粉末提取物，發酵 24/48 小時。',
+    result: '在特定添加量下，體外發酵氣體中甲烷濃度顯著下降，抑制活性具顯著統計意義。',
+    limitation: '體外模擬反應槽無法完全替代活體消化生理與日糧混合反應。',
+    source: '國立大學生科實驗室',
+    status: '試驗報告完成'
+  },
+  {
+    category: 'vitro',
+    badge: '同儕論文研究',
+    badgeStyle: 'bg-[#F0F8E9] text-[#84C341]',
+    year: '2025',
+    title: '台灣海門冬天然活性化合物生成代謝體學研究',
+    target: '不同光溫條件下之次級代謝產物 (溴仿及多酚)',
+    condition: 'HPLC/GC-MS 質譜分析有效活性成分之儲存衰退曲線。',
+    result: '確立低溫保活與常溫微膠囊封裝的最佳加工溫度區間。',
+    limitation: '不同批次天然藻體之活性成分含量存在 ±10% 基礎變異。',
+    source: '產學合作期刊論文',
+    status: '已送審期刊'
+  },
+  {
+    category: 'vivo',
+    badge: 'R3 動物試飼初步',
+    badgeStyle: 'bg-amber-50 text-amber-700',
+    year: '2025',
+    title: '泌乳牛日糧添加海門冬之適口性與採食行為觀察',
+    target: '荷蘭乳牛 (Holstein) 小群體試驗組',
+    condition: 'TMR 完全混合日糧梯度混合，連續監測採食量與反芻時間 28 天。',
+    result: '牛隻無拒食現象，採食量與對照組無顯著差異，乳脂肪及乳蛋白正常。',
+    limitation: '初期樣本數為小規模群體觀察，需進一步擴大為跨季試驗。',
+    source: '示範牧場產學聯合',
+    status: '第一階段完成'
+  },
+  {
+    category: 'vivo',
+    badge: 'R4 場域試點中',
+    badgeStyle: 'bg-[#4280BD] text-white',
+    year: '2026',
+    title: '源興牛肉牛低甲烷示範計畫共同開發',
+    target: '本土肥育肉牛群體',
+    condition: '結合微氣候監測與連續式物聯網甲烷感測，對比歷史基線。',
+    result: '現場持續量測中，初步數據展現穩定減排趨勢與正常日增重。',
+    limitation: '示範計畫推進中，最終數值需待試驗週期結束由第三方查證。',
+    source: '源興居生技聯合試驗',
+    status: '試驗進行中'
+  },
+  {
+    category: 'methodology',
+    badge: '方法學與基地',
+    badgeStyle: 'bg-[#C9A24B] text-white',
+    year: '2026',
+    title: '反芻動物腸道發酵甲烷減排方法學研析',
+    target: '對齊 Verra VM0041 與台灣自主減量方案',
+    condition: '建立基線測定標準、投餵證明與防重複計算審查清單。',
+    result: '完成方法學適用性自我評估框架，為 Nuber 平台提供規則引擎。',
+    limitation: '官方正式額度核發仍需主管機關查驗程序審查。',
+    source: '善向永續 × 高科生技',
+    status: '框架研擬中'
+  }
+]
+
+const filteredItems = computed(() => {
+  if (activeCategory.value === 'all') return items
+  return items.filter(i => i.category === activeCategory.value)
+})
+</script>
