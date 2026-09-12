@@ -17,7 +17,7 @@
           </p>
         </div>
 
-        <!-- 願景、使命與價值觀 -->
+        <!-- 願景、使命與 5T 治理 -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
           <div class="p-8 rounded-2xl bg-slate-50 border border-slate-200/80">
             <div class="w-10 h-10 rounded-xl bg-[#84C341]/20 text-[#84C341] font-black flex items-center justify-center mb-4">V</div>
@@ -36,8 +36,11 @@
           </div>
         </div>
 
+        <!-- 核心團隊與專家 (補齊少 2) -->
+        <TeamSection />
+
         <!-- 官方聯絡資訊 -->
-        <div class="p-10 rounded-3xl bg-[#0E1B2E] text-white flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="mt-20 p-10 rounded-3xl bg-[#0E1B2E] text-white flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
             <h3 class="text-2xl font-bold mb-2">準備好與我們共同探索示範合作？</h3>
             <p class="text-slate-400 text-sm">歡迎產業界夥伴、農民團體與研究機構隨時與我們取得聯繫。</p>
@@ -56,4 +59,5 @@
 <script setup>
 import Header from '../components/Header.vue'
 import Footer from '../components/Footer.vue'
+import TeamSection from '../components/TeamSection.vue'
 </script>

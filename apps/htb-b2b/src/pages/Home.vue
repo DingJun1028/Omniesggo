@@ -23,6 +23,12 @@
       <!-- H08: 示範合作夥伴網絡 -->
       <PartnersSection />
 
+      <!-- H09: 洞察專欄 (補齊少 3) -->
+      <InsightsSection />
+
+      <!-- C13: FAQ 常見問答摺疊面板 (補齊少 1) -->
+      <FaqSection />
+
       <!-- H10: 商務合作洽詢 -->
       <ContactSection />
     </main>
@@ -40,5 +46,7 @@ import EvidenceSnapshot from '../components/EvidenceSnapshot.vue'
 import AudienceCards from '../components/AudienceCards.vue'
 import NuberPlatformSection from '../components/NuberPlatformSection.vue'
 import PartnersSection from '../components/PartnersSection.vue'
+import InsightsSection from '../components/InsightsSection.vue'
+import FaqSection from '../components/FaqSection.vue'
 import ContactSection from '../components/ContactSection.vue'
 </script>
