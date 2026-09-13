@@ -22,3 +22,7 @@
 ## 2026-08-30 - [Derived State Memoization]
 **Learning:** In React components like `DelegationMetricsOverview`, deriving complex data on each render (e.g. using `Object.entries(global.byType)` or array manipulation `[...alerts].slice(-5).reverse()`) outside of `useMemo` is a performance anti-pattern. This causes the array references to change on every render, and performs redundant computations even when the source data hasn't changed.
 **Action:** Always wrap heavy or object-deriving computations in `useMemo` hooks with proper dependencies (e.g., `global`, `delegation`, `alerts`). This ensures reference equality for downstream components and prevents unnecessary work during re-renders.
+
+## 2026-09-04 - [OmniNoteView Render Optimization]
+**Learning:** In React components, performing multiple `O(n)` array traversals (like consecutive `reduce` functions) within the render body can lead to severe performance bottlenecks, especially when the component frequently re-renders. Furthermore, not memoizing these calculations will trigger the redundant work during every update cycle.
+**Action:** Consolidate multiple array passes into a single pass (e.g. accumulating multiple metrics in one `reduce` call) and wrap the derivation in a `useMemo` hook with proper dependencies to ensure it only executes when the underlying data changes.
