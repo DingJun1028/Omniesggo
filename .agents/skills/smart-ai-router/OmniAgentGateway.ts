@@ -8,6 +8,10 @@ import type { FreeModel } from '../model-discovery/free-models';
 import type { ModelConverterConfig } from '../model-discovery/model-converter';
 
 // IComponentCore 核心介面 (來自 SKILL.md)
+/**
+ * 萬能元件心核 - 觀因循果修復版
+ * 確保數據從因到果的完整性與不可篡改性
+ */
 export interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
