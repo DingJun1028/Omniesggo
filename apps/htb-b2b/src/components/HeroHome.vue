@@ -1,65 +1,31 @@
-<template>
-  <section class="hero-gradient relative overflow-hidden py-20 text-white text-center">
-    <div class="container mx-auto px-4 relative z-10">
-      <div class="max-w-4xl mx-auto">
-        <span class="inline-block px-4 py-2 bg-tech-blue/30 rounded-full text-sm mb-4 border border-white/20">
-          海洋永續 × 甲烷減排
-        </span>
-        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-          從海洋到牧場<br />
-          打造低碳畜牧價值鏈
-        </h1>
-        <p class="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-          高科生技運用海門冬四分孢子體技術，協助畜牧業降低甲烷排放，
-          創造可衡量的氣候價值與永續經濟
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/solutions" class="btn-primary px-8 py-4 text-lg">
-            探索解決方案
-          </a>
-          <a href="/evidence" class="btn-outline border-white text-white hover:bg-white hover:text-ink-gray px-8 py-4 text-lg">
-            瀏覽證據
-          </a>
-        </div>
+﻿<template>
+  <section class="relative overflow-hidden bg-gradient-to-b from-[#EBF3FA]/60 to-white py-20 lg:py-28">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-[#F0F8E9] text-[#84C341] border border-[#84C341]/30 mb-6">
+        <span class="w-2 h-2 rounded-full bg-[#84C341] animate-pulse"></span>
+        海門冬生物科技 × 畜牧甲烷減排 × 可驗證數據
       </div>
-    </div>
-    <!-- 裝飾性背景元素 -->
-    <div class="absolute inset-0 opacity-10">
-      <div class="absolute top-10 left-10 w-32 h-32 bg-white rounded-full blur-3xl"></div>
-      <div class="absolute bottom-10 right-10 w-48 h-48 bg-ocean-cyan rounded-full blur-3xl"></div>
+
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#1E293B] tracking-tight leading-tight mb-6">
+        讓畜牧減碳，<br class="hidden sm:inline" />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4280BD] to-[#84C341]">可發生、可驗證、可創價</span>
+      </h1>
+
+      <p class="max-w-2xl mx-auto text-lg sm:text-xl text-[#707070] leading-relaxed mb-10">
+        高科生技以海門冬陸基養殖與 MRV 數據技術為核心，協助牧場與食品供應鏈有效降低反芻動物甲烷排放，共同打造可信賴的低碳乳肉產品與氣候資產。
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#solutions" class="btn-brand-primary w-full sm:w-auto text-base">
+          探索甲烷減排方案
+        </a>
+        <a href="/evidence" class="btn-brand-secondary w-full sm:w-auto text-base">
+          查看科學證據 (5T 治理)
+        </a>
+      </div>
     </div>
   </section>
 </template>
 
 <script setup>
 </script>
-
-<style scoped>
-.hero-gradient {
-  background: linear-gradient(135deg, #073B4C 0%, #2878B5 50%, #159A9C 100%);
-}
-
-.btn-primary {
-  background-color: #C64B3C;
-  color: white;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #a33b30;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-}
-
-.btn-outline {
-  background-color: transparent;
-  border: 2px solid;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-}
-
-.bg-tech-blue\/30 {
-  background-color: rgba(40, 120, 181, 0.3);
-}
-</style>
