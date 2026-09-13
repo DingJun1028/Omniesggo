@@ -11,12 +11,10 @@
     "build": "wrangler deploy --dry-run",
     "lint": "tsc --noEmit"
   },
-  "dependencies": {
-    "hono": "^4.6.8"
-  },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260728.1",
+    "@cloudflare/workers-types": "^5.20260804.1",
     "@types/node": "^26.1.2",
+    "hono": "^4.13.0",
     "typescript": "^7.0.2",
     "wrangler": "^4.113.0"
   }
