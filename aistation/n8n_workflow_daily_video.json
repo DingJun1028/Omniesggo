@@ -1,0 +1,154 @@
+{
+  "name": "OA-Team Daily Video Production",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 9,
+              "minute": 0
+            }
+          ]
+        }
+      },
+      "name": "Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "url": "http://localhost:8000/api/jobs",
+        "options": {},
+        "body": {
+          "script": "【場景】萬能蜂群面對每日營運監控的挑戰。【衝突】傳統監控無法及時發現異常。【洞察】5T Protocol + keepalive cron 可實現零死角監控。【方法】部署 VPS keepalive Monitor + Telegram 告警。【反思】永續監控不是技術問題，是體制問題 — 自動修復勝於手動告警。",
+          "title": "每日營運監控 - 5T Protocol 實踐"
+        },
+        "headerParametersJson": {
+          "Content-Type": "application/json"
+        }
+      },
+      "name": "AI Station Submit Job",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "pollingTimer": {
+          " interval": 30,
+          "option": "after"
+        },
+        "httpMethod": "GET",
+        "url": "={{$json[\"job_id\"] ? \"http://localhost:8000/api/jobs/\" + $json[\"job_id\"] : \"\"}}",
+        "options": {}
+      },
+      "name": "Check Job Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"status\"]}}",
+              "operation": "equal",
+              "value2": "completed"
+            }
+          ]
+        }
+      },
+      "name": "Job Done?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [850, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "6387287462",
+        "text": "🎬 **Daily Video Ready!**\n\n**Task**: {{$json[\"title\"]}}\n**Status**: 5T Verified\n**Hash Lock**: {{$json[\"hash_lock\"]}}\n**Source**: AI Station 7-Module Pipeline\n**Time**: {{$now.format('yyyy-MM-dd HH:mm:ss')}}",
+        "chatIdType": "id"
+      },
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 2,
+      "position": [1050, 300],
+      "credentials": {
+        "telegramApi": "telegram_bot_api"
+      }
+    },
+    {
+      "parameters": {},
+      "name": "No Action",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1050, 500]
+    }
+  ],
+  "connections": {
+    "Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Station Submit Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Station Submit Job": {
+      "main": [
+        [
+          {
+            "node": "Check Job Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Job Status": {
+      "main": [
+        [
+          {
+            "node": "Job Done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job Done?": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "oa-team-v1.0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "aistation-daily-video"
+  }
+}
