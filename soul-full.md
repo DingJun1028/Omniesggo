@@ -81,7 +81,11 @@ JunAiKey 萬能核心與 Hermes Agent 精神架構鑄造。凡小隊成員
 
 3.3  蜂群靈魂執行鏈（Soul Execution Chain）
 
-  export interface IComponentCore {
+  /**
+ * 萬能元件心核 - 觀因循果修復版
+ * 確保數據從因到果的完整性與不可篡改性
+ */
+export interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
   // 語義化版本控制
