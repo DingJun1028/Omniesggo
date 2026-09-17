@@ -1,0 +1,17 @@
+{"timestamp": "2026-09-11T12:34:09.271519+00:00", "module": "replication", "action": "init", "data": {"local_ts": "100.103.244.34", "vps_ts": "100.71.82.0", "vps_tdai": "http://100.71.82.0:8420", "vps_omni": "http://100.71.82.0:8642"}}
+{"timestamp": "2026-09-11T12:34:09.272701+00:00", "module": "local", "action": "ping", "data": {}}
+{"timestamp": "2026-09-11T12:34:13.393271+00:00", "module": "vps", "action": "ping", "data": {}}
+{"timestamp": "2026-09-11T12:34:14.553915+00:00", "module": "vps", "action": "ping_ok", "data": {"status": "ok"}}
+{"timestamp": "2026-09-11T12:34:14.555393+00:00", "module": "replication", "action": "sync_start", "data": {"target": "vps", "query": "5T Protocol"}}
+{"timestamp": "2026-09-11T12:34:14.757683+00:00", "module": "replication", "action": "sync_complete", "data": {"target": "vps", "query": "5T Protocol", "results": 5, "hash_lock": "6216c602512af0356d32b31baddaf555354568faece70bfcfd8575367d552dbc"}}
+{"timestamp": "2026-09-11T12:34:14.758653+00:00", "module": "replication", "action": "pull_start", "data": {"source": "vps", "query": "Omni Integration"}}
+{"timestamp": "2026-09-11T12:34:14.976188+00:00", "module": "replication", "action": "pull_complete", "data": {"source": "vps", "results": 5, "hash_lock": "10f2f8fede6fe0e2cd4649550b1f92da35362e1a79f2ad5bba4575d6d628199f"}}
+{"timestamp": "2026-09-11T12:34:14.979091+00:00", "module": "replication", "action": "report_start", "data": {}}
+{"timestamp": "2026-09-11T12:34:14.980651+00:00", "module": "local", "action": "ping", "data": {}}
+{"timestamp": "2026-09-11T12:34:19.086681+00:00", "module": "vps", "action": "ping", "data": {}}
+{"timestamp": "2026-09-11T12:34:19.265393+00:00", "module": "vps", "action": "ping_ok", "data": {"status": "ok"}}
+{"timestamp": "2026-09-11T12:34:19.265742+00:00", "module": "replication", "action": "sync_start", "data": {"target": "vps", "query": "5T Protocol"}}
+{"timestamp": "2026-09-11T12:34:19.457270+00:00", "module": "replication", "action": "sync_complete", "data": {"target": "vps", "query": "5T Protocol", "results": 5, "hash_lock": "6216c602512af0356d32b31baddaf555354568faece70bfcfd8575367d552dbc"}}
+{"timestamp": "2026-09-11T12:34:19.458648+00:00", "module": "replication", "action": "pull_start", "data": {"source": "vps", "query": "Omni Integration"}}
+{"timestamp": "2026-09-11T12:34:19.645432+00:00", "module": "replication", "action": "pull_complete", "data": {"source": "vps", "results": 5, "hash_lock": "10f2f8fede6fe0e2cd4649550b1f92da35362e1a79f2ad5bba4575d6d628199f"}}
+{"timestamp": "2026-09-11T12:34:19.647789+00:00", "module": "replication", "action": "report_complete", "data": {"hash_lock": "83bad291d0d1479de67767cdb3273aef9b1ed5bb426650e3c4a865f5d24cc6fc"}}

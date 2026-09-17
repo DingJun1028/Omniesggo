@@ -1,0 +1,148 @@
+/* High-Tech Seaweed 品牌變體 - 與 Tailwind 集成 */
+
+:root {
+  /* 依賴 Tailwind 的顏色變數 */
+  --htb-deep-sea: theme('colors.deep-sea');
+  --htb-ocean-cyan: theme('colors.ocean-cyan');
+  --htb-coral-red: theme('colors.coral-red');
+  --htb-pasture-green: theme('colors.pasture-green');
+  --htb-sand-white: theme('colors.sand-white');
+  --htb-tech-blue: theme('colors.tech-blue');
+  --htb-evidence-gold: theme('colors.evidence-gold');
+  --htb-ink-gray: theme('colors.ink-gray');
+  
+  /* 傳統中文品牌 */
+  --htb-brand-deep: theme('colors.deep-blue');
+  --htb-brand-gold: theme('colors.warm-gold');
+  
+  /* 動畫與過渡 */
+  --htb-transition: all 0.3s ease;
+  --htb-fade-in: var(--fade-in) 0.6s ease forwards;
+}
+
+/* 全局樣式 - 用於在 Tailwind 無法覆寫時的備用 */
+html, body, #app {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: theme('fontFamily.sans');
+  background-color: var(--htb-sand-white, #F4F1E8);
+  color: var(--htb-ink-gray, #172A32);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 連結樣式 */
+a {
+  color: var(--htb-ocean-cyan, #159A9C);
+  text-decoration: none;
+  transition: var(--htb-transition);
+}
+
+a:hover {
+  color: var(--htb-coral-red, #C64B3C);
+  text-decoration: underline;
+}
+
+/* 按鈕樣式 - Tailwind 類別備用 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: theme('borderRadius.DEFAULT', 8px);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--htb-transition);
+  border: none;
+  font-size: 1rem;
+}
+
+.btn-primary {
+  background-color: var(--htb-coral-red, #C64B3C);
+  color: white;
+  box-shadow: theme('boxShadow.sm', 0 1px 2px 0 rgba(0, 0, 0, 0.05));
+}
+
+.btn-primary:hover {
+  background-color: #a33b30;
+  transform: translateY(-2px);
+  box-shadow: theme('boxShadow.md', 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--htb-deep-sea, #073B4C);
+  color: var(--htb-deep-sea, #073B4C);
+}
+
+.btn-outline:hover {
+  background-color: var(--htb-deep-sea, #073B4C);
+  color: white;
+}
+
+/* 卡片樣式 */
+.card {
+  background: white;
+  border-radius: theme('borderRadius.lg', 12px);
+  box-shadow: theme('boxShadow.card', 0 4px 6px -1px rgba(0, 0, 0, 0.1));
+  transition: var(--htb-transition);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: theme('boxShadow.card-hover', 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+}
+
+/* 容器和網格 */
+.container {
+  max-width: theme('screens.maxWidth.2xl', 1200px);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* 動畫偏好設定 - WCAG 無障礙 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Hero 背景漸層 */
+.hero-gradient {
+  background: linear-gradient(135deg, theme('colors.tech-blue', #2878B5) 0%, theme('colors.deep-sea', #073B4C) 100%);
+}
+
+/* 梯度合併區 */
+.bg-gradients-merge {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3rem;
+  background: linear-gradient(to top, var(--htb-sand-white, #F4F1E8) 0%, transparent 100%);
+}
+
+/* 5T 驗證狀態指示 */
+[data-5t-traceable="verified"] {
+  outline: 2px solid theme('colors.evidence-gold', #AE7B24);
+}
+
+[data-5t-trackable="verified"] {
+  box-shadow: 0 0 0 3px theme('colors.evidence-gold', #AE7B24);
+}
+
+[data-5t-trustworthy="locked"] {
+  position: relative;
+}
+
+[data-5t-trustworthy="locked"]::after {
+  content: "🔒";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.75rem;
+}

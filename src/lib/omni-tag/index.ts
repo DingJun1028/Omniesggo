@@ -17,6 +17,7 @@
  */
 
 import { createHash } from 'crypto';
+import { type TrustLevel, TRUST_LEVEL_SCORE } from '../omni-core/types';
 
 import {
   createOmniTag as baseCreateTag,
@@ -28,6 +29,47 @@ import {
 
 import type { FiveTDimension } from '../omni-core/types';
 
+// ═══════════════════════════════════════════════════════════════
+// SECTION 1.5: Trust Label (信任標別)
+// ═══════════════════════════════════════════════════════════════
+
+export interface TrustLabelTag {
+  readonly tagId: string;
+  readonly agentId: string;
+  readonly trustLevel: TrustLevel;
+  readonly trustScore: number;
+  readonly componentId: string;
+  readonly hashLock: string;
+  readonly verifiedAt: number;
+  readonly verifiedBy: string;
+  readonly labels: readonly string[];
+  readonly previousTrustLevel?: TrustLevel;
+  readonly lifecycle: 'genesis' | 'verified' | 'frozen' | 'revoked';
+}
+
+/** 創建信任標別標籤 */
+export function createTrustTag(params: {
+  tagId: string;
+  agentId: string;
+  componentId: string;
+  labels?: readonly string[];
+  verifiedBy: string; trustLevel?: TrustLevel;
+}): TrustLabelTag {
+  const trustScore = TRUST_LEVEL_SCORE[params.trustLevel ?? "low"] ?? 0.7;
+  const hashLock = createHash("sha256").update(params.tagId + JSON.stringify(params)).digest("hex");
+  return Object.freeze<TrustLabelTag>({
+    tagId: params.tagId,
+    agentId: params.agentId,
+    trustLevel: params.trustLevel ?? 'low',
+    trustScore,
+    componentId: params.componentId,
+    hashLock,
+    verifiedAt: Date.now(),
+    verifiedBy: params.verifiedBy,
+    labels: params.labels ?? [],
+    lifecycle: 'genesis',
+  });
+}
 export type {
   OmniTag,
   TagPair,
@@ -321,4 +363,37 @@ export function create5TTag(chapterId: string, griCode: string): OmniTag {
  */
 export function create5TTagBatch(chapterId: string, griCodes: readonly string[]): OmniTag[] {
   return griCodes.map(code => create5TTag(chapterId, code));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 4: Trust Label Functions (信任標別函數)
+// ═══════════════════════════════════════════════════════════════
+
+
+/** 驗證信任標別 */
+export function verifyTrustLabel(tag: OmniTag): { valid: boolean; trustLevel?: TrustLevel; trustScore?: number } {
+  const trustLevel = tag.metadata?.trustLevel as TrustLevel | undefined;
+  if (!trustLevel) return { valid: false };
+  const trustScore = TRUST_LEVEL_SCORE[trustLevel];
+  return { valid: true, trustLevel, trustScore };
+}
+
+/** 升級信任等級 */
+export function upgradeTrustLevel(tag: OmniTag, newLevel: TrustLevel): OmniTag {
+  const current = verifyTrustLabel(tag);
+  if (!current.valid) return tag;
+  if (TRUST_LEVEL_SCORE[newLevel] <= current.trustScore!) return tag;
+  return Object.freeze({
+    ...tag,
+    metadata: {
+      ...tag.metadata,
+      trustLevel: newLevel,
+      trustScore: TRUST_LEVEL_SCORE[newLevel],
+    },
+  });
+}
+
+/** 檢查是否為信任標籤 */
+export function isTrustTag(tag: OmniTag): boolean {
+  return tag.chapterId === 'trust-label' || tag.metadata?.tagType === 'TrustLabel';
 }

@@ -67,6 +67,10 @@ export interface ComponentLifecycleEntry {
   readonly note?: string;
 }
 
+/**
+ * 萬能元件心核 - 觀因循果修復版
+ * 確保數據從因到果的完整性與不可篡改性
+ */
 export interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
@@ -228,3 +232,37 @@ export interface ProcessResult {
   readonly learningDelta: number;
   readonly isFrozen: boolean;
 }
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 5: Trust Label (信任標別)
+// ═══════════════════════════════════════════════════════════════
+
+export type TrustLevel = 'low' | 'medium' | 'high' | 'critical' | 'authenticated';
+
+export interface TrustLabel {
+  readonly tagId: string;
+  readonly trustLevel: TrustLevel;
+  readonly trustScore: number;
+  readonly verifiedAt: number;
+  readonly verifiedBy: string;
+  readonly lifecycle: 'genesis' | 'verified' | 'frozen' | 'revoked';
+}
+
+export const TRUST_LEVEL_SCORE: Record<TrustLevel, number> = {
+  low: 0.7,
+  medium: 0.85,
+  high: 0.95,
+  critical: 1.0,
+  authenticated: 0.9,
+};
+
+export interface FiveTScore {
+  traceable: number;
+  transparent: number;
+  tangible: number;
+  trustworthy: number;
+  trackable: number;
+}
+
+// TrustLabel 擴展 FiveTScore 的信任維度
+export type FiveTScoreWithTrust = FiveTScore & { trustLevel?: TrustLevel };

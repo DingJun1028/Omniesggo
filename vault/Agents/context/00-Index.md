@@ -52,3 +52,19 @@ vault 筆記(sync:up) → SyncVaultTypes → shared/types.ts(canonical)
 - 喚醒技能：oa-dual-agent-obsidian
 
 > 知識分身日報: hatched=234 synced=0 failed=0 recall=0 healthy=false 2026-08-27T07:43:12.659Z
+
+## 推理核心（Karpathy Stack）
+- [[KARPATHY-KNOWLEDGE-STACK]] — 三層分工協議（Memory/Operator/Reasoning）
+- 每日洞察 → `Agents/reasoning-core/daily-insights/`
+- 週迭代報告 → `Agents/reasoning-core/weekly-synthesis/`
+
+## Hermex 手機連線（2026-08-28 新增）
+- [[HermexMobileConnect]] — Hermex iOS App 連線 VPS Hermes WebUI（Docker+nginx+Cloudflare+密碼認證實錄）
+
+## FTG 旅程生態（2026-08-29 新增）
+- [[FTGJourneyAppArchitecture]] — 永續旅程 App 架構（PWA+Oracle 後端+角色權限+個資法去敏化）
+- [[FTGToursShareCopy]] — 官網分享文案規範（中英對照）
+- [[WebsiteGapAudit]] — 官網缺口補齊清單 + 聯絡 Worker 審計
+- [[CloudflareCache404]] — CF 快取 404 陷阱與清刷法
+- [[RecaptchaV3Frontend]] — 聯絡表單 reCAPTCHA v3 / honeypot 架構
+- [[FTGDualAgentCollab]] — 雙分身協作陷阱 + 官網→App Gap Matrix 方法 + CF 診斷

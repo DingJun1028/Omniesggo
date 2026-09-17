@@ -1,0 +1,52 @@
+name: Deploy ftgtours.esggo.co to VPS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/ftg-tours-website/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --no-frozen-lockfile
+        working-directory: apps/ftg-tours-website
+
+      - name: Build
+        run: pnpm run build
+        working-directory: apps/ftg-tours-website
+
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "apps/ftg-tours-website/dist/*"
+          target: "/tmp/ftgtours-deploy/"
+          strip_components: 3
+          rm: true
+
+      - name: Move files & set permissions
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sudo cp -r /tmp/ftgtours-deploy/* /var/www/ftgtours/
+            sudo chown -R www-data:www-data /var/www/ftgtours/
+            sudo systemctl reload nginx

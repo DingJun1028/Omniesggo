@@ -67,15 +67,33 @@ auth
   .option('--live', '實查模式')
   .action(async (opts) => {
     if (!opts.live || opts.dryRun) {
-      console.log('[DRY-RUN] omni auth check → 將呼叫 Gateway /auth/verify');
+      console.log('[DRY-RUN] omni auth check → 將呼叫 TDAI /v2/conversation/query 驗證 Bearer');
       console.log('[5T:Trustworthy] Bearer token 不落地日誌');
       return;
     }
+    const cfg = loadGatewayConfig();
+    if (!cfg.token) {
+      console.log('[BLOCKER] 未配置 token — 請於 gateway.json 或 TDAI_GATEWAY_API_KEY 提供');
+      return;
+    }
     try {
-      const data = await gatewayRequest('/auth/verify');
-      console.log('[LIVE]', JSON.stringify(data, null, 2));
+      // 真實 TDAI 授權驗證: 帶 Bearer + x-tdai-service-id 查詢, 200=有效, 401=無效
+      const data = await gatewayRequest(
+        '/v2/conversation/query',
+        cfg.token,
+        { query: 'auth-check', team_id: 'oa-team-30', agent_id: 'universal-bee' },
+      );
+      console.log('[LIVE] 授權有效 ✓', JSON.stringify(data).slice(0, 200));
+      console.log('[5T:Trustworthy] Bearer + x-tdai-service-id 閘通過');
     } catch (e) {
-      console.log('[BLOCKER] Gateway 鑑權失敗:', (e as Error).message);
+      const msg = (e as Error).message;
+      if (msg.includes('401')) {
+        console.log('[BLOCKER] Bearer 無效 (401) — 檢查 TDAI_GATEWAY_API_KEY');
+      } else if (msg.includes('timeout') || msg.includes('ECONNREFUSED')) {
+        console.log('[BLOCKER] Gateway 不可達 — 檢查 url (預設 localhost:8420, 可經 gateway.json 覆寫)');
+      } else {
+        console.log('[BLOCKER] Gateway 鑑權失敗:', msg);
+      }
     }
   });
 

@@ -15,7 +15,7 @@
  *   - 不可變：產出皆經 Object.freeze。
  */
 
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { EntropyForge } from './entropy-forge';
 import {
   createComponent,
@@ -30,6 +30,7 @@ import {
   type IComponentCore,
   type OmniNote,
 } from './types';
+import { type TrustLevel, TRUST_LEVEL_SCORE } from './types';
 import {
   createNote,
   createTask,
@@ -445,7 +446,83 @@ export function registerBuiltinFunctions(): void {
       { description: '將數值收斂至 0–1', category: 'util' },
     );
   }
+  // ── §20 信任標別 (Trust Label) 內建函數 ──
+  if (!omniFn.has('esggo.trustScore')) {
+    omniFn.register(
+      'esggo.trustScore',
+      (trustLevel: string): number => {
+        return (TRUST_LEVEL_SCORE as Record<string, number>)[trustLevel] ?? 0;
+      },
+      { description: '根據信任等級回傳信任分數；未知等級回傳 0', category: 'trust' },
+    );
+  }
+  if (!omniFn.has('esggo.trustGate')) {
+    omniFn.register(
+      'esggo.trustGate',
+      (trustScore: number, requiredLevel: TrustLevel = 'high'): boolean => {
+        const threshold = TRUST_LEVEL_SCORE[requiredLevel] ?? 0.95;
+        return trustScore >= threshold;
+      },
+      { description: '信任門控：檢查信任分數是否達到指定等級', category: 'trust' },
+    );
+  }
+  if (!omniFn.has('esggo.trustLabel')) {
+    omniFn.register(
+      'esggo.trustLabel',
+      (trustLevel: TrustLevel): string[] => {
+        const labels: Record<TrustLevel, string[]> = {
+          low: ['hash-lock'],
+          medium: ['third-party-audit'],
+          high: ['full-5t-pass', 'hash-lock'],
+          critical: ['h4-frozen', 'object-freeze', 'full-5t-pass'],
+          authenticated: ['hmac', 'oauth', 'full-5t-pass'],
+        };
+        return labels[trustLevel] ?? ['hash-lock'];
+      },
+      { description: '根據信任等級返回對應的信任標別標籤列表', category: 'trust' },
+    );
+  }
 }
 
 // 模組載入時自動註冊內建函數
 registerBuiltinFunctions();
+
+/**
+ * §20 Trust Label facade — 簡化對 omniFn 內建函數的訪問
+ * omniFn.call(name, ...args) 直接回傳註冊函數的返回值
+ */
+export const esggo = {
+  trustScore: (level: string) =>
+    omniFn.call('esggo.trustScore', level) as number,
+  trustGate: (level: string, opts?: { requiredLevel?: string }) => {
+    const requiredLevel = opts?.requiredLevel ?? 'high';
+    const score = TRUST_LEVEL_SCORE[level as TrustLevel] ?? 0;
+    const threshold = TRUST_LEVEL_SCORE[requiredLevel as TrustLevel] ?? 0.95;
+    const passed = score >= threshold;
+    return {
+      passed,
+      threshold,
+      violations: passed ? [] : [`trustScore ${score} < required ${threshold} (${requiredLevel})`],
+    };
+  },
+  trustLabel: (tag: unknown, level: string) => {
+    const labels: Record<string, string[]> = {
+      low: ['hash-lock'],
+      medium: ['third-party-audit'],
+      high: ['full-5t-pass', 'hash-lock'],
+      critical: ['h4-frozen', 'object-freeze', 'full-5t-pass'],
+      authenticated: ['hmac', 'oauth', 'full-5t-pass'],
+    };
+    const trustScore = TRUST_LEVEL_SCORE[level as TrustLevel] ?? 0;
+    const hashLock = createHash('sha256')
+      .update(`${(tag as Record<string, unknown>).agent ?? 'unknown'}:${level}:${Date.now()}`)
+      .digest('hex');
+    return {
+      ...(tag as Record<string, unknown>),
+      trustLevel: level,
+      trustScore,
+      hashLock,
+      labels: labels[level] ?? ['hash-lock'],
+    };
+  },
+} as const;

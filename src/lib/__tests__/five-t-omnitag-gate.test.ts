@@ -9,6 +9,7 @@ import type { OmniTagSet } from '../omnitag-contract';
 
 const compliant: OmniTagSet = {
   agent: 'agent:25',
+  trustLevel: 'high',
   squad: '5T驗算',
   lifecycle: 'active',
   priority: 'p2',
@@ -76,7 +77,7 @@ describe('§20.5 FiveTOmniTagGate 接線 (5T 驗算陣列 25-30)', () => {
     for (const [agent, routeKey] of cases) {
       const r = FiveTOmniTagGate.emitArtifact({
         entityId: `art:${agent}`,
-        tag: { agent, lifecycle: 'active', priority: 'p2', squad: undefined } as OmniTagSet,
+        tag: { agent, trustLevel: 'high', lifecycle: 'active', priority: 'p2', squad: undefined } as OmniTagSet,
       });
       expect(r.route.target?.routeKey).toBe(routeKey);
       expect(r.route.consistent).toBe(true);
@@ -86,7 +87,7 @@ describe('§20.5 FiveTOmniTagGate 接線 (5T 驗算陣列 25-30)', () => {
   it('emitArtifact records route-warn when agent/squad mismatch', () => {
     const r = FiveTOmniTagGate.emitArtifact({
       entityId: 'mismatch:01',
-      tag: { agent: 'agent:03', squad: '5T驗算', lifecycle: 'active', priority: 'p2' } as OmniTagSet,
+      tag: { agent: 'agent:03', squad: '5T驗算', trustLevel: 'high', lifecycle: 'active', priority: 'p2' } as OmniTagSet,
     });
     expect(r.route.consistent).toBe(false);
     const life = FiveTTrackable.getLifecycle('mismatch:01');
@@ -96,7 +97,7 @@ describe('§20.5 FiveTOmniTagGate 接線 (5T 驗算陣列 25-30)', () => {
   it('barrier inheritance flag propagates on emit', () => {
     const r = FiveTOmniTagGate.emitArtifact({
       entityId: 'barrier:01',
-      tag: { agent: 'agent:25', lifecycle: 'active', priority: 'p2', bestPractice: '结界' } as OmniTagSet,
+      tag: { agent: 'agent:25', trustLevel: 'high', lifecycle: 'active', priority: 'p2', bestPractice: '结界' } as OmniTagSet,
     });
     expect(r.route.barrierInherited).toBe(true);
   });
@@ -106,7 +107,7 @@ describe('§20.6 FiveTOmniTagGate 持久化層 (寫入即凍結)', () => {
   it('persistArtifact writes + verifyPersisted confirms integrity', () => {
     const rec = FiveTOmniTagGate.persistArtifact({
       entityId: 'persist:01',
-      tag: { agent: 'agent:25', lifecycle: 'active', priority: 'p2', squad: '5T驗算' },
+      tag: { agent: 'agent:25', trustLevel: 'high', lifecycle: 'active', priority: 'p2', squad: '5T驗算' },
       content: '{"op":"seal"}',
     });
     expect(rec.hashLock).toMatch(/^[0-9a-f]{64}$/);
@@ -120,7 +121,7 @@ describe('§20.6 FiveTOmniTagGate 持久化層 (寫入即凍結)', () => {
   it('getPersisted returns stored record', () => {
     FiveTOmniTagGate.persistArtifact({
       entityId: 'persist:02',
-      tag: { agent: 'agent:03', lifecycle: 'draft', priority: 'p1' },
+      tag: { agent: 'agent:03', trustLevel: 'medium', lifecycle: 'draft', priority: 'p1' },
     });
     const got = FiveTOmniTagGate.getPersisted('persist:02');
     expect(got?.tag.agent).toBe('agent:03');
@@ -130,12 +131,12 @@ describe('§20.6 FiveTOmniTagGate 持久化層 (寫入即凍結)', () => {
   it('frozen+restricted rejects re-persist (H4 immutable)', () => {
     FiveTOmniTagGate.persistArtifact({
       entityId: 'persist:seal',
-      tag: { agent: 'agent:25', lifecycle: 'frozen', security: 'restricted', priority: 'p0' },
+      tag: { agent: 'agent:25', trustLevel: 'high', lifecycle: 'frozen', security: 'restricted', priority: 'p0' },
     });
     expect(() =>
       FiveTOmniTagGate.persistArtifact({
         entityId: 'persist:seal',
-        tag: { agent: 'agent:25', lifecycle: 'frozen', security: 'restricted', priority: 'p0' },
+        tag: { agent: 'agent:25', trustLevel: 'high', lifecycle: 'frozen', security: 'restricted', priority: 'p0' },
       }),
     ).toThrow(/immutable/);
   });
@@ -143,7 +144,7 @@ describe('§20.6 FiveTOmniTagGate 持久化層 (寫入即凍結)', () => {
   it('verifyPersisted detects tampering', () => {
     FiveTOmniTagGate.persistArtifact({
       entityId: 'persist:tamper',
-      tag: { agent: 'agent:09', lifecycle: 'active', priority: 'p2' },
+      tag: { agent: 'agent:09', trustLevel: 'high', lifecycle: 'active', priority: 'p2' },
       content: 'original',
     });
     // 直接篡改 store 內記錄的 hashLock
@@ -161,7 +162,7 @@ describe('§20.6 FiveTOmniTagGate 持久化層 (寫入即凍結)', () => {
     FiveTOmniTagGate.setStore(custom);
     const rec = FiveTOmniTagGate.persistArtifact({
       entityId: 'persist:custom',
-      tag: { agent: 'agent:01', lifecycle: 'active', priority: 'p2' },
+      tag: { agent: 'agent:01', trustLevel: 'high', lifecycle: 'active', priority: 'p2' },
     });
     expect(custom.read('persist:custom')?.entityId).toBe('persist:custom');
     expect(FiveTOmniTagGate.getStore()).toBe(custom);

@@ -21,6 +21,10 @@ export type FiveT =
   | 'Transparent'
   | 'Trustworthy';
 
+/**
+ * 萬能元件心核 - 觀因循果修復版
+ * 確保數據從因到果的完整性與不可篡改性
+ */
 export interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
@@ -49,6 +53,9 @@ export interface IncrementalArtifact extends IComponentCore {
   readonly baseVersion: string;
   readonly ops: ReadonlyArray<DeltaOp>;
   readonly frozen: true;
+  readonly sourceOrigin: string;
+  readonly fiveT: FiveT;
+  readonly hashLock: string;
 }
 
 /** §18 跨語言同構 Hash Lock: SHA-256 64-hex, 與 Python generate_hash_lock 完全一致.
@@ -139,6 +146,11 @@ export class IncrementalOutputOptimizer {
       uuid: uuidV4(),
       version: this.version,
       timestamp,
+      evidence: {
+        originCause: sourceOrigin,
+        processTrace: ['seal'],
+        finalEffect: 'sealed'
+      },
       sourceOrigin,
       fiveT,
       hashLock,

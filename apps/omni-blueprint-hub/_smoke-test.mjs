@@ -1,3 +1,31 @@
+
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const PORT = 8799;
+process.env.BASE = process.env.BASE || `http://127.0.0.1:${PORT}`;
+
+const server = spawn('node', ['monitor-server.mjs'], {
+  cwd: __dirname,
+  env: { ...process.env, PORT: String(PORT) },
+  stdio: 'ignore'
+});
+
+setTimeout(async () => {
+  try {
+    await runTests();
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  } finally {
+    server.kill();
+  }
+}, 2000);
+
+async function runTests() {
 // 端對端煙霧測試：SSE 訂閱 → /speak → 收 translation → 回放驗證
 const BASE = process.env.BASE || 'http://localhost:8799';
 const TOKEN = process.env.INGEST_TOKEN || '';
@@ -103,3 +131,5 @@ if (h.authRequired) {
 
 log(`\n=== 結果: ${pass} PASS / ${fail} FAIL ===`);
 process.exit(fail ? 1 : 0);
+
+}

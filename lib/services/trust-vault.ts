@@ -12,7 +12,7 @@ export class OmniVaultWORM {
    * 永恆刻印：數據入庫後物理鎖定
    * 數據一旦通過刻印，在內存與存儲層皆不可被二次寫入。
    */
-  public static engrave<T>(uuid: string, artifact: IComponentCore<T>) {
+  public static engrave<T>(uuid: string, artifact: IComponentCore & { payload?: T }) {
     if (this.VAULT_MAP.has(uuid)) {
       throw new Error(`[聖典違例] 數據 ${uuid} 已處於永恆態，禁止二次覆寫。`);
     }
@@ -67,7 +67,7 @@ export class OmniVaultWORM {
  * Legacy interface for backward compatibility with 3.1.0-Omni calls
  */
 export const TrustVault = {
-  seal: <T>(data: IComponentCore<T>, actorId: string): Readonly<IComponentCore<T>> => {
+  seal: <T>(data: IComponentCore & { payload?: T }, actorId: string): Readonly<IComponentCore & { payload?: T }> => {
     return OmniVaultWORM.engrave(data.uuid, data);
   }
 };

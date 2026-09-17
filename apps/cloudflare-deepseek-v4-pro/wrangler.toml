@@ -15,3 +15,6 @@ binding = "AI"
 [vars]
 # 預設模型, 可改
 MODEL = "deepseek/deepseek-v4-pro"
+
+[build]
+command = "cd apps/cloudflare-deepseek-v4-pro && npx --yes pnpm install --no-frozen-lockfile --ignore-scripts"

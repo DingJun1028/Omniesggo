@@ -1,0 +1,56 @@
+{
+  "timestamp": "2026-09-11T06:45:05.237130Z",
+  "checks": {
+    "pm2": {
+      "status": "error",
+      "error": "'NoneType' object has no attribute 'strip'"
+    },
+    "nginx": {
+      "status": "error",
+      "error": "'000'"
+    },
+    "disk": {
+      "status": "error",
+      "error": "Cannot parse: 35G"
+    }
+  },
+  "overall_status": "error"
+}
+{
+  "timestamp": "2026-09-11T06:45:47.588835Z",
+  "checks": {
+    "pm2": {
+      "status": "error",
+      "error": "'NoneType' object has no attribute 'strip'"
+    },
+    "nginx": {
+      "status": "error",
+      "error": "'000'"
+    },
+    "disk": {
+      "status": "warning",
+      "used_gb": 440.5,
+      "usage_percent": 172
+    }
+  },
+  "overall_status": "error"
+}
+{
+  "timestamp": "2026-09-11T06:46:38.438728Z",
+  "checks": {
+    "pm2": {
+      "status": "ok",
+      "note": "pm2 not installed (local dev environment)"
+    },
+    "nginx": {
+      "status": "ok",
+      "note": "nginx not running (local dev environment)"
+    },
+    "disk": {
+      "status": "warning",
+      "used_gb": 440.5,
+      "usage_percent": 99
+    }
+  },
+  "overall_status": "warning"
+}

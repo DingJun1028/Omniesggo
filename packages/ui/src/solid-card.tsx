@@ -231,17 +231,75 @@ export function Section({ title, subtitle, children, className }: SectionProps) 
 }
 
 export function Grid({ children, columns = 3, gap = 16, style }: { children: React.ReactNode; columns?: number; gap?: number; style?: React.CSSProperties }) {
+  // RWD: 手機 1 欄 / 平板 2 欄 / 桌機 N 欄
+  const minW = columns <= 1 ? '100%' : columns === 2 ? '280px' : '240px';
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(auto-fill, minmax(${columns <= 2 ? '280px' : '240px'}, 1fr))`,
-        gap: `${gap}px`,
+        gridTemplateColumns: `repeat(auto-fill, minmax(${minW}, 1fr))`,
+        gap: `clamp(8px, 2vw, ${gap}px)`,
+        width: '100%',
         ...style,
       }}
       className="solid-grid"
     >
       {children}
+    </div>
+  );
+}
+
+/** RWD 容器查詢容器 — 行動版 100% 寬 */
+export function Container({ children, className, style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
+  return (
+    <div
+      className={`solid-container ${className ?? ''}`}
+      style={{
+        width: '100%',
+        maxWidth: '1440px',
+        margin: '0 auto',
+        padding: 'clamp(12px, 3vw, 24px)',
+        boxSizing: 'border-box',
+        ...style,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** RWD 側邊欄佈局 — 手機單欄、桌機 12 欄 */
+export function PageLayout({ sidebar, children, sidebarWidth = 280 }: { sidebar?: React.ReactNode; children: React.ReactNode; sidebarWidth?: number }) {
+  return (
+    <div
+      className="solid-page-layout"
+      style={{
+        display: 'flex',
+        flexDirection: 'row',
+        gap: 'clamp(12px, 2vw, 24px)',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    >
+      {sidebar && (
+        <aside
+          style={{
+            width: `${sidebarWidth}px`,
+            flexShrink: 0,
+            display: 'block',
+          }}
+          className="solid-sidebar"
+        >
+          {sidebar}
+        </aside>
+      )}
+      <main style={{ flex: 1, minWidth: 0, width: '100%' }}>{children}</main>
+      <style>{`
+        @media (max-width: 768px) {
+          .solid-page-layout { flex-direction: column !important; }
+          .solid-sidebar { width: 100% !important; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -256,6 +314,230 @@ export function ProgressBar({ value, max = 100, color }: { value: number; max?: 
     <div style={{ width: '100%', height: '8px', borderRadius: '4px', background: TK.border, overflow: 'hidden' }}>
       <div style={{ width: `${pct}%`, height: '100%', background: color || TK.teal, borderRadius: '4px', transition: 'width 0.3s ease' }} />
     </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// StandardPage — 12 欄 Bento Grid 頁面框架 (生物級 C-ORG)
+// 對齊 wiki/wiki/萬能元件.md C-ORG
+// RWD: 手機 1 欄 / 平板 4 欄 / 桌機 12 欄
+// ═══════════════════════════════════════════════════════════════
+
+export interface StandardPageProps {
+  title: string;
+  subtitle?: string;
+  children: React.ReactNode;
+  sidebar?: React.ReactNode;
+  headerActions?: React.ReactNode;
+}
+
+export function StandardPage({ title, subtitle, children, sidebar, headerActions }: StandardPageProps) {
+  return (
+    <div
+      className="standard-page"
+      style={{
+        minHeight: '100vh',
+        background: 'var(--bg-primary, #F8FAFC)',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+      }}
+    >
+      {/* Header */}
+      <header
+        style={{
+          background: 'var(--bg-secondary, #FFFFFF)',
+          borderBottom: '1px solid var(--border-color, #E2E8F0)',
+          padding: 'clamp(12px, 2vw, 20px) clamp(16px, 3vw, 24px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '12px',
+        }}
+      >
+        <div>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 'clamp(18px, 3vw, 28px)',
+              fontWeight: 700,
+              color: 'var(--accent-teal, #009EB0)',
+            }}
+          >
+            {title}
+          </h1>
+          {subtitle && (
+            <p style={{ margin: '4px 0 0', fontSize: 'clamp(12px, 1.5vw, 14px)', color: 'var(--text-secondary, #64748B)' }}>
+              {subtitle}
+            </p>
+          )}
+        </div>
+        {headerActions && <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>{headerActions}</div>}
+      </header>
+
+      {/* Body */}
+      <PageLayout sidebar={sidebar}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(12, 1fr)',
+            gap: 'clamp(12px, 2vw, 20px)',
+            alignContent: 'start',
+          }}
+          className="bento-grid"
+        >
+          {children}
+        </div>
+      </PageLayout>
+
+      {/* RWD: 12-col → 4-col → 1-col */}
+      <style>{`
+        @media (max-width: 1024px) {
+          .bento-grid { grid-template-columns: repeat(4, 1fr) !important; }
+        }
+        @media (max-width: 768px) {
+          .bento-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (prefers-color-scheme: dark) {
+          .standard-page { background: #0F172A !important; }
+          .standard-page header { background: #1E293B !important; border-color: #334155 !important; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+// Bento Grid Item — 佔據 1-12 欄
+export interface BentoItemProps {
+  children: React.ReactNode;
+  colSpan?: 1 | 2 | 3 | 4 | 6 | 8 | 12;
+  rowSpan?: 1 | 2 | 3;
+}
+
+export function BentoItem({ children, colSpan = 4, rowSpan = 1 }: BentoItemProps) {
+  return (
+    <div
+      style={{
+        gridColumn: `span ${colSpan}`,
+        gridRow: `span ${rowSpan}`,
+        minWidth: 0,
+      }}
+      className="bento-item"
+    >
+      {children}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════
+// HermesFloatingAgent — 全域懸浮 AI 助手 (生物級 C-ORG)
+// 對齊 wiki/wiki/萬能元件.md C-ORG
+// 語音 + 視覺掃描 + 5T 狀態指示
+// ═══════════════════════════════════════════════════════════════
+
+export interface HermesFloatingAgentProps {
+  agentName?: string;
+  status?: 'online' | 'busy' | 'offline';
+  onActivate?: () => void;
+  position?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+}
+
+export function HermesFloatingAgent({
+  agentName = 'OmniAgent',
+  status = 'online',
+  onActivate,
+  position = 'bottom-right',
+}: HermesFloatingAgentProps) {
+  const posStyle: React.CSSProperties =
+    position === 'bottom-right'
+      ? { bottom: 24, right: 24 }
+      : position === 'bottom-left'
+      ? { bottom: 24, left: 24 }
+      : position === 'top-right'
+      ? { top: 24, right: 24 }
+      : { top: 24, left: 24 };
+
+  const statusColor =
+    status === 'online' ? '#10B981' : status === 'busy' ? '#F59E0B' : '#64748B';
+
+  return (
+    <button
+      onClick={onActivate}
+      aria-label={`啟動 ${agentName}`}
+      className="hermes-floating-agent"
+      style={{
+        position: 'fixed',
+        ...posStyle,
+        width: 56,
+        height: 56,
+        borderRadius: '50%',
+        background: 'linear-gradient(135deg, #009EB0 0%, #003262 100%)',
+        border: 'none',
+        boxShadow: '0 4px 16px rgba(0,158,176,0.3)',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        transition: 'transform 0.2s, box-shadow 0.2s',
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.transform = 'scale(1.1)';
+        e.currentTarget.style.boxShadow = '0 6px 24px rgba(0,158,176,0.4)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.transform = 'scale(1)';
+        e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,158,176,0.3)';
+      }}
+    >
+      {/* Agent Icon */}
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+      </svg>
+
+      {/* Status Dot */}
+      <span
+        style={{
+          position: 'absolute',
+          top: 4,
+          right: 4,
+          width: 12,
+          height: 12,
+          borderRadius: '50%',
+          background: statusColor,
+          border: '2px solid #FFF',
+        }}
+      />
+
+      {/* Tooltip */}
+      <span
+        className="hermes-tooltip"
+        style={{
+          position: 'absolute',
+          bottom: 'calc(100% + 8px)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          background: '#1E293B',
+          color: '#FFF',
+          padding: '6px 12px',
+          borderRadius: '6px',
+          fontSize: '12px',
+          whiteSpace: 'nowrap',
+          opacity: 0,
+          pointerEvents: 'none',
+          transition: 'opacity 0.2s',
+        }}
+      >
+        {agentName} {status === 'online' ? '在線上' : status === 'busy' ? '忙碌中' : '離線'}
+      </span>
+
+      <style>{`
+        .hermes-floating-agent:hover .hermes-tooltip { opacity: 1; }
+        @media (max-width: 768px) {
+          .hermes-floating-agent { width: 48px !important; height: 48px !important; }
+        }
+      `}</style>
+    </button>
   );
 }
 

@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8" />
+  <title>OmniTag × Trust Label — 12-Slide Deck</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --deep-blue: #10243f;
+      --warm-gold: #c9a24b;
+      --cream:    #f3ede1;
+      --green:    #3c6e47;
+      --ink:      #1a1a1a;
+      --muted:    #6b7480;
+      --line:     #2a4060;
+      --warn:     #c93838;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--deep-blue); color: var(--cream);
+      font-family: 'Inter', 'Noto Sans TC', -apple-system, sans-serif; }
+    body { padding: 48px 0; }
+    header.top { max-width: 1080px; margin: 0 auto 48px; padding: 0 32px;
+      display: flex; align-items: baseline; gap: 20px; }
+    header.top .brand { color: var(--warm-gold); font-size: 12px;
+      letter-spacing: 0.3em; text-transform: uppercase; font-weight: 600; }
+    header.top .meta { color: rgba(243,237,225,0.55); font-size: 12px; }
+    .deck { max-width: 1080px; margin: 0 auto; padding: 0 32px;
+      display: grid; gap: 64px; }
+    .slide { background: linear-gradient(180deg, #0c1a2e 0%, #10243f 100%);
+      border: 1px solid var(--line); border-radius: 8px;
+      aspect-ratio: 16 / 9; padding: 56px 64px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+      position: relative; overflow: hidden; page-break-after: always; }
+    .slide::before { content: ''; position: absolute; top: 0; left: 0;
+      width: 4px; height: 100%; background: var(--warm-gold); }
+    .slide .num { position: absolute; top: 24px; right: 32px;
+      color: var(--warm-gold); font-size: 14px; font-weight: 600;
+      letter-spacing: 0.15em; }
+    .slide h1 { font-size: 44px; font-weight: 700; line-height: 1.2;
+      margin-bottom: 24px; color: var(--cream); }
+    .slide h2 { font-size: 28px; font-weight: 600; color: var(--warm-gold);
+      margin-bottom: 16px; }
+    .slide h3 { font-size: 18px; font-weight: 600; color: var(--cream);
+      margin: 16px 0 8px; }
+    .slide p, .slide li { font-size: 17px; line-height: 1.7;
+      color: rgba(243,237,225,0.85); }
+    .slide ul { padding-left: 24px; margin-top: 12px; }
+    .slide .accent { color: var(--warm-gold); }
+    .slide table { width: 100%; border-collapse: collapse; margin-top: 16px;
+      font-size: 15px; }
+    .slide th { text-align: left; color: var(--warm-gold);
+      border-bottom: 1px solid var(--line); padding: 12px 8px;
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+    .slide td { padding: 10px 8px; border-bottom: 1px solid rgba(243,237,225,0.08);
+      color: rgba(243,237,225,0.85); }
+    .slide pre { background: rgba(0,0,0,0.4); border: 1px solid var(--line);
+      border-radius: 4px; padding: 16px; margin-top: 16px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 14px; line-height: 1.6; color: var(--cream);
+      overflow-x: auto; }
+    .slide pre .kw { color: var(--warm-gold); }
+    .slide pre .str { color: #8fbf88; }
+    .slide pre .com { color: var(--muted); font-style: italic; }
+    .pill { display: inline-block; padding: 4px 12px;
+      background: rgba(201,162,75,0.15); color: var(--warm-gold);
+      border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-right: 8px; }
+    .star { color: var(--warm-gold); font-weight: 700; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 16px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .card { background: rgba(243,237,225,0.04); border: 1px solid var(--line);
+      border-radius: 4px; padding: 16px; }
+    .card h3 { font-size: 15px; color: var(--warm-gold); margin-bottom: 8px; }
+    .card p, .card li { font-size: 14px; line-height: 1.6; }
+    .footer { max-width: 1080px; margin: 64px auto 0; padding: 0 32px;
+      color: rgba(243,237,225,0.4); font-size: 12px;
+      display: flex; justify-content: space-between;
+      border-top: 1px solid var(--line); padding-top: 32px; }
+    @media print { body { background: white; color: black; }
+      .slide { page-break-after: always; box-shadow: none; }
+    }
+    @media (max-width: 720px) {
+      .slide { padding: 32px 24px; }
+      .slide h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+<header class="top">
+  <span class="brand">OA-TEAM 30 · ESGGO · soul.md §20.7</span>
+  <span class="meta">萬能標籤 × 信任標別 v1.0 · 706 passed / 0 failed</span>
+</header>
+<div class="deck">
+
+  <!-- Slide 01 — Cover -->
+  <section class="slide">
+    <span class="num">01 / 12</span>
+    <h1>萬能標籤 × 信任標別</h1>
+    <h2>從 OmniTag 到 Trust Label — 30 蜂群的可驗證信任層</h2>
+    <p style="margin-top:32px">版本 v1.0 · 日期 2026-09-04 · 提案 萬能蜂后 &amp; OA-Team 30</p>
+    <p style="margin-top:48px; color: var(--warm-gold)">
+      「30 個靈魂一個心，信任標別刻印 §20.7。」
+    </p>
+    <div style="position:absolute; bottom:56px; right:64px; color: var(--muted); font-size:12px">
+      ESGGO · 5T · Traceable · Trackable · Tangible · Transparent · Trustworthy
+    </div>
+  </section>
+
+  <!-- Slide 02 — Problem -->
+  <section class="slide">
+    <span class="num">02 / 12</span>
+    <h1>現狀的三大缺口</h1>
+    <ul>
+      <li>OmniTag 雖有 lifecycle，但<strong>無法量化信任強度</strong></li>
+      <li>各 agent 呼叫缺乏<strong>統一閘控</strong>，錯誤只能事後追溯</li>
+      <li>凍結鎖的語義模糊：H4 雙鎖與單鎖混用，造成契約不可預期</li>
+    </ul>
+    <div class="grid3" style="margin-top:48px">
+      <div class="card">
+        <h3>缺口一 · 無分數</h3>
+        <p>trustLevel 為純字串，無法做數值閘控</p>
+      </div>
+      <div class="card">
+        <h3>缺口二 · 無閘控</h3>
+        <p>各端點都得自行判斷，無統一門檻</p>
+      </div>
+      <div class="card">
+        <h3>缺口三 · 無契約</h3>
+        <p>enforceFrozenLock 雙介面引發測試漂移</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 03 — Solution Overview -->
+  <section class="slide">
+    <span class="num">03 / 12</span>
+    <h1>§20.7 信任標別系統</h1>
+    <h2>五等級 × 三函數 × 二契約</h2>
+    <div class="grid2" style="margin-top:32px">
+      <div class="card">
+        <h3>五等級 × 分數</h3>
+        <p>low / medium / high / critical / authenticated</p>
+      </div>
+      <div class="card">
+        <h3>三個內建函數</h3>
+        <p><code>esggo.trustScore</code> · <code>esggo.trustGate</code> · <code>esggo.trustLabel</code></p>
+      </div>
+      <div class="card">
+        <h3>兩個契約</h3>
+        <p><code>validateTrustLevel</code> · <code>enforceFrozenLock</code>（雙介面）</p>
+      </div>
+      <div class="card">
+        <h3>一個工廠</h3>
+        <p><code>createTrustTag</code> + <code>updateLifecycle</code> + <code>Object.freeze</code></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 04 — 5 Levels -->
+  <section class="slide">
+    <span class="num">04 / 12</span>
+    <h1>五個信任等級</h1>
+    <table>
+      <thead>
+        <tr><th>Level</th><th>Score</th><th>Label Set</th><th>典型用途</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>low</td><td>0.70</td><td><code>hash-lock</code></td><td>內部日誌</td></tr>
+        <tr><td>medium</td><td>0.85</td><td><code>third-party-audit</code></td><td>CI 流水線</td></tr>
+        <tr><td><span class="star">high</span> <span class="pill">★ 預設閘值</span></td><td><strong>0.95</strong></td><td><code>full-5t-pass</code>, <code>hash-lock</code></td><td>所有生產部署</td></tr>
+        <tr><td>critical</td><td>1.00</td><td><code>h4-frozen</code>, <code>object-freeze</code></td><td>金融、憑證</td></tr>
+        <tr><td>authenticated</td><td>0.90</td><td><code>hmac</code>, <code>oauth</code></td><td>OAuth / HMAC 驗證</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:24px"><span class="accent">透明原則</span>：未知等級一律回傳 <code>0</code>，不留 fallback</p>
+  </section>
+
+  <!-- Slide 05 — 3 built-ins -->
+  <section class="slide">
+    <span class="num">05 / 12</span>
+    <h1>三個內建函數</h1>
+    <pre><span class="kw">import</span> { esggo } <span class="kw">from</span> <span class="str">'@/lib/omni-core/omni-function'</span>;
+
+<span class="com">// 1. 查分數</span>
+esggo.trustScore(<span class="str">'high'</span>);         <span class="com">// → 0.95</span>
+esggo.trustScore(<span class="str">'critical'</span>);     <span class="com">// → 1.00</span>
+esggo.trustScore(<span class="str">'unknown'</span>);      <span class="com">// → 0</span>
+
+<span class="com">// 2. 閘控</span>
+esggo.trustGate(<span class="str">'low'</span>);           <span class="com">// → { passed:false, threshold:0.95, ... }</span>
+esggo.trustGate(<span class="str">'high'</span>);          <span class="com">// → { passed:true,  threshold:0.95, ... }</span>
+
+<span class="com">// 3. 加標</span>
+esggo.trustLabel(tag, <span class="str">'critical'</span>);
+<span class="com">//    → 自動補上 trustLevel + trustScore + hashLock + labels</span></pre>
+    <p style="margin-top:24px"><span class="accent">守衛</span>：所有內建函數以 <code>if (!omniFn.has(...))</code> 防重複註冊</p>
+  </section>
+
+  <!-- Slide 06 — Frozen Lock Dual Interface -->
+  <section class="slide">
+    <span class="num">06 / 12</span>
+    <h1>凍結鎖 · 雙介面</h1>
+    <div class="grid2">
+      <div class="card">
+        <h3>H4 雙鎖（舊契約）</h3>
+        <p>永久不可變的金絲雀</p>
+        <pre><span class="kw">enforceFrozenLock</span>(sealed, <span class="kw">true</span>);
+<span class="com">// → ContractCheck</span>
+<span class="com">// 條件：lifecycle:sealed + security:restricted</span></pre>
+      </div>
+      <div class="card">
+        <h3>§20.7 單鎖（新契約）</h3>
+        <p>流程結束即凍結</p>
+        <pre><span class="kw">enforceFrozenLock</span>(frozen, nextPatch);
+<span class="com">// → { blocked, violations }</span>
+<span class="com">// 條件：lifecycle:frozen</span></pre>
+      </div>
+    </div>
+    <p style="margin-top:32px"><span class="accent">共存設計</span>：向後相容 + 新業務可選。守衛為 <code>typeof second === 'boolean'</code></p>
+  </section>
+
+  <!-- Slide 07 — 5T Mapping -->
+  <section class="slide">
+    <span class="num">07 / 12</span>
+    <h1>5T 治理對齊</h1>
+    <table>
+      <thead><tr><th>原則</th><th>實作點</th></tr></thead>
+      <tbody>
+        <tr><td><strong>T</strong>raceable</td><td><code>createHash('sha256')</code> 產 hashLock，跨語言位元級一致</td></tr>
+        <tr><td><strong>T</strong>rackable</td><td><code>lifecycle</code> ↔ <code>trustLevel</code> 雙向聯動</td></tr>
+        <tr><td><strong>T</strong>angible</td><td>UI 徽章 <code>score × 100%</code>，金/銀/銅三級</td></tr>
+        <tr><td><strong>T</strong>ransparent</td><td>未知等級回 0；threshold 公開可讀</td></tr>
+        <tr><td><strong>T</strong>rustworthy</td><td><code>Object.freeze</code> + 雙介面阻擋所有變更</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Slide 08 — Scenarios -->
+  <section class="slide">
+    <span class="num">08 / 12</span>
+    <h1>使用場景（精選 5 / 12）</h1>
+    <ol style="padding-left:24px">
+      <li style="margin-bottom:12px"><strong>CI/CD 部署門控</strong> — 部署前 <code>esggo.trustGate('high')</code></li>
+      <li style="margin-bottom:12px"><strong>Webhook 簽章驗證</strong> — HMAC 通過 → <code>authenticated</code> + <code>frozen</code></li>
+      <li style="margin-bottom:12px"><strong>批次稽核</strong> — <code>auditContractRate(tags)</code> 必須 = 100%</li>
+      <li style="margin-bottom:12px"><strong>H4 vs §20.7</strong> — 永久憑證選 H4，流程凍結選 §20.7</li>
+      <li style="margin-bottom:12px"><strong>錯誤恢復</strong> — <code>enforceFrozenLock</code> 被阻擋時，建新標籤取代舊標籤</li>
+    </ol>
+    <p style="margin-top:24px"><span class="accent">完整 12 式</span>：見說明書 §8</p>
+  </section>
+
+  <!-- Slide 09 — Integration Cases -->
+  <section class="slide">
+    <span class="num">09 / 12</span>
+    <h1>集成案例（精選 3）</h1>
+    <div class="grid3">
+      <div class="card">
+        <h3>A · Cloudflare Worker</h3>
+        <pre><span class="kw">const</span> gate = esggo.trustGate(level);
+<span class="kw">if</span> (!gate.passed)
+  <span class="kw">return new</span> Response(<span class="str">'Forbidden'</span>, { status: <span class="str">403</span> });</pre>
+      </div>
+      <div class="card">
+        <h3>B · Next.js API</h3>
+        <pre><span class="com">// POST /api/trust/check</span>
+<span class="kw">export async function</span> POST(req) {
+  <span class="kw">const</span> { level } = <span class="kw">await</span> req.json();
+  <span class="kw">return</span> Response.json({
+    score: esggo.trustScore(level),
+    gate:  esggo.trustGate(level),
+  });
+}</pre>
+      </div>
+      <div class="card">
+        <h3>C · Python 對齊</h3>
+        <pre>TRUST_LEVEL_SCORE = {
+  <span class="str">'low'</span>: <span class="str">0.7</span>, <span class="str">'medium'</span>: <span class="str">0.85</span>,
+  <span class="str">'high'</span>: <span class="str">0.95</span>, <span class="str">'critical'</span>: <span class="str">1.0</span>,
+  <span class="str">'authenticated'</span>: <span class="str">0.9</span>
+}
+<span class="kw">def</span> trust_score(lvl):
+  <span class="kw">return</span> TRUST_LEVEL_SCORE.get(lvl, <span class="str">0.0</span>)</pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 10 — Test Baseline -->
+  <section class="slide">
+    <span class="num">10 / 12</span>
+    <h1>驗收基線</h1>
+    <table>
+      <thead><tr><th>測試檔</th><th>結果</th></tr></thead>
+      <tbody>
+        <tr><td><code>trust-label.test.ts</code></td><td><span class="accent">15 / 15</span> ✅</td></tr>
+        <tr><td><code>omnitag-contract.test.ts</code></td><td><span class="accent">10 / 10</span> ✅</td></tr>
+        <tr><td><code>five-t-omnitag-gate.test.ts</code></td><td><span class="accent">13 / 13</span> ✅</td></tr>
+        <tr><td><strong>全域 vitest</strong></td><td><strong><span class="accent">706 / 0 / 21</span></strong> ✅</td></tr>
+      </tbody>
+    </table>
+    <div class="grid2" style="margin-top:32px">
+      <div class="card">
+        <h3>新增章節</h3>
+        <p>soul.md §20.7（45 行）</p>
+      </div>
+      <div class="card">
+        <h3>新增檔案</h3>
+        <p>docs/OMNITAG-TRUSTLABEL-USER-MANUAL.md（578 行）</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Slide 11 — Roadmap -->
+  <section class="slide">
+    <span class="num">11 / 12</span>
+    <h1>部署時程</h1>
+    <table>
+      <thead><tr><th>階段</th><th>項目</th><th>預計</th><th>狀態</th></tr></thead>
+      <tbody>
+        <tr><td>P0</td><td>說明書 + cheatsheet + README</td><td>—</td><td><span class="accent">完成</span></td></tr>
+        <tr><td>P1</td><td>n8n 排程串接信任閘控</td><td>1 週</td><td>—</td></tr>
+        <tr><td>P1</td><td>Hermes WebUI 信任徽章</td><td>1 週</td><td>—</td></tr>
+        <tr><td>P2</td><td>Cloudflare Worker 公開 endpoint</td><td>2 週</td><td>—</td></tr>
+        <tr><td>P2</td><td>跨語言 hash-lock 自動驗證</td><td>2 週</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Slide 12 — Closing -->
+  <section class="slide">
+    <span class="num">12 / 12</span>
+    <h1>30 個靈魂一個心，<br>信任標別刻印 §20.7。</h1>
+    <div style="margin-top:48px">
+      <p class="accent" style="font-size:24px">Q &amp; A</p>
+    </div>
+    <div style="position:absolute; bottom:56px; left:64px; right:64px;
+                display:flex; justify-content:space-between; color:var(--muted); font-size:12px">
+      <span>測試全綠 → 可立即推上生產</span>
+      <span>雙介面設計 → 向後相容零風險</span>
+      <span>5T 閉環 → 全程可追溯</span>
+    </div>
+  </section>
+
+</div>
+
+<div class="footer">
+  <span>Doc: docs/OMNITAG-TRUSTLABEL-DECK.html · source: docs/OMNITAG-TRUSTLABEL-PROPOSAL-DECK.md</span>
+  <span>v1.0 · 2026-09-04 · 5T Governance</span>
+</div>
+
+</body>
+</html>
