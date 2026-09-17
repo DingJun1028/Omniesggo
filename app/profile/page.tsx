@@ -345,6 +345,8 @@ function GrowthPath() {
 // ============================================================
 // Main Page
 // ============================================================
+const PROFILE_TABS = ['overview', 'tasks', 'achievements'] as const;
+
 export default function UserGrowthPage() {
   const [profile, setProfile] = useState<TierProfile | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -402,7 +404,7 @@ export default function UserGrowthPage() {
 
         {/* Tabs */}
         <nav style={{ display: 'flex', gap: 0, marginBottom: 24 }}>
-          {(['overview', 'tasks', 'achievements'] as const).map(t => (
+          {PROFILE_TABS.map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}

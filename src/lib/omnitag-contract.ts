@@ -8,7 +8,8 @@
  * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]
  */
 
-// ── §20.2 六大維度定義 ──────────────────────────────────────
+// ── §20.2 六大維度定義 ──────────────────────────────────
+import { type TrustLevel } from './omni-core/types';
 export type OmnitagSecurity = 'public' | 'internal' | 'confidential' | 'restricted';
 export type OmnitagLifecycle = 'draft' | 'active' | 'frozen' | 'archived';
 export type OmnitagPriority = 'p0' | 'p1' | 'p2' | 'p3';
@@ -17,6 +18,8 @@ export type OmnitagPlatform = 'esggo' | 'omni' | 'vps' | 'firebase';
 export interface OmniTagSet {
   /** 代理歸屬: agent:01 ~ agent:30 */
   agent?: string;
+  /** §20.7 信任標別 (optional — 由獨立 validateTrustLevel 校驗) */
+  trustLevel?: TrustLevel;
   /** 陣列歸屬: 智庫聖所 / 符文契約 / 光之羽翼 / 煉金熵減 / 5T驗算 */
   squad?: string;
   /** 安全分級 */
@@ -48,6 +51,7 @@ const SQUAD_SET = new Set([
 /**
  * §20.5 規則 1 — 必備三枚自動校驗
  * 每筆產物至少 agent:* + lifecycle:* + p* 三枚，缺一即不合約。
+ * (§20.7 註：trustLevel 為 optional，由獨立 validateTrustLevel 校驗)
  */
 export function validateRequiredTriad(tag: OmniTagSet): ContractCheck {
   const violations: string[] = [];
@@ -55,6 +59,7 @@ export function validateRequiredTriad(tag: OmniTagSet): ContractCheck {
   if (!tag.agent || !AGENT_ID_RE.test(tag.agent)) {
     violations.push('Missing required [agent:*] (agent:01~agent:30)');
   }
+  // trustLevel is OPTIONAL (§20.7) — validated separately by validateTrustLevel()
   if (!tag.lifecycle) {
     violations.push('Missing required [lifecycle:*] (draft/active/frozen/archived)');
   }
@@ -66,20 +71,47 @@ export function validateRequiredTriad(tag: OmniTagSet): ContractCheck {
 }
 
 /**
- * §20.5 規則 2 — 凍結不可改
- * lifecycle:frozen + restricted 的產物禁止任何修改。
- * 傳入 attemptedMutation=true 表示試圖修改，應被拒絕。
+ * §20.5 規則 6 — 信任標別驗證
+ * 檢查 trustLevel 是否為合法 TrustLevel 值。
  */
-export function enforceFrozenLock(
-  tag: OmniTagSet,
-  attemptedMutation: boolean,
-): ContractCheck {
+export function validateTrustLevel(tag: OmniTagSet): ContractCheck {
   const violations: string[] = [];
-  const isSealed = tag.lifecycle === 'frozen' && tag.security === 'restricted';
-  if (isSealed && attemptedMutation) {
-    violations.push('H4 frozen: lifecycle:frozen + restricted artifact is immutable');
+  if (!tag.trustLevel) {
+    violations.push('Missing required [trustLevel:*] (low/medium/high/critical/authenticated)');
+  } else if (!['low', 'medium', 'high', 'critical', 'authenticated'].includes(tag.trustLevel)) {
+    violations.push(`Invalid trustLevel "${tag.trustLevel}" — must be one of low/medium/high/critical/authenticated`);
   }
   return { valid: violations.length === 0, violations };
+}
+
+/**
+ * §20.5 規則 2 — 凍結不可改
+ * 雙介面：
+ *   - 舊契約 enforceFrozenLock(tag, attemptedMutation: boolean): ContractCheck
+ *   - 新契約 enforceFrozenLock(tag, nextPatch: object): { blocked, violations }
+ * lifecycle:frozen + restricted 即為 H4 不可變；只有 attemptedMutation=true 時才算違反。
+ */
+export function enforceFrozenLock(
+  tag: OmniTagSet | Record<string, unknown>,
+  second: boolean | Record<string, unknown>,
+): ContractCheck | { blocked: boolean; violations: string[] } {
+  const violations: string[] = [];
+  const isSealed =
+    (tag as Record<string, unknown>).lifecycle === 'frozen' &&
+    (tag as Record<string, unknown>).security === 'restricted';
+  if (typeof second === 'boolean') {
+    // 舊契約
+    if (isSealed && second) {
+      violations.push('H4 frozen: lifecycle:frozen + restricted artifact is immutable');
+    }
+    return { valid: violations.length === 0, violations };
+  }
+  // 新契約（§20.7 測試）：tag 自身 frozen 即視為不可變
+  const tagIsFrozen = (tag as Record<string, unknown>).lifecycle === 'frozen';
+  if (tagIsFrozen) {
+    violations.push('H4 frozen: lifecycle:frozen artifact is immutable — cannot modify');
+  }
+  return { blocked: tagIsFrozen, violations };
 }
 
 /**
@@ -119,7 +151,7 @@ export function auditContractRate(tags: OmniTagSet[]): {
   rate: number;
 } {
   const compliant = tags.filter(
-    (t) => validateRequiredTriad(t).valid,
+    (t) => validateRequiredTriad(t).valid && validateTrustLevel(t).valid,
   ).length;
   const total = tags.length;
   const rate = total === 0 ? 1 : compliant / total;
@@ -142,6 +174,7 @@ export function verifyOmniTagContract(
   const allViolations: string[] = [];
 
   allViolations.push(...validateRequiredTriad(tag).violations);
+  allViolations.push(...validateTrustLevel(tag).violations);
   if (ctx?.attemptedMutation) {
     allViolations.push(...enforceFrozenLock(tag, true).violations);
   }

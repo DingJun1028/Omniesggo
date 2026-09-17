@@ -1,0 +1,16 @@
+# AI Station — 7-modul production line
+# Aligned with soul.md §9.5 Docker 部署
+
+# Free default: no cloud dependencies required
+# Cloud option: set CLOUD_ENHANCE=true and provide API keys
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+pillow>=10.4.0
+pydantic>=2.7.0
+pyyaml>=6.0.1
+pytest>=8.0.0
+
+# Optional cloud enhancements (only needed if cloud_enhance=True)
+# edge-tts>=0.1.0
+# boto3>=1.34.0  # for S3 storage
+# requests>=2.32.0  # for ElevenLabs API

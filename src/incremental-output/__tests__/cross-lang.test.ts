@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { generateHashLock } from '../index';
+import { createHash } from 'node:crypto';
 
 /**
  * §18 跨語言同構測試: TypeScript generateHashLock 必須與 Python
@@ -35,8 +36,7 @@ describe('§18 cross-language Hash Lock isomorphism (TS <-> Python)', () => {
   });
 
   it('matches the literal §18 algorithm sha256(source|content|ts)', () => {
-    const { createHash } = require('node:crypto');
-    for (const v of vectors) {
+        for (const v of vectors) {
       const payload = `${v.source}|${v.content}|${v.timestamp}`;
       const expected = createHash('sha256').update(payload, 'utf-8').digest('hex');
       expect(generateHashLock(v.source, v.content, v.timestamp)).toBe(expected);

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FTG Journey App — 系統架構圖</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'JetBrains Mono', monospace; background: #020617; min-height: 100vh; padding: 2rem; color: white; }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .header { margin-bottom: 2rem; }
+    .header-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 0.5rem; }
+    .pulse-dot { width: 12px; height: 12px; background: #22d3ee; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -0.025em; }
+    .subtitle { color: #94a3b8; font-size: 0.875rem; margin-left: 1.75rem; }
+    .diagram-container { background: rgba(15, 23, 42, 0.5); border-radius: 1rem; border: 1px solid #1e293b; padding: 1.5rem; overflow-x: auto; }
+    svg { width: 100%; min-width: 1200px; display: block; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+    .card { background: rgba(15, 23, 42, 0.5); border-radius: 0.75rem; border: 1px solid #1e293b; padding: 1.25rem; }
+    .card-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .card-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .card-dot.cyan { background: #22d3ee; }
+    .card-dot.emerald { background: #34d399; }
+    .card-dot.violet { background: #a78bfa; }
+    .card-dot.amber { background: #fbbf24; }
+    .card-dot.rose { background: #fb7185; }
+    .card h3 { font-size: 0.875rem; font-weight: 600; }
+    .card ul { list-style: none; color: #94a3b8; font-size: 0.75rem; }
+    .card li { margin-bottom: 0.375rem; }
+    .footer { text-align: center; margin-top: 1.5rem; color: #475569; font-size: 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-row">
+        <div class="pulse-dot"></div>
+        <h1>FTG Journey App — 系統架構圖</h1>
+      </div>
+      <p class="subtitle">六流終始矩陣 × MECE 工具組 × RBAC 角色權限</p>
+    </div>
+
+    <div class="diagram-container">
+      <svg viewBox="0 0 1400 900">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <marker id="arrowhead-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#22d3ee" />
+          </marker>
+          <marker id="arrowhead-emerald" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#34d399" />
+          </marker>
+          <marker id="arrowhead-amber" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#fbbf24" />
+          </marker>
+          <marker id="arrowhead-violet" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#a78bfa" />
+          </marker>
+          <marker id="arrowhead-rose" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185" />
+          </marker>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+
+        <rect width="100%" height="100%" fill="url(#grid)" />
+
+        <!-- =============================================
+             USER LAYER
+        ============================================= -->
+        <rect x="20" y="20" width="1360" height="80" rx="12" fill="rgba(8, 51, 68, 0.2)" stroke="#22d3ee" stroke-width="1" stroke-dasharray="4,4"/>
+        <text x="40" y="40" fill="#22d3ee" font-size="10" font-weight="600">👤 User Layer（角色權限 RBAC）</text>
+        
+        <rect x="40" y="50" width="120" height="35" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="100" y="68" fill="white" font-size="9" font-weight="600" text-anchor="middle">👑 Admin</text>
+        <text x="100" y="80" fill="#94a3b8" font-size="7" text-anchor="middle">全部權限</text>
+
+        <rect x="180" y="50" width="120" height="35" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="240" y="68" fill="white" font-size="9" font-weight="600" text-anchor="middle">🧑‍💼 Staff</text>
+        <text x="240" y="80" fill="#94a3b8" font-size="7" text-anchor="middle">建立/管理旅程</text>
+
+        <rect x="320" y="50" width="120" height="35" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="380" y="68" fill="white" font-size="9" font-weight="600" text-anchor="middle">👤 Member</text>
+        <text x="380" y="80" fill="#94a3b8" font-size="7" text-anchor="middle">參與自身旅程</text>
+
+        <rect x="460" y="50" width="120" height="35" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="520" y="68" fill="white" font-size="9" font-weight="600" text-anchor="middle">👀 Guest</text>
+        <text x="520" y="80" fill="#94a3b8" font-size="7" text-anchor="middle">僅瀏覽公開</text>
+
+        <!-- =============================================
+             FRONTEND LAYER
+        ============================================= -->
+        <rect x="20" y="120" width="900" height="280" rx="12" fill="rgba(8, 51, 68, 0.15)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="40" y="140" fill="#22d3ee" font-size="11" font-weight="600">🖥️ Frontend（React 19 + Vite 8 + Tailwind 3 + framer-motion）</text>
+
+        <!-- Dashboard -->
+        <rect x="40" y="155" width="140" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="110" y="175" fill="white" font-size="9" font-weight="600" text-anchor="middle">📊 Dashboard</text>
+        <text x="110" y="190" fill="#94a3b8" font-size="7" text-anchor="middle">六流篩選</text>
+        <text x="110" y="202" fill="#94a3b8" font-size="7" text-anchor="middle">旅程列表</text>
+        <text x="110" y="214" fill="#94a3b8" font-size="7" text-anchor="middle">快速建立</text>
+
+        <!-- Journey Detail -->
+        <rect x="200" y="155" width="200" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
+        <text x="300" y="175" fill="white" font-size="9" font-weight="600" text-anchor="middle">🗺️ JourneyDetail</text>
+        <text x="300" y="190" fill="#94a3b8" font-size="7" text-anchor="middle">安全/準備/ESG/行程</text>
+        <text x="300" y="202" fill="#94a3b8" font-size="7" text-anchor="middle">筆記/簽到/摘要/勳章</text>
+        <text x="300" y="214" fill="#22d3ee" font-size="7" text-anchor="middle">工具組分頁</text>
+
+        <!-- Six Flows -->
+        <rect x="420" y="155" width="100" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="470" y="172" fill="white" font-size="8" font-weight="600" text-anchor="middle">🌱 ESG</text>
+        <text x="470" y="184" fill="#94a3b8" font-size="7" text-anchor="middle">覺曉流</text>
+        <text x="470" y="196" fill="#94a3b8" font-size="7" text-anchor="middle">6類任務</text>
+        <text x="470" y="208" fill="#94a3b8" font-size="7" text-anchor="middle">自動→Impact</text>
+
+        <rect x="530" y="155" width="100" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="580" y="172" fill="white" font-size="8" font-weight="600" text-anchor="middle">🤝 共識營</text>
+        <text x="580" y="184" fill="#94a3b8" font-size="7" text-anchor="middle">凝聚流</text>
+        <text x="580" y="196" fill="#94a3b8" font-size="7" text-anchor="middle">Opportunity Map</text>
+        <text x="580" y="208" fill="#94a3b8" font-size="7" text-anchor="middle">Roadmap/共識</text>
+
+        <rect x="640" y="155" width="100" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="690" y="172" fill="white" font-size="8" font-weight="600" text-anchor="middle">🧘 身心平衡</text>
+        <text x="690" y="184" fill="#94a3b8" font-size="7" text-anchor="middle">復元流</text>
+        <text x="690" y="196" fill="#94a3b8" font-size="7" text-anchor="middle">需求診斷</text>
+        <text x="690" y="208" fill="#94a3b8" font-size="7" text-anchor="middle">30-day follow-up</text>
+
+        <rect x="750" y="155" width="100" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="800" y="172" fill="white" font-size="8" font-weight="600" text-anchor="middle">👨‍👩‍👧 家庭日</text>
+        <text x="800" y="184" fill="#94a3b8" font-size="7" text-anchor="middle">共好流</text>
+        <text x="800" y="196" fill="#94a3b8" font-size="7" text-anchor="middle">親子任務卡</text>
+        <text x="800" y="208" fill="#94a3b8" font-size="7" text-anchor="middle">自然觀察記錄</text>
+
+        <!-- Impact Note -->
+        <rect x="40" y="240" width="140" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="110" y="260" fill="white" font-size="9" font-weight="600" text-anchor="middle">📊 Impact Note</text>
+        <text x="110" y="275" fill="#94a3b8" font-size="7" text-anchor="middle">留念流</text>
+        <text x="110" y="287" fill="#94a3b8" font-size="7" text-anchor="middle">Canvas 圖表</text>
+        <text x="110" y="299" fill="#94a3b8" font-size="7" text-anchor="middle">SDGs/GRI/PPT</text>
+
+        <!-- Tools Section -->
+        <rect x="200" y="240" width="200" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="300" y="260" fill="white" font-size="9" font-weight="600" text-anchor="middle">🔧 工具組（MECE）</text>
+        <text x="300" y="275" fill="#94a3b8" font-size="7" text-anchor="middle">A.行前/B.行中/C.人員</text>
+        <text x="300" y="287" fill="#94a3b8" font-size="7" text-anchor="middle">D.物流/E.永續學習</text>
+        <text x="300" y="299" fill="#94a3b8" font-size="7" text-anchor="middle">F.實用工具</text>
+
+        <!-- People Section -->
+        <rect x="420" y="240" width="180" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="510" y="260" fill="white" font-size="9" font-weight="600" text-anchor="middle">👥 人員管理</text>
+        <text x="510" y="275" fill="#94a3b8" font-size="7" text-anchor="middle">專案組/房號/分組器</text>
+        <text x="510" y="287" fill="#94a3b8" font-size="7" text-anchor="middle">意見箱/失物招領</text>
+        <text x="510" y="299" fill="#22d3ee" font-size="7" text-anchor="middle">QR Code 點名</text>
+
+        <!-- Memory Section -->
+        <rect x="620" y="240" width="180" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="710" y="260" fill="white" font-size="9" font-weight="600" text-anchor="middle">📝 記憶模組</text>
+        <text x="710" y="275" fill="#94a3b8" font-size="7" text-anchor="middle">心情/旅遊日誌</text>
+        <text x="710" y="287" fill="#94a3b8" font-size="7" text-anchor="middle">感動瞬間/景點故事</text>
+        <text x="710" y="299" fill="#94a3b8" font-size="7" text-anchor="middle">ESG 知識點</text>
+
+        <!-- Login -->
+        <rect x="820" y="155" width="80" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="860" y="180" fill="white" font-size="8" font-weight="600" text-anchor="middle">🔐 Login</text>
+        <text x="860" y="195" fill="#94a3b8" font-size="7" text-anchor="middle">Google OAuth</text>
+        <text x="860" y="207" fill="#94a3b8" font-size="7" text-anchor="middle">JWT Token</text>
+
+        <!-- Utilities -->
+        <rect x="820" y="240" width="80" height="70" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="860" y="260" fill="white" font-size="8" font-weight="600" text-anchor="middle">🔦 工具</text>
+        <text x="860" y="275" fill="#94a3b8" font-size="7" text-anchor="middle">手電筒/碼表</text>
+        <text x="860" y="287" fill="#94a3b8" font-size="7" text-anchor="middle">計時器/錄音</text>
+        <text x="860" y="299" fill="#94a3b8" font-size="7" text-anchor="middle">鬧鐘/代辦</text>
+
+        <!-- Auth Context -->
+        <rect x="40" y="325" width="860" height="55" rx="6" fill="rgba(136, 19, 55, 0.2)" stroke="#fb7185" stroke-width="1.5"/>
+        <text x="470" y="345" fill="white" font-size="9" font-weight="600" text-anchor="middle">🔒 AuthContext（Google OAuth 2.0 + JWT + Token Refresh + Role Resolution）</text>
+        <text x="470" y="362" fill="#94a3b8" font-size="7" text-anchor="middle">localStorage → /api/me → resolveRole() → ProtectedRoute</text>
+
+        <!-- =============================================
+             BACKEND LAYER
+        ============================================= -->
+        <rect x="20" y="420" width="900" height="280" rx="12" fill="rgba(6, 78, 59, 0.15)" stroke="#34d399" stroke-width="1.5"/>
+        <text x="40" y="440" fill="#34d399" font-size="11" font-weight="600">⚙️ Backend（Node.js + Express + node:sqlite + JWT）</text>
+
+        <!-- API Routes -->
+        <rect x="40" y="455" width="120" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="100" y="475" fill="white" font-size="8" font-weight="600" text-anchor="middle">/api/auth</text>
+        <text x="100" y="490" fill="#94a3b8" font-size="7" text-anchor="middle">google/refresh/me</text>
+
+        <rect x="170" y="455" width="120" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="230" y="475" fill="white" font-size="8" font-weight="600" text-anchor="middle">/api/journeys</text>
+        <text x="230" y="490" fill="#94a3b8" font-size="7" text-anchor="middle">CRUD + members</text>
+
+        <rect x="300" y="455" width="120" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="360" y="475" fill="white" font-size="8" font-weight="600" text-anchor="middle">/api/resources</text>
+        <text x="360" y="490" fill="#94a3b8" font-size="7" text-anchor="middle">prep/schedule/notes</text>
+
+        <rect x="430" y="455" width="120" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="490" y="475" fill="white" font-size="8" font-weight="600" text-anchor="middle">/api/esg</text>
+        <text x="490" y="490" fill="#94a3b8" font-size="7" text-anchor="middle">tasks + badges</text>
+
+        <rect x="560" y="455" width="120" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="620" y="475" fill="white" font-size="8" font-weight="600" text-anchor="middle">/api/tools</text>
+        <text x="620" y="490" fill="#94a3b8" font-size="7" text-anchor="middle">checkin/summary</text>
+
+        <rect x="690" y="455" width="120" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="750" y="475" fill="white" font-size="8" font-weight="600" text-anchor="middle">/api/people</text>
+        <text x="750" y="490" fill="#94a3b8" font-size="7" text-anchor="middle">suggestions/lost</text>
+
+        <rect x="820" y="455" width="80" height="50" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="860" y="475" fill="white" font-size="8" font-weight="600" text-anchor="middle">/api/misc</text>
+        <text x="860" y="490" fill="#94a3b8" font-size="7" text-anchor="middle">upload/location</text>
+
+        <!-- Middleware -->
+        <rect x="40" y="515" width="860" height="40" rx="6" fill="rgba(136, 19, 55, 0.2)" stroke="#fb7185" stroke-width="1"/>
+        <text x="470" y="533" fill="white" font-size="8" font-weight="600" text-anchor="middle">Middleware: cors → rateLimit(120/min) → express.json(10mb) → verifyToken → requireAccess/Owner</text>
+        <text x="470" y="547" fill="#94a3b8" font-size="7" text-anchor="middle">Security: hmac.compare_digest + path traversal guard + JWT expiry/refresh</text>
+
+        <!-- Database Tables -->
+        <rect x="40" y="565" width="860" height="120" rx="6" fill="rgba(76, 29, 149, 0.2)" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="470" y="585" fill="#a78bfa" font-size="9" font-weight="600" text-anchor="middle">🗄️ Database（SQLite — node:sqlite）</text>
+
+        <text x="60" y="605" fill="white" font-size="8">users</text>
+        <text x="60" y="618" fill="#94a3b8" font-size="7">email/name/picture/role</text>
+
+        <text x="170" y="605" fill="white" font-size="8">journeys</text>
+        <text x="170" y="618" fill="#94a3b8" font-size="7">id/owner/title/type/stage</text>
+
+        <text x="300" y="605" fill="white" font-size="8">journeys_members</text>
+        <text x="300" y="618" fill="#94a3b8" font-size="7">journey_id/email/role</text>
+
+        <text x="440" y="605" fill="white" font-size="8">prep_items</text>
+        <text x="440" y="618" fill="#94a3b8" font-size="7">id/journey_id/text/done</text>
+
+        <text x="550" y="605" fill="white" font-size="8">schedule</text>
+        <text x="550" y="618" fill="#94a3b8" font-size="7">id/journey_id/title/date/time</text>
+
+        <text x="660" y="605" fill="white" font-size="8">notes</text>
+        <text x="660" y="618" fill="#94a3b8" font-size="7">id/journey_id/date/mood/text</text>
+
+        <text x="770" y="605" fill="white" font-size="8">impact</text>
+        <text x="770" y="618" fill="#94a3b8" font-size="7">id/journey_id/metric_id/value</text>
+
+        <text x="60" y="645" fill="white" font-size="8">checkins</text>
+        <text x="60" y="658" fill="#94a3b8" font-size="7">id/journey_id/email/gps/time</text>
+
+        <text x="170" y="645" fill="white" font-size="8">esg_task_logs</text>
+        <text x="170" y="658" fill="#94a3b8" font-size="7">id/journey_id/task_id/data</text>
+
+        <text x="300" y="645" fill="white" font-size="8">badges</text>
+        <text x="300" y="658" fill="#94a3b8" font-size="7">id/name/icon/category/threshold</text>
+
+        <text x="440" y="645" fill="white" font-size="8">user_badges</text>
+        <text x="440" y="658" fill="#94a3b8" font-size="7">email/badge_id/earned_at</text>
+
+        <text x="550" y="645" fill="white" font-size="8">executive_tools</text>
+        <text x="550" y="658" fill="#94a3b8" font-size="7">journey_id/tool_type/data</text>
+
+        <text x="660" y="645" fill="white" font-size="8">wellbeing_diagnosis</text>
+        <text x="660" y="658" fill="#94a3b8" font-size="7">journey_id/email/data</text>
+
+        <text x="770" y="645" fill="white" font-size="8">follow_up_entries</text>
+        <text x="770" y="658" fill="#94a3b8" font-size="7">journey_id/email/day/mood/energy</text>
+
+        <text x="60" y="678" fill="#94a3b8" font-size="7">+ family_tasks / observations / photos / suggestions / lost_items / stories / rooms / groups / memos / todos / alarms</text>
+
+        <!-- =============================================
+             EXTERNAL SERVICES
+        ============================================= -->
+        <rect x="940" y="120" width="440" height="280" rx="12" fill="rgba(120, 53, 15, 0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="960" y="140" fill="#fbbf24" font-size="11" font-weight="600">☁️ External Services</text>
+
+        <rect x="960" y="155" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1020" y="177" fill="white" font-size="9" font-weight="600" text-anchor="middle">Google OAuth 2.0</text>
+        <text x="1020" y="192" fill="#94a3b8" font-size="7" text-anchor="middle">accounts.google.com</text>
+
+        <rect x="1100" y="155" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1160" y="177" fill="white" font-size="9" font-weight="600" text-anchor="middle">Google Maps</text>
+        <text x="1160" y="192" fill="#94a3b8" font-size="7" text-anchor="middle">Navigation API</text>
+
+        <rect x="1240" y="155" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1300" y="177" fill="white" font-size="9" font-weight="600" text-anchor="middle">Weather API</text>
+        <text x="1300" y="192" fill="#94a3b8" font-size="7" text-anchor="middle">OpenWeather</text>
+
+        <rect x="960" y="220" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1020" y="242" fill="white" font-size="9" font-weight="600" text-anchor="middle">Cloudflare DNS</text>
+        <text x="1020" y="257" fill="#94a3b8" font-size="7" text-anchor="middle">orange-cloud proxy</text>
+
+        <rect x="1100" y="220" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1160" y="242" fill="white" font-size="9" font-weight="600" text-anchor="middle">Let's Encrypt</text>
+        <text x="1160" y="257" fill="#94a3b8" font-size="7" text-anchor="middle">SSL/TLS HTTPS</text>
+
+        <rect x="1240" y="220" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1300" y="242" fill="white" font-size="9" font-weight="600" text-anchor="middle">GitHub Actions</text>
+        <text x="1300" y="257" fill="#94a3b8" font-size="7" text-anchor="middle">CI/CD deploy-pages</text>
+
+        <rect x="960" y="290" width="400" height="90" rx="6" fill="rgba(120, 53, 15, 0.2)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="1160" y="310" fill="#fbbf24" font-size="9" font-weight="600" text-anchor="middle">Media APIs（瀏覽器內建）</text>
+        <text x="1160" y="328" fill="#94a3b8" font-size="7" text-anchor="middle">getUserMedia（相機/麥克風）· geolocation.watchPosition</text>
+        <text x="1160" y="342" fill="#94a3b8" font-size="7" text-anchor="middle">MediaRecorder（錄音）· Canvas（繪圖）</text>
+        <text x="1160" y="356" fill="#94a3b8" font-size="7" text-anchor="middle">LocalStorage（狀態快取）· Notification API</text>
+        <text x="1160" y="370" fill="#94a3b8" font-size="7" text-anchor="middle">Web Share API · PWA installable</text>
+
+        <!-- =============================================
+             DEPLOYMENT LAYER
+        ============================================= -->
+        <rect x="940" y="420" width="440" height="280" rx="12" fill="rgba(120, 53, 15, 0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="960" y="440" fill="#fbbf24" font-size="11" font-weight="600">🚀 Deployment（VPS 161.118.248.180）</text>
+
+        <rect x="960" y="455" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1020" y="477" fill="white" font-size="9" font-weight="600" text-anchor="middle">Docker Compose</text>
+        <text x="1020" y="492" fill="#94a3b8" font-size="7" text-anchor="middle">backend + nginx</text>
+
+        <rect x="1100" y="455" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1160" y="477" fill="white" font-size="9" font-weight="600" text-anchor="middle">nginx :443</text>
+        <text x="1160" y="492" fill="#94a3b8" font-size="7" text-anchor="middle">SPA + API proxy</text>
+
+        <rect x="1240" y="455" width="120" height="50" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="1300" y="477" fill="white" font-size="9" font-weight="600" text-anchor="middle">systemd</text>
+        <text x="1300" y="492" fill="#94a3b8" font-size="7" text-anchor="middle">auto-restart</text>
+
+        <rect x="960" y="520" width="400" height="60" rx="6" fill="rgba(120, 53, 15, 0.2)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="1160" y="540" fill="white" font-size="8" font-weight="600" text-anchor="middle">Volumes</text>
+        <text x="1160" y="555" fill="#94a3b8" font-size="7" text-anchor="middle">/data → SQLite DB · /uploads → photos</text>
+        <text x="1160" y="570" fill="#94a3b8" font-size="7" text-anchor="middle">Config: .env (GOOGLE_CLIENT_ID, JWT_SECRET, ADMIN_EMAILS)</text>
+
+        <rect x="960" y="590" width="400" height="90" rx="6" fill="rgba(136, 19, 55, 0.15)" stroke="#fb7185" stroke-width="1"/>
+        <text x="1160" y="610" fill="#fb7185" font-size="9" font-weight="600" text-anchor="middle">5T 驗證閘（部署後必跑）</text>
+        <text x="1160" y="628" fill="#94a3b8" font-size="7" text-anchor="middle">Traceable: auth/verify → valid:true</text>
+        <text x="1160" y="642" fill="#94a3b8" font-size="7" text-anchor="middle">Trackable: docker ps → Up Xh (healthy)</text>
+        <text x="1160" y="656" fill="#94a3b8" font-size="7" text-anchor="middle">Tangible: curl → HTTP 200</text>
+        <text x="1160" y="670" fill="#94a3b8" font-size="7" text-anchor="middle">Transparent: HTTPS 200 · Trustworthy: Bearer token → userId</text>
+
+        <!-- =============================================
+             DATA FLOW ARROWS
+        ============================================= -->
+        <line x1="470" y1="100" x2="470" y2="118" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead-cyan)"/>
+        <text x="480" y="112" fill="#94a3b8" font-size="7">HTTPS</text>
+
+        <line x1="470" y1="400" x2="470" y2="418" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead-emerald)"/>
+        <text x="480" y="412" fill="#94a3b8" font-size="7">REST API</text>
+
+        <line x1="920" y1="200" x2="938" y2="200" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowhead-amber)"/>
+        <text x="929" y="195" fill="#94a3b8" font-size="6">OAuth</text>
+
+        <line x1="920" y1="260" x2="938" y2="260" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowhead-amber)"/>
+        <text x="929" y="255" fill="#94a3b8" font-size="6">Maps</text>
+
+        <!-- =============================================
+             LEGEND
+        ============================================= -->
+        <text x="40" y="740" fill="white" font-size="10" font-weight="600">Legend</text>
+        
+        <rect x="40" y="752" width="16" height="10" rx="2" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
+        <text x="62" y="760" fill="#94a3b8" font-size="8">Frontend</text>
+        
+        <rect x="130" y="752" width="16" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
+        <text x="152" y="760" fill="#94a3b8" font-size="8">Backend</text>
+        
+        <rect x="220" y="752" width="16" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
+        <text x="242" y="760" fill="#94a3b8" font-size="8">Database</text>
+        
+        <rect x="310" y="752" width="16" height="10" rx="2" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
+        <text x="332" y="760" fill="#94a3b8" font-size="8">Cloud/External</text>
+        
+        <rect x="440" y="752" width="16" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1"/>
+        <text x="462" y="760" fill="#94a3b8" font-size="8">Security</text>
+
+        <line x1="530" y1="757" x2="546" y2="757" stroke="#fb7185" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="552" y="760" fill="#94a3b8" font-size="8">Auth Flow</text>
+
+        <!-- Six Flows Summary -->
+        <rect x="40" y="780" width="1320" height="100" rx="8" fill="rgba(15, 23, 42, 0.5)" stroke="#1e293b" stroke-width="1"/>
+        <text x="700" y="800" fill="white" font-size="10" font-weight="600" text-anchor="middle">六流終始矩陣（Six Flows End-Beginning Matrix）</text>
+        
+        <text x="120" y="825" fill="#22d3ee" font-size="8" text-anchor="middle">🌍 基礎流</text>
+        <text x="120" y="840" fill="#94a3b8" font-size="7" text-anchor="middle">員工旅遊</text>
+        <text x="120" y="852" fill="#94a3b8" font-size="7" text-anchor="middle">承載一切</text>
+
+        <text x="320" y="825" fill="#34d399" font-size="8" text-anchor="middle">🌱 覺曉流</text>
+        <text x="320" y="840" fill="#94a3b8" font-size="7" text-anchor="middle">ESG 戶外團隊日</text>
+        <text x="320" y="852" fill="#94a3b8" font-size="7" text-anchor="middle">員工親身參與</text>
+
+        <text x="520" y="825" fill="#a78bfa" font-size="8" text-anchor="middle">🤝 凝聚流</text>
+        <text x="520" y="840" fill="#94a3b8" font-size="7" text-anchor="middle">共識營</text>
+        <text x="520" y="852" fill="#94a3b8" font-size="7" text-anchor="middle">組織對齊使命</text>
+
+        <text x="720" y="825" fill="#fbbf24" font-size="8" text-anchor="middle">🧘 復元流</text>
+        <text x="720" y="840" fill="#94a3b8" font-size="7" text-anchor="middle">身心平衡</text>
+        <text x="720" y="852" fill="#94a3b8" font-size="7" text-anchor="middle">工作生活品質</text>
+
+        <text x="920" y="825" fill="#fb7185" font-size="8" text-anchor="middle">👨‍👩‍👧 共好流</text>
+        <text x="920" y="840" fill="#94a3b8" font-size="7" text-anchor="middle">家庭日</text>
+        <text x="920" y="852" fill="#94a3b8" font-size="7" text-anchor="middle">幸福企業延伸</text>
+
+        <text x="1120" y="825" fill="#22d3ee" font-size="8" text-anchor="middle">📊 留念流</text>
+        <text x="1120" y="840" fill="#94a3b8" font-size="7" text-anchor="middle">Impact Note</text>
+        <text x="1120" y="852" fill="#94a3b8" font-size="7" text-anchor="middle">成果品牌素材</text>
+
+        <text x="1300" y="825" fill="white" font-size="8" text-anchor="middle">☯️ 善向永續</text>
+        <text x="1300" y="840" fill="#94a3b8" font-size="7" text-anchor="middle">圓心</text>
+        <text x="1300" y="852" fill="#94a3b8" font-size="7" text-anchor="middle">循環不息</text>
+
+        <text x="700" y="870" fill="#475569" font-size="7" text-anchor="middle">前者的「合」= 後者的「起」· 無始無終 · 始終如一</text>
+      </svg>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>前端技術棧</h3>
+        </div>
+        <ul>
+          <li>• React 19 + React Router 7</li>
+          <li>• Vite 8 + Tailwind CSS 3</li>
+          <li>• framer-motion 11（動畫）</li>
+          <li>• react-hook-form 7 + date-fns 4</li>
+          <li>• 純前端 SPA，狀態經 AuthContext 管理</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot emerald"></div>
+          <h3>後端技術棧</h3>
+        </div>
+        <ul>
+          <li>• Node.js 22 + Express 4</li>
+          <li>• node:sqlite（內建 SQLite）</li>
+          <li>• google-auth-library（OAuth 驗證）</li>
+          <li>• express-rate-limit（120 req/min）</li>
+          <li>• JWT + Token Refresh + Role Resolution</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot amber"></div>
+          <h3>部署架構</h3>
+        </div>
+        <ul>
+          <li>• Docker Compose（backend + nginx）</li>
+          <li>• Oracle VPS（4OCPU/24G ARM）</li>
+          <li>• Cloudflare DNS + orange-cloud proxy</li>
+          <li>• Let's Encrypt SSL/TLS</li>
+          <li>• systemd auto-restart + 5T 驗證</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot violet"></div>
+          <h3>資料庫（17 表）</h3>
+        </div>
+        <ul>
+          <li>• 核心：users, journeys, members</li>
+          <li>• 內容：prep, schedule, notes, impact</li>
+          <li>• ESG：esg_task_logs, badges, user_badges</li>
+          <li>• 工具：checkins, executive_tools, wellbeing</li>
+          <li>• 人員：suggestions, lost_items, rooms, groups</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot rose"></div>
+          <h3>安全機制</h3>
+        </div>
+        <ul>
+          <li>• Google OAuth 2.0 + JWT</li>
+          <li>• Token 7 天寬限期自動刷新</li>
+          <li>• Role-based Access Control（RBAC）</li>
+          <li>• Path traversal guard + HMAC 驗證</li>
+          <li>• Rate limiting + CORS + HTTPS only</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot cyan"></div>
+          <h3>MECE 工具組</h3>
+        </div>
+        <ul>
+          <li>• A. 行前準備（倒數/裝備/連絡卡）</li>
+          <li>• B. 行中記錄（筆記/拍照/定位）</li>
+          <li>• C. 人員管理（專案組/房號/分組）</li>
+          <li>• D. 旅行物流（機票/飯店/交通）</li>
+          <li>• E. 永續學習（ESG 知識/勳章）</li>
+          <li>• F. 實用工具（手電筒/碼表/錄音）</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer">FTG Journey App v2.0 · 六流終始矩陣 · MECE 工具組 · 5T 驗證閘 · 2026-08-29</p>
+  </div>
+</body>
+</html>

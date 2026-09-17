@@ -1,0 +1,58 @@
+﻿/* ==========================================================================
+   High-Tech Seaweed B2B 官網 - 官方設計系統 v2.1
+   主題色：永續青 (#84C341)、科技藍 (#4280BD)、中性灰 (#707070)
+   ========================================================================== */
+
+:root {
+  --color-primary: #84C341;
+  --color-primary-hover: #73AB37;
+  --color-primary-light: #F0F8E9;
+  
+  --color-secondary: #4280BD;
+  --color-secondary-hover: #366DA4;
+  --color-secondary-light: #EBF3FA;
+
+  --color-neutral: #707070;
+  --color-neutral-light: #E2E8F0;
+  
+  --color-dark: #0E1B2E;
+  --color-gold: #C9A24B;
+  --color-bg-surface: #F8FAFC;
+  --color-text-main: #1E293B;
+  --color-text-muted: #707070;
+  
+  --gradient-brand: linear-gradient(135deg, #4280BD 0%, #84C341 100%);
+}
+
+.btn-brand-primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-brand-primary:hover {
+  background-color: var(--color-primary-hover);
+  box-shadow: 0 4px 12px rgba(132, 195, 65, 0.35);
+}
+
+.btn-brand-secondary {
+  border: 1.5px solid var(--color-secondary);
+  color: var(--color-secondary);
+  background-color: transparent;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-brand-secondary:hover {
+  background-color: var(--color-secondary-light);
+  color: var(--color-secondary-hover);
+}

@@ -1,9 +1,7 @@
 /**
- * @file omni-kernel.ts
- * @description OmniESGcell 萬能心核 - 5T 終極實踐版 (JunAiKey 3.1.0-Omni)
- * 🏛️ 神聖架構契約：身分(A) + 感官(B) + 執行(C)
+ * 萬能元件心核 - 觀因循果修復版
+ * 確保數據從因到果的完整性與不可篡改性
  */
-
 export interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;

@@ -92,6 +92,8 @@ const CustomTooltip = ({ active, payload }: any) => {
   return null;
 };
 
+const MATRIX_CATEGORIES = ["ALL", "E", "S", "G"] as const;
+
 export function MaterialityMatrixView() {
   const [topics, setTopics] = useState<MaterialityTopic[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -195,7 +197,7 @@ export function MaterialityMatrixView() {
             </div>
             
             <div className="flex bg-bg-base p-1 rounded-[2px] border border-border shadow-inner">
-              {(["ALL", "E", "S", "G"] as const).map((cat) => (
+              {MATRIX_CATEGORIES.map((cat) => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}

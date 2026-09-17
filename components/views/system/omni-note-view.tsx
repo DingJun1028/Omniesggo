@@ -68,19 +68,36 @@ export function OmniNoteView() {
     fetchNotes();
   }, [fetchNotes]);
 
-  const avgDimensions = notes.length > 0 ? {
-    truthful: Math.floor(notes.reduce((acc, n: any) => acc + (n.dimensions?.truthful || 0), 0) / notes.length),
-    transferful: Math.floor(notes.reduce((acc, n: any) => acc + (n.dimensions?.transferful || 0), 0) / notes.length),
-    thankful: Math.floor(notes.reduce((acc, n: any) => acc + (n.dimensions?.thankful || 0), 0) / notes.length),
-    tasteful: Math.floor(notes.reduce((acc, n: any) => acc + (n.dimensions?.tasteful || 0), 0) / notes.length),
-    trustful: Math.floor(notes.reduce((acc, n: any) => acc + (n.dimensions?.trustful || 0), 0) / notes.length),
-  } : {
-    truthful: 0,
-    transferful: 0,
-    thankful: 0,
-    tasteful: 0,
-    trustful: 0
-  };
+  // ⚡ Bolt Optimization:
+  // 1. Wrapped in useMemo to prevent O(n) array reductions on every component re-render when notes array hasn't changed
+  // 2. Consolidated 5 separate reduce passes (O(5n)) into a single pass (O(n)), significantly improving calculation speed
+  const avgDimensions = useMemo(() => {
+    if (notes.length === 0) {
+      return {
+        truthful: 0,
+        transferful: 0,
+        thankful: 0,
+        tasteful: 0,
+        trustful: 0
+      };
+    }
+    const sum = notes.reduce((acc, n: any) => {
+      acc.truthful += n.dimensions?.truthful || 0;
+      acc.transferful += n.dimensions?.transferful || 0;
+      acc.thankful += n.dimensions?.thankful || 0;
+      acc.tasteful += n.dimensions?.tasteful || 0;
+      acc.trustful += n.dimensions?.trustful || 0;
+      return acc;
+    }, { truthful: 0, transferful: 0, thankful: 0, tasteful: 0, trustful: 0 });
+
+    return {
+      truthful: Math.floor(sum.truthful / notes.length),
+      transferful: Math.floor(sum.transferful / notes.length),
+      thankful: Math.floor(sum.thankful / notes.length),
+      tasteful: Math.floor(sum.tasteful / notes.length),
+      trustful: Math.floor(sum.trustful / notes.length)
+    };
+  }, [notes]);
 
 
   const handleSave = async () => {

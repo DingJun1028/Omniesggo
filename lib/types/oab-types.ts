@@ -7,8 +7,8 @@
 // flowing through the bus is an IComponentCore (immutable, self‑describing).
 
 /**
- * Base immutable component that travels across the bus.
- * All events, tasks, mutations, healing actions, etc. must extend this.
+ * 萬能元件心核 - 觀因循果修復版
+ * 確保數據從因到果的完整性與不可篡改性
  */
 export interface IComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)

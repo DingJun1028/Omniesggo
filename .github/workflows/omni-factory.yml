@@ -1,0 +1,102 @@
+name: OmniFactory — README 即部署
+
+on:
+  push:
+    branches: [main, 'feat/**']
+    paths:
+      - 'apps/omni-factory/specs/**'
+      - 'apps/omni-factory/assemble.mjs'
+      - 'wiki/wiki/**'
+  pull_request:
+    paths:
+      - 'apps/omni-factory/specs/**'
+      - 'apps/omni-factory/assemble.mjs'
+
+jobs:
+  assemble:
+    name: 萬能工廠組裝 + 5T 驗證
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 批次組裝所有 MEDCE 模組
+        id: batch
+        run: |
+          node apps/omni-factory/assemble.mjs \
+            --batch apps/omni-factory/specs/ \
+            --output dist/batch 2>&1 | tee assemble-output.txt
+          
+          # Extract pass count
+          PASSED=$(grep -oP '批次完成: \K\d+' assemble-output.txt || echo "0")
+          TOTAL=$(grep -oP '讀取 \K\d+' assemble-output.txt || echo "0")
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          
+          if [ "$PASSED" != "$TOTAL" ]; then
+            echo "::error ::5T 閘門未全通過: $PASSED/$TOTAL"
+            exit 1
+          fi
+
+      - name: 驗證 RWD + IComponentCore 追溯
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const specs = fs.readdirSync('apps/omni-factory/specs/').filter(f => f.endsWith('.md'));
+            let allPass = true;
+            for (const spec of specs) {
+              const id = spec.replace('.md','');
+              const htmlPath = path.join('dist','batch','mod-'+id+'.html');
+              if (!fs.existsSync(htmlPath)) { console.log('✗ ' + id + ': 未生成'); allPass = false; continue; }
+              const html = fs.readFileSync(htmlPath, 'utf8');
+              const checks = {
+                viewport: html.includes('width=device-width'),
+                RWD: html.includes('clamp('),
+                fiveT: html.includes('t5-strip'),
+                icore: html.includes('data-icore-uuid'),
+                hermes: html.includes('hermes-agent'),
+                dark: html.includes('prefers-color-scheme: dark'),
+                seal: html.includes('R-SEAL:'),
+                trace: html.includes('data-source-origin'),
+              };
+              const failed = Object.entries(checks).filter(([k,v]) => !v);
+              if (failed.length) { allPass = false; console.log('✗ ' + id + ': ' + failed.map(([k]) => k).join(', ')); }
+              else console.log('✓ ' + id + ': all checks passed');
+            }
+            if (!allPass) process.exit(1);
+            console.log('\\n✅ 全部 ' + specs.length + ' 個模組通過驗證');
+          "
+
+      - name: 上傳組裝產物
+        uses: actions/upload-artifact@v4
+        with:
+          name: omni-modules-${{ github.sha }}
+          path: dist/batch/
+          retention-days: 30
+
+  deploy:
+    name: 部署至 Vercel
+    needs: assemble
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 下載組裝產物
+        uses: actions/download-artifact@v4
+        with:
+          name: omni-modules-${{ github.sha }}
+          path: dist/batch/
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./dist/batch/
