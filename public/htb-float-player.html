@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>漂浮字幕 · 萬能即時翻</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --deep-blue: #10243f;
+    --warm-gold: #c9a24b;
+    --cream: #f3ede1;
+    --green: #3c6e47;
+    --red: #e74c3c;
+    --panel-bg: rgba(16, 36, 63, 0.92);
+    --glass: rgba(255, 255, 255, 0.08);
+    --border: rgba(201, 162, 75, 0.3);
+  }
+  body {
+    font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+    background: transparent;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* 漂浮面板容器 */
+  #float-panel {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 420px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(201,162,75,0.1);
+    z-index: 999999;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  #float-panel.pinned { box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 0 2px var(--warm-gold); }
+  #float-panel.minimized { width: 200px; }
+  #float-panel.minimized .panel-body,
+  #float-panel.minimized .caption-area,
+  #float-panel.minimized .lang-area,
+  #float-panel.minimized .history-area { display: none; }
+
+  /* 標題列 */
+  .panel-header {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    background: linear-gradient(135deg, rgba(16,36,63,0.95), rgba(28,58,98,0.9));
+    border-bottom: 1px solid var(--border);
+    cursor: move;
+  }
+  .panel-title {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--cream);
+    letter-spacing: 0.5px;
+  }
+  .panel-title .live-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #555;
+    margin-right: 6px;
+    transition: background 0.3s;
+  }
+  .panel-title .live-dot.recording { background: var(--red); animation: pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .header-btns { display: flex; gap: 4px; }
+  .header-btn {
+    width: 26px; height: 26px;
+    border: none;
+    background: var(--glass);
+    color: var(--cream);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+  }
+  .header-btn:hover { background: rgba(201,162,75,0.25); }
+  .header-btn.active { background: var(--warm-gold); color: var(--deep-blue); }
+
+  /* 主體 */
+  .panel-body { padding: 12px 14px; }
+
+  /* 字幕顯示區 */
+  .caption-area {
+    min-height: 80px;
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.05);
+    margin-bottom: 10px;
+  }
+  .caption-area::-webkit-scrollbar { width: 4px; }
+  .caption-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .caption-line {
+    padding: 4px 0;
+    line-height: 1.5;
+    word-wrap: break-word;
+  }
+  .caption-source {
+    font-size: 15px;
+    color: var(--cream);
+    font-weight: 500;
+  }
+  .caption-source .lang-tag {
+    font-size: 10px;
+    color: rgba(243,237,225,0.5);
+    margin-right: 6px;
+    font-weight: 400;
+  }
+  .caption-translation {
+    font-size: 14px;
+    color: var(--warm-gold);
+    font-weight: 500;
+    padding-left: 0;
+  }
+  .caption-translation .lang-tag {
+    font-size: 10px;
+    color: rgba(201,162,75,0.5);
+    margin-right: 6px;
+    font-weight: 400;
+  }
+  .caption-empty {
+    color: rgba(243,237,225,0.3);
+    font-size: 13px;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  /* 狀態指示 */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    color: rgba(243,237,225,0.5);
+    margin-bottom: 10px;
+    min-height: 18px;
+  }
+  .status-bar .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .status-bar .dot.error { background: var(--red); }
+  .status-bar .dot.loading { background: var(--warm-gold); animation: blink 0.8s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  /* 控制按鈕列 */
+  .controls {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .ctrl-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: 8px 6px;
+    border: 1px solid var(--border);
+    background: var(--glass);
+    color: var(--cream);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s;
+  }
+  .ctrl-btn:hover { background: rgba(201,162,75,0.15); border-color: var(--warm-gold); }
+  .ctrl-btn.primary {
+    background: linear-gradient(135deg, var(--warm-gold), #b8941f);
+    color: var(--deep-blue);
+    border: none;
+    font-weight: 600;
+  }
+  .ctrl-btn.primary:hover { filter: brightness(1.1); }
+  .ctrl-btn.danger { border-color: rgba(231,76,60,0.4); }
+  .ctrl-btn.danger:hover { background: rgba(231,76,60,0.15); border-color: var(--red); }
+  .ctrl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* 語言選擇 */
+  .lang-area {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 11px;
+    color: rgba(243,237,225,0.6);
+  }
+  .lang-area select {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    color: var(--cream);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    outline: none;
+    cursor: pointer;
+  }
+  .lang-area select option { background: var(--deep-blue); }
+  .lang-area .arrow { color: var(--warm-gold); font-size: 14px; }
+  .lang-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .lang-chip {
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: rgba(243,237,225,0.5);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .lang-chip.active { background: var(--warm-gold); color: var(--deep-blue); border-color: var(--warm-gold); }
+
+  /* 歷史紀錄 */
+  .history-area {
+    max-height: 120px;
+    overflow-y: auto;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding-top: 8px;
+  }
+  .history-area::-webkit-scrollbar { width: 3px; }
+  .history-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .history-item {
+    padding: 6px 8px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background: rgba(255,255,255,0.03);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .history-item:hover { background: rgba(255,255,255,0.06); }
+  .history-src { font-size: 12px; color: rgba(243,237,225,0.7); }
+  .history-tgt { font-size: 11px; color: rgba(201,162,75,0.6); margin-top: 2px; }
+  .history-empty { color: rgba(243,237,225,0.2); font-size: 11px; text-align: center; padding: 8px; }
+
+  /* QR 彈窗 */
+  .qr-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 9999999;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-overlay.show { display: flex; }
+  .qr-modal {
+    background: var(--panel-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    max-width: 320px;
+  }
+  .qr-modal h3 { color: var(--cream); font-size: 16px; margin-bottom: 12px; }
+  .qr-modal canvas { border-radius: 8px; margin-bottom: 12px; }
+  .qr-modal .link-box {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+  .qr-modal input {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: rgba(0,0,0,0.3);
+    color: var(--cream);
+    font-size: 11px;
+    outline: none;
+  }
+  .qr-modal button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    background: var(--warm-gold);
+    color: var(--deep-blue);
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 11px;
+  }
+  .qr-modal .close-btn {
+    background: transparent;
+    color: rgba(243,237,225,0.5);
+    border: 1px solid var(--border);
+  }
+
+  /* 穿透模式 */
+  #float-panel.pin-through {
+    pointer-events: none;
+  }
+  #float-panel.pin-through .panel-header,
+  #float-panel.pin-through .ctrl-btn,
+  #float-panel.pin-through .header-btn,
+  #float-panel.pin-through select,
+  #float-panel.pin-through .lang-chip {
+    pointer-events: auto;
+  }
+</style>
+</head>
+<body>
+
+<!-- 漂浮面板 -->
+<div id="float-panel">
+  <div class="panel-header" id="panel-header">
+    <div class="panel-title">
+      <span class="live-dot" id="live-dot"></span>
+      漂浮字幕 · 萬能即時翻
+    </div>
+    <div class="header-btns">
+      <button class="header-btn" id="btn-pin" title="釘選穿透">📌</button>
+      <button class="header-btn" id="btn-min" title="最小化">—</button>
+    </div>
+  </div>
+
+  <div class="panel-body">
+    <!-- 狀態列 -->
+    <div class="status-bar">
+      <span class="dot" id="status-dot"></span>
+      <span id="status-text">就緒</span>
+    </div>
+
+    <!-- 字幕顯示 -->
+    <div class="caption-area" id="caption-area">
+      <div class="caption-empty">按 🎤 開始，系統將抓取系統音訊並顯示雙語字幕</div>
+    </div>
+
+    <!-- 控制按鈕 -->
+    <div class="controls">
+      <button class="ctrl-btn primary" id="btn-start">🎤 開始</button>
+      <button class="ctrl-btn" id="btn-qr" disabled>⏹ 即時分享</button>
+      <button class="ctrl-btn" id="btn-history">📜 歷史</button>
+      <button class="ctrl-btn danger" id="btn-clear">🗑 清除</button>
+    </div>
+
+    <!-- 語言選擇 -->
+    <div class="lang-area">
+      <span>原文</span>
+      <select id="source-lang">
+        <option value="auto">自動偵測</option>
+        <option value="en">英文</option>
+        <option value="zh-TW">繁體中文</option>
+        <option value="ja">日文</option>
+        <option value="ko">韓文</option>
+        <option value="es">西班牙文</option>
+        <option value="fr">法文</option>
+        <option value="de">德文</option>
+      </select>
+      <span class="arrow">→</span>
+      <span>翻譯</span>
+      <div class="lang-chips" id="target-chips">
+        <span class="lang-chip active" data-lang="zh-TW">繁中</span>
+        <span class="lang-chip active" data-lang="en">英文</span>
+        <span class="lang-chip" data-lang="ja">日文</span>
+        <span class="lang-chip" data-lang="ko">韓文</span>
+      </div>
+    </div>
+
+    <!-- 歷史紀錄 -->
+    <div class="history-area" id="history-area" style="display:none;">
+      <div class="history-empty">尚無歷史紀錄</div>
+    </div>
+  </div>
+</div>
+
+<!-- QR 分享彈窗 -->
+<div class="qr-overlay" id="qr-overlay">
+  <div class="qr-modal">
+    <h3>🔗 即時分享</h3>
+    <canvas id="qr-canvas" width="200" height="200"></canvas>
+    <div class="link-box">
+      <input type="text" id="qr-link" readonly>
+      <button id="btn-copy">複製</button>
+    </div>
+    <button class="close-btn" id="btn-qr-close">關閉</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── DOM 元素 ──
+  const panel = document.getElementById('float-panel');
+  const liveDot = document.getElementById('live-dot');
+  const statusDot = document.getElementById('status-dot');
+  const statusText = document.getElementById('status-text');
+  const captionArea = document.getElementById('caption-area');
+  const btnStart = document.getElementById('btn-start');
+  const btnQR = document.getElementById('btn-qr');
+  const btnHistory = document.getElementById('btn-history');
+  const btnClear = document.getElementById('btn-clear');
+  const btnPin = document.getElementById('btn-pin');
+  const btnMin = document.getElementById('btn-min');
+  const sourceLang = document.getElementById('source-lang');
+  const targetChips = document.getElementById('target-chips');
+  const historyArea = document.getElementById('history-area');
+  const qrOverlay = document.getElementById('qr-overlay');
+  const qrCanvas = document.getElementById('qr-canvas');
+  const qrLink = document.getElementById('qr-link');
+  const btnCopy = document.getElementById('btn-copy');
+  const btnQrClose = document.getElementById('btn-qr-close');
+  const panelHeader = document.getElementById('panel-header');
+
+  // ── 狀態 ──
+  let isRecording = false;
+  let isPinned = false;
+  let isMinimized = false;
+  let isHistoryOpen = false;
+  let mediaStream = null;
+  let mediaRecorder = null;
+  let audioContext = null;
+  let history = [];
+  let currentSourceLang = 'auto';
+  let activeTargets = ['zh-TW', 'en'];
+  let lastTranscript = '';
+
+  // 後端端點
+  const API_BASE = 'https://translate.esggo.co';
+  const SPEECH_TO_SUBTITLE = `${API_BASE}/speech-to-subtitle`;
+  const TRANSLATE_URL = `${API_BASE}/translate`;
+
+  // ── 快捷鍵 ──
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.code === 'Space') { e.preventDefault(); toggleRecording(); }
+    if (e.code === 'Escape' && isRecording) stopRecording();
+  });
+
+  // ── 拖曳 ──
+  let dragOffset = null;
+  panelHeader.addEventListener('mousedown', (e) => {
+    if (e.target.closest('.header-btn')) return;
+    const rect = panel.getBoundingClientRect();
+    dragOffset = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!dragOffset) return;
+    panel.style.left = (e.clientX - dragOffset.x) + 'px';
+    panel.style.top = (e.clientY - dragOffset.y) + 'px';
+    panel.style.right = 'auto';
+  });
+  document.addEventListener('mouseup', () => { dragOffset = null; });
+
+  // ── 語言選擇 ──
+  sourceLang.addEventListener('change', () => {
+    currentSourceLang = sourceLang.value;
+  });
+
+  targetChips.addEventListener('click', (e) => {
+    const chip = e.target.closest('.lang-chip');
+    if (!chip) return;
+    const lang = chip.dataset.lang;
+    if (chip.classList.contains('active')) {
+      chip.classList.remove('active');
+      activeTargets = activeTargets.filter(l => l !== lang);
+    } else {
+      chip.classList.add('active');
+      if (!activeTargets.includes(lang)) activeTargets.push(lang);
+    }
+  });
+
+  // ── 釘選 / 最小化 ──
+  btnPin.addEventListener('click', () => {
+    isPinned = !isPinned;
+    panel.classList.toggle('pinned', isPinned);
+    panel.classList.toggle('pin-through', isPinned);
+    btnPin.classList.toggle('active', isPinned);
+  });
+
+  btnMin.addEventListener('click', () => {
+    isMinimized = !isMinimized;
+    panel.classList.toggle('minimized', isMinimized);
+    btnMin.textContent = isMinimized ? '□' : '—';
+  });
+
+  // ── 歷史 ──
+  btnHistory.addEventListener('click', () => {
+    isHistoryOpen = !isHistoryOpen;
+    historyArea.style.display = isHistoryOpen ? 'block' : 'none';
+    btnHistory.classList.toggle('active', isHistoryOpen);
+    if (isHistoryOpen) renderHistory();
+  });
+
+  // ── 清除 ──
+  btnClear.addEventListener('click', () => {
+    history = [];
+    captionArea.innerHTML = '<div class="caption-empty">按 🎤 開始，系統將抓取系統音訊並顯示雙語字幕</div>';
+    renderHistory();
+  });
+
+  // ── QR 分享 ──
+  btnQR.addEventListener('click', () => {
+    const shareUrl = `${API_BASE}/float?room=${generateRoomId()}`;
+    qrLink.value = shareUrl;
+    qrOverlay.classList.add('show');
+    generateQR(shareUrl);
+  });
+
+  btnCopy.addEventListener('click', () => {
+    navigator.clipboard.writeText(qrLink.value).then(() => {
+      btnCopy.textContent = '已複製!';
+      setTimeout(() => { btnCopy.textContent = '複製'; }, 1500);
+    });
+  });
+
+  btnQrClose.addEventListener('click', () => qrOverlay.classList.remove('show'));
+  qrOverlay.addEventListener('click', (e) => { if (e.target === qrOverlay) qrOverlay.classList.remove('show'); });
+
+  function generateQR(text) {
+    const ctx = qrCanvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, 200, 200);
+    ctx.fillStyle = '#10243f';
+    const size = 200;
+    const cells = 21;
+    const cellSize = size / cells;
+    // Simple QR-like pattern (for demo; in production use qrcode library)
+    const seed = text.split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+    for (let i = 0; i < cells; i++) {
+      for (let j = 0; j < cells; j++) {
+        const pseudoRandom = ((seed * (i + 1) * (j + 1)) + i * j) % 3;
+        if (pseudoRandom === 0) {
+          ctx.fillRect(i * cellSize, j * cellSize, cellSize, cellSize);
+        }
+      }
+    }
+    // Position markers
+    drawPositionMarker(ctx, 0, 0, cellSize);
+    drawPositionMarker(ctx, (cells - 7) * cellSize, 0, cellSize);
+    drawPositionMarker(ctx, 0, (cells - 7) * cellSize, cellSize);
+  }
+
+  function drawPositionMarker(ctx, x, y, s) {
+    ctx.fillStyle = '#10243f';
+    ctx.fillRect(x, y, 7 * s, 7 * s);
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(x + s, y + s, 5 * s, 5 * s);
+    ctx.fillStyle = '#10243f';
+    ctx.fillRect(x + 2 * s, y + 2 * s, 3 * s, 3 * s);
+  }
+
+  function generateRoomId() {
+    return 'room-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+  }
+
+  // ── 錄音控制 ──
+  btnStart.addEventListener('click', toggleRecording);
+
+  function toggleRecording() {
+    if (isRecording) stopRecording();
+    else startRecording();
+  }
+
+  async function startRecording() {
+    try {
+      setStatus('loading', '請求螢幕/音訊共享...');
+
+      // getDisplayMedia 取得系統音訊+影像
+      mediaStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { cursor: 'never' },
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+      });
+
+      // 使用者取消選擇
+      if (!mediaStream || mediaStream.getAudioTracks().length === 0) {
+        setStatus('error', '未取得音訊來源 — 請勾選「分享音訊」');
+        return;
+      }
+
+      // 只取 audio track 避免 MediaRecorder MIME 問題
+      const audioStream = new MediaStream(mediaStream.getAudioTracks());
+
+      // MIME type 相容檢查
+      const mimeType = getSupportedMimeType();
+      const recorderOptions = mimeType ? { mimeType } : undefined;
+
+      mediaRecorder = new MediaRecorder(audioStream, recorderOptions);
+      const chunks = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = async () => {
+        if (chunks.length === 0) return;
+        const blob = new Blob(chunks, { type: mimeType || 'audio/webm' });
+        chunks.length = 0;
+        await processAudioBlob(blob);
+      };
+
+      // 每 2 秒分段送出
+      mediaRecorder.start(2000);
+      isRecording = true;
+      liveDot.classList.add('recording');
+      btnStart.textContent = '⏹ 停止';
+      btnStart.classList.remove('primary');
+      btnQR.disabled = false;
+      setStatus('recording', '收音中... 系統音訊 → 雙語字幕');
+
+      // 監聽使用者按「停止分享」
+      mediaStream.getVideoTracks()[0].onended = () => stopRecording();
+
+    } catch (err) {
+      setStatus('error', '啟動失敗: ' + err.message);
+      console.error('startRecording error:', err);
+    }
+  }
+
+  function stopRecording() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+    }
+    if (mediaStream) {
+      mediaStream.getTracks().forEach(t => t.stop());
+      mediaStream = null;
+    }
+    isRecording = false;
+    liveDot.classList.remove('recording');
+    btnStart.textContent = '🎤 開始';
+    btnStart.classList.add('primary');
+    setStatus('ready', '已停止');
+  }
+
+  function getSupportedMimeType() {
+    const types = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/ogg;codecs=opus',
+      'audio/mp4'
+    ];
+    for (const t of types) {
+      if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(t)) return t;
+    }
+    return null;
+  }
+
+  // ── 音訊處理管線 ──
+  async function processAudioBlob(blob) {
+    try {
+      setStatus('loading', '辨識中...');
+
+      // 方法1: 使用 /speech-to-subtitle (STT + 雙向翻譯 一步到位)
+      const result = await callSpeechToSubtitle(blob);
+
+      if (result && result.text) {
+        displayCaption(result);
+        addToHistory(result);
+      } else {
+        setStatus('error', '辨識失敗或無內容');
+      }
+    } catch (err) {
+      console.error('processAudioBlob error:', err);
+      // fallback: 方法2 — 分段呼叫 /transcribe + /translate
+      try {
+        const text = await callTranscribe(blob);
+        if (text) {
+          const translation = await callTranslate(text, currentSourceLang, activeTargets);
+          displayCaption({ text, translation, detected: currentSourceLang });
+          addToHistory({ text, translation, detected: currentSourceLang });
+        }
+      } catch (err2) {
+        setStatus('error', '處理失敗: ' + err2.message);
+      }
+    }
+  }
+
+  // 方法1: /speech-to-subtitle — 一次完成 STT + 雙向翻譯
+  async function callSpeechToSubtitle(blob) {
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+
+    const langParam = currentSourceLang !== 'auto' ? `?lang=${encodeURIComponent(currentSourceLang)}` : '';
+    const res = await fetch(SPEECH_TO_SUBTITLE + langParam, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: uint8
+    });
+
+    if (!res.ok) throw new Error(`STT ${res.status}`);
+    const data = await res.json();
+
+    // 後端回傳: { text, translation, detected, from, to, engine, trace }
+    return {
+      text: data.text || '',
+      translation: data.translation || '',
+      detected: data.detected || data.from || 'unknown',
+      target: data.to || 'zh-TW'
+    };
+  }
+
+  // 方法2 fallback: /transcribe
+  async function callTranscribe(blob) {
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8 = new Uint8Array(arrayBuffer);
+    const langParam = currentSourceLang !== 'auto' ? `?lang=${encodeURIComponent(currentSourceLang)}` : '';
+    const res = await fetch(`${API_BASE}/transcribe${langParam}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: uint8
+    });
+    if (!res.ok) throw new Error(`transcribe ${res.status}`);
+    const data = await res.json();
+    return data.text || '';
+  }
+
+  // 方法2 fallback: /translate
+  async function callTranslate(text, from, targets) {
+    if (!targets || targets.length === 0) return '';
+    const res = await fetch(TRANSLATE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, from: from || 'auto', targets })
+    });
+    if (!res.ok) throw new Error(`translate ${res.status}`);
+    const data = await res.json();
+    return data.translations || {};
+  }
+
+  // ── 顯示字幕 ──
+  function displayCaption(result) {
+    const { text, translation, detected, target } = result;
+    if (!text) return;
+
+    const sourceLabel = detected === 'en' ? 'EN' :
+                        detected === 'zh-TW' ? '中' :
+                        detected === 'ja' ? '日' :
+                        detected === 'ko' ? '韓' : (detected || '原文').toUpperCase();
+
+    // 判斷方向: 原文英文 → 翻譯繁中在下；原文中文 → 翻譯英文在下
+    let topText, topLabel, bottomText, bottomLabel;
+
+    if (detected === 'en') {
+      // 英文在上，翻譯在下
+      topText = text;
+      topLabel = 'EN';
+      bottomText = typeof translation === 'string' ? translation : (translation['zh-TW'] || translation['en'] || '');
+      bottomLabel = '繁中';
+    } else if (detected === 'zh-TW' || detected === 'zh') {
+      // 中文在上，翻譯在下
+      topText = text;
+      topLabel = '繁中';
+      bottomText = typeof translation === 'string' ? translation : (translation['en'] || translation['zh-TW'] || '');
+      bottomLabel = 'EN';
+    } else {
+      // 其他語言: 原文在上，第一個翻譯在下
+      topText = text;
+      topLabel = sourceLabel;
+      bottomText = typeof translation === 'string' ? translation : Object.values(translation || {})[0] || '';
+      bottomLabel = '翻譯';
+    }
+
+    captionArea.innerHTML = `
+      <div class="caption-line caption-source">
+        <span class="lang-tag">${topLabel}</span>${escapeHtml(topText)}
+      </div>
+      ${bottomText ? `<div class="caption-line caption-translation">
+        <span class="lang-tag">${bottomLabel}</span>${escapeHtml(bottomText)}
+      </div>` : ''}
+    `;
+    captionArea.scrollTop = captionArea.scrollHeight;
+  }
+
+  function escapeHtml(s) {
+    const div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  // ── 歷史 ──
+  function addToHistory(result) {
+    if (!result.text) return;
+    history.unshift({
+      text: result.text,
+      translation: result.translation,
+      detected: result.detected,
+      time: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })
+    });
+    if (history.length > 50) history.pop();
+    if (isHistoryOpen) renderHistory();
+  }
+
+  function renderHistory() {
+    if (history.length === 0) {
+      historyArea.innerHTML = '<div class="history-empty">尚無歷史紀錄</div>';
+      return;
+    }
+    historyArea.innerHTML = history.map((h, i) => `
+      <div class="history-item" data-idx="${i}">
+        <div class="history-src">${escapeHtml(h.text)}</div>
+        <div class="history-tgt">${escapeHtml(typeof h.translation === 'string' ? h.translation : Object.values(h.translation || {}).join(' / '))}</div>
+      </div>
+    `).join('');
+  }
+
+  // ── 狀態指示 ──
+  function setStatus(state, text) {
+    statusDot.className = 'dot';
+    if (state === 'recording') statusDot.classList.add('recording');
+    else if (state === 'error') statusDot.classList.add('error');
+    else if (state === 'loading') statusDot.classList.add('loading');
+    statusText.textContent = text;
+  }
+
+  // ── 初始化 ──
+  setStatus('ready', '就緒');
+
+})();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a3e41f528eae7983',t:'MTc4OTk0MTgyOQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
