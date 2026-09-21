@@ -6,7 +6,7 @@
 FROM --platform=linux/arm64 node:22-alpine AS deps
 WORKDIR /app
 RUN apk upgrade --no-cache && apk add --no-cache libc6-compat build-base python3
-RUN npm install -g pnpm
+RUN npm install -g pnpm@11.5.2
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 COPY packages/omni-agent-bus/package.json packages/omni-agent-bus/
 COPY packages/oa-framework/package.json packages/oa-framework/
@@ -33,15 +33,17 @@ COPY apps/learning-center/package.json apps/learning-center/
 COPY apps/ftg-tours-website/package.json apps/ftg-tours-website/
 COPY apps/cf-tunnel-manager/package.json apps/cf-tunnel-manager/
 COPY apps/oneringai/package.json apps/oneringai/
+COPY apps/htb-b2b/package.json apps/htb-b2b/
 COPY cli/omnicli/package.json cli/omnicli/
 COPY cli/esggo-cli/package.json cli/esggo-cli/
 COPY cli/oa-cli/package.json cli/oa-cli/
 COPY apps/learning-center/functions/package.json apps/learning-center/functions/
+COPY esggo-auto-repair/worker/package.json esggo-auto-repair/worker/
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
 FROM --platform=linux/arm64 node:22-alpine AS builder
 WORKDIR /app
-RUN apk upgrade --no-cache && npm install -g pnpm && rm -rf /var/cache/apk/*
+RUN apk upgrade --no-cache && npm install -g pnpm@11.5.2 && rm -rf /var/cache/apk/*
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production CI=true
