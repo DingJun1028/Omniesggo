@@ -13,7 +13,8 @@
     "./redis": "./src/redis.ts",
     "./database": "./src/database.ts",
     "./types": "./src/types/index.ts",
-    "./tokens": "./src/tokens/index.ts"
+    "./tokens": "./src/tokens/index.ts",
+    "./i18n-runtime": "./src/i18n-runtime.ts"
   },
   "devDependencies": {
     "typescript": "^5.9.3"

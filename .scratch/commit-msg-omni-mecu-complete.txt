@@ -1,0 +1,100 @@
+feat(omni): v1.1.0 MECE 7/7 維度完整落地 (memory/db/ui 補完)
+
+# MECE 7/7 維度全落地 (Stage 5 GREEN 56/56 PASS)
+
+## 3 個新 packages
+
+1. **@esggo/omni-memory** v1.0.0 (8/8 tests)
+   - L0-L3 4 層記憶 (Conversation/Atoms/Patterns/Persona)
+   - 3 軸持久化抽象 (Vector + Graph + Temporal)
+   - IStorage 介面 + InMemoryStorage 預設實作
+   - OmniMemory class: store / recall / link / replay
+   - 5T: Traceable(source_origin) / Trustworthy(seal)
+
+2. **@esggo/omni-db** v1.0.0 (7/7 tests)
+   - Knowledge Pyramid L1-L4 (Fact → Pattern → Insight → Wisdom)
+   - 5 演算法: extract / link / contradictions / gaps / iterate
+   - Provenance Chain (sources + reasoningPath + SHA256 hash)
+   - ask() Q&A 介面 + iterate() 每週演進
+   - 5T: Truth(嚴格證據鏈) / Trustworthy(seal)
+
+3. **@esggo/omni-ui** v1.0.0 (11/11 tests)
+   - LiquidGlassRenderer (3 variants: subtle/standard/prominent)
+   - FloatingCore 428 浮動心核 (pulse animation + moveTo)
+   - MetricVisualizer (entropy/pass-rate/drift-count/memory-usage/test-coverage)
+   - 反向邏輯: pass-rate/test-coverage 高=好, 其它高=壞
+   - Brand colors: 深藍 #10243f + 暖金 #c9a24b + 米白 #f3ede1 + 綠 #3c6e47
+   - 5T: Beauty(高流暢視覺)
+
+# TDD 紅綠循環證據
+
+每個 package 都經歷 RED → GREEN 真實循環:
+- omni-memory: 3 fail (omniMemory not defined + replay 邏輯) → 修 → 8/8 PASS
+- omni-db: 1 fail (ask token match) → 修 → 7/7 PASS
+- omni-ui: 2 fail (metric 邏輯反 + shared instance) → 修 → 11/11 PASS
+
+# 累計測試結果 (Stage 5 GREEN)
+
+```
+@esggo/omni-core   → 6/6 PASS (心核)
+@esggo/omni-tag    → 10/10 PASS (語法)
+@esggo/omni-bridge → 7/7 PASS (傳輸)
+@esggo/omni-forge  → 7/7 PASS (治理)
+@esggo/omni-memory → 8/8 PASS (儲存)  ← 本次
+@esggo/omni-db     → 7/7 PASS (推理)  ← 本次
+@esggo/omni-ui     → 11/11 PASS (顯化) ← 本次
+─────────────────────────────────
+Total              → 56/56 PASS ✓
+```
+
+# MECE 7 維度全窮盡
+
+| # | 維度 | 角色 | Package | 落地 |
+|---|---|---|---|---|
+| 1 | **OmniMemory** | 狀態儲存 | @esggo/omni-memory | ✅ |
+| 2 | **OmniBridge** | 傳輸管道 | @esggo/omni-bridge | ✅ |
+| 3 | **OmniTag** | 語意契約 | @esggo/omni-tag | ✅ |
+| 4 | **OmniDB** | 知識推理 | @esggo/omni-db | ✅ |
+| 5 | **OmniAgent** | 執行代行 | @esggo/omni-agent v5.1.0 (既有) | ✅ |
+| 6 | **OmniUI** | 介面顯化 | @esggo/omni-ui | ✅ |
+| 7 | **OmniForge** | 治理熵減 | @esggo/omni-forge | ✅ |
+| - | **OmniCore** | 心核基礎 | @esggo/omni-core | ✅ |
+
+**7/7 維度全落地 + 1 心核 = 8/8 ✓**
+
+# 五常契約對應
+
+- **Truth (真)**: OmniTag source_origin + OmniDB Provenance Chain
+- **Trust (信)**: OmniCore SHA256 + OmniForge Object.freeze
+- **Goodness (善)**: OmniAgent 5T Gate Engine (既有)
+- **Beauty (美)**: OmniUI Liquid Glass + 428 浮動心核
+
+# 5T Gate
+
+- Traceable: 每個 component 有 source_origin, 56/56 tests 通過
+- Trackable: vitest 輸出 + drift-report.json + event log
+- Tangible: 7 working packages + real npm install + vitest run
+- Transparent: source code + tests + commit messages 公開
+- Trustworthy: SHA256 seal (OmniCore) + Object.freeze (OmniForge)
+
+# MECE 互斥邊界
+
+- OmniMemory: ❌ 不做推演 (→ OmniDB) / ❌ 不做 UI (→ OmniUI)
+- OmniBridge: ❌ 不做業務 (→ OmniAgent) / ❌ 不存資料 (→ OmniMemory)
+- OmniTag: ❌ 不執行 (→ OmniAgent) / ❌ 不存 (→ OmniMemory)
+- OmniDB: ❌ 不執行 (→ OmniAgent) / ❌ 不渲染 (→ OmniUI)
+- OmniAgent: ❌ 不存原始 (→ OmniMemory) / ❌ 不治理 (→ OmniForge)
+- OmniUI: ❌ 不做後端 (→ OmniAgent) / ❌ 不治理 (→ OmniForge)
+- OmniForge: ❌ 不做業務 (→ OmniAgent) / ❌ 不做介面 (→ OmniUI)
+
+# Stage 6 / 7 待辦
+
+- subagent 兩階段 review (sandbox delegate_task fail, 待環境恢復)
+- merge feat/omni-integration-center → main (待 PR review 完成)
+- Memory setup SOP 本機執行 (Tencent + GBrain + Obsidian)
+
+Refs:
+- MECE 7 維度完整規格 (chat 內產出)
+- IComponentCore 心核規範
+- esggo-ts-matrix-onboard skill v1.1.0
+- OmniBridge + OmniForge OpenAPI 規格 (chat 內產出)
