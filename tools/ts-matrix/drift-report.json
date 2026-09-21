@@ -1,0 +1,91 @@
+{
+  "timestamp": "2026-09-21T14:28:23.596Z",
+  "version": "1.1.0",
+  "matrix": "esggo-ts-matrix",
+  "forward": {
+    "sharedPath": "packages/shared/src/types",
+    "exportCount": 14,
+    "exports": [
+      {
+        "name": "OmniChartProof",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "ChartDataPoint",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "BaseOmniChartProps",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "OmniBarChartProps",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "OmniPieChartProps",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "ESGChartKnowledge",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "OmniDataAnalyticsConfig",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "Locale",
+        "from": "./i18n",
+        "kind": "type"
+      },
+      {
+        "name": "DictKey",
+        "from": "./i18n",
+        "kind": "type"
+      },
+      {
+        "name": "Dictionary",
+        "from": "./i18n",
+        "kind": "type"
+      },
+      {
+        "name": "I18nBundle",
+        "from": "./i18n",
+        "kind": "interface"
+      },
+      {
+        "name": "LOCALES",
+        "from": "./i18n",
+        "kind": "const"
+      },
+      {
+        "name": "KEYS",
+        "from": "./i18n",
+        "kind": "const"
+      },
+      {
+        "name": "EXPECTED_KEY_COUNT",
+        "from": "./i18n",
+        "kind": "const"
+      }
+    ]
+  },
+  "reverse": {
+    "shadowedCount": 0,
+    "shadowed": []
+  },
+  "pass": true,
+  "lock": {
+    "sha256": "5fb657a44e4bb5c30ad0e98274aaed13ed99a08248bc782302f07a9f26b231f2",
+    "algorithm": "sha256",
+    "note": "Trustworthy 5T - lock of drift-report.json content"
+  }
+}

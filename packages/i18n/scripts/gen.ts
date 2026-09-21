@@ -1,23 +1,10 @@
 #!/usr/bin/env tsx
-// gen.ts -- 從 source of truth 生成 i18n/*.json + canon.schema.json + canon.i18n.ts
+// gen.ts -- 從 @esggo/shared SSOT 生成 i18n/*.json + canon.schema.json + canon.i18n.ts
+// 終始矩陣: KEYS / Locale / LOCALES 全部從 shared 衍生 (杜絕 drift)
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import type { I18nBundle, DictKey } from '../src/canon.d.ts';
-
-const LOCALES = ['en', 'zh-TW'] as const;
-type Locale = typeof LOCALES[number];
-
-const KEYS: readonly DictKey[] = [
-  'app.title',
-  'app.subtitle',
-  'app.welcome',
-  'nav.home',
-  'nav.about',
-  'nav.contact',
-  'btn.submit',
-  'btn.cancel',
-] as const;
+import { LOCALES, KEYS, type Locale, type DictKey } from '@esggo/shared/types';
 
 const DICT: Record<Locale, Record<DictKey, string>> = {
   en: {
@@ -76,14 +63,12 @@ function gen() {
   };
   writeFileSync('dist/canon.schema.json', JSON.stringify(schema, null, 2) + '\n');
 
-  // canon.i18n.ts
+  // canon.i18n.ts -- 自動生成，勿手改
+  // 終始矩陣: 全從 @esggo/shared re-export, 不再自行定義, 杜絕 drift
   const i18nTs = `// canon.i18n.ts -- 自動生成，勿手改
-export const LOCALES = ['en', 'zh-TW'] as const;
-export type Locale = typeof LOCALES[number];
+export { LOCALES, DICT, VERSION } from '@esggo/shared/i18n-runtime';
 
-export const DICT: Record<Locale, Record<string, string>> = ${JSON.stringify(DICT, null, 2)};
-
-export const VERSION = '${VERSION}';
+import type { DictKey } from '@esggo/shared/types';
 `;
   writeFileSync('src/types/canon.i18n.ts', i18nTs);
 

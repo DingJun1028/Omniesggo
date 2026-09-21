@@ -11,6 +11,9 @@
     "./zh-TW": "./src/i18n/zh-TW.json",
     "./en": "./src/i18n/en.json"
   },
+  "dependencies": {
+    "@esggo/shared": "workspace:*"
+  },
   "scripts": {
     "i18n:gen": "tsx scripts/gen.ts",
     "i18n:check": "tsx scripts/gen.ts && tsx scripts/verify.ts",

@@ -71,13 +71,13 @@ const legacyDetail = legacyOk
   : `unexpected=[${unexpectedFiles.join(',')}] missing=[${missingFiles.join(',')}]`;
 check('T6 no legacy locales (file scan)', legacyOk, legacyDetail);
 
-// T7: canon.i18n.ts LOCALES 鎖定為 ['en', 'zh-TW']
-// (canon.d.ts 移除 runtime export 後, LOCALES 移至 canon.i18n.ts)
-const canonI18n = readFileSync('src/types/canon.i18n.ts', 'utf-8');
-const canonMatch = canonI18n.match(/LOCALES\s*=\s*\[(.*?)\]/s);
-const canonLocales = canonMatch ? canonMatch[1].replace(/['"\s]/g, '').split(',') : [];
-const canonOk = canonLocales.length === 2 && canonLocales.includes('en') && canonLocales.includes('zh-TW');
-check('T7 canon.i18n.ts LOCALES locked', canonOk, `parsed=[${canonLocales.join(',')}]`);
+// T7: @esggo/shared SSOT LOCALES 鎖定為 ['en', 'zh-TW']
+// (終始矩陣: 驗 source-of-truth = types/_i18n-locales.ts)
+const localeArrayFile = readFileSync('../shared/src/types/_i18n-locales.ts', 'utf-8');
+const sharedMatch = localeArrayFile.match(/LOCALES\s*=\s*\[(.*?)\]/s);
+const sharedLocales = sharedMatch ? sharedMatch[1].replace(/['"\s]/g, '').split(',') : [];
+const canonOk = sharedLocales.length === 2 && sharedLocales.includes('en') && sharedLocales.includes('zh-TW');
+check('T7 shared LOCALES locked', canonOk, `parsed=[${sharedLocales.join(',')}]`);
 
 // T8: per-file sha256 對照 (audit 模式, fresh repo / 缺檔時 skip)
 // 注意: T8 是 audit-only 檢查, 不在 verify 主路徑必過。
