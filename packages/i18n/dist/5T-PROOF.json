@@ -1,0 +1,76 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2026-09-21T10:57:01.370Z",
+  "locales": [
+    "en",
+    "zh-TW"
+  ],
+  "fileSha256": {
+    "en": "edf276bfc651263ac515de977cbb4f7de2f870f6c80f2c6caf0a52435c1f321f",
+    "zh-TW": "e6b4ad4a77db1cf4d00d093102d0e3c9e37bcc6bb10750c3e5d0bedbf02eaf34"
+  },
+  "canonSha256": "40f5eff86b0b9d96fb5e700f35c64b0a81983f650110f07a6ea7f410b681eea5",
+  "checks": [
+    {
+      "name": "T1 i18n/en.json exists",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T1 i18n/zh-TW.json exists",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T2 en has locale/version/dict",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T2 zh-TW has locale/version/dict",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T3 en has all 8 keys",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T3 zh-TW has all 8 keys",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T4 zh-TW/en keys identical",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T5 en locale = en",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T5 zh-TW locale = zh-TW",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "T6 no legacy locales (file scan)",
+      "pass": true,
+      "detail": "files=[en.json,zh-TW.json]"
+    },
+    {
+      "name": "T7 canon.i18n.ts LOCALES locked",
+      "pass": true,
+      "detail": "parsed=[en,zh-TW]"
+    },
+    {
+      "name": "T8 5T-PROOF.json per-file sha256",
+      "pass": true,
+      "detail": "keys=[en,zh-TW] matchSha=true"
+    }
+  ],
+  "passed": true
+}
