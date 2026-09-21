@@ -19,6 +19,15 @@
 | Transparent | 雙語收縮 `LOCALES = ['en', 'zh-TW']`, 無 legacy |
 | Trustworthy | per-file sha256 + canon.d.ts.lock + 5T-PROOF.json |
 
+## TDD 說明 (Honest Disclosure)
+
+9 個 vitest cases 屬於 **specification tests** (驗證 SSOT/EXPORT/TYPES/BUNDLE/KEYS 契約),
+**非嚴格 RED→GREEN TDD**:
+- 測試在 source 完成後補上 (commit `5f983328d` 在 source commit `ed6806b94` 之後)
+- 涵蓋面: LOCALES 鎖定、bundle 結構、keys 對稱、TypeScript types、JSON 值
+- 補強路徑: v0.4.0 改 locale 時, 這 9 個 case 會先 RED → 改 source → GREEN
+- 見 `esggo-pnpm-i18n-integration` skill
+
 ## Files
 
 ```
