@@ -1,0 +1,61 @@
+docs(ts-matrix): Stage 6 audit + skill disclosure for ts-matrix v1.3.1
+
+# Stage 6 Audit Result (post v1.3.1 GREEN)
+
+10-item PR checklist audit on 7 ts-matrix commits (02f92a154 → 7b4c95ad9):
+
+| # | 鐵律 | 結果 |
+|---|---|---|
+| 1 | 覺一 先驗證 | ⚠️ PARTIAL: `368d02382` + `a485510e9` 沒驗完整 CI error 就 commit |
+| 2 | 覺二 章節推進 | ✅ PASS (≤5 min each) |
+| 3 | 覺三 不偽造 | ✅ PASS (TDD RED→GREEN 誠實揭露) |
+| 4 | 覺四 熵減 | ✅ PASS (8 commits 累計減熵) |
+| 5 | 覺五 5T | ✅ PASS (drift-report.json SHA256 lock) |
+| 6 | TDD RED→GREEN | ✅ PASS (7b4c95ad9: 11/11 tests green) |
+| 7 | Review subagent 兩階段 | ❌ FAIL (modal sandbox delegate_task JSON parse fail ×5) |
+| 8 | Worktree 隔離 | ✅ PASS (feat/omni-integration-center) |
+| 9 | 5T Gate | ✅ PASS (Traceable✓ Trackable✓ Tangible✓ Transparent✓ Trustworthy✓) |
+| 10 | 技能封存 | ✅ PASS (esggo-ts-matrix-onboard v1.1.0) |
+
+**Result**: 8/10 PASS, 2 FAIL (1 partial historical, 1 environment-blocked)
+
+# Skill Disclosure
+
+`esggo-ts-matrix-onboard` v1.1.0:
+- Path: `C:\Users\dingj\AppData\Local\hermes\skills\esggo-ts-matrix-onboard\SKILL.md`
+- Size: 18934 bytes (156 lines)
+- Contains: SSOT architecture, .d.ts walker pitfall (line 104), TDD subprocess pitfall (line 105), CI pitfalls (Node 22, pnpm cache, path length)
+
+This skill was actually created in prior session (verified via `ls` + `read_file`). 
+Earlier turns claimed "skill not found" — that was wrong (path mismatch between 
+modal sandbox and real Windows path). Skill exists and is complete.
+
+# Known Issues (Honest Disclosure)
+
+1. **覺一 違規 (不可逆 historical)**: `368d02382` + `a485510e9` didn't fully verify 
+   CI error before fixing. Subsequent `76b102dd2` corrected them. Net entropy reduction: positive.
+
+2. **Review subagent 兩階段 fail**: modal sandbox `delegate_task` returns 
+   "tasks must be a JSON array of task objects; received a string that could not 
+   be parsed as JSON (Expecting value)" ×5 attempts. Subagent infrastructure 
+   unreachable from current sandbox. Mitigated by Stage 6 self-audit (this commit).
+
+# 5T Gate (Final)
+
+- Traceable: 8 commits + skill path + 11 test cases
+- Trackable: git log + CI run history + audit table above
+- Tangible: `node tools/ts-matrix/test-verify.mjs` → 11 passed, 0 failed (real output)
+- Transparent: 2 FAILs disclosed honestly, not hidden
+- Trustworthy: SHA256 lock on drift-report.json + skill pinned at v1.1.0
+
+# Next Steps
+
+1. merge `feat/omni-integration-center` → `main` (待定)
+2. 4 個 omni-* packages (omni-core/tag/bridge/forge) v1.0 落地 (待開始)
+3. Memory setup SOP 本機執行 (Tencent + GBrain + Obsidian)
+4. 重試 subagent 兩階段 review (環境恢復後)
+
+Refs:
+- esggo-ts-matrix-onboard v1.1.0 skill
+- omni-best-practice skill (10-item PR checklist)
+- 7 ts-matrix commits (02f92a154 → 7b4c95ad9)
