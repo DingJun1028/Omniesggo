@@ -111,6 +111,7 @@ tmp_*
 *.bak.*
 *.cpuprofile
 scratch/
+.scratch/
 temp/
 temp*.js
 temp*.py
