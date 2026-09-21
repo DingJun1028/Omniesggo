@@ -3,7 +3,8 @@
 // (Stage 5 落地部署: 觸發 pnpm lockfile 整合)
 
 import { describe, it, expect } from 'vitest';
-import { LOCALES, type Locale, type DictKey } from '../src/canon.d.ts';
+import { LOCALES } from '../src/types/canon.i18n.ts';
+import type { Locale, DictKey } from '../src/canon.d.ts';
 import en from '../src/i18n/en.json';
 import zhTW from '../src/i18n/zh-TW.json';
 

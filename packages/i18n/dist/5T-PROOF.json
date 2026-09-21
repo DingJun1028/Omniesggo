@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "timestamp": "2026-09-21T10:49:30.643Z",
+  "timestamp": "2026-09-21T10:57:01.370Z",
   "locales": [
     "en",
     "zh-TW"
@@ -9,7 +9,7 @@
     "en": "edf276bfc651263ac515de977cbb4f7de2f870f6c80f2c6caf0a52435c1f321f",
     "zh-TW": "e6b4ad4a77db1cf4d00d093102d0e3c9e37bcc6bb10750c3e5d0bedbf02eaf34"
   },
-  "canonSha256": "89560e4fa03eb6ab828ad5ee48923286a9a54ab18e67b62fff5f021fb6811060",
+  "canonSha256": "40f5eff86b0b9d96fb5e700f35c64b0a81983f650110f07a6ea7f410b681eea5",
   "checks": [
     {
       "name": "T1 i18n/en.json exists",
@@ -57,12 +57,12 @@
       "detail": ""
     },
     {
-      "name": "T6 no legacy locales",
+      "name": "T6 no legacy locales (file scan)",
       "pass": true,
-      "detail": ""
+      "detail": "files=[en.json,zh-TW.json]"
     },
     {
-      "name": "T7 canon.d.ts LOCALES locked",
+      "name": "T7 canon.i18n.ts LOCALES locked",
       "pass": true,
       "detail": "parsed=[en,zh-TW]"
     },
