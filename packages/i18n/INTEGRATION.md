@@ -3,51 +3,54 @@
 ## 整合狀態
 
 - ✅ Source 落地: commit `ed6806b94` on `feat/omni-integration-center`
-- ✅ 推送到 remote: `ed6806b94` 已 push 到 `origin/feat/omni-integration-center`
+- ✅ 推送 remote: `bc5d38db3` 已 push 到 `origin/feat/omni-integration-center`
 - ✅ pnpm workspace 認到: `@esggo/i18n@0.3.1 (PRIVATE)`
-- ⚠️ `pnpm-lock.yaml` 未含 `packages/i18n` 段
+- ✅ `pnpm-lock.yaml` 含 `packages/i18n:` 段 (vitest specifier `>=4.1.10` 被 hoist)
+- ✅ vitest consumer test: 9/9 PASS
+- ✅ `npm run i18n:check`: 12/12 PASS, EXIT 0, 5T VERIFY OK
 
-## 為何 lockfile 沒自動整合
+## 5T Verification
 
-pnpm 11.5.2 對 workspace package 採 **lazy registration**:
-- `pnpm install` 只更新 *被引用* 的 workspace package
-- 沒人引用時 pnpm 不寫進 lockfile
-- 這是設計行為，不是 bug
-
-## 如何讓 lockfile 自動整合
-
-任一 consumer package 在 `package.json` 加入:
-```json
-{
-  "dependencies": {
-    "@esggo/i18n": "workspace:*"
-  }
-}
-```
-
-或 `import`:
-```typescript
-import { LOCALES, type Locale } from '@esggo/i18n';
-```
-
-然後跑 `pnpm install` → pnpm 會自動把 `packages/i18n:` 段寫進 lockfile。
-
-## 5T Gate
-
-- Stage 6 獨立驗證: per-file sha256 對照 MATCH (working tree == HEAD)
-- `npm run i18n:check`: 12/12 PASS, EXIT 0
-- `pnpm list --filter @esggo/i18n`: 認到
-
-## 建議 consumer
-
-| 候選 | 理由 |
+| Stage | 結果 |
 |---|---|
-| `packages/shared` | 廣被引用, 觸發效應最大 |
-| `apps/htb-b2b` | B2B 站本身需要 zh-TW + en |
-| `apps/universal-translator` | 翻譯站直接吃 i18n |
+| Traceable | source_origin = `feat(i18n): add @esggo/i18n v0.3.1` |
+| Trackable | commit `ed6806b94`, followup `bc5d38db3` |
+| Tangible | `npm run i18n:check` 12/12 + `vitest run` 9/9 |
+| Transparent | 雙語收縮 `LOCALES = ['en', 'zh-TW']`, 無 legacy |
+| Trustworthy | per-file sha256 + canon.d.ts.lock + 5T-PROOF.json |
 
-## 守護腳本位置
+## Files
 
-- `.scratch/finish-i18n-integration.sh` — rebase 結束後整合
-- `.scratch/wait-rebase-then-finish.sh` — 監控 rebase + 自動整合
-- `.scratch/commit-msg-i18n.txt` — commit message 預稿
+```
+src/
+├── canon.d.ts            # SSOT (LOCALES, Locale, DictKey, I18nBundle)
+├── i18n/
+│   ├── en.json
+│   └── zh-TW.json
+└── types/
+    └── canon.i18n.ts     # 自動產生 (LOCALES + DICT + VERSION)
+scripts/
+├── gen.ts                # SSOT → JSON + schema + i18n.ts + lock
+└── verify.ts             # T1-T8 (12 checks) + 5T-PROOF.json
+test/
+└── consumer.test.ts      # vitest, 9 cases
+vitest.config.ts
+package.json
+tsconfig.json
+README.md
+SPEC.md
+INTEGRATION.md
+.gitignore
+```
+
+## 觸發 lockfile 整合
+
+加 `vitest` 到 devDependencies → `pnpm install` 自動把 `packages/i18n:` 寫進 lockfile (pnpm 11 lazy registration 解除)。
+
+## 後續建議
+
+| 動作 | ROI |
+|---|---|
+| Consumer package 引用 `import { LOCALES } from '@esggo/i18n'` | 🟢 證明整合 |
+| 加 5 鍵擴充字典 (Stage 5 SPEC 對齊) | 🟡 中 |
+| 接 `kill-switch.mjs` 文案對應 | 🟡 scope creep |
