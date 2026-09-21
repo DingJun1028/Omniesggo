@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-21T11:30:54.534Z",
-  "version": "1.0.0",
+  "timestamp": "2026-09-21T11:34:42.787Z",
+  "version": "1.1.0",
   "matrix": "esggo-ts-matrix",
   "forward": {
     "sharedPath": "packages/shared/src/types",
@@ -82,5 +82,10 @@
     "shadowedCount": 0,
     "shadowed": []
   },
-  "pass": true
+  "pass": true,
+  "lock": {
+    "sha256": "bf46749632111b723df766ebdd427530bd282b8f11b7259b9f07b2de4f7e9f0d",
+    "algorithm": "sha256",
+    "note": "Trustworthy 5T - lock of drift-report.json content"
+  }
 }

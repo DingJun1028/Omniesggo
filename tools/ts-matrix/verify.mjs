@@ -4,8 +4,12 @@
 // 5T: Traceable(this script path) / Trackable(drift-report.json timestamp) /
 //      Tangible(exit 0 on pass) / Transparent(JSON report) / Trustworthy(SHA256 commit)
 
-import { readFileSync, readdirSync, statSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, readdirSync, statSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
+import { createHash } from 'node:crypto';
+
+// SHA256 helper (Trustworthy lock)
+const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 
 const ROOT = process.cwd();
 const PACKAGES = join(ROOT, 'packages');
@@ -98,28 +102,40 @@ const reverse = {
 // 5T PASS criteria:
 const passForward = forward.exportCount > 0;
 const passReverse = reverse.shadowedCount === 0;
+const pass = passForward && passReverse;
 
 const report = {
   timestamp: new Date().toISOString(),
-  version: '1.0.0',
+  version: '1.1.0',
   matrix: 'esggo-ts-matrix',
   forward,
   reverse,
-  pass: passForward && passReverse,
+  pass,
+};
+
+// Trustworthy: SHA256 lock of report itself (5T Gate)
+const reportSha = sha256(JSON.stringify(report, null, 2));
+const finalReport = {
+  ...report,
+  lock: {
+    sha256: reportSha,
+    algorithm: 'sha256',
+    note: 'Trustworthy 5T - lock of drift-report.json content',
+  },
 };
 
 // Write drift-report.json (Trustworthy artifact)
 const reportPath = join(ROOT, 'tools/ts-matrix/drift-report.json');
-import { mkdirSync } from 'node:fs';
 mkdirSync(join(ROOT, 'tools/ts-matrix'), { recursive: true });
-writeFileSync(reportPath, JSON.stringify(report, null, 2) + '\n', 'utf-8');
+writeFileSync(reportPath, JSON.stringify(finalReport, null, 2) + '\n', 'utf-8');
 
-console.log(`=== 終始矩陣雙向驗證閘 ===`);
+console.log(`=== 終始矩陣雙向驗證閘 (v1.1.0 + Trustworthy lock) ===`);
 console.log(`Forward (shared 提供 ${forward.exportCount} 個 export): ${passForward ? '✓' : '✗'}`);
 console.log(`Reverse (consumer 無 drift): ${passReverse ? '✓' : '✗'} | shadowed=${reverse.shadowedCount}`);
+console.log(`Trustworthy SHA256 lock: ${reportSha.slice(0, 24)}...`);
 if (reverse.shadowed.length) {
   for (const s of reverse.shadowed) {
-    console.log(`  ⚠️  ${s.name} shadowed in ${s.shadowedIn} (pkg=${s.pkg})`);
+    console.log(`  ⚠️  ${s.type} shadowed in ${s.shadowedIn} (pkg=${s.pkg})`);
   }
 }
 console.log(`\nReport: ${relative(ROOT, reportPath)}`);

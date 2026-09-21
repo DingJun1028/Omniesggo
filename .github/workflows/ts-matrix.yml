@@ -1,0 +1,48 @@
+name: TS Matrix 双向验证闸 (esggo)
+
+on:
+  push:
+    branches: [main, develop, feat/**]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    name: TS Matrix Drift Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run TS Matrix 双向验证闸
+        run: node tools/ts-matrix/verify.mjs
+      - name: Upload drift-report.json (Trustworthy 5T evidence)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ts-matrix-drift-report-${{ github.sha }}
+          path: tools/ts-matrix/drift-report.json
+          retention-days: 30
+      - name: Fail on drift
+        if: hashFiles('tools/ts-matrix/drift-report.json') != ''
+        run: |
+          # Fail if reverse.shadowedCount > 0
+          count=$(node -e "const r = require('./tools/ts-matrix/drift-report.json'); console.log(r.reverse.shadowedCount)")
+          if [ "$count" -gt "0" ]; then
+            echo "::error::TS Matrix 發現 $count 處 type drift"
+            exit 1
+          fi
+          echo "✅ TS Matrix 雙向 PASS"
