@@ -1,0 +1,14 @@
+{
+  "locale": "en",
+  "version": "1.0.0",
+  "dict": {
+    "app.title": "Omni Avatar",
+    "app.subtitle": "Share with everyone, everywhere",
+    "app.welcome": "Welcome to Omni Avatar",
+    "nav.home": "Home",
+    "nav.about": "About",
+    "nav.contact": "Contact",
+    "btn.submit": "Submit",
+    "btn.cancel": "Cancel"
+  }
+}

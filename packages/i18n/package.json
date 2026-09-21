@@ -1,0 +1,23 @@
+{
+  "name": "@esggo/i18n",
+  "version": "0.3.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/canon.d.ts",
+  "types": "./src/canon.d.ts",
+  "exports": {
+    ".": "./src/canon.d.ts",
+    "./canon": "./src/canon.d.ts",
+    "./zh-TW": "./src/i18n/zh-TW.json",
+    "./en": "./src/i18n/en.json"
+  },
+  "scripts": {
+    "i18n:gen": "tsx scripts/gen.ts",
+    "i18n:check": "tsx scripts/gen.ts && tsx scripts/verify.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  }
+}
