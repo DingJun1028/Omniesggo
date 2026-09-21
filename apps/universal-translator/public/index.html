@@ -137,7 +137,8 @@ body{margin:0;font-family:var(--font);color:var(--txt);min-height:100vh;padding:
       <button id="deviceRefresh" class="copy-btn" style="margin-top:0">🔄</button>
     </div>
     <div class="meter" id="meter" style="margin-top:8px"><div class="meter-fill" id="meterFill"></div><span class="meter-tip" id="meterTip">音量（開始後顯示系統音強弱）</span></div>
-    <button class="start-btn" id="startBtn" style="margin-top:10px"><span id="startIco">▶</span><span id="startLabel">開始語音轉字幕</span></button>
+    <div class="lang-display" style="text-align:center;margin-bottom:8px;font-size:.82rem;color:var(--muted);">ↆ 轉譯開始 · 中文(台灣) ⇄ English</div>
+    <button class="start-btn" id="startBtn" style="margin-top:10px"><span id="startIco">▶</span><span id="startLabel">開始轉錄</span></button>
     <div class="row" style="margin-top:8px">
       <span class="pill" id="srcBadge" style="border-color:var(--accent)"><span class="dot" style="background:var(--accent)"></span><span id="srcBadgeTxt">系統音待命</span></span>
       <span class="pill" id="levelBadge"><span class="dot" style="background:var(--muted)"></span><span id="levelBadgeTxt">音量 0%</span></span>
@@ -369,11 +370,11 @@ async function start(){
   if(useSys){
     $('#startLabel').textContent='請選擇分享來源（勾「分享音訊」）…';
     stream=await startSys();
-    if(!stream){ running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始語音轉字幕';$('#startIco').textContent='▶'; return; }
+    if(!stream){ running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始轉錄';$('#startIco').textContent='▶'; return; }
     $('#startLabel').textContent='🖥 系統音收音中…';
   }else{
     stream=await startMic();
-    if(!stream){ running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始語音轉字幕';$('#startIco').textContent='▶'; return; }
+    if(!stream){ running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始轉錄';$('#startIco').textContent='▶'; return; }
     useSR=startSR();
     if(useSR)$('#startLabel').textContent='🎙 語音辨識中（Chrome 原生）…';
     else { startMeter(stream); startRecording(stream,'麥克風'); $('#startLabel').textContent='🎙 麥克風收音中…'; }
@@ -383,7 +384,7 @@ async function start(){
 function stop(){ running=false;useSR=false;
   if(recognition){try{recognition.stop();}catch(_){}recognition=null;}
   if(rec&&rec.state!=='inactive')rec.stop(); if(stream)stream.getTracks().forEach(t=>t.stop());stream=null; stopMeter();
-  $('#startBtn').classList.remove('recording'); $('#startLabel').textContent='開始語音轉字幕'; $('#startIco').textContent='▶';
+  $('#startBtn').classList.remove('recording'); $('#startLabel').textContent='開始轉錄'; $('#startIco').textContent='▶';
   updateBadge(); $('#levelBadgeTxt').textContent='音量 0%'; $('#levelBadge').querySelector('.dot').style.background='var(--muted)';
 }
 

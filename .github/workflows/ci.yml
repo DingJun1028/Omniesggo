@@ -34,12 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -54,11 +54,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -77,12 +77,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
         with:
           fetch-depth: 0
       - name: Scan for committed secrets
@@ -121,12 +121,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -138,7 +138,7 @@ jobs:
           NODE_ENV: test
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v5-beta    # Upgraded from v4 — Node24 compatible
+        uses: actions/upload-artifact@v4    # Upgraded from v4 — Node24 compatible
         with:
           name: test-results-${{ github.sha }}
           path: |
@@ -152,9 +152,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -189,10 +189,10 @@ jobs:
     # 啟用方式: gh variable set SONAR_ENABLED --body true  +  gh secret set SONAR_TOKEN
     if: ${{ vars.SONAR_ENABLED == 'true' }}
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install SonarQube CLI
@@ -210,8 +210,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Verify SonarQube integration artifacts
@@ -225,12 +225,12 @@ jobs:
     timeout-minutes: 20
     needs: [typecheck, eslint, test, secret-scan]
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
 
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -248,7 +248,7 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
           NEXT_PUBLIC_SUPABASE_ANON_KEY: "build-placeholder"
       - name: Upload build artifact
-        uses: actions/upload-artifact@v5-beta    # Upgraded from v4 — Node24 compatible
+        uses: actions/upload-artifact@v4    # Upgraded from v4 — Node24 compatible
         with:
           name: nextjs-build-${{ github.sha }}
           path: .next/
@@ -261,7 +261,7 @@ jobs:
     timeout-minutes: 20
     needs: [build]
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - name: Build Docker image
         run: |
           docker build \
@@ -288,9 +288,9 @@ jobs:
     timeout-minutes: 15
     needs: [build]
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -343,11 +343,11 @@ jobs:
           - gate: incremental # 增量輸出 §12/§15.5
             cmd: npx tsx scripts/verify-incremental.mjs
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -366,11 +366,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -385,7 +385,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - name: Install PyYAML
         run: python3 -m pip install pyyaml
       - name: Run OA-Team 30-Swarm verification
@@ -402,8 +402,8 @@ jobs:
     timeout-minutes: 15
     if: ${{ vars.E2E_ENABLED == 'true' }}
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install Playwright (standalone, no pnpm)
@@ -427,11 +427,11 @@ jobs:
     timeout-minutes: 15
     if: ${{ vars.OA_MEMORY_ENABLED == 'true' }}
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
@@ -459,7 +459,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - name: Bash syntax check
         run: |
           set -e
@@ -516,11 +516,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5-beta          # Upgraded from v4 for Node24 compatibility
+      - uses: actions/checkout@v4          # Upgraded from v4 for Node24 compatibility
       - uses: pnpm/action-setup@v4
         with:
           version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v5-beta    # Upgraded from v4 — supports Node24+ runtime
+      - uses: actions/setup-node@v4    # Upgraded from v4 — supports Node24+ runtime
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "pnpm"
