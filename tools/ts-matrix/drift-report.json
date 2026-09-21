@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-09-21T11:30:54.534Z",
+  "version": "1.0.0",
+  "matrix": "esggo-ts-matrix",
+  "forward": {
+    "sharedPath": "packages/shared/src/types",
+    "exportCount": 14,
+    "exports": [
+      {
+        "name": "OmniChartProof",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "ChartDataPoint",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "BaseOmniChartProps",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "OmniBarChartProps",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "OmniPieChartProps",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "ESGChartKnowledge",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "OmniDataAnalyticsConfig",
+        "from": "./esg-charts",
+        "kind": "interface"
+      },
+      {
+        "name": "Locale",
+        "from": "./i18n",
+        "kind": "type"
+      },
+      {
+        "name": "DictKey",
+        "from": "./i18n",
+        "kind": "type"
+      },
+      {
+        "name": "Dictionary",
+        "from": "./i18n",
+        "kind": "type"
+      },
+      {
+        "name": "I18nBundle",
+        "from": "./i18n",
+        "kind": "interface"
+      },
+      {
+        "name": "LOCALES",
+        "from": "./i18n",
+        "kind": "const"
+      },
+      {
+        "name": "KEYS",
+        "from": "./i18n",
+        "kind": "const"
+      },
+      {
+        "name": "EXPECTED_KEY_COUNT",
+        "from": "./i18n",
+        "kind": "const"
+      }
+    ]
+  },
+  "reverse": {
+    "shadowedCount": 0,
+    "shadowed": []
+  },
+  "pass": true
+}
