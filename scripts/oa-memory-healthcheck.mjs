@@ -17,9 +17,49 @@
 // 退出碼: 0 = 健康, 1 = 異常
 
 import process from 'node:process';
+import fs from 'node:fs';
+import path from 'node:path';
+
+// ── 金鑰解析（2026-09-21 修）───────────────────────────────────────────────
+// Bearer gate 用的是 gateway 的 server.apiKey（32 bytes），
+// **不是** .admin-key（39 bytes 的 sk-mem-... user_key）。兩者混用會全部 401。
+// cron 會顯式 export TDAI_GATEWAY_API_KEY=.admin-key（錯誤的 user_key），
+// 所以不能只靠 env 優先：env key 若 401，要能自動改試 yaml 裡真正的 gateway key。
+function gatewayKeyFromYaml() {
+  const candidates = [
+    'C:/Users/dingj/.memory-tencentdb/memory-tdai/tdai-gateway.yaml',
+    path.join(process.env.USERPROFILE ?? 'C:/Users/dingj', '.memory-tencentdb/memory-tdai/tdai-gateway.yaml'),
+    '/c/Project/esggo/apps/tencentdb-memory/.memory-core-config/tdai-gateway.yaml',
+  ];
+
+  for (const f of candidates) {
+    try {
+      if (!fs.existsSync(f)) continue;
+      const txt = fs.readFileSync(f, 'utf8');
+      // 取 server: 區塊下的 apiKey（第一個縮排 apiKey）
+      const m = txt.match(/^server:\s*\n(?:[ \t]+.*\n)*?[ \t]+apiKey:\s*"?([^"\r\n]+)"?/m)
+             ?? txt.match(/^[ \t]+apiKey:\s*"?([^"\r\n]+)"?/m);
+      const k = m?.[1]?.trim();
+      if (k) return k;
+    } catch { /* 繼續下一個候選 */ }
+  }
+  return '';
+}
+
+function resolveKey() {
+  return process.env.TDAI_GATEWAY_API_KEY || gatewayKeyFromYaml() || fallbackAdminKey();
+}
+
+function fallbackAdminKey() {
+  try {
+    return fs.readFileSync('/c/Project/esggo/apps/tencentdb-memory/.admin-key', 'utf8').trim();
+  } catch { return ''; }
+}
 
 const CORE = process.env.TDAI_GATEWAY_URL ?? 'http://127.0.0.1:8420';
-const KEY = process.env.TDAI_GATEWAY_API_KEY ?? '';
+// 可變：401 時會換成 yaml 的 gateway key 重試
+let KEY = resolveKey();
+let KEY_SWITCHED = false;
 const SVC = process.env.TDAI_SERVICE_ID ?? 'oa-team-swarm';
 const USER = 'admin';
 const QUIET = process.env.HEALTHCHECK_QUIET === '1';
@@ -111,7 +151,21 @@ async function main() {
   if (!h.ok) return finish(checks, 'core 不可達，停止後續檢查');
 
   const sid = `oa-health-${Date.now()}`;
-  const w1 = await withTimeout(capture(sid, 'Bee-07 編碼蜂', `healthcheck ${new Date().toISOString()}`), TIMEOUT_MS, 'w1').catch((e) => ({ ok: false, code: e.message }));
+  let w1 = await withTimeout(capture(sid, 'Bee-07 編碼蜂', `healthcheck ${new Date().toISOString()}`), TIMEOUT_MS, 'w1').catch((e) => ({ ok: false, code: e.message }));
+
+  // ── 401 自動換 key 重試 ──────────────────────────────────────────────────
+  // cron 傳的 TDAI_GATEWAY_API_KEY 常是 .admin-key（user_key，非 gateway key）。
+  // 第一次寫入 401 時，改用 yaml 裡真正的 server.apiKey 重試整輪，避免假告警。
+  if (!w1.ok && w1.code === 401 && !KEY_SWITCHED) {
+    const alt = gatewayKeyFromYaml();
+    if (alt && alt !== KEY) {
+      KEY = alt;
+      KEY_SWITCHED = true;
+      console.log('  [i] 401 → 改用 gateway yaml 的 server.apiKey 重試（env key 是 user_key，非 gateway key）');
+      w1 = await withTimeout(capture(sid, 'Bee-07 編碼蜂', `healthcheck ${new Date().toISOString()}`), TIMEOUT_MS, 'w1-retry').catch((e) => ({ ok: false, code: e.message }));
+    }
+  }
+
   const w2 = await withTimeout(capture(sid, 'Bee-03 分析蜂', 'healthcheck recall probe'), TIMEOUT_MS, 'w2').catch((e) => ({ ok: false, code: e.message }));
 
   const w1Ok = !!w1.ok && (Array.isArray(w1.ids) ? w1.ids.length > 0 : false);
