@@ -54,14 +54,20 @@ function scanShadowedTypes(sharedExports) {
       // Skip shared itself
       if (file.includes(`packages\\${sharedPkg}\\`) || file.includes(`packages/${sharedPkg}/`)) continue;
       for (const name of sharedNames) {
-        // Match `export type Name` or `export interface Name` (NOT a re-export)
-        const re = new RegExp(`export\\s+(?:type|interface)\\s+${name}\\b`, 'g');
-        if (re.test(content) && !/export\s*\*\s*from/.test(content.split(re)[0])) {
-          shadowed.push({
-            type: name,
-            shadowedIn: relative(ROOT, file),
-            pkg: pkg.name,
-          });
+        // Match `export type Name` or `export interface Name` (with possible newline/whitespace)
+        // Use individual tests instead of split() with stateful regex
+        const lines = content.split('\n');
+        for (const line of lines) {
+          const re = new RegExp(`export\\s+(?:type|interface)\\s+${name}\\b`);
+          if (re.test(line)) {
+            // Skip if it's a re-export (contains `from` after the name)
+            if (/from\s*['"]/.test(line)) continue;
+            shadowed.push({
+              type: name,
+              shadowedIn: relative(ROOT, file),
+              pkg: pkg.name,
+            });
+          }
         }
       }
     }
@@ -77,7 +83,10 @@ function walkTs(dir) {
     const p = join(dir, it.name);
     if (it.isDirectory()) {
       files.push(...walkTs(p));
-    } else if (it.name.endsWith('.ts') && !it.name.endsWith('.d.ts')) {
+    } else if (
+      // Include: .ts, .tsx, AND .d.ts (re-export pattern lives in .d.ts)
+      (it.name.endsWith('.ts') || it.name.endsWith('.tsx') || it.name.endsWith('.d.ts'))
+    ) {
       files.push(p);
     }
   }
