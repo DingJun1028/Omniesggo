@@ -7,23 +7,25 @@
 import { readFileSync, readdirSync, statSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 
 // SHA256 helper (Trustworthy lock)
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 
+// CLI-only constant; pure functions accept root parameter for in-process testing
 const ROOT = process.argv[2] || process.cwd();
-const PACKAGES = join(ROOT, 'packages');
 
 // ─── Forward: scan shared/types/* exports ──────────────────────
-function scanSharedExports() {
-  const sharedIndex = join(PACKAGES, 'shared/src/types/index.ts');
+export function scanSharedExports(root = ROOT) {
+  const packagesDir = join(root, 'packages');
+  const sharedIndex = join(packagesDir, 'shared/src/types/index.ts');
   if (!existsSync(sharedIndex)) return new Map();
   const content = readFileSync(sharedIndex, 'utf-8');
   const exports = new Map();
   // Match `export * from './xxx'` (re-exports)
   for (const m of content.matchAll(/export\s*\*\s*from\s*['"]([^'"]+)['"]/g)) {
     const from = m[1];
-    const target = join(PACKAGES, 'shared/src/types', `${from}.ts`);
+    const target = join(packagesDir, 'shared/src/types', `${from}.ts`);
     if (!existsSync(target)) continue;
     const targetContent = readFileSync(target, 'utf-8');
     // Extract exported types & values from the module
@@ -38,15 +40,16 @@ function scanSharedExports() {
 }
 
 // ─── Reverse: scan all consumer packages for shadowed declarations ──
-function scanShadowedTypes(sharedExports) {
+export function scanShadowedTypes(sharedExports, root = ROOT) {
   const shadowed = [];
   const sharedNames = [...sharedExports.keys()];
   if (sharedNames.length === 0) return shadowed;
   const sharedPkg = 'shared';
-  const pkgDirs = readdirSync(PACKAGES, { withFileTypes: true }).filter(d => d.isDirectory());
+  const packagesDir = join(root, 'packages');
+  const pkgDirs = readdirSync(packagesDir, { withFileTypes: true }).filter(d => d.isDirectory());
   for (const pkg of pkgDirs) {
     if (pkg.name === sharedPkg) continue;
-    const pkgPath = join(PACKAGES, pkg.name);
+    const pkgPath = join(packagesDir, pkg.name);
     let files;
     try { files = walkTs(pkgPath); } catch { continue; }
     for (const file of files) {
@@ -64,7 +67,7 @@ function scanShadowedTypes(sharedExports) {
             if (/from\s*['"]/.test(line)) continue;
             shadowed.push({
               type: name,
-              shadowedIn: relative(ROOT, file),
+              shadowedIn: relative(root, file),
               pkg: pkg.name,
             });
           }
@@ -75,7 +78,7 @@ function scanShadowedTypes(sharedExports) {
   return shadowed;
 }
 
-function walkTs(dir) {
+export function walkTs(dir) {
   const files = [];
   const items = readdirSync(dir, { withFileTypes: true });
   for (const it of items) {
@@ -93,66 +96,68 @@ function walkTs(dir) {
   return files;
 }
 
-// ─── Main ────────────────────────────────────────────────────
-const sharedExports = scanSharedExports();
-const shadowed = scanShadowedTypes(sharedExports);
+// ─── CLI guard ──────────────────────────────────────────────
+// Only run side effects (writeFile, console.log, process.exitCode) when
+// invoked as CLI. When imported as a module, callers (TDD tests) handle side effects.
+const isCLI = process.argv[1] === fileURLToPath(import.meta.url);
 
-const forward = {
-  sharedPath: 'packages/shared/src/types',
-  exportCount: sharedExports.size,
-  exports: [...sharedExports.entries()].map(([name, info]) => ({ name, ...info })),
-};
+if (isCLI) {
+  const sharedExports = scanSharedExports();
+  const shadowed = scanShadowedTypes(sharedExports);
 
-const reverse = {
-  shadowedCount: shadowed.length,
-  shadowed,
-};
+  const forward = {
+    sharedPath: 'packages/shared/src/types',
+    exportCount: sharedExports.size,
+    exports: [...sharedExports.entries()].map(([name, info]) => ({ name, ...info })),
+  };
 
-// 5T PASS criteria:
-const passForward = forward.exportCount > 0;
-const passReverse = reverse.shadowedCount === 0;
-const pass = passForward && passReverse;
+  const reverse = {
+    shadowedCount: shadowed.length,
+    shadowed,
+  };
 
-const report = {
-  timestamp: new Date().toISOString(),
-  version: '1.1.0',
-  matrix: 'esggo-ts-matrix',
-  forward,
-  reverse,
-  pass,
-};
+  const passForward = forward.exportCount > 0;
+  const passReverse = reverse.shadowedCount === 0;
 
-// Trustworthy: SHA256 lock of report itself (5T Gate)
-const reportSha = sha256(JSON.stringify(report, null, 2));
-const finalReport = {
-  ...report,
-  lock: {
-    sha256: reportSha,
-    algorithm: 'sha256',
-    note: 'Trustworthy 5T - lock of drift-report.json content',
-  },
-};
+  const report = {
+    timestamp: new Date().toISOString(),
+    version: '1.1.0',
+    matrix: 'esggo-ts-matrix',
+    forward,
+    reverse,
+    pass: passForward && passReverse,
+  };
 
-// Write drift-report.json (Trustworthy artifact)
-const reportPath = join(ROOT, 'tools/ts-matrix/drift-report.json');
-mkdirSync(join(ROOT, 'tools/ts-matrix'), { recursive: true });
-writeFileSync(reportPath, JSON.stringify(finalReport, null, 2) + '\n', 'utf-8');
+  // Trustworthy: SHA256 lock of report itself
+  const reportSha = sha256(JSON.stringify(report, null, 2));
+  const finalReport = {
+    ...report,
+    lock: {
+      sha256: reportSha,
+      algorithm: 'sha256',
+      note: 'Trustworthy 5T - lock of drift-report.json content',
+    },
+  };
 
-console.log(`=== 終始矩陣雙向驗證閘 (v1.1.0 + Trustworthy lock) ===`);
-console.log(`Forward (shared 提供 ${forward.exportCount} 個 export): ${passForward ? '✓' : '✗'}`);
-console.log(`Reverse (consumer 無 drift): ${passReverse ? '✓' : '✗'} | shadowed=${reverse.shadowedCount}`);
-console.log(`Trustworthy SHA256 lock: ${reportSha.slice(0, 24)}...`);
-if (reverse.shadowed.length) {
-  for (const s of reverse.shadowed) {
-    console.log(`  ⚠️  ${s.type} shadowed in ${s.shadowedIn} (pkg=${s.pkg})`);
+  // Write drift-report.json
+  const reportPath = join(ROOT, 'tools/ts-matrix/drift-report.json');
+  mkdirSync(join(ROOT, 'tools/ts-matrix'), { recursive: true });
+  writeFileSync(reportPath, JSON.stringify(finalReport, null, 2) + '\n', 'utf-8');
+
+  console.log(`=== 終始矩陣雙向驗證閘 (v1.1.0 + Trustworthy lock) ===`);
+  console.log(`Forward (shared 提供 ${forward.exportCount} 個 export): ${passForward ? '✓' : '✗'}`);
+  console.log(`Reverse (consumer 無 drift): ${passReverse ? '✓' : '✗'} | shadowed=${reverse.shadowedCount}`);
+  console.log(`Trustworthy SHA256 lock: ${reportSha.slice(0, 24)}...`);
+  if (reverse.shadowed.length) {
+    for (const s of reverse.shadowed) {
+      console.log(`  ⚠️  ${s.type} shadowed in ${s.shadowedIn} (pkg=${s.pkg})`);
+    }
   }
+  console.log(`\nReport: ${relative(ROOT, reportPath)}`);
+
+  // Set exit code without forcing immediate exit (lets stdout flush naturally)
+  process.exitCode = passForward && passReverse ? 0 : 1;
 }
-console.log(`\nReport: ${relative(ROOT, reportPath)}`);
 
-// -- Always run CLI side effects (process.exit included).
-// -- For in-process testing, import ./verify-functions.mjs instead.
-export { scanSharedExports, scanShadowedTypes, walkTs, sha256 };
-
-// Set exit code without forcing immediate exit, so stdout flushes via natural
-// process teardown — needed when run via Node child_process.execFileSync.
-process.exitCode = passForward && passReverse ? 0 : 1;
+// Always export for TDD in-process testing
+export { sha256 };
