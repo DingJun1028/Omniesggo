@@ -8,9 +8,35 @@ WORKDIR /app
 RUN apk upgrade --no-cache && apk add --no-cache libc6-compat build-base python3
 RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
-COPY packages/errors/package.json packages/errors/
+COPY packages/omni-agent-bus/package.json packages/omni-agent-bus/
+COPY packages/oa-framework/package.json packages/oa-framework/
+COPY packages/omni-agent/package.json packages/omni-agent/
 COPY packages/shared/package.json packages/shared/
+COPY packages/cli/package.json packages/cli/
+COPY packages/capacities/package.json packages/capacities/
+COPY packages/errors/package.json packages/errors/
 COPY packages/ui/package.json packages/ui/
+COPY libs/incremental/package.json libs/incremental/
+COPY apps/ftg-tools/package.json apps/ftg-tools/
+COPY apps/omni-factory/package.json apps/omni-factory/
+COPY apps/omnilive/package.json apps/omnilive/
+COPY apps/ftg-journey-web/package.json apps/ftg-journey-web/
+COPY apps/universal-translator/package.json apps/universal-translator/
+COPY apps/omni-cli/package.json apps/omni-cli/
+COPY apps/omni-api/package.json apps/omni-api/
+COPY apps/self-healing/package.json apps/self-healing/
+COPY apps/evolution-engine/package.json apps/evolution-engine/
+COPY apps/omni-blueprint-hub/package.json apps/omni-blueprint-hub/
+COPY apps/ftg-journey-server/package.json apps/ftg-journey-server/
+COPY apps/gateway/package.json apps/gateway/
+COPY apps/learning-center/package.json apps/learning-center/
+COPY apps/ftg-tours-website/package.json apps/ftg-tours-website/
+COPY apps/cf-tunnel-manager/package.json apps/cf-tunnel-manager/
+COPY apps/oneringai/package.json apps/oneringai/
+COPY cli/omnicli/package.json cli/omnicli/
+COPY cli/esggo-cli/package.json cli/esggo-cli/
+COPY cli/oa-cli/package.json cli/oa-cli/
+COPY apps/learning-center/functions/package.json apps/learning-center/functions/
 RUN pnpm install --frozen-lockfile --ignore-scripts
 
 FROM --platform=linux/arm64 node:22-alpine AS builder

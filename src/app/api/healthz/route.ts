@@ -134,12 +134,13 @@ export async function GET(request: NextRequest) {
       environment: process.env.NODE_ENV || 'development'
     }, { status: statusCode });
 
-  } catch {
+  } catch (error) {
+    console.error('[Health Check Error]', error);
     return NextResponse.json({
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       service: 'smart-ai-router',
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: 'Health check failed due to an internal error'
     }, { status: 503 });
   }
 }
