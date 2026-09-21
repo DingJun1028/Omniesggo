@@ -1,0 +1,23 @@
+# dependencies
+node_modules/
+
+# build artifacts (dist/ 完全不入庫, 由 npm run i18n:check 重新生成)
+# 注意: 唯一例外是 dist/5T-PROOF.json, 需入庫以供 Trustworthy 追溯
+dist/
+!dist/5T-PROOF.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+*.swp
+
+# env
+.env
+.env.local
+
+# scratch
+.scratch/
