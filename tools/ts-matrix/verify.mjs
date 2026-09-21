@@ -11,7 +11,7 @@ import { createHash } from 'node:crypto';
 // SHA256 helper (Trustworthy lock)
 const sha256 = (s) => createHash('sha256').update(s).digest('hex');
 
-const ROOT = process.cwd();
+const ROOT = process.argv[2] || process.cwd();
 const PACKAGES = join(ROOT, 'packages');
 
 // ─── Forward: scan shared/types/* exports ──────────────────────
@@ -149,4 +149,10 @@ if (reverse.shadowed.length) {
 }
 console.log(`\nReport: ${relative(ROOT, reportPath)}`);
 
-process.exit(passForward && passReverse ? 0 : 1);
+// -- Always run CLI side effects (process.exit included).
+// -- For in-process testing, import ./verify-functions.mjs instead.
+export { scanSharedExports, scanShadowedTypes, walkTs, sha256 };
+
+// Set exit code without forcing immediate exit, so stdout flushes via natural
+// process teardown — needed when run via Node child_process.execFileSync.
+process.exitCode = passForward && passReverse ? 0 : 1;
