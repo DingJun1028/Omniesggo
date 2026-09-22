@@ -3,425 +3,691 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>萬能即時翻譯 · 繁中↔英文 雙向及時字幕 (Gemini 3.5 Live 可選增強)</title>
+<title>萬能即時翻譯 · 繁中 ↔ 英文 雙向及時字幕</title>
 <script src="./qrcode.min.js"></script>
 <style>
 :root{
-  --bg:#070b12;--panel:rgba(20,27,41,.74);--panel2:rgba(14,22,35,.6);
-  --accent:#36e0c0;--accent2:#5b8cff;--txt:#eaf1fb;--muted:#8a97ad;
-  --line:rgba(255,255,255,.1);--radius:18px;--gap:clamp(12px,2.4vw,18px);
-  --gold:#ffd479;--ok:#22c55e;--err:#ff5d6c;
+  /* 品牌色: 深藍 + 暖金 + 米白 + 綠 */
+  --navy:#10243f;--navy2:#163054;--navy3:#1c3a64;
+  --gold:#c9a24b;--gold2:#e0bd68;--gold-dim:rgba(201,162,75,.18);
+  --cream:#f3ede1;--white:#fbfaf7;
+  --green:#3c6e47;--green2:#4a8a57;
+  --red:#c94a55;--red2:#e06470;
+  --bg:#0b1829;--panel:rgba(16,32,63,.82);--panel2:rgba(22,48,84,.7);
+  --line:rgba(201,162,75,.18);--line2:rgba(255,255,255,.08);
+  --txt:#f3ede1;--muted:#9fb0c7;--muted2:#7a8aa0;
+  --accent:#c9a24b;--accent2:#4a8a57;
+  --radius:14px;--radius-lg:20px;
+  --gap:clamp(12px,2.4vw,18px);
   --font:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.04);
+}
+[data-theme="light"]{
+  --bg:#f3ede1;--panel:rgba(255,255,255,.86);--panel2:rgba(243,237,225,.9);
+  --txt:#10243f;--muted:#4a5c73;--line:rgba(16,32,63,.14);
+  --shadow:0 20px 60px rgba(16,32,63,.15);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;font-family:var(--font);color:var(--txt);min-height:100vh;padding:var(--gap);
-  background:radial-gradient(900px 500px at 85% -5%,rgba(91,140,255,.18),transparent 60%),
-    radial-gradient(700px 500px at 10% 110%,rgba(54,224,192,.16),transparent 55%),var(--bg);
-  background-attachment:fixed}
-.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:var(--gap)}
-.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
-.topbar h1{font-size:clamp(1.25rem,3.2vw,1.7rem);margin:0;font-weight:800;letter-spacing:.3px;
-  background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
-.topbar .sub{font-size:.82rem;color:var(--muted);margin-top:3px}
-.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.pill{display:inline-flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);background:var(--panel2);
-  border:1px solid var(--line);border-radius:999px;padding:6px 13px}
-.pill .dot{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e}
-.ico-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);cursor:pointer;font-size:1.05rem;display:grid;place-items:center;transition:.2s}
-.ico-btn:hover{border-color:var(--accent)}
+html{scroll-behavior:smooth}
+body{
+  margin:0;font-family:var(--font);color:var(--txt);min-height:100vh;
+  background:
+    radial-gradient(800px 500px at 95% -10%,rgba(74,138,87,.12),transparent 60%),
+    radial-gradient(600px 400px at 5% 110%,rgba(201,162,75,.10),transparent 55%),
+    var(--bg);
+  background-attachment:fixed;
+  display:flex;flex-direction:column;gap:var(--gap);padding:var(--gap) var(--gap) 80px var(--gap);
+  line-height:1.5;
+}
 
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;
-  box-shadow:0 18px 50px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+/* === Header === */
+.header{
+  max-width:720px;width:100%;margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand h1{
+  font-size:clamp(1.15rem,3vw,1.5rem);margin:0;font-weight:800;letter-spacing:.3px;
+  background:linear-gradient(135deg,var(--cream) 0%,var(--gold) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  line-height:1.2;
+}
+[data-theme="light"] .brand h1{background:linear-gradient(135deg,var(--navy) 0%,var(--gold) 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand .sub{font-size:.78rem;color:var(--muted);letter-spacing:.4px;font-weight:500}
+.header-right{display:flex;align-items:center;gap:10px}
+.health{display:inline-flex;align-items:center;gap:7px;font-size:.76rem;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 12px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.health .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.health.warn .dot{background:var(--gold)}
+.health.err .dot{background:var(--red)}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);cursor:pointer;font-size:1rem;display:grid;place-items:center;transition:.2s;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.icon-btn:hover{border-color:var(--gold);background:var(--gold-dim)}
+
+/* === Main Card === */
+.main{
+  max-width:720px;width:100%;margin:0 auto;
+  background:var(--panel);border:1px solid var(--line);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  padding:clamp(18px,4vw,28px);
+  display:flex;flex-direction:column;gap:clamp(14px,3vw,22px);
+}
+
+/* Row / Grid */
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:480px){.grid-2{grid-template-columns:1fr}}
+
+/* Chips */
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{padding:7px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);color:var(--muted);cursor:pointer;font-size:.86rem;font-weight:600;transition:.18s;user-select:none}
-.chip.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04130f;border-color:transparent;box-shadow:0 4px 16px rgba(54,224,192,.35)}
-.check{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);cursor:pointer;user-select:none}
-.check input{width:17px;height:17px;accent-color:var(--accent)}
+.chip{
+  padding:8px 16px;border-radius:999px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--muted);cursor:pointer;font-size:.85rem;font-weight:600;
+  transition:.2s;user-select:none;letter-spacing:.3px;
+}
+.chip:hover{border-color:var(--gold);color:var(--txt)}
+.chip.active{
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
+  color:var(--navy);border-color:transparent;box-shadow:0 4px 18px rgba(201,162,75,.35);
+}
+.chip.active::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--navy);margin-right:6px;vertical-align:middle}
 
-/* 開始 CTA */
-.start-btn{font-size:1.1rem;font-weight:800;padding:14px 22px;border-radius:14px;border:none;cursor:pointer;color:#04130f;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 30px rgba(54,224,192,.4);transition:.18s;display:flex;align-items:center;gap:10px;justify-content:center}
-.start-btn:hover{transform:translateY(-2px)}
-.start-btn.recording{background:linear-gradient(135deg,#ff8a5b,#ff5d6c);color:#fff;box-shadow:0 10px 30px rgba(255,93,108,.45);animation:pulse 1.4s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
-.pick{display:flex;gap:10px;flex-wrap:wrap}
-.pick button{flex:1;min-width:140px;padding:11px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);cursor:pointer;font-size:.9rem;transition:.15s}
-.pick button:hover{border-color:var(--accent)}
-.pick button.active{border-color:var(--accent);background:rgba(54,224,192,.12)}
+/* Language Toggle */
+.lang-toggle{
+  display:flex;align-items:center;gap:8px;
+  background:var(--panel2);border:1px solid var(--line);border-radius:10px;
+  padding:6px 14px;cursor:pointer;transition:.2s;
+}
+.lang-toggle:hover{border-color:var(--gold)}
+.lang-toggle .lbl{font-weight:700;font-size:.9rem;color:var(--txt)}
+.lang-toggle .arrow{color:var(--gold);font-size:.9rem}
 
-/* 音量條 */
-.meter{position:relative;height:20px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;overflow:hidden}
-.meter-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .08s linear}
-.meter.live .meter-fill{box-shadow:0 0 12px rgba(54,224,192,.5)}
-.meter-tip{position:absolute;inset:0;display:grid;place-items:center;font-size:.72rem;color:var(--muted)}
-.meter.live .meter-tip{display:none}
+/* Source Toggle */
+.source-toggle{display:flex;background:var(--panel2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.source-toggle button{
+  padding:9px 16px;border:0;background:transparent;color:var(--muted);cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.2s;font-family:var(--font);
+}
+.source-toggle button.active{background:var(--navy);color:var(--gold)}
+.source-toggle button:first-child{border-right:1px solid var(--line)}
+[data-theme="light"] .source-toggle button.active{background:var(--gold);color:var(--navy)}
 
-/* 字幕顯示 (浮層風格, 一體化內嵌) */
-.caption{margin-top:4px;background:linear-gradient(135deg,rgba(12,18,30,.75),rgba(8,12,20,.6));border:1px solid rgba(255,255,255,.16);
-  border-radius:16px;padding:16px 22px;text-align:center;min-height:80px;display:flex;flex-direction:column;justify-content:center;gap:6px}
-.caption .src{font-size:clamp(1.15rem,2.6vw,1.6rem);color:#fff;font-weight:700;text-shadow:0 2px 8px rgba(0,0,0,.8)}
-.caption .trs{display:flex;flex-wrap:wrap;gap:5px 18px;justify-content:center}
-.caption .trs .pair{font-size:clamp(.95rem,2.2vw,1.25rem);color:var(--accent);text-shadow:0 2px 8px rgba(0,0,0,.8)}
-.caption .trs .lbl{color:#9fb0c7;font-size:.78em;font-weight:600;margin-right:6px}
-.caption .src .hl,.caption .trs .hl{color:var(--gold);font-weight:800}
-.empty{color:var(--muted);opacity:.7;font-size:.9rem}
+/* Device Select */
+.device-select{
+  flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--txt);font-size:.85rem;font-family:var(--font);min-width:200px;
+  appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23c9a24b' d='M6 8L0 0h12z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;cursor:pointer;
+}
+.device-select option{background:var(--navy2);color:var(--txt)}
 
-/* 觀眾 QR */
-.aud{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
-.qrbox{width:132px;height:132px;background:#fff;border-radius:12px;padding:6px;display:grid;place-items:center;flex:none}
-.aud .info{display:flex;flex-direction:column;gap:6px;font-size:.85rem}
-.aud .info b{color:var(--txt);font-size:.95rem}
-.aud .info span{color:var(--muted);line-height:1.5}
-.copy-btn{margin-top:4px;align-self:flex-start;padding:7px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);cursor:pointer;font-size:.82rem}
-.copy-btn:hover{border-color:var(--accent)}
+/* Toggle Switch */
+.switch{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:.85rem;color:var(--muted);user-select:none}
+.switch input{position:absolute;opacity:0;width:0;height:0}
+.switch .track{width:40px;height:22px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;position:relative;transition:.2s;flex:none}
+.switch .track::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:var(--muted);border-radius:50%;transition:.2s}
+.switch input:checked + .track{background:var(--gold-dim);border-color:var(--gold)}
+.switch input:checked + .track::after{left:20px;background:var(--gold)}
 
-/* 手動輸入 */
-.manual{display:flex;gap:10px}
-.manual input{flex:1;padding:11px 14px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:.9rem;font-family:var(--font)}
-.manual input::placeholder{color:var(--muted)}
-.manual input:focus{outline:none;border-color:var(--accent)}
-.manual button{padding:11px 18px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04130f;font-weight:700;cursor:pointer;font-size:.88rem}
+/* Volume Meter */
+.meter{position:relative;height:24px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;overflow:hidden;backdrop-filter:blur(8px)}
+.meter-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,var(--accent2),var(--gold));transition:width .06s linear;border-radius:999px}
+.meter.live .meter-fill{box-shadow:0 0 14px rgba(201,162,75,.4)}
+.meter-label{position:absolute;inset:0;display:grid;place-items:center;font-size:.72rem;color:var(--muted);pointer-events:none;letter-spacing:.3px}
+.meter.live .meter-label{display:none}
 
-/* 語言互換 */
-.langbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.langbar .swap{background:#1c2740;border:1px solid var(--line);border-radius:10px;padding:7px 13px;color:var(--txt);cursor:pointer;font-size:.85rem;display:flex;align-items:center;gap:8px}
-.langbar .swap:hover{border-color:var(--accent)}
+/* Status Badges */
+.badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{display:inline-flex;align-items:center;gap:7px;font-size:.78rem;color:var(--muted);background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 13px}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.badge.rec .dot{background:var(--red);animation:blink 1s infinite}
+.badge.ok .dot{background:var(--green)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* 診斷面板 */
-#diag{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;width:min(520px,92vw);background:rgba(12,18,30,.96);
-  border:1px solid var(--line);border-radius:16px;padding:18px 20px;color:var(--ui,#e8eef7);font-size:.88rem;box-shadow:0 20px 60px rgba(0,0,0,.6);display:none}
-#diag.show{display:block}
-#diag h3{font-size:.95rem;margin:0 0 10px}
-#diag .row{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
-#diag .row:first-of-type{border-top:none}
-#diag .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
-#diag .dot.ok{background:var(--ok);box-shadow:0 0 8px var(--ok)}
-#diag .dot.err{background:var(--err);box-shadow:0 0 8px var(--err)}
-#diag .meter{height:8px}
-#diag .meter i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-#diag .acts{display:flex;gap:10px;margin-top:14px}
-#diag .acts button{flex:1;padding:9px;border-radius:10px;border:none;cursor:pointer;font-weight:700;font-size:.85rem}
-#diag .acts .retry{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04130f}
-#diag .acts .close{background:#1c2740;color:var(--txt);border:1px solid var(--line)}
+/* Start CTA Button */
+.cta{
+  width:100%;padding:16px 24px;border-radius:var(--radius);border:0;cursor:pointer;
+  font-size:1.1rem;font-weight:800;font-family:var(--font);letter-spacing:.4px;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);color:var(--navy);
+  box-shadow:0 10px 30px rgba(201,162,75,.3);transition:.2s;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.cta:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(201,162,75,.4)}
+.cta:active{transform:translateY(0)}
+.cta.recording{
+  background:linear-gradient(135deg,var(--red) 0%,var(--red2) 100%);color:#fff;
+  box-shadow:0 10px 30px rgba(201,74,85,.4);animation:pulse 1.4s infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 10px 30px rgba(201,74,85,.4)}50%{box-shadow:0 10px 40px rgba(201,74,85,.7)}}
+.cta .eq{display:none;gap:3px;align-items:flex-end;height:22px}
+.cta.recording .eq{display:flex}
+.cta.recording .play-ico{display:none}
+.cta .eq i{width:3px;background:var(--navy);border-radius:2px;animation:eq .9s ease-in-out infinite}
+.cta.recording .eq i{background:#fff}
+.cta .eq i:nth-child(1){animation-delay:0s}.cta .eq i:nth-child(2){animation-delay:.15s}.cta .eq i:nth-child(3){animation-delay:.3s}.cta .eq i:nth-child(4){animation-delay:.45s}
+@keyframes eq{0%,100%{height:5px}50%{height:22px}}
 
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:60;background:rgba(220,40,60,.92);color:#fff;
-  padding:9px 18px;border-radius:10px;font-size:.85rem;opacity:0;transition:.25s;pointer-events:none;max-width:90vw}
+/* Caption Display */
+.caption{
+  background:linear-gradient(135deg,rgba(11,24,41,.85),rgba(8,18,32,.75));
+  border:1px solid rgba(201,162,75,.2);border-radius:var(--radius-lg);
+  padding:clamp(20px,4vw,32px);min-height:120px;text-align:center;
+  display:flex;flex-direction:column;justify-content:center;gap:10px;
+  position:relative;overflow:hidden;
+}
+[data-theme="light"] .caption{background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(243,237,225,.9));border-color:rgba(16,32,63,.14)}
+.caption::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--accent2),var(--gold))}
+.caption .src{font-size:clamp(1.2rem,3vw,1.7rem);color:var(--txt);font-weight:700;line-height:1.3}
+.caption .trs{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:center;margin-top:4px}
+.caption .trs .pair{font-size:clamp(1rem,2.4vw,1.35rem);color:var(--gold);font-weight:600}
+.caption .trs .lbl{color:var(--muted);font-size:.75em;font-weight:600;margin-right:6px;letter-spacing:.6px;text-transform:uppercase}
+.caption .src .hl,.caption .trs .hl{color:var(--gold2);font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.caption .empty{color:var(--muted);font-size:.95rem;font-weight:500}
+
+/* Manual Input */
+.manual-row{display:flex;gap:10px;align-items:stretch}
+.manual-input{
+  flex:1;padding:12px 16px;border-radius:12px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--txt);font-size:.95rem;font-family:var(--font);
+  transition:.2s;resize:none;min-height:48px;
+}
+.manual-input::placeholder{color:var(--muted)}
+.manual-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,75,.12)}
+.send-btn{
+  padding:12px 22px;border-radius:12px;border:0;cursor:pointer;font-weight:700;font-size:.95rem;font-family:var(--font);
+  background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy);transition:.2s;white-space:nowrap;
+}
+.send-btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.send-btn:active{transform:translateY(0)}
+
+/* QR + Audience Card */
+.audience{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.qr-box{width:110px;height:110px;background:#fff;border-radius:12px;padding:8px;display:grid;place-items:center;flex:none;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.qr-box img,.qr-box canvas{max-width:100%;max-height:100%}
+.audience-info{flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px}
+.audience-info b{font-size:.95rem;color:var(--txt)}
+.audience-info .room-code{font-family:"SF Mono","Consolas","Courier New",monospace;font-size:.88rem;color:var(--gold);background:var(--gold-dim);padding:4px 10px;border-radius:6px;display:inline-block;font-weight:600;letter-spacing:.5px}
+.audience-info span{font-size:.82rem;color:var(--muted);line-height:1.5}
+.copy-link{
+  align-self:flex-start;padding:6px 14px;border-radius:8px;border:1px solid var(--line);
+  background:transparent;color:var(--gold);cursor:pointer;font-size:.82rem;font-family:var(--font);font-weight:600;transition:.2s;
+}
+.copy-link:hover{border-color:var(--gold);background:var(--gold-dim)}
+
+/* Diagnostic Panel */
+.diag-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:none;backdrop-filter:blur(4px)}
+.diag-overlay.show{display:block}
+.diag-modal{
+  position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:50;
+  width:min(480px,94vw);background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius-lg);padding:clamp(18px,4vw,24px);box-shadow:var(--shadow);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  display:none;animation:modalIn .25s ease;
+}
+.diag-modal.show{display:block}
+@keyframes modalIn{from{opacity:0;transform:translate(-50%,-48%) scale(.97)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.diag-modal h3{font-size:1rem;margin:0 0 14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.diag-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line2)}
+.diag-row:last-of-type{border-bottom:none}
+.diag-row .dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none;transition:.2s}
+.diag-row .dot.ok{background:var(--green);box-shadow:0 0 8px var(--green)}
+.diag-row .dot.err{background:var(--red);box-shadow:0 0 8px var(--red)}
+.diag-row .label{flex:1;font-size:.88rem;color:var(--txt)}
+.diag-row .meter{height:8px;flex:1;border-radius:99px;background:var(--panel2);overflow:hidden}
+.diag-row .meter i{display:block;height:100%;width:0%;background:linear-gradient(90deg,var(--accent2),var(--gold));transition:width .08s linear}
+.diag-msg{font-size:.82rem;color:var(--muted);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid var(--line2)}
+.diag-actions{display:flex;gap:10px;margin-top:16px}
+.diag-actions button{flex:1;padding:10px;border-radius:10px;border:0;cursor:pointer;font-weight:700;font-size:.88rem;font-family:var(--font);transition:.18s}
+.diag-actions .retry{background:linear-gradient(135deg,var(--gold),var(--gold2));color:var(--navy)}
+.diag-actions .close{background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+
+/* Toast */
+.toast{
+  position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);z-index:60;
+  background:var(--navy);color:var(--cream);padding:10px 20px;border-radius:12px;
+  font-size:.85rem;font-weight:500;opacity:0;transition:.3s;pointer-events:none;
+  max-width:90vw;text-align:center;border:1px solid var(--gold);box-shadow:0 8px 24px rgba(0,0,0,.3);
+}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Footer Links */
+.footer{text-align:center;font-size:.76rem;color:var(--muted);padding:12px}
+.footer a{color:var(--gold);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+
+/* Responsive Tweaks */
+@media(max-width:600px){
+  body{padding:12px 12px 60px 12px;gap:12px}
+  .audience{flex-direction:column;align-items:flex-start}
+  .qr-box{margin:0 auto}
+  .header{flex-direction:column;align-items:flex-start}
+  .source-toggle{width:100%}
+  .source-toggle button{flex:1}
+  .cta{font-size:1rem;padding:14px 20px}
+}
+@media(min-width:768px){
+  .main{padding:32px}
+  .caption{padding:36px 40px}
+}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div>
-      <h1>🎙 萬能即時翻譯 · 繁中↔英文 雙向及時字幕</h1>
-      <div class="sub">免費 · 零 key · 一體化收錄顯 · 可疊 Zoom</div>
-    </div>
-    <div class="row">
-      <span class="pill"><span class="dot"></span><span id="health">檢查中…</span></span>
-      <button class="ico-btn" id="themeBtn" title="深色/淺色">🌙</button>
+
+<!-- Header -->
+<div class="header">
+  <div class="brand">
+    <h1>萬能即時翻譯</h1>
+    <span class="sub">繁中 ↔ 英文 · 雙向及時字幕</span>
+  </div>
+  <div class="header-right">
+    <span class="health" id="health"><span class="dot"></span><span id="healthTxt">檢查中…</span></span>
+    <button class="icon-btn" id="themeBtn" title="切換主題">🌙</button>
+  </div>
+</div>
+
+<!-- Main Card -->
+<div class="main">
+
+  <!-- Language Selection -->
+  <div class="row-between">
+    <div class="chips" id="chips"></div>
+    <div class="lang-toggle" id="langToggle">
+      <span class="lbl" id="lblA">中文</span>
+      <span class="arrow">⇄</span>
+      <span class="lbl" id="lblB">英文</span>
     </div>
   </div>
 
-  <div class="card">
-    <div class="row" style="justify-content:space-between">
-      <div class="chips" id="chips"></div>
-      <div class="langbar">
-        <span class="swap" id="langToggle"><b id="lblA">中文</b><span>⇄</span><b id="lblB">英文</b></span>
-      </div>
+  <!-- Source Mode -->
+  <div class="row-between">
+    <div class="source-toggle" id="sourceToggle">
+      <button id="srcSys" class="active">系統音 (Zoom)</button>
+      <button id="srcMic">麥克風</button>
     </div>
-    <div class="row" style="margin-top:4px">
-      <label class="check"><input type="checkbox" id="sysChk"> 🖥 用系統音（電腦 / Zoom 聲音）</label>
-    </div>
-    <div class="row" id="deviceRow" style="margin-top:6px;display:none">
-      <select id="deviceSel" style="flex:1;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);font-size:.85rem;font-family:var(--font)"></select>
-      <button id="deviceRefresh" class="copy-btn" style="margin-top:0">🔄</button>
-    </div>
-    <div class="meter" id="meter" style="margin-top:8px"><div class="meter-fill" id="meterFill"></div><span class="meter-tip" id="meterTip">音量（開始後顯示系統音強弱）</span></div>
-    <div class="lang-display" style="text-align:center;margin-bottom:8px;font-size:.82rem;color:var(--muted);">ↆ 轉譯開始 · 中文(台灣) ⇄ English</div>
-    <button class="start-btn" id="startBtn" style="margin-top:10px"><span id="startIco">▶</span><span id="startLabel">開始轉錄</span></button>
-    <div class="row" style="margin-top:8px">
-      <span class="pill" id="srcBadge" style="border-color:var(--accent)"><span class="dot" style="background:var(--accent)"></span><span id="srcBadgeTxt">系統音待命</span></span>
-      <span class="pill" id="levelBadge"><span class="dot" style="background:var(--muted)"></span><span id="levelBadgeTxt">音量 0%</span></span>
-    </div>
-    <div class="pick" style="margin-top:10px">
-      <button id="pickSys" class="active">🖥 系統音（Zoom）</button>
-      <button id="pickMic">🎤 麥克風</button>
-    </div>
+    <label class="switch">
+      <input type="checkbox" id="sysChk" checked>
+      <span class="track"></span>
+      <span>系統音自動偵測</span>
+    </label>
   </div>
 
-  <div class="card">
-    <div class="caption" id="caption">
-      <div class="src empty" id="capSrc">尚無字幕 · 開始後語音會即時轉為雙語文字</div>
-      <div class="trs" id="capTrs"></div>
-    </div>
+  <!-- Device Row -->
+  <div class="row" id="deviceRow">
+    <select class="device-select" id="deviceSel"></select>
+    <button class="icon-btn" id="deviceRefresh" title="重新整理">⟳</button>
   </div>
 
-  <div class="card">
-    <div class="manual">
-      <input id="manualInput" placeholder="或手動輸入文字直接推播字幕（免錄音）… Enter 送出" autocomplete="off">
-      <button id="manualSend">推播字幕</button>
-    </div>
+  <!-- Volume Meter -->
+  <div class="meter" id="meter">
+    <div class="meter-fill" id="meterFill"></div>
+    <span class="meter-label" id="meterTip">音量（開始後顯示系統音強弱）</span>
   </div>
 
-  <div class="card">
-    <div class="aud">
-      <div class="qrbox" id="qrBox"></div>
-      <div class="info">
-        <b>觀眾掃碼 → 半透明字幕浮層</b>
-        <span>可疊在 Zoom 視窗上方，不擋操作。<br>房間: <code id="roomCode" style="color:var(--accent)"></code></span>
-        <button class="copy-btn" id="copyBtn">📋 複製觀眾連結</button>
-        <span style="font-size:.76rem;opacity:.7">浮層頁：<a href="/overlay.html" target="_blank" style="color:var(--accent2)">/overlay.html</a> · 觀眾頁：<a href="/stream.html" target="_blank" style="color:var(--accent2)">/stream.html</a></span>
-      </div>
+  <!-- Badges -->
+  <div class="badges">
+    <span class="badge" id="srcBadge"><span class="dot"></span><span id="srcBadgeTxt">系統音待命</span></span>
+    <span class="badge" id="levelBadge"><span class="dot"></span><span id="levelBadgeTxt">音量 0%</span></span>
+  </div>
+
+  <!-- Start CTA -->
+  <button class="cta" id="startBtn">
+    <span class="play-ico" id="startIco">▶</span>
+    <span class="eq"><i></i><i></i><i></i><i></i></span>
+    <span id="startLabel">開始轉錄</span>
+  </button>
+
+</div>
+
+<!-- Caption Card -->
+<div class="caption" id="caption">
+  <div class="src empty" id="capSrc">尚無字幕 · 開始後語音會即時轉為雙語文字</div>
+  <div class="trs" id="capTrs"></div>
+</div>
+
+<!-- Manual Input -->
+<div class="main" style="padding:16px">
+  <div class="manual-row">
+    <textarea class="manual-input" id="manualInput" placeholder="手動輸入文字直接推播字幕（免錄音）… Enter 送出"></textarea>
+    <button class="send-btn" id="manualSend">推播</button>
+  </div>
+</div>
+
+<!-- Audience QR -->
+<div class="main" style="padding:16px">
+  <div class="audience">
+    <div class="qr-box" id="qrBox"></div>
+    <div class="audience-info">
+      <b>觀眾掃碼 → 半透明字幕浮層</b>
+      <span>可疊在 Zoom 上方，不擋操作。</span>
+      <span class="room-code" id="roomCode"></span>
+      <button class="copy-link" id="copyBtn">複製觀眾連結</button>
+      <span style="font-size:.74rem;opacity:.7;margin-top:4px">浮層: <a href="/overlay.html" target="_blank">/overlay.html</a> · 觀眾: <a href="/stream.html" target="_blank">/stream.html</a></span>
     </div>
   </div>
 </div>
 
-<div id="diag">
-  <h3>🔍 收音診斷</h3>
-  <div class="row"><span class="dot" id="dShare"></span><span style="flex:1">分享來源已選擇</span></div>
-  <div class="row"><span class="dot" id="dAudio"></span><span style="flex:1">音訊軌道（Audio Track）</span></div>
-  <div class="row"><span class="dot" id="dLevel"></span><span style="flex:1">即時音量</span><span class="meter"><i id="dMeter"></i></span></div>
-  <div class="row" id="dMsg" style="color:#9fb0c7;font-size:.82rem;border-top:1px solid var(--line);padding-top:9px"></div>
-  <div class="acts">
+<!-- Footer -->
+<div class="footer">
+  免費 · 零 key · 一體化收錄顯 · v1.7.0
+</div>
+
+<!-- Diagnostic Modal -->
+<div class="diag-overlay" id="diagOverlay"></div>
+<div class="diag-modal" id="diagModal">
+  <h3>收音診斷</h3>
+  <div class="diag-row"><span class="dot" id="dShare"></span><span class="label">分享來源已選擇</span></div>
+  <div class="diag-row"><span class="dot" id="dAudio"></span><span class="label">音訊軌道（Audio Track）</span></div>
+  <div class="diag-row"><span class="dot" id="dLevel"></span><span class="label">即時音量</span><span class="meter"><i id="dMeter"></i></span></div>
+  <div class="diag-msg" id="dMsg"></div>
+  <div class="diag-actions">
     <button class="retry" id="diagRetry">重新選擇來源</button>
     <button class="close" id="diagClose">知道了</button>
   </div>
 </div>
+
+<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script type="module">
 const $=s=>document.querySelector(s);
-const LANG_NAME={'zh-TW':'繁中','zh':'中文','en':'EN','ja':'日','es':'西','fr':'法','ko':'韓','de':'德'};
-const LANG_BCP={'zh-TW':'zh-TW','zh':'zh-TW','en':'en-US','ja':'ja-JP','es':'es-ES','fr':'fr-FR','ko':'ko-KR','de':'de-DE'};
-const LANGS=[['en','英文'],['zh-TW','繁中'],['ja','日文'],['es','西班牙'],['fr','法文'],['ko','韓文'],['de','德文']];
+const LANGS=[
+  ['en','英文','English'],
+  ['zh-TW','繁中','繁體中文'],
+  ['ja','日文','日本語'],
+  ['es','西班牙','Español'],
+  ['fr','法文','Français'],
+  ['ko','韓文','한국어'],
+  ['de','德文','Deutsch']
+];
+const LANG_NAME={en:'英文',ja:'日文',es:'西班牙',fr:'法文',ko:'韓文',de:'德文','zh-TW':'繁中',zh:'繁中'};
+const SR_LANG={en:'en-US','zh-TW':'zh-TW',zh:'zh-TW',ja:'ja-JP',es:'es-ES',fr:'fr-FR',ko:'ko-KR',de:'de-DE'};
 
-// 房間持久化
+// Room
 const params=new URLSearchParams(location.search);
 let room=params.get('room')||'';
 if(!room){room=Math.random().toString(36).slice(2,8);const u=new URL(location);u.searchParams.set('room',room);history.replaceState(null,'',u);}
-$('#roomCode').textContent='房間: '+room;
+$('#roomCode').textContent='房間 '+room;
 
-// 語言 chips
+// State
+let running=false,mode='sys',useSys=true,stream=null,rec=null,chunks=[],recognition=null;
+let srcLang='zh',dstLang='en';
 const active=new Set(['en','zh-TW']);
-const SR_LANG={'zh':'zh-TW','zh-TW':'zh-TW','en':'en-US','ja':'ja-JP','es':'es-ES','fr':'fr-FR','ko':'ko-KR','de':'de-DE'};
-const primaryLang=()=>{ const first=[...active][0]||'zh-TW'; return SR_LANG[first]||'zh-TW'; };
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let audioCtx=null,analyser=null,meterRAF=0;
+let silentRounds=0;
+
+// Theme
+function applyTheme(t){document.documentElement.dataset.theme=t;$('#themeBtn').textContent=t==='light'?'☀️':'🌙';try{localStorage.setItem('ut-theme',t);}catch(_){}}
+try{applyTheme(localStorage.getItem('ut-theme')||'dark');}catch(_){}
+$('#themeBtn').onclick=()=>applyTheme(document.documentElement.dataset.theme==='light'?'dark':'light');
+
+// Health
+fetch('/health').then(r=>r.json()).then(d=>{$('#healthTxt').textContent='服務正常 · v'+d.version;$('#health').classList.remove('warn','err');}).catch(()=>{$('#health').classList.add('err');$('#healthTxt').textContent='服務離線';});
+
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+function hl(text){return(text||'').replace(/(重要|會議|重點|決議|立即|緊急|OK|yes|no|fail|failure|成功|success|key|issue|problem)/gi,'<span class="hl">$1</span>');}
+
+// Chips
+const primaryLang=()=>{const first=[...active][0]||'zh-TW';return SR_LANG[first]||'zh-TW';};
 const chipsBox=$('#chips');
-LANGS.forEach(([code,name])=>{
-  const c=document.createElement('div');c.className='chip'+(active.has(code)?' on':'');c.textContent=name;c.dataset.code=code;
-  c.onclick=()=>{ if(active.has(code)){ if(active.size>1)active.delete(code); else return; } else active.add(code);
-    c.classList.toggle('on'); if(recognition)recognition.lang=primaryLang(); };
+LANGS.forEach(([code,,name])=>{
+  const c=document.createElement('div');
+  c.className='chip'+(active.has(code)?' on':'');
+  c.textContent=name;c.dataset.code=code;
+  c.onclick=()=>{
+    if(active.has(code)){if(active.size>1)active.delete(code);else return;}
+    else active.add(code);
+    c.classList.toggle('on');
+    document.querySelectorAll('.chip').forEach(ch=>{if(ch!==c)ch.classList.toggle('on',active.has(ch.dataset.code));});
+    if(recognition)recognition.lang=primaryLang();
+  };
   chipsBox.appendChild(c);
 });
 
-// 主題
-const themeBtn=$('#themeBtn');
-function applyTheme(t){document.documentElement.dataset.theme=t;themeBtn.textContent=t==='light'?'☀️':'🌙';try{localStorage.setItem('ut-theme',t);}catch(_){}}
-try{applyTheme(localStorage.getItem('ut-theme')||'dark');}catch(_){}
-themeBtn.onclick=()=>applyTheme(document.documentElement.dataset.theme==='light'?'dark':'light');
-
-// 健康
-fetch('/health').then(r=>r.json()).then(d=>$('#health').textContent='服務正常 · v'+d.version).catch(()=>$('#health').textContent='服務離線');
-
-function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4000);}
-function hl(text){ return (text||'').replace(/(重要|會議|重點|決議|立即|緊急|OK|yes|no|fail|failure|成功|success)/gi,'<span class="hl">$1</span>'); }
-
-// 字幕顯示
+// Caption
 let capTimer=null;
 function showCaption(src,translations){
-  const cap=$('#caption');
-  $('#capSrc').className='src'; $('#capSrc').innerHTML=hl(src)||'';
+  $('#capSrc').className='src';$('#capSrc').innerHTML=hl(src)||'';
   const pairs=Array.from(active).map(t=>{
     const txt=translations?translations[t]:'';
     return txt?`<span class="pair"><span class="lbl">${LANG_NAME[t]||t}</span>${hl(txt)}</span>`:'';
   }).filter(Boolean).join('');
   $('#capTrs').innerHTML=pairs;
-  clearTimeout(capTimer); capTimer=setTimeout(()=>{},100);
+  clearTimeout(capTimer);
 }
 
-// 語音轉雙語字幕 (終始矩陣 /speech-to-subtitle: 一次拿原始+對向翻譯, 省一跳)
+// STT + Translate
 async function speechToSubRetry(buf,attempt=0){
-  try{ const r=await fetch('/speech-to-subtitle?lang=auto',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:buf});
+  try{
+    const r=await fetch('/speech-to-subtitle?lang=auto',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:buf});
     if(!r.ok)throw new Error('HTTP '+r.status);
     const txt=await r.text();
-    try{ return JSON.parse(txt); }catch(_){ throw new Error('服務回傳非預期格式（網路/逾時），請重試'); }
-  }catch(e){ if(attempt<2){await new Promise(r=>setTimeout(r,1000));return speechToSubRetry(buf,attempt+1);} throw e; }
+    try{return JSON.parse(txt);}catch(_){throw new Error('服務回傳非預期格式，請重試');}
+  }catch(e){if(attempt<2){await new Promise(r=>setTimeout(r,1500));return speechToSubRetry(buf,attempt+1);}throw e;}
 }
 async function translateRetry(text,tg,attempt=0){
-  try{ const r=await fetch('/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,from:'auto',targets:tg})});
+  try{
+    const r=await fetch('/translate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,from:'auto',targets:tg})});
     if(!r.ok)throw new Error('HTTP '+r.status);
     const txt=await r.text();
-    try{ return JSON.parse(txt); }catch(_){ throw new Error('翻譯服務暫時無回應，請重試'); }
-  }catch(e){ if(attempt<2){await new Promise(r=>setTimeout(r,1000));return translateRetry(text,tg,attempt+1);} throw e; }
+    try{return JSON.parse(txt);}catch(_){throw new Error('翻譯服務暫時無回應，請重試');}
+  }catch(e){if(attempt<2){await new Promise(r=>setTimeout(r,1500));return translateRetry(text,tg,attempt+1);}throw e;}
 }
 
-// 音量診斷
-let audioCtx=null,analyser=null,meterRAF=0;
+// Volume Meter
 function startMeter(s){
   try{
-    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
-    const src=audioCtx.createMediaStreamSource(s); analyser=audioCtx.createAnalyser();analyser.fftSize=256;src.connect(analyser);
+    audioCtx=audioCtx||new(window.AudioContext||window.webkitAudioContext)();
+    const src=audioCtx.createMediaStreamSource(s);
+    analyser=audioCtx.createAnalyser();analyser.fftSize=256;src.connect(analyser);
     const data=new Uint8Array(analyser.frequencyBinCount);
-    const fill=$('#meterFill'); $('#meter').classList.add('live');
+    const fill=$('#meterFill');$('#meter').classList.add('live');
     const dMeter=$('#dMeter'),dLevel=$('#dLevel');
-    const loop=()=>{ analyser.getByteTimeDomainData(data); let peak=0; for(const v of data){const d=Math.abs(v-128);if(d>peak)peak=d;}
-      const vol=Math.min(100,Math.round(peak/128*100*1.8)); fill.style.width=vol+'%';
-      if(dMeter)dMeter.style.width=vol+'%'; if(vol>3&&dLevel)dLevel.className='dot ok';
+    const loop=()=>{
+      analyser.getByteTimeDomainData(data);
+      let peak=0;for(const v of data){const d=Math.abs(v-128);if(d>peak)peak=d;}
+      const vol=Math.min(100,Math.round(peak/128*100*1.8));
+      fill.style.width=vol+'%';
+      if(dMeter)dMeter.style.width=vol+'%';if(vol>3&&dLevel)dLevel.className='dot ok';
       if(running)updateLevel(vol);
-      meterRAF=requestAnimationFrame(loop); };
+      meterRAF=requestAnimationFrame(loop);
+    };
     loop();
-  }catch(e){ console.warn('meter fail',e); }
+  }catch(e){console.warn('meter fail',e);}
 }
-function stopMeter(){ if(meterRAF)cancelAnimationFrame(meterRAF);meterRAF=0;$('#meter').classList.remove('live');$('#meterFill').style.width='0%'; }
+function stopMeter(){if(meterRAF)cancelAnimationFrame(meterRAF);meterRAF=0;$('#meter').classList.remove('live');$('#meterFill').style.width='0%';}
 
-// 診斷
-function openDiag(){ $('#diag').classList.add('show'); $('#dShare').className='dot';$('#dAudio').className='dot';$('#dLevel').className='dot';$('#dMeter').style.width='0%';$('#dMsg').textContent=''; }
-function setDiag(id,state,msg){ const el=$('#'+id); if(el)el.className='dot '+(state||''); if(msg)$('#dMsg').textContent=msg; }
+// Diagnostic
+function openDiag(){$('#diagOverlay').classList.add('show');$('#diagModal').classList.add('show');$('#dShare').className='dot';$('#dAudio').className='dot';$('#dLevel').className='dot';$('#dMeter').style.width='0%';$('#dMsg').textContent='';}
+function closeDiag(){$('#diagOverlay').classList.remove('show');$('#diagModal').classList.remove('show');}
+function setDiag(id,state,msg){const el=$('#'+id);if(el)el.className='dot '+(state||'');if(msg)$('#dMsg').textContent=msg;}
+$('#diagOverlay').onclick=closeDiag;
+$('#diagClose').onclick=closeDiag;
+$('#diagRetry').onclick=()=>{closeDiag();if(running)stop();start();};
 
-// 狀態
-let running=false,mode='sys',useSys=false,useSR=false,stream=null,rec=null,chunks=[],recognition=null;
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-let srcLang='zh',dstLang='en';
-function setLang(a,b){ srcLang=a;dstLang=b;$('#lblA').textContent=LANG_NAME[a]||a;$('#lblB').textContent=LANG_NAME[b]||b; }
-function setMode(m){ mode=m;useSys=(m==='sys');
-  $('#pickSys').classList.toggle('active',m==='sys'); $('#pickMic').classList.toggle('active',m==='mic');
-  $('#meterTip').textContent=(m==='sys'?'系統音：Windows 請分享「整個螢幕」並勾「分享音訊」，勿選 Zoom 視窗':'麥克風：直接收音');
-  updateBadge(); }
-
-// 系統音裝置列舉 (loopback 優先: 立體聲混音/Stereo Mix/What U Hear)
+// Source: System Audio
 async function listDevices(){
   try{
-    if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices){return [];}
+    if(!navigator.mediaDevices||!navigator.mediaDevices.enumerateDevices)return[];
     const devs=await navigator.mediaDevices.enumerateDevices();
     const ins=devs.filter(d=>d.kind==='audioinput');
     const kw=/(stereo mix|立體聲混音|what u hear|what you hear|loopback|mix|wave|數位|digital)/i;
     return ins.map(d=>({id:d.deviceId,label:d.label||'麥克風/輸入',loopback:kw.test(d.label||'')}))
       .sort((a,b)=>(b.loopback?1:0)-(a.loopback?1:0));
-  }catch(e){ return []; }
+  }catch(e){return[];}
 }
 async function startSys(){
   const devId=$('#deviceSel').value;
-  // 若有選定 loopback 裝置 → 直接用 getUserMedia 抓系統音 (不走 getDisplayMedia, 最穩)
   if(devId){
     try{
       const s=await navigator.mediaDevices.getUserMedia({audio:{deviceId:{exact:devId},echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
       const a=s.getAudioTracks();
-      if(!a.length){ s.getTracks().forEach(t=>t.stop()); toast('選定裝置無音訊軌道，改用螢幕分享'); }
-      else { setDiag('dShare','ok');setDiag('dAudio','ok'); startMeter(s); startRecording(s,'系統音(loopback)'); return s; }
-    }catch(e){ toast('裝置擷取失敗，改用螢幕分享: '+e.message); }
+      if(!a.length){s.getTracks().forEach(t=>t.stop());toast('選定裝置無音訊軌道，改用螢幕分享');}
+      else{setDiag('dShare','ok');setDiag('dAudio','ok');startMeter(s);startRecording(s,'系統音(loopback)');return s;}
+    }catch(e){toast('裝置擷取失敗，改用螢幕分享: '+e.message);}
   }
-  // 回退: getDisplayMedia (整個螢幕+分享音訊)
   try{
     const s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
     const a=s.getAudioTracks();
-    if(!a.length){ s.getTracks().forEach(t=>t.stop());
+    if(!a.length){
+      s.getTracks().forEach(t=>t.stop());
       setDiag('dShare','ok');setDiag('dAudio','err','沒抓到音訊軌道');
-      $('#dMsg').innerHTML='❗ Windows 抓系統音秘訣：<br>1) 選「<b>整個螢幕</b>」或「<b>Chrome 分頁</b>」<br>2) 勾選「<b>分享音訊</b>」<br>3) 勿選「應用程式視窗」(Zoom視窗) — Windows 抓不到<br>若清單有「立體聲混音」請先選它再開始<br>仍抓不到請改用「🎤 麥克風」';
-      openDiag(); toast('沒抓到系統音：選「整個螢幕」並勾「分享音訊」'); return null; }
+      $('#dMsg').innerHTML='Windows 抓系統音秘訣：<br>1) 選「<b>整個螢幕</b>」或「<b>Chrome 分頁</b>」<br>2) 勾選「<b>分享音訊</b>」<br>3) 勿選「應用程式視窗」(Zoom視窗)<br>若清單有「立體聲混音」請先選它';
+      openDiag();toast('沒抓到系統音：選「整個螢幕」並勾「分享音訊」');return null;
+    }
     setDiag('dShare','ok');setDiag('dAudio','ok');
-    startMeter(s); startRecording(new MediaStream(a),'系統音'); return s;
-  }catch(e){ setDiag('dShare','err',e.name==='NotAllowedError'?'已取消分享':'錯誤: '+e.message); openDiag(); return null; }
+    startMeter(s);startRecording(new MediaStream(a),'系統音');return s;
+  }catch(e){setDiag('dShare','err',e.name==='NotAllowedError'?'已取消分享':'錯誤: '+e.message);openDiag();return null;}
 }
-// 麥克風
-async function startMic(){ try{ return await navigator.mediaDevices.getUserMedia({audio:true}); }catch(e){ toast('麥克風授權失敗: '+e.message); return null; } }
-function startSR(){ if(!SR)return false; try{ recognition=new SR(); recognition.continuous=true;recognition.interimResults=true;recognition.lang=primaryLang();
-  recognition.onresult=ev=>{ let f=''; for(let i=ev.resultIndex;i<ev.results.length;i++){if(ev.results[i].isFinal)f+=ev.results[i][0].transcript;} if(f.trim())onTranscript(f.trim()); };
-  recognition.onerror=e=>{ if(e.error==='not-allowed')toast('語音辨識權限被拒'); };
-  recognition.onend=()=>{ if(running&&useSR)try{recognition.start();}catch(_){} }; recognition.start(); return true;
-  }catch(e){ return false; } }
 
-// 錄音迴圈 + 靜音自動降級
-let silentRounds=0;
-function autoFallbackToMic(){ if(mode!=='sys'||!running)return; toast('系統音連續靜音，已自動切換到「🎤 麥克風」'); setMode('mic');
-  if(rec&&rec.state!=='inactive'){try{rec.stop();}catch(_){}} if(stream)stream.getTracks().forEach(t=>t.stop()); start(); }
+// Source: Mic
+async function startMic(){try{return await navigator.mediaDevices.getUserMedia({audio:true});}catch(e){toast('麥克風授權失敗: '+e.message);return null;}}
+function startSR(){
+  if(!SR)return false;
+  try{
+    recognition=new SR();recognition.continuous=true;recognition.interimResults=true;recognition.lang=primaryLang();
+    recognition.onresult=ev=>{let f='';for(let i=ev.resultIndex;i<ev.results.length;i++){if(ev.results[i].isFinal)f+=ev.results[i][0].transcript;}if(f.trim())onTranscript(f.trim());};
+    recognition.onerror=e=>{if(e.error==='not-allowed')toast('語音辨識權限被拒');};
+    recognition.onend=()=>{if(running&&useSR)try{recognition.start();}catch(_){}};
+    recognition.start();return true;
+  }catch(e){return false;}
+}
+
+// Recording
+function autoFallbackToMic(){
+  if(mode!=='sys'||!running)return;
+  toast('系統音連續靜音，自動切換到麥克風');
+  setMode('mic');
+  if(rec&&rec.state!=='inactive'){try{rec.stop();}catch(_){}}
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  start();
+}
 function startRecording(audioStream,label){
   const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'audio/ogg';
   rec=new MediaRecorder(audioStream,{mimeType:mime});chunks=[];
   rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
   rec.onstop=async()=>{
-    if(!chunks.length){ if(running)rec.start(4000); return; }
+    if(!chunks.length){if(running)rec.start(4000);return;}
     const buf=await new Blob(chunks,{type:mime}).arrayBuffer();chunks=[];
-    try{ const d=await speechToSubRetry(buf);
-      if(d.text&&d.text.trim()){ silentRounds=0; const tr={}; tr[d.target||'en']=d.translation||''; onTranscript(d.text.trim(),tr); }
-      else { silentRounds++; if(mode==='sys'&&silentRounds>=2){silentRounds=0;autoFallbackToMic();return;} toast('未偵測到語音，請靠近聲源'); }
-    }catch(err){ toast('轉錄錯誤: '+err.message); }
+    try{
+      const d=await speechToSubRetry(buf);
+      if(d.text&&d.text.trim()){
+        silentRounds=0;
+        const tr={};tr[d.target||'en']=d.translation||'';
+        onTranscript(d.text.trim(),tr);
+      }else{
+        silentRounds++;
+        if(mode==='sys'&&silentRounds>=2){silentRounds=0;autoFallbackToMic();return;}
+        toast('未偵測到語音，請靠近聲源');
+      }
+    }catch(err){toast('轉錄錯誤: '+err.message);}
     if(running)rec.start(4000);
   };
   rec.start(4000);
 }
 async function onTranscript(text,translations){
-  if(!translations){ try{const td=await translateRetry(text.trim(),Array.from(active));translations=td.translations||{};}catch(e){translations={};} }
-  showCaption(text.trim(),translations);
+  if(!translations){try{const td=await translateRetry(text.trim(),Array.from(active));translations=td.translations||{};}catch(e){translations={};}
+  }broadcastCaption(text.trim(),translations);
 }
 
-// 開始/停止
-// 來源/音量狀態徽章 (一眼看出系統音/麥克風+有無抓到聲音)
+// Broadcast to SSE
+async function broadcastCaption(text,translations){
+  showCaption(text,translations);
+  await fetch('/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,from:'auto',targets:Array.from(active),room,speaker:'studio'})}).catch(()=>{});
+}
+
+// Badges
 function updateBadge(){
   const b=$('#srcBadge'),t=$('#srcBadgeTxt'),d=b.querySelector('.dot');
-  if(!running){ t.textContent=(mode==='sys'?'系統音待命':'麥克風待命'); b.style.borderColor='var(--accent)'; d.style.background='var(--accent)'; return; }
-  if(mode==='sys'){ t.textContent='🖥 系統音收音中'; b.style.borderColor='var(--accent)'; d.style.background='var(--ok)'; }
-  else { t.textContent='🎙 麥克風收音中'; b.style.borderColor='var(--accent2)'; d.style.background='var(--ok)'; }
+  if(!running){t.textContent=(mode==='sys'?'系統音待命':'麥克風待命');d.style.background='var(--muted)';return;}
+  if(mode==='sys'){t.textContent='系統音收音中';d.style.background='var(--green)';b.classList.add('ok');b.classList.remove('rec');}
+  else{t.textContent='麥克風收音中';d.style.background='var(--green)';b.classList.add('ok');b.classList.remove('rec');}
 }
-function updateLevel(vol){ const b=$('#levelBadge'),t=$('#levelBadgeTxt'),d=b.querySelector('.dot');
-  t.textContent='音量 '+vol+'%'; d.style.background=vol>3?'var(--ok)':'var(--muted)'; }
+function updateLevel(vol){
+  const b=$('#levelBadge'),t=$('#levelBadgeTxt'),d=b.querySelector('.dot');
+  t.textContent='音量 '+vol+'%';d.style.background=vol>3?'var(--green)':'var(--muted)';
+}
 
+// Set Mode
+function setMode(m){
+  mode=m;useSys=(m==='sys');
+  $('#srcSys').classList.toggle('active',m==='sys');
+  $('#srcMic').classList.toggle('active',m==='mic');
+  $('#meterTip').textContent=(m==='sys'?'系統音：Windows 請分享「整個螢幕」並勾「分享音訊」，勿選 Zoom 視窗':'麥克風：直接收音');
+  $('#deviceRow').style.display=m==='sys'?'flex':'none';
+  updateBadge();
+}
+
+// Start / Stop
 async function start(){
   if(running)return stop();
-  running=true; $('#startBtn').classList.add('recording'); $('#startLabel').textContent='停止錄音'; $('#startIco').textContent='⏸';
+  running=true;
+  $('#startBtn').classList.add('recording');
+  $('#startLabel').textContent='停止錄音';
   if(useSys){
     $('#startLabel').textContent='請選擇分享來源（勾「分享音訊」）…';
     stream=await startSys();
-    if(!stream){ running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始轉錄';$('#startIco').textContent='▶'; return; }
-    $('#startLabel').textContent='🖥 系統音收音中…';
+    if(!stream){running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始轉錄';return;}
+    $('#startLabel').textContent='系統音收音中…';
   }else{
     stream=await startMic();
-    if(!stream){ running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始轉錄';$('#startIco').textContent='▶'; return; }
+    if(!stream){running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始轉錄';return;}
     useSR=startSR();
-    if(useSR)$('#startLabel').textContent='🎙 語音辨識中（Chrome 原生）…';
-    else { startMeter(stream); startRecording(stream,'麥克風'); $('#startLabel').textContent='🎙 麥克風收音中…'; }
+    if(useSR){$('#startLabel').textContent='語音辨識中（Chrome 原生）…';}
+    else{startMeter(stream);startRecording(stream,'麥克風');$('#startLabel').textContent='麥克風收音中…';}
   }
   updateBadge();
 }
-function stop(){ running=false;useSR=false;
+function stop(){
+  running=false;useSR=false;
   if(recognition){try{recognition.stop();}catch(_){}recognition=null;}
-  if(rec&&rec.state!=='inactive')rec.stop(); if(stream)stream.getTracks().forEach(t=>t.stop());stream=null; stopMeter();
-  $('#startBtn').classList.remove('recording'); $('#startLabel').textContent='開始轉錄'; $('#startIco').textContent='▶';
-  updateBadge(); $('#levelBadgeTxt').textContent='音量 0%'; $('#levelBadge').querySelector('.dot').style.background='var(--muted)';
+  if(rec&&rec.state!=='inactive')rec.stop();
+  if(stream)stream.getTracks().forEach(t=>t.stop());
+  stream=null;stopMeter();
+  $('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始轉錄';
+  updateBadge();$('#levelBadgeTxt').textContent='音量 0%';
 }
 
-// 手動輸入推播 (一體化: 直接出雙語, 並廣播 SSE 給觀眾)
+// Manual Input
 async function sendManual(){
-  const ta=$('#manualInput'); const text=ta.value.trim(); if(!text){toast('請先輸入文字');return;}
+  const ta=$('#manualInput');const text=ta.value.trim();if(!text){toast('請先輸入文字');return;}
   ta.value='';
-  try{ const td=await translateRetry(text,Array.from(active)); showCaption(text,td.translations||{});
-    await fetch('/speak',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text,from:'auto',targets:Array.from(active),room,speaker:'studio'})});
-  }catch(e){ toast('推播失敗: '+e.message); }
+  try{
+    const td=await translateRetry(text,Array.from(active));
+    broadcastCaption(text,td.translations||{});
+  }catch(e){toast('推播失敗: '+e.message);}
 }
 
 // QR
-function showQR(){ try{ new QRCode($('#qrBox'),{text:location.origin+'/overlay.html?room='+room,width:120,height:120,correctLevel:QRCode.CorrectLevel.M}); }catch(e){ $('#qrBox').textContent=location.origin+'/overlay.html?room='+room; } }
+function showQR(){
+  try{new QRCode($('#qrBox'),{text:location.origin+'/overlay.html?room='+room,width:94,height:94,correctLevel:QRCode.CorrectLevel.M});}
+  catch(e){$('#qrBox').textContent=location.origin+'/overlay.html?room='+room;}
+}
 showQR();
 $('#copyBtn').onclick=()=>{navigator.clipboard.writeText(location.origin+'/overlay.html?room='+room).then(()=>toast('已複製觀眾端連結')).catch(()=>toast('複製失敗'));};
 
-// 控制
-function refreshDevices(){
-  listDevices().then(devs=>{
-    const sel=$('#deviceSel'); sel.innerHTML='';
-    if(!devs.length){ const o=document.createElement('option');o.value='';o.textContent='（無可用裝置，請用螢幕分享）';sel.appendChild(o); return; }
-    devs.forEach(d=>{ const o=document.createElement('option');o.value=d.id;o.textContent=(d.loopback?'🔁 ':'🎤 ')+d.label;sel.appendChild(o); });
-    const loop=devs.find(d=>d.loopback); if(loop)sel.value=loop.id;
-  }).catch(()=>{});
+// Device List
+async function refreshDevices(){
+  const devs=await listDevices();
+  const sel=$('#deviceSel');sel.innerHTML='';
+  if(!devs.length){const o=document.createElement('option');o.value='';o.textContent='（無可用裝置，請用螢幕分享）';sel.appendChild(o);return;}
+  devs.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=(d.loopback?'🔁 ':'')+d.label;sel.appendChild(o);});
+  const loop=devs.find(d=>d.loopback);if(loop)sel.value=loop.id;
 }
-$('#sysChk').onchange=e=>{ setMode(e.target.checked?'sys':'mic'); $('#deviceRow').style.display=e.target.checked?'flex':'none'; if(e.target.checked)refreshDevices(); };
+
+// Bind
+$('#sysChk').onchange=e=>{setMode(e.target.checked?'sys':'mic');if(e.target.checked)refreshDevices();};
 $('#deviceRefresh').onclick=()=>refreshDevices();
 $('#startBtn').onclick=start;
-$('#pickSys').onclick=()=>{ setMode('sys'); $('#sysChk').checked=true; $('#deviceRow').style.display='flex'; refreshDevices(); if(running)stop(); };
-$('#pickMic').onclick=()=>{ setMode('mic'); $('#sysChk').checked=false; $('#deviceRow').style.display='none'; if(running)stop(); };
-$('#langToggle').onclick=()=>{ const a=srcLang,b=dstLang; setLang(b,a); toast('語言互換: '+(LANG_NAME[a]||a)+' ⇄ '+(LANG_NAME[b]||b)); };
+$('#srcSys').onclick=()=>{setMode('sys');$('#sysChk').checked=true;refreshDevices();if(running)stop();};
+$('#srcMic').onclick=()=>{setMode('mic');$('#sysChk').checked=false;if(running)stop();};
+$('#langToggle').onclick=()=>{const a=srcLang,b=dstLang;setLang(b,a);toast('語言互換: '+(LANG_NAME[a]||a)+' ⇄ '+(LANG_NAME[b]||b));};
 $('#manualSend').onclick=sendManual;
-$('#manualInput').addEventListener('keydown',e=>{ if(e.key==='Enter')sendManual(); });
-$('#diagRetry').onclick=()=>{ $('#diag').classList.remove('show'); if(running)stop(); start(); };
-$('#diagClose').onclick=()=>$('#diag').classList.remove('show');
-setMode('sys'); setLang('zh','en');
+$('#manualInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();sendManual();}});
+
+function setLang(a,b){srcLang=a;dstLang=b;$('#lblA').textContent=LANG_NAME[a]||a;$('#lblB').textContent=LANG_NAME[b]||b;}
+
+// Init
+setMode('sys');setLang('zh','en');
+refreshDevices();
 </script>
 </body>
 </html>

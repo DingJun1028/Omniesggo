@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>漂浮字幕 · 萬能即時翻</title>
+<style>
+:root{
+  --bg:rgba(16,26,48,.78);            /* 深藍半透明 */
+  --bg2:rgba(16,26,48,.92);
+  --border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.14);
+  --txt:#e8edf7;
+  --sub:#9fb0d0;
+  --accent:#5b8cff;                   /* 冷藍 */
+  --gold:#ffce5b;                    /* 暖金 */
+  --ok:#3ddc84;
+  --warn:#ff7676;
+  --err:#ff5d6c;
+  --shadow:0 24px 64px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:transparent;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+
+/* ===== 面板 ===== */
+#panel{
+  position:absolute; top:14px; right:14px;
+  width:min(420px,94vw);
+  max-width:96vw;
+  background:linear-gradient(160deg,var(--bg2),var(--bg));
+  backdrop-filter:blur(24px) saturate(180%) contrast(110%);
+  -webkit-backdrop-filter:blur(24px) saturate(180%) contrast(110%);
+  border:1px solid var(--border);
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+  transition:transform .2s cubic-bezier(.2,.8,.2,1),opacity .2s;
+  z-index:9999;
+}
+#panel.minimized{ transform:translateY(calc(-100% + 44px)); }
+#panel.hidden{ opacity:0; pointer-events:none; }
+
+/* 標題列 */
+#hdr{
+  display:flex; align-items:center; gap:8px;
+  padding:10px 14px;
+  background:linear-gradient(135deg,rgba(91,140,255,.14),rgba(201,162,75,.06));
+  border-bottom:1px solid var(--border);
+  cursor:grab; -webkit-user-drag:none; user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+#hdr:active{ cursor:grabbing; }
+#hdr .dot{ width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent);flex:none; }
+#hdr .title{ font-size:13px;font-weight:600;flex:1;letter-spacing:.5px; }
+#hdr .actions{ display:flex;gap:4px; }
+
+/* 圓角 icon 按鈕 */
+.icon-btn{
+  width:26px;height:26px;border:none;border-radius:8px;
+  background:rgba(255,255,255,.05);color:var(--txt);
+  font-size:12px;cursor:pointer;display:flex;
+  align-items:center;justify-content:center;
+  transition:all .18s cubic-bezier(.2,.8,.2,1);
+  border:1px solid transparent;
+}
+.icon-btn:hover{
+  background:rgba(255,255,255,.12);
+  border-color:var(--border2);
+  transform:translateY(-1px);
+}
+.icon-btn:active{ transform:translateY(0); }
+.icon-btn.on{ background:var(--ok);color:#06210f;border-color:var(--ok);box-shadow:0 0 12px rgba(61,220,132,.3); }
+.icon-btn.danger{ color:var(--err); }
+
+/* 語言列 */
+#langbar{
+  display:flex;gap:6px;align-items:center;
+  padding:8px 14px;border-bottom:1px solid var(--border);
+  font-size:11px;color:var(--sub);flex-wrap:wrap;
+}
+#langbar span{ opacity:.7; }
+#langbar select{
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  color:var(--txt);border-radius:7px;padding:4px 8px;font-size:11px;
+  transition:.18s; outline:none; cursor:pointer;
+}
+#langbar select:focus{ border-color:var(--accent); }
+#langbar label{
+  display:inline-flex;align-items:center;gap:3px;
+  cursor:pointer;font-size:11px;color:var(--sub);
+}
+#langbar input[type="checkbox"]{
+  width:12px;height:12px;cursor:pointer;
+  accent-color:var(--accent);
+}
+#langbar input:checked~span,
+#langbar label:hover span{ color:var(--txt); opacity:1; }
+
+/* 狀態列 */
+#status{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;font-size:12px;color:var(--sub);
+  border-bottom:1px solid var(--border);
+  -webkit-font-smoothing:antialiased;
+}
+#status .dot{ width:6px;height:6px;border-radius:50%;background:var(--warn);flex:none; }
+#status.live .dot{ background:var(--ok); animation:pulse 1.4s infinite; }
+#status.sse .dot{ background:var(--accent); animation:none; }
+@keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* 字幕顯示區 */
+#display{
+  min-height:72px; max-height:34vh; overflow-y:auto;
+  padding:14px;
+}
+#display::-webkit-scrollbar{ width:4px; }
+#display::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.08); border-radius:2px; }
+
+.src-line{
+  font-size:clamp(15px,3vw,18px);
+  font-weight:600;color:#fff;
+  line-height:1.5;
+  margin-bottom:10px; min-height:1.5em;
+  word-break:break-word;
+  text-shadow:0 2px 10px rgba(0,0,0,.5);
+}
+.trs-line{
+  display:flex; flex-wrap:wrap; gap:6px 16px;
+  font-size:clamp(12px,2.4vw,14px);
+  color:var(--gold); line-height:1.5;
+  text-shadow:0 2px 6px rgba(0,0,0,.5);
+}
+.trs-line .pair{ display:inline-flex; align-items:center; gap:4px; }
+.trs-line .ltr{
+  font-size:.7em; opacity:.85; border:1px solid var(--border);
+  border-radius:5px; padding:0 5px; color:var(--sub);
+  font-weight:500;
+}
+.empty{
+  color:var(--sub); font-size:12px; text-align:center;
+  padding:16px 0; opacity:.6; line-height:1.6;
+}
+
+/* 歷史記錄 */
+#history{
+  border-top:1px solid var(--border);
+  max-height:120px; overflow-y:auto;
+  padding:6px 14px; font-size:12px; color:var(--sub);
+}
+#history::-webkit-scrollbar{ width:4px; }
+#history::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.06); border-radius:2px; }
+#history .h-item{
+  padding:5px 0; border-bottom:1px solid rgba(255,255,255,.03);
+  cursor:pointer; border-radius:4px;
+}
+#history .h-item:hover{ background:rgba(255,255,255,.04); }
+#history .h-item:last-child{ border-bottom:none; }
+#history .h-src{ color:#ddd; font-weight:500; font-size:12px; }
+#history .h-trs{ color:var(--gold); margin-top:2px; font-size:11px; }
+#history .h-time{ font-size:10px; opacity:.4; margin-top:2px; }
+
+/* 底部工具列 */
+#toolbar{
+  display:flex;gap:6px;align-items:center;
+  padding:10px 14px; border-top:1px solid var(--border);
+  background:rgba(0,0,0,.15);
+  -webkit-font-smoothing:antialiased;
+}
+#toolbar .spacer{ flex:1; }
+
+/* 主要按鈕 */
+.btn{
+  background:rgba(255,255,255,.05); border:1px solid var(--border);
+  color:var(--txt); border-radius:10px; padding:7px 14px;
+  font-size:12px; cursor:pointer;
+  transition:all .18s cubic-bezier(.2,.8,.2,1);
+  font-weight:500; -webkit-font-smoothing:antialiased;
+}
+.btn:hover{
+  background:rgba(255,255,255,.1);
+  border-color:var(--border2);
+  transform:translateY(-1px);
+}
+.btn:active{ transform:translateY(0); }
+.btn.primary{
+  background:var(--accent);border-color:var(--accent);color:#fff;
+  font-weight:600;box-shadow:0 4px 16px rgba(91,140,255,.3);
+}
+.btn.primary:hover{ box-shadow:0 6px 20px rgba(91,140,255,.4); }
+.btn:disabled{ opacity:.35; cursor:not-allowed; transform:none; }
+.btn.on{ background:var(--ok);border-color:var(--ok);color:#06210d;box-shadow:0 0 12px rgba(61,220,132,.25); }
+.btn.warn{ background:var(--warn);border-color:var(--warn);color:#fff; }
+.btn.icon{ padding:7px 10px; font-size:11px; }
+
+/* 全螢幕模式 */
+body.fullscreen #panel{
+  top:0;right:0;bottom:0;left:0;
+  width:100%;height:100%;
+  border-radius:0;border:none;
+  background:rgba(0,0,0,.65);
+  box-shadow:none;
+}
+body.fullscreen #display{ max-height:50vh; }
+body.fullscreen #history{ max-height:160px; }
+
+/* ===== RWD 斷點 ===== */
+@media (max-width: 640px){
+  #panel{ width:96vw; top:8px; right:8px; border-radius:16px; }
+  #hdr{ padding:8px 12px; }
+  #langbar{ padding:6px 12px; font-size:10px; }
+  #langbar select{ padding:3px 6px; font-size:10px; }
+  #display{ padding:10px 12px; }
+  #history{ padding:6px 12px; font-size:11px; }
+  #toolbar{ padding:8px 12px; }
+  .btn{ padding:7px 12px; font-size:11px; border-radius:9px; }
+  .icon-btn{ width:24px;height:24px; font-size:11px; border-radius:7px; }
+  .src-line{ font-size:clamp(14px,3.5vw,16px); margin-bottom:8px; }
+  .trs-line{ font-size:clamp(11px,2.2vw,13px); gap:4px 12px; }
+}
+@media (max-width: 480px){
+  #langbar{ gap:4px; }
+  #langbar select{ padding:3px 5px; }
+  .btn{ padding:7px 10px; font-size:10px; }
+  .src-line{ font-size:clamp(13px,3vw,15px); }
+  .trs-line{ font-size:clamp(10px,2vw,12px); }
+  #histBtn{ display:none; }
+}
+@media (max-width: 380px){
+  #status{ font-size:11px; padding:5px 10px; }
+  #langbar{ font-size:10px; }
+  #langbar label{ display:none; }
+  #langbar select{ font-size:10px; padding:3px 4px; }
+}
+
+/* iOS 安全區 */
+@supports(padding:env(safe-area-inset-bottom)){
+  #panel{ padding-bottom:env(safe-area-inset-bottom); }
+}
+
+/* 滾輪微調 */
+#display::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); }
+</style>
+</head>
+<body>
+
+<div id="panel">
+  <div id="hdr">
+    <span class="dot"></span>
+    <span class="title">漂浮字幕 · 萬能即時翻</span>
+    <div class="actions">
+      <button class="icon-btn" id="pinBtn" title="釘選">●</button>
+      <button class="icon-btn" id="histBtn" title="歷史">︱</button>
+      <button class="icon-btn" id="minBtn" title="最小化">−</button>
+      <button class="icon-btn danger" id="closeBtn" title="關閉">×</button>
+    </div>
+  </div>
+
+  <div id="langbar">
+    <span>原文</span>
+    <select id="srcLang">
+      <option value="auto">自動</option>
+      <option value="zh-TW" selected>繁中</option>
+      <option value="en">EN</option>
+      <option value="ja">日</option>
+      <option value="ko">韓</option>
+    </select>
+    <span>→</span>
+    <label><input type="checkbox" class="tg" value="en" checked> EN</label>
+    <label><input type="checkbox" class="tg" value="zh-TW" checked> 繁中</label>
+    <label><input type="checkbox" class="tg" value="ja"> 日</label>
+    <label><input type="checkbox" class="tg" value="ko"> 韓</label>
+  </div>
+
+  <div id="status"><span class="dot"></span><span id="statusTxt">待機 — 連接 SSE 或按 🎤 開始</span><span id="diag" style="flex:1;text-align:right;opacity:.7"></span></div>
+
+  <div id="display">
+    <div class="src-line" id="srcTxt">—</div>
+    <div class="trs-line" id="trsTxt"></div>
+    <div class="empty" id="empty">尚未收到字幕<br>SSE 連線中或按下方「開始」擷取音訊</div>
+  </div>
+
+  <div id="history" hidden></div>
+
+  <div id="toolbar">
+    <button class="btn icon" id="copyBtn" title="複製">複製</button>
+    <button class="btn primary" id="startBtn">開始</button>
+    <button class="btn" id="stopBtn" disabled>停止</button>
+    <span class="spacer"></span>
+    <button class="btn icon" id="sseBtn" title="即時訂閱">SSE</button>
+    <button class="btn icon" id="fsBtn" title="全螢幕">⛶</button>
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const LANG_NAME = {'zh-TW':'繁中','zh':'中文','en':'EN','ja':'日','ko':'韓','es':'西','fr':'法','de':'德'};
+const LANG_BCP = {'zh-TW':'zh-TW','zh':'zh-TW','en':'en-US','ja':'ja-JP','ko':'ko-KR','es':'es-ES','fr':'fr-FR','de':'de-DE'};
+
+let targets = new Set(['en','zh-TW']);
+let srcLang = 'zh-TW';
+let running = false, rec = null, stream = null, audioCtx = null, analyser = null, meterRAF = 0;
+let captionLog = [];
+let es = null;
+
+// --- 拖曳 ---
+const panel = $('#panel');
+const hdr = $('#hdr');
+let drag = false, dragOffX = 0, dragOffY = 0;
+hdr.addEventListener('pointerdown', e => {
+  if (e.target.closest('.actions')) return;
+  drag = true;
+  const r = panel.getBoundingClientRect();
+  dragOffX = e.clientX - r.left;
+  dragOffY = e.clientY - r.top;
+  hdr.setPointerCapture(e.pointerId);
+});
+hdr.addEventListener('pointermove', e => {
+  if (!drag) return;
+  panel.style.left = (e.clientX - dragOffX) + 'px';
+  panel.style.top = (e.clientY - dragOffY) + 'px';
+  panel.style.right = 'auto';
+});
+hdr.addEventListener('pointerup', () => drag = false);
+
+// --- 釘選切換（穿透點擊） ---
+$('#pinBtn').addEventListener('click', () => {
+  const pinned = panel.style.pointerEvents === 'none';
+  panel.style.pointerEvents = pinned ? '' : 'none';
+  panel.style.opacity = pinned ? '' : '0.92';
+  $('#pinBtn').classList.toggle('on', !pinned);
+});
+
+// --- 最小化/關閉 ---
+$('#minBtn').addEventListener('click', () => panel.classList.toggle('minimized'));
+$('#closeBtn').addEventListener('click', () => { panel.classList.toggle('hidden'); if (panel.classList.contains('hidden')) disconnectSSE(); });
+
+// --- 全螢幕 ---
+$('#fsBtn').addEventListener('click', () => document.body.classList.toggle('fullscreen'));
+
+// --- 語言 ---
+function syncTargets() {
+  targets = new Set(Array.from(document.querySelectorAll('.tg:checked')).map(c => c.value));
+  if (targets.size === 0) { targets.add('en'); }
+}
+document.querySelectorAll('.tg').forEach(c => c.addEventListener('change', syncTargets));
+$('#srcLang').addEventListener('change', () => srcLang = $('#srcLang').value);
+syncTargets();
+
+// --- 複製文字 ---
+$('#copyBtn').addEventListener('click', () => {
+  const src = $('#srcTxt').textContent;
+  const trs = $('#trsTxt').innerText;
+  const all = trs ? `${src}\n${trs}` : src;
+  navigator.clipboard.writeText(all).then(() => {
+    $('#copyBtn').textContent = '✅';
+    setTimeout(() => $('#copyBtn').textContent = '📋', 1500);
+  }).catch(() => {});
+});
+
+// --- SSE 即時訂閱 ---
+function connectSSE() {
+  const params = new URLSearchParams(location.search);
+  const room = params.get('room') || '';
+  const url = room ? '/stream?room=' + encodeURIComponent(room) : '/stream';
+
+  es = new EventSource(url);
+  $('#sseBtn').classList.add('on');
+  $('#sseBtn').textContent = '🔴';
+
+  es.addEventListener('translation', e => {
+    try {
+      const p = JSON.parse(e.data);
+      const d = p.data || p;
+      if (d.text) {
+        showCaption(d.text, d.translations || {});
+        $('#diag').textContent = '📡 SSE';
+      }
+    } catch (_) {}
+  });
+
+  es.addEventListener('subtitle', e => {
+    try {
+      const p = JSON.parse(e.data);
+      const d = p.data || p;
+      if (d.text) {
+        showCaption(d.text, d.translations || {});
+        $('#diag').textContent = '📡 SSE';
+      }
+    } catch (_) {}
+  });
+
+  es.onopen = () => {
+    $('#statusTxt').textContent = '📡 SSE 已連線';
+    $('#status').classList.add('sse');
+  };
+  es.onerror = () => {
+    // 自動重連: EventSource 內建重連機制
+    $('#statusTxt').textContent = '⚠ SSE 重連中…';
+    $('#sseBtn').classList.remove('on');
+    $('#sseBtn').textContent = '📡';
+  };
+}
+
+function disconnectSSE() {
+  if (es) {
+    es.close();
+    es = null;
+    $('#sseBtn').classList.remove('on');
+    $('#sseBtn').textContent = '📡';
+    $('#status').classList.remove('sse');
+  }
+}
+
+$('#sseBtn').addEventListener('click', () => {
+  if (es && es.readyState === EventSource.OPEN) {
+    disconnectSSE();
+  } else {
+    connectSSE();
+  }
+});
+
+// Auto-connect SSE for real-time translation (works with or without room param)
+setTimeout(connectSSE, 300);
+
+// --- API ---
+async function speechToSub(buf, attempt = 0) {
+  const params = new URLSearchParams(location.search);
+  const room = params.get('room') || '';
+  const speaker = params.get('speaker') || 'float';
+  const url = '/speech-to-subtitle?lang=' + encodeURIComponent(
+    srcLang === 'auto' ? 'auto' : (LANG_BCP[srcLang] || srcLang)
+  ) + (room ? '&room=' + encodeURIComponent(room) : '') + (speaker ? '&speaker=' + encodeURIComponent(speaker) : '');
+  try {
+    const r = await fetch(url, { method: 'POST', headers: {'Content-Type':'application/octet-stream'}, body: buf });
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const txt = await r.text();
+    try { return JSON.parse(txt); } catch (_) { throw new Error('回傳格式異常'); }
+  } catch (e) {
+    if (attempt < 2) { await new Promise(r => setTimeout(r, 800)); return speechToSub(buf, attempt + 1); }
+    throw e;
+  }
+}
+
+// --- 顯示字幕 (去重: SSE 與 API 同文不重覆顯示) ---
+let lastCaption = '';
+function showCaption(src, translations) {
+  const key = src;
+  if (key === lastCaption) return;           // 去重
+  lastCaption = key;
+  $('#srcTxt').textContent = src || '—';
+  const pairs = Array.from(targets).map(t => {
+    const txt = translations ? translations[t] : '';
+    return txt ? `<span class="pair"><span class="ltr">${LANG_NAME[t]||t}</span>${txt}</span>` : '';
+  }).filter(Boolean).join('');
+  $('#trsTxt').innerHTML = pairs;
+  $('#empty').style.display = 'none';
+
+  // 歷史
+  captionLog.push({ t: Date.now()/1000, src, trs: translations||{} });
+  const h = $('#history');
+  const div = document.createElement('div');
+  div.className = 'h-item';
+  const trsText = Object.entries(translations||{}).map(([k,v]) => `[${LANG_NAME[k]||k}] ${v}`).join('  ');
+  div.innerHTML = `<div class="h-src">${src}</div>${trsText?`<div class="h-trs">${trsText}</div>`:''}<div class="h-time">${new Date().toLocaleTimeString()}</div>`;
+  h.prepend(div);
+  h.hidden = false;
+  if (captionLog.length > 60) {
+    captionLog = captionLog.slice(-60);
+    if (h.children.length > 60) h.lastChild.remove();
+  }
+}
+
+// --- 電平表 ---
+function startMeter(s) {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const srcNode = audioCtx.createMediaStreamSource(s);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    srcNode.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const tick = () => {
+      analyser.getByteFrequencyData(data);
+      const lvl = data.reduce((a,b) => a+b, 0) / data.length;
+      $('#diag').textContent = lvl > 5 ? `🔊 ${Math.min(100, (lvl*2)|0)}%` : '⚠ 無音訊';
+      meterRAF = requestAnimationFrame(tick);
+    };
+    tick();
+  } catch (_) {}
+}
+
+// --- 開始 / 停止 ---
+$('#startBtn').addEventListener('click', async () => {
+  if (running) return;
+  try {
+    let s;
+    try {
+      s = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+    } catch (_) {
+      s = await navigator.mediaDevices.getUserMedia({ audio: true });
+    }
+    stream = s;
+    startMeter(s);
+
+    const audioStream = new MediaStream(s.getAudioTracks());
+    const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+      ? 'audio/webm;codecs=opus'
+      : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
+    rec = new MediaRecorder(audioStream, mime ? { mimeType: mime } : undefined);
+    const chunks = [];
+    let chunkCount = 0;
+
+    rec.ondataavailable = async (e) => {
+      if (e.data.size > 0) {
+        const buf = await e.data.arrayBuffer();
+        if (buf.byteLength >= 200) {
+          chunkCount++;
+          $('#diag').textContent = `📡 發送中 #${chunkCount}`;
+          try {
+            const d = await speechToSub(buf);
+            if (d.text) {
+              // SSE + API deduplication handled in showCaption
+              showCaption(d.text, d.translations || {});
+              $('#diag').textContent = '✅ OK';
+              setTimeout(() => $('#diag').textContent = '', 800);
+            }
+          } catch (err) {
+            $('#statusTxt').textContent = '❌ ' + err.message;
+          }
+        } else {
+          $('#diag').textContent = '⚠ 無音訊';
+        }
+      }
+      // 即時模式: 每次 dataavailable 自動重新開始 (不需等 onstop)
+      if (running && rec.state === 'inactive') rec.start(4000);
+    };
+
+    // onstop 僅在停止按鈕按下時觸發
+    rec.onstop = () => {
+      cancelAnimationFrame(meterRAF);
+    };
+
+    // 即時: 不等待 onstop，直接開始錄音，dataavailable 即刻發送
+    rec.start(4000);
+    running = true;
+    $('#startBtn').disabled = true;
+    $('#stopBtn').disabled = false;
+    $('#status').classList.add('live');
+    $('#statusTxt').textContent = '🔴 收音中（每4s一輪）';
+    $('#empty').style.display = 'none';
+  } catch (e) {
+    $('#statusTxt').textContent = '❌ 無法取得音訊：' + e.message;
+  }
+});
+
+$('#stopBtn').addEventListener('click', () => {
+  if (rec && rec.state !== 'inactive') rec.stop();
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  running = false;
+  cancelAnimationFrame(meterRAF);
+  $('#startBtn').disabled = false;
+  $('#stopBtn').disabled = true;
+  $('#status').classList.remove('live');
+  $('#statusTxt').textContent = '已停止';
+  $('#diag').textContent = '';
+});
+
+// --- 歷史記錄切換 ---
+$('#histBtn').addEventListener('click', () => {
+  const h = $('#history');
+  h.hidden = !h.hidden;
+});
+
+// --- 清除 ---
+$('#clearBtn').addEventListener('click', () => {
+  captionLog = [];
+  $('#history').innerHTML = '';
+  $('#history').hidden = true;
+  $('#srcTxt').textContent = '—';
+  $('#trsTxt').innerHTML = '';
+  $('#empty').style.display = '';
+});
+</script>
+</body>
+</html>
