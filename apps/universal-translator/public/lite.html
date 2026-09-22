@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>即時語音翻譯</title>
+<script src="qrcode.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#1e1e1e;--bar:#252526;--line:#333;--txt:#f0f0f0;--muted:#9aa0a6;--accent:#ff4d4d}
+html,body{height:100%;background:#000;color:var(--txt);font-family:'Segoe UI','Microsoft JhengHei',Roboto,sans-serif;overflow:hidden}
+#app{height:100vh;display:flex;align-items:center;justify-content:center;padding:12px}
+.widget{width:100%;max-width:760px;max-height:92vh;background:var(--bg);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden}
+.head{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bar);border-bottom:1px solid var(--line);flex-shrink:0}
+.head .left{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.ctr{display:flex;align-items:center;gap:6px;margin:0 auto}
+.ctr button{background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px}
+.pill{background:#3e3e42;border-radius:20px;padding:6px 10px;display:flex;align-items:center;gap:8px}
+.pill select{background:#3e3e42;color:var(--txt);border:none;font-size:13px;outline:none;cursor:pointer}
+.swap{cursor:pointer;color:var(--muted);font-size:15px}
+.body{flex:1;overflow-y:auto;padding:22px 24px;display:flex;flex-direction:column;gap:18px}
+.line{animation:fade .2s ease}
+.line .src{font-size:1.15rem;line-height:1.55;color:#fff;font-weight:500;margin-bottom:6px}
+.line .tgt{font-size:1.05rem;line-height:1.55;color:#dcdcdc}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.empty{color:var(--muted);text-align:center;margin-top:35%;font-size:14px}
+.wave{height:48px;display:flex;align-items:center;justify-content:center;gap:3px;padding:0 10px;opacity:0;transition:opacity .2s}
+.wave.on{opacity:1}
+.wave .bar{width:4px;height:4px;border-radius:2px;background:linear-gradient(#4ade80,#22c55e);transition:height .06s}
+.wave.sys .bar{background:linear-gradient(#5ab0ff,#3b82f6)}
+.foot{flex-shrink:0;padding:14px 18px;background:var(--bar);border-top:1px solid var(--line);display:flex;align-items:center;gap:14px}
+.rec{width:52px;height:52px;border-radius:50%;border:none;flex-shrink:0;background:#4ade80;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s}
+.rec:active{transform:scale(.92)}
+.rec.on{background:var(--accent);animation:pulse 1.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,77,77,.5)}50%{box-shadow:0 0 0 13px rgba(255,77,77,0)}}
+.rec svg{width:24px;height:24px;fill:#1e1e1e}
+.srcpick{display:flex;flex-direction:column;gap:4px}
+.srcpick button{background:#3e3e42;color:var(--muted);border:none;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer}
+.srcpick button.active{background:#4ade80;color:#1e1e1e;font-weight:600}
+.srcpick button.active.sys{background:#5ab0ff}
+.status{flex:1;font-size:13px;color:var(--muted)}
+.status.live{color:#4ade80}
+.share{background:#3e3e42;color:var(--txt);border:none;border-radius:8px;padding:9px 16px;font-size:13px;cursor:pointer}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+.ov.show{display:flex}
+.card{background:var(--bar);border-radius:14px;padding:22px;width:100%;max-width:320px;text-align:center}
+.card h3{font-size:16px;margin-bottom:12px}
+.card .rc{font-size:13px;color:var(--muted);margin-bottom:12px}
+#qr{display:flex;justify-content:center;margin:14px 0}
+#qr canvas,#qr img{border-radius:8px;background:#fff;padding:8px}
+.card .lk{background:#1e1e1e;border:1px solid var(--line);border-radius:8px;padding:10px;font-size:11px;word-break:break-all;color:#5ab0ff;margin-bottom:12px}
+.card .rw{display:flex;gap:8px}
+.card button{flex:1;padding:10px;border-radius:8px;border:none;font-size:14px;font-weight:600;cursor:pointer}
+.card .cp{background:#4ade80;color:#1e1e1e}
+.card .cl{background:#3e3e42;color:var(--txt)}
+#dbg{display:none;position:fixed;top:0;left:0;right:0;background:#000c;color:#5ab0ff;font-size:11px;padding:6px 12px;font-family:monospace;white-space:pre-wrap;max-height:120px;overflow-y:auto;z-index:100;line-height:1.3}
+#dbg.show{display:block}
+</style>
+</head>
+<body>
+<div id="dbg"></div>
+<div id="app">
+  <div class="widget">
+    <div class="head">
+      <div class="left"><span class="dot"></span><span>即時共享</span></div>
+      <div class="ctr">
+        <div class="pill">
+          <select id="srcSel"></select>
+          <span class="swap" id="swap">⇄</span>
+          <select id="tgtSel"></select>
+        </div>
+      </div>
+    </div>
+    <div class="body" id="body">
+      <div class="empty" id="empty">🔊 選「系統音」→ 開始 → 選 Zoom 視窗 + 勾「分享音訊」</div>
+    </div>
+    <div class="wave" id="wave"></div>
+    <div class="foot">
+      <div class="srcpick">
+        <button id="micBtn">🎤 麥克風</button>
+        <button id="sysBtn" class="active sys">🔊 系統音</button>
+      </div>
+      <button class="rec" id="rec"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.92V21a1 1 0 0 0 2 0v-3.08A7 7 0 0 0 19 11z"/></svg></button>
+      <div class="status" id="status">就緒</div>
+      <button class="share" id="shareBtn">分享</button>
+    </div>
+  </div>
+</div>
+<div class="ov" id="ov">
+  <div class="card">
+    <h3>掃 QR 分享給觀眾</h3>
+    <div class="rc">房間碼：<b id="rc"></b></div>
+    <div id="qr"></div>
+    <div class="lk" id="vl"></div>
+    <div class="rw"><button class="cp" id="cp">複製連結</button><button class="cl" id="cl">關閉</button></div>
+  </div>
+</div>
+<script>
+const API='http://161.118.248.180:8788';
+const LANGS=[['auto','自動'],['zh-TW','中文'],['en','英語'],['ja','日語'],['ko','韓語'],['es','西語'],['fr','法語'],['de','德語']];
+const params=new URLSearchParams(location.search);
+const isViewer=(params.get('role')==='viewer');
+const room=params.get('room')||('r'+Math.random().toString(36).slice(2,8));
+let src='en', tgt='zh-TW', srcMode='sys';
+
+const dbg=document.getElementById('dbg');
+function log(msg){console.log(msg);dbg.classList.add('show');dbg.textContent=new Date().toLocaleTimeString()+' '+msg;}
+
+if(isViewer){
+  document.querySelector('.srcpick').style.display='none';
+  document.getElementById('shareBtn').style.display='none';
+  document.getElementById('empty').textContent='等待主播開始…';
+  var es=new EventSource(API+'/stream?room='+room);
+  es.onmessage=e=>{try{var d=JSON.parse(e.data);if(d.text)addLine(d.text,Object.values(d.translations||{})[0]||'')}catch(_){}};
+}
+
+const body=document.getElementById('body'),empty=document.getElementById('empty');
+const rec=document.getElementById('rec'),statusEl=document.getElementById('status');
+const srcSel=document.getElementById('srcSel'),tgtSel=document.getElementById('tgtSel');
+const waveEl=document.getElementById('wave');
+
+LANGS.forEach(([v,l])=>{srcSel.add(new Option(l,v));tgtSel.add(new Option(l,v))});
+srcSel.value=src;tgtSel.value=tgt;
+srcSel.onchange=()=>src=srcSel.value;
+tgtSel.onchange=()=>tgt=tgtSel.value;
+document.getElementById('swap').onclick=()=>{[src,tgt]=[tgt,src];srcSel.value=src;tgtSel.value=tgt};
+
+document.getElementById('micBtn').onclick=()=>{srcMode='mic';micBtn.classList.add('active');sysBtn.classList.remove('active')};
+document.getElementById('sysBtn').onclick=()=>{srcMode='sys';sysBtn.classList.add('active');micBtn.classList.remove('active')};
+
+function addLine(s,t){
+  if(empty)empty.remove();
+  const d=document.createElement('div');d.className='line';
+  d.innerHTML='<div class="src"></div><div class="tgt"></div>';
+  d.querySelector('.src').textContent=s;
+  if(t)d.querySelector('.tgt').textContent=t;
+  body.appendChild(d);body.scrollTop=body.scrollHeight;
+}
+
+let audioCtx,analyser,rafId;
+for(let i=0;i<32;i++){const b=document.createElement('div');b.className='bar';waveEl.appendChild(b)}
+function startWave(stream){
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  analyser=audioCtx.createAnalyser();analyser.fftSize=64;analyser.smoothingTimeConstant=0.7;
+  audioCtx.createMediaStreamSource(stream).connect(analyser);
+  const data=new Uint8Array(analyser.frequencyBinCount);
+  waveEl.className='wave on'+(srcMode==='sys'?' sys':'');
+  (function draw(){
+    if(!analyser)return;
+    analyser.getByteTimeDomainData(data);
+    let s=0;for(const v of data)s+=((v-128)/128)**2;
+    const rms=Math.sqrt(s/data.length);
+    const bars=waveEl.children;
+    for(let i=0;i<32;i++){const idx=Math.floor(i/32*data.length);bars[i].style.height=Math.min(48,4+Math.abs((data[idx]-128)/128)*40+rms*18)+'px'}
+    rafId=requestAnimationFrame(draw);
+  })();
+}
+function stopWave(){waveEl.className='wave';if(rafId)cancelAnimationFrame(rafId);if(audioCtx)audioCtx.close().catch(()=>{});audioCtx=null;analyser=null}
+
+let mr,on=false,lastText='',sttBusy=false,bufBlobs=[];
+const CHUNK_MS=3000,MAX_BUF=2;
+
+async function start(){
+  let s;
+  if(srcMode==='sys'){
+    let ds;
+    try{ds=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true})}
+    catch(e){ds=await navigator.mediaDevices.getDisplayMedia({audio:true})}
+    const at=ds.getAudioTracks()[0];
+    if(!at){ds.getVideoTracks().forEach(t=>t.stop());throw new Error('未選到系統音軌，請勾選「分享音訊」')}
+    s=new MediaStream([at]);
+  } else {
+    s=await navigator.mediaDevices.getUserMedia({audio:true});
+  }
+  mr=new MediaRecorder(s);bufBlobs=[];lastText='';sttBusy=false;
+  mr.ondataavailable=e=>{if(e.data.size>100){bufBlobs.push(e.data);if(bufBlobs.length>MAX_BUF)bufBlobs.shift()}};
+  mr.start(CHUNK_MS);
+  on=true;rec.classList.add('on');
+  statusEl.textContent='● 即時字幕中…';statusEl.classList.add('live');
+  startWave(s);
+  sendChunk();
+}
+
+async function sendChunk(){
+  if(!on)return;
+  if(bufBlobs.length<2){setTimeout(()=>sendChunk(),500);return}
+  if(sttBusy)return;
+  sttBusy=true;
+  const blob=new Blob(bufBlobs,{type:'audio/webm'});
+  try{
+    log('送STT '+Math.round(blob.size/1024)+'KB');
+    const buf=await blob.arrayBuffer();
+    const resp=await fetch(API+'/speech-to-subtitle?lang='+encodeURIComponent(tgt)+'&room='+room,{
+      method:'POST',headers:{'Content-Type':'application/octet-stream'},body:buf
+    });
+    if(!resp.ok){log('HTTP '+resp.status);sttBusy=false;setTimeout(()=>sendChunk(),1000);return}
+    const sd=await resp.json();
+    if(sd.error){log('API err: '+sd.error);sttBusy=false;setTimeout(()=>sendChunk(),1000);return}
+    const full=(sd.text||'').trim();
+    if(!full){log('空字幕');sttBusy=false;setTimeout(()=>sendChunk(),500);return}
+    log('✓ '+full.slice(0,30));
+    const norm=s=>s.toLowerCase().replace(/[.,!?;:'"()]/g,'').replace(/\s+/g,' ').trim();
+    const nF=norm(full),nL=norm(lastText);
+    let newTxt='';
+    if(nF.length>nL.length&&nF.startsWith(nL)){newTxt=full.slice(lastText.length).trim()||full}
+    else if(nF!==nL){newTxt=full}
+    if(newTxt){addLine(newTxt,sd.translation||'');lastText=full}
+  }catch(err){log('網路錯誤: '+err.message)}
+  sttBusy=false;
+  if(on)setTimeout(()=>sendChunk(),800);
+}
+
+rec.onclick=()=>{
+  if(isViewer)return;
+  if(on){mr.stop();on=false;rec.classList.remove('on');stopWave();statusEl.textContent='已停止';log('停止')}
+  else{start().catch(e=>{log('錯誤: '+e.message);statusEl.textContent='錯誤: '+e.message})};
+};
+
+document.getElementById('shareBtn').onclick=()=>{
+  const link=location.origin+location.pathname+'?role=viewer&room='+room;
+  document.getElementById('rc').textContent=room;
+  document.getElementById('vl').textContent=link;
+  document.getElementById('qr').innerHTML='';
+  new QRCode(document.getElementById('qr'),{text:link,width:180,height:180});
+  document.getElementById('ov').classList.add('show');
+};
+document.getElementById('cp').onclick=()=>{navigator.clipboard.writeText(document.getElementById('vl').textContent);cp.textContent='已複製!';setTimeout(()=>cp.textContent='複製連結',1500)};
+document.getElementById('cl').onclick=()=>document.getElementById('ov').classList.remove('show');
+</script>
+</body>
+</html>

@@ -396,7 +396,7 @@ const server = http.createServer(async (req, res) => {
     const q = new URL(url, 'http://localhost').searchParams;
     const lang = q.get('lang') || '';
     try {
-      const sttRes = await fetch(`http://127.0.0.1:${process.env.STT_PORT || 8790}/transcribe?lang=${encodeURIComponent(lang)}`, {
+      const sttRes = await fetch(`http://127.0.0.1:${process.env.STT_PORT || 8791}/transcribe?lang=${encodeURIComponent(lang)}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/octet-stream' },
         body: new Uint8Array(audioBuf),

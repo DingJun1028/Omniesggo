@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>漂浮字幕窗 · 萬能即時翻譯</title>
+<style>
+:root{
+  /* 萬能蜂群 5T 聖典品牌色: 深藍 + 暖金 */
+  --bg:rgba(16,26,48,.82);
+  --bg2:rgba(16,26,48,.94);
+  --border:rgba(255,255,255,.08);
+  --txt:#e8edf7;
+  --muted:#9fb0d0;
+  --gold:#c9a24b;       /* 暖金 */
+  --blue:#0a1a3f;       /* 深藍 */
+  --accent:#5b8cff;     /* 冷藍 */
+  --ok:#22c55e;
+  --err:#ff5d6c;
+  --shadow:0 24px 64px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:transparent;font-family:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;}
+
+/* ===== 標題列 (可拖曳) ===== */
+#bar{
+  height:28px;
+  background:linear-gradient(135deg,rgba(10,26,48,.94),rgba(16,26,48,.98));
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 12px;
+  cursor:grab;
+  flex:none;
+  backdrop-filter:blur(12px);
+}
+#bar .t{
+  font-size:.72rem;
+  color:var(--gold);
+  font-weight:600;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+#bar .t .bee{
+  font-size:.8rem;
+}
+#bar .x{
+  margin-left:auto;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:.9rem;
+  line-height:1;
+  padding:2px 6px;
+  border-radius:4px;
+  transition:all .18s;
+}
+#bar .x:hover{
+  color:var(--txt);
+  background:rgba(255,255,255,.08);
+}
+
+/* ===== 字幕區 ===== */
+#subs{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:6px;
+  padding:14px 16px;
+  overflow:hidden;
+}
+.sub{display:flex;flex-direction:column;gap:2px;animation:fade .18s ease-out}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* 原始文字 */
+.sub .src{
+  font-size:1rem;
+  font-weight:500;
+  color:var(--muted);
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
+  padding:2px 10px;
+  border-radius:8px;
+  background:rgba(0,0,0,.45);
+  width:fit-content;
+  max-width:100%;
+  line-height:1.3;
+}
+
+/* 翻譯文字 */
+.sub .tgt{
+  font-size:1.55rem;
+  font-weight:700;
+  color:#fff;
+  text-shadow:0 2px 6px rgba(0,0,0,.7);
+  padding:3px 12px;
+  border-radius:9px;
+  background:rgba(0,0,0,.6);
+  width:fit-content;
+  max-width:100%;
+  line-height:1.3;
+}
+
+/* 等待提示 */
+#ph{
+  color:rgba(255,255,255,.55);
+  font-size:1.05rem;
+  text-align:center;
+  margin:auto;
+  padding:0 20px;
+}
+
+/* 底部提示 */
+.hint{
+  position:absolute;
+  bottom:4px;
+  right:12px;
+  font-size:.58rem;
+  color:rgba(255,255,255,.4);
+}
+
+/* 滾動條隱藏 */
+::-webkit-scrollbar{display:none}
+</style>
+</head>
+<body>
+<div id="bar">
+  <span class="t"><span class="bee">&#128640;</span> 萬能翻譯字幕窗</span>
+  <span class="x" id="close">✕</span>
+</div>
+<div id="subs">
+  <div id="ph">等待字幕…</div>
+</div>
+<div class="hint">拖曳標題列移動</div>
+
+<script>
+/* ===== 萬能即時翻譯漂浮窗客戶端 =====
+ * 5T 協定: Traceable / Trackable / Tangible / Transparent / Trustworthy
+ * 連接: SSE /stream?room=xxx&pwd=xxx
+ * 事件格式: event=translation, data={text,translations,engine,trace,room,speaker}
+ */
+const params = new URLSearchParams(location.search);
+const room = params.get('room') || '';
+const pwd = params.get('pwd') || '';
+
+const subs = document.getElementById('subs');
+const ph = document.getElementById('ph');
+const bar = document.getElementById('bar');
+const closeBtn = document.getElementById('close');
+
+// 關閉按鈕
+closeBtn.onclick = () => {
+  // 嘗試關閉視窗
+  window.close();
+  // 發送消息給父窗口
+  if (window.opener) {
+    try {
+      window.opener.postMessage({type: 'float_closed', room: room}, '*');
+    } catch(e) {}
+  }
+};
+
+// 字幕位置: 從 URL 參數或 localStorage 讀取
+const posOrder = params.get('order') !== 'src'; // 預設大翻譯小原文
+let fontSize = localStorage.getItem('float_font_size') || '42';
+
+// 拖曳功能
+(function enableDrag() {
+  let dragging = false;
+  let sx, sy, ox, oy;
+  bar.addEventListener('pointerdown', (e) => {
+    if (e.target.id === 'close') return;
+    dragging = true;
+    bar.style.cursor = 'grabbing';
+    sx = e.screenX; sy = e.screenY;
+    const r = bar.getBoundingClientRect();
+    ox = r.left; oy = r.top;
+    bar.setPointerCapture(e.pointerId);
+  });
+  bar.addEventListener('pointermove', (e) => {
+    if (!dragging) return;
+    const nx = ox + (e.clientX - sx);
+    const ny = oy + (e.clientY - sy);
+    // 限制在視窗內
+    const maxX = window.innerWidth - bar.offsetWidth;
+    const maxY = window.innerHeight - bar.offsetHeight;
+    const clampedX = Math.max(0, Math.min(nx, maxX));
+    const clampedY = Math.max(0, Math.min(ny, maxY));
+    document.documentElement.style.setProperty('--float-x', clampedX + 'px');
+    document.documentElement.style.setProperty('--float-y', clampedY + 'px');
+    subs.style.position = 'absolute';
+    subs.style.left = clampedX + 'px';
+    subs.style.top = (clampedY + 28) + 'px';
+    subs.style.right = 'auto';
+    subs.style.bottom = 'auto';
+  });
+  bar.addEventListener('pointerup', () => {
+    dragging = false;
+    bar.style.cursor = 'grab';
+    bar.releasePointerCapture(event.pointerId);
+  });
+})();
+
+// 添加字幕到畫面
+function addSub(data) {
+  if (ph) ph.remove();
+
+  const wrap = document.createElement('div');
+  wrap.className = 'sub';
+  wrap.style.fontSize = fontSize + 'px';
+
+  // SSE 事件格式: text=原文, translations={zh-TW: 翻譯}
+  const srcText = data.text || '';
+  const translations = data.translations || {};
+
+  // 取得第一個翻譯結果
+  const targetLangs = Object.keys(translations);
+  const tgtText = targetLangs.length > 0 ? translations[targetLangs[0]] : '';
+
+  if (!srcText && !tgtText) return;
+
+  // 根據 order 參數決定顯示順序
+  const a = document.createElement('div');
+  const b = document.createElement('div');
+
+  if (posOrder) {
+    // 大翻譯在上, 小原文在下
+    a.className = 'src';
+    b.className = 'tgt';
+    a.textContent = srcText || '';
+    b.textContent = tgtText || '';
+  } else {
+    // 大原文在上, 小翻譯在下
+    a.className = 'tgt';
+    b.className = 'src';
+    a.textContent = tgtText || '';
+    b.textContent = srcText || '';
+  }
+
+  wrap.appendChild(a);
+  wrap.appendChild(b);
+
+  subs.appendChild(wrap);
+
+  // 限制最多顯示 8 行字幕
+  while (subs.children.length > 8) {
+    subs.removeChild(subs.firstChild);
+  }
+
+  // 自動滾動到底部
+  subs.scrollTop = subs.scrollHeight;
+}
+
+// 連接 SSE
+function connectSSE() {
+  if (!room) {
+    if (ph) ph.textContent = '請在父視窗中建立房間';
+    return;
+  }
+
+  let url = '/stream?room=' + encodeURIComponent(room);
+  if (pwd) url += '&pwd=' + encodeURIComponent(pwd);
+
+  const es = new EventSource(url);
+
+  es.addEventListener('translation', (ev) => {
+    try {
+      const data = JSON.parse(ev.data);
+      addSub(data);
+    } catch (e) {
+      console.error('parse SSE error:', e);
+    }
+  });
+
+  es.addEventListener('subtitle', (ev) => {
+    // 兼容舊版 omnilive 格式 (來源: d.source, d.target)
+    try {
+      const p = JSON.parse(ev.data);
+      const d = p.data || p;
+      const src = d.source || d.text || '';
+      const tgt = d.target || '';
+      if (src || tgt) {
+        addSub({text: src, translations: tgt ? {'zh-TW': tgt} : {}});
+      }
+    } catch (e) {
+      console.error('parse subtitle SSE error:', e);
+    }
+  });
+
+  es.onerror = () => {
+    if (es.readyState === EventSource.CLOSED) {
+      // 自動重連
+      setTimeout(() => {
+        connectSSE();
+      }, 1000);
+    }
+  };
+}
+
+// 啟動
+if (room) {
+  connectSSE();
+} else if (ph) {
+  ph.textContent = '等待房間連結…';
+}
+</script>
+</body>
+</html>
