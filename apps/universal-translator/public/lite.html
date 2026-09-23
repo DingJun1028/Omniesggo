@@ -117,7 +117,8 @@ if(isViewer){
   document.getElementById('shareBtn').style.display='none';
   document.getElementById('empty').textContent='等待主播開始…';
   var es=new EventSource(API+'/stream?room='+room);
-  es.onmessage=e=>{try{var d=JSON.parse(e.data);if(d.text){var b='';if(d.source==='windows-live-captions')b='📋 Windows';else if(d.source==='chrome-live-captions')b='🌐 Chrome';addLine(d.text,Object.values(d.translations||{})[0]||'',b)}}catch(_){}};
+  // server 廣播的是具名事件 event: translation — onmessage 只收未命名事件會永遠收不到
+  es.addEventListener('translation',e=>{try{var d=JSON.parse(e.data);if(d.text){var b='';if(d.source==='windows-live-captions')b='📋 Windows';else if(d.source==='chrome-live-captions')b='🌐 Chrome';addLine(d.text,Object.values(d.translations||{})[0]||'',b)}}catch(_){}});
 }
 
 const body=document.getElementById('body'),empty=document.getElementById('empty');
