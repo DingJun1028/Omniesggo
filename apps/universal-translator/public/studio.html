@@ -313,7 +313,7 @@ async function start(){
   startMeter(stream);
   // 用純 audio-only stream 錄音 (display stream 的 video 保持活著以保住 audio track)
   const audioOnly=new MediaStream(stream.getAudioTracks());
-  const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'audio/ogg';
+  const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':MediaRecorder.isTypeSupported('audio/aac')?'audio/aac':'audio/ogg';
   rec=new MediaRecorder(audioOnly,{mimeType:mime});chunks=[];
   rec.ondataavailable=e=>{ if(e.data&&e.data.size>0)chunks.push(e.data); };
   rec.onstop=async()=>{
@@ -377,7 +377,7 @@ $('#testBtn').onclick=async()=>{
     const a=s.getAudioTracks()[0];
     if(!a){ toast('未擷取到聲音，請在分享時勾選「分享音訊」'); s.getTracks().forEach(t=>t.stop()); return; }
     const audioOnly=new MediaStream(s.getAudioTracks());
-    const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':'audio/ogg';
+    const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':MediaRecorder.isTypeSupported('audio/aac')?'audio/aac':'audio/ogg';
     const rec2=new MediaRecorder(audioOnly,{mimeType:mime});const ch=[];
     rec2.ondataavailable=e=>{if(e.data.size>0)ch.push(e.data);};
     const done=new Promise(res=>rec2.onstop=res);

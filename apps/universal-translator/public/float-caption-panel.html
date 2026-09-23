@@ -505,7 +505,9 @@ $('#startBtn').addEventListener('click', async () => {
     const audioStream = new MediaStream(s.getAudioTracks());
     const mime = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
       ? 'audio/webm;codecs=opus'
-      : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
+      : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm'
+      : (MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+      : (MediaRecorder.isTypeSupported('audio/aac') ? 'audio/aac' : '')));
     rec = new MediaRecorder(audioStream, mime ? { mimeType: mime } : undefined);
     const chunks = [];
     let chunkCount = 0;

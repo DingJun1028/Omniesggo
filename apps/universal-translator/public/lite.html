@@ -99,7 +99,8 @@ html,body{height:100%;background:#000;color:var(--txt);font-family:'Segoe UI','M
   </div>
 </div>
 <script>
-const API='http://161.118.248.180:8788';
+// 同源相對路徑: HTTPS 頁面打 http:// IP 會被 mixed-content 封鎖 → 全死
+const API='';
 const LANGS=[['auto','自動'],['zh-TW','中文'],['en','英語'],['ja','日語'],['ko','韓語'],['es','西語'],['fr','法語'],['de','德語']];
 const params=new URLSearchParams(location.search);
 const isViewer=(params.get('role')==='viewer');
@@ -189,6 +190,13 @@ capsBtn.onclick=()=>{if(clipWatcher)stopClipWatcher();else startClipWatcher()};
 
 let mr,on=false,lastText='',sttBusy=false,bufBlobs=[];
 const CHUNK_MS=3000,MAX_BUF=2;
+// iOS Safari 不支援 audio/webm → 依瀏覽器支援度自動選 best mimeType
+function pickAudioMime(){
+  const candidates=['audio/webm;codecs=opus','audio/webm','audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/aac'];
+  for(const m of candidates){if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m}
+  return '';
+}
+const AUDIO_MIME=pickAudioMime();
 
 async function start(){
   let s;
@@ -202,7 +210,7 @@ async function start(){
   } else {
     s=await navigator.mediaDevices.getUserMedia({audio:true});
   }
-  mr=new MediaRecorder(s);bufBlobs=[];lastText='';sttBusy=false;
+  mr=new MediaRecorder(s,AUDIO_MIME?{mimeType:AUDIO_MIME}:undefined);bufBlobs=[];lastText='';sttBusy=false;
   mr.ondataavailable=e=>{if(e.data.size>100){bufBlobs.push(e.data);if(bufBlobs.length>MAX_BUF)bufBlobs.shift()}};
   mr.start(CHUNK_MS);
   on=true;rec.classList.add('on');
@@ -216,7 +224,7 @@ async function sendChunk(){
   if(bufBlobs.length<2){setTimeout(()=>sendChunk(),500);return}
   if(sttBusy)return;
   sttBusy=true;
-  const blob=new Blob(bufBlobs,{type:'audio/webm'});
+  const blob=new Blob(bufBlobs,{type:AUDIO_MIME||'audio/webm'});
   try{
     log('送STT '+Math.round(blob.size/1024)+'KB');
     const buf=await blob.arrayBuffer();
