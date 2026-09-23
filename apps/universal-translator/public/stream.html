@@ -6,9 +6,16 @@
 <title>Zoom 會議字幕 · 觀眾端</title>
 <style>
 :root{
-  --bg:#070b12;--panel:rgba(20,27,41,.72);--panel2:rgba(14,22,35,.6);
-  --accent:#36e0c0;--accent2:#5b8cff;--txt:#eaf1fb;--muted:#8a97ad;
-  --line:rgba(255,255,255,.09);--radius:18px;--gap:clamp(12px,2.6vw,18px);
+  /* 品牌色: 深藍 + 暖金 + 米白 + 綠 */
+  --navy:#10243f;--navy2:#163054;--navy3:#1c3a64;
+  --gold:#c9a24b;--gold2:#e0bd68;--gold-dim:rgba(201,162,75,.18);
+  --cream:#f3ede1;--white:#fbfaf7;
+  --green:#3c6e47;--green2:#4a8a57;
+  --bg:#0b1829;--panel:rgba(16,32,63,.82);--panel2:rgba(22,48,84,.7);
+  --line:rgba(201,162,75,.18);--line2:rgba(255,255,255,.08);
+  --txt:#f3ede1;--muted:#9fb0c7;--muted2:#7a8aa0;
+  --accent:#c9a24b;--accent2:#4a8a57;
+  --radius:14px;--radius-lg:20px;--gap:clamp(12px,2.6vw,18px);
   --font:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
 }
 *{box-sizing:border-box}
@@ -53,6 +60,8 @@ body{margin:0;font-family:var(--font);color:var(--txt);min-height:100vh;padding:
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#ff5d6c;color:#fff;padding:9px 15px;border-radius:11px;font-size:.85rem;opacity:0;transition:.3s;pointer-events:none;z-index:60}
 .toast.show{opacity:1}
 @media(max-width:480px){.topbar h1{font-size:.95rem}}
+/* 方案C: 輔助字幕來源標籤 */
+.src-badge{font-size:.68rem;padding:2px 7px;border-radius:7px;margin-left:8px;background:rgba(201,162,75,.15);color:var(--accent);border:1px solid var(--line);vertical-align:middle}
 </style>
 </head>
 <body>
@@ -95,17 +104,20 @@ $('#swapBtn').onclick=()=>{toLang=fromLang();refreshSwapUI();toast('觀看方向
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);}
 function setStatus(on,msg){$('#dot').className='dot '+(on?'on':'');$('#status').textContent=msg;}
 
-function showCaption(src,trs,ctx){
+function showCaption(src,trs,ctx,sourceLabel){
   $('#capSrc').textContent=src||'';
+  // 方案C: 來源標籤
+  if(sourceLabel){$('#capSrc').innerHTML+='<span class="src-badge">'+sourceLabel+'</span>'}
   $('#capTrs').textContent=trs||'';
   const ce=$('#capCtx'); if(ce) ce.textContent=(ctx&&ctx.length)?'前文：'+ctx.map(c=>c.src||c.text||'').join(' / '):'';
   const cap=$('#caption');cap.classList.add('show');clearTimeout(capTimer);capTimer=setTimeout(()=>cap.classList.remove('show'),6500);
 }
-function appendPreview(src,trs,ctx){
+function appendPreview(src,trs,ctx,sourceLabel){
   const p=$('#preview');const e=p.querySelector('.empty');if(e)e.remove();
   const d=document.createElement('div');d.className='utter';
   const ctxLine=(ctx&&ctx.length)?`<div class="ctx">前文：${ctx.map(c=>c.src||c.text||'').join(' / ')}</div>`:'';
-  d.innerHTML=`<div class="src">▸ ${src}</div>${ctxLine}<div class="trs">${trs||''}</div>`;
+  const badgeHtml=sourceLabel?`<span class="src-badge">${sourceLabel}</span>`:'';
+  d.innerHTML=`<div class="src">▸ ${src}${badgeHtml}</div>${ctxLine}<div class="trs">${trs||''}</div>`;
   p.appendChild(d);p.scrollTop=p.scrollHeight;
 }
 
@@ -116,8 +128,12 @@ function onTranslation(d){
   const src=d.text||'';
   const tr=(d.translations&&toLang&&d.translations[toLang])||'';
   const ctx=d.context||[];
-  appendPreview(src,tr,ctx);
-  if(floatOn)showCaption(src,tr,ctx);
+  // 方案C: 解析輔助字幕來源標籤
+  let b='';
+  if(d.source==='windows-live-captions')b='📋 Windows';
+  else if(d.source==='chrome-live-captions')b='🌐 Chrome';
+  appendPreview(src,tr,ctx,b);
+  if(floatOn)showCaption(src,tr,ctx,b);
 }
 function connect(){
   try{
