@@ -119,6 +119,9 @@ if(isViewer){
   var es=new EventSource(API+'/stream?room='+room);
   // server 廣播的是具名事件 event: translation — onmessage 只收未命名事件會永遠收不到
   es.addEventListener('translation',e=>{try{var d=JSON.parse(e.data);if(d.text){var b='';if(d.source==='windows-live-captions')b='📋 Windows';else if(d.source==='chrome-live-captions')b='🌐 Chrome';addLine(d.text,Object.values(d.translations||{})[0]||'',b)}}catch(_){}});
+  // SSE 斷線自動重連 (EventSource 內建重連, onerror 時提示 + 3 秒後強制重建)
+  es.onopen=()=>{document.getElementById('status').textContent='● 已連線';};
+  es.onerror=()=>{document.getElementById('status').textContent='重連中…';setTimeout(()=>{try{es.close()}catch(_){};es=new EventSource(API+'/stream?room='+room);},3000);};
 }
 
 const body=document.getElementById('body'),empty=document.getElementById('empty');
