@@ -67,6 +67,8 @@ async def transcribe(req: Request, lang: str = ""):
         suffix = ".wav"
     elif audio[:4] == b"\x1a\x45\xdf\xa3":
         suffix = ".webm"
+    elif audio[4:8] == b"ftyp":  # MP4/M4A 容器 (iOS Safari MediaRecorder 送 audio/mp4)
+        suffix = ".mp4"
     elif audio[:3] == b"ID3" or audio[:2] == b"\xff\xfb" or audio[:2] == b"\xff\xf3" or audio[:2] == b"\xff\xf2":
         suffix = ".mp3"
     elif audio[:4] == b"OggS":

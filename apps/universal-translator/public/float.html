@@ -884,9 +884,16 @@ $('dlAudioBtn').onclick=()=>{
 let audioChunks=[];
 let recordedBlob=null;
 let audioBusy=false; // 防重入: 上一輪還在翻譯時先緩衝
+// iOS Safari 不支援 audio/webm → 依瀏覽器支援度自動選 best mimeType
+function pickAudioMime(){
+  const candidates=['audio/webm;codecs=opus','audio/webm','audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/aac'];
+  for(const m of candidates){ if(window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }
+  return ''; // 讓瀏覽器自選預設
+}
+const AUDIO_MIME=pickAudioMime();
 function startRecording(){
   if(!audioStream) return;
-  mediaRecorder=new MediaRecorder(audioStream,{mimeType:'audio/webm'});
+  mediaRecorder=new MediaRecorder(audioStream, AUDIO_MIME?{mimeType:AUDIO_MIME}:undefined);
   audioChunks=[];
   recordedBlob=null;
   $('dlAudioBtn').disabled=true;
@@ -897,20 +904,20 @@ function startRecording(){
     if(mediaRecorder && mediaRecorder.state==='recording'){
       mediaRecorder.stop();
       try{
-        mediaRecorder=new MediaRecorder(audioStream,{mimeType:'audio/webm'});
+        mediaRecorder=new MediaRecorder(audioStream, AUDIO_MIME?{mimeType:AUDIO_MIME}:undefined);
         bindRecorderHandlers();
         mediaRecorder.start(6000);
       }catch(e){ log('分段重啟失敗: '+e.message); }
     }
   },6000);
-  log('開始收音 (每6秒自動送翻譯)');
+  log('開始收音 (每6秒自動送翻譯'+(AUDIO_MIME?' · '+AUDIO_MIME.split(';')[0]:'')+')');
 }
 let audioChunkTimer=null;
 function bindRecorderHandlers(){
   mediaRecorder.ondataavailable=async(e)=>{
     if(e.data.size>0){
       audioChunks.push(e.data);
-      const blob=new Blob(audioChunks,{type:'audio/webm'});
+      const blob=new Blob(audioChunks,{type:AUDIO_MIME||e.data.type||'audio/webm'});
       window.recordedBlob=await convertWebMToWAV(blob);
       $('dlAudioBtn').disabled=false;
       const meter=$('meter');
@@ -919,7 +926,7 @@ function bindRecorderHandlers(){
   };
   mediaRecorder.onstop=async()=>{
     if(audioChunks.length===0) return;
-    const blob=new Blob(audioChunks,{type:'audio/webm'});
+    const blob=new Blob(audioChunks,{type:AUDIO_MIME||'audio/webm'});
     audioChunks=[];
     await sendAudioForSubtitle(blob);
   };
@@ -934,7 +941,7 @@ async function sendAudioForSubtitle(blob){
     const to=toSel.value&&toSel.value!=='auto'?toSel.value:'zh-TW';
     const r=await fetch('/speech-to-subtitle?lang='+encodeURIComponent(from)+'&to='+encodeURIComponent(to),{
       method:'POST',
-      headers:{'Content-Type':'audio/webm'},
+      headers:{'Content-Type':blob.type||'audio/webm'},
       body:blob
     });
     const txt=await r.text();
