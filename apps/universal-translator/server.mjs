@@ -435,7 +435,7 @@ const server = http.createServer(async (req, res) => {
       const tr = { 'zh-TW': rec.text };
       const ctx = getContext({ room });
       recordUtterance({ room, src: text, tgt: rec.text, from: lang, to: 'zh-TW' });
-      broadcastTranslation({ text, translations: tr, engine: rec.engine, cached: rec.cached, trace: hashOf(rec.text).slice(0, 16), room, speaker: source, source: source, context: ctx.length ? ctx.slice(-3) : undefined });
+      broadcastTranslation({ text, translations: tr, engine: rec.engine, cached: rec.cached, trace: hashOf(rec.text).slice(0, 16), room, speaker: source, context: ctx.length ? ctx.slice(-3) : undefined });
       return writeJson(res, { text: rec.text, engine: rec.engine, cached: rec.cached, source, version: APP_VERSION }, {
         'X-OA-Engine': String(rec.engine || 'n/a'), 'X-OA-Cached': String(rec.cached), 'X-OA-Trace': hashOf(rec.text).slice(0, 16),
       });
