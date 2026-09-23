@@ -155,6 +155,8 @@ let srcLang='zh-TW';
 let running=false, rec=null, chunks=[], stream=null, mediaEl=null, audioCtx=null, analyser=null, meterRAF=0, capTimer=null;
 let zoomMode=false;
 const API=''; // 相對路徑
+// iOS Safari 不支援 audio/webm → 依瀏覽器支援度自動選 best mimeType
+const REC_MIME=(()=>{const c=['audio/webm;codecs=opus','audio/webm','audio/mp4;codecs=mp4a.40.2','audio/mp4','audio/aac'];for(const m of c){if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m))return m}return ''})();
 
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3800);}
 function hl(text){return (text||'').replace(/(重要|會議|重點|決議|立即|緊急|OK|yes|no|fail|failure|成功|success)/gi,'<span class="hl">$1</span>');}
@@ -276,12 +278,12 @@ async function startCapture(){
     }
     stream=s;
     startMeter(s);
-    rec=new MediaRecorder(s,{mimeType:'audio/webm;codecs=opus'});
+    rec=new MediaRecorder(s, REC_MIME?{mimeType:REC_MIME}:undefined);
     chunks=[];
     rec.ondataavailable=e=>{ if(e.data.size>0)chunks.push(e.data); };
     rec.onstop=async()=>{
       cancelAnimationFrame(meterRAF);
-      const blob=new Blob(chunks,{type:'audio/webm'});
+      const blob=new Blob(chunks,{type:REC_MIME||'audio/webm'});
       if(blob.size<200){$('#diagTxt').textContent='⚠ 本輪無音訊資料';return;}
       const buf=await blob.arrayBuffer();
       try{
@@ -310,12 +312,12 @@ async function startZoom(){
     vid.srcObject=s; vid.play().catch(()=>{});
     $('#hint').classList.add('hide'); $('#stage').classList.remove('split');
     startMeter(s);
-    rec=new MediaRecorder(s,{mimeType:'audio/webm;codecs=opus'});
+    rec=new MediaRecorder(s, REC_MIME?{mimeType:REC_MIME}:undefined);
     chunks=[];
     rec.ondataavailable=e=>{ if(e.data.size>0)chunks.push(e.data); };
     rec.onstop=async()=>{
       cancelAnimationFrame(meterRAF);
-      const blob=new Blob(chunks,{type:'audio/webm'});
+      const blob=new Blob(chunks,{type:REC_MIME||'audio/webm'});
       if(blob.size<200){$('#diagTxt').textContent='⚠ 本輪無音訊資料';return;}
       const buf=await blob.arrayBuffer();
       try{ const d=await speechToSubRetry(buf); if(d.text)showCaption(d.text, d.translations||{}); }
