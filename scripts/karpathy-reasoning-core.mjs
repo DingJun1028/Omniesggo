@@ -91,7 +91,8 @@ async function reasonWithOllama(notes, mode) {
   
   try {
     const controller = new AbortController();
-    const tid = setTimeout(() => controller.abort(), 120000);
+    const timeoutMs = Number(process.env.OLLAMA_TIMEOUT_MS || 120000);
+    const tid = setTimeout(() => controller.abort(), timeoutMs);
     const response = await fetch(`${OLLAMA_URL}/api/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
