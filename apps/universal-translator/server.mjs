@@ -438,6 +438,14 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // 房間觀眾人數 (float.html pollViewers 輪詢): 統計同 room 的 SSE 訂閱客戶端數
+  if (urlPath.startsWith('/api/room/') && req.method === 'GET') {
+    const room = decodeURIComponent(urlPath.slice('/api/room/'.length));
+    let viewers = 0;
+    for (const c of sseClients) { if (c.room === room) viewers++; }
+    return writeJson(res, { room, viewers });
+  }
+
   // favicon: 回 204 避免瀏覽器 console 404 雜訊 (非功能需求)
   if (url.split('?')[0] === '/favicon.ico') {
     res.writeHead(204, { 'Cache-Control': 'no-cache' });
