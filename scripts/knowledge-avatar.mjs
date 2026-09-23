@@ -18,20 +18,22 @@ const VAULT = path.resolve('vault');
 const REG = path.join(VAULT, 'Agents/context/.avatar-registry.json');
 
 // ── Hatch: 掃所有結點 ──────────────────────────────────────────
-function collectNodes(dir) {
+function collectNodes(dir, rel = '.') {
   const nodes = [];
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name);
-    if (e.isDirectory()) nodes.push(...collectNodes(p));
+    const r = rel === '.' ? e.name : `${rel}/${e.name}`;
+    if (e.isDirectory()) nodes.push(...collectNodes(p, r));
     else if (e.name.endsWith('.md') && e.name !== 'AGENTS.md') {
-      const s = fs.readFileSync(p, 'utf8');
+      let s;
+      try { s = fs.readFileSync(p, 'utf8'); } catch { continue; } // 不可讀檔跳過, 不炸全批
       const body = s.replace(/^---[\s\S]*?---/, '');
       // ## 標題 作結點
       const heads = [...body.matchAll(/^##\s+(.+)$/gm)].map(m => m[1].trim());
       // [[wikilink]] 作結點
       const links = [...body.matchAll(/\[\[([^\]]+)\]\]/g)].map(m => m[1].trim());
-      for (const h of heads) nodes.push({ type: 'heading', text: h, file: e.name });
-      for (const l of links) nodes.push({ type: 'wikilink', text: l, file: e.name });
+      for (const h of heads) nodes.push({ type: 'heading', text: h, file: r });
+      for (const l of links) nodes.push({ type: 'wikilink', text: l, file: r });
     }
   }
   return nodes;
@@ -64,7 +66,7 @@ function extractAvatarTypes(avatars) {
     '// 零時差投向本體: 經 sync-vault-types.ts 萃取進 shared/types.ts', ''];
   const seen = new Set();
   for (const av of avatars) {
-    const fp = path.join(VAULT, 'Agents/context', av.file);
+    const fp = path.join(VAULT, av.file);
     const s = fs.readFileSync(fp, 'utf8');
     const m = s.match(/export\s+(type|interface|enum)\s+([A-Za-z0-9_]+)/);
     if (m && !seen.has(m[2])) {
@@ -83,7 +85,7 @@ function main() {
   const avatars = [];
   for (const n of nodes) {
     const id = Buffer.from(n.text).toString('base64').slice(0, 12);
-    const fileBody = fs.readFileSync(path.join(VAULT, 'Agents/context', n.file), 'utf8');
+    const fileBody = fs.readFileSync(path.join(VAULT, n.file), 'utf8');
     const cls = classify(n, fileBody);
     const av = {
       id,
