@@ -7,7 +7,7 @@
 <script src="qrcode.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#1e1e1e;--bar:#252526;--line:#333;--txt:#f0f0f0;--muted:#9aa0a6;--accent:#ff4d4d}
+:root{--bg:#0b1829;--bar:#163054;--line:rgba(201,162,75,.18);--txt:#f3ede1;--muted:#9fb0c7;--accent:#c9a24b;--gold:#c9a24b;--green:#3c6e47;--navy:#10243f;--cream:#f3ede1}
 html,body{height:100%;background:#000;color:var(--txt);font-family:'Segoe UI','Microsoft JhengHei',Roboto,sans-serif;overflow:hidden}
 #app{height:100vh;display:flex;align-items:center;justify-content:center;padding:12px}
 .widget{width:100%;max-width:760px;max-height:92vh;background:var(--bg);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;overflow:hidden}
@@ -22,7 +22,8 @@ html,body{height:100%;background:#000;color:var(--txt);font-family:'Segoe UI','M
 .body{flex:1;overflow-y:auto;padding:22px 24px;display:flex;flex-direction:column;gap:18px}
 .line{animation:fade .2s ease}
 .line .src{font-size:1.15rem;line-height:1.55;color:#fff;font-weight:500;margin-bottom:6px}
-.line .tgt{font-size:1.05rem;line-height:1.55;color:#dcdcdc}
+.line .tgt{font-size:1.05rem;line-height:1.55;color:#c9a24b}
+.line .badge{font-size:.75rem;padding:2px 8px;border-radius:8px;background:rgba(201,162,75,.15);color:#c9a24b;border:1px solid var(--line);margin-top:6px;align-self:flex-start}
 @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 .empty{color:var(--muted);text-align:center;margin-top:35%;font-size:14px}
 .wave{height:48px;display:flex;align-items:center;justify-content:center;gap:3px;padding:0 10px;opacity:0;transition:opacity .2s}
@@ -83,6 +84,7 @@ html,body{height:100%;background:#000;color:var(--txt);font-family:'Segoe UI','M
       </div>
       <button class="rec" id="rec"><svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/><path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.92V21a1 1 0 0 0 2 0v-3.08A7 7 0 0 0 19 11z"/></svg></button>
       <div class="status" id="status">就緒</div>
+      <button class="share" id="capsBtn" title="監聽剪貼簿: Windows Live Captions / Chrome Live Captions 輔助字幕">📋 Live Captions</button>
       <button class="share" id="shareBtn">分享</button>
     </div>
   </div>
@@ -112,7 +114,7 @@ if(isViewer){
   document.getElementById('shareBtn').style.display='none';
   document.getElementById('empty').textContent='等待主播開始…';
   var es=new EventSource(API+'/stream?room='+room);
-  es.onmessage=e=>{try{var d=JSON.parse(e.data);if(d.text)addLine(d.text,Object.values(d.translations||{})[0]||'')}catch(_){}};
+  es.onmessage=e=>{try{var d=JSON.parse(e.data);if(d.text){var b='';if(d.source==='windows-live-captions')b='📋 Windows';else if(d.source==='chrome-live-captions')b='🌐 Chrome';addLine(d.text,Object.values(d.translations||{})[0]||'',b)}}catch(_){}};
 }
 
 const body=document.getElementById('body'),empty=document.getElementById('empty');
@@ -129,10 +131,11 @@ document.getElementById('swap').onclick=()=>{[src,tgt]=[tgt,src];srcSel.value=sr
 document.getElementById('micBtn').onclick=()=>{srcMode='mic';micBtn.classList.add('active');sysBtn.classList.remove('active')};
 document.getElementById('sysBtn').onclick=()=>{srcMode='sys';sysBtn.classList.add('active');micBtn.classList.remove('active')};
 
-function addLine(s,t){
+function addLine(s,t,sourceLabel){
   if(empty)empty.remove();
   const d=document.createElement('div');d.className='line';
-  d.innerHTML='<div class="src"></div><div class="tgt"></div>';
+  d.innerHTML='<div class="src"></div><div class="tgt"></div>'+
+    (sourceLabel?'<div class="badge">'+sourceLabel+'</div>':'');
   d.querySelector('.src').textContent=s;
   if(t)d.querySelector('.tgt').textContent=t;
   body.appendChild(d);body.scrollTop=body.scrollHeight;
@@ -157,6 +160,32 @@ function startWave(stream){
   })();
 }
 function stopWave(){waveEl.className='wave';if(rafId)cancelAnimationFrame(rafId);if(audioCtx)audioCtx.close().catch(()=>{});audioCtx=null;analyser=null}
+
+// 方案C: 剪貼簿監聽器 (Windows Live Captions / Chrome Live Captions)
+let clipWatcher=null,lastClipText='';
+const capsBtn=document.getElementById('capsBtn');
+async function startClipWatcher(){
+  if(!navigator.clipboard||!navigator.clipboard.readText){log('剪貼簿 API 不支援');return}
+  try{await navigator.clipboard.readText()}catch{alert('請允許剪貼簿權限以使用 Live Captions 監聽');return}
+  capsBtn.textContent='📋 停止監聽';capsBtn.classList.add('active');
+  clipWatcher=setInterval(async()=>{
+    try{
+      const txt=(await navigator.clipboard.readText()).trim();
+      if(txt&&txt!==lastClipText&&txt.length>2){
+        lastClipText=txt;
+        log('📋 剪貼簿: '+txt.slice(0,30));
+        await fetch(API+'/aux-captions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:txt,room,source:'windows-live-captions'})})
+      }
+    }catch(e){}
+  },500);
+  log('開啟剪貼簿監聽 (方案C)')
+}
+function stopClipWatcher(){
+  if(clipWatcher)clearInterval(clipWatcher);clipWatcher=null;
+  capsBtn.textContent='📋 Live Captions';capsBtn.classList.remove('active');
+  log('停止剪貼簿監聽')
+}
+capsBtn.onclick=()=>{if(clipWatcher)stopClipWatcher();else startClipWatcher()};
 
 let mr,on=false,lastText='',sttBusy=false,bufBlobs=[];
 const CHUNK_MS=3000,MAX_BUF=2;

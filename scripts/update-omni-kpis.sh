@@ -82,6 +82,18 @@ data['dataSource'] = {
     'mode': 'cloud' if ollama_status == 'connected' else 'local-sensor',
 }
 
+# KPI 合法區間鉗制 — 防止隨機漫步長期漂移出界（如 uptime > 100%）
+# None 表示不設上限（throughput / latency / errors 可無限成長）
+RANGES = {
+    'throughput': (0.0, None),
+    'latency':    (0.0, None),
+    'quality':    (0.0, 100.0),
+    'errors':     (0.0, None),
+    'uptime':     (0.0, 100.0),
+}
+
+clamped_count = 0
+
 # 更新每個 KPI 值，加入小幅度波動（模擬即時感測）
 for m in data['modules']:
     for kpi in m['kpis']:
@@ -89,6 +101,16 @@ for m in data['modules']:
         if isinstance(current, (int, float)):
             variation = current * (random.uniform(-0.02, 0.02))
             new_val = current + variation
+
+            # 鉗制到合法區間
+            lo, hi = RANGES.get(kpi.get('name'), (None, None))
+            if lo is not None and new_val < lo:
+                new_val = lo
+                clamped_count += 1
+            if hi is not None and new_val > hi:
+                new_val = hi
+                clamped_count += 1
+
             if isinstance(current, int):
                 new_val = int(round(new_val))
             else:
@@ -101,4 +123,5 @@ with open(data_file, 'w', encoding='utf-8') as f:
 
 print(f"Updated {len(data['modules'])} modules at {now}")
 print(f"Source: {data['dataSource']['mode']}")
+print(f"Clamped {clamped_count} out-of-range KPI values")
 PYEOF

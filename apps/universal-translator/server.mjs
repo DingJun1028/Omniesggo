@@ -411,6 +411,32 @@ const server = http.createServer(async (req, res) => {
     }
   }
 
+  // 方案C：輔助字幕來源 (Windows Live Captions / Chrome Live Captions)
+  // 接收來自剪貼簿監聽器或手機同步的外部字幕，翻譯後透過 SSE 廣播
+  // POST /aux-captions { text, room, source, lang } → 翻譯並 broadcast source 欄位
+  if (url.split('?')[0] === '/aux-captions' && req.method === 'POST') {
+    let body;
+    try { body = await readBody(req); } catch { res.writeHead(400); return res.end(JSON.stringify({ error: 'read fail' })); }
+    let p;
+    try { p = JSON.parse(body); } catch { res.writeHead(400); return res.end(JSON.stringify({ error: 'bad json' })); }
+    const { text, room = '', source = 'aux', lang = 'auto' } = p;
+    if (!text) { res.writeHead(400); return res.end(JSON.stringify({ error: 'missing text' })); }
+    try {
+      const ctxHint = buildContextHint({ room });
+      const rec = await translateDetailed(text, String(lang), 'zh-TW', ctxHint);
+      const tr = { 'zh-TW': rec.text };
+      const ctx = getContext({ room });
+      recordUtterance({ room, src: text, tgt: rec.text, from: lang, to: 'zh-TW' });
+      broadcastTranslation({ text, translations: tr, engine: rec.engine, cached: rec.cached, trace: hashOf(rec.text).slice(0, 16), room, speaker: source, source: source, context: ctx.length ? ctx.slice(-3) : undefined });
+      return writeJson(res, { text: rec.text, engine: rec.engine, cached: rec.cached, source, version: APP_VERSION }, {
+        'X-OA-Engine': String(rec.engine || 'n/a'), 'X-OA-Cached': String(rec.cached), 'X-OA-Trace': hashOf(rec.text).slice(0, 16),
+      });
+    } catch (/** @type {any} */ e) {
+      res.writeHead(502);
+      return res.end(JSON.stringify({ error: 'aux-captions failed: ' + (e.message || e) }));
+    }
+  }
+
   // favicon: 回 204 避免瀏覽器 console 404 雜訊 (非功能需求)
   if (url.split('?')[0] === '/favicon.ico') {
     res.writeHead(204, { 'Cache-Control': 'no-cache' });
