@@ -254,12 +254,12 @@ if (htmlSrc && mjsSrc.includes('CSS_VARS')) {
     FAIL++;
   }
 
-  // 檢查金黃色主調 (#ffd479)
-  if (htmlSrc.includes('#ffd479')) {
-    ok('  ✅ 金黃色主調 (#ffd479) 已實現');
+  // 檢查金黃色主調 (#c9a24b 品牌金)
+  if (htmlSrc.includes('#c9a24b')) {
+    ok('  ✅ 金黃色主調 (#c9a24b 品牌金) 已實現');
     PASS++;
   } else {
-    bad('  ❌ 金黃色主調 (#ffd479) 缺失');
+    bad('  ❌ 金黃色主調 (#c9a24b 品牌金) 缺失');
     FAIL++;
   }
 } else {

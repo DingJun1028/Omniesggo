@@ -1,13 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  validateRequiredTriad,
-  enforceFrozenLock,
-  isBarrierInherited,
-  validateEntropyReduction,
-  auditContractRate,
-  verifyOmniTagContract,
-  type OmniTagSet,
-} from '../omnitag-contract';
+import { validateRequiredTriad, enforceFrozenLock, isBarrierInherited, validateEntropyReduction, auditContractRate, verifyOmniTagContract, type OmniTagSet, type ContractCheck } from '../omnitag-contract';
 
 const compliantTag: OmniTagSet = {
   agent: 'agent:25',
@@ -48,7 +40,7 @@ describe('§20.5 OmniTag Contract Validator', () => {
       lifecycle: 'frozen',
       security: 'restricted',
     };
-    const r = enforceFrozenLock(sealed, true);
+    const r = enforceFrozenLock(sealed, true) as ContractCheck;
     expect(r.valid).toBe(false);
     expect(r.violations[0]).toContain('H4 frozen');
   });
@@ -59,7 +51,7 @@ describe('§20.5 OmniTag Contract Validator', () => {
       lifecycle: 'frozen',
       security: 'restricted',
     };
-    const r = enforceFrozenLock(sealed, false);
+    const r = enforceFrozenLock(sealed, false) as ContractCheck;
     expect(r.valid).toBe(true);
   });
 
