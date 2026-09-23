@@ -833,14 +833,30 @@ $('createRoom').onclick=async()=>{
 // 音訊收音
 let audioCtx=null, sourceNode=null, workletNode=null;
 let audioStream=null, mediaRecorder=null;
+// 行動裝置偵測: iPhone/iPad/Android 無 getDisplayMedia (系統音擷取) → 預設麥克風
+(function mobileDefault(){
+  const noDisplay=!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia;
+  const isMobile=noDisplay||/iPhone|iPad|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));
+  if(isMobile){
+    srcSel.value='mic';
+    const opt=srcSel.querySelector('option[value="system-display"]');
+    if(opt){opt.disabled=true;opt.textContent='系統音訊 (電腦版限定)';}
+    log('行動裝置偵測: 已預設本機麥克風');
+  }
+})();
 $('startBtn').onclick=async()=>{
   try{
     const sel=$('audioSource').value;
     $('startBtn').disabled=true;
     $('stopBtn').disabled=false;
     if(sel==='system-display'){
-      const screen=await navigator.mediaDevices.getDisplayMedia({video:false,audio:true});
-      audioStream=screen;
+      try{
+        const screen=await navigator.mediaDevices.getDisplayMedia({video:false,audio:true});
+        audioStream=screen;
+      }catch(e){
+        log('系統音訊不可用 ('+(e.message||e)+')，自動改用麥克風');
+        audioStream=await navigator.mediaDevices.getUserMedia({audio:true});
+      }
       startRecording();
     }else if(sel==='mic'){
       const mic=await navigator.mediaDevices.getUserMedia({audio:true});
