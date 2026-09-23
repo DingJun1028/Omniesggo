@@ -955,7 +955,7 @@ async function sendAudioForSubtitle(blob){
   try{
     const from=fromSel.value||'auto';
     const to=toSel.value&&toSel.value!=='auto'?toSel.value:'zh-TW';
-    const r=await fetch('/speech-to-subtitle?lang='+encodeURIComponent(from)+'&to='+encodeURIComponent(to),{
+    const r=await fetch('/speech-to-subtitle?lang='+encodeURIComponent(from)+'&to='+encodeURIComponent(to)+'&room='+encodeURIComponent(ROOM||''),{
       method:'POST',
       headers:{'Content-Type':blob.type||'audio/webm'},
       body:blob
