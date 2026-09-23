@@ -372,6 +372,7 @@ const server = http.createServer(async (req, res) => {
 
   // 語音轉雙語字幕 (STT → 即時雙向翻譯) — 終始矩陣 ISpeechToSubtitleResult
   // 鎖定繁中↔英文: detected=zh-TW|en, 對向自動互譯, 5T 溯源
+  // ?room=xxx → 翻譯結果同步廣播 SSE (觀眾端即時收到語音字幕, 與手動字幕同鏈)
   if (url.split('?')[0] === '/speech-to-subtitle' && req.method === 'POST') {
     let audioBuf;
     try { audioBuf = await readBodyRaw(req); } catch { res.writeHead(400); return res.end('read fail'); }
@@ -379,8 +380,14 @@ const server = http.createServer(async (req, res) => {
     const q = new URL(url, 'http://localhost').searchParams;
     const rawLang = q.get('lang');
     const langHint = rawLang === 'zh-TW' || rawLang === 'en' ? rawLang : '';
+    const room = q.get('room') || '';
     try {
       const r = await speechToSubtitle(audioBuf, langHint);
+      if (room && r.text) {
+        // 廣播到同房間觀眾 (speaker=voice 標記語音來源)
+        const tr = { [r.target]: r.translation };
+        broadcastTranslation({ text: r.text, translations: tr, engine: r.engine, cached: r.cached, trace: r.trace || hashOf(r.text).slice(0, 16), room, speaker: 'voice' });
+      }
       return writeJson(res, r, { 'X-OA-Engine': String(r.engine || 'n/a'), 'X-OA-Trace': String(r.trace || '') });
     } catch (/** @type {any} */ e) {
       res.writeHead(502);
