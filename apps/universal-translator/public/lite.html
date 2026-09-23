@@ -106,6 +106,8 @@ const params=new URLSearchParams(location.search);
 const isViewer=(params.get('role')==='viewer');
 const room=params.get('room')||('r'+Math.random().toString(36).slice(2,8));
 let src='en', tgt='zh-TW', srcMode='sys';
+// 行動裝置偵測: iPhone/iPad/Android 無 getDisplayMedia (系統音擷取) → 預設麥克風
+(function(){const nd=!navigator.mediaDevices||!navigator.mediaDevices.getDisplayMedia;const im=nd||/iPhone|iPad|Android/i.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent));if(im&&!isViewer){srcMode='mic';try{document.getElementById('micBtn').classList.add('active');document.getElementById('sysBtn').classList.remove('active');document.getElementById('empty').textContent='🎤 點紅鈕開始麥克風即時翻譯'}catch(e){}}})();
 
 const dbg=document.getElementById('dbg');
 function log(msg){console.log(msg);dbg.classList.add('show');dbg.textContent=new Date().toLocaleTimeString()+' '+msg;}
@@ -201,12 +203,17 @@ const AUDIO_MIME=pickAudioMime();
 async function start(){
   let s;
   if(srcMode==='sys'){
-    let ds;
+    let ds=null;
     try{ds=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true})}
-    catch(e){ds=await navigator.mediaDevices.getDisplayMedia({audio:true})}
-    const at=ds.getAudioTracks()[0];
-    if(!at){ds.getVideoTracks().forEach(t=>t.stop());throw new Error('未選到系統音軌，請勾選「分享音訊」')}
-    s=new MediaStream([at]);
+    catch(e){try{ds=await navigator.mediaDevices.getDisplayMedia({audio:true})}catch(e2){ds=null}}
+    if(ds){
+      const at=ds.getAudioTracks()[0];
+      if(!at){ds.getVideoTracks().forEach(t=>t.stop());throw new Error('未選到系統音軌，請勾選「分享音訊」')}
+      s=new MediaStream([at]);
+    }else{
+      log('系統音擷取不可用，自動改用麥克風');
+      s=await navigator.mediaDevices.getUserMedia({audio:true});
+    }
   } else {
     s=await navigator.mediaDevices.getUserMedia({audio:true});
   }
@@ -228,7 +235,7 @@ async function sendChunk(){
   try{
     log('送STT '+Math.round(blob.size/1024)+'KB');
     const buf=await blob.arrayBuffer();
-    const resp=await fetch(API+'/speech-to-subtitle?lang='+encodeURIComponent(tgt)+'&room='+room,{
+    const resp=await fetch(API+'/speech-to-subtitle?lang='+encodeURIComponent(src)+'&room='+room,{
       method:'POST',headers:{'Content-Type':'application/octet-stream'},body:buf
     });
     if(!resp.ok){log('HTTP '+resp.status);sttBusy=false;setTimeout(()=>sendChunk(),1000);return}
