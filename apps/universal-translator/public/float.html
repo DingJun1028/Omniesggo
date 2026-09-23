@@ -807,12 +807,12 @@ document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{
 $('createRoom').onclick=async()=>{
   try{
     const pwd=$('roomPwd').value.trim();
-    const r=await fetch('/api/room',{
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body:JSON.stringify({password:pwd})
-    });
-    const d=await r.json();
+    // /api/room 路由不存在 (404) → 本地產生房間, SSE room 參數即為房間
+    const roomId='r'+Math.random().toString(36).slice(2,8);
+    const proto=location.protocol+'//'+location.host;
+    const casterLink=proto+'/float?room='+roomId+'&role=caster';
+    const viewerLink=proto+'/stream?room='+roomId;
+    const d={roomId, casterLink, viewerLink};
     $('casterLink').value=d.casterLink;
     $('viewerLink').value=d.viewerLink;
     document.getElementById('shareBody').classList.remove('hidden');
@@ -861,8 +861,9 @@ $('startBtn').onclick=async()=>{
   }
 };
 $('stopBtn').onclick=()=>{
+  if(audioChunkTimer){ clearInterval(audioChunkTimer); audioChunkTimer=null; }
   if(mediaRecorder && mediaRecorder.state!=='inactive'){
-    mediaRecorder.stop();
+    mediaRecorder.stop(); // onstop 會送出最後一段
   }
   $('startBtn').disabled=false;
   $('stopBtn').disabled=true;
@@ -882,26 +883,78 @@ $('dlAudioBtn').onclick=()=>{
 
 let audioChunks=[];
 let recordedBlob=null;
+let audioBusy=false; // 防重入: 上一輪還在翻譯時先緩衝
 function startRecording(){
   if(!audioStream) return;
   mediaRecorder=new MediaRecorder(audioStream,{mimeType:'audio/webm'});
   audioChunks=[];
   recordedBlob=null;
   $('dlAudioBtn').disabled=true;
-  mediaRecorder.ondataavailable=async(e=>{
+  bindRecorderHandlers(); // 統一掛 ondataavailable + onstop (含送翻譯)
+  mediaRecorder.start(6000);
+  // 分段計時器: 每 6 秒 stop → onstop 送出此段 → 重啟新 recorder
+  audioChunkTimer=setInterval(()=>{
+    if(mediaRecorder && mediaRecorder.state==='recording'){
+      mediaRecorder.stop();
+      try{
+        mediaRecorder=new MediaRecorder(audioStream,{mimeType:'audio/webm'});
+        bindRecorderHandlers();
+        mediaRecorder.start(6000);
+      }catch(e){ log('分段重啟失敗: '+e.message); }
+    }
+  },6000);
+  log('開始收音 (每6秒自動送翻譯)');
+}
+let audioChunkTimer=null;
+function bindRecorderHandlers(){
+  mediaRecorder.ondataavailable=async(e)=>{
     if(e.data.size>0){
       audioChunks.push(e.data);
       const blob=new Blob(audioChunks,{type:'audio/webm'});
       window.recordedBlob=await convertWebMToWAV(blob);
       $('dlAudioBtn').disabled=false;
-      // 音量條模擬
       const meter=$('meter');
       if(meter) meter.style.width=Math.random()*40+30+'%';
     }
-  });
-  mediaRecorder.start(6000); // 每6秒發送
-  log('開始收音 (6秒分段)');
+  };
+  mediaRecorder.onstop=async()=>{
+    if(audioChunks.length===0) return;
+    const blob=new Blob(audioChunks,{type:'audio/webm'});
+    audioChunks=[];
+    await sendAudioForSubtitle(blob);
+  };
 }
+
+// 收音 blob → POST /speech-to-subtitle → 渲染雙語字幕
+async function sendAudioForSubtitle(blob){
+  if(audioBusy){ pendingAudioBlob=blob; return; }
+  audioBusy=true;
+  try{
+    const from=fromSel.value||'auto';
+    const to=toSel.value&&toSel.value!=='auto'?toSel.value:'zh-TW';
+    const r=await fetch('/speech-to-subtitle?lang='+encodeURIComponent(from)+'&to='+encodeURIComponent(to),{
+      method:'POST',
+      headers:{'Content-Type':'audio/webm'},
+      body:blob
+    });
+    const txt=await r.text();
+    let d=null; try{ d=JSON.parse(txt); }catch{}
+    if(!r.ok||!d){ throw new Error('服務回傳非預期格式 ('+r.status+')'); }
+    if(d.text){
+      renderSub(d.text, d.translation||'', '🎤 '+(d.detected||from)+'→'+(d.target||to)+' · '+(d.engine||''), 'voice', Date.now(), Date.now());
+      log('語音翻譯: '+d.text.slice(0,30)+'…');
+    }else{
+      log('（此段無語音內容）');
+    }
+  }catch(e){
+    showErr('語音翻譯失敗: '+e.message);
+    log('語音翻譯失敗: '+e.message);
+  }finally{
+    audioBusy=false;
+    if(pendingAudioBlob){ const b=pendingAudioBlob; pendingAudioBlob=null; sendAudioForSubtitle(b); }
+  }
+}
+let pendingAudioBlob=null;
 
 async function convertWebMToWAV(blob){
   // 簡化轉換: 直接回傳原 Blob (Server 會處理)
@@ -912,15 +965,19 @@ async function convertWebMToWAV(blob){
 $('sendCaption').onclick=()=>{
   const text=$('captionInput').value.trim();
   if(!text) return;
-  // 發送到 server 做翻譯
-  fetch('/api/caption',{
+  // 發送到 server 做翻譯 (/api/caption 不存在會 404 → 改用 /translate)
+  fetch('/translate',{
     method:'POST',
     headers:{'content-type':'application/json'},
-    body:JSON.stringify({text:text,from:fromSel.value,to:toSel.value})
-  }).then(r=>r.json()).then(d=>{
-    renderSub(d.source||text, d.target||d.translation||text, '手動輸入', '', Date.now(), 0);
+    body:JSON.stringify({text:text,from:fromSel.value||'auto',to:(toSel.value&&toSel.value!=='auto')?toSel.value:'zh-TW'})
+  }).then(r=>r.text()).then(txt=>{
+    let d=null; try{ d=JSON.parse(txt); }catch(e){}
+    if(!d) throw new Error('服務回傳非預期格式');
+    renderSub(text, d.text||d.translation||'', '⌨ '+(fromSel.value||'auto')+'→'+((toSel.value&&toSel.value!=='auto')?toSel.value:'zh-TW')+' · '+(d.engine||''), 'manual', Date.now(), Date.now());
+    log('手動字幕已翻譯');
   }).catch(e=>{
     log('手動字幕發送失敗: '+e.message);
+    showErr('手動字幕失敗: '+e.message);
   });
   $('captionInput').value='';
 };
@@ -969,3 +1026,4 @@ connectSSE();
 </script>
 </body>
 </html>
+
