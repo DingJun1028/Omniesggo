@@ -34,14 +34,21 @@ jobs:
       - name: Health-loop
         run: |
           set -e
-          for url in "http://${VPS_HOST}:8791/health" "http://${VPS_HOST}:8788/health"; do
-            for i in $(seq 1 20); do
-              code=$(curl -s -o /dev/null -w '%{http_code}' -m 5 "$url" || echo 000)
-              echo "$url -> $code (try $i)"
-              [ "$code" = "200" ] && break
-              sleep 3
-            done
-            [ "$code" = "200" ] || { echo "HEALTH_FAIL: $url"; exit 1; }
+          # STT (8791) 只綁 127.0.0.1 (安全: 不暴露公網) → 經 SSH 打 localhost;
+          # 8788 主服務綁 0.0.0.0 可直打公網
+          for i in $(seq 1 20); do
+            code=$(ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" "curl -s -o /dev/null -w '%{http_code}' -m 5 http://127.0.0.1:8791/health" || echo 000)
+            echo "STT (ssh localhost:8791) -> $code (try $i)"
+            [ "$code" = "200" ] && break
+            sleep 3
           done
+          [ "$code" = "200" ] || { echo "HEALTH_FAIL: stt-whisper 8791"; exit 1; }
+          for i in $(seq 1 20); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 5 "http://${VPS_HOST}:8788/health" || echo 000)
+            echo "Translator (${VPS_HOST}:8788) -> $code (try $i)"
+            [ "$code" = "200" ] && break
+            sleep 3
+          done
+          [ "$code" = "200" ] || { echo "HEALTH_FAIL: universal-translator 8788"; exit 1; }
           echo "=== Gemma core (Brev GPU) ==="
           curl -s -m 8 "$AGENTIC_TWIN_OLLAMA_URL/v1/models" | head -c 200 || echo "(core check skipped)"
