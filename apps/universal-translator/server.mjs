@@ -239,7 +239,8 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      // HTTP/2 (Cloudflare tunnel) 明文禁止 Connection 標頭 → ERR_HTTP2_PROTOCOL_ERROR;
+      // keep-alive 在 HTTP/1.1 本來就是預設, 刪除即可雙協定相容
       'Access-Control-Allow-Origin': '*',
     });
     const client = { res, id: Date.now() + Math.random(), room };
