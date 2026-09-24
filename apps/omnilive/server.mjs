@@ -275,9 +275,9 @@ const server = http.createServer(/** @param {import('node:http').IncomingMessage
     const vad = q.get('vad') === '1' || q.get('vad') === 'true';
     const reqLang = q.get('lang') || CFG.sttLang; // 沿用前端指定語言 (en/zh-TW), 避免強制 auto 導致 whisper 偶發 500
     try {
-      const stt = await transcribe(audioBuf, { sttPort: CFG.sttPort, sttTimeoutMs: CFG.sttTimeoutMs, sttLang: reqLang, vad });
+      const stt = await transcribe(audioBuf, { sttPort: CFG.sttPort, sttTimeoutMs: 120000, sttLang: reqLang, vad });
       sttInflight = false; clearTimeout(inflightTimer);
-      if (!stt.text) return writeJson(res, { source: '', target: '', engine: stt.engine, trace: '', note: 'no speech detected' });
+      if (!stt.text) { console.error('[omnilive] STT returned empty:', JSON.stringify(stt)); return writeJson(res, { source: '', target: '', engine: stt.engine, trace: '', note: 'no speech detected' }); }
       // VAD 語者分段: 每個語音段各自成一筆雙語字幕 (帶 speaker 標籤)
       if (stt.segments && stt.segments.length) {
         const out = [];
