@@ -21,7 +21,7 @@ const RESULT = path.join(ROOT, 'e2e-result.json');
 const isWindows = process.platform === 'win32';
 const pyBin = isWindows ? path.join(STT_DIR, '.venv', 'Scripts', 'python.exe') : 'python3';
 const serverBin = isWindows ? path.join(STT_DIR, '.venv', 'Scripts', 'python.exe') : 'python3';
-const OL_PORT = 8796;
+const OL_PORT = 8797;
 
 const checks = [];
 function log(...a) { console.log('[e2e]', ...a); }
