@@ -284,6 +284,10 @@ dist/
 *.whl
 .python-version
 
+# FTG Tours build artifacts
+apps/ftg-tours-website/ftg-dist.tar
+apps/ftg-tours-website/nul
+
 # IDE
 .idea/
 .vscode/
