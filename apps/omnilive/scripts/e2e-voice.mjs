@@ -14,11 +14,13 @@ import { TextDecoder } from 'node:util';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 const STT_DIR = path.resolve(ROOT, '../stt');
-const FIX = process.env.LOCALAPPDATA ? path.join(process.env.LOCALAPPDATA, 'Temp') : os.tmpdir();
+const FIX = os.tmpdir();
 const wavEn = path.join(FIX, 'en.mp3');
 const wavZh = path.join(FIX, 'zh.mp3');
 const RESULT = path.join(ROOT, 'e2e-result.json');
-const OL_PORT = 8796;
+const isWindows = process.platform === 'win32';
+const pyBin = isWindows ? path.join(STT_DIR, '.venv', 'Scripts', 'python.exe') : 'python3';
+const serverBin = isWindows ? path.join(STT_DIR, '.venv', 'Scripts', 'python.exe') : 'python3';
 
 const checks = [];
 function log(...a) { console.log('[e2e]', ...a); }
@@ -34,11 +36,11 @@ asyncio.run(go())
 `;
   const script = path.join(FIX, 'synth.py');
   fs.writeFileSync(script, py);
-  execFileSync(path.join(STT_DIR, '.venv', 'Scripts', 'python.exe'), [script], { stdio: 'ignore' });
+  execFileSync(pyBin, [script], { stdio: 'ignore' });
 }
 
 function startServer(cwd, env, port, healthPath, usePython) {
-  const cmd = usePython ? [path.join(cwd, '.venv', 'Scripts', 'python.exe'), 'server.py'] : [process.execPath, 'server.mjs'];
+  const cmd = usePython ? [serverBin, 'server.py'] : [process.execPath, 'server.mjs'];
   const s = spawn(cmd[0], cmd.slice(1), { cwd, env: { ...process.env, ...env } });
   s.stderr.on('data', () => {});
   return s;
