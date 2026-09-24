@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import ContactSection from '../components/ContactSection';
 
 export default function FamilyDay() {
   return (
@@ -48,6 +49,8 @@ export default function FamilyDay() {
           </a>
         </div>
       </section>
+
+      <ContactSection />
     </div>
   );
 }

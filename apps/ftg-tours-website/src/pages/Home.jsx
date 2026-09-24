@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import ContactSection from '../components/ContactSection';
 
 export default function Home() {
   return (
@@ -59,6 +60,8 @@ export default function Home() {
           </a>
         </div>
       </section>
+
+      <ContactSection />
     </div>
   );
 }

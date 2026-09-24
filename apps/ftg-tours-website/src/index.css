@@ -4,6 +4,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global scroll behavior */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar — brand colors */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f3ede1;
+}
+::-webkit-scrollbar-thumb {
+  background: #3c6e47;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #10243f;
+}
+
+/* Selection color */
+::selection {
+  background: #c9a24b;
+  color: #10243f;
+}
+
+/* Focus visible — brand accessible ring */
+:focus-visible {
+  outline: 2px solid #c9a24b;
+  outline-offset: 2px;
+}
+
 @layer components {
   .section-label {
     @apply inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wide uppercase;
