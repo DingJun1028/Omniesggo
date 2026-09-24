@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import ContactSection from '../components/ContactSection';
 
 export default function ExecutiveRetreat() {
   return (
@@ -51,6 +52,8 @@ export default function ExecutiveRetreat() {
           </a>
         </div>
       </section>
+
+      <ContactSection />
     </div>
   );
 }

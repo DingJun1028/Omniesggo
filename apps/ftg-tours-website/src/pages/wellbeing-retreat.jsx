@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import ContactSection from '../components/ContactSection';
 
 const IMAGES = {
   hero: '/images/wellbeing-retreat/員工身心平衡-頁首大橫幅.png',
@@ -204,23 +206,7 @@ export default function WellbeingRetreat() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section id="contact" className="py-24 bg-ftg-forest">
-        <div className="max-w-3xl mx-auto text-center px-4">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">為您的企業打造身心平衡之旅</h2>
-          <p className="text-gray-300 mb-8 text-lg">
-            客製化方案、專業引導團隊、完整的 30 天追蹤系統
-          </p>
-          <a
-            href="https://journey.ftgtours.esggo.co"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block px-10 py-4 rounded-full font-semibold text-lg bg-ftg-orange text-white hover:bg-orange-600 transition-all shadow-lg"
-          >
-            預約諮詢 →
-          </a>
-        </div>
-      </section>
+      <ContactSection />
     </div>
   );
 }
