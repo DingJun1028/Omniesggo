@@ -5,25 +5,154 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OmniLive 漂浮字幕窗</title>
 <style>
-:root{--accent:#7c5cff;--accent2:#36e0c0}
+/* === esggo brand tokens === */
+:root{
+  --bg:#0a1424;
+  --bg-soft:#10243f;
+  --panel:#142a47;
+  --panel-hover:#1a3358;
+  --line:#2a3e5e;
+  --line-soft:#1f3352;
+  --txt:#f3ede1;
+  --txt-soft:#c8c1b3;
+  --muted:#8a8275;
+  --gold:#c9a24b;
+  --gold-soft:#b8941f;
+  --green:#3c6e47;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",sans-serif;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",monospace;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s8:48px;
+  --r-sm:4px;--r-md:6px;
+  --ease:cubic-bezier(0.4,0,0.2,1);
+}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:rgba(0,0,0,.7);font-family:"Segoe UI",system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;overflow:hidden}
+html,body{
+  height:100%;
+  background:transparent;
+  font-family:var(--font);
+  overflow:hidden;
+  letter-spacing:.01em;
+}
 body{display:flex;flex-direction:column;user-select:none}
-#bar{height:24px;background:rgba(20,22,34,.9);display:flex;align-items:center;gap:6px;padding:0 8px;cursor:move;flex:none}
-#bar .t{font-size:.68rem;color:#cfd6e6;font-weight:600}
-#bar .x{margin-left:auto;cursor:pointer;color:#9aa3b8;font-size:.85rem;padding:0 4px;line-height:1}
-#bar .x:hover{color:#fff}
-#subs{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:7px;padding:10px 12px;overflow:hidden}
-.sub{display:flex;flex-direction:column;gap:1px;animation:fade .18s ease-out}
-@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.sub .src{font-size:1rem;font-weight:700;color:#fff;text-shadow:0 2px 4px #000;padding:3px 10px;border-radius:9px;background:rgba(0,0,0,.7);width:fit-content;max-width:100%}
-.sub .tgt{font-size:1.55rem;font-weight:800;color:#fff;text-shadow:0 2px 6px #000;padding:3px 10px;border-radius:9px;background:rgba(0,0,0,.7);width:fit-content;max-width:100%}
-#ph{color:#ffffff80;font-size:1.05rem;text-align:center;margin:auto}
-.hint{position:absolute;bottom:3px;right:8px;font-size:.58rem;color:#ffffff55}
+/* Title bar — 深藍 + 暖金 brand */
+#bar{
+  height:26px;
+  background:rgba(10,20,36,.92);
+  border-bottom:1px solid var(--line-soft);
+  display:flex;
+  align-items:center;
+  gap:var(--s2);
+  padding:0 var(--s3);
+  cursor:move;
+  flex:none;
+  backdrop-filter:blur(8px);
+}
+#bar .brand-mark{
+  width:18px;height:18px;
+  border:1px solid var(--gold);
+  border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--gold);
+  font-family:var(--mono);
+  font-size:10px;font-weight:600;letter-spacing:.05em;
+  flex:none;
+}
+#bar .t{
+  font-size:.68rem;
+  color:var(--txt-soft);
+  font-weight:500;
+  letter-spacing:.02em;
+}
+#bar .t em{
+  font-style:normal;
+  color:var(--gold);
+}
+#bar .x{
+  margin-left:auto;
+  cursor:pointer;
+  color:var(--muted);
+  font-size:.85rem;
+  padding:0 var(--s2);
+  line-height:1;
+  transition:color .15s var(--ease);
+}
+#bar .x:hover{color:var(--gold)}
+
+#subs{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  gap:var(--s2);
+  padding:var(--s3) var(--s4);
+  overflow:hidden;
+}
+.sub{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  animation:fade .18s var(--ease) both;
+}
+@keyframes fade{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.sub .src{
+  font-size:.95rem;
+  font-weight:500;
+  color:var(--txt-soft);
+  text-shadow:0 1px 3px rgba(0,0,0,.85);
+  padding:var(--s1) var(--s3);
+  border-radius:var(--r-sm);
+  background:rgba(10,20,36,.62);
+  border-left:2px solid var(--line);
+  width:fit-content;
+  max-width:100%;
+  letter-spacing:.01em;
+}
+.sub .tgt{
+  font-size:1.55rem;
+  font-weight:600;
+  color:var(--txt);
+  text-shadow:0 2px 6px rgba(0,0,0,.9);
+  padding:var(--s1) var(--s3);
+  border-radius:var(--r-sm);
+  background:rgba(10,20,36,.75);
+  border-left:2px solid var(--gold);
+  width:fit-content;
+  max-width:100%;
+  letter-spacing:.01em;
+}
+#ph{
+  color:var(--muted);
+  font-size:.95rem;
+  text-align:center;
+  margin:auto;
+  letter-spacing:.02em;
+}
+.hint{
+  position:absolute;
+  bottom:3px;
+  right:var(--s3);
+  font-size:.58rem;
+  color:var(--muted);
+  font-family:var(--mono);
+  letter-spacing:.05em;
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    transition-duration:.01ms!important;
+  }
+}
 </style>
 </head>
 <body>
-<div id="bar"><span class="t">🐝 OmniLive 字幕</span><span class="x" id="close">✕</span></div>
+<div id="bar">
+  <div class="brand-mark">OA</div>
+  <span class="t"><em>OmniLive</em> 漂浮字幕</span>
+  <span class="x" id="close">關閉</span>
+</div>
 <div id="subs"><div id="ph">等待字幕…</div></div>
 <div class="hint">拖曳標題列移動</div>
 <script>

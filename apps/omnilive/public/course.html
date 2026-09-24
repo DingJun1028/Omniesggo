@@ -5,61 +5,234 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>OmniLive 課程即時解說</title>
 <style>
+/* === esggo brand tokens === */
 :root{
-  --bg:#0e0e14;--panel:rgba(22,22,31,.66);--panel2:rgba(30,30,42,.5);
-  --accent:#7c5cff;--accent2:#36e0c0;--txt:#f4f6fb;--muted:#9aa3b8;
-  --line:rgba(255,255,255,.10);--radius:18px;
-  --font:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+  --bg:#0a1424;
+  --bg-soft:#10243f;
+  --panel:#142a47;
+  --panel-hover:#1a3358;
+  --panel-soft:rgba(20,42,71,.66);
+  --panel2:rgba(30,52,82,.5);
+  --line:#2a3e5e;
+  --line-soft:rgba(255,255,255,.10);
+  --txt:#f3ede1;
+  --txt-soft:#c8c1b3;
+  --muted:#8a8275;
+  --gold:#c9a24b;
+  --gold-soft:#b8941f;
+  --green:#3c6e47;
+  --ok:#4ade80;
+  --fail:#e2554f;
+  --warn:#f0b429;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",sans-serif;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",monospace;
+  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s8:48px;
+  --r-sm:4px;--r-md:6px;--r-lg:10px;
+  --ease:cubic-bezier(0.4,0,0.2,1);
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{font-family:var(--font);color:var(--txt);
-  background:radial-gradient(1200px 700px at 80% -10%,rgba(124,92,255,.18),transparent 55%),radial-gradient(900px 600px at 10% 110%,rgba(54,224,192,.12),transparent 55%),var(--bg);
-  background-attachment:fixed;min-height:100vh;padding:16px}
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:999px;padding:8px 16px;margin-bottom:14px}
-.topbar h1{font-size:.95rem;margin:0;font-weight:700;display:flex;align-items:center;gap:8px}
-.status{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:8px}
-.dot{width:9px;height:9px;border-radius:50%;background:#3ad17a;box-shadow:0 0 8px rgba(58,209,122,.7)}
-.dot.bad{background:#e2554f;box-shadow:0 0 8px rgba(226,85,79,.7)}
-.badge{font-size:.72rem;padding:3px 10px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--muted)}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;height:calc(100vh - 90px)}
-@media(max-width:760px){.grid{grid-template-columns:1fr;height:auto}}
-.col{background:var(--panel);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;min-height:0;overflow:hidden}
-.col h2{font-size:.82rem;margin:0 0 10px;color:var(--muted);font-weight:600;letter-spacing:.05em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-#subs{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;justify-content:flex-end}
-.sg{display:flex;flex-direction:column;gap:5px;animation:subIn .2s ease-out}
+body{
+  font-family:var(--font);
+  color:var(--txt);
+  background:
+    radial-gradient(1200px 700px at 80% -10%,rgba(201,162,75,.10),transparent 55%),
+    radial-gradient(900px 600px at 10% 110%,rgba(60,110,71,.10),transparent 55%),
+    var(--bg);
+  background-attachment:fixed;
+  min-height:100vh;
+  padding:var(--s4);
+  letter-spacing:.01em;
+}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s3);
+  background:var(--panel-soft);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--line-soft);
+  border-radius:var(--r-lg);
+  padding:var(--s2) var(--s4);
+  margin-bottom:var(--s4);
+}
+.topbar h1{
+  font-size:.95rem;margin:0;font-weight:600;
+  display:flex;align-items:center;gap:var(--s2);
+  letter-spacing:.02em;
+}
+.brand-mark{
+  width:22px;height:22px;
+  border:1px solid var(--gold);
+  border-radius:var(--r-sm);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--gold);
+  font-family:var(--mono);
+  font-size:11px;font-weight:600;letter-spacing:.05em;
+  flex:none;
+}
+.status{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:var(--s2)}
+.dot{
+  width:9px;height:9px;border-radius:50%;
+  background:var(--ok);box-shadow:0 0 8px rgba(74,222,128,.5);
+}
+.dot.bad{background:var(--fail);box-shadow:0 0 8px rgba(226,85,79,.5)}
+.badge{
+  font-size:.72rem;padding:var(--s1) var(--s3);
+  border-radius:var(--r-sm);
+  background:var(--panel2);
+  border:1px solid var(--line-soft);
+  color:var(--muted);
+  font-family:var(--mono);
+  letter-spacing:.02em;
+}
+.grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:var(--s4);
+  height:calc(100vh - 90px);
+}
+@media(max-width:760px){
+  .grid{grid-template-columns:1fr;height:auto}
+}
+.col{
+  background:var(--panel-soft);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border:1px solid var(--line-soft);
+  border-radius:var(--r-lg);
+  padding:var(--s4);
+  display:flex;flex-direction:column;
+  min-height:0;overflow:hidden;
+}
+.col h2{
+  font-size:.78rem;margin:0 0 var(--s3);
+  color:var(--muted);font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  display:flex;align-items:center;gap:var(--s2);
+}
+.col h2::before{
+  content:"";
+  display:inline-block;
+  width:12px;height:1px;
+  background:var(--gold);
+  flex:none;
+}
+#subs{
+  flex:1 1 auto;min-height:0;overflow:auto;
+  display:flex;flex-direction:column;
+  gap:var(--s4);justify-content:flex-end;
+}
+.sg{display:flex;flex-direction:column;gap:var(--s1);animation:subIn .2s var(--ease) both}
 @keyframes subIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.sg .src{font-size:.95rem;font-weight:500;color:rgba(255,255,255,.55)}
-.sg .tgt{font-size:1.4rem;font-weight:800;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
-.course{flex:1 1 auto;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px}
-.section{background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px}
-.section h3{font-size:.85rem;margin:0 0 8px;color:var(--accent2);font-weight:700;display:flex;align-items:center;gap:6px}
-.section ul{margin:0;padding-left:18px}
-.section li{font-size:.85rem;line-height:1.55;margin-bottom:5px;color:var(--txt)}
-.summary{font-size:1.05rem;font-weight:700;line-height:1.5;color:#fff}
-.term{display:block;margin-bottom:10px}
-.term b{color:var(--accent);font-size:.92rem}
-.term .en{color:var(--muted);font-size:.78rem;margin-left:6px}
-.term .ex{display:block;font-size:.82rem;color:var(--txt);margin-top:2px;line-height:1.4}
-.term a{color:var(--accent2);font-size:.78rem;text-decoration:none}
-.term a:hover{text-decoration:underline}
-.loading{font-size:.82rem;color:var(--muted);font-style:italic}
-.meta{font-size:.72rem;color:var(--muted);margin-top:auto;padding-top:8px}
+.sg .src{
+  font-size:.95rem;font-weight:500;
+  color:var(--txt-soft);
+  padding:var(--s1) var(--s3);
+  background:rgba(10,20,36,.55);
+  border-left:2px solid var(--line);
+  border-radius:var(--r-sm);
+  width:fit-content;max-width:100%;
+  letter-spacing:.01em;
+}
+.sg .tgt{
+  font-size:1.4rem;font-weight:600;
+  color:var(--txt);
+  text-shadow:0 2px 8px rgba(0,0,0,.6);
+  padding:var(--s1) var(--s3);
+  background:rgba(10,20,36,.7);
+  border-left:2px solid var(--gold);
+  border-radius:var(--r-sm);
+  width:fit-content;max-width:100%;
+  letter-spacing:.01em;
+}
+.course{
+  flex:1 1 auto;min-height:0;overflow:auto;
+  display:flex;flex-direction:column;gap:var(--s4);
+}
+.section{
+  background:var(--panel2);
+  border:1px solid var(--line-soft);
+  border-radius:var(--r-md);
+  padding:var(--s4);
+}
+.section h3{
+  font-size:.78rem;margin:0 0 var(--s3);
+  color:var(--gold);font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;
+  display:flex;align-items:center;gap:var(--s2);
+}
+.section h3::before{
+  content:"";
+  display:inline-block;
+  width:14px;height:1px;
+  background:var(--gold);
+  flex:none;
+}
+.section ul{margin:0;padding-left:var(--s5)}
+.section li{
+  font-size:.85rem;line-height:1.55;
+  margin-bottom:var(--s1);
+  color:var(--txt);
+}
+.summary{
+  font-size:1.05rem;font-weight:500;
+  line-height:1.5;color:var(--txt);
+  letter-spacing:.01em;
+}
+.term{display:block;margin-bottom:var(--s3)}
+.term b{
+  color:var(--gold);
+  font-size:.92rem;
+  font-weight:600;
+  letter-spacing:.02em;
+}
+.term .en{
+  color:var(--muted);
+  font-size:.78rem;margin-left:var(--s2);
+  font-family:var(--mono);
+  letter-spacing:.02em;
+}
+.term .ex{
+  display:block;font-size:.82rem;
+  color:var(--txt-soft);
+  margin-top:var(--s1);line-height:1.4;
+}
+.term a{
+  color:var(--gold-soft);
+  font-size:.78rem;text-decoration:none;
+  margin-left:var(--s2);
+  transition:color .15s var(--ease);
+}
+.term a:hover{color:var(--gold);text-decoration:underline}
+.loading{
+  font-size:.85rem;color:var(--muted);font-style:italic;
+  letter-spacing:.02em;
+}
+.meta{
+  font-size:.72rem;color:var(--muted);
+  margin-top:auto;padding-top:var(--s2);
+  font-family:var(--mono);
+  letter-spacing:.02em;
+}
 .hidden{display:none!important}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms!important;
+    transition-duration:.01ms!important;
+  }
+}
 </style>
 </head>
 <body>
 <div class="topbar">
-  <h1>📚 OmniLive 課程即時解說</h1>
+  <h1><span class="brand-mark">OA</span>OmniLive 課程即時解說</h1>
   <div class="status"><span class="dot bad" id="connDot"></span><span id="conn">未連線</span><span class="badge" id="roomBadge">—</span></div>
 </div>
 <div class="grid">
   <div class="col">
-    <h2>🎙️ 即時雙語字幕</h2>
+    <h2>即時雙語字幕</h2>
     <div id="subs"><div class="sg"><span class="tgt" style="opacity:.6">等待字幕…</span></div></div>
   </div>
   <div class="col">
-    <h2>📋 課程解說 <span class="badge" id="genStatus">待生成</span></h2>
+    <h2>課程解說 <span class="badge" id="genStatus">待生成</span></h2>
     <div class="course" id="course">
       <div class="loading">字幕累積中，約每 45 秒自動生成一次課程重點…</div>
     </div>
@@ -111,10 +284,10 @@ function renderCourse(c){
   if((!c.summary)&&(!c.keypoints||!c.keypoints.length)&&(!c.terms||!c.terms.length)&&(!c.similar_cases||!c.similar_cases.length)){
     el.innerHTML='<div class="loading">尚無足夠字幕內容生成課程解說。</div>';return;
   }
-  if(c.summary){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>📌 本節概要</h3>';const p=document.createElement('div');p.className='summary';p.textContent=c.summary;s.appendChild(p);el.appendChild(s);}
-  if(c.keypoints&&c.keypoints.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>🔑 重點項目</h3>';const u=document.createElement('ul');c.keypoints.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
-  if(c.terms&&c.terms.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>🔤 重要名詞</h3>';c.terms.forEach(t=>{const d=document.createElement('div');d.className='term';const wiki=t.wiki?`<a href="${t.wiki}" target="_blank" rel="noopener">🔗 維基</a>`:'';d.innerHTML=`<b>${t.term||''}</b><span class="en">${t.en||''}</span>${wiki}<span class="ex">${t.explain||''}</span>`;s.appendChild(d);});el.appendChild(s);}
-  if(c.similar_cases&&c.similar_cases.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>🔁 類似案例 / 變體整理</h3>';const u=document.createElement('ul');c.similar_cases.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
+  if(c.summary){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>本節概要</h3>';const p=document.createElement('div');p.className='summary';p.textContent=c.summary;s.appendChild(p);el.appendChild(s);}
+  if(c.keypoints&&c.keypoints.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>重點項目</h3>';const u=document.createElement('ul');c.keypoints.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
+  if(c.terms&&c.terms.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>重要名詞</h3>';c.terms.forEach(t=>{const d=document.createElement('div');d.className='term';const wiki=t.wiki?`<a href="${t.wiki}" target="_blank" rel="noopener">維基</a>`:'';d.innerHTML=`<b>${t.term||''}</b><span class="en">${t.en||''}</span>${wiki}<span class="ex">${t.explain||''}</span>`;s.appendChild(d);});el.appendChild(s);}
+  if(c.similar_cases&&c.similar_cases.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>類似案例 / 變體整理</h3>';const u=document.createElement('ul');c.similar_cases.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
 }
 connectSSE();
 setInterval(genCourse,15000); // 每 15s 檢查 (內部節流 40s)
