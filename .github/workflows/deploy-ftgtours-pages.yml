@@ -31,12 +31,9 @@ jobs:
       - run: pnpm run build
       - name: Copy 404.html
         run: cp dist/index.html dist/404.html
-      - name: Create CNAME
-        run: echo "ftgtours.esggo.co" > dist/CNAME
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./apps/ftg-tours-website/dist
           destination_dir: ''
-          cname: ftgtours.esggo.co
