@@ -4,12 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/ftg-tours-website/src/**'
-      - 'apps/ftg-tours-website/index.html'
-      - 'apps/ftg-tours-website/package.json'
-      - 'apps/ftg-tours-website/vite.config.js'
-      - 'apps/ftg-tours-website/tailwind.config.js'
-      - 'apps/ftg-tours-website/postcss.config.js'
+      - 'apps/ftg-tours-website/**'
+  workflow_dispatch:
 
 jobs:
   deploy:
