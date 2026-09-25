@@ -137,7 +137,13 @@ else
   err "pm2 未安裝，請先 npm i -g pm2"
 fi
 
-echo "===== 8. 優化與缺口補齊 ====="
+echo "===== 8a. 禁用系統 ftg-journey.service 避免與 PM2 衝突 ====="
+run "sudo systemctl stop ftg-journey.service 2>/dev/null || true"
+run "sudo systemctl disable ftg-journey.service 2>/dev/null || true"
+run "sudo systemctl mask ftg-journey.service 2>/dev/null || true"
+log "Systemd ftg-journey.service disabled"
+
+echo "===== 9. 優化與缺口補齊 ====="
 # Security headers
 run "cat > /etc/nginx/conf.d/security-headers.conf << 'SECEOF'
 add_header X-Frame-Options 'DENY' always;
@@ -171,7 +177,7 @@ run "if [ ! -f /etc/cron.d/certbot-renewal ]; then echo '0 3 * * * root certbot 
 run "chmod 644 /etc/cron.d/certbot-renewal 2>/dev/null || true"
 log "SSL auto-renewal configured"
 
-echo "===== 9. 健康檢查 ====="
+echo "===== 10. 健康檢查 ====="
 # Gateway health check
 GW=http://127.0.0.1:8642
 TOKEN="$GATEWAY_API_KEY"
