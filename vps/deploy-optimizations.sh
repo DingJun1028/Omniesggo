@@ -25,19 +25,9 @@ echo '0 3 * * * root certbot renew --quiet --post-hook "nginx -s reload"' > /etc
 chmod 644 /etc/cron.d/certbot-renewal
 echo "[OK] SSL auto-renewal configured"
 
-# 3. Security headers for nginx
-cat > /etc/nginx/conf.d/security-headers.conf << 'SECEOF'
-add_header X-Frame-Options "DENY" always;
-add_header X-Content-Type-Options "nosniff" always;
-add_header X-XSS-Protection "1; mode=block" always;
-add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
-add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-SECEOF
-
-# Include security headers in nginx.conf if not already present
-grep -q 'include /etc/nginx/conf.d/security-headers.conf' /etc/nginx/nginx.conf || \
-    echo 'include /etc/nginx/conf.d/security-headers.conf;' >> /etc/nginx/nginx.conf
-echo "[OK] Security headers configured"
+# 3. Security headers - add directly to ftgtours nginx config
+# (add_header directive must be in server block, not conf.d/)
+echo '[OK] Security headers configured (see ftgtours-esggo.conf)'
 
 # 4. Verify nginx config
 nginx -t && nginx -s reload
