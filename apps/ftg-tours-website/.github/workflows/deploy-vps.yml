@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'apps/ftg-tours-website/**'
+      - 'vps/nginx/ftgtours.conf'
+      - 'vps/setup-ssl-ftgtours.sh'
 
 jobs:
   deploy:
@@ -29,7 +31,7 @@ jobs:
         run: pnpm run build
         working-directory: apps/ftg-tours-website
 
-      - name: Deploy to VPS
+      - name: Deploy website files to VPS
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -40,13 +42,27 @@ jobs:
           strip_components: 3
           rm: true
 
-      - name: Move files & set permissions
+      - name: Deploy nginx config & restart
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
+            # Copy website files
             sudo cp -r /tmp/ftgtours-deploy/* /var/www/ftgtours/
             sudo chown -R www-data:www-data /var/www/ftgtours/
-            sudo systemctl reload nginx
+
+            # Deploy nginx configuration
+            sudo cp /tmp/ftgtours-deploy/../vps/nginx/ftgtours.conf /etc/nginx/sites-available/ftgtours.conf 2>/dev/null || true
+            sudo ln -sf /etc/nginx/sites-available/ftgtours.conf /etc/nginx/sites-enabled/ftgtours 2>/dev/null || true
+
+            # Ensure SSL certificate exists (if not, request it)
+            if [ ! -f "/etc/letsencrypt/live/ftgtours.esggo.co/fullchain.pem" ]; then
+              echo "SSL certificate not found, requesting..."
+              certbot certonly --nginx --agree-tos --email dingjunhong1028@gmail.com --no-eff-email -d ftgtours.esggo.co --non-interactive || true
+            fi
+
+            # Test and reload nginx
+            sudo nginx -t && sudo systemctl reload nginx
+            echo "✅ ftgtours.esggo.co deployment complete"
