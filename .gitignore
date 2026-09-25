@@ -380,3 +380,8 @@ generated/
 # Evolution engine log (auto-generated)
 evolution-log.jsonl
 vault/.obsidian/plugins/github-sync/
+/vendor/
+/.hermes/
+/_upstream_vt/
+apps/ftg-2.5/
+apps/ftg-2.8/
