@@ -89,7 +89,27 @@ else
   warn "apps/ftg-journey-server 未找到，跳過"
 fi
 
-echo "===== 5. 重新載入 PM2 (含新 vps-agent) ====="
+echo "===== 5. 部署 nginx 配置 (ftgtours + journey-api) ====="
+if [ -d "vps/nginx" ]; then
+  # Deploy ftgtours nginx config
+  run "cp vps/nginx/ftgtours.conf /etc/nginx/sites-available/ftgtours-esggo.conf 2>/dev/null || true"
+  run "ln -sf /etc/nginx/sites-available/ftgtours-esggo.conf /etc/nginx/sites-enabled/ftgtours-esggo 2>/dev/null || true"
+  
+  # Fix journey-api.ftgtours.esggo.co nginx config to proxy to port 8787
+  run "sed -i 's/8793/8787/g' /etc/nginx/sites-available/journey-api.ftgtours.esggo.co 2>/dev/null || true"
+  run "sed -i 's/8793/8787/g' /etc/nginx/sites-enabled/journey-api.ftgtours.esggo.co 2>/dev/null || true"
+  
+  # Remove conflicting configs
+  run "rm -f /etc/nginx/sites-enabled/ftg-journey 2>/dev/null || true"
+  
+  # Verify no 8793 references remain
+  run "grep -r '8793' /etc/nginx/ 2>/dev/null && warn 'Found old 8793 references!' || log 'No old 8793 references found'"
+  
+  run "nginx -t && systemctl reload nginx"
+  log "nginx configs deployed and verified"
+fi
+
+echo "===== 6. 重新載入 PM2 (含新 vps-agent) ====="
 if command -v pm2 >/dev/null 2>&1; then
   run "pm2 reload vps/ecosystem.esggo.config.cjs || pm2 start vps/ecosystem.esggo.config.cjs"
   run "sleep 3"
