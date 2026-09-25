@@ -29,7 +29,13 @@ echo "[OK] SSL auto-renewal configured"
 # (add_header directive must be in server block, not conf.d/)
 echo '[OK] Security headers configured (see ftgtours-esggo.conf)'
 
-# 4. Verify nginx config
+# 4. Disable systemd ftg-journey.service to prevent PM2 conflict
+sudo systemctl stop ftg-journey.service 2>/dev/null || true
+sudo systemctl disable ftg-journey.service 2>/dev/null || true
+sudo systemctl mask ftg-journey.service 2>/dev/null || true
+echo "[OK] Systemd ftg-journey.service disabled"
+
+# 5. Verify nginx config
 nginx -t && nginx -s reload
 echo "[OK] Nginx reloaded"
 
