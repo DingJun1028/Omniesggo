@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'apps/ftg-journey-web/**'
+      - 'apps/ftg-journey-web/nginx-journey.conf'
 
 jobs:
   deploy:
@@ -49,4 +50,16 @@ jobs:
           script: |
             sudo cp -r /tmp/journey-deploy/* /var/www/ftg-journey-web/
             sudo chown -R www-data:www-data /var/www/ftg-journey-web/
-            sudo systemctl reload nginx
+
+            # Deploy nginx config for journey.ftgtours.esggo.co
+            sudo cp /tmp/journey-deploy/../nginx-journey.conf /etc/nginx/sites-available/journey.conf 2>/dev/null || true
+            sudo ln -sf /etc/nginx/sites-available/journey.conf /etc/nginx/sites-enabled/journey 2>/dev/null || true
+
+            # Ensure SSL certificate exists for journey subdomain
+            if [ ! -f "/etc/letsencrypt/live/journey-api.ftgtours.esggo.co/fullchain.pem" ]; then
+              echo "SSL certificate not found, requesting..."
+              certbot certonly --nginx --agree-tos --email dingjunhong1028@gmail.com --no-eff-email -d journey.ftgtours.esggo.co --non-interactive || true
+            fi
+
+            sudo nginx -t && sudo systemctl reload nginx
+            echo "✅ journey.ftgtours.esggo.co deployment complete"
