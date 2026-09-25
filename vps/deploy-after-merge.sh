@@ -149,6 +149,28 @@ SECEOF
 run 'grep -q \"include /etc/nginx/conf.d/security-headers.conf;\" /etc/nginx/nginx.conf || echo \"include /etc/nginx/conf.d/security-headers.conf;\" | sudo tee -a /etc/nginx/nginx.conf > /dev/null 2>&1 || true'
 log "Security headers configured"
 
+# PM2 log rotation
+run "cat > /etc/logrotate.d/pm2 << 'LOGEOF'
+/var/log/pm2/*.log {
+    daily
+    rotate 7
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0644 ubuntu ubuntu
+    postrotate
+        pm2 reloadLogs > /dev/null 2>&1 || true
+    endscript
+}
+LOGEOF
+log \"PM2 log rotation configured\"
+
+# SSL auto-renewal cron
+run "if [ ! -f /etc/cron.d/certbot-renewal ]; then echo '0 3 * * * root certbot renew --quiet --post-hook \"nginx -s reload\"' | sudo tee /etc/cron.d/certbot-renewal > /dev/null; fi"
+run "chmod 644 /etc/cron.d/certbot-renewal 2>/dev/null || true"
+log "SSL auto-renewal configured"
+
 echo "===== 9. 健康檢查 ====="
 # Gateway health check
 GW=http://127.0.0.1:8642
