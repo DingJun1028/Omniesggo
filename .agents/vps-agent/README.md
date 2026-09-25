@@ -2,7 +2,7 @@
 name: vps-agent
 description: VPS 部署代理 - 負責 ESGGO 平臺所有伺服器相關事務
 type: local
-model: 'mistralai/mistral-small-3.1-24b:free'
+model: 'gemma4:e4b'
 ---
 
 # VPS Agent 指南
