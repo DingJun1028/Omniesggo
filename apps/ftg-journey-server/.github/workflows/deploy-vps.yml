@@ -1,0 +1,73 @@
+name: Deploy ftg-journey-server to VPS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/ftg-journey-server/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - name: Install deps
+        run: pnpm install --no-frozen-lockfile
+        working-directory: apps/ftg-journey-server
+
+      - name: Check server syntax
+        run: node --check server.js
+        working-directory: apps/ftg-journey-server
+
+      - name: Deploy to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "apps/ftg-journey-server/server.js"
+          target: "/tmp/ftg-journey-deploy/"
+          strip_components: 4
+          rm: true
+
+      - name: Deploy server & restart PM2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Copy server.js
+            sudo cp /tmp/ftg-journey-deploy/server.js /var/www/ftg-journey-server/server.js
+
+            # Ensure node_modules exist
+            cd /var/www/ftg-journey-server
+            if [ ! -d "node_modules" ]; then
+              echo "Installing dependencies..."
+              npm install express google-auth-library cors express-rate-limit
+            fi
+
+            # Set environment variables
+            export GOOGLE_CLIENT_ID="${{ secrets.GOOGLE_CLIENT_ID }}"
+            export JWT_SECRET="${{ secrets.JWT_SECRET }}"
+            export PORT=8787
+            export ADMIN_EMAILS="dingjunhong1028@gmail.com"
+            export STAFF_DOMAINS="@esggo.co,@ftg.com.tw"
+
+            # Reload PM2 with updated config
+            pm2 restart ftg-journey-server --update-env 2>/dev/null || pm2 start /var/www/ftg-journey-server/server.js --name ftg-journey-server --interpreter node --env production --restart-delay 5000 --max-memory-restart 512M
+
+            # Verify server is running
+            sleep 2
+            curl -s http://127.0.0.1:8787/api/health || echo "Server may need more time to start"
+            echo "✅ ftg-journey-server deployment complete"

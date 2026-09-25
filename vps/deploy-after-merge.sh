@@ -79,7 +79,17 @@ echo "===== 3. 部署 OmniDB schema ====="
 # deploy-omnidb.sh 會自己讀取 MYSQL_*/ADB_*/WALLET_* 等 env
 run "bash vps/deploy-omnidb.sh" || warn "deploy-omnidb.sh 回傳非 0 (部分步驟可能需手動, 見上輸出)"
 
-echo "===== 4. 重新載入 PM2 (含新 vps-agent) ====="
+echo "===== 4. 部署 FTG Journey Server ====="
+if [ -d "apps/ftg-journey-server" ]; then
+  run "cp -r apps/ftg-journey-server /var/www/ftg-journey-server"
+  run "cd /var/www/ftg-journey-server && npm install express google-auth-library cors express-rate-limit 2>/dev/null || true"
+  run "chmod +x /var/www/ftg-journey-server/server.js"
+  log "ftg-journey-server files deployed to /var/www/ftg-journey-server/"
+else
+  warn "apps/ftg-journey-server 未找到，跳過"
+fi
+
+echo "===== 5. 重新載入 PM2 (含新 vps-agent) ====="
 if command -v pm2 >/dev/null 2>&1; then
   run "pm2 reload vps/ecosystem.esggo.config.cjs || pm2 start vps/ecosystem.esggo.config.cjs"
   run "sleep 3"
