@@ -122,7 +122,12 @@ if [ -d "vps/nginx" ]; then
   log "nginx configs deployed and verified"
 fi
 
-echo "===== 6. 重新載入 PM2 (含新 vps-agent) ====="
+echo "===== 6. 部署 PM2 配置文件 ====="
+run "cp vps/ecosystem.esggo.config.cjs /var/www/esggo/vps/ecosystem.esggo.config.cjs 2>/dev/null || true"
+run "chmod 644 /var/www/esggo/vps/ecosystem.esggo.config.cjs 2>/dev/null || true"
+log "PM2 config deployed"
+
+echo "===== 7. 重新載入 PM2 ====="
 if command -v pm2 >/dev/null 2>&1; then
   run "pm2 reload vps/ecosystem.esggo.config.cjs || pm2 start vps/ecosystem.esggo.config.cjs"
   run "sleep 3"
