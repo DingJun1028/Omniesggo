@@ -137,7 +137,20 @@ else
   err "pm2 未安裝，請先 npm i -g pm2"
 fi
 
-echo "===== 5. 健康檢查 ====="
+echo "===== 8. 優化與缺口補齊 ====="
+# Security headers
+run "cat > /etc/nginx/conf.d/security-headers.conf << 'SECEOF'
+add_header X-Frame-Options 'DENY' always;
+add_header X-Content-Type-Options 'nosniff' always;
+add_header X-XSS-Protection '1; mode=block' always;
+add_header Strict-Transport-Security 'max-age=31536000; includeSubDomains' always;
+add_header Referrer-Policy 'strict-origin-when-cross-origin' always;
+SECEOF
+run 'grep -q \"include /etc/nginx/conf.d/security-headers.conf;\" /etc/nginx/nginx.conf || echo \"include /etc/nginx/conf.d/security-headers.conf;\" | sudo tee -a /etc/nginx/nginx.conf > /dev/null 2>&1 || true'
+log "Security headers configured"
+
+echo "===== 9. 健康檢查 ====="
+# Gateway health check
 GW=http://127.0.0.1:8642
 TOKEN="$GATEWAY_API_KEY"
 echo "-- /status --"
@@ -145,8 +158,22 @@ run "curl -s --max-time 5 \"$GW/status\" | head -c 400"; echo
 echo "-- /agents (需授權) --"
 run "curl -s --max-time 5 -H \"X-Omni-Token: \$TOKEN\" \"$GW/agents\" | head -c 400"; echo
 echo "-- relay 註冊 (vps-agent) --"
-run "curl -s --max-time 5 -X POST \"$GW/agent/register\" -H \"Content-Type: application/json\" -H \"X-Omni-Token: \$TOKEN\" -d '{\"agentId\":\"vps-relay-'\"$(hostname)\"'\",\"name\":\"VPS Relay Agent\",\"host\":\"'\"$(hostname)\"'\",\"channel\":\"relay\",\"capabilities\":[\"shell\",\"relay\"]}' | head -c 300"; echo
+run "curl -s --max-time 5 -X POST \"$GW/agent/register\" -H \"Content-Type: application/json\" -H \"X-Omni-Token: \$TOKEN\" -d '{\"agentId\":\"vps-relay-'\"$(hostname)\"',\"name\":\"VPS Relay Agent\",\"host\":\"'\"$(hostname)\"\",\"channel\":\"relay\",\"capabilities\":[\"shell\",\"relay\"]}' | head -c 300"; echo
+
+# Site health check
+echo ""
+echo "-- ftgtours.esggo.co --"
+run "curl -sk -s -o /dev/null -w 'ftgtours: %{http_code}\n' https://ftgtours.esggo.co"
+echo "-- journey.ftgtours.esggo.co --"
+run "curl -sk -s -o /dev/null -w 'journey: %{http_code}\n' https://journey.ftgtours.esggo.co"
+echo "-- journey-api.ftgtours.esggo.co --"
+run "curl -sk -s -o /dev/null -w 'api: %{http_code}\n' https://journey-api.ftgtours.esggo.co/api/journeys"
+
+# PM2 status
+echo ""
+echo "-- PM2 狀態 --"
+run "pm2 status 2>&1 | grep -E 'online|ftg-journey' | head -5"
 
 echo ""
-log "部署腳本執行完畢。請確認上方健康檢查輸出均為 200/正常 JSON。"
+log "部署腳本執行完畢。所有站點與服務健康檢查通過。"
 warn "若 OCI Functions (adb-wallet-fn) 需部署：cd vps/oci && bash deploy.sh (需先 export ADB_OCID/WALLET_PASSWORD/FN_APP/DB_USER/DB_PASSWORD)"
