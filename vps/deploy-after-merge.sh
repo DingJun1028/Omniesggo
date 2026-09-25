@@ -107,6 +107,11 @@ if [ -d "vps/nginx" ]; then
   run "cp vps/nginx/ftgtours.conf /etc/nginx/sites-available/ftgtours-esggo.conf"
   run "ln -sf /etc/nginx/sites-available/ftgtours-esggo.conf /etc/nginx/sites-enabled/ftgtours-esggo"
   
+  # Fix SSL key permissions (certbot sometimes sets restrictive permissions)
+  run "chmod 644 /etc/letsencrypt/live/ftgtours.esggo.co/privkey.pem 2>/dev/null || true"
+  run "chmod 644 /etc/letsencrypt/live/journey-api.ftgtours.esggo.co/privkey.pem 2>/dev/null || true"
+  run "chmod 644 /etc/letsencrypt/live/journey.ftgtours.esggo.co/privkey.pem 2>/dev/null || true"
+  
   # Request SSL cert for ftgtours.esggo.co if not exists
   run "if [ ! -f /etc/letsencrypt/live/ftgtours.esggo.co/fullchain.pem ]; then certbot certonly --nginx --agree-tos --email dingjunhong1028@gmail.com --no-eff-email -d ftgtours.esggo.co --non-interactive; fi"
   
