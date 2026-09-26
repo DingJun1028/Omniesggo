@@ -142,7 +142,39 @@ const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'ftg-journey.db');
 
 ---
 
-## 十、代理人確認的事項
+## 十、Oracle DB（Oracle OAB）歸屬確認結果（2026-09-26）
+
+代理人詢問您：本文所規劃的 Oracle DB（Oracle OAB）是否為現有 OmniUserRAG ADB？您回答：**A 為另一個新實例**。
+
+### 10.1 確認結果
+
+| 項目 | 代理人理解 |
+|---|---|
+| **規劃中的 Oracle DB（Oracle OAB）** | **另一個新實例**，非現有 OmniUserRAG，也非 ESGGGO_TRANSLATE |
+| **與現有實例關係** | 全新的、獨立的 Oracle ADB 實例，將作為 OA-Team 專用資源 |
+| **歸屬** | 歸屬 OmniDB 總智慧庫，與現有兩個 Oracle ADB（OmniUserRAG、ESGGGO_TRANSLATE）並存 |
+
+### 10.2 現有三個 Oracle ADB 實例的關係（更新後）
+
+| 實例 | 用途 | 狀態 | 與本文關係 |
+|---|---|---|---|
+| **OmniUserRAG** | OA-Team 知識庫／RAG（3 Schema） | AVAILABLE | 現有資源，非本文規劃對象 |
+| **ESGGGO_TRANSLATE** | 萬能即時翻譯 5T 驗證與日誌 | RUNNING | 現有資源，非本文規劃對象 |
+| **Oracle DB（Oracle OAB）** | **本文規劃中的新實例**（OA-Team 專用） | 尚未建立／待規劃 | **本文目標** |
+
+### 10.3 下一步（如需建立新實例）
+
+若您希望代理人協助規劃新實例的建立，可能需要：
+
+1. **確立新實例的用途**（資料模型、儲存內容、與其他子庫的分工）
+2. **確認是否使用 Oracle Always Free ADB**（與現有實例同方案）
+3. **擬定連線設定、佈建步驟或架構草圖**（代理人可在您提供方向後協助）
+
+代理人不預設建立時程，僅在此記錄共識。具體用途與建立時機由您決定。
+
+---
+
+## 十一、代理人確認的事項
 
 - 本文件為當前共識的靜態紀錄；
 - 若您對定義、選型、歸屬有任何修改，代理人可更新本文件；
