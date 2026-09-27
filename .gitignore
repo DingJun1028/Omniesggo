@@ -385,3 +385,9 @@ vault/.obsidian/plugins/github-sync/
 /_upstream_vt/
 apps/ftg-2.5/
 apps/ftg-2.8/
+
+# PyInstaller 建置產物（spec/dist/work 皆為本機建置結果）
+_pyi/
+
+# 測試執行產物（每次執行覆寫，不具版本控價值）
+test_result.json
