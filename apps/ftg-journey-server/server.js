@@ -12,22 +12,49 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 8787;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'ftg-journey.db');
-// JWT 簽章金鑰：只從環境變數讀取，且拒絕已知的預設值。
+// JWT 簽章金鑰：只從環境變數讀取，並強制最低強度。
 // 舊實作是 `process.env.JWT_SECRET || 'ftg-journey-secret-key-change-in-production'`，
 // 一旦部署端忘記設定環境變數，服務就會安靜地改用這個寫死在公開 git 歷史裡的字串，
 // 任何人都能自行簽出 role=admin 的合法 token（JWT 偽造）。因此改成啟動即失敗。
+//
+// 單靠封鎖清單不夠：2026-09-27 審查實測發現 JWT_SECRET='a' / '123' / 'password'
+// 都能讓服務正常啟動，等於留下一個更容易猜的簽章金鑰。故一併強制最小長度。
 const KNOWN_LEAKED_DEFAULTS = new Set([
   'ftg-journey-secret-key-change-in-production',
-  '',
   'change-in-production',
   'secret',
+  'password',
 ]);
+// 32 個十六進位字元 = 16 bytes 熵；實務上建議 48 bytes（96 hex）。
+const MIN_SECRET_LENGTH = 32;
+
 const JWT_SECRET = process.env.JWT_SECRET || '';
-if (KNOWN_LEAKED_DEFAULTS.has(JWT_SECRET.trim())) {
+const trimmedSecret = JWT_SECRET.trim();
+
+if (!trimmedSecret) {
   console.error(
-    '[ftg-journey-server] 拒絕啟動：JWT_SECRET 未設定或仍為已外洩的預設值。\n' +
+    '[ftg-journey-server] 拒絕啟動：JWT_SECRET 未設定。\n' +
     '  請設定環境變數 JWT_SECRET（例：PM2 env 或同目錄 .env），\n' +
     '  產生方式：node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"'
+  );
+  process.exit(1);
+}
+
+if (KNOWN_LEAKED_DEFAULTS.has(trimmedSecret.toLowerCase())) {
+  console.error(
+    '[ftg-journey-server] 拒絕啟動：JWT_SECRET 為已知的預設值或常見弱值。\n' +
+    '  請改用隨機產生的金鑰：\n' +
+    '  node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"'
+  );
+  process.exit(1);
+}
+
+if (trimmedSecret.length < MIN_SECRET_LENGTH) {
+  console.error(
+    `[ftg-journey-server] 拒絕啟動：JWT_SECRET 長度不足 ` +
+    `（${trimmedSecret.length} < ${MIN_SECRET_LENGTH} 字元）。\n` +
+    '  短金鑰可被輕易爆破，等同沒有驗證。請改用隨機產生的金鑰：\n' +
+    '  node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"'
   );
   process.exit(1);
 }
