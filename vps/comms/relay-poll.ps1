@@ -1,8 +1,8 @@
-# ESGGO relay token TARGET = esggo-relay-20260707
+# ESGGO relay token
 $ErrorActionPreference='SilentlyContinue'
 $ProgressPreference='SilentlyContinue'
 $relayPort=9999
-$token='esggo-relay-20260707'
+$token = $env:ESGGO_RELAY_TOKEN
 
 function Status(){
   try{ (Invoke-WebRequest -UseBasicParsing -Uri "http://127.0.0.1:$relayPort/status" -Headers @{ 'X-Auth-Token'=$token} -TimeoutSec 3).Content } catch { 'UNREACHABLE' }

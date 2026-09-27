@@ -49,7 +49,7 @@ cat > /opt/esggo/vps-agent.sh <<'AGENT'
 set -euo pipefail
 RELAY_IP="${1:-100.108.241.29}"
 RELAY_PORT="${2:-9999}"
-AUTH_TOKEN="${3:-esggo-relay-20260707}"
+AUTH_TOKEN="${3:-$ESGGO_RELAY_TOKEN}"
 POLL_INTERVAL="${POLL_INTERVAL:-3}"
 RETRY_INTERVAL="${RETRY_INTERVAL:-10}"
 VPS_IP="$(curl -s --max-time 5 http://checkip.amazonaws.com 2>/dev/null || echo unknown)"
@@ -94,7 +94,7 @@ AGENT
 chmod +x /opt/esggo/vps-agent.sh
 echo "=== [9/9] start agent ==="
 pkill -f "bash /opt/esggo/vps-agent.sh" >/dev/null 2>&1 || true
-nohup bash /opt/esggo/vps-agent.sh 100.108.241.29 9999 esggo-relay-20260707 >/var/log/vps-agent.log 2>&1 &
+nohup bash /opt/esggo/vps-agent.sh 100.108.241.29 9999 ${ESGGO_RELAY_TOKEN} >/var/log/vps-agent.log 2>&1 &
 echo "agent_pid=$!"
 sleep 1
 ps aux | grep -E 'vps-agent|screen.*vps-agent' | grep -v grep || true

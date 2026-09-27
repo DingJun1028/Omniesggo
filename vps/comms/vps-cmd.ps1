@@ -3,7 +3,7 @@ $ErrorActionPreference='SilentlyContinue'
 $ProgressPreference='SilentlyContinue'
 $relay = '127.0.0.1'
 $relayPort = 9999
-$token = 'esggo-relay-20260707'
+$token = $env:ESGGO_RELAY_TOKEN
 $path = split-path -Leaf $MyInvocation.MyCommand.Path
 
 if($args.Count -eq 0){ Write-Host "Usage: $path <command>"; exit 1 }

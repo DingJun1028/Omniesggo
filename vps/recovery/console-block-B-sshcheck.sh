@@ -18,6 +18,6 @@ echo "=== PM2 ==="
 (command -v pm2 >/dev/null && pm2 list || true)
 
 echo "=== CONNECTIVITY ==="
-curl -sS http://127.0.0.1:9999/status -H 'X-Auth-Token: esggo-relay-20260707' || true
+curl -sS http://127.0.0.1:9999/status -H "X-Auth-Token: ${ESGGO_RELAY_TOKEN}" || true
 
 echo "=== block B done ==="
