@@ -5,11 +5,10 @@ test_tool_decorator.py — 驗證 @tool 裝飾器從函數簽名自動生成 Oll
 
 from __future__ import annotations
 
-import json
 import inspect
+import json
 from dataclasses import dataclass
-from typing import Any, get_type_hints
-
+from typing import Any, get_origin, get_type_hints
 
 # ============================================================================
 # @tool 裝飾器實作
@@ -31,8 +30,6 @@ class ToolSchema:
     parameters: dict  # JSON Schema 格式
     fn: Any = None  # 保留原始函數引用
 
-
-from typing import Any, get_type_hints, get_origin
 
 def _python_type_to_json_schema(py_type: type) -> dict:
     """將 Python 型別映射為 JSON Schema 片段。"""
