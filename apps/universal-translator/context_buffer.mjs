@@ -28,14 +28,37 @@ function roomKey(room) {
   return room && room.length ? room : '__default__';
 }
 
+// U+FFFD = 解碼失敗產生的替換字元。任一方向出現即代表該句在進入本 buffer
+// 前就已被錯誤編碼；若原樣收錄，會一路留在房間前文裡污染後續每一次回應的
+// context 欄位 (且不會隨 TTL 前的任何重譯而復原)。
+const REPLACEMENT_CHAR = /\uFFFD/;
+
+/** 清洗單句文字：去空白、去替換字元；含替換字元者視為污染，判為無效
+ * @param {string} s
+ * @returns {string} 清洗後文字；不可用時回傳空字串
+ */
+function sanitizeText(s) {
+  if (typeof s !== 'string') return '';
+  if (REPLACEMENT_CHAR.test(s)) return '';
+  // eslint-disable-next-line no-control-regex
+  return s.replace(/[\x00-\x1f\x7f]/g, '').trim();
+}
+
 /** 記錄一句 (來源文字 + 其翻譯), 滾動視窗管理
+ *
+ * 污染防護：src 為空或含 U+FFFD 時直接不收錄，寧可少一筆前文，
+ * 也不讓壞字元進 buffer 長期滯留 (5T Trustworthy: 資料寫入前先驗證)。
+ *
  * @param {{room?:string, src:string, tgt?:string, from?:string, to?:string}} u */
 export function recordUtterance({ room = '', src, tgt, from, to }) {
-  if (!ENABLED || !src) return;
+  if (!ENABLED) return;
+  const cleanSrc = sanitizeText(src);
+  if (!cleanSrc) return;                 // 空句或已污染 → 丟棄
+  const cleanTgt = sanitizeText(tgt);    // tgt 污染則存空字串，不影響 src 留存
   const key = roomKey(room);
   let arr = rooms.get(key);
   if (!arr) { arr = []; rooms.set(key, arr); }
-  arr.push({ src, tgt: tgt || '', from, to, ts: Date.now() });
+  arr.push({ src: cleanSrc, tgt: cleanTgt, from, to, ts: Date.now() });
   // 截斷 + 過期清理
   const cutoff = Date.now() - TTL_MS;
   const pruned = arr.filter((u) => u.ts >= cutoff);
