@@ -179,12 +179,12 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') { res.writeHead(204); return res.end(); }
 
   // 健康檢查
-  if (url === '/health' && req.method === 'GET') {
+  if (urlPath === '/health' && req.method === 'GET') {
     return writeJson(res, { status: 'ok', version: APP_VERSION, stats });
   }
 
   // Gemini 3.5 Live Translate 技術狀態 — 供 UI 顯示「可選增強」徽章
-  if (url === '/gemini-live-3-5/status' && req.method === 'GET') {
+  if (urlPath === '/gemini-live-3-5/status' && req.method === 'GET') {
     return writeJson(res, {
       name: 'Gemini 3.5 Live Translate',
       integrated: GEMINI_INTEGRATED,
@@ -199,7 +199,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 語音對語音同傳升級路徑狀態 (可選, 需 GEMINI_API_KEY + GEMINI_LIVE_S2S=1)
-  if (url === '/s2s/status' && req.method === 'GET') {
+  if (urlPath === '/s2s/status' && req.method === 'GET') {
     return writeJson(res, s2sStatus());
   }
 
@@ -218,7 +218,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 指標端點 (生產級監控: Prometheus 相容結構)
-  if (url === '/metrics' && req.method === 'GET') {
+  if (urlPath === '/metrics' && req.method === 'GET') {
     const mem = process.memoryUsage();
     return writeJson(res, {
       service: 'universal-translator',
@@ -236,7 +236,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // SSE 觀眾端串流（精確匹配 /stream 或 /stream?room=...，避免遮蔽 /stream.html 靜態頁）
-  if ((url === '/stream' || url.startsWith('/stream?')) && req.method === 'GET') {
+  if (urlPath === '/stream' && req.method === 'GET') {
     // 解析 query: ?src=studio&room=xxx（room 用於多房間隔離）
     const q = new URL(url, 'http://localhost').searchParams;
     const room = q.get('room') || '';
@@ -325,7 +325,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 即時轉播推播：studio 直接推播已轉錄文字 → 觀眾端 SSE 即時字幕（免觀眾端二次翻譯）
-  if (url === '/speak' && req.method === 'POST') {
+  if (urlPath === '/speak' && req.method === 'POST') {
     let body;
     try { body = await readBody(req); } catch { res.writeHead(400); return res.end('read fail'); }
     let p;
@@ -340,7 +340,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 翻譯核心 API (單語 / 多語) — 同時廣播 SSE，打通 studio(REST)→stream(SSE) 即時轉播
-  if (url === '/translate' && req.method === 'POST') {
+  if (urlPath === '/translate' && req.method === 'POST') {
     let body;
     try { body = await readBody(req); } catch { res.writeHead(400); return res.end('read fail'); }
     let p;
