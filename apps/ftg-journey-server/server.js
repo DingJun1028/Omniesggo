@@ -12,7 +12,25 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 8787;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'ftg-journey.db');
-const JWT_SECRET = process.env.JWT_SECRET || 'ftg-journey-secret-key-change-in-production';
+// JWT 簽章金鑰：只從環境變數讀取，且拒絕已知的預設值。
+// 舊實作是 `process.env.JWT_SECRET || 'ftg-journey-secret-key-change-in-production'`，
+// 一旦部署端忘記設定環境變數，服務就會安靜地改用這個寫死在公開 git 歷史裡的字串，
+// 任何人都能自行簽出 role=admin 的合法 token（JWT 偽造）。因此改成啟動即失敗。
+const KNOWN_LEAKED_DEFAULTS = new Set([
+  'ftg-journey-secret-key-change-in-production',
+  '',
+  'change-in-production',
+  'secret',
+]);
+const JWT_SECRET = process.env.JWT_SECRET || '';
+if (KNOWN_LEAKED_DEFAULTS.has(JWT_SECRET.trim())) {
+  console.error(
+    '[ftg-journey-server] 拒絕啟動：JWT_SECRET 未設定或仍為已外洩的預設值。\n' +
+    '  請設定環境變數 JWT_SECRET（例：PM2 env 或同目錄 .env），\n' +
+    '  產生方式：node -e "console.log(require(\'crypto\').randomBytes(48).toString(\'hex\'))"'
+  );
+  process.exit(1);
+}
 // 上傳檔案存放根目錄（Linux 部署路徑，可用環境變數覆寫）
 const UPLOAD_DIR = process.env.UPLOAD_DIR || '/var/www/ftg-journey-web/uploads/';
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 上傳圖片大小上限：5MB
