@@ -45,7 +45,7 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 8787,
         DB_PATH: './ftg-journey.db',
-        JWT_SECRET: 'ftg-journey-secret-key-change-in-production',
+        JWT_SECRET: process.env.JWT_SECRET || '',
         UPLOAD_DIR: '/var/www/ftg-journey-web/uploads/',
       },
       instances: 1,
