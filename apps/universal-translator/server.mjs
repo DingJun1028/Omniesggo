@@ -204,10 +204,14 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 跨句脈絡記憶狀態 (context awareness)
-  if (url === '/context/status' && req.method === 'GET') {
+  // 註：這兩條必須比對 urlPath 而非 url。url 仍帶 query string，
+  //     用 url 比對會讓 /context/reset?room=xxx 整條匹配不到而落到 usage fallback；
+  //     即使匹配到，url 也已被視為等於純路徑而使 q.get('room') 恆為 null，
+  //     結果具名房間永遠無法被重置 (只有 __default__ 會被清)。
+  if (urlPath === '/context/status' && req.method === 'GET') {
     return writeJson(res, contextStatus());
   }
-  if (url === '/context/reset' && req.method === 'POST') {
+  if (urlPath === '/context/reset' && req.method === 'POST') {
     const q = new URL(url, 'http://localhost').searchParams;
     resetRoom(q.get('room') || '');
     return writeJson(res, { ok: true, status: contextStatus() });
