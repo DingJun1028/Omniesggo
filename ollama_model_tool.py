@@ -52,26 +52,20 @@ import asyncio
 import csv
 import inspect
 import json
-import os
-import re
+import logging
 import sqlite3
 import sys
 import time
-from datetime import datetime, timezone
-from pathlib import Path
-from typing import Any, Optional
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
+from datetime import UTC, datetime
 from enum import Enum
-
-import logging
+from pathlib import Path
+from typing import Any, get_origin, get_type_hints
 
 # aiohttp 為延遲載入（lazy import）。
 # 理由：aiohttp 連同其 C 擴充在 Windows 首次 import 需 3–25 秒（Defender 掃描），
 # 佔啟動時間 >90%。延遲載入後 --help / --test-tools / 解析錯誤路徑皆不需付這筆成本。
-# 型別參照用 TYPE_CHECKING 避免 runtime 匯入。
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    import aiohttp
+# 取得方式：_aiohttp()（見下），不使用 TYPE_CHECKING 以免出現未使用的匯入。
 
 _AIOHTTP: Any = None
 
@@ -143,7 +137,7 @@ class SemanticGraph:
 
     def __init__(self, db_path: str = ":memory:", *, create: bool = True) -> None:
         self._db_path = db_path
-        self._conn: Optional[sqlite3.Connection] = None
+        self._conn: sqlite3.Connection | None = None
         self._ensure_connection(create=create)
 
     def _ensure_connection(self, *, create: bool = True) -> None:
@@ -160,7 +154,7 @@ class SemanticGraph:
             raise FileNotFoundError(f"語義圖譜資料庫不存在：{self._db_path}")
         self._conn = sqlite3.connect(str(path), check_same_thread=False)
 
-    def __enter__(self) -> "SemanticGraph":
+    def __enter__(self) -> SemanticGraph:
         return self
 
     def __exit__(self, *args: Any) -> None:
@@ -233,7 +227,7 @@ class SemanticGraph:
         if self._conn is None:
             return ""
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         triplets: list[tuple[str, str, str]] = []  # (source, predicate, target)
 
         if isinstance(result, dict) and result:
@@ -312,7 +306,7 @@ class SemanticGraph:
             for r in rows
         ]
 
-    def get_digest(self, tool_name: str) -> Optional[str]:
+    def get_digest(self, tool_name: str) -> str | None:
         """
         取出指定工具最近一次 ingest 的 digest（最新關係的 target 實體摘要）。
         """
@@ -412,12 +406,9 @@ def _semantic_truncate_json(value: Any, max_len: int = 300) -> str:
 # 內嵌自 test_tool_decorator.py — @tool 裝飾器從函數簽名自動生成 Ollama Tool Schema
 # ============================================================================
 
-from typing import get_type_hints as _get_type_hints, get_origin as _get_origin
-
-
 def _python_type_to_json_schema(py_type: type) -> dict:
     """將 Python 型別映射為 JSON Schema 片段。"""
-    origin = _get_origin(py_type)
+    origin = get_origin(py_type)
     if py_type is str or origin is None and py_type == str:
         return {"type": "string"}
     if py_type is int or origin is None and py_type == int:
@@ -458,7 +449,7 @@ def _tool_decorator(name: str = None, description: str = None):
 
     def decorator(fn):
         sig = inspect.signature(fn)
-        hints = _get_type_hints(fn)
+        hints = get_type_hints(fn)
         doc_first_line = (fn.__doc__ or "").strip().split("\n")[0] if fn.__doc__ else ""
 
         tool_name = name or fn.__name__
@@ -705,7 +696,7 @@ class TestResult:
 
     def __post_init__(self) -> None:
         if not self.timestamp:
-            self.timestamp = datetime.now(timezone.utc).isoformat()
+            self.timestamp = datetime.now(UTC).isoformat()
 
 
 @dataclass
@@ -741,7 +732,7 @@ class TestConfig:
 class OutputConfig:
     """輸出配置。"""
     format: OutputFormat = OutputFormat.JSON
-    path: Optional[str] = None  # None = 僅印終端
+    path: str | None = None  # None = 僅印終端
     append: bool = False        # 追加模式（JSONL）
 
 
@@ -840,13 +831,13 @@ class OllamaClient:
     """Ollama REST API 非同步客戶端。"""
 
     def __init__(self, host: str, timeout: float = 10.0,
-                 semantic_graph: Optional["SemanticGraph"] = None) -> None:
+                 semantic_graph: SemanticGraph | None = None) -> None:
         self.host = host.rstrip("/")
         self.timeout = timeout
-        self._session: Optional[Any] = None
+        self._session: Any | None = None
         self.semantic_graph = semantic_graph
 
-    async def __aenter__(self) -> "OllamaClient":
+    async def __aenter__(self) -> OllamaClient:
         _ah = _aiohttp()
         # self.timeout 僅作為「連線」上限，不再設 total/sock_read 整體上限。
         # 理由：整體預算由 test_model 以 asyncio.wait_for(timeout=...)  enforce，
@@ -862,7 +853,7 @@ class OllamaClient:
         if self._session:
             await self._session.close()
 
-    async def _request(self, method: str, path: str, payload: Optional[dict] = None) -> dict:
+    async def _request(self, method: str, path: str, payload: dict | None = None) -> dict:
         """發送 HTTP 請求，返回 JSON。"""
         url = f"{self.host}{path}"
         kwargs: dict[str, Any] = {"method": method, "url": url}
@@ -902,7 +893,7 @@ class OllamaClient:
         num_predict: int,
     ) -> TestResult:
         """測試單個模型（帶重試）。"""
-        ts = datetime.now(timezone.utc).isoformat()
+        ts = datetime.now(UTC).isoformat()
         last_error = ""
 
         for attempt in range(1 + retry):
@@ -971,7 +962,7 @@ class OllamaClient:
                     digest=digest,
                 )
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 # 整體預算（--timeout）已確實耗盡；冷啟動載入常佔多數時間。
                 last_error = (
                     f"超時（{timeout}s）— 模型載入可能佔多數時間，"
@@ -1048,7 +1039,7 @@ class ResultWriter:
     def write(self, results: list[TestResult], summary: dict[str, Any]) -> None:
         """根據配置寫入結果。"""
         data = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "results": [asdict(r) for r in results],
             "summary": summary,
         }
@@ -1163,7 +1154,7 @@ logger = logging.getLogger("ollama_tool")
 # CLI
 # ============================================================================
 
-def parse_args(argv: Optional[list[str]] = None) -> argparse.Namespace:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """解析命令列參數。"""
     parser = argparse.ArgumentParser(
         prog=APP_NAME,
@@ -1326,7 +1317,7 @@ async def run_batch_async(client: OllamaClient, cfg: RunConfig) -> list[TestResu
         return await runner.run_batch(models, cfg.test.concurrency)
 
 
-def main(argv: Optional[list[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """主入口。返回退出碼。"""
     _setup_console()
     args = parse_args(argv)
@@ -1447,7 +1438,7 @@ def _run_health_check() -> int:
         return 1
 
 
-def _run_semantic_stats(db_path: Optional[str]) -> int:
+def _run_semantic_stats(db_path: str | None) -> int:
     """顯示語義圖譜統計（不需連線 Ollama）。"""
     if not db_path:
         print("❌ 請搭配 --semantic-db <路徑> 使用 --semantic-stats")

@@ -17,10 +17,9 @@ from __future__ import annotations
 
 import json
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Optional
-
+from typing import Any
 
 # ============================================================================
 # 輔助：Python 值 → 標記化字串（用於 triplet 實體名稱）
@@ -63,7 +62,7 @@ class SemanticGraph:
             create: 若為 True 且路徑不存在，則建立新資料庫；若為 False 且不存在則報錯。
         """
         self._db_path = db_path
-        self._conn: Optional[sqlite3.Connection] = None
+        self._conn: sqlite3.Connection | None = None
         self._ensure_connection(create=create)
 
     # ------------------------------------------------------------------
@@ -86,7 +85,7 @@ class SemanticGraph:
 
         self._conn = sqlite3.connect(str(path), check_same_thread=False)
 
-    def __enter__(self) -> "SemanticGraph":
+    def __enter__(self) -> SemanticGraph:
         return self
 
     def __exit__(self, *args: Any) -> None:
@@ -147,7 +146,7 @@ class SemanticGraph:
         if self._conn is None:
             return ""
 
-        now = datetime.now(timezone.utc).isoformat()
+        now = datetime.now(UTC).isoformat()
         triplets: list[tuple[str, str, str]] = []  # (source, predicate, target)
 
         if isinstance(result, dict) and result:
@@ -230,7 +229,7 @@ class SemanticGraph:
             for r in rows
         ]
 
-    def get_digest(self, tool_name: str) -> Optional[str]:
+    def get_digest(self, tool_name: str) -> str | None:
         """
         取出指定工具最近一次 ingest 的 digest（最新關係的 target 實體摘要）。
         """
