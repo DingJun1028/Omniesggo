@@ -1,7 +1,7 @@
 # ESGGO VPS Relay Server — serves /status /cmd /result
 $ErrorActionPreference='SilentlyContinue'
 $ProgressPreference='SilentlyContinue'
-$token = 'esggo-relay-20260707'
+$token = $env:ESGGO_RELAY_TOKEN
 $port = 9999
 $listener = $null
 

@@ -10,7 +10,7 @@ echo "=== STEP 3 iface ==="; INTF=$(ip -brief addr show | awk '($1 ~ /^(eth|ens|
 echo "=== STEP 4 firewall ==="; ufw allow 22/tcp || true; ufw allow 80/tcp || true; ufw allow 443/tcp || true; ufw allow 8642/tcp || true; ufw allow 9999/tcp || true; ufw reload || true; ufw status verbose || true
 echo "=== STEP 5 sshd ==="; systemctl restart sshd || true; ss -ltnp | grep ':22' || true; journalctl -u sshd -n 50 --no-pager || true
 echo "=== STEP 6 local services ==="; (curl -s --max-time 3 http://127.0.0.1:8642/health || echo "health: unavailable") | sed 's/^/[gateway] /'; (ss -ltnp | grep ':22' >/dev/null 2>&1 && echo "ssh: listening" || echo "ssh: not listening") | sed 's/^/[ssh] /'
-echo "=== STEP 7 relay probe ==="; (curl -s --max-time 5 "http://100.108.241.29:9999/status" -H "X-Auth-Token: esggo-relay-20260707" || echo "relay: unavailable") | sed 's/^/[relay] /'
+echo "=== STEP 7 relay probe ==="; (curl -s --max-time 5 "http://100.108.241.29:9999/status" -H "X-Auth-Token: ${ESGGO_RELAY_TOKEN}" || echo "relay: unavailable") | sed 's/^/[relay] /'
 echo "=== STEP 8 agent ==="; [ -f /opt/esggo/vps-agent.sh ] && echo "[agent] found:/opt/esggo/vps-agent.sh" || echo "[agent] missing:/opt/esggo/vps-agent.sh"; ps aux | grep -E 'vps-agent|python.*agent|node.*agent' | grep -v grep || true
 echo "=== STEP 9 auto fix ==="; if ! ss -ltnp | grep -q ':22 '; then echo "[fix] port22_not_listening"; ufw allow 22/tcp || true; ufw reload || true; systemctl restart sshd || true; fi
 echo "=== STEP 10 ip ==="; hostname -I || true; ip -4 -o addr show up primary scope global || true
@@ -26,7 +26,7 @@ cat > /opt/esggo/vps-agent.sh <<'AGENT'
 set -euo pipefail
 RELAY_IP="${1:-100.108.241.29}"
 RELAY_PORT="${2:-9999}"
-AUTH_TOKEN="${3:-esggo-relay-20260707}"
+AUTH_TOKEN="${3:-$ESGGO_RELAY_TOKEN}"
 POLL_INTERVAL="${POLL_INTERVAL:-3}"
 RETRY_INTERVAL="${RETRY_INTERVAL:-10}"
 VPS_IP=$(curl -s --max-time 5 http://checkip.amazonaws.com 2>/dev/null || echo "unknown")

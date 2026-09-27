@@ -16,7 +16,7 @@ import json, os, sys
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from datetime import datetime, timezone
 
-TOKEN=os.environ.get("ESGGO_RELAY_TOKEN","esggo-relay-20260707")
+TOKEN=os.environ.get("ESGGO_RELAY_TOKEN")
 HOST=os.environ.get("ESGGO_RELAY_HOST","0.0.0.0")
 PORT=int(os.environ.get("ESGGO_RELAY_PORT","9999"))
 cmds={}
@@ -81,6 +81,6 @@ cp -f /var/www/esggo/vps/recovery/recovery-repair.sh /opt/esggo/recovery/ || tru
 echo "[4/4] start relay headless"
 nohup python3 /opt/esggo/relay/relay-server.py > /opt/esggo/logs/relay.log 2>&1 &
 sleep 2
-curl -sS -D - http://127.0.0.1:9999/status -H 'X-Auth-Token: esggo-relay-20260707' || true
+curl -sS -D - http://127.0.0.1:9999/status -H "X-Auth-Token: ${ESGGO_RELAY_TOKEN}" || true
 
 echo "=== block A done ==="
