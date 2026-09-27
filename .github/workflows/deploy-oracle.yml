@@ -368,16 +368,22 @@ jobs:
             $PM2 save
             # ─── 部署後健康檢查 (集成閉環: 部署≠服務健康) ───
             # 輪詢等待: 服務剛起可能未 ready, 重試至 200 或上限 (最佳實踐: 避免競態)
-            GW=000; WEB=000
+            # FTG 一併納入: 8787 未對公網開放，只能從 VPS 內部探。
+            #   PM2 只報 "launched" 不代表持續在線（可能 crash loop），
+            #   所以健康檢查才是部署成功的真實判準。
+            GW=000; WEB=000; FTG=000
             for i in $(seq 1 12); do
               sleep 5
               GW=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://omniagent.esggo.co/health || echo 000)
               WEB=$(curl -s -m 8 -o /dev/null -w '%{http_code}' http://localhost:8788/health || echo 000)
-              echo "[health #$i] gateway=$GW web=$WEB"
-              if [ "$GW" = "200" ] && [ "$WEB" = "200" ]; then break; fi
+              FTG=$(curl -s -m 8 -o /dev/null -w '%{http_code}' http://localhost:8787/health || echo 000)
+              echo "[health #$i] gateway=$GW web=$WEB ftg=$FTG"
+              if [ "$GW" = "200" ] && [ "$WEB" = "200" ] && [ "$FTG" = "200" ]; then break; fi
             done
-            if [ "$GW" != "200" ] || [ "$WEB" != "200" ]; then
-              echo "[FAIL] post-deploy health check: gateway=$GW web=$WEB"
+            if [ "$GW" != "200" ] || [ "$WEB" != "200" ] || [ "$FTG" != "200" ]; then
+              echo "[FAIL] post-deploy health check: gateway=$GW web=$WEB ftg=$FTG"
+              echo "[FAIL] --- ftg-journey-server error log (last 30 lines) ---"
+              tail -30 /var/www/esggo/logs/ftg-journey-error.log 2>/dev/null || echo "(no error log)"
               exit 1
             fi
             echo "[OK] health check passed"
