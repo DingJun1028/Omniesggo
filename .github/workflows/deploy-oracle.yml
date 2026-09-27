@@ -221,11 +221,39 @@ jobs:
             pnpm prisma migrate deploy 2>&1 | tail -8
             pnpm prisma generate 2>&1 | tail -2
             pnpm run build
-            # 重置 PM2 daemon 清掉殘留 (dead/ghost) 進程記錄後重新啟動，
-            # 避免 VPS 上 PM2 內部狀態損壞 (ghost id 17/18, pm2_env undefined) 導致部署紅
-            # 不 kill 其他服務 (避免主站 esggo-core 重啟), 只 update/start 目標
-            pm2 start ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs
-            pm2 save
+            # ─── PM2 狀態重置（2026-09-27 實測根因修復）───
+            # 實測 VPS 現況: 4 個服務無限重啟迴圈 (esggo-core 22788 / stt-whisper 16273 /
+            #   universal-translator 29298 / omniagent-gateway 9073 次重啟, 仍在累加),
+            #   每個都死在 EADDRINUSE。原因是上一輪 daemon 被殺後留下「孤兒 process」
+            #   (pid 1922941/1922975/1923035, 已跑 1 天 21 小時), 這些不在 `pm2 pid` 清單內,
+            #   卻佔住 8642/3000/8791; PM2 管的實例綁不到 port → crash → 重啟 → 無限迴圈。
+            #   迴圈讓 PM2 內部 _pm2_launcher 累積 undefined 槽位,
+            #   於是 `pm2 start --update-env` 走 restartProcessId → API.speedList
+            #   對失效槽位取 proc.pm2_env 拋 TypeError (API.js:1718) → 部署紅。
+            #
+            # 順序經 VPS 實測校正 (2026-09-27, 第一次寫反了):
+            #   1) 先 pm2 kill 重置 daemon
+            #   2) 再 fuser 殺掉佔 port 的孤兒  ← 必須在 pm2 kill 之後
+            #   3) 乾淨 start + save
+            # 為什麼不能反過來: `pm2 kill` 只停 daemon, 已啟動的 app process 會
+            #   變成孤兒繼續佔住 3000/8642/8791/8788/8787。先 fuser 再 pm2 kill,
+            #   等於殺完舊孤兒、pm2 start 起來後又被自己的孤兒擋掉 → 一樣迴圈。
+            #
+            # 顯式指定 PM2_HOME=/root/.pm2: VPS 實際對外服務的是 root 的 daemon
+            #   (Sep 7 起, 8 個 app), 而 VPS_USER 可為 ubuntu/root,
+            #   不綁定就會操作到 /home/ubuntu/.pm2 而製造第二個 daemon 互搶 port。
+            # 停機影響: 本 ecosystem 已含全部服務, 部署本來就整批重啟,
+            #   此處不增加額外停機; 反而結束持續燒 CPU 的重啟迴圈。
+            PM2="sudo env PM2_HOME=/root/.pm2 pm2"
+            $PM2 kill >/dev/null 2>&1 \
+              || { sudo pkill -f 'PM2 v' >/dev/null 2>&1 || pkill -f 'PM2 v' >/dev/null 2>&1 || true; sleep 3; }
+            sleep 2
+            for PORT in 3000 8642 8791 8788 8787; do
+              sudo fuser -k -n tcp "$PORT" >/dev/null 2>&1 || fuser -k -n tcp "$PORT" >/dev/null 2>&1 || true
+            done
+            sleep 2
+            $PM2 start ecosystem.config.cjs --update-env || $PM2 start ecosystem.config.cjs
+            $PM2 save
             # ─── 部署後健康檢查 (集成閉環: 部署≠服務健康) ───
             sleep 5
             GW=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://omniagent.esggo.co/health || echo 000)
@@ -284,11 +312,60 @@ jobs:
             export DATABASE_URL="${DATABASE_URL:-postgresql://build:build@localhost:5432/build}"
             pnpm install --frozen-lockfile
             pnpm run build
-            # 重置 PM2 daemon 清掉殘留 (dead/ghost) 進程記錄後重新啟動，
-            # 避免 VPS 上 PM2 內部狀態損壞 (ghost id 17/18, pm2_env undefined) 導致部署紅
-            # 不 kill 其他服務 (避免主站 esggo-core 重啟), 只 update/start 目標
-            pm2 start ecosystem.config.cjs --update-env 2>/dev/null || pm2 start ecosystem.config.cjs
-            pm2 save
+            # ─── PM2 狀態重置（2026-09-27 實測根因修復）───
+            # 實測 VPS 現況: 4 個服務無限重啟迴圈 (esggo-core 22788 / stt-whisper 16273 /
+            #   universal-translator 29298 / omniagent-gateway 9073 次重啟, 仍在累加),
+            #   每個都死在 EADDRINUSE。原因是上一輪 daemon 被殺後留下「孤兒 process」
+            #   (pid 1922941/1922975/1923035, 已跑 1 天 21 小時), 這些不在 `pm2 pid` 清單內,
+            #   卻佔住 8642/3000/8791; PM2 管的實例綁不到 port → crash → 重啟 → 無限迴圈。
+            #   迴圈讓 PM2 內部 _pm2_launcher 累積 undefined 槽位,
+            #   於是 `pm2 start --update-env` 走 restartProcessId → API.speedList
+            #   對失效槽位取 proc.pm2_env 拋 TypeError (API.js:1718) → 部署紅。
+            #
+            # 順序經 VPS 實測校正 (2026-09-27, 第一次寫反了):
+            #   1) 先 pm2 kill 重置 daemon
+            #   2) 再 fuser 殺掉佔 port 的孤兒  ← 必須在 pm2 kill 之後
+            #   3) 乾淨 start + save
+            # 為什麼不能反過來: `pm2 kill` 只停 daemon, 已啟動的 app process 會
+            #   變成孤兒繼續佔住 3000/8642/8791/8788/8787。先 fuser 再 pm2 kill,
+            #   等於殺完舊孤兒、pm2 start 起來後又被自己的孤兒擋掉 → 一樣迴圈。
+            #
+            # 顯式指定 PM2_HOME=/root/.pm2: VPS 實際對外服務的是 root 的 daemon
+            #   (Sep 7 起, 8 個 app), 而 VPS_USER 可為 ubuntu/root,
+            #   不綁定就會操作到 /home/ubuntu/.pm2 而製造第二個 daemon 互搶 port。
+            # 停機影響: 本 ecosystem 已含全部服務, 部署本來就整批重啟,
+            #   此處不增加額外停機; 反而結束持續燒 CPU 的重啟迴圈。
+            PM2="sudo env PM2_HOME=/root/.pm2 pm2"
+            # ─── ftg-journey-server 部署（生態系已宣告，但無任何 workflow 部署它）───
+            # 實測根因: ecosystem.config.cjs 有 ftg-journey-server (cwd=/var/www/ftg-journey-server,
+            #   script=server.js)，但該目錄只存在於本機；deploy 只 git pull /var/www/esggo，
+            #   從未複製此 app → PM2 報 "Script not found: /var/www/ftg-journey-server/server.js"
+            #   → 整個部署紅。原本 apps/ftg-journey-server/.github/workflows/deploy-vps.yml
+            #   看似負責，但 GitHub Actions 不執行巢狀於子目錄的 workflow，故從未生效。
+            # 修法: 在同一個 deploy 內部署 (單一來源)，且必須在 pm2 kill 之前完成，
+            #   否則 PM2 啟動時檔案仍不存在。
+            FTG_SRC=/var/www/esggo/apps/ftg-journey-server
+            FTG_DST=/var/www/ftg-journey-server
+            sudo mkdir -p "$FTG_DST/uploads"
+            sudo cp "$FTG_SRC/server.js" "$FTG_SRC/package.json" "$FTG_DST/"
+            [ -f "$FTG_SRC/ftg-journey.db" ] && sudo cp "$FTG_SRC/ftg-journey.db" "$FTG_DST/" || true
+            sudo chown -R "$(whoami)" "$FTG_DST" 2>/dev/null || chown -R "$(whoami)" "$FTG_DST" 2>/dev/null || true
+            cd "$FTG_DST"
+            # node_modules 保留既有 (含原生模組)，僅在缺失時安裝
+            if [ ! -d node_modules ]; then
+              npm install --omit=dev --no-audit --no-fund
+            fi
+            node --check server.js || { echo "[FAIL] ftg-journey-server server.js syntax error"; exit 1; }
+            cd /var/www/esggo
+            $PM2 kill >/dev/null 2>&1 \
+              || { sudo pkill -f 'PM2 v' >/dev/null 2>&1 || pkill -f 'PM2 v' >/dev/null 2>&1 || true; sleep 3; }
+            sleep 2
+            for PORT in 3000 8642 8791 8788 8787; do
+              sudo fuser -k -n tcp "$PORT" >/dev/null 2>&1 || fuser -k -n tcp "$PORT" >/dev/null 2>&1 || true
+            done
+            sleep 2
+            $PM2 start ecosystem.config.cjs --update-env || $PM2 start ecosystem.config.cjs
+            $PM2 save
             # ─── 部署後健康檢查 (集成閉環: 部署≠服務健康) ───
             # 輪詢等待: 服務剛起可能未 ready, 重試至 200 或上限 (最佳實踐: 避免競態)
             GW=000; WEB=000
