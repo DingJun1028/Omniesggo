@@ -98,6 +98,30 @@ class SemanticGraph:
             self._conn = None
 
     # ------------------------------------------------------------------
+    # 圖譜讀取
+    # ------------------------------------------------------------------
+
+    def stats(self, limit: int = 10) -> dict[str, Any]:
+        """回傳圖譜統計與最近實體（供 CLI --semantic-stats 使用）。
+
+        補足「圖譜只能寫不能讀」的缺口：ingest_tool_result 產出的資料
+        原本無任何讀取途徑，無法驗證提純結果是否合理。
+        """
+        self._ensure_connection(create=False)
+        assert self._conn is not None
+        entities = self._conn.execute("SELECT count(*) FROM entities").fetchone()[0]
+        relations = self._conn.execute("SELECT count(*) FROM relations").fetchone()[0]
+        rows = self._conn.execute(
+            "SELECT name, type FROM entities ORDER BY id DESC LIMIT ?", (limit,)
+        ).fetchall()
+        return {
+            "db_path": self._db_path,
+            "entity_count": int(entities),
+            "relation_count": int(relations),
+            "recent_entities": [{"name": n, "type": t} for n, t in rows],
+        }
+
+    # ------------------------------------------------------------------
     # 架構初始化
     # ------------------------------------------------------------------
 

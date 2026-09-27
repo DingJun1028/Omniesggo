@@ -66,6 +66,15 @@ run_quiet "$WORKDIR/semantic.log" \
          --semantic-db "$DB" --output "$WORKDIR/am-verify.json"
 if [ -f "$DB" ]; then
   run "--semantic-stats（已建庫）" 0 "$EXE" --semantic-stats --semantic-db "$DB"
+  # 僅驗「檔案存在 + exit 0」抓不到去重後的失效：PyInstaller 若漏打包
+  # semantic_graph，或 ingest 靜默失效，DB 仍存在但內容為空。
+  # 故須實測實體數 > 0。
+  if "$EXE" --semantic-stats --semantic-db "$DB" 2>/dev/null \
+       | grep -qE '實體數量.*[1-9]'; then
+    run "圖譜實體數 > 0" 0 true
+  else
+    FAIL=$((FAIL+1)); printf '  [FAIL] %-28s 圖譜有庫但無實體（ingest 失效或漏打包）\n' "圖譜實體數 > 0"
+  fi
 else
   FAIL=$((FAIL+1)); printf '  [FAIL] %-28s 圖譜庫未建立\n' "--semantic-db 寫入"
 fi
