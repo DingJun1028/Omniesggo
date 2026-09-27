@@ -107,6 +107,68 @@ else
 fi
 
 echo ""
+echo "── 輸出格式（exe 級；本輪修復先前僅有原始碼單元測試覆蓋）──"
+# 每種格式都必須「真的產檔且內容非空」：只驗退出碼抓不到「靜默不產檔」。
+FMT_JSON="$WORKDIR/fmt.json";   FMT_CSV="$WORKDIR/fmt.csv"
+FMT_JSONL="$WORKDIR/fmt.jsonl"; FMT_TBL="$WORKDIR/fmt.table"
+rm -f "$FMT_JSON" "$FMT_CSV" "$FMT_JSONL" "$FMT_TBL"
+check_file() {  # check_file <名稱> <路徑> <最小位元組>
+  if [ -s "$2" ] && [ "$(wc -c < "$2" 2>/dev/null || echo 0)" -ge "$3" ]; then
+    PASS=$((PASS+1)); printf '  [PASS] %-28s %s bytes\n' "$1" "$(wc -c < "$2")"
+  else
+    FAIL=$((FAIL+1)); printf '  [FAIL] %-28s 檔案不存在或過小（<%s bytes）\n' "$1" "$3"
+  fi
+}
+run_quiet "$WORKDIR/fmt.log" \
+  "$EXE" --model qwen2.5:3b --num-predict 8 --timeout 120 \
+         --output "$FMT_JSON" --csv "$FMT_CSV" --jsonl "$FMT_JSONL"
+check_file "JSON 產出"            "$FMT_JSON"  50
+check_file "CSV 產出（--csv）"     "$FMT_CSV"   40
+check_file "JSONL 產出（--jsonl）" "$FMT_JSONL" 40
+
+# .table 回歸：write() 曾無 TABLE 分支，指定檔案靜默不建立且無任何警告
+run_quiet "$WORKDIR/tbl.log" \
+  "$EXE" --model qwen2.5:3b --num-predict 8 --timeout 120 --output "$FMT_TBL"
+check_file "TABLE 產出（回歸）"   "$FMT_TBL"   40
+if grep -q 'qwen2.5:3b' "$FMT_TBL" 2>/dev/null; then
+  PASS=$((PASS+1)); printf '  [PASS] %-28s 內容含模型名\n' "TABLE 內容非空"
+else
+  FAIL=$((FAIL+1)); printf '  [FAIL] %-28s 內容缺模型名\n' "TABLE 內容非空"
+fi
+
+# --no-terminal-json 回歸：args.no_terminal_json 讀取次數曾為 0（懸空旗標）
+NTJ="$WORKDIR/ntj.log"
+"$EXE" --model qwen2.5:3b --num-predict 8 --timeout 120 --no-terminal-json >"$NTJ" 2>&1
+if grep -q '"results"' "$NTJ"; then
+  FAIL=$((FAIL+1)); printf '  [FAIL] %-28s 終端仍輸出 JSON\n' "--no-terminal-json 生效"
+else
+  PASS=$((PASS+1)); printf '  [PASS] %-28s 終端無 JSON\n' "--no-terminal-json 生效"
+fi
+
+echo ""
+echo "── 錯誤路徑（必須優雅降級，不得崩潰）──"
+# 以配置檔把 host 指向死埠，同時驗證 --config 這條從未實測的路徑
+cat >"$WORKDIR/offline.json" <<'OFFLINE_JSON'
+{ "ollama": { "host": "http://127.0.0.1:59999", "timeout": 3 },
+  "test": { "prompt": "hi", "timeout": 5, "concurrency": 1, "retry": 0, "num_predict": 8 },
+  "models": ["qwen2.5:3b"] }
+OFFLINE_JSON
+# 離線：rc=7（全部失敗）而非崩潰，且仍應寫出結果檔供診斷
+run "--config 離線降級" 7 \
+  "$EXE" --config "$WORKDIR/offline.json" --output "$WORKDIR/off.json"
+check_file "離線仍寫出結果" "$WORKDIR/off.json" 50
+
+# 模型不存在：404 應轉為含模型名的可診斷訊息
+run "模型不存在（404）" 7 \
+  "$EXE" --model no-such-model-xyz-987 --num-predict 8 --timeout 60 \
+         --output "$WORKDIR/nf.json"
+if grep -q 'no-such-model-xyz-987' "$WORKDIR/nf.json" 2>/dev/null; then
+  PASS=$((PASS+1)); printf '  [PASS] %-28s 錯誤含模型名\n' "404 可診斷"
+else
+  FAIL=$((FAIL+1)); printf '  [FAIL] %-28s 錯誤缺模型名\n' "404 可診斷"
+fi
+
+echo ""
 echo "═══════════════════════════════════════════════════"
 printf ' 結果：PASS=%d  FAIL=%d\n' "$PASS" "$FAIL"
 echo "═══════════════════════════════════════════════════"

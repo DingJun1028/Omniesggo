@@ -34,7 +34,10 @@ function roomKey(room) {
 const REPLACEMENT_CHAR = /\uFFFD/;
 
 /** 清洗單句文字：去空白、去替換字元；含替換字元者視為污染，判為無效
- * @param {string} s
+ * 接受 string | undefined：recordUtterance 的 tgt 為選填欄位，且本函式
+ * 已於執行期擋下非字串（typeof 檢查）回傳空字串，故型別須如實宣告，
+ * 否則 tsc 會在呼叫端報 TS2345（實測 OmniCore CI 紅線）。
+ * @param {string|undefined} s
  * @returns {string} 清洗後文字；不可用時回傳空字串
  */
 function sanitizeText(s) {
