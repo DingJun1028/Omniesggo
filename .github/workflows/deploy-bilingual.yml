@@ -4,6 +4,14 @@ on:
   push:
     branches: [main]
     paths: ['apps/stt/**','apps/universal-translator/**','ecosystem.config.cjs']
+# 與 deploy-oracle.yml 共用同一 group: 兩檔的 paths 都涵蓋 ecosystem.config.cjs,
+#   一次 push 可同時觸發, 若不互斥會兩個 job 同時 SSH 進同一台 VPS、同時
+#   git reset --hard 同一工作樹, 並對同一個 /root/.pm2 做 stop/fuser/start。
+#   deploy-oracle 的 pm2 kill 會把本檔剛 start 好的 app 變成孤兒。
+concurrency:
+  group: deploy-oracle-vps
+  cancel-in-progress: false
+
 env:
   VPS_HOST: ${{ secrets.VPS_HOST }}
   VPS_USER: ${{ secrets.VPS_USER || 'root' }}
@@ -23,13 +31,52 @@ jobs:
       - name: Deploy STT + Translator
         run: |
           set -e
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" bash -s <<VPS
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no "${VPS_USER}@${VPS_HOST}" bash -s <<'VPS'
             set -e
             cd /var/www/esggo
+            # 修復 git dubious ownership (目錄可能由 root 建立, ubuntu 執行)
+            #   對齊 deploy-oracle.yml; 否則 VPS_USER=ubuntu 時 git 會直接拒絕執行。
+            git config --global --add safe.directory /var/www/esggo
+            # sudo 的 secure_path 會覆寫 PATH, 需手動補回 nvm / local/bin,
+            #   否則 PM2 可能落在使用者 nvm 底下而找不到 (同 deploy-oracle.yml)。
+            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || true
+            export PATH="$PATH:/usr/local/bin:$HOME/.local/bin"
             git fetch origin main && git reset --hard origin/main
-            pm2 start ecosystem.config.cjs --only stt-whisper --update-env
-            pm2 start ecosystem.config.cjs --only universal-translator --update-env
-            pm2 save
+            # 5T-Trustworthy (2026-09-28 實測修復): 綁定 PM2_HOME, 避免生出第二套 daemon。
+            #   與 deploy-oracle.yml 對齊: VPS_USER 可為 ubuntu/root, 裸 `pm2` 會操作
+            #   $HOME/.pm2; VPS_USER=ubuntu 時會另起 /home/ubuntu/.pm2, 與 /root/.pm2 那套
+            #   互搶 3000/8791/8788 → 各自 EADDRINUSE crash-loop。
+            #   2026-09-27 實測: stt-whisper 重啟 2148 次、esggo-core 1097 次、CPU 87%,
+            #   但對外端點仍回 200 — 屬「表面綠、內部燒損」, 最易被健康檢查誤判。
+            #   必須在 <<'VPS' (引號) 內才會在遠端展開; 改成未引號會讓 $PM2 被 runner
+            #   展開成空字串而使步驟失敗 (deploy-oracle.yml 已有相同警告註解)。
+            PM2="sudo env PM2_HOME=/root/.pm2 pm2"
+            # 清掉其他帳號殘留的 PM2 daemon。'[P]M2' 括號脫逃: 仍匹配 daemon 行程,
+            #   但不匹配 pkill 自身的 cmdline。
+            sudo pkill -u ubuntu -f '[P]M2 v' >/dev/null 2>&1 \
+              || echo "[WARN] ubuntu PM2 daemon 未清理 (可能不存在, 或無權限)"
+            # 順序關鍵: 先讓 root 的 PM2 主動停掉這兩個 app, 再清孤兒, 最後才 start。
+            #   若直接 fuser -k (SIGKILL) 而 daemon 仍活著, ecosystem 的
+            #   autorestart:true 會讓它立刻重生被殺的 app, 與隨後的 start 搶同一個
+            #   port → EADDRINUSE crash-loop, 一次部署就耗盡 max_restarts 而落地為
+            #   errored, 且 pm2 start 仍回 exit 0 (表面綠、內部燒損)。
+            #   deploy-oracle.yml 之所以安全是先 $PM2 kill 讓 daemon 消失; 本 workflow
+            #   只 --only 兩個 app, 不能 kill 整個 daemon, 否則 esggo-core /
+            #   omniagent-gateway 不會被拉回。
+            $PM2 stop stt-whisper universal-translator >/dev/null 2>&1 \
+              || echo "[WARN] pre-stop 未生效 (app 可能尚未存在)"
+            # pkill 只停 daemon, 已啟動的 app process 會變成孤兒繼續佔住 port。
+            #   窄清單 (只 8791/8788) 是刻意的: 只碰本 --only 會重啟的 app。
+            #   不可「跟 deploy-oracle 對齊」而加入 3000/8642 — 那會誤殺後無人拉回。
+            for PORT in 8791 8788; do
+              sudo fuser -k -n tcp "$PORT" >/dev/null 2>&1 \
+                || fuser -k -n tcp "$PORT" >/dev/null 2>&1 \
+                || echo "[WARN] port $PORT 無進程可清 (可能已釋放)"
+            done
+            $PM2 start ecosystem.config.cjs --only stt-whisper --update-env
+            $PM2 start ecosystem.config.cjs --only universal-translator --update-env
+            $PM2 save
           VPS
       - name: Health-loop
         run: |
