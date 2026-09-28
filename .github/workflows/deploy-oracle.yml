@@ -401,6 +401,11 @@ jobs:
             # 分級理由: gateway/web 是對外服務，不健康必須擋；ftg 缺金鑰時
             #   屬「未完成部署」而非「壞掉部署」——擋住會讓其餘 5 個 app
             #   無法繼續更新，故降級為明確警告 + 輸出診斷，不 exit 1。
+            #   ⚠ 2026-09-28 診斷更正: ftg-journey-server 刻意未列入
+            #     ecosystem.config.cjs（見該檔同日決策註解），PM2 根本不會
+            #     啟動它，:8787 必然無人監聽。FTG_JWT_SECRET 已存在於 GitHub
+            #     secrets 且本 workflow 已正確注入 —— 這個警告與金鑰無關，
+            #     每次部署都會出現，屬預期狀態，不得再導向「去修 FTG_JWT_SECRET」。
             GW=000; WEB=000; FTG=000
             for i in $(seq 1 12); do
               sleep 5
@@ -418,9 +423,21 @@ jobs:
             fi
             if [ "$FTG" != "200" ]; then
               echo "[DEGRADED] ftg-journey-server 未上線 (ftg=$FTG)"
+              echo "[DEGRADED] 這是預期狀態，不是本次部署失敗，也不代表金鑰有問題："
+              echo "[DEGRADED]   ftg-journey-server 已刻意從 ecosystem.config.cjs 移除"
+              echo "[DEGRADED]   （見該檔 ftg 段落註解：加入會因 fail-fast 造成 crash-loop 假完成），"
+              echo "[DEGRADED]   PM2 不會啟動它，:8787 因此必然無人監聽。GitHub secret FTG_JWT_SECRET"
+              echo "[DEGRADED]   已存在且本 workflow 已正確注入 —— 請勿再照舊訊息去重跑修金鑰。"
+              echo "[DEGRADED] 同一前提下的未決事項: :8787 目前是死路由"
+              echo "[DEGRADED]   （nginx 仍有 proxy_pass 指向 ftg-journey-server:8787，請求該路徑會 502），"
+              echo "[DEGRADED]   是否讓此服務在 VPS 上線尚待決策，與本次部署成敗無關。"
+              echo "[DEGRADED] 若決定要啟用，前置條件為全部三項缺一不可："
+              echo "[DEGRADED]   (1) FTG_JWT_SECRET 已 provisioned（已滿足，勿重複處理）"
+              echo "[DEGRADED]   (2) GOOGLE_CLIENT_ID 進 GitHub secrets（目前缺；57 個 secret 中僅有"
+              echo "[DEGRADED]       GOOGLE_CLIENT_SECRET，OAuth 驗證會因此失敗）"
+              echo "[DEGRADED]   (3) 先決定並處理 8787 死路由，再把條目加回 ecosystem.config.cjs"
               echo "[DEGRADED] --- ftg-journey-server error log (last 15 lines) ---"
-              tail -15 /var/www/esggo/logs/ftg-journey-error.log 2>/dev/null || echo "(no error log)"
-              echo "[DEGRADED] 其餘服務已部署成功; 修復 FTG_JWT_SECRET 後重跑本 workflow"
+              tail -15 /var/www/esggo/logs/ftg-journey-error.log 2>/dev/null || echo "(no error log — 服務未被啟動，無 log 屬正常)"
             fi
             echo "[OK] health check passed (gateway/web)"
             echo "[OK] deployed direct"
