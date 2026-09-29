@@ -65,7 +65,32 @@
 
 ---
 
-## 三、本輪未觸碰的項目（承接上一輪）
+## 三、P1 · CPU 飽和（資源層覺醒新增）
+
+**實測數據**（`cores=4`，`top` 二次採樣）：
+
+| 指標 | 值 | 判讀 |
+|---|---|---|
+| load average | **8.89 / 7.87 / 6.39** | 對 4 核 = **過載 2.2 倍** |
+| `%Cpu` | us 69.0 · **sy 30.4** · id **0.2** · wa 0.0 | CPU 真飽和，但**非 I/O 瓶頸** |
+| 佔用者 | `llama-server` **209% CPU**、父 = `ollama serve`(pid 462390) | 純 CPU 推論 |
+| 模型 | `nomic-embed-text:latest`，`size_vram=0.0GB` | **GPU 未使用** |
+| 呼叫方 | `pid 745322`（`node --import tsx src/gateway/server.ts` = esggo-gateway / TDAI 記憶層） | 記憶層在算 embedding |
+| 容器資源 | 全部 < 1% CPU，最大 `tdai-memory-core` 0.97% | 容器**不是**元凶 |
+| 記憶體 | 16.5 GB free；`dockerd` 3.3GB 為最大單項 | **無洩漏** |
+| 硬體 | **無 NVIDIA GPU** | CPU 推論是必然結果，非設定錯誤 |
+
+**結論：這是正常運作，不是故障。** 但有兩個可優化點：
+
+- [ ] **P1-a** `llama-server` 已燒 **21:56 CPU 時間**且持續 209% — 若 TDAI 記憶層的 embedding 呼叫
+      不是必要的即時路徑，可考慮降低頻率或改用更小的 embedding 模型
+- [ ] **P1-b** `sy 30.4%` 系統時間偏高（`dockerd` 172.7% / 13d+8h CPU 時間）。
+      dockerd 長時間高 sys 常與**容器數量 + 日誌量**相關，目前 12 個容器
+- [ ] 註：`esggo-redis` 記憶體僅 **1.68 MiB** — 若這是期望中的快取，容量可能過小，值得確認
+
+---
+
+## 四、本輪未觸碰的項目（承接上一輪）
 
 - [ ] **PR #1199** 仍 `OPEN` / `MERGEABLE` / `UNSTABLE`（32 pass，3 fail 全為 Cloudflare 端孤兒綁定）
 - [ ] Cloudflare 孤兒綁定待你手動停用：`esggo-worker` / `oa` / `wrangler-deploy`（**勿停 `esggo`**）
