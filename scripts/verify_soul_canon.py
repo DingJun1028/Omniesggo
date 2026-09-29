@@ -98,21 +98,28 @@ def run():
     passed = True
 
     # 驗證 1: 30 矩陣完整性
+    # 判定依據是「01–30 逐一存在」，不是「找到 >= 30 筆」。
+    # 後者會被「01-30 全缺、只有 31-60」這類位移過的表欺騙而回報假綠。
     print('\n[1] 30 矩陣驗證')
     rows = MATRIX_ROW.findall(content)
     members = {}
     for num, name in rows:
         members[int(num)] = name
     members_found = len(members)
-    if members_found >= 30:
-        print('  ✓ 30/30 成員定義完整')
+    missing = [f'{i:02d}' for i in range(1, 31) if i not in members]
+    extra = sorted(n for n in members if not 1 <= n <= 30)
+    if not missing:
+        print('  ✓ 30/30 成員定義完整（編號 01–30 逐一存在）')
     else:
-        missing = [f'{i:02d}' for i in range(1, 31) if i not in members]
-        print(f'  ✗ 找到 {members_found}/30 — 缺漏編號: {", ".join(missing) if missing else "無"}')
+        print(f'  ✗ 找到 {members_found}/30 — 缺漏編號: {", ".join(missing)}')
         passed = False
+    if extra:
+        print(f'  ℹ 另有非 01–30 編號的資料列: {", ".join(f"{n:02d}" for n in extra[:10])}'
+              f'{"…" if len(extra) > 10 else ""}（不影響 01–30 判定）')
     if len(rows) > members_found:
-        print(f'  ℹ 資料列 {len(rows)} 筆（編號 {min(members)}–{max(members)}），'
-              f'含 {len(rows) - members_found} 筆衍生列')
+        print(f'  ℹ 資料列 {len(rows)} 筆（唯一編號 {members_found} 個），'
+              f'編號範圍 {min(members):02d}–{max(members):02d}，'
+              f'重複列 {len(rows) - members_found} 筆')
 
     # 驗證 2: 5T 協定
     print('\n[2] 5T 協定驗證')
