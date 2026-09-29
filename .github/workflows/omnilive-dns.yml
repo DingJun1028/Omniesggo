@@ -1,0 +1,111 @@
+name: OmniLive DNS
+
+# 為 omnilivetranslation.esggo.co 建立 Cloudflare Tunnel 的 CNAME 記錄。
+#
+# 為什麼需要這個 workflow：Cloudflare API token (CF_API_TOKEN) 已綁定
+# GitHub Actions runner 的 IP 來源，從一般機器呼叫會被 Cloudflare 以
+# 9109 "Invalid access token" 拒絕。token 只在 Actions 環境可用。
+#
+# 冪等：重跑會先刪除同名記錄再建立，不會產生重複。
+
+on:
+  workflow_dispatch:
+    inputs:
+      hostname:
+        description: '要設定的 FQDN'
+        required: false
+        default: 'omnilivetranslation.esggo.co'
+      tunnel_target:
+        description: 'Cloudflare Tunnel 目標 (<uuid>.cfargotunnel.com)'
+        required: false
+        default: 'd821f09e-91ec-4c38-85da-89451a5a8983.cfargotunnel.com'
+      proxied:
+        description: '是否走 Cloudflare 代理 (true/false)'
+        required: false
+        default: 'true'
+
+permissions:
+  contents: read
+
+jobs:
+  upsert-cname:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: 檢查 token
+        id: token
+        run: |
+          resp=$(curl -s --max-time 30 \
+            -H "Authorization: Bearer ${{ secrets.CF_API_TOKEN }}" \
+            https://api.cloudflare.com/client/v4/user/tokens/verify)
+          status=$(echo "$resp" | jq -r '.result.status // "unknown"')
+          echo "token status: $status" >> "$GITHUB_STEPSUMMARY"
+          if [ "$status" != "active" ]; then
+            echo "::error::token 狀態為 $status（非 active），無法繼續"
+            exit 1
+          fi
+
+      - name: 取得 zone id
+        id: zone
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+        run: |
+          resp=$(curl -s --max-time 30 \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/zones?name=esggo.co")
+          if [ "$(echo "$resp" | jq -r '.success')" != "true" ]; then
+            echo "::error::zone 查詢失敗: $(echo "$resp" | jq -c '.errors')"
+            exit 1
+          fi
+          zid=$(echo "$resp" | jq -r '.result[0].id')
+          echo "id=$zid" >> "$GITHUB_OUTPUT"
+          echo "esggo.co zone id: $zid" >> "$GITHUB_STEPSUMMARY"
+
+      - name: 刪除既有同名記錄
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          ZONE_ID: ${{ steps.zone.outputs.id }}
+          HOSTNAME: ${{ inputs.hostname }}
+        run: |
+          existing=$(curl -s --max-time 30 \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records?type=CNAME&name=$HOSTNAME" \
+            | jq -r '.result[]?.id')
+          for rid in $existing; do
+            echo "刪除既有記錄 $rid ($HOSTNAME)"
+            curl -s --max-time 30 -X DELETE \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records/$rid" \
+              | jq -r '"  刪除結果 success=\(.success)"' >> "$GITHUB_STEPSUMMARY"
+          done
+          [ -z "$existing" ] && echo "  無既有記錄"
+
+      - name: 建立 CNAME
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          ZONE_ID: ${{ steps.zone.outputs.id }}
+          HOSTNAME: ${{ inputs.hostname }}
+          TARGET: ${{ inputs.tunnel_target }}
+          PROXIED: ${{ inputs.proxied }}
+        run: |
+          resp=$(curl -s --max-time 30 -X POST \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            --data "{\"type\":\"CNAME\",\"name\":\"$HOSTNAME\",\"content\":\"$TARGET\",\"proxied\":$PROXIED,\"ttl\":1}" \
+            "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/dns_records")
+          if [ "$(echo "$resp" | jq -r '.success')" != "true" ]; then
+            echo "::error::建立失敗: $(echo "$resp" | jq -c '.errors')"
+            exit 1
+          fi
+          echo "$resp" | jq -r '"  已建立 \(.result.name) → \(.result.content) (proxied=\(.result.proxied))"' >> "$GITHUB_STEPSUMMARY"
+          echo "建立成功"
+
+      - name: 結果摘要
+        run: |
+          {
+            echo "### OmniLive DNS"
+            echo ""
+            echo "| 主機 | 目標 | 代理 |"
+            echo "|---|---|---|"
+            echo "| \`${{ inputs.hostname }}\` | \`${{ inputs.tunnel_target }}\` | ${{ inputs.proxied }} |"
+          } >> "$GITHUB_STEPSUMMARY"

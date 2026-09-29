@@ -24,6 +24,7 @@ function nextSeq() { return ++_seq; }
  * @property {string} trace        5T 不可篡改 trace
  * @property {boolean} final       是否為該句最終稿 (false=推測中, true=確認)
  * @property {string} [speaker]    VAD 語者標籤 (A/B), 啟用 VAD 時附加
+ * @property {string} [room]       所屬房間 ('' = 未綁定房間的主房間)
  */
 
 /**
@@ -75,6 +76,23 @@ export class SubtitleStore {
   snapshot() {
     const now = Date.now();
     return this.items.filter(s => now - s.ts <= this.ttlMs || s === this.items[this.items.length - 1]).slice(-this.maxLines);
+  }
+
+  /**
+   * 回傳指定房間的字幕 (時間序)。
+   *
+   * 修 /api/course 的根本缺陷: 先前 server.mjs 以
+   *   store.snapshot().filter(s => s.room === room)
+   * 取房間累積字幕, 但 BilingualSubtitle 從來沒有 room 欄位,
+   * 該條件恆為 false → 課程解說永遠拿到空文字集, 恆回 no transcript yet。
+   * 這裡改由 push() 落下的 room 標記直接索引。
+   *
+   * @param {string} room
+   * @returns {BilingualSubtitle[]}
+   */
+  getByRoom(room) {
+    const key = room || '';
+    return this.items.filter(s => (s.room || '') === key);
   }
 
   /** 定時清理 (呼叫端可用 setInterval 驅動) */
