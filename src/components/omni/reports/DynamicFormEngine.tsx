@@ -114,7 +114,7 @@ export default function DynamicFormEngine({
             const err = fieldError(field.id);
             return (
               <div key={field.id} className="space-y-2">
-                <label className="text-sm font-medium text-cyan-50 flex items-center justify-between">
+                <label htmlFor={field.id} className="text-sm font-medium text-cyan-50 flex items-center justify-between">
                   <span>
                     {field.label}{' '}
                     {field.required && <span className="text-amber-400">*</span>}
@@ -128,9 +128,12 @@ export default function DynamicFormEngine({
 
                 {field.type === 'number' ? (
                   <input
+                    id={field.id}
                     type="number"
                     required={field.required}
                     placeholder={field.placeholder}
+                    aria-invalid={!!err}
+                    aria-describedby={err ? `${field.id}-error` : undefined}
                     className={`w-full bg-black/40 border rounded-xl p-3 text-white outline-none transition-all font-mono ${
                       err
                         ? 'border-amber-500/50 focus:ring-1 focus:ring-amber-500'
@@ -142,9 +145,12 @@ export default function DynamicFormEngine({
                   />
                 ) : (
                   <input
+                    id={field.id}
                     type="text"
                     required={field.required}
                     placeholder={field.placeholder}
+                    aria-invalid={!!err}
+                    aria-describedby={err ? `${field.id}-error` : undefined}
                     className={`w-full bg-black/40 border rounded-xl p-3 text-white outline-none transition-all ${
                       err
                         ? 'border-amber-500/50 focus:ring-1 focus:ring-amber-500'
@@ -157,8 +163,8 @@ export default function DynamicFormEngine({
                 )}
 
                 {err && (
-                  <p className="text-amber-400 text-xs mt-1 animate-pulse flex items-center gap-1">
-                    <AlertTriangle size={12} /> {err}
+                  <p id={`${field.id}-error`} role="alert" className="text-amber-400 text-xs mt-1 animate-pulse flex items-center gap-1">
+                    <AlertTriangle size={12} aria-hidden="true" /> {err}
                   </p>
                 )}
               </div>
