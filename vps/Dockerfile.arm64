@@ -9,6 +9,7 @@ RUN apk upgrade --no-cache && apk add --no-cache libc6-compat build-base python3
 RUN npm install -g pnpm@11.5.2
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 COPY packages/errors/package.json packages/errors/
+COPY apps/oneringai/package.json apps/oneringai/
 COPY packages/shared/package.json packages/shared/
 COPY packages/ui/package.json packages/ui/
 RUN pnpm install --frozen-lockfile --ignore-scripts
