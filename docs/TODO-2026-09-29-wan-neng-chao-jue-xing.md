@@ -10,14 +10,18 @@
 ## P0 — 需 Cloudflare Dashboard 動作，非 repo 可解
 
 ### ⛔ `Workers Builds` 紅燈（main 上既存，與所有 repo 修復無關）
+**精確路徑比對實測結果**：
 
-**已用精確路徑比對實測確認三個 worker 全為孤兒**（原始碼已從 repo 移除）：
+| Worker | `main` 上的 worker 檔案數 | 性質 | repo 可修 |
+|---|---|---|---|
+| `esggo` | 根 `wrangler.toml` → `worker/src/index.ts` **存在** | 綁定**有效** | ⚠️ 待查 build log |
+| `esggo-worker` | 0 | **孤兒綁定** | ❌ 需 Dashboard |
+| `oa` | 0 | **孤兒綁定** | ❌ 需 Dashboard |
+| `wrangler-deploy` | 0 | **孤兒綁定** | ❌ 需 Dashboard |
 
-| Worker | `main` 上的 worker 檔案數 | 性質 |
-|---|---|---|
-| `esggo-worker` | 0 | 孤兒綁定 |
-| `oa` | 0 | 孤兒綁定 |
-| `wrangler-deploy` | 0 | 孤兒綁定 |
+> ⚠️ `esggo` 與另三者**性質不同**：它的 entry 檔在 repo 內（根目錄 `wrangler.toml` 指向
+> `worker/src/index.ts`），且該檔 tsc 結束碼 0。它紅燈的原因**尚未取得 build log 確認**
+> （需 Workers Builds:Read 權限），不可與孤兒綁定混為一談。
 
 > 稽核註記：早期以 `grep -E "(^|/)oa/"` 會命中 `skills/oa/*` 產生「19 筆」的假訊號。已改用
 > `grep -cE "^oa/(src/|wrangler|package|index)"` 精確比對，實際為 **0**。
@@ -39,11 +43,14 @@
 | `wrangler` 登入 | 未登入（無輸出） | — |
 | vault 內其他 token | 無具 Workers 權限者 | — |
 
-**解除條件（二選一）**：
+**解除條件（三個孤兒 worker，選 A 不需給 token）**：
 - [ ] A. **不需要給我 token** — 使用者於 Cloudflare Dashboard → Workers & Pages → 停用
       `esggo-worker`、`oa`、`wrangler-deploy` 三個綁定（Settings → GitHub → Disconnect）
+      ⚠️ **不要停用 `esggo`** — 它的 entry 檔在 repo 內，停用會中斷真正在建置的 worker
 - [ ] B. 提供含 `Account → Workers Scripts:Edit` + `Workers Builds:Read` 的 token
       （用 Hermes composer 旁的 secret 按鈕或 `/secret` 存入 vault，**勿貼在對話中**）
+      → 有了它才能抓 `esggo` 的 build log，判定它紅燈的真因
+- [ ] C. 抓到 `esggo` build log 後的 repo 端修復（**病因未知前不動手**，避免無根據改碼）
 
 ---
 
