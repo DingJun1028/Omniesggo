@@ -74,6 +74,13 @@ export default defineConfig({
       // `node apps/gateway/ws-auth.test.mjs` 執行（spawn 真 server + raw handshake），
       // 25/25 斷言覆蓋不減。
       'apps/gateway/ws-auth.test.mjs',
+      // avatar-metrics 假 PASS 回歸測試以腳本形式撰寫（頂層 console.log + process.exit），
+      // 非 vitest 套件：根 vitest 抓取時報 "No test suite found in file"，
+      // 使 Vitest Tests job exit 1（2026-09-29 main 紅燈根因）。
+      // 由 ci.yml 的 "Run avatar-metrics regression (node script)" 步驟直接執行。
+      // 該測試具真實 gate（失敗時 process.exit(1)），已於沙箱注入缺陷實測可失敗，
+      // 非永遠綠的假測試，覆蓋率不減。
+      'scripts/avatar-metrics.reg.test.mjs',
     ],
   },
   resolve: {
