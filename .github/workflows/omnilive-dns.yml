@@ -1,12 +1,14 @@
+# 為什麼需要這個 workflow：舊的 CF_API_TOKEN 已綁定 GitHub Actions runner 的
+# IP 來源，但 DNS 編輯需要 #dns_records:edit 權限，而該 token 沒有此權限
+# （2026-09-29 實測：zone 回 403 / 9109 Cannot use the access token from
+# location）。因此改用獨立的 CF_DNS_EDIT_TOKEN（esggo-dns-edit，
+# #dns_records:edit，無 IP 綁定），並保留 CF_API_TOKEN 作為 fallback。
+#
+# 冪等：重跑會先刪除同名記錄再建立，不會產生重複。
+
 name: OmniLive DNS
 
 # 為 omnilivetranslation.esggo.co 建立 Cloudflare Tunnel 的 CNAME 記錄。
-#
-# 為什麼需要這個 workflow：CF_API_TOKEN 已綁定 GitHub Actions runner 的
-# IP 來源，從一般機器呼叫會被 Cloudflare 以 9109 "Invalid access token"
-# 拒絕，因此這支 token 只有在 Actions 環境內可用。
-#
-# 冪等：重跑會先刪除同名記錄再建立，不會產生重複。
 
 on:
   workflow_dispatch:
@@ -31,9 +33,12 @@ jobs:
   upsert-cname:
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    # token 放在 job 層 env；run: 內只引用 shell 變數 $CF_API_TOKEN。
+    # token 放在 job 層 env；run: 內只引用 shell 變數 $CF_TOKEN。
+    # 只認 CF_DNS_EDIT_TOKEN（#dns_records:edit）。刻意不做 || CF_API_TOKEN fallback：
+    # CF_API_TOKEN 綁 runner IP，在 Actions 內會被 Cloudflare 拒絕（code 9109），
+    # fallback 只會掩蓋「secret 配錯」這個真因，應直接 fast-fail。
     env:
-      CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+      CF_TOKEN: ${{ secrets.CF_DNS_EDIT_TOKEN }}
       CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
       HOSTNAME: ${{ inputs.hostname }}
       TARGET: ${{ inputs.tunnel_target }}
@@ -43,7 +48,11 @@ jobs:
         id: zone
         run: |
           set -euo pipefail
-          auth=(-H "Authorization: Bearer ${CF_API_TOKEN}")
+          if [ -z "${CF_TOKEN:-}" ]; then
+            echo "::error::CF_DNS_EDIT_TOKEN 與 CF_API_TOKEN 皆未設定"
+            exit 1
+          fi
+          auth=(-H "Authorization: Bearer ${CF_TOKEN}")
 
           resp=$(curl -sS --max-time 30 "${auth[@]}" \
             https://api.cloudflare.com/client/v4/user/tokens/verify)
@@ -77,19 +86,34 @@ jobs:
           ZONE_ID: ${{ steps.zone.outputs.id }}
         run: |
           set -euo pipefail
-          auth=(-H "Authorization: Bearer ${CF_API_TOKEN}")
+          auth=(-H "Authorization: Bearer ${CF_TOKEN}")
+
+          # HOSTNAME 僅允許 esggo.co 及其子網域：此步驟會刪除記錄，
+          # 未經約束的輸入可改寫 zone 內任意名稱（含 www.esggo.co）。
+          case "${HOSTNAME}" in
+            *.esggo.co|esggo.co) ;;
+            *) echo "::error::HOSTNAME 必須落在 esggo.co 內，收到：${HOSTNAME}"; exit 1 ;;
+          esac
+
+          # URL 編碼後才拼進 query string，避免 & # ? 等字元注入額外參數。
+          HOSTNAME_ENC=$(jq -rn --arg v "${HOSTNAME}" '$v|@uri')
 
           existing=$(curl -sS --max-time 30 "${auth[@]}" \
-            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=CNAME&name=${HOSTNAME}" \
+            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=CNAME&name=${HOSTNAME_ENC}" \
             | jq -r '.result[]?.id')
           if [ -z "${existing}" ]; then
             echo "無既有記錄"
           fi
           for rid in $existing; do
             echo "刪除既有記錄 ${rid} (${HOSTNAME})"
-            curl -sS --max-time 30 -X DELETE "${auth[@]}" \
-              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${rid}" \
-              | jq -r '"  刪除結果 success=\(.success)"'
+            resp=$(curl -sS --max-time 30 -X DELETE "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${rid}")
+            # 刪除失敗必須讓 job 紅燈：靜默失敗會使後續建立重複而全盤告錯。
+            if [ "$(jq -r '.success' <<<"${resp}")" != "true" ]; then
+              echo "::error::刪除記錄 ${rid} 失敗: $(jq -c '.errors' <<<"${resp}")"
+              exit 1
+            fi
+            echo "  刪除結果 success=true"
           done
 
       - name: 建立 CNAME
@@ -97,7 +121,7 @@ jobs:
           ZONE_ID: ${{ steps.zone.outputs.id }}
         run: |
           set -euo pipefail
-          auth=(-H "Authorization: Bearer ${CF_API_TOKEN}" -H "Content-Type: application/json")
+          auth=(-H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json")
 
           body=$(jq -nc --arg n "${HOSTNAME}" --arg t "${TARGET}" --argjson p "${PROXIED}" \
             '{type:"CNAME",name:$n,content:$t,proxied:$p,ttl:1}')
