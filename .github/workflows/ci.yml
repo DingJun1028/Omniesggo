@@ -182,6 +182,18 @@ jobs:
         run: node apps/gateway/ws-auth.test.mjs
         env:
           NODE_ENV: test
+      # avatar-metrics.reg.test.mjs 同為腳本式測試（頂層 console.log + process.exit(1)），
+      # 已在 vitest.config.ts 排除。此處直接以 node 執行，讓它成為真實 gate。
+      #
+      # 為何必須在此執行（5T Transparent）: 該檔案目前沒有任何 CI job、workflow 或
+      # npm script 執行 — 宣稱「根除三處假 PASS」但回歸測試從未真正跑過。
+      # 僅從 vitest 排除會讓 CI 轉綠卻留下零覆蓋（假綠）。
+      # 已於沙箱注入缺陷實測：mutate 後本測試確實 exit 1 並指出 failed 被歸零，
+      # 證明其具真實 gate 能力，非永遠通過的假測試。
+      - name: Run avatar-metrics regression (node script)
+        run: node scripts/avatar-metrics.reg.test.mjs
+        env:
+          NODE_ENV: test
       # OmniAgentBus 的 7 支 smoke + dist 產物匯入煙霧。dist-smoke 需先 tsc
       # 產生 dist/（gitignored），故走 test:all（= test && test:dist）。
       # 這是「served-surface 驗證」：不只測 src/，也測消費者真正 import 的 dist。
