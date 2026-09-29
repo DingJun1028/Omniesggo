@@ -102,3 +102,42 @@ test('輸入層: 音訊來源合法性', () => {
   const d = describeSource('system-display');
   assert.match(d.browserApi, /getDisplayMedia/);
 });
+
+// ── /api/course 房間字幕索引回歸測試 ─────────────────────────────────
+// 缺陷: server.mjs 曾以 store.snapshot().filter(s => s.room === room) 取房間
+// 累積字幕, 但 BilingualSubtitle 從無 room 欄位 → 條件恆 false →
+// /api/course 恆回 "no transcript yet"。修法見 SubtitleStore.getByRoom()。
+test('getByRoom: 只回傳該房間字幕, 跨房間不外洩', () => {
+  const st = new SubtitleStore({ maxLines: 100, ttlMs: 60_000 });
+  const mk = (src, room) => Object.assign(buildSubtitle(
+    { text: src, language: 'en', engine: 'test' },
+    { source: src, target: src + '(zh)', from: 'en', to: 'zh-TW', engine: 'test', cached: false }
+  ), { room });
+
+  st.push(mk('room A line 1', 'AAAAAA'));
+  st.push(mk('room B line 1', 'BBBBBB'));
+  st.push(mk('room A line 2', 'AAAAAA'));
+  st.push(mk('no room line', ''));
+
+  const a = st.getByRoom('AAAAAA');
+  assert.equal(a.length, 2, 'room A 應有 2 句');
+  assert.deepEqual(a.map(s => s.source), ['room A line 1', 'room A line 2']);
+
+  const b = st.getByRoom('BBBBBB');
+  assert.equal(b.length, 1, 'room B 應有 1 句');
+  assert.equal(b[0].source, 'room B line 1', '不應混入 room A 的字幕');
+
+  assert.equal(st.getByRoom('NOPE').length, 0, '不存在的房間應回空陣列');
+  assert.equal(st.getByRoom('').length, 1, '未綁房間的字幕應歸在空字串房間');
+});
+
+test('getByRoom: 未標 room 的舊字幕視為空房間, 不污染指定房間', () => {
+  const st = new SubtitleStore({ maxLines: 100, ttlMs: 60_000 });
+  // 模擬修復前已存在於 store、無 room 欄位的字幕
+  st.push(buildSubtitle(
+    { text: 'legacy', language: 'en', engine: 'test' },
+    { source: 'legacy', target: '舊', from: 'en', to: 'zh-TW', engine: 'test', cached: false }
+  ));
+  assert.equal(st.getByRoom('AAAAAA').length, 0, '無 room 標記者不應出現在房間 AAAAAAA');
+  assert.equal(st.getByRoom('').length, 1, '應歸在空房間');
+});

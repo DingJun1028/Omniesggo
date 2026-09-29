@@ -107,5 +107,31 @@ module.exports = {
     //   (3) 部署後健康檢查納入 :8787
     // 注意：nginx.conf 有 proxy_pass → ftg-journey-server:8787，該路由目前
     // 已是死路由（服務從未在 VPS 上部署過），移除條目不會使其更糟。
+    // ── omnilive: 萬能即時語音擷取翻譯 (雙語字幕) ──────────────────────
+    // 埠 8797: 8795/8796 已被 nginx hermex.conf 佔用 (見 commit 22023ad99)。
+    // STT 走 8791 (stt-whisper), 由 config.mjs 的 STT_PORT 決定。
+    {
+      name: 'omnilive-translator',
+      cwd: '/var/www/esggo/apps/omnilive',
+      script: 'server.mjs',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 8797,
+        STT_PORT: 8791,
+        OMNILIVE_AUDIO_SOURCE: 'system-display',
+        OMNILIVE_FROM: 'auto',
+        OMNILIVE_TO: 'en',
+      },
+      instances: 1,
+      exec_mode: 'fork',
+      max_memory_restart: '512M',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss',
+      error_file: '/root/.pm2/logs/omnilive-error.log',
+      out_file: '/root/.pm2/logs/omnilive-out.log',
+      merge_logs: true,
+      autorestart: true,
+      restart_delay: 5000,
+      max_restarts: 5,
+    },
   ],
 };

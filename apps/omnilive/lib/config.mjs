@@ -68,6 +68,10 @@ export function loadConfig() {
     sttDevice: (process.env.WHISPER_DEVICE || 'cpu').trim(),
     sttCompute: (process.env.WHISPER_COMPUTE || 'int8').trim(),
     roomPasswordEnabled: (process.env.OMNILIVE_ROOM_PASSWORD || '').trim().length > 0,
+    // 主持人端金鑰: 守護 POST /api/* (room / transcribe / speak / course)。
+    // 這四個端點會實際消耗 CPU (STT 與本地 LLM), 無防護時任何人都能打爆主機。
+    // 留空 = 不驗證 (僅適合本機開發); 一旦要對外, 必須設定。
+    hostApiKey: (process.env.OMNILIVE_HOST_KEY || '').trim(),
     roomTtlMs: Number(process.env.OMNILIVE_ROOM_TTL_MS || 2 * 60 * 60 * 1000),
     roomCleanupIntervalMs: Number(process.env.OMNILIVE_ROOM_CLEANUP_MS || 5 * 60 * 1000),
   };

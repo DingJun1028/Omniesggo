@@ -19,6 +19,22 @@ function startServer(env = {}) {
 const wait = ms => new Promise(r => setTimeout(r, ms));
 async function getJSON(url) { const r = await fetch(url); return r.json(); }
 
+/**
+ * 輪詢等待服務就緒 (最多 10s)。
+ *
+ * 不可改回固定 sleep: Node 冷啟動耗時隨機型、磁碟與並行負載浮動, 實測在
+ * Windows 上固定 `wait(800)` 會讓 9 個測試在服務尚未 listen 時就發出請求,
+ * 全部 ECONNREFUSED。等待條件必須是「服務真的可回應」而非「睡夠了」。
+ */
+async function waitReady(port = '8796', timeoutMs = 10000) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    try { const h = await getJSON(`http://localhost:${port}/health`); if (h.status === 'ok') return true; } catch { /* 尚未就緒 */ }
+    await wait(150);
+  }
+  return false;
+}
+
 test('啟動 + /health 回應 (里程碑1)', async () => {
   const srv = startServer();
   try {
@@ -31,7 +47,7 @@ test('啟動 + /health 回應 (里程碑1)', async () => {
 test('音訊來源設定驗證 (輸入層)', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     const cfg = await getJSON('http://localhost:8796/config');
     assert.equal(cfg.audioSource, 'caption');
     assert.deepEqual(cfg.audioSources, ['mic', 'system-display', 'device', 'caption']);
@@ -41,7 +57,7 @@ test('音訊來源設定驗證 (輸入層)', async () => {
 test('手動字幕 → 雙語字幕 (辨識+翻譯+字幕層)', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     const res = await fetch('http://localhost:8796/api/speak', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: '大家好歡迎來到會議', room: 'r1' }) });
     assert.equal(res.status, 200);
     const h = res.headers.get('X-OA-Trace');
@@ -57,7 +73,7 @@ test('手動字幕 → 雙語字幕 (辨識+翻譯+字幕層)', async () => {
 test('SSE 推送雙語字幕 (播放器層)', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     // 先產生一筆字幕
     await fetch('http://localhost:8796/api/speak', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: 'hello world', room: 'r2' }) });
     const es = await readSSEOnce('http://localhost:8796/stream?room=r2', p => p.data && p.data.source === 'hello world');
@@ -71,7 +87,7 @@ test('caption 模式尊重請求 from/to (英文→繁中)', async () => {
   const env = { ...process.env, OMNILIVE_TRANSLATE_MOCK: '1', PORT: '8798', OMNILIVE_AUDIO_SOURCE: 'caption', OMNILIVE_FROM: 'zh-TW', OMNILIVE_TO: 'en' };
   const srv = spawn('node', ['server.mjs'], { cwd: ROOT, env });
   try {
-    await wait(800);
+    await waitReady('8798');
     const res = await fetch('http://localhost:8798/api/speak', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ text: 'Meeting now', from: 'en', to: 'zh-TW' }) });
     const d = await res.json();
     assert.equal(d.from, 'en'); assert.equal(d.to, 'zh-TW');
@@ -83,7 +99,7 @@ test('STT 不可用時錯誤可定位 (錯誤處理)', async () => {
   const env = { ...process.env, OMNILIVE_TRANSLATE_MOCK: '1', PORT: '8797', OMNILIVE_AUDIO_SOURCE: 'system-display', STT_PORT: '7878' };
   const srv = spawn('node', ['server.mjs'], { cwd: ROOT, env });
   try {
-    await wait(800);
+    await waitReady('8797');
     const res = await fetch('http://localhost:8797/api/transcribe', { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: Buffer.from([1, 2, 3, 4]) });
     assert.equal(res.status, 502);
     const d = await res.json();
@@ -95,7 +111,7 @@ test('STT 不可用時錯誤可定位 (錯誤處理)', async () => {
 test('建立分享房間 + 觀眾連結 (里程碑: 即時分享)', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     const r = await fetch('http://localhost:8796/api/room', { method: 'POST' });
     assert.equal(r.status, 200);
     const d = await r.json();
@@ -108,7 +124,7 @@ test('建立分享房間 + 觀眾連結 (里程碑: 即時分享)', async () => 
 test('房間密碼保護: 無密碼/錯誤 → 401, 正確 hash → 200', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     // 建立受密碼保護房間 (明文 'secret')
     const r = await fetch('http://localhost:8796/api/room', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ password: 'secret' }) });
     const d = await r.json();
@@ -133,7 +149,7 @@ test('房間密碼保護: 無密碼/錯誤 → 401, 正確 hash → 200', async 
 test('房間過期: 到期且無觀眾 → /api/room/:id 標 expired=true', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     const r = await fetch('http://localhost:8796/api/room', { method: 'POST' });
     const { room } = await r.json();
     // 手動注入一個過期房間 (繞過 TTL, 直接操作 rooms 不易, 改用查詢型別)
@@ -168,7 +184,7 @@ test.skip('房間過期清理: TTL=1ms + 清理間隔=50ms → 無觀眾房間�
 test('同房間多觀眾收到相同字幕 (廣播同步)', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     const r = await fetch('http://localhost:8796/api/room', { method: 'POST' });
     const { room } = await r.json();
     // 兩名觀眾訂閱同房間 SSE
@@ -187,7 +203,7 @@ test('同房間多觀眾收到相同字幕 (廣播同步)', async () => {
 test('房間觀眾數統計', async () => {
   const srv = startServer();
   try {
-    await wait(800);
+    await waitReady();
     const r = await fetch('http://localhost:8796/api/room', { method: 'POST' });
     const { room } = await r.json();
     // 1 名觀眾連線

@@ -65,6 +65,36 @@ pm2 save
 - 切換：`pm2 set stt-whisper:WHISPER_MODEL small|medium` + `pm2 restart stt-whisper --update-env`。
 - 首次載模型中 (~1.5GB) 需數分鐘，期間 health 暫時拿不到屬正常。
 
+### 8. POST /api/* 上線前無認證 → 任何人可打爆主機
+- **現象**：`/api/room`、`/api/transcribe`、`/api/speak`、`/api/course` 原本完全開放。
+  這四個端點會實際吃 CPU —— STT 要跑 whisper，`/api/course` 要跑本地 LLM
+  （實測單次 115 秒）。任何拿到網址的人都能無限觸發，把主機燒乾。
+- **修法**：設定 `OMNILIVE_HOST_KEY`，所有 `POST /api/*` 需帶金鑰否則 401。
+  兩種傳遞方式皆可：`X-OmniLive-Key: <key>` 或 `Authorization: Bearer <key>`。
+- **刻意不設金鑰時維持開放**（本機開發向後相容），故**上線務必確認已設定**：
+
+  ```bash
+  pm2 set omnilive-translator:OMNILIVE_HOST_KEY "$(openssl rand -hex 24)"
+  pm2 restart omnilive-translator --update-env
+  ```
+
+- **刻意保持公開**：`GET /health`（監控）、`GET /config`（播放器初始化）、
+  `GET /stream`（SSE，另由房間密碼保護）、靜態檔案 —— 加驗證會擋掉監控與觀眾端。
+- 前端/腳本呼叫需帶金鑰，否則會收到 `401 {"code":"HOST_KEY_REQUIRED"}`。
+
+### 9. 測試用固定 sleep → 整組 ECONNREFUSED
+- **現象**：`npm test` 9 個測試全敗，錯誤為 `ECONNREFUSED :8796`。
+  但單獨手動啟動 `node server.mjs` 完全正常 —— 服務確實有起來。
+- **根因**：測試用固定 `await wait(800)` 睡死等啟動。Node 冷啟動耗時隨機型、
+  磁碟與並行負載浮動，800ms 不足以保證已 listen。只有會「輪詢」的測試能過。
+- **修法**：改用 `waitReady()` 輪詢 `/health`，等待條件是「服務真的可回應」。
+  已加入 `test/server.test.mjs`。
+- **另一個坑**：`node --test` 預設**並行**跑各測試檔，每檔都 spawn 服務 →
+  機器飽和、測試變慢 3 倍且開始失敗。已在 `package.json` 加上
+  `--test-concurrency=1`（實測 131s/3 敗 → 47s/全過）。
+- **不要**把 `waitReady()` 改回固定 sleep；也不要拿掉 `--test-concurrency=1`。
+
+
 ## 除錯工具
 
 - 前端「⬇ 下載擷取音訊」鈕：錄音時按一下下載 WAV，親耳確認擷取層是否有聲音/慢速/靜音。
