@@ -212,6 +212,10 @@ if __name__ == "__main__":
     parser.add_argument("--steps", type=str, help="Comma-separated steps")
     parser.add_argument("--cmd", type=str, help="Command to track")
     parser.add_argument("--step", type=int, default=0, help="Step index")
+    parser.add_argument("--success", type=str, default="true",
+                        help="'true'/'1' = 修復成功；其餘皆視為失敗")
+    parser.add_argument("--evidence-file", type=str, default="",
+                        help="engine 輸出檔；供結案時作為證據（空檔 = 未證實成功）")
     args = parser.parse_args()
     
     if args.command == "create-task":
@@ -248,6 +252,31 @@ if __name__ == "__main__":
             complete_task(task_id, success=True, final_output=output, final=is_last)
         else:
             complete_task(task_id, success=False, final_output=output, final=is_last)
+    elif args.command == "complete":
+        # 由 auto-fix.sh 在 engine 結束後呼叫 —— 這是 engine 與 tracker 唯一的回寫橋。
+        # 舊版無此子命令，engine 只寫 repair-log.jsonl，任務永遠卡在 active_tasks。
+        if not args.task_id:
+            print("Error: --task-id required for 'complete' command", file=sys.stderr)
+            sys.exit(1)
+        evidence = args.evidence_file or ""
+        if evidence and Path(evidence).exists():
+            try:
+                evidence = Path(evidence).read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                evidence = ""
+        else:
+            evidence = ""
+        ok = str(args.success).lower() in ("1", "true", "yes")
+        rc = complete_task(args.task_id, success=ok, final_output=evidence, final=True)
+        if not rc:
+            # 已在 completed/failed（非 active）時不視為錯誤，讓呼叫端冪等重跑。
+            existing = get_status(args.task_id)
+            if "error" not in existing:
+                print(f"[{args.task_id}] already settled; idempotent no-op")
+                sys.exit(0)
+            print(f"Error: task_id {args.task_id} not found in active_tasks", file=sys.stderr)
+            sys.exit(1)
+        print(f"[{args.task_id}] settled")
     elif args.command == "get":
         task_id = args.task_id or args.task
         if task_id:
