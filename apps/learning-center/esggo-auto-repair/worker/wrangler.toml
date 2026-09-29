@@ -14,4 +14,9 @@ max_retries = 3
 max_batch_timeout = 1
 dead_letter_queue = "esggo-repair-dlq"
 [build]
-command = "cd apps/learning-center/esggo-auto-repair/worker && npx --yes npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && npx tsc -p tsconfig.json"
+# source_origin: OA-TWINS cron 巡檢 2026-09-29（追蹤單 #889）
+# 修正：`npx --yes npx --yes pnpm install` 會被解析成 `npx install`（npm 的 install），
+# pnpm 專屬選項 --no-frozen-lockfile 觸發「install: unknown option -- no-frozen-lockfile」
+# → CF Workers Builds 必失敗。
+# 對齊 esggo-auto-repair/worker/wrangler.toml（已於 4310f47fc 修正）：單一 npx --yes 包 pnpm。
+command = "cd apps/learning-center/esggo-auto-repair/worker && npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && npx tsc -p tsconfig.json"
