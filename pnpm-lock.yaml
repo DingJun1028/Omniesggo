@@ -36,7 +36,7 @@ overrides:
   undici: '>=7.29.0 <8'
   js-yaml: '>=5.0.0 <6'
   hono: '>=4.13.5 <5'
-  sharp: '>=0.35.0'
+  sharp: '>=0.35.4'
   deepmerge-ts: '>=8.0.0 <9'
   mariadb: '>=3.4.6'
   mysql2: '>=3.23.1'
