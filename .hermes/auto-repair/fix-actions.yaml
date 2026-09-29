@@ -57,8 +57,11 @@ fix_actions:
       platform: local
       barrier: none
     description: "Run pnpm audit and apply overrides from pnpm-workspace.yaml"
+    # 註：`pnpm audit` 在「有漏洞」時固定 exit 1（2026-09-29 實測：3 moderate → exit 1），
+    # 拿它當修復指令會讓此動作在它要修的狀態下永遠失敗。改用 --audit-level high
+    # 作為「high/critical 已清零」的驗收條件（實測：3 moderate → exit 0）。
     commands:
-      - "pnpm audit"
+      - "pnpm audit --audit-level high"
       - "pnpm install"
     requires: [pnpm]
     rollback: "git checkout pnpm-lock.yaml"

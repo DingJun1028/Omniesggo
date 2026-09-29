@@ -4,6 +4,7 @@ Auto-Repair Engine for esggo
 Matches error messages against patterns and executes fix actions.
 """
 
+import os
 import re
 import sys
 import yaml
@@ -56,6 +57,44 @@ def match_error(error_output: str, patterns: dict) -> list:
     matches.sort(key=lambda x: x[1])
     return [m[0] for m in matches]
 
+CHMOD_CMD_RE = re.compile(r"^\s*chmod\s+(-[^\s]+\s+)*([^\s]+)\s+(.*)$")
+
+def _expand(path: str) -> str:
+    return os.path.expanduser(path.strip().strip('"').strip("'"))
+
+def windows_acl_fix(task_id: str, targets: list) -> bool:
+    """On Windows/NTFS, `chmod` maps to ACL changes and fails with
+    'Permission denied' when the current user only holds Read — the ACL
+    carries no ChangePermissions right (2026-09-29 real measurement on
+    ~/.ssh/esggo_original: icacls showed SYSTEM:(F) Administrators:(F)
+    dingj:(R); chmod 600 exit 1. After `icacls /grant <user>:(F)` the
+    same chmod exits 0). Granting self (F) is the minimum change that
+    makes POSIX-mode actions viable; it never loosens access for others.
+    """
+    if os.name != "nt" or not targets:
+        return True
+    user = os.environ.get("USERNAME") or ""
+    if not user:
+        log_event(task_id, "WARN", "USERNAME unset; cannot grant ACL, skipping")
+        return False
+    ok = True
+    for t in targets:
+        p = _expand(t)
+        if not os.path.exists(p):
+            log_event(task_id, "WARN", f"ACL grant skipped, path not found: {p}")
+            ok = False
+            continue
+        r = subprocess.run(
+            ["icacls", p, "/grant", f"{user}:(F)"],
+            capture_output=True, text=True, timeout=30, errors="replace",
+        )
+        if r.returncode != 0:
+            log_event(task_id, "ERROR", f"icacls grant failed: {p} :: {r.stdout[:120]}{r.stderr[:120]}")
+            ok = False
+        else:
+            log_event(task_id, "OK", f"ACL granted {user}:(F) on {p}")
+    return ok
+
 def execute_fix(pattern_id: str, fix_actions: dict, task_id: str) -> bool:
     """Execute fix commands for a matched pattern."""
     actions = fix_actions.get("fix_actions", {}).get(pattern_id)
@@ -65,6 +104,13 @@ def execute_fix(pattern_id: str, fix_actions: dict, task_id: str) -> bool:
 
     commands = actions.get("commands", [])
     for cmd in commands:
+        # Windows: pre-grant ACL for chmod targets so the mode change can apply.
+        if os.name == "nt":
+            m = CHMOD_CMD_RE.match(cmd)
+            if m:
+                targets = [x for x in m.group(3).split() if not x.startswith("-")]
+                if targets and not windows_acl_fix(task_id, targets):
+                    log_event(task_id, "WARN", "ACL pre-grant incomplete; chmod may fail")
         log_event(task_id, "EXEC", f"Running: {cmd}")
         try:
             result = subprocess.run(
@@ -158,6 +204,10 @@ if __name__ == "__main__":
     else:
         error_text = input_arg
 
-    result = run_repair(error_text)
+    # 傳入 --task-id，讓 engine 與 tracker 共用同一個 ID。
+    # 舊版 run_repair(error_text) 漏傳，engine 內部自產 REPAIR-<ts>，
+    # 與 tracker 建立的 TASK-XXXXXXXX 永遠對不上（2026-09-29 實測：
+    # TASK-D6741720 與 REPAIR-20260925045423 指同一場修復）。
+    result = run_repair(error_text, task_id=task_id)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     sys.exit(0 if result["status"] == "fixed" else 1)

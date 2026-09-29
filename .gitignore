@@ -419,3 +419,9 @@ _pyi/
 
 # 測試執行產物（每次執行覆寫，不具版本控價值）
 test_result.json
+
+# 萬能分身追蹤器暫存檔（每次修復覆寫，僅供本機稽核）
+.hermes/auto-repair/.tracker-evidence.tmp
+
+# 未完成的一次性驗證草稿（含憑證佔位，不進版控）
+wf-validate/

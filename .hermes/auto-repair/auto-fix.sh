@@ -8,22 +8,24 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# Fix for Windows: convert /c/ paths to C:/ paths for Python compatibility
-if [[ "$SCRIPT_DIR" == /c/* ]]; then
-    SCRIPT_DIR="C:/${SCRIPT_DIR#/c/}"
-    SCRIPT_DIR="${SCRIPT_DIR//\//\\}"
-fi
+# MSYS 路徑正規化：只把 /c/... 轉成 C:/...，保留正斜線。
+# 舊版額外做 ${VAR//\//\\} 把分隔線換成反斜線，結果把路徑元件裡的
+# \a（auto-repair）、\u 等字母誤判為跳脫序列而吞掉，log 路徑變成
+# 「C:\Projectggo\.hermesuto-repair」（2026-09-29 實測）。
+# Windows 版 Python 與 MSYS bash 都能處理 C:/... 正斜線路徑，無需反斜線。
+SCRIPT_DIR="C:/${SCRIPT_DIR#/c/}" 2>/dev/null || true
+SCRIPT_DIR="${SCRIPT_DIR%/}"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-# Apply same fix to REPO_ROOT if needed
-if [[ "$REPO_ROOT" == /c/* ]]; then
-    REPO_ROOT="C:/${REPO_ROOT#/c/}"
-    REPO_ROOT="${REPO_ROOT//\//\\}"
-fi
+# 同上：僅做 /c/ → C:/ 前綴轉換，保留正斜線（避免 \a、\u 被當跳脫序列吞掉）
+REPO_ROOT="C:/${REPO_ROOT#/c/}" 2>/dev/null || true
+REPO_ROOT="${REPO_ROOT%/}"
 AUTO_REPAIR_DIR="$SCRIPT_DIR"
 TRACKER="$AUTO_REPAIR_DIR/clone-tracker.py"
 ENGINE="$AUTO_REPAIR_DIR/repair-engine.py"
 TRACKER_LOG="$AUTO_REPAIR_DIR/tracker-log.jsonl"
 REPAIR_LOG="$AUTO_REPAIR_DIR/repair-log.jsonl"
+# engine 輸出的暫存證據檔，供 tracker 結案時讀取（不可用 /dev/null 以免污染）
+TRACKER_EVIDENCE="$AUTO_REPAIR_DIR/.tracker-evidence.tmp"
 
 export REPO_ROOT
 export AUTO_REPAIR_DIR
@@ -70,13 +72,44 @@ mode_fix() {
     log_clone "創建追蹤任務..."
 
     local task_id
-    task_id=$(python3 "$TRACKER" create-task --task "Auto-fix: $error_text" --steps "匹配模式,執行修復,驗證修復" 2>/dev/null || echo "TASK-$(date +%s)")
+    # 只取純 ID：create-task 會印 emoji banner + "TASK_ID=TASK-XXXXXXXX"，
+    # 直接 $(...) 會把整段輸出當成 task_id，導致 tracker 回寫時找不到任務
+    # （2026-09-29 實測：--task-id 收到含 emoji 的多行字串，任務永久卡 running）。
+    task_id=$(python3 "$TRACKER" create-task --task "Auto-fix: $error_text" --steps "匹配模式,執行修復,驗證修復" 2>/dev/null \
+                | grep -oE 'TASK-[0-9A-F]{8}' | head -1)
+    if [ -z "$task_id" ]; then
+        task_id="TASK-$(date +%s)"
+        log_warn "tracker create-task 未回傳 ID，改用 fallback: $task_id"
+    fi
 
     log_clone "任務 ID: $task_id"
     log_info "匹配錯誤模式..."
 
-    python3 "$ENGINE" "$error_text" --task-id "$task_id"
-    local exit_code=$?
+    # 捕捉 engine 輸出，之後作為 tracker 結案的證據。
+    # 必須用 "|| true" 吞掉 engine 的非零結束碼：腳本開了 set -euo pipefail，
+    # 而 engine 對 no_match/failed 都 sys.exit(1)，會讓賦值這一行直接終止整支腳本，
+    # 後續的 tracker 回寫與狀態回報永遠執行不到（2026-09-29 實測：
+    # 「匹配錯誤模式...」之後直接無輸出結束，任務卡在 running）。
+    local engine_out exit_code
+    engine_out=$(python3 "$ENGINE" "$error_text" --task-id "$task_id" 2>&1) || true
+    exit_code=0
+    grep -q '"status": "fixed"' <<< "$engine_out" && exit_code=0 || exit_code=1
+
+    # 關鍵回寫：engine 只寫 repair-log.jsonl，從不更新 tracker-state.json。
+    # 舊版缺此步，導致任務永遠卡在 active_tasks/running
+    # （2026-09-29 實測：TASK-D6741720 停滯 active 4 天，實際修復早已 VERIFY_OK）。
+    # 只有 engine 有真實輸出時才標成功 —— 空輸出視為未證實。
+    if [ -n "$(printf '%s' "$engine_out" | tr -d '[:space:]')" ]; then
+        printf '%s' "$engine_out" > "$TRACKER_EVIDENCE"
+        python3 "$TRACKER" complete --task-id "$task_id" \
+            --success "$([ $exit_code -eq 0 ] && echo true || echo false)" \
+            --evidence-file "$TRACKER_EVIDENCE" 2>/dev/null \
+            || log_warn "tracker 結案回寫失敗，狀態可能停滯"
+    else
+        python3 "$TRACKER" complete --task-id "$task_id" --success false \
+            --evidence-file /dev/null 2>/dev/null
+        log_warn "engine 無輸出，判定為未證實的修復"
+    fi
 
     if [ $exit_code -eq 0 ]; then
         log_ok "修復成功！任務 $task_id 已完成。"
@@ -114,6 +147,14 @@ mode_monitor() {
     else
         log_warn "VPS SSH 連線異常，將自動嘗試修復"
         python3 "$TRACKER" track --task "修復 VPS SSH 連線" --steps "檢查權限,修復私鑰,重新連線"
+        # Windows: 先授權 ACL 再 chmod，否則只有 Read 的檔案會 Permission denied
+        # （2026-09-29 實測：~/.ssh/esggo_original icacls 為 dingj:(R)，chmod 600 exit 1）。
+        if [ "${OS:-}" = "Windows_NT" ] || [ -n "$USERNAME" ]; then
+            for k in ~/.ssh/esggo_vps_fix ~/.ssh/esggo_original; do
+                [ -e "$k" ] && icacls "$(cygpath -w "$k" 2>/dev/null || echo "$k")" \
+                    /grant "${USERNAME}:(F)" >/dev/null 2>&1 || true
+            done
+        fi
         chmod 600 ~/.ssh/esggo_vps_fix ~/.ssh/esggo_original 2>/dev/null || true
     fi
 
