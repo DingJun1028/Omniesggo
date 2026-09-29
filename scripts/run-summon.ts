@@ -17,6 +17,7 @@ if (getArg('--key')) cfg.keyName = getArg('--key');
 if (getArg('--host')) cfg.vpsHost = getArg('--host');
 if (getArg('--port')) cfg.vpsPort = Number(getArg('--port'));
 if (getArg('--gateway')) cfg.gatewayUrl = getArg('--gateway');
+if (getArg('--token')) cfg.gatewayToken = getArg('--token');
 if (hasFlag('--no-verify')) cfg.verifyConnection = false;
 if (hasFlag('--core')) cfg.initCore = true;
 
@@ -26,6 +27,7 @@ if (process.env.OA_KEY) cfg.keyName = process.env.OA_KEY;
 if (process.env.OA_HOST) cfg.vpsHost = process.env.OA_HOST;
 if (process.env.OA_PORT) cfg.vpsPort = Number(process.env.OA_PORT);
 if (process.env.OA_GATEWAY) cfg.gatewayUrl = process.env.OA_GATEWAY;
+if (process.env.OA_GATEWAY_TOKEN) cfg.gatewayToken = process.env.OA_GATEWAY_TOKEN;
 if (process.env.OA_NO_VERIFY) cfg.verifyConnection = false;
 if (process.env.OA_CORE) cfg.initCore = true;
 
@@ -52,5 +54,7 @@ if (process.env.OA_CORE) cfg.initCore = true;
     warnings: result.warnings,
     errors: result.errors,
   }, null, 2));
-  process.exit(result.success ? 0 : 1);
+  // 不可用 process.exit()：Node 24 + undici keep-alive socket 在 Windows 上會觸發
+  // libuv assert（handle->flags & UV_HANDLE_CLOSING）導致 exit 127。改讓事件迴圈自然收尾。
+  process.exitCode = result.success ? 0 : 1;
 })();

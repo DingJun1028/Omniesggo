@@ -48,6 +48,8 @@ export interface SummonConfig {
   verifyConnection?: boolean;
   /** 閘道狀態端點（預設由 vpsHost:vpsPort 推導，8443? 實際為 8642） */
   gatewayUrl?: string;
+  /** 閘道認證金鑰（送出 X-Omni-Token；預設讀 OMNI_GATEWAY_TOKEN / GATEWAY_API_KEY） */
+  gatewayToken?: string;
   /** 是否在覺醒階段實際初始化 OmniCore（預設 false，避免每次 90s+ 常駐） */
   initCore?: boolean;
 }
@@ -146,6 +148,8 @@ export class OASummon {
       autoPurify: config?.autoPurify ?? true,
       verifyConnection: config?.verifyConnection ?? true,
       gatewayUrl: config?.gatewayUrl,
+      gatewayToken:
+        config?.gatewayToken ?? process.env.OMNI_GATEWAY_TOKEN ?? process.env.GATEWAY_API_KEY,
       initCore: config?.initCore ?? false,
     } as SummonConfig;
   }
@@ -337,14 +341,26 @@ export class OASummon {
     console.log(`  🔗 Stage 4: 糾纏 — 建立量子糾纏連接並實際探活...`);
     let connected = false;
 
+    // 閘道 /status 需認證（X-Omni-Token），無金鑰時一律 401
+    const authHeaders: Record<string, string> = this._config.gatewayToken
+      ? { 'X-Omni-Token': this._config.gatewayToken }
+      : {};
+
     const fetchPromises = candidates.map(async (url) => {
       try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
+        const res = await fetch(url, {
+          signal: AbortSignal.timeout(4000),
+          headers: authHeaders,
+        });
         if (res.ok) {
           const body = await res.json().catch(() => ({}));
           return { url, res, body };
         } else {
-          console.log(`     ⚠ ${url} 回應 HTTP ${res.status}`);
+          const hint =
+            res.status === 401 && authHeaders['X-Omni-Token'] === undefined
+              ? '（需設定 OMNI_GATEWAY_TOKEN）'
+              : '';
+          console.log(`     ⚠ ${url} 回應 HTTP ${res.status}${hint}`);
           throw new Error(`HTTP ${res.status}`);
         }
       } catch (e) {
@@ -406,7 +422,8 @@ export class OASummon {
     if (this._config.initCore) {
       console.log('  ✨ Stage 5: 覺醒 — 實際初始化 OmniCore（12-Omni + 9 Magic Effects）...');
       try {
-        // 惰性 import：避免與 src/core/omni-core 的循環依賴
+        // 惰性 import：避免與 src/core/omni-core 的循環依賴。
+        // 走 CJS 轉譯（見 package.json oa:summon 的 module=commonjs），副檔名省略才可解析。
         const { getOmniCore } = await import('../core/omni-core');
         const core = getOmniCore({
           soulName: this._config.soulName,
