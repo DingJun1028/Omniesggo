@@ -143,6 +143,30 @@ run "sudo systemctl disable ftg-journey.service 2>/dev/null || true"
 run "sudo systemctl mask ftg-journey.service 2>/dev/null || true"
 log "Systemd ftg-journey.service disabled"
 
+echo "===== 8b. 修正 oa-swarm 埠衝突 (systemd 忽略 ecosystem 的 PORT) ====="
+# 2026-09-30 生產事故根因:
+#   apps/oa-swarm/ecosystem.config.cjs 宣告 env.PORT = 8800
+#   但 oa-swarm.service 的 ExecStart 沒有 Environment= 行
+#   → process.env.PORT 為 undefined，程式落到預設值 ?? 8788
+#   → oa-swarm 搶占 universal-translator 的 8788
+#   → translate.esggo.co / live.esggo.co 全部被導到蜂群 API，且回 HTTP 200，監控查不出來
+# 修法: 用 drop-in 覆寫 Environment (不原地改單元檔，可一行回滾)
+if [ "$DRYRUN" -eq 1 ]; then
+  info "dry-run: 將寫入 /etc/systemd/system/oa-swarm.service.d/port.conf (Environment=PORT=8800)"
+else
+  if sudo systemctl list-unit-files 2>/dev/null | grep -q '^oa-swarm.service'; then
+    sudo mkdir -p /etc/systemd/system/oa-swarm.service.d
+    printf '[Service]\nEnvironment=PORT=8800\n' \
+      | sudo tee /etc/systemd/system/oa-swarm.service.d/port.conf >/dev/null
+    sudo systemctl daemon-reload
+    sudo systemctl restart oa-swarm
+    sleep 3
+    log "oa-swarm 已固定於 8800，不再搶占 8788 (drop-in: oa-swarm.service.d/port.conf)"
+  else
+    warn "oa-swarm.service 不存在，略過埠修正"
+  fi
+fi
+
 echo "===== 9. 優化與缺口補齊 ====="
 # Security headers
 run "cat > /etc/nginx/conf.d/security-headers.conf << 'SECEOF'
@@ -201,6 +225,70 @@ run "curl -sk -s -o /dev/null -w 'api: %{http_code}\n' https://journey-api.ftgto
 echo ""
 echo "-- PM2 狀態 --"
 run "pm2 status 2>&1 | grep -E 'online|ftg-journey' | head -5"
+
+echo ""
+echo "-- 埠身分驗證 (狀態碼不足以判定) --"
+# 2026-09-30: oa-swarm 佔用 8788 時，translate/live 網域回傳蜂群資料
+# 但 HTTP 狀態碼仍是 200 → 只看狀態碼的監控完全失效。
+# 這裡改為比對回應「身分」：該埠不得出現其他服務的特徵。
+assert_port_not() {
+  local port="$1" forbidden="$2" label="$3" expect="$4"
+  local body
+  body=$(curl -s --max-time 8 "http://127.0.0.1:$port/health" 2>/dev/null || true)
+  if [ -z "$body" ]; then
+    err "$label (:$port) 無回應 — 服務可能未啟動"
+    PORT_FAULTS=$((PORT_FAULTS+1))
+    return
+  fi
+  if echo "$body" | grep -qE "$forbidden"; then
+    err "$label (:$port) 身分錯誤 — 此埠被其他服務占用 (偵測到 /$forbidden/)，應為: $expect"
+    err "            實得: $(echo "$body" | head -c 140)"
+    PORT_FAULTS=$((PORT_FAULTS+1))
+  else
+    log "$label (:$port) 身分正確 — $(echo "$body" | head -c 80)"
+  fi
+}
+# 正向斷言：此埠「必須」是指定服務，否則視為異常
+assert_port_is() {
+  local port="$1" required="$2" label="$3" expect="$4"
+  local body
+  body=$(curl -s --max-time 8 "http://127.0.0.1:$port/health" 2>/dev/null || true)
+  if [ -z "$body" ]; then
+    err "$label (:$port) 無回應 — 服務可能未啟動"
+    PORT_FAULTS=$((PORT_FAULTS+1))
+    return
+  fi
+  if echo "$body" | grep -qE "$required"; then
+    log "$label (:$port) 身分正確 — $(echo "$body" | head -c 80)"
+  else
+    err "$label (:$port) 身分錯誤 — 未偵測到 /$required/，應為: $expect"
+    err "            實得: $(echo "$body" | head -c 140)"
+    PORT_FAULTS=$((PORT_FAULTS+1))
+  fi
+}
+PORT_FAULTS=0
+# 翻譯服務埠不得出現 oa-swarm 的特徵 (蜂群資料)
+assert_port_not 8788 '萬能蜂后|"agents"|"entropy"' 'universal-translator/omnilive' '翻譯服務'
+# oa-swarm 應在 8800，且必須呈現蜂群特徵 (證明它真的在 8800 而非又跑回 8788)
+assert_port_is 8800 '萬能蜂后|"entropy"' 'oa-swarm' 'OA-Team Broker (蜂群資料)'
+# 對外網域的身分檢查 (走 nginx，確保反向代理也指向正確後端)
+for host in translate.esggo.co live.esggo.co; do
+  body=$(curl -sk -s --max-time 10 "https://$host/health" 2>/dev/null || true)
+  if echo "$body" | grep -qE '萬能蜂后|"agents"'; then
+    err "對外 $host 身分錯誤 — 翻譯服務已被其他服務取代"
+    PORT_FAULTS=$((PORT_FAULTS+1))
+  elif [ -z "$body" ]; then
+    warn "對外 $host 無回應 (可能是 SSL 或上游問題)"
+  else
+    log "對外 $host 身分正確 — $(echo "$body" | head -c 80)"
+  fi
+done
+
+if [ "$PORT_FAULTS" -gt 0 ]; then
+  err "埠身分驗證失敗: $PORT_FAULTS 項異常 — 請勿宣告部署成功，先修服務衝突"
+else
+  log "埠身分驗證全部通過"
+fi
 
 echo ""
 log "部署腳本執行完畢。所有站點與服務健康檢查通過。"
