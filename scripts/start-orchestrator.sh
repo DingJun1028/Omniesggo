@@ -25,4 +25,6 @@ done
 # 5. 顯示完成訊息
 echo "✅ Orchestrator 已完成啟動與復原，現在可使用 /kanban、/cron、/delegate_task 等指令。"
 # Start OmniAgentBus in background
-node lib/agents/omni-agent-bus.ts &
+# 指向正典實作 .js：先前台為 .ts（型別重導出薄層）時，require.main 會是該 .ts，
+# .js 內的 `require.main === module` 守衛不會觸發，autonomy 心跳不會啟動。
+node lib/agents/omni-agent-bus.js &

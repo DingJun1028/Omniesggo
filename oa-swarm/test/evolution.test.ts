@@ -59,7 +59,7 @@ describe('EvolutionEngine 經驗萃取', () => {
     const e = new EvolutionEngine();
     const lesson = e.extractLesson({
       task: '崩潰任務', artifact: makeArtifact('0xdef'), latencyMs: 500,
-      entropyBefore: 0.08, entropyAfter: 0.08, error: 'Ollama 超時',
+      entropyBefore: 0.08, entropyAfter: 0.08, error: '本地 LLM 逾時',
     });
     expect(lesson.outcome).toBe('failure');
     expect(lesson.pattern).toContain('失敗');

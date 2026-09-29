@@ -1,3 +1,6 @@
+// 5T-Traceable: source_origin=lib/types/oab-types.ts (OAB 契約正典)
+import { randomUUID } from 'node:crypto';
+
 // OAB (OmniAgentBus) TypeScript Core Interfaces & Contracts
 // -----------------------------------------------------------
 // This file defines the public contract for the OmniAgentBus (OAB) layer.
@@ -123,14 +126,23 @@ export interface IHealingAction extends IComponentCore {
 export function createComponentCore<T extends Partial<IComponentCore>>(
   base: T
 ): IComponentCore {
-  const uuid = require('uuid').v4();
+  // 不使用 require('uuid')：該套件已從依賴移除，執行期會直接拋錯。
+  const uuid = randomUUID();
   const timestamp = Date.now();
+  // 5T-Trustworthy: 呼叫端提供的 evidence 在此為證據的原始來源（此函式負責
+  // 建立元件，尚未封存），故予以保留並僅補齊缺漏欄位。
+  // 封存階段的不可覆寫語意由 oag-types 的 sealAndForward 負責，兩者職責不同。
   return {
+    ...base,
     uuid,
     version: base.version ?? '1.0.0',
     timestamp,
-    evidence: base.evidence ?? { originCause: 'unknown', processTrace: [], finalEffect: 'unknown' },
-    ...base,
+    evidence: {
+      ...(base.evidence ?? {}),
+      originCause: base.evidence?.originCause ?? 'unknown',
+      processTrace: base.evidence?.processTrace ?? [],
+      finalEffect: base.evidence?.finalEffect ?? 'unknown',
+    },
   } as IComponentCore;
 }
 

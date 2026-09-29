@@ -117,7 +117,16 @@ export function createGateway(): IOmniGateway {
 
       // 2️⃣ Hash‑Lock & freeze
       const hash = await computeHash(JSON.stringify(event), opts?.hashConfig);
-      const locked = deepFreeze({ ...event, evidence: { originCause: 'system_init', processTrace: [], finalEffect: 'initialized',  ...(event.evidence || { }), hash } });
+      // 5T-Trustworthy: 證據欄位為系統印記，必須由本層設定後才凍結；
+      // 呼叫端提供的 evidence 只補缺，不覆寫已封存的欄位（否則證據可偽造）。
+      const evidence = {
+        ...(event.evidence || {}),
+        originCause: event.evidence?.originCause ?? 'system_init',
+        processTrace: event.evidence?.processTrace ?? [],
+        finalEffect: event.evidence?.finalEffect ?? 'initialized',
+        hash,
+      };
+      const locked = deepFreeze({ ...event, evidence });
 
       // 3️⃣ Example external forward (placeholder – real implementation may use axios/fetch)
       // Here we simply simulate a successful forward.

@@ -21,11 +21,20 @@ import rateLimit from 'express-rate-limit';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { createHash } from 'crypto';
+import { createHash, timingSafeEqual } from 'crypto';
 import { readFileSync, appendFileSync, existsSync, statSync, renameSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { inferTaskType, routeModel, formatRoutingResult } from './model-router.mjs';
+// §20.4 蜂群矩陣 SSOT — 單一事實來源，供 /oa/* 路由與萬能CLI 共用
+import { ARRAYS, AGENTS, listAgents } from './oa-swarm-matrix.mjs';
+import {
+  createTaskLog,
+  handleOaStatus,
+  handleOaAgents,
+  handleDispatch,
+  buildBroadcastPayload,
+} from './oa-swarm-handlers.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -275,7 +284,7 @@ async function callGroq(userPrompt, systemPrompt = ESG_SYSTEM_PROMPT, modelId = 
 }
 
 // ── AI Dispatcher (Smart Routing) ─────────────────────────────
-// Fallback chain: Local Ollama → Smart Routing (Primary → Fallback1 → Fallback2) → Mock
+// Fallback chain: Local LLM (Gemma) → Smart Routing (Primary → Fallback1 → Fallback2) → Mock
 async function dispatchAI(task, skillId) {
   const prompt = task.prompt || task.message || `請分析並回覆：類型=${task.taskType} 標題=${task.title}`;
   const imageUrl = task.imageUrl || task.image_url || null;
@@ -288,7 +297,7 @@ async function dispatchAI(task, skillId) {
   const routing = routeModel(taskType);
   console.log(`[OmniGateway] Smart Routing: ${formatRoutingResult(routing, taskType)}`);
 
-  // 1. Try local Ollama/Gemma server first (vision-capable)
+  // 1. Try local LLM (Gemma) server first (vision-capable)
   if (localServer && imageUrl) {
     try {
       const response = await fetch(`${localServer}/api/generate`, {
@@ -314,6 +323,15 @@ async function dispatchAI(task, skillId) {
   // 1b. Text tasks -> local Gemma 4 (text-only, stronger) before cloud
   if (localServer && !imageUrl) {
     try {
+      // ⚠ `/api/generate` + `stream:false` + `data.response` 是 Ollama 原生
+      //   REST API 的契約（非 OpenAI 相容的 /v1/chat/completions）。
+      //   這裡的「Ollama」是後端服務實作名，不是模型名也不是專案品牌 ——
+      //   模型是 Gemma/Qwen，專案品牌是 Agent Mesh。
+      //   若日後換成 LM Studio / llama.cpp / vLLM 等相容服務，須確認其
+      //   仍實作此原生端點與回應欄位，否則應改走 /v1/chat/completions。
+      //   對照：model-router.mjs 的 local_gemma provider 走的是
+      //   `/ollama/v1/chat/completions`（OpenAI 相容層），兩者刻意不同：
+      //   這裡要的是 Ollama 原生語意，路由層要的是跨供應商統一介面。
       const response = await fetch(`${localServer}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -421,6 +439,10 @@ setInterval(() => {
 const evolutionLog = [];
 const busEvents = [];
 
+// ── §20.4 OA-Team 任務簽印佇列 (5T-Trackable ring buffer) ─────
+// 環緩衝邏輯在 oa-swarm-handlers.mjs，此處僅建立實例（單一事實來源）
+const oaTaskLog = createTaskLog(200);
+
 // ── Express + HTTP Server ─────────────────────────────────────
 const app = express();
 
@@ -428,11 +450,131 @@ const app = express();
 app.set('trust proxy', 1);
 const httpServer = createServer(app);
 
-// WebSocket setup
-const wss = new WebSocketServer({ server: httpServer });
+// ── WebSocket setup (authenticated) ────────────────────────────
+// WS_AUTH_TOKEN 未設定 → 保持既有行為（任何 client 皆可連線，向後相容）
+// WS_AUTH_TOKEN 有設定 → 必須帶 query `?token=` 或 Sec-WebSocket-Protocol 才接受
+const WS_AUTH_TOKEN = String(process.env.WS_AUTH_TOKEN || '').trim();
+const WS_AUTH_ENABLED = WS_AUTH_TOKEN.length > 0;
+
+function safeTokenEqual(a, b) {
+  const ab = Buffer.from(String(a));
+  const bb = Buffer.from(String(b));
+  if (ab.length !== bb.length) return false;
+  return timingSafeEqual(ab, bb);
+}
+
+/**
+ * 從 handshake 抽出 token 與（若來自 subprotocol）要回應的 protocol 名稱。
+ * 支援格式（Sec-WebSocket-Protocol 以逗號分隔多個 protocol，故 "bearer, TOKEN" 是合法寫法）：
+ *   ws://host:port/?token=XXX
+ *   new WebSocket(url, ['bearer', TOKEN])   → protocol 欄回 'TOKEN'
+ *   new WebSocket(url, ['auth.TOKEN'])      → protocol 欄回 'auth.TOKEN'
+ *   new WebSocket(url, ['token.TOKEN'])
+ *   new WebSocket(url, [TOKEN])             → 單一 protocol 即 token
+ * 回傳的 protocol 一定來自 client 實際提出的清單，ws server 才會接受。
+ */
+function extractWsToken(req) {
+  // 收集「所有」候選而非取第一個：實測中 client 可能同時帶多個憑證來源
+  // （例如反向代理注入的無關 Authorization + 有效的 subprotocol token）。
+  // 舊實作在第一個 header 就 return，會讓後面有效的憑證永遠不被檢查而誤回 401。
+  const candidates = [];
+
+  // 1) query string（瀏覽器 WebSocket 唯一可行方式）
+  try {
+    const url = new URL(req.url, 'http://localhost');
+    const q = url.searchParams.get('token') || url.searchParams.get('access_token');
+    if (q) candidates.push(q);
+  } catch {}
+
+  // 2) HTTP header（僅 Node / 裝置端 client 可用；瀏覽器 WS 無法自訂 header）
+  //    相容既有 gateway-client.ts 的 `X-Omni-Token: GATEWAY_API_KEY` 寫法
+  const h = req.headers;
+  if (h['x-omni-token']) candidates.push(String(h['x-omni-token']));
+  if (h['x-api-key']) candidates.push(String(h['x-api-key']));
+  const auth = h['authorization'];
+  if (auth) {
+    const t = auth.replace(/^Bearer\s+/i, '').trim();
+    if (t) candidates.push(t);
+  }
+
+  // 3) Sec-WebSocket-Protocol
+  //    需一併記住「哪個 protocol 對應哪個 token」，因為 ws server 只會
+  //    回應 client 實際提出的 protocol 值。
+  let protocol = null;
+  const raw = req.headers['sec-websocket-protocol'];
+  if (raw) {
+    const list = String(raw).split(',').map(s => s.trim()).filter(Boolean);
+    for (let i = 0; i < list.length; i++) {
+      const c = list[i];
+      // 帶前綴的單一 protocol：bearer.TOKEN / auth.TOKEN / token.TOKEN
+      const m = /^(?:bearer|auth|token)[\s.:]+(.+)$/i.exec(c);
+      if (m) { candidates.push(m[1].trim()); protocol ||= c; }
+      // 裸 marker：['bearer', TOKEN] → 取下一個作為 token
+      if (/^(?:bearer|auth|token)$/i.test(c) && list[i + 1]) {
+        candidates.push(list[i + 1]); protocol ||= list[i + 1];
+      }
+    }
+    // 單一 protocol 本身就是 token
+    if (list.length === 1) { candidates.push(list[0]); protocol ||= list[0]; }
+  }
+
+  return { candidates, protocol };
+}
+
+// ws 的 handleUpgrade() 沒有第 5 個 options 參數，protocol 選擇必須走
+// wss.options.handleProtocols（於 handleUpgrade 內同步呼叫）。
+// 因此用這個 request-scope 變數把「本次要回應的 protocol」傳進去。
+let pendingProtocol = null;
+
+const wss = new WebSocketServer({
+  noServer: true,
+  handleProtocols(protocols) {
+    // 認證未啟用 → 沿用 ws 預設（回第一個 client 提出的 protocol，維持舊行為）
+    if (!WS_AUTH_ENABLED) return protocols.values().next().value ?? false;
+    return pendingProtocol ?? false;
+  },
+});
+
+function rejectUpgrade(socket, code, statusText, message) {
+  const body = JSON.stringify({ error: message, code });
+  socket.write(
+    `HTTP/1.1 ${code} ${statusText}\r\n` +
+    'Connection: close\r\n' +
+    'Content-Type: application/json\r\n' +
+    `Content-Length: ${Buffer.byteLength(body)}\r\n` +
+    '\r\n' + body
+  );
+  socket.destroy();
+}
+
+httpServer.on('upgrade', (req, socket, head) => {
+  const key = String(req.headers.upgrade || '').toLowerCase();
+  if (key !== 'websocket') { socket.destroy(); return; }
+
+  pendingProtocol = null;
+  if (WS_AUTH_ENABLED) {
+    const { candidates, protocol } = extractWsToken(req);
+    // 任一候選命中即放行：不能只比第一個，否則無關的 header（例如反向代理
+    // 注入的 Authorization）會遮蔽掉後面有效的 subprotocol token 而誤回 401。
+    const matched = candidates.some((t) => safeTokenEqual(t, WS_AUTH_TOKEN));
+    if (!matched) {
+      console.warn(`[OmniGateway] 🔒 WS 認證失敗 — 拒絕 ${req.socket?.remoteAddress} (url=${req.url})`);
+      rejectUpgrade(socket, 401, 'Unauthorized', 'WS token missing or invalid');
+      return;
+    }
+    if (protocol) pendingProtocol = protocol;
+    console.log(`[OmniGateway] 🔓 WS 認證通過 (${protocol ? 'subprotocol' : 'query/header token'})`);
+  }
+
+  wss.handleUpgrade(req, socket, head, (ws) => {
+    pendingProtocol = null;
+    wss.emit('connection', ws, req);
+  });
+});
+
 wss.on('connection', (ws, req) => {
   wssClients.add(ws);
-  console.log(`[OmniGateway] 🔌 WS client connected (total: ${wssClients.size})`);
+  console.log(`[OmniGateway] 🔌 WS client connected (total: ${wssClients.size}) url=${req.url}`);
   ws.send(JSON.stringify({ type: 'CONNECTED', message: 'OmniAgentBus WebSocket Bridge Active', ts: Date.now() }));
   ws.on('close', () => { wssClients.delete(ws); });
   ws.on('message', (data) => {
@@ -808,6 +950,46 @@ app.post('/api/sync/bus', async (req, res) => {
   res.json({ ok: true, clients_notified: wssClients.size });
 });
 
+// ── §20.4 OA-Team 30 蜂群控制路由 (萬能CLI live 模式對接) ────────
+// 5T-Traceable: source_origin=apps/gateway/oa-swarm-matrix.mjs (單一事實來源)
+// 5T-Trustworthy: 簽印記錄進 ring buffer，寫入即凍結不可竄改
+
+// GET /oa/status — 蜂群陣列狀態（MECE 分工 / 負載 / 健康）
+app.get('/oa/status', requireAuth, (_req, res) => {
+  const body = handleOaStatus({
+    mem: process.memoryUsage(),
+    uptimeSeconds: Math.floor((Date.now() - startTime) / 1000),
+    wsClients: wssClients.size,
+    totalErrors: errorMetrics.totalErrors,
+  });
+  body.task_queue = {
+    depth: oaTaskLog.length,
+    dispatched: oaTaskLog.all().filter((t) => t.status === 'dispatched').length,
+    ring_capacity: oaTaskLog.capacity,
+  };
+  res.json(body);
+});
+
+// GET /oa/agents — 30 位代理（?array=1..5 或 all）
+app.get('/oa/agents', requireAuth, (req, res) => {
+  res.json(handleOaAgents(req.query.array));
+});
+
+// POST /oa/task/dispatch — 任務派發（Key-Ω 簽印，5T-Trackable 記錄）
+// 邏輯在 oa-swarm-handlers.mjs，供測試直接 import 真實實作
+app.post('/oa/task/dispatch', requireAuth, aiLimiter, (req, res) => {
+  const result = handleDispatch({ body: req.body, taskLog: oaTaskLog });
+  if (result.status !== 200) return res.status(result.status).json(result.body);
+
+  // 5T-Trustworthy: prompt 一律不進 WS 廣播，只送摘要與長度。
+  // WS 認證（WS_AUTH_TOKEN）未設定時通道形同公開，此遮蔽是該情況下唯一
+  // 的保護；認證啟用後仍維持遮蔽，因為廣播會送給所有已連線的 client，
+  // 不宜假設每個連線者都有權看到完整任務內容。
+  broadcastWS({ type: 'OA_TASK', source: 'OaDispatch', payload: buildBroadcastPayload(result.task) });
+
+  res.json(result.body);
+});
+
 // ── ESGSonar Crawler Routes ──────────────────────────────────────
 // Crawl trigger & scheduler status (bridged from crawler-scheduler)
 
@@ -893,7 +1075,7 @@ function startSonnarPeriodicCrawl() {
 setTimeout(startSonnarPeriodicCrawl, 60000);
 
 // 404 + error handlers
-app.use((_req, res) => res.status(404).json({ error: 'Not found', endpoints: ['/health','/status','/models','/skills','/execute','/stream','/omni-jules','/evolve','/swarm/broadcast','/swarm/events'] }));
+app.use((_req, res) => res.status(404).json({ error: 'Not found', endpoints: ['/health','/status','/models','/skills','/execute','/stream','/omni-jules','/evolve','/swarm/broadcast','/swarm/events','/api/sync/bus','/oa/status','/oa/agents','/oa/task/dispatch','/sonar/status','/sonar/crawl','/sonar/alerts','/sonar/radar'] }));
 app.use((err, _req, res, _next) => {
   logError('EXPRESS', err);
   res.status(500).json({ error: err.message });
@@ -906,6 +1088,11 @@ httpServer.listen(PORT, '127.0.0.1', () => {
   console.log(`   Origin : OmniAgent (Open Source) → ESGGO OmniAgent`);
   console.log(`   URL    : http://${VPS_IP}:${PORT}`);
   console.log(`   WS     : ws://${VPS_IP}:${PORT} (OmniAgentBus Bridge)`);
+  if (WS_AUTH_ENABLED) {
+    console.log(`   WS AUTH: 🔒 已啟用（需 ?token= 或 Sec-WebSocket-Protocol）`);
+  } else {
+    console.warn(`   WS AUTH: ⚠️ 未啟用 — WS_AUTH_TOKEN 未設定，任何人都可連線（僅適合本機/內網）`);
+  }
   console.log(`   Skills : ${SKILL_REGISTRY.length} (${SKILL_REGISTRY.filter(s=>s.status==='transcended').length} transcended)`);
   console.log(`   Sonar  : /sonnar/status /sonnar/crawl /sonnar/alerts /sonnar/radar`);
   console.log('═══════════════════════════════════════════════════════');

@@ -1,179 +1,62 @@
-/*
- * OmniAgentBus – lightweight in‑process event bus for the ESGGO ecosystem.
- *
- * Features (v2):
- *   • Bounded event ring buffer (default 200 events) – old events are dropped.
- *   • Async‑friendly broadcast hooks (e.g. SSE, WebSocket) – errors are logged, never crash the bus.
- *   • Persistent storage – events are saved to a JSON file under the Hermes profile folder and
- *     re‑loaded on process start, so a restart does not lose recent events.
- *   • Query API – getEvents({limit, event, afterTs}) to retrieve recent events.
- *   • Autonomy ticker – startAutonomy(interval) emits a `system:autonomy:tick` event on a interval.
- *   • Simple subscribe/unsubscribe API returning a cancel function.
- *   • Global notification shortcut – broadcastGlobalNotification(msg, context).
- *
- * Usage example (any Hermes task or external script):
- *   const { omniBus } = require('./lib/agents/omni-agent-bus');
- *   omniBus.subscribe('my:event', payload => console.log('got', payload));
- *   omniBus.publish('my:event', { foo: 'bar' });
- *   // register an async SSE hook
- *   omniBus.registerBroadcastHook(async ev => await sendSse(ev));
+// OmniAgentBus (OAB) — 型別重導出薄層 (re-export shim)
+//
+// ── 為何本檔不再持有實作 ──────────────────────────────────────────
+// 本檔過去是 Bus 的第二份完整實作（副檔名為 .ts，內容卻是純 CommonJS：
+// require / module.exports、零型別標註）。那份副本的 API 與正典 .js 不相容
+// —— 沒有 writeEntry / readEntry / queryBlackboard / 註冊自癒 Hook，
+// 而且它自身在嚴格型別下產生 46 個 tsc 錯誤（隱式 any、class 屬性不存在）。
+//
+// 呼叫端追蹤證據（grep，lib/ app/ src/ tests/ scripts/）：
+//   · lib/agents/knowledge-collector.js         require('./omni-agent-bus')
+//   · lib/agents/omni-agent-bus-autonomy.js     require('./omni-agent-bus')
+//   · lib/agents/omni-agent-bus-hook.js         require('./omni-agent-bus')
+//   三者皆解析到同目錄的 .js（Node CJS 解析不認 .ts），零呼叫端 import 本 .ts。
+//
+// 因此正典 = lib/agents/omni-agent-bus.js，本檔退化成帶型別的重導出，
+// 讓「契約」與「實作」之間只有一條可稽核的路徑。
+//
+// ── 啟動注意 ──────────────────────────────────────────────────────
+// scripts/start-orchestrator.sh 過去執行 `node lib/agents/omni-agent-bus.ts`。
+// 由於 require.main 會是本 shim 而非 .js，.js 內的 `require.main === module`
+// 守衛不會觸發，autonomy 心跳不會啟動、行程立刻結束。該腳本已改指 .js。
+
+import type { IBlackboardEntry, IBusEvent, IComponentCore, IOmniBus, OABHook } from '../types/oab-types';
+
+/**
+ * 正典 .js 額外提供、但不在 IOmniBus 契約內的方法。
+ * 契約描述最小必要介面；實際類別較寬，此處如實反映差異以免誤導。
  */
-
-const fs = require('fs');
-const path = require('path');
-const { EventEmitter } = require('events');
-
-/** Maximum number of events kept in memory – can be overridden with env var */
-const MAX_EVENTS = Number(process.env.OMNI_BUS_MAX_EVENTS || '200');
-/** File where the ring buffer is persisted – resolved relative to HERMES_HOME */
-const PERSIST_PATH = path.resolve(
-  process.env.HERMES_HOME || path.resolve(__dirname, '../../..'),
-  'omni-bus',
-  'events.json'
-);
-
-/** Simple envelope for each event */
-function makeEvent(event, payload) {
-  return { event, payload, ts: Date.now() };
+export interface IOmniBusExtras {
+  subscribe(event: string, cb: (payload: unknown) => void): () => void;
+  unregisterBroadcastHook(hook: OABHook): void;
+  getEvents(filter?: {
+    limit?: number;
+    event?: string;
+    afterTs?: number;
+  }): Array<IBusEvent & { ts?: number }>;
+  broadcastGlobalNotification(msg: string, context?: unknown): void;
+  startAutonomy(intervalMs?: number): void;
+  stopAutonomy(): void;
+  idleDuration(): number;
+  decideHealing(err: { type?: string; target?: string; message?: string }): {
+    action: string;
+    target?: string;
+    detail: Record<string, unknown>;
+  };
+  blackboard: Map<string, IBlackboardEntry>;
 }
 
-class OmniAgentBus {
-  constructor() {
-    /** @type {EventEmitter} */
-    this.emitter = new EventEmitter();
-    /** @type {Array<Object>} */
-    this.events = [];
-    /** @type {Set<Function>} */
-    this.broadcastHooks = new Set();
-    this.autonomyTimer = null;
-    this.persistTimer = null;
-    this._loadPersisted();
-  }
+/** 正典 Bus 實例：同時滿足契約與實作擴充。 */
+export type OmniBusInstance = IOmniBus & IOmniBusExtras;
 
-  /** Singleton accessor */
-  static getInstance() {
-    if (!OmniAgentBus._instance) {
-      OmniAgentBus._instance = new OmniAgentBus();
-    }
-    return OmniAgentBus._instance;
-  }
-
-  /** Publish an event – sync listeners are called immediately, async hooks are fire‑and‑forget. */
-  publish(event, payload) {
-    const ev = makeEvent(event, payload);
-    // keep ring buffer bounded
-    this.events.push(ev);
-    if (this.events.length > MAX_EVENTS) this.events.shift();
-
-    // sync listeners
-    this.emitter.emit(event, payload);
-
-    // async broadcast hooks – catch errors individually
-    for (const hook of this.broadcastHooks) {
-      try {
-        const result = hook(ev);
-        if (result && typeof result.then === 'function') {
-          result.catch(err => console.error('[OmniAgentBus] broadcast hook error:', err));
-        }
-      } catch (err) {
-        console.error('[OmniAgentBus] broadcast hook threw:', err);
-      }
-    }
-
-    // debug output (useful in dev, harmless in prod)
-    console.debug(`[OmniAgentBus] publish ${event}`, payload);
-    this._schedulePersist();
-  }
-
-  /** Subscribe to an event – returns a function to unsubscribe. */
-  subscribe(event, callback) {
-    this.emitter.on(event, callback);
-    return () => this.emitter.removeListener(event, callback);
-  }
-
-  /** Register a broadcast hook (e.g. SSE push). Hook may be sync or async. */
-  registerBroadcastHook(hook) {
-    this.broadcastHooks.add(hook);
-  }
-
-  /** Unregister a previously registered broadcast hook. */
-  unregisterBroadcastHook(hook) {
-    this.broadcastHooks.delete(hook);
-  }
-
-  /** Retrieve recent events with optional filters. */
-  getEvents({ limit, event, afterTs } = {}) {
-    let filtered = this.events;
-    if (event) filtered = filtered.filter(e => e.event === event);
-    if (afterTs !== undefined) filtered = filtered.filter(e => e.ts > afterTs);
-    if (limit !== undefined) filtered = filtered.slice(-limit);
-    return filtered;
-  }
-
-  /** Convenience shortcut for a global sync notification. */
-  broadcastGlobalNotification(msg, context) {
-    this.publish('system:global:sync', { msg, context });
-  }
-
-  /** Start autonomy ticking – emits `system:autonomy:tick` at the given interval (ms). */
-  startAutonomy(intervalMs = 60_000) {
-    if (this.autonomyTimer) return; // already running
-    this.autonomyTimer = setInterval(() => {
-      this.publish('system:autonomy:tick', { ts: Date.now() });
-    }, intervalMs);
-    console.debug('[OmniAgentBus] autonomy started, intervalMs=', intervalMs);
-  }
-
-  /** Stop the autonomy ticker. */
-  stopAutonomy() {
-    if (this.autonomyTimer) {
-      clearInterval(this.autonomyTimer);
-      this.autonomyTimer = null;
-      console.debug('[OmniAgentBus] autonomy stopped');
-    }
-  }
-
-  /** --------------------------------------------------- */
-  /** Schedule a persist to disk – debounce to avoid excessive I/O. */
-  _schedulePersist() {
-    if (this.persistTimer) return;
-    this.persistTimer = setTimeout(() => {
-      this.persistTimer = null;
-      this._persistToDisk();
-    }, 500); // 0.5 s debounce
-  }
-
-  /** Write the current ring buffer to JSON file. */
-  _persistToDisk() {
-    try {
-      const dir = path.dirname(PERSIST_PATH);
-      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(PERSIST_PATH, JSON.stringify(this.events, null, 2), 'utf-8');
-      console.debug('[OmniAgentBus] persisted', this.events.length, 'events to', PERSIST_PATH);
-    } catch (err) {
-      console.error('[OmniAgentBus] persist error:', err);
-    }
-  }
-
-  /** Load persisted events on startup – only the most recent MAX_EVENTS are kept. */
-  _loadPersisted() {
-    try {
-      if (fs.existsSync(PERSIST_PATH)) {
-        const raw = fs.readFileSync(PERSIST_PATH, 'utf-8');
-        const loaded = JSON.parse(raw);
-        if (Array.isArray(loaded)) {
-          this.events = loaded.slice(-MAX_EVENTS);
-          console.debug('[OmniAgentBus] loaded', this.events.length, 'events from', PERSIST_PATH);
-        }
-      }
-    } catch (err) {
-      console.error('[OmniAgentBus] load error:', err);
-    }
-  }
-}
-
-// Export a ready‑to‑use singleton for convenience
-module.exports = {
-  OmniAgentBus,
-  omniBus: OmniAgentBus.getInstance()
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const busModule = require('./omni-agent-bus.js') as {
+  OmniAgentBus: new () => OmniBusInstance;
+  omniBus: OmniBusInstance;
 };
+
+export const OmniAgentBus = busModule.OmniAgentBus;
+export const omniBus: OmniBusInstance = busModule.omniBus;
+
+export type { IBlackboardEntry, IBusEvent, IComponentCore, IOmniBus, OABHook };
+export default omniBus;

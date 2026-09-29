@@ -492,7 +492,7 @@ gateway
 // ── Parse ──────────────────────────────────────────────────
 // ── run — unified python pipeline ──────────────────────────
 const { spawn } = await import('node:child_process');
-const { existsSync } = await import('node:fs');
+// existsSync 已於檔頭 (line 231) 自 'node:fs' 靜態匯入，此處不可重複宣告
 
 const PIPELINE_STAGES = [
   { key: 'gen',   label: 'Generate ESG data',     file: 'scripts/generate_esg_data.py' },

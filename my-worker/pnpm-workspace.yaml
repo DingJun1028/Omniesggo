@@ -1,0 +1,26 @@
+# my-worker 為獨立 pnpm 專案（非 root workspace 成員：root 的
+# pnpm-workspace.yaml `packages:` glob 不含 'my-worker'，故 root 的
+# overrides 無法觸及此處 —— 這是 4 筆 fast-uri high 告警的根源）。
+#
+# 2026-09-28 補上此檔：pnpm 11 已不再讀取 package.json 的 `pnpm` 欄位
+# （實測警告：'The "pnpm" field in package.json is no longer read by pnpm'），
+# 設定改由 pnpm-workspace.yaml 承接。此處約束與 root line 26 對齊。
+#
+# override 須含 <major 上界，不可為裸 >= —— 否則下一個 major 一發布就會被
+# 強制升上去而不受測試覆蓋。（出處：docs/security/dependabot-triage-2026-09-28.md；
+# 該處引用的 AGENTS.md #4 經實查不存在 —— root AGENTS.md 全文 66 行無編號條文。）
+packages:
+  - '.'
+
+# pnpm 11 首次安裝時寫入 allowBuilds 提示，值為字串 "set this to true or
+# false"（無效設定）。依各套件的實際需要明確設定為布林值：
+# esbuild/workerd = wrangler 建置鏈必要；sharp = 原生相依，需建置。
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true
+
+overrides:
+  # GHSA 高危 SSRF + host confusion。root pnpm-workspace.yaml:26 已有同一約束，
+  # 此處為獨立複本 —— my-worker 有自己的 lockfile（git 追蹤中），故需獨立設定。
+  "fast-uri": ">=3.1.6 <4"

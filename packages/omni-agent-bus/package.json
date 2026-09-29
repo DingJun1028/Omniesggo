@@ -8,7 +8,12 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "tsx test/smoke.ts && tsx test/deploy-gate.smoke.ts && tsx test/oa-bridge.smoke.ts && tsx test/patterns.smoke.ts && tsx test/conduit.smoke.ts"
+    "typecheck:test": "tsc -p tsconfig.test.json",
+    "typecheck:surface": "tsc -p tsconfig.types-smoke.json",
+    "test": "tsx test/smoke.ts && tsx test/deploy-gate.smoke.ts && tsx test/oa-bridge.smoke.ts && tsx test/patterns.smoke.ts && tsx test/conduit.smoke.ts && tsx test/live-run.smoke.ts && tsx test/live-clones.smoke.ts",
+    "test:dist": "tsc && node test/dist-smoke.mjs",
+    "test:surface": "tsc && npm run typecheck:surface",
+    "test:all": "npm run test && npm run test:dist && npm run typecheck:surface"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

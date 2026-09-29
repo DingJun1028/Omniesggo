@@ -175,6 +175,22 @@ jobs:
         run: node --test ftg-mcp/server.test.mjs fal-images.test.mjs ftg-gen.test.mjs
         env:
           NODE_ENV: test
+      # ws-auth.test.mjs 是腳本式整合測試（頂層 await + record() + process.exit），
+      # 已在 vitest.config.ts 排除，否則根 vitest 抓不到 suite 會讓整個 job exit 1。
+      # 這裡直接以 node 執行：spawn 真 gateway server + raw TCP handshake，25/25 斷言。
+      - name: Run Gateway WS auth test (node script)
+        run: node apps/gateway/ws-auth.test.mjs
+        env:
+          NODE_ENV: test
+      # OmniAgentBus 的 7 支 smoke + dist 產物匯入煙霧。dist-smoke 需先 tsc
+      # 產生 dist/（gitignored），故走 test:all（= test && test:dist）。
+      # 這是「served-surface 驗證」：不只測 src/，也測消費者真正 import 的 dist。
+      - name: Run OmniAgentBus suite (src smoke + dist import)
+        run: pnpm -F @esggo/omni-agent-bus test:all
+        env:
+          NODE_ENV: test
+      - name: Typecheck OmniAgentBus tests
+        run: pnpm -F @esggo/omni-agent-bus typecheck:test
 
   # ─── SonarQube CLI agentic loop (選用增強) ─────────────────────
   # 需 SONAR_TOKEN + SonarQube Cloud 組織（啟用 agentic analysis）才啟用。

@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi } from 'vitest';
 
-// 超能力 TDD: 測試隔離外部副作用 (Ollama / OAB / VPS 網路)
+// 超能力 TDD: 測試隔離外部副作用 (本地 LLM provider / OAB / VPS 網路)
 // 避免 CI 環境下 fetch/http 掛起導致 flaky timeout
 vi.mock('../src/llm', () => ({
   callLLM: vi.fn(async (prompt: string) => ({

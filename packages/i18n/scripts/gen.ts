@@ -4,7 +4,7 @@
 import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { LOCALES, KEYS, type Locale, type DictKey } from '@esggo/shared/types';
+import { LOCALES, KEYS, type Locale, type DictKey, type I18nBundle } from '@esggo/shared/types';
 
 const DICT: Record<Locale, Record<DictKey, string>> = {
   en: {

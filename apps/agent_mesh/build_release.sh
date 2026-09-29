@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 # Agent Mesh 單一 CLI 執行檔打包腳本（可重複建置）
-# 產出：C:/Project/esggo/_pyi/dist/esggo-agent-mesh.exe
-# 用法：bash build_release.sh
+# 產出：<repo>/_pyi/dist/esggo-agent-mesh.exe
+# 用法：bash apps/agent_mesh/build_release.sh
+#
+# 路徑全部相對於本腳本位置推導，故可從任何工作目錄執行。
 set -euo pipefail
 
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$HERE/../.." && pwd)"
+
 PY="${PY:-C:/Users/dingj/AppData/Local/hermes/hermes-agent/venv/Scripts/python.exe}"
-SRC="${SRC:-C:/Project/esggo/ollama_model_tool.py}"
-OUT_DIR="C:/Project/esggo/_pyi"
+SRC="${SRC:-$HERE/agent_tool.py}"
+OUT_DIR="${OUT_DIR:-$REPO_ROOT/_pyi}"
 
 echo "▸ 建置用直譯器：$PY"
 "$PY" --version

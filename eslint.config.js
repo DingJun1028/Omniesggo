@@ -12,9 +12,15 @@ module.exports = [
     ignores: [
       '.next/**', 'out/**', 'build/**', 'next-env.d.ts', 'node_modules/', 'dist/',
       '*.cjs', '*.mjs', 'assets/vendor/', 'esggo/', 'apps/',
-      'scripts/*.cjs', '.agents/**', 'lib/agents/omni-agent-bus.js',
+      'scripts/*.cjs', '.agents/**',
       'test/', '_analysis/**', 'temp/**', 'my-worker/**', 'gateway/**',
-      'lib/agents/**', 'lib/api/**', 'sdks/**', 'chapter-templates/**',
+      // lib/agents/** 原本整目錄忽略，這讓 lib/agents/omni-agent-bus.js 的
+      // 「兩份實作拼接」結構缺陷（ESM export 與 CJS module.exports 混用）
+      // 完全逃過 lint。現只忽略目錄內其餘檔案，OAB 正典實作與其型別薄層
+      // 重新納入檢查。實測（見 README/ERROR-LEDGER）：解除後 0 errors，
+      // 僅剩 8 個 @typescript-eslint/no-require-imports/no-var-requires warning，
+      // 屬 CJS 模組格式的固有結果，非缺陷。
+      'lib/agents/!(omni-agent-bus).*', 'lib/api/**', 'sdks/**', 'chapter-templates/**',
       'examples/**', 'vps/**', 'scripts/**',
       'src/lib/omni-component/**', 'src/impl/__tests__/**'
     ],

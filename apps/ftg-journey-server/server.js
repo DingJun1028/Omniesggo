@@ -9,6 +9,43 @@ import fs from 'fs';
 import crypto from 'node:crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// 內建 .env 載入（零依賴，刻意不引入 dotenv）。
+//
+// 為什麼需要：部署端（VPS /var/www/ftg-journey-server）把設定寫在同目錄 .env，
+// 但 Node 本身不會讀它，pm2 也不會。兩邊都漏掉的結果是 JWT_SECRET 永遠是
+// undefined，服務在啟動閘門直接 exit(1) —— 2026-09-28 實測：.env 存在、
+// 內容正確、pm2 顯示 online，但沒有任何行程監聽 8787。
+//
+// 規則：只補 process.env 中「尚未定義」的鍵，已有的環境變數優先（12-factor），
+// 因此 CI/PM2 注入的值仍然優先於 .env 檔。
+function loadDotEnv(file) {
+  let raw;
+  try {
+    raw = fs.readFileSync(file, 'utf8');
+  } catch {
+    return;
+  }
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eq = trimmed.indexOf('=');
+    if (eq <= 0) continue;
+    const key = trimmed.slice(0, eq).trim();
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(key)) continue;
+    if (process.env[key] !== undefined) continue;
+    let value = trimmed.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"') && value.length >= 2) ||
+      (value.startsWith("'") && value.endsWith("'") && value.length >= 2)
+    ) {
+      value = value.slice(1, -1);
+    }
+    process.env[key] = value;
+  }
+}
+loadDotEnv(path.join(__dirname, '.env'));
+
 const PORT = process.env.PORT || 8787;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'ftg-journey.db');

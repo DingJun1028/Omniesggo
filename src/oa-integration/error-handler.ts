@@ -2,7 +2,7 @@
  * §12.1.6 錯誤處理 (Error Handling)
  * 5T: Trustworthy (錯誤記錄凍結, 不可篡改)
  */
-import { freeze, uuidV4, OA_VERSION } from './types';
+import { freeze, uuidV4 } from './types';
 
 export interface ErrorRecord {
   readonly id: string;

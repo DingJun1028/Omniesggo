@@ -2,7 +2,6 @@
  * GET /api/health
  * Detailed readiness check (Kubernetes readiness probe style).
  */
-import os from 'os';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
@@ -13,7 +12,6 @@ export async function GET(request: NextRequest) {
   const detail = searchParams.get('detail') === 'true';
 
   if (format === 'metrics') {
-    const cpu = os.loadavg()[0];
     const mem = process.memoryUsage();
     const now = new Date().toISOString();
     const body = `# HELP esggo_up Service is up.

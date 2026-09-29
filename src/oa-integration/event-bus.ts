@@ -2,7 +2,7 @@
  * §12.1.1 事件驅動架構 (Event-Driven Architecture)
  * 5T: Traceable (sourceOrigin) + Trackable (eventLog)
  */
-import { type FiveT, hashLock, freeze, uuidV4, OA_VERSION } from './types';
+import { type FiveT, freeze, uuidV4 } from './types';
 
 export interface DomainEvent<T = unknown> {
   readonly id: string;

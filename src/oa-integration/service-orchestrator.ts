@@ -2,7 +2,7 @@
  * §12.1.2 微服務編排 (Microservices Orchestration)
  * 5T: Transparent (執行日誌公開)
  */
-import { freeze, uuidV4, OA_VERSION } from './types';
+import { freeze, uuidV4 } from './types';
 
 export interface WorkflowStep {
   name: string;

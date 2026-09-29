@@ -2,7 +2,7 @@
  * §12.1.4 API 閘道 (API Gateway)
  * 5T: Trackable (訪問日誌可觀測)
  */
-import { freeze, uuidV4, OA_VERSION } from './types';
+import { freeze, uuidV4 } from './types';
 
 export interface APIRequest {
   clientId: string;
