@@ -2,7 +2,7 @@
  * §12.1.3 數據管道 (Data Pipeline / ETL)
  * 5T: Trustworthy (數據寫入即凍結, 不可篡改)
  */
-import { freeze, hashLock, uuidV4, OA_VERSION } from './types';
+import { freeze, hashLock, uuidV4 } from './types';
 
 export interface ETLResult {
   readonly id: string;

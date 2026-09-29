@@ -5,7 +5,9 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { getConfig } from './config';
-import { adminDb as localAdminDb } from '../../../src/lib/local-store';
+// local-store 以 default export 提供 Firestore 相容層 (無 named `adminDb`;
+// `adminDb` 只是 src/lib/firebase-admin.ts 的 re-export 別名)。
+import localAdminDb from '../../../src/lib/local-store';
 
 // ── Types ──────────────────────────────────────────────────────
 
@@ -69,8 +71,11 @@ export async function verifyToken(
     return null;
   }
   try {
-    const { jwtVerify, importHmacKey } = await import('jose');
-    const key = await importHmacKey(secret, 'HS256');
+    // jose v6 已移除 `importHmacKey` (對稱金鑰不再需匯入步驟):
+    // `jwtVerify` 的 key 參數接受 `KeyInput` = CryptoKey | KeyObject | JWK | Uint8Array。
+    // HS256 的正確型別設計是直接把 secret 的 UTF-8 bytes 當作對稱金鑰傳入。
+    const { jwtVerify } = await import('jose');
+    const key = new TextEncoder().encode(secret);
     const { payload } = await jwtVerify(idToken, key, {
       algorithms: ['HS256'],
     });
@@ -138,7 +143,8 @@ export async function setFirestoreDoc(
       };
     };
   };
-  await db.collection(collection).doc(docId).set(data, { merge: true });
+  // local-store 的相容層 `set(data)` 只接受單一參數 (無 Firestore 的 options/merge)。
+  await db.collection(collection).doc(docId).set(data);
 }
 
 /**

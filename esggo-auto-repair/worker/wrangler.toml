@@ -1,3 +1,5 @@
+# source_origin: 萬能分身修復 Worker（CF Workers Builds 部署目標）
+# 本輪修正：[build].command 的 npx 重複 + 納入 pnpm workspace（見 git log a1fedbb4e）
 name = "esggo-auto-repair"
 main = "src/index.ts"
 compatibility_date = "2025-03-01"
@@ -14,4 +16,8 @@ max_retries = 3
 max_batch_timeout = 1
 dead_letter_queue = "esggo-repair-dlq"
 [build]
-command = "cd esggo-auto-repair/worker && npx --yes npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && npx tsc -p tsconfig.json"
+# 修正 2026-09-28：`npx --yes npx --yes pnpm install` 會被解析成 `npx install`
+# （npm 的 install），pnpm 專屬選項 --no-frozen-lockfile 觸發
+# 「install: unknown option -- no-frozen-lockfile」→ CF Workers Builds 必失敗。
+# 與根 wrangler.toml 的寫法一致：單一 npx --yes 包 pnpm。
+command = "cd esggo-auto-repair/worker && npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && npx tsc -p tsconfig.json"

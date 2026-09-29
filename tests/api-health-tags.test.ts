@@ -8,6 +8,12 @@
  *  - Zod validation helpers
  *  - Logger (pino)
  *  - Middleware export
+ *
+ * 5T-Trackable: 下列兩處 `await import('../app/api/.../route')` 在 it() 內
+ * 動態載入 Next.js route，需 transpile + 初始化 Next runtime。於全量並行
+ * 負載下實測需 5-17 秒，遠超 vitest 預設 5s timeout → 各 describe 的第一個
+ * it() 隨機失敗（flaky，2026-09-28 實測失敗數在 5 與 1 間跳動，非回歸）。
+ * 已由 vitest.config.ts 的全域 testTimeout: 30_000 涵蓋，此處不重複設定。
  */
 
 import { describe, it, expect } from 'vitest';

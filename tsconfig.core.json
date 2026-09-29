@@ -3,7 +3,8 @@
   "include": [
     "src/impl/**/*.ts",
     "src/lib/omni-core/**/*.ts",
-    "src/lib/cloudflare/**/*.ts"
+    "src/lib/cloudflare/**/*.ts",
+    "lib/types/**/*.ts"
   ],
   "exclude": [],
   "compilerOptions": {

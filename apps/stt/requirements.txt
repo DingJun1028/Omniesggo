@@ -1,3 +1,14 @@
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
 faster-whisper==1.0.3
+
+# 2026-09-28: 以下為實際執行時逐一暴露的隱性依賴。原先 requirements 只列上方
+# 3 項，但 apps/stt/.venv 缺少它們會讓 server.py 在 import 階段就崩潰
+# (ModuleNotFoundError)，STT 服務根本起不來 → 真語音 E2E 全數失敗。
+# 逐一實測補齊，不是猜的。
+pyyaml            # faster-whisper import 鏈
+requests          # faster_whisper.utils
+tqdm              # huggingface-hub 進度條
+pydantic          # FastAPI 型別系統
+python-multipart  # FastAPI 表單/檔案上傳
+aiohttp           # edge_tts (scripts/e2e-voice.mjs 語音合成)

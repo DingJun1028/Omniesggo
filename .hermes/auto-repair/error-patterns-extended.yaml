@@ -1,0 +1,159 @@
+# 擴展錯誤模式匹配規則 - 無作妙德增強版
+# 基於現有 .hermes/auto-repair/error-patterns.yaml 擴展
+
+patterns:
+  # 類型安全相關
+  - name: "any-type-usage"
+    regex: ": any|as any|<any>"
+    severity: "medium"
+    category: "type-safety"
+    auto_fix: true
+    fix_action: "replace_with_concrete_type"
+    description: "檢測 any 類型使用，建議具體類型替換"
+    
+  - name: "type-annotation-missing"
+    regex: ": (unknown|object)\s*[,\)\]]"
+    severity: "low"
+    category: "type-safety"
+    auto_fix: false
+    fix_action: "add_specific_type"
+    description: "檢測不明確的類型註解"
+
+  # API 架構相關
+  - name: "double-envelope"
+    regex: "jsonResponse\(\{ success: true"
+    severity: "high"
+    category: "api-architecture"
+    auto_fix: true
+    fix_action: "remove_double_wrap"
+    description: "檢測雙重響應包裝問題"
+    
+  - name: "raw-response-json"
+    regex: "NextResponse\.json\(|Response\.json\("
+    severity: "high"
+    category: "api-architecture"
+    auto_fix: true
+    fix_action: "use_standard_response"
+    description: "檢測原始 Response.json 使用"
+    
+  - name: "missing-error-code"
+    regex: "jsonError\('[A-Z_]+',"
+    severity: "medium"
+    category: "api-architecture"
+    auto_fix: true
+    fix_action: "use_standard_error_code"
+    description: "檢測非標準錯誤代碼使用"
+
+  # 錯誤處理相關
+  - name: "error-message-leak"
+    regex: "error\.message|err\.message"
+    severity: "high"
+    category: "error-handling"
+    auto_fix: true
+    fix_action: "replace_with_generic_error"
+    description: "檢測錯誤訊息洩漏"
+    
+  - name: "error-instance-check"
+    regex: "error instanceof Error|err instanceof Error"
+    severity: "medium"
+    category: "error-handling"
+    auto_fix: true
+    fix_action: "remove_type_check"
+    description: "檢測不必要的錯誤類型檢查"
+
+  # 認證相關
+  - name: "missing-auth-check"
+    regex: "export async function (POST|PUT|DELETE)"
+    severity: "high"
+    category: "authentication"
+    auto_fix: false
+    fix_action: "add_auth_middleware"
+    description: "檢測變異方法缺少認證檢查"
+    
+  - name: "manual-auth-check"
+    regex: "headers\.get\('authorization'\)"
+    severity: "medium"
+    category: "authentication"
+    auto_fix: true
+    fix_action: "use_unified_auth"
+    description: "檢測手動認證檢查，建議使用統一認證"
+
+  # 測試相關
+  - name: "missing-test-file"
+    regex: "(?s)export (async )?function|export (const|class|interface)"
+    file_pattern: "src/(lib|core|agents)/**/*.ts"
+    severity: "medium"
+    category: "testing"
+    auto_fix: false
+    fix_action: "generate_test_file"
+    description: "檢測核心模組缺少測試文件"
+
+  # 依賴相關
+  - name: "deprecated-dependency"
+    regex: "from ['\"](@types/|deprecated-)"
+    severity: "low"
+    category: "dependencies"
+    auto_fix: false
+    fix_action: "update_dependency"
+    description: "檢測已棄用的依賴包"
+
+  # 構建相關
+  - name: "build-warning"
+    regex: "(?s)ts\\d+: error TS"
+    severity: "medium"
+    category: "build"
+    auto_fix: false
+    fix_action: "fix_type_error"
+    description: "檢測 TypeScript 構建錯誤"
+
+# 分類定義
+categories:
+  type-safety:
+    priority: "P1"
+    auto_fix_threshold: 0.8
+    notification: true
+    
+  api-architecture:
+    priority: "P0"
+    auto_fix_threshold: 0.9
+    notification: true
+    
+  error-handling:
+    priority: "P0"
+    auto_fix_threshold: 0.9
+    notification: true
+    
+  authentication:
+    priority: "P0"
+    auto_fix_threshold: 0.5
+    notification: true
+    
+  testing:
+    priority: "P1"
+    auto_fix_threshold: 0.3
+    notification: false
+    
+  dependencies:
+    priority: "P2"
+    auto_fix_threshold: 0.4
+    notification: false
+    
+  build:
+    priority: "P0"
+    auto_fix_threshold: 0.7
+    notification: true
+
+# 監控配置
+monitoring:
+  enabled: true
+  check_interval: 300  # 5分鐘
+  alert_threshold:
+    type-safety: 5
+    api-architecture: 3
+    error-handling: 3
+    authentication: 2
+  notification_channels:
+    - console
+    - log_file
+    - # - slack  # 可選
+    # - email  # 可選

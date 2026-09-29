@@ -13,7 +13,15 @@
 import { createHash } from 'node:crypto';
 import type { BusHandler, BusMessage, OATaskResult, SubFrameId } from './types.js';
 
-type FiveTDimension = 'traceable' | 'transparent' | 'tangible' | 'trustworthy' | 'trackable';
+/**
+ * 5T 閘門的五個維度聯集。
+ *
+ * 5T-Trustworthy: 必須 export —— bus5TGate 的公開回傳型別含 FiveTDimension[]，
+ * 未 export 時 consumer 無法標註該欄位型別（tsc 隱式推導雖可過，但無法
+ * 寫出 `const dims: FiveTDimension[] = gate.failed`，也無法做 exhaustive
+ * switch）。型別出現在公開簽章卻不可命名，等於契約有洞。
+ */
+export type FiveTDimension = 'traceable' | 'transparent' | 'tangible' | 'trustworthy' | 'trackable';
 
 const GATE_MIN_LENGTH: Record<FiveTDimension, number> = {
   traceable: 100, transparent: 150, tangible: 200, trustworthy: 120, trackable: 80,

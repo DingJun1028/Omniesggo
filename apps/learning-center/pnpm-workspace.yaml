@@ -6,4 +6,14 @@ allowBuilds:
   '@firebase/util': true
   esbuild: true
   protobufjs: true
-  workerd: set this to true or false
+  workerd: true
+
+# 根 pnpm-workspace.yaml 的同名 override 對本 workspace 無效：
+# apps/learning-center 擁有獨立 pnpm-lock.yaml（190KB），不參與根 workspace 解析。
+# 實測（2026-09-28）：僅改根 override 時，本 lockfile 仍鎖 sharp 0.35.2。
+# CVE：GHSA-rgj7-g3m4-5g8c（libheif，含 2 筆 CVSSv3 Critical），上游修補版為 0.35.4。
+# 路徑：esggo-auto-repair/worker → wrangler → miniflare → sharp（dev 工具鏈）。
+# 例外依據：AGENTS.md「勿用 overrides 強升傳遞依賴」僅針對 undici/jsdom，
+# sharp 為 minor 修補（0.35.2 → 0.35.4），不屬該禁令範圍。
+overrides:
+  sharp: ">=0.35.4 <0.36"

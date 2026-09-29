@@ -45,6 +45,8 @@ export const x = 1;`;
   });
 
   it('auditOmniTags scans real project files and finds tagged ones', () => {
+    // 掃描真實檔案系統，全量並行時 CI runner 需 ~16s（實測 2026-09-28）。
+    // 已由 vitest.config.ts 的全域 testTimeout: 30_000 涵蓋，此處不重複設定。
     // vitest cwd = cli/oa-cli, 用相對於此的專案路徑
     const result = auditOmniTags(['../src/lib', './src']);
     // 至少有 omnitag-contract.ts + omnitag.ts 帶標籤

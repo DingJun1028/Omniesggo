@@ -1,3 +1,33 @@
 {
-  "fatal": "Error: Command failed: C:\\Project\\esggo\\apps\\stt\\.venv\\Scripts\\python.exe C:\\Users\\dingj\\AppData\\Local\\Temp\\synth.py\n    at genericNodeError (node:internal/errors:985:15)\n    at wrappedFn (node:internal/errors:539:14)\n    at checkExecSyncError (node:child_process:942:11)\n    at execFileSync (node:child_process:978:15)\n    at synth (file:///C:/Project/esggo/apps/omnilive/scripts/e2e-voice.mjs:37:3)\n    at main (file:///C:/Project/esggo/apps/omnilive/scripts/e2e-voice.mjs:88:64)\n    at file:///C:/Project/esggo/apps/omnilive/scripts/e2e-voice.mjs:131:1\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)"
+  "exitCode": 0,
+  "checks": [
+    {
+      "ok": true,
+      "msg": "已合成英文/中文真實語音 MP3"
+    },
+    {
+      "ok": true,
+      "msg": "apps/stt (faster-whisper) 啟動 /health 可達"
+    },
+    {
+      "ok": true,
+      "msg": "OmniLive 啟動 /health 可達 (:8797)"
+    },
+    {
+      "ok": true,
+      "msg": "[EN] 真實語音辨識+翻譯成功 (英文語音→繁中字幕): 原文=\"Hello, this is a live meeting test for Omni-Live b\" / 字幕=\"您好，這是Omni-Live雙語字幕的直播會議測試。\""
+    },
+    {
+      "ok": true,
+      "msg": "[EN] 5T trace 溯源: edb05ff2c3c32b45"
+    },
+    {
+      "ok": true,
+      "msg": "[ZH] 真實語音辨識+翻譯成功 (繁中語音→英文字幕): 原文=\"歡迎參加線上會議,這是及時雙語字幕測試。\" / 字幕=\"Welcome to the online meeting, this is a timely bi\""
+    },
+    {
+      "ok": true,
+      "msg": "[ZH] 5T trace 溯源: 133db2736a38ebd7"
+    }
+  ]
 }

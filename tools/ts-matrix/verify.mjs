@@ -128,8 +128,14 @@ if (isCLI) {
     pass: passForward && passReverse,
   };
 
-  // Trustworthy: SHA256 lock of report itself
-  const reportSha = sha256(JSON.stringify(report, null, 2));
+  // Trustworthy: SHA256 lock of the report's SUBSTANTIVE contract content.
+  //
+  // Pitfall (fixed 2026-09-28): the lock previously hashed the whole report
+  // INCLUDING `timestamp`. That makes every run produce a different digest, so
+  // the "lock" could never actually lock anything and drifted on every CI run.
+  // Hash only the deterministic fields — the contract that must not change.
+  const { timestamp: _volatile, ...substantive } = report;
+  const reportSha = sha256(JSON.stringify(substantive, null, 2));
   const finalReport = {
     ...report,
     lock: {

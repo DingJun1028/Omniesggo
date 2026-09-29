@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-ollama_model_tool.py — 生產級 Ollama 模型管理與推論測試工具
+agent_tool.py — 生產級代理工具模組（代理網狀協作 · 模型管理與推論測試）
 
 特色：
 - 非同步並行推論測試（asyncio + aiohttp）
@@ -10,27 +10,30 @@ ollama_model_tool.py — 生產級 Ollama 模型管理與推論測試工具
 - 多種輸出格式：JSON, JSONL, CSV, 表格
 - 型別安全、輸入驗證、退出碼協定
 
-用法：
+用法（在 apps/agent_mesh/ 下執行）：
     # 健康檢查
-    python ollama_model_tool.py --health
+    python agent_tool.py --health
 
     # 列出模型
-    python ollama_model_tool.py --list
+    python agent_tool.py --list
 
     # 單模型測試
-    python ollama_model_tool.py --model gemma4:e4b
+    python agent_tool.py --model gemma4:e4b
 
     # 批次並行測試所有模型（預設 concurrency=3）
-    python ollama_model_tool.py --batch
+    python agent_tool.py --batch
 
     # 指定並行數 + 提示 + 輸出
-    python ollama_model_tool.py --batch --concurrency 5 -p "列出 3 個優點" -o result.json
+    python agent_tool.py --batch --concurrency 5 -p "列出 3 個優點" -o result.json
 
-    # 使用配置檔
-    python ollama_model_tool.py --config models.yaml
+    # 使用配置檔（鍵名 ollama: 為對應 Ollama REST API 的技術契約，不隨專案更名）
+    python agent_tool.py --config models.yaml
 
     # 僅輸出表格
-    python ollama_model_tool.py --batch --table
+    python agent_tool.py --batch --table
+
+命名：檔名與目錄一律用底線（agent_tool.py / apps/agent_mesh/），
+Python 模組名不接受連字號，底線可同時支援 CLI 執行與 `import agent_tool`。
 
 配置檔範例 (models.yaml)：
     ollama:
@@ -417,7 +420,13 @@ class TestResult:
 
 @dataclass
 class OllamaConfig:
-    """Ollama 服務配置。"""
+    """推論後端服務配置。
+
+    命名說明：此處保留 `OllamaConfig` 與設定檔的 `ollama:` 鍵名，是因為它
+    對應真實的 Ollama REST API（預設埠 11434），屬技術契約而非顯示品牌。
+    專案本身已更名為 Agent Mesh（CLI 為 esggo-agent-mesh），但設定檔
+    相容性優先 —— 既有 `models.yaml` 的 `ollama:` 區段必須繼續有效。
+    """
     host: str = "http://localhost:11434"
     timeout: float = 10.0  # API 請求超時
 
@@ -892,7 +901,7 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
     datefmt="%H:%M:%S",
 )
-logger = logging.getLogger("ollama_tool")
+logger = logging.getLogger("agent_tool")
 
 
 # ============================================================================
@@ -903,7 +912,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     """解析命令列參數。"""
     parser = argparse.ArgumentParser(
         prog=APP_NAME,
-        description="生產級 Ollama 模型管理與推論測試工具",
+        description="生產級代理工具模組（代理網狀協作 · 模型管理與推論測試）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 範例：
@@ -920,7 +929,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     # 模式選擇
     mode = parser.add_argument_group("模式")
     mode.add_argument("--health", action="store_true",
-                      help="輕量健康檢查：確認 Ollama 服務運行")
+                      help="輕量健康檢查：確認推論後端服務（Ollama）運行")
     mode.add_argument("--list", "-l", action="store_true",
                       help="僅列出模型，不測試")
     mode.add_argument("--batch", "-b", action="store_true",

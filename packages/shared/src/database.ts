@@ -11,7 +11,7 @@ type PrismaClient = {
   $connect: () => Promise<void>;
   $disconnect: () => Promise<void>;
   $queryRaw: (template: TemplateStringsArray) => Promise<unknown>;
-  $transaction: <T>(fn: (tx: unknown) => Promise<T>) => Promise<T>;
+  $transaction: <T>(fn: (tx: PrismaClient) => Promise<T>) => Promise<T>;
   [key: string]: unknown;
 };
 
@@ -126,7 +126,7 @@ export async function dbTransaction<T>(
   fn: (prisma: PrismaClient) => Promise<T>
 ): Promise<T> {
   const prisma = await getPrisma();
-  return prisma.$transaction(fn) as Promise<T>;
+  return prisma.$transaction(fn);
 }
 
 // ── Query Helpers ──────────────────────────────────────────────

@@ -69,8 +69,14 @@ export interface Metric {
  * LiquidGlassRenderer — 純 CSS 描述 (給前端 framework 用)
  */
 export class LiquidGlassRenderer {
+  /**
+   * 目前玻璃外觀設定。
+   * 唯讀欄位 (外部不可重新指派)；對外讀取一律走 getConfig()。
+   */
+  private readonly config: LiquidGlassConfig;
+
   constructor(config?: LiquidGlassConfig) {
-    this.config = config ? { ...config } : { ...DEFAULT_GLASS };
+    this.config = { ...DEFAULT_GLASS, ...config };
   }
 
   /**
@@ -119,8 +125,14 @@ export class LiquidGlassRenderer {
 export class FloatingCore {
   private pulseInterval: NodeJS.Timeout | null = null;
 
+  /**
+   * 目前心核外觀/位置設定。
+   * 唯讀欄位 (外部不可重新指派)；對外讀取一律走 getConfig()。
+   */
+  private readonly config: FloatingCoreConfig;
+
   constructor(config?: FloatingCoreConfig) {
-    this.config = config ? { ...config } : { ...DEFAULT_FLOATING_CORE };
+    this.config = { ...DEFAULT_FLOATING_CORE, ...config };
   }
 
   /**

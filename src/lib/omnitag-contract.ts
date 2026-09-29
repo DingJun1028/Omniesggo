@@ -40,14 +40,6 @@ export interface ContractCheck {
 }
 
 const AGENT_ID_RE = /^agent:(0?[1-9]|[12][0-9]|30)$/;
-const SQUAD_SET = new Set([
-  '智庫聖所',
-  '符文契約',
-  '光之羽翼',
-  '煉金熵減',
-  '5T驗算',
-]);
-
 /**
  * §20.5 規則 1 — 必備三枚自動校驗
  * 每筆產物至少 agent:* + lifecycle:* + p* 三枚，缺一即不合約。

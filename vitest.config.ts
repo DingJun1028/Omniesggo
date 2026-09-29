@@ -5,6 +5,25 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    // 5T-Trackable: 全域 testTimeout 由 5s（預設）放寬至 30s。
+    //
+    // 根因（2026-09-28 實測，非本機環境問題）: 多支測試以 top-level import
+    // 載入 Next.js route / 掃描真實檔案系統 / 跑完整 delegation 生命週期，
+    // 需 transpile + 初始化 Next runtime 或磁碟 I/O。在全量並行負載下
+    // 實測需 5-17 秒，遠超 5s 預設 → 隨機失敗（flaky）。
+    //
+    // 證據: 完全相同的 `npx vitest run` 連跑，失敗數在 5 → 1 → 0 間跳動
+    // （同一個 commit）。已排除回歸可能 —— git stash 隔離改動後同樣失敗。
+    // 實測最慢者: api-health-tags 17.3s / audit-logger 9.9s /
+    //              complete-delegation 9.4s / audit.test.ts 15.9s
+    //
+    // 為何全域而非逐檔加: 受影響檔案散落 6 檔 9 個 describe，逐檔補會漏，
+    // 且下次新增測試又會踩。全域設定一次涵蓋（含未來新增的測試）。
+    //
+    // 為何不是無限放寬: 30s 已遠高於任何測試的合理執行時間（正常情況
+    // 全部測試 < 1s），真正的 hang 仍會在此時限內被抓出，不至於讓 CI 掛死。
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     exclude: [
       '**/node_modules/**',
       '**/dist/**',
@@ -48,6 +67,13 @@ export default defineConfig({
       // 由 apps/self-healing 自身的 `pnpm test` (= node --test test/*.test.mjs) 執行，
       // 該套件 dependencies 為空，純 Node 即可跑，覆蓋率不減。
       'apps/self-healing/test/**',
+      // Gateway WS 認證整合測試以腳本形式撰寫（頂層 await + record() + process.exit），
+      // 非 vitest 套件：根 vitest 抓取時報 "No test suite found in file"，
+      // 使整個 Vitest Tests job exit 1（本分支 2026-09-28 CI 紅燈根因）。
+      // 由 ci.yml 的 "Run Gateway WS auth test (node script)" 步驟直接
+      // `node apps/gateway/ws-auth.test.mjs` 執行（spawn 真 server + raw handshake），
+      // 25/25 斷言覆蓋不減。
+      'apps/gateway/ws-auth.test.mjs',
     ],
   },
   resolve: {

@@ -2,7 +2,7 @@
  * §12.1.5 快取策略 (Cache Strategy)
  * 5T: Tangible (命中回饋可感知)
  */
-import { freeze, uuidV4, OA_VERSION } from './types';
+import { freeze } from './types';
 
 interface CacheItem {
   value: unknown;

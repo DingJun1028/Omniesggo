@@ -8,7 +8,7 @@
     "start": "node omni-server.mjs",
     "health": "node -e \"fetch('http://127.0.0.1:8642/status').then((res) => process.exit(res.ok ? 0 : 1)).catch(() => process.exit(1))\"",
     "typecheck": "tsc --noEmit",
-    "test": "echo 'no tests defined'"
+    "test": "node ../../node_modules/vitest/vitest.mjs run oa-swarm-matrix.test.mjs oa-routes.test.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",

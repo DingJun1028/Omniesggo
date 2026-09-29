@@ -3,7 +3,7 @@
 覆蓋範圍為純邏輯：設定組裝、輸出格式分派、摘要計算、語義圖譜、
 @tool 裝飾器 Schema 生成、逾時與快取判定的單位一致性。
 
-執行：python -m pytest tests/agent_mesh/ -q
+執行：python -m pytest apps/agent_mesh/tests/ -q
 """
 
 import json
@@ -13,11 +13,12 @@ from pathlib import Path
 
 import pytest
 
-ROOT = Path(__file__).resolve().parents[2]
+# 測試位於 apps/agent_mesh/tests/，被測模組在上一層 apps/agent_mesh/
+ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from ollama_model_tool import (  # noqa: E402
+from agent_tool import (  # noqa: E402
     OutputConfig,
     OutputFormat,
     ResultWriter,
@@ -234,7 +235,7 @@ def test_graph_stats_on_fresh_db(tmp_path):
 
 def test_cli_uses_canonical_graph_not_duplicate():
     """回歸：CLI 曾內嵌一份 SemanticGraph 副本，造成 stats() 只在內嵌版可用。"""
-    import ollama_model_tool as cli
+    import agent_tool as cli
     from semantic_graph import SemanticGraph as Canonical
 
     assert cli.SemanticGraph is Canonical, "CLI 必須使用正典模組，不可有內嵌副本"

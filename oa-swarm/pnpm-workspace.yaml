@@ -1,0 +1,27 @@
+# oa-swarm 為獨立 pnpm 專案（非 root workspace 成員：root
+# pnpm-workspace.yaml 的 `packages:` glob 不含 'oa-swarm'，故 root 的
+# overrides 無法觸及此處 —— 這是 Dependabot GHSA-5xrq-8626-4rwp
+# 2 筆 critical 告警指向 oa-swarm/pnpm-lock.yaml 的根源）。
+#
+# 2026-09-28 補上此檔，沿用 my-worker/pnpm-workspace.yaml 已驗證的模式：
+# pnpm 11 已不再讀取 package.json 的 `pnpm` 欄位（實測警告：
+# 'The "pnpm" field in package.json is no longer read by pnpm'），
+# 設定改由 pnpm-workspace.yaml 承接。
+#
+# override 須含 <major 上界，不可為裸 >= —— 否則 vitest 5 一發布就會被強制升上去
+# 而不受測試覆蓋。理由出自 docs/security/dependabot-triage-2026-09-28.md
+# （該處自身標註與 AGENTS.md 條文衝突；root AGENTS.md 全文 66 行並無編號條文，
+#  實查確認此規則無一手出處，故以本檔註解為準）。
+packages:
+  - '.'
+
+# pnpm 11 預設拒絕執行依賴的建置腳本，esbuild 未建置會使 vitest 無法運作
+# （ERR_PNPM_IGNORED_BUILDS，install exit=1）。pnpm 首次安裝寫入的
+# "set this to true or false" 是無效字串，須明確設為布林。
+allowBuilds:
+  esbuild: true
+
+overrides:
+  # GHSA-5xrq-8626-4rwp（critical, DoS）。上游修補點為 4.1.0
+  # （GitHub API first_patched_version = "4.1.0" 實測確認）。
+  vitest: '>=4.1.11 <5'

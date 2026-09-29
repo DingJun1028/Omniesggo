@@ -2,13 +2,11 @@
  * GET /api/health/metrics
  * Minimal Prometheus-style metrics for core ESGGO processes.
  */
-import os from 'os';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const cpu = os.loadavg()[0];
   const mem = process.memoryUsage();
   const now = new Date().toISOString();
 

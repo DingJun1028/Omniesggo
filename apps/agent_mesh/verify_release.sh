@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 # Agent Mesh 發布驗收腳本
 # 對單一 CLI 執行檔（exe 或 py）逐項實測，輸出 PASS/FAIL 與真實工具輸出。
-# 用法：bash verify_release.sh [exe路徑]
+# 用法：bash apps/agent_mesh/verify_release.sh [exe路徑]
 set -u
 
-EXE="${1:-C:/Project/esggo/_pyi/dist/esggo-agent-mesh.exe}"
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$HERE/../.." && pwd)"
+
+EXE="${1:-$REPO_ROOT/_pyi/dist/esggo-agent-mesh.exe}"
 # 工作目錄必須是「原生 Windows 路徑」：本機 MSYS 路徑轉換已停用，
 # 傳 /tmp/... 給原生 .exe 會無法解析而靜默失敗（且 $TMPDIR 常為 /tmp）。
-# pwd -W 會把當前目錄轉成 C:/... 形式；失敗時退回硬編碼專案路徑。
+# pwd -W 會把當前目錄轉成 C:/... 形式；失敗時退回 repo 根（由腳本位置推導）。
 NAT_CWD="$(pwd -W 2>/dev/null || true)"
-[ -n "$NAT_CWD" ] || NAT_CWD="C:/Project/esggo"
+[ -n "$NAT_CWD" ] || NAT_CWD="$(cd "$REPO_ROOT" && pwd -W 2>/dev/null || echo "$REPO_ROOT")"
 WORKDIR="$NAT_CWD/scratch/verify"
 mkdir -p "$WORKDIR" || exit 1
 PASS=0; FAIL=0

@@ -73,8 +73,15 @@ let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{
 });"
 
 echo "  確認舊預設金鑰已不再被接受（fail-fast 已生效）："
-sudo -n env PM2_HOME=/root/.pm2 PORT=8787 JWT_SECRET='ftg-journey-secret-key-change-in-production' \
-  DB_PATH=/tmp/jwt-negative-test.db timeout 8 node "$APP/server.js" 2>&1 | head -1 | sed 's/^/    /'
+# 5T-Trustworthy: 舊金鑰字面值不得留在版控中（它源自 7a1365dc7 的外洩事件）。
+# 從環境變數讀取，缺值時明確報錯而非默默用預設值。
+NEGATIVE_SECRET="${NEGATIVE_JWT_SECRET:-}"
+if [ -z "$NEGATIVE_SECRET" ]; then
+  echo "    [跳過] 未設定 NEGATIVE_JWT_SECRET — 需提供舊金鑰才能做負向驗證" >&2
+else
+  sudo -n env PM2_HOME=/root/.pm2 PORT=8787 JWT_SECRET="$NEGATIVE_SECRET" \
+    DB_PATH=/tmp/jwt-negative-test.db timeout 8 node "$APP/server.js" 2>&1 | head -1 | sed 's/^/    /'
+fi
 
 # ---------- 階段 4：記錄 ----------
 hr "階段 4／4 持久化 + 健檢"

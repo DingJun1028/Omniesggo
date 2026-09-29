@@ -4,6 +4,12 @@
  * 1. 有 CRON_SECRET 時，缺少/錯誤密鑰 → 401
  * 2. 有 CRON_SECRET 時，正確密鑰 (x-cron-secret / Bearer) → 放行
  * 3. 無 CRON_SECRET 時，缺少 x-user-id → 401；有 → 放行
+ *
+ * 5T-Trackable: 下方 `import { POST } from '../app/api/cron/route'` 為
+ * top-level import，首次載入需 transpile + 初始化整個 Next.js runtime。
+ * 於全量並行負載下實測需 5-7 秒，遠超 vitest 預設 5s timeout → 第一個 it()
+ * 隨機失敗（flaky，2026-09-28 實測失敗數在 5 與 1 間跳動，非回歸）。
+ * 已由 vitest.config.ts 的全域 testTimeout: 30_000 涵蓋，此處不重複設定。
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';

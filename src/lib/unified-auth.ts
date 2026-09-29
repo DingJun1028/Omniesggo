@@ -7,8 +7,6 @@
  */
 
 import { NextRequest } from 'next/server';
-import { getAdminApp } from './firebase-admin';
-import { getAuth } from './firebase-admin';
 import { adminDb } from './firebase-admin';
 import { jsonError } from './api-utils';
 import type { ErrorCodeKey } from '@esggo/errors';
@@ -99,7 +97,7 @@ export class UnifiedAuth {
    */
   private static async authenticateFirebase(
     request: NextRequest,
-    config: AuthConfig
+    _config: AuthConfig
   ): Promise<AuthResult> {
     // 2026-08-25 力度 1: GCP Firebase Auth 已停用 (本地模式)。
     // verifyIdToken 在本地模式下會 throw; 直接降級回傳失敗, 改用 jose 本地 JWT (見 middleware.ts)。
@@ -119,7 +117,7 @@ export class UnifiedAuth {
    */
   private static async authenticateApiKey(
     request: NextRequest,
-    config: AuthConfig
+    _config: AuthConfig
   ): Promise<AuthResult> {
     try {
       const apiKey = request.headers.get('x-api-key') || 
@@ -140,7 +138,7 @@ export class UnifiedAuth {
         role: 'system',
         strategy: 'api-key'
       };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'API key authentication failed' };
     }
   }
@@ -150,7 +148,7 @@ export class UnifiedAuth {
    */
   private static async authenticateInternal(
     request: NextRequest,
-    config: AuthConfig
+    _config: AuthConfig
   ): Promise<AuthResult> {
     try {
       const internalToken = request.headers.get('x-omni-token') || 
@@ -171,7 +169,7 @@ export class UnifiedAuth {
         role: 'system',
         strategy: 'internal'
       };
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Internal authentication failed' };
     }
   }

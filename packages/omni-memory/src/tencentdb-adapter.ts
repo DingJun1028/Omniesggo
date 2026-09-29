@@ -82,7 +82,7 @@ export class TencentDBStorage implements IStorage {
       method: 'POST',
       body: JSON.stringify({
         user_id: this.config.userId,
-        service_id: this.configServiceId,
+        service_id: this.config.serviceId,
         memories: [{
           content: memory.content,
           metadata: {

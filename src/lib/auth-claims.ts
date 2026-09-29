@@ -10,8 +10,6 @@
  * 使用限制：僅能在伺服器/API Route 使用
  */
 
-import { getAuth } from './firebase-admin';
-import { getAdminApp } from './firebase-admin';
 
 export type UserRole = 'student' | 'TA' | 'admin';
 
@@ -67,7 +65,7 @@ export async function requireRole(uid: string, allowed: UserRole[]): Promise<Use
   return allowedSet.has(role) ? role : null;
 }
 
-export async function forceRefreshIdToken(token: string): Promise<string | null> {
+export async function forceRefreshIdToken(_token: string): Promise<string | null> {
   try {
     // 2026-08-25 力度 1: GCP Firebase Auth 已停用 (本地模式)。
     // 本地驗證請改用 middleware.ts 的 jose 實作; 此處直接降級回 null。

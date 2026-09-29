@@ -1,3 +1,4 @@
+// source_origin: 最佳實踐覺（覺四熵減）— 消除 any cast，改用結構型別描述存取邊界
 import { describe, it, expect } from 'vitest';
 import {
   validateRequiredTriad,
@@ -123,9 +124,12 @@ describe('§20.6 OmniTag 契約持久化層 (寫入即凍結)', () => {
       tag: { agent: 'agent:09', lifecycle: 'active', priority: 'p2' },
       content: 'original',
     });
-    // 模擬篡改：直接改 _mem 中記錄的 hashLock
-    const lines = (reg as any)._mem as string[];
-    const rec = JSON.parse(lines[0]);
+    // 模擬篡改：直接改 _mem 中記錄的 hashLock。
+    // _mem 在 OmniTagRegistry 宣告為 private，故以局部結構型別描述，
+    // 避免整個 cast 成 any（掩蓋真正的存取意圖）。
+    const internals = reg as unknown as { _mem: string[] };
+    const lines = internals._mem;
+    const rec = JSON.parse(lines[0]) as { hashLock: string };
     rec.hashLock = '0'.repeat(64);
     lines[0] = JSON.stringify(rec);
 
