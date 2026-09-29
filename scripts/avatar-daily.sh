@@ -3,7 +3,12 @@ set -euo pipefail
 
 # 萬能知識代理分身每日七相 (avatar-daily.sh)
 # Inherit → Hatch → Write → Guard → Clean → Metrics → MOC
-# VPS crontab 建議: 0 5 * * * cd /opt/esggo/esggo && bash scripts/avatar-daily.sh >> /var/log/avatar-daily.log 2>&1
+# VPS crontab 必須把輸出寫回 /opt/esggo/avatar.log, 與 avatar-metrics.mjs 的
+#   LOG = path.resolve('avatar.log') (相對 CWD) 對齊。舊註解建議寫 /var/log/
+#   avatar-daily.log, 會讓 metrics 讀到永不更新的舊檔 → 健康度永久失明
+#   (實測: 同步 220/220 成功, metrics 仍報 198/22 降級)。
+# 正確條款:
+#   0 5 * * * cd /opt/esggo && bash scripts/avatar-daily.sh >> /opt/esggo/avatar.log 2>&1
 
 cd "$(dirname "$0")/.."
 
@@ -25,9 +30,18 @@ log "=== Clean: 防回歸清理測試型別 ==="
 node scripts/avatar-cleanup.mjs || true
 
 log "=== Metrics: 萃取健康度指標 ==="
-node scripts/avatar-metrics.mjs || true
+# 唯一會對排程層「說實話」的一相: metrics 在降級時 exit 1。舊版 `|| true`
+# 把退出碼吞掉, 導致 22 次真實寫入失敗時整條 cron 仍回報成功 (假 PASS)。
+# 其餘相維持 `|| true` 優雅降級不變, 這裡只把 metrics 的結果傳導出去。
+METRICS_RC=0
+node scripts/avatar-metrics.mjs || METRICS_RC=$?
 
 log "=== MOC: 知識分身日報回流 ==="
 node scripts/avatar-moc-sync.mjs || true
 
-log "avatar-daily done"
+if [ "$METRICS_RC" -ne 0 ]; then
+  log "avatar-daily done (降級: 健康度未達標, 退出碼 $METRICS_RC)"
+else
+  log "avatar-daily done"
+fi
+exit "$METRICS_RC"
