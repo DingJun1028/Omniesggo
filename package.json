@@ -28,8 +28,8 @@
     "turbo:build": "cross-env NEXT_TELEMETRY_DISABLED=1 next build",
     "turbo:start": "next start",
     "turbo:lint": "eslint . --fix",
-    "oa:summon": "ts-node --transpile-only scripts/run-summon.ts",
-    "oa:summon:core": "ts-node --transpile-only scripts/run-summon.ts -- --core",
+    "oa:summon": "ts-node --transpile-only -P tsconfig.scripts.json scripts/run-summon.ts",
+    "oa:summon:core": "ts-node --transpile-only -P tsconfig.scripts.json scripts/run-summon.ts -- --core",
 
     "oa:weekly-report": "tsx cli/oa-cli/src/index.ts weekly-report",
 

@@ -28,9 +28,23 @@ CFG = os.path.join(HERMES_HOME, "config.yaml")
 JOBS = os.path.join(HERMES_HOME, "cron", "jobs.json")
 CANON_DIR = os.path.join(".hermes", "5t-canon")
 OLLAMA_URL = "https://ollama.com/v1/chat/completions"
+# 雲端可用模型必須存在於 ollama.com 目錄；gemma4:e4b 只是本機 tag，
+# 雲端會回 not_found，所以雲端與本機用不同模型常數。
+CLOUD_MODEL = os.environ.get("CLOUD_OLLAMA_MODEL", "gemma4:31b")
 # 本機 Ollama（免費離線）。雲端配額是帳號層級的資源，程式改不動；
 # 守護不該因為雲端 429 就失去 Tangible 實測能力。
-LOCAL_URL = os.environ.get("LOCAL_OLLAMA_URL", "http://localhost:11434/v1/chat/completions")
+# Windows 上 tray app 的 11434 可能卡死（/api/tags 通、/api/generate 不回），
+# 那時要指向健康的 `ollama serve`（例如 11435），否則 Tangible 會誤判。
+LOCAL_BASE = os.environ.get("LOCAL_OLLAMA_URL", "http://localhost:11434")
+# Windows 上 tray app 的 11434 可能卡死（/api/tags 通、/api/generate 不回），
+# 而獨立 `ollama serve` 的 11435 正常。守護自帶回落，不靠 cron 環境變數。
+LOCAL_BASES = [LOCAL_BASE] + [
+    b for b in os.environ.get("LOCAL_OLLAMA_FALLBACK_URLS", "http://127.0.0.1:11435").split(",") if b and b != LOCAL_BASE
+]
+LOCAL_URL = LOCAL_BASE.rstrip("/") + "/v1/chat/completions"
+# 本機候選模型由小到大：CPU-only 時 3b 約 50s，9.6GB 的 gemma4:e4b 會超時。
+LOCAL_MODELS = [m for m in os.environ.get("LOCAL_OLLAMA_MODELS", "qwen2.5:3b,qwen3-vl:2b,gemma4:e4b").split(",") if m]
+LOCAL_TIMEOUT = int(os.environ.get("LOCAL_OLLAMA_TIMEOUT", "150"))
 
 def load_vault_key():
     if not os.path.exists(VAULT):
@@ -51,51 +65,70 @@ def load_cfg_key():
         return None, "ollama-cloud provider api_key not found"
     return m.group(1), None
 
-def test_ollama(key, model="gemma4:e4b"):
-    payload = {"model": model, "messages": [{"role":"user","content":"ping"}], "stream": False, "max_tokens": 8}
+def _curl_json(url, payload, headers, timeout):
+    """回 (ok, detail)。ok=False 時 detail 是可讀原因。"""
+    cmd = ["curl", "-sS", "-m", str(timeout), url]
+    for h in headers:
+        cmd += ["-H", h]
+    cmd += ["-H", "Content-Type: application/json", "-d", json.dumps(payload)]
     try:
-        r = subprocess.run(
-            ["curl","-sS","-m","20", OLLAMA_URL,
-             "-H", f"Authorization: Bearer {key}",
-             "-H","Content-Type: application/json","-d", json.dumps(payload)],
-            capture_output=True, text=True, timeout=25
-        )
-        if r.returncode != 0:
-            return False, f"curl exit={r.returncode}: {r.stderr[:80]}"
-        try:
-            resp = json.loads(r.stdout)
-            if "error" in resp:
-                return False, resp["error"].get("message","unknown")
-            return True, resp.get("choices",[{}])[0].get("message",{}).get("content","")[:80]
-        except Exception as e:
-            return False, f"parse fail: {e}"
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout + 10)
     except subprocess.TimeoutExpired:
         return False, "timeout"
     except Exception as e:
         return False, str(e)
+    if r.returncode != 0:
+        return False, f"curl exit={r.returncode}: {r.stderr[:80]}"
+    try:
+        resp = json.loads(r.stdout)
+    except Exception as e:
+        return False, f"parse fail: {e}"
+    if "error" in resp:
+        err = resp["error"]
+        return False, err.get("message", "unknown") if isinstance(err, dict) else str(err)[:120]
+    return True, resp
 
-def test_local(model="gemma4:e4b"):
-    """本機 Ollama 實測。免費離線，不受雲端配額影響。"""
+def test_ollama(key, model=None):
+    model = model or CLOUD_MODEL
     payload = {"model": model, "messages": [{"role":"user","content":"ping"}], "stream": False, "max_tokens": 8}
+    ok, resp = _curl_json(OLLAMA_URL, payload, [f"Authorization: Bearer {key}"], 30)
+    if not ok:
+        return False, resp
+    return True, resp.get("choices",[{}])[0].get("message",{}).get("content","")[:80]
+
+def local_server_alive(base):
+    """/api/tags 探活。tray app 卡死時 tags 仍會回，但 generate 不回。"""
+    url = base.rstrip("/") + "/api/tags"
     try:
-        r = subprocess.run(
-            ["curl","-sS","-m","120", LOCAL_URL,
-             "-H","Content-Type: application/json","-d", json.dumps(payload)],
-            capture_output=True, text=True, timeout=150
-        )
-        if r.returncode != 0:
-            return False, f"curl exit={r.returncode}: {r.stderr[:80]}"
-        try:
-            resp = json.loads(r.stdout)
-            if "error" in resp:
-                return False, resp["error"].get("message","unknown")
-            return True, "local " + resp.get("model", model)
-        except Exception as e:
-            return False, f"parse fail: {e}"
-    except subprocess.TimeoutExpired:
-        return False, "timeout"
-    except Exception as e:
-        return False, str(e)
+        r = subprocess.run(["curl","-sS","-m","8",url], capture_output=True, text=True, timeout=15)
+        return r.returncode == 0
+    except Exception:
+        return False
+
+def test_local(models=None, timeout=None):
+    """本機 Ollama 實測。免費離線，不受雲端配額影響。
+    依序試候選 base（主 → 回落）與候選模型；第一個回 200 即通過。
+    Windows CPU-only 首個請求要熱機，timeout 給足。"""
+    models = models or LOCAL_MODELS
+    timeout = timeout or LOCAL_TIMEOUT
+    tried, last = [], "no candidate models"
+    for base in LOCAL_BASES:
+        if not local_server_alive(base):
+            tried.append(f"{base}: down")
+            continue
+        for model in models:
+            url = base.rstrip("/") + "/v1/chat/completions"
+            payload = {"model": model, "messages": [{"role":"user","content":"ping"}], "stream": False, "max_tokens": 8}
+            ok, resp = _curl_json(url, payload, [], timeout)
+            if ok:
+                if tried:
+                    return True, f"local {resp.get('model', model)} (via fallback: {'; '.join(tried)})"
+                return True, f"local {resp.get('model', model)}"
+            tried.append(f"{base} {model}: {resp}")
+            last = f"{base} {model}: {resp}"
+            if resp == "timeout":
+                break  # 卡住的不會因換模型變快，直接換 base
+    return False, last
 
 def check_cron_jobs():
     if not os.path.exists(JOBS):
