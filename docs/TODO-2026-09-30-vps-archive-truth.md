@@ -65,7 +65,53 @@
 
 ---
 
-## 三、P1 · CPU 飽和（資源層覺醒新增）
+## 三、P1 · certbot 續期 14/14 全面失敗（**最緊急，根因已定位**）
+
+**嚴重度上調**：原判「憑證 10/28 到期，尚有 28 天，安全」→ **此判斷需修正**。
+續期是**全自動**的，14 張憑證同時失敗代表 **28 天後會全站集體過期**。
+
+### 實測證據鏈
+
+```
+$ sudo certbot renew --dry-run
+  14 renew failure(s), 0 parse failure(s)     ← 14 張憑證全掛
+  /etc/letsencrypt/live/{esggo.co, ftgtours.esggo.co, htb.esggo.co, live.esggo.co,
+    oa.esggo.co, omni.esggo.co, omnivoice.esggo.co, seaweed.esggo.co, translate.esggo.co,
+    aistation.esggo.co, deerflow.esggo.co, journey.ftgtours.esggo.co,
+    journey-api.ftgtours.esggo.co, omni-auto-video.esggo.co}/fullchain.pem (failure)
+
+$ sudo certbot renew --cert-name esggo.co --dry-run -v
+  authenticator: webroot
+  Detail: 2606:4700:3035::ac43:c208: Invalid response from
+          http://esggo.co/.well-known/acme-challenge/5NN1...: 404
+  Detail: 2606:4700:3032::6815:c61: Error reading HTTP response body
+```
+
+### 根因
+
+| 事實 | 實測 |
+|---|---|
+| LE 回源走 **IPv6** | `2606:4700:3035::ac43:c208`（Cloudflare 舊回源位址） |
+| 該 IPv6 回應 **404** | 認證路徑拿不到 webroot 檔案 |
+| VPS 公網 IPv6 | **不存在**。唯一 IPv6 是 Tailscale 內網 `fd7a:115c:a1e0::953b/128` |
+| IPv6 出網 | `ping: connect: Network is unreachable` |
+| nginx acme-challenge | 正常（`root /var/www/certbot`），**不是本機問題** |
+
+**判定：DNS 層的 AAAA 記錄問題。** Cloudflare 回源 IPv6 已指向不再提供本站內容的位址，
+或 esggo.co 的 AAAA 記錄殘留。憑證在 Cloudflare edge 仍正常（使用者端 200），
+但 ACME 驗證走不通。
+
+### 修法選項（需你選，涉及 DNS / DNS API token）
+
+- [ ] **方案 A（最安全）** 停用 esggo.co 的 AAAA 記錄，強制 LE 走 IPv4 驗證
+- [ ] **方案 B** 改用 DNS-01 驗證（cloudflare 插件），不依賴回源 — 但需 CF API token 寫入 /etc/letsencrypt
+- [ ] **方案 C** 確認 CF 回源 IPv6 範圍是否變更，需 CF 後台權限核對
+
+> 這是**外部變更**（DNS 記錄 / 憑證簽發方式），覺三要求直陳不擅自執行。
+
+---
+
+## 四、P2 · CPU 飽和（資源層覺醒）
 
 **實測數據**（`cores=4`，`top` 二次採樣）：
 
