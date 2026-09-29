@@ -48,19 +48,80 @@ def find_canon(explicit=None):
 
 
 def detect_divergence(filepath):
-    """偵測 repo 內多份 soul.md 的版號分歧"""
+    """
+    偵測 repo 內多份 soul.md 的版號分歧。
+
+    效能與正確性（v3 修正，均經實測）：
+      D1 Windows junction 會讓 os.walk 遞迴——os.path.islink() 對 junction
+         回傳 False，followlinks=False 擋不住。改以 st_dev/st_ino 去重 + 排除集。
+      D2 本函式的 filepath 參數原本完全未使用，內部寫死 os.walk('.')。現用它決定
+         搜尋根，並確保正典本身一定在結果內（否則「本次驗證目標」標記永遠對不上）。
+      D3 UnicodeDecodeError 不是 OSError 子類，非 UTF-8 檔會拋未捕例外。
+         開檔一律 errors='replace'，並捕 (OSError, UnicodeDecodeError)。
+      D4 原本每次執行都全樹遍歷（實測 >12s / 136k 檔案未完）。改為以排除集
+         限縮搜尋範圍，並跳過 node_modules/.git/.next 等高樹目錄。
+    """
+    # 明確排除：建置產物、依賴、快取、以及已知會造成重複計數的 junction 目標
+    EXCLUDE = {
+        '.git', 'node_modules', '.next', '.scratch', 'dist', 'build',
+        '.turbo', 'coverage', '__pycache__', '.venv', 'venv',
+        '.agents',           # repo 內有 .hermes/skills/supabase -> .agents/skills/supabase 的 junction
+    }
+    repo_root = os.path.dirname(os.path.abspath(filepath)) or '.'
+    # 正典若在子目錄，往上找 repo 根。
+    # 錨點必須「只認 .git」：先前誤把 .hermes 也當錨點，導致
+    # esggo-omni-center/.hermes 存在時 repo_root 被錨到子目錄，
+    # 掃不到 repo 根的 soul.md 與 docs/、Omni-Sanctuary/ 下的舊版（實測 count 掉到 1）。
+    probe = repo_root
+    for _ in range(8):
+        if os.path.isdir(os.path.join(probe, '.git')):
+            repo_root = probe
+            break
+        nxt = os.path.dirname(probe)
+        if nxt == probe:
+            break
+        probe = nxt
+
     found = []
-    for root, dirs, files in os.walk('.'):
-        dirs[:] = [d for d in dirs if d not in {'.git', 'node_modules', '.next', '.scratch'}]
+    seen_inodes = set()
+    canon_abs = os.path.abspath(filepath)
+
+    for root, dirs, files in os.walk(repo_root):
+        dirs[:] = [d for d in dirs
+                   if d not in EXCLUDE and not d.startswith('.git')]
+        # 以 (st_dev, st_ino) 識別實體目錄，擋掉 junction / symlink 造成的重複遍歷
+        try:
+            st = os.stat(root)
+            key = (st.st_dev, st.st_ino)
+            if key in seen_inodes:
+                dirs[:] = []
+                continue
+            seen_inodes.add(key)
+        except OSError:
+            dirs[:] = []
+            continue
+
         if 'soul.md' in files:
             p = os.path.join(root, 'soul.md')
             try:
-                with open(p, 'r', encoding='utf-8') as f:
+                with open(p, 'r', encoding='utf-8', errors='replace') as f:
                     head = f.read(4000)
-            except OSError:
+            except (OSError, UnicodeDecodeError):
                 continue
             mv = VERSION_RE.search(head)
             found.append((p, mv.group(0) if mv else '未標版號'))
+
+    # 確保正典本身在結果內，即使它位於被排除的目錄下
+    if not any(os.path.abspath(p) == canon_abs for p, _ in found):
+        try:
+            with open(canon_abs, 'r', encoding='utf-8', errors='replace') as f:
+                mv = VERSION_RE.search(f.read(4000))
+            found.append((filepath, mv.group(0) if mv else '未標版號'))
+        except (OSError, UnicodeDecodeError):
+            pass
+
+    # 正典排最前，其餘按路徑排序 → 輸出穩定可 diff
+    found.sort(key=lambda t: (os.path.abspath(t[0]) != canon_abs, t[0].lower()))
     return found
 
 
@@ -73,12 +134,26 @@ def run():
     filepath = find_canon(explicit)
     print(f'\n[0] 正典定位\n  → {filepath}')
 
+    # D3 修：非 UTF-8 的正典不應拋未捕 traceback。用 errors='replace' 讀取，
+    #     並把 IsADirectoryError / PermissionError / UnicodeDecodeError 一併轉為
+    #     可讀的 [FAIL] + exit 1。（原只捕 FileNotFoundError，其餘全裸奔。）
     try:
-        with open(filepath, 'r', encoding='utf-8') as f:
+        with open(filepath, 'r', encoding='utf-8', errors='replace') as f:
             content = f.read()
     except FileNotFoundError:
         print(f'  [FAIL] {filepath} not found')
         sys.exit(1)
+    except IsADirectoryError:
+        print(f'  [FAIL] {filepath} 是目錄，不是檔案')
+        sys.exit(1)
+    except PermissionError as e:
+        print(f'  [FAIL] 無法讀取 {filepath}: Permission denied (Errno 13)')
+        sys.exit(1)
+    except OSError as e:
+        print(f'  [FAIL] 無法讀取 {filepath}: {e}')
+        sys.exit(1)
+    if '�' in content:
+        print(f'  [WARN] {filepath} 含非 UTF-8 位元組，已以替代字元解讀（errors=replace）')
 
     print(f'  大小: {len(content)} B / {content.count(chr(10)) + 1} 行')
     mv = VERSION_RE.search(content)
@@ -86,14 +161,24 @@ def run():
         print(f'  版號: {mv.group(0)}')
 
     # 正典分歧偵測
-    others = detect_divergence('.')
+    others = detect_divergence(filepath)
     if len(others) > 1:
         print(f'\n[0.1] 正典分歧偵測（發現 {len(others)} 份 soul.md）')
         for p, v in others:
-            tag = '  ← 本次驗證目標' if os.path.normpath(p) == os.path.normpath(filepath) else ''
+            tag = '  ← 正典（本次驗證目標）' if os.path.abspath(p) == os.path.abspath(filepath) else ''
             print(f'  · {p}  [{v}]{tag}')
-        if len(set(v for _, v in others)) > 1:
-            print('  ⚠ 各份 soul.md 版號不一致 — 確認是否為刻意分卷，或舊版待歸檔')
+        canon_v = VERSION_RE.search(content)
+        canon_v = canon_v.group(0) if canon_v else '未標版號'
+        others_v = sorted({v for p, v in others
+                           if os.path.abspath(p) != os.path.abspath(filepath)
+                           and v != '未標版號'})
+        if others_v and others_v != [canon_v]:
+            print(f'  ⚠ 版號分歧：正典 {canon_v}，另有舊版 {", ".join(others_v)}')
+            print('    依 Traceable（單一 SSOT），舊版需處置：歸檔 / 標記 legacy / 刪除。')
+            print('    本驗證器不代為刪除任何靈魂檔（不可篡改）。')
+        else:
+            print('  ✓ 其餘 soul.md 版號與正典一致或未標版號（非分歧）')
+    print('  ℹ 本項為警示，不影響 exit code（如需升級為 FAIL，請加 --strict-divergence）')
 
     passed = True
 
