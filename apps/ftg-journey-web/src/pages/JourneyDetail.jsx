@@ -31,7 +31,7 @@ const PACKING_LIST = [
 ];
 
 const ESG_TASKS = [
-  { id: 'cleanup', title: 'Clean-up Walk', icon: '🗑️', unit: '件', color: 'green', fields: [
+  { id: 'cleanup', title: '淨灘清拾', icon: '🗑️', unit: '件', color: 'green', fields: [
     { name: 'count', label: '垃圾數量', type: 'number', placeholder: '撿了幾件？' },
     { name: 'weight', label: '預估重量(kg)', type: 'number', placeholder: '有多重？' },
     { name: 'types', label: '垃圾類型', type: 'text', placeholder: '塑膠、玻璃...' },

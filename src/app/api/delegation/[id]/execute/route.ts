@@ -20,6 +20,7 @@ import {
   DelegationEventNames,
   DelegationTopics,
 } from '../../../../../types/complete-delegation';
+import { ERROR_CODES } from '@esggo/errors';
 
 // ==========================================
 // POST /api/delegation/[id]/execute - 執行任務
@@ -119,7 +120,7 @@ export async function POST(
     console.error('[Delegation API] 執行任務失敗:', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code,
       },
       { status: 500 }
     );

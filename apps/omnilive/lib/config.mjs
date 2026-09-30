@@ -30,6 +30,7 @@ const AUDIO_SOURCES = ['mic', 'system-display', 'device', 'caption'];
  *   sttDevice: string,
  *   sttCompute: string,
  *   roomPasswordEnabled: boolean,
+ *   hostApiKey: string,
  *   roomTtlMs: number,
  *   roomCleanupIntervalMs: number,
  * }}

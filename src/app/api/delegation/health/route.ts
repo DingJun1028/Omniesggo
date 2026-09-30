@@ -11,6 +11,7 @@
 
 import { NextResponse } from 'next/server';
 import { checkDelegationHealth } from '../../../../../agents/complete-delegation/health';
+import { ERROR_CODES } from '@esggo/errors';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -27,11 +28,12 @@ export async function GET() {
       },
     });
   } catch (err) {
+    console.error('[API/delegation/health] Error:', err);
     return NextResponse.json(
       {
         status: 'unhealthy',
         timestamp: new Date().toISOString(),
-        error: err instanceof Error ? err.message : 'Unknown error',
+        error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code,
         checks: [],
       },
       { status: 503 }

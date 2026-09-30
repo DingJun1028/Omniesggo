@@ -14,11 +14,40 @@ try {
 // 2. Check lockfile sync — prevent CI --frozen-lockfile failures
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
 const pkgPath = path.resolve(__dirname, '..', 'package.json');
 const lockPath = path.resolve(__dirname, '..', 'pnpm-lock.yaml');
 
-if (fs.existsSync(pkgPath) && fs.existsSync(lockPath)) {
+// package.json 變更時必須驗 lockfile, 但「lockfile 存在與否」要看 **index**
+// 而非磁碟: 刪除 pnpm-lock.yaml 這個提交本身就是最高風險的繞過路徑 ——
+// 若守衛條件是 fs.existsSync(lockPath), 該提交會讓整項檢查直接消失。
+let lockStaged = true;
+let pkgStaged = false;
+try {
+  const changed = execSync('git diff --cached --name-only --diff-filter=ACMR', { encoding: 'utf-8' })
+    .split('\n').map((f) => f.trim()).filter(Boolean);
+  pkgStaged = changed.includes('package.json');
+  if (pkgStaged) {
+    try {
+      execFileSync('git', ['cat-file', '-e', ':pnpm-lock.yaml'], { stdio: 'ignore' });
+    } catch {
+      lockStaged = false;
+    }
+  }
+} catch {
+  // git 不可用 (例如非 git 目錄) → 不擋, 交由 CI 驗證
+  pkgStaged = false;
+}
+
+if (pkgStaged && !lockStaged) {
+  console.error('[pre-commit] pnpm-lock.yaml 在本次提交中消失，但 package.json 仍被修改。');
+  console.error('  這會讓本項同步檢查連同 CI 的 --frozen-lockfile 保護一起失效。');
+  console.error('  若確實要移除 lockfile，請一併移除 package.json 的相依宣告。');
+  process.exit(1);
+}
+
+if (pkgStaged && lockStaged && fs.existsSync(pkgPath) && fs.existsSync(lockPath)) {
   try {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
     const lock = fs.readFileSync(lockPath, 'utf-8');
@@ -54,8 +83,17 @@ try {
   const agentsYaml = staged.find((f) => f === 'agents.yaml');
   if (agentsYaml) {
     try {
-      execSync('python3 scripts/verify-agents-yaml.py', { stdio: 'inherit', encoding: 'utf-8' });
-      console.log('[pre-commit] agents.yaml verification passed.');
+      // 必須驗證 **staged (index)** 的內容, 不是工作區的。
+      // 這是閘#1 vault 洞的鏡像: 先 stage 壞版再把工作區改好, 若驗工作區
+      // 就會放行壞版進 commit。verifier 本身支援路徑參數, 直接餵給它。
+      const tmp = path.join(os.tmpdir(), `agents-staged-${process.pid}.yaml`);
+      try {
+        fs.writeFileSync(tmp, execFileSync('git', ['show', ':agents.yaml'], { encoding: 'utf-8' }));
+        execSync(`python3 scripts/verify-agents-yaml.py "${tmp}"`, { stdio: 'inherit', encoding: 'utf-8' });
+        console.log('[pre-commit] agents.yaml verification passed (staged content).');
+      } finally {
+        fs.unlinkSync(tmp);
+      }
     } catch {
       console.error('[pre-commit] agents.yaml verification FAILED — fix the framework before committing.');
       process.exit(1);
@@ -86,7 +124,10 @@ try {
     let raw;
     try {
       // execFileSync 直接傳 argv, 不經 shell —— 路徑含空格/引號也安全
-      raw = execFileSync('git', ['show', `:${f}`], { encoding: 'utf-8' });
+      // maxBuffer: Node 預設 1 MiB, 超出即 ENOBUFS 拋錯 → 合法的大型 vault
+      // 檔會被誤判為壞檔而擋下提交。放寬到 16 MiB 覆蓋 vault 規格,
+      // 同時仍保留上限, 避免無限吃記憶體。
+      raw = execFileSync('git', ['show', `:${f}`], { encoding: 'utf-8', maxBuffer: 16 * 1024 * 1024 });
     } catch (e) {
       console.error(`[質控蜂] ${f}: 無法從 index 讀取 staged 內容 — ${e.message}`);
       failed = true;

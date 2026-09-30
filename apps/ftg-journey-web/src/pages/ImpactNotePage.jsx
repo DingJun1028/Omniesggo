@@ -4,6 +4,23 @@ import { motion } from 'framer-motion';
 
 const API_BASE = import.meta.env.VITE_API_BASE || 'https://journey-api.ftgtours.esggo.co';
 
+/**
+ * ESG 面向摘要的數值格式化。
+ *
+ * 為什麼需要它（2026-09-30 視覺驗證實測發現）：
+ *   原寫法 `{(impactByMetric.participants || 0)} 人次參與` 會把「從未記錄」
+ *   的指標顯示成 0。指標卡本身有 `> 0` 過濾所以不顯示，但摘要列沒有，
+ *   於是畫面與匯出的 PDF 都會出現「0 人次參與」「0.0 志工時數」。
+ *   對一份對外發布的 ESG 報告而言，「0 人次參與」會被讀成
+ *   「確實零人參與」，而非「沒有資料」——那是失實陳述。
+ *   這裡區分兩種語意：無資料 → 明示「未記錄」；有資料 → 正常顯示數值。
+ */
+function facet(value, unit, digits = 0) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return '未記錄';
+  return `${digits ? n.toFixed(digits) : n} ${unit}`;
+}
+
 const SDGS = [
   { id: 1, name: '消除貧窮', icon: '🚫', color: '#E5243B' },
   { id: 2, name: '零飢餓', icon: '🌾', color: '#DDA63A' },
@@ -137,7 +154,6 @@ export function ImpactNotePage() {
 
   if (!journey) return <div className="py-12 text-center">載入中...</div>;
 
-  const totalImpact = impact.reduce((sum, i) => sum + (i.value || 0), 0);
   const impactByMetric = impact.reduce((acc, i) => {
     acc[i.metric_id] = (acc[i.metric_id] || 0) + i.value;
     return acc;
@@ -236,17 +252,17 @@ export function ImpactNotePage() {
           <div style="background:#dcfce7;border-radius:16px;padding:32px;text-align:center;">
             <div style="font-size:48px;margin-bottom:12px;">🌿</div>
             <div style="font-size:24px;font-weight:700;color:#166534;">環境面</div>
-            <div style="font-size:16px;color:#166534;margin-top:8px;">${(impactByMetric.carbon_saved || 0).toFixed(1)} kg 減碳</div>
+            <div style="font-size:16px;color:#166534;margin-top:8px;">${facet(impactByMetric.carbon_saved, 'kg 減碳', 1)}</div>
           </div>
           <div style="background:#dbeafe;border-radius:16px;padding:32px;text-align:center;">
             <div style="font-size:48px;margin-bottom:12px;">👥</div>
             <div style="font-size:24px;font-weight:700;color:#1e40af;">社會面</div>
-            <div style="font-size:16px;color:#1e40af;margin-top:8px;">${(impactByMetric.participants || 0)} 人次參與</div>
+            <div style="font-size:16px;color:#1e40af;margin-top:8px;">${facet(impactByMetric.participants, '人次參與')}</div>
           </div>
           <div style="background:#fef3c7;border-radius:16px;padding:32px;text-align:center;">
             <div style="font-size:48px;margin-bottom:12px;">⏱️</div>
             <div style="font-size:24px;font-weight:700;color:#92400e;">治理面</div>
-            <div style="font-size:16px;color:#92400e;margin-top:8px;">${(impactByMetric.volunteer_hours || 0).toFixed(1)} 志工時數</div>
+            <div style="font-size:16px;color:#92400e;margin-top:8px;">${facet(impactByMetric.volunteer_hours, '志工時數', 1)}</div>
           </div>
         </div>
       </div>
@@ -422,17 +438,17 @@ export function ImpactNotePage() {
               <div className="text-center">
                 <div className="text-2xl">🌿</div>
                 <div className="text-sm font-bold text-green-700">環境面</div>
-                <div className="text-xs text-green-600">{(impactByMetric.carbon_saved || 0).toFixed(1)} kg 減碳</div>
+                <div className="text-xs text-green-600">{facet(impactByMetric.carbon_saved, 'kg 減碳', 1)}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl">👥</div>
                 <div className="text-sm font-bold text-blue-700">社會面</div>
-                <div className="text-xs text-blue-600">{(impactByMetric.participants || 0)} 人次參與</div>
+                <div className="text-xs text-blue-600">{facet(impactByMetric.participants, '人次參與')}</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl">⏱️</div>
                 <div className="text-sm font-bold text-yellow-700">治理面</div>
-                <div className="text-xs text-yellow-600">{(impactByMetric.volunteer_hours || 0).toFixed(1)} 志工時數</div>
+                <div className="text-xs text-yellow-600">{facet(impactByMetric.volunteer_hours, '志工時數', 1)}</div>
               </div>
             </div>
           </div>

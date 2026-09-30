@@ -8,6 +8,16 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import crypto from 'node:crypto';
 
+// ESG 任務目錄 / impact 對應 / 碳足跡換算的單一真實來源（5T-Traceable）。
+// 抽成純模組的原因與三個已修正缺陷見 esg-tasks.js 檔頭說明；
+// 規則由 esg-tasks.test.js 鎖住，勿在此處另行硬編碼。
+import {
+  ESG_TASKS,
+  impactRowsForTask,
+  summarizeImpact,
+  summarizeTaskLogs,
+} from './esg-tasks.js';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // 內建 .env 載入（零依賴，刻意不引入 dotenv）。
@@ -184,9 +194,17 @@ db.exec(`
   );
 `);
 
-const get = (sql, ...p) => db.prepare(sql).get(...p);
-const all = (sql, ...p) => db.prepare(sql).all(...p);
-const run = (sql, ...p) => db.prepare(sql).run(...p);
+// SQLite 參數正規化：node:sqlite 無法綁定 undefined（會拋
+// "Provided value cannot be bound to SQLite parameter N"），但前端任一表單
+// 只要少送一個選填欄位（例如建立旅程時未帶 service_type）就會整個 500。
+//
+// 修在此三個 helper 而非逐個 endpoint：所有 INSERT/UPDATE 都經過 run()，
+// 屬同一類缺陷的根因點。undefined → null 語意等價（欄位皆為可為 NULL 的
+// 選填欄），且與「存空字串」不同 —— 後者會讓查詢條件 `IS NULL` 失效。
+const norm = (p) => p.map((v) => (v === undefined ? null : v));
+const get = (sql, ...p) => db.prepare(sql).get(...norm(p));
+const all = (sql, ...p) => db.prepare(sql).all(...norm(p));
+const run = (sql, ...p) => db.prepare(sql).run(...norm(p));
 
 // ===== 權限檢查輔助函式 =====
 
@@ -313,6 +331,22 @@ app.post('/api/journeys', verifyToken, (req, res) => {
   run('INSERT INTO journeys (id,owner_email,title,service_type,destination,start_date,end_date,purpose,stage,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)',
     id, req.user.email, title, service_type, destination, start_date, end_date, purpose, 'planning', Date.now());
   res.json({ id });
+});
+
+// 取得單一旅程詳情（缺陷 G 修正，2026-09-30 視覺驗證實測發現）
+//
+// 症狀：GET /api/journeys/:id 回 404（express 預設 HTML 錯誤頁），
+//   而 JourneyDetail.jsx 與 ImpactNotePage.jsx 都以它載入旅程主體
+//   → 旅程詳情頁與留念流 Impact Note 兩個主要畫面都拿不到旅程資料。
+//   根因：此路由從未實作，只有 POST /:id 與 PUT/DELETE /:id。
+//
+// 權限：讀取層級用 requireAccess（成員亦可讀），與 prep/notes/summary
+//   等讀取端點一致；寫入才用 requireOwner。
+app.get('/api/journeys/:id', verifyToken, (req, res) => {
+  if (!requireAccess(req.params.id, req.user.email, res)) return;
+  const journey = get('SELECT * FROM journeys WHERE id=?', req.params.id);
+  if (!journey) return res.status(404).json({ error: '旅程不存在' });
+  res.json(journey);
 });
 
 app.put('/api/journeys/:id', verifyToken, (req, res) => {
@@ -604,7 +638,12 @@ function checkAndAwardBadges(email, journeyId) {
       const checkinCount = get('SELECT COUNT(*) as c FROM checkins WHERE email=?', email);
       earned = checkinCount.c >= badge.threshold;
     } else if (badge.category === 'note') {
-      const noteCount = get('SELECT COUNT(*) as c FROM notes WHERE email=?', email);
+      // notes 表沒有 email 欄位（schema: id/journey_id/date/mood/text/photo/created_at），
+      // 筆記是旅程層級的資源，徽章定義亦為「留下第一則旅程筆記」，故依 journey_id 計數。
+      // 舊版寫 WHERE email=? 會拋 "no such column: email"。
+      // 該查詢位於 POST /esg-tasks 的資料寫入之後，故此一例外會讓
+      // 「紀錄已成功寫入」的所有 ESG 提交一律回應 500（2026-09-30 實測）。
+      const noteCount = get('SELECT COUNT(*) as c FROM notes WHERE journey_id=?', journeyId);
       earned = noteCount.c >= badge.threshold;
     }
     
@@ -623,44 +662,14 @@ app.get('/api/journeys/:id/esg-tasks', verifyToken, (req, res) => {
   if (!requireAccess(req.params.id, req.user.email, res)) return;
   const logs = all('SELECT * FROM esg_task_logs WHERE journey_id=? ORDER BY created_at DESC', req.params.id);
   
-  // 計算各任務統計
-  const totals = {};
-  logs.forEach(log => {
-    const data = JSON.parse(log.data || '{}');
-    if (log.task_id === 'cleanup' && data.count) {
-      totals.cleanup = (totals.cleanup || 0) + Number(data.count);
-    }
-    if (log.task_id === 'carbon' && data.distance) {
-      // 簡易碳足跡計算：距離 * 排放係數
-      const mode = data.mode || '汽車';
-      const factors = { '步行': 0, '腳踏車': 0, '公車/捷運': 0.05, '火車': 0.04, '汽車': 0.17, '飛機': 0.25 };
-      const factor = factors[mode] || 0.17;
-      const passengers = Number(data.passengers) || 1;
-      totals.carbon = (totals.carbon || 0) + Number(data.distance) * factor / passengers;
-    }
-    if (log.task_id === 'biodiversity' && data.count) {
-      totals.biodiversity = (totals.biodiversity || 0) + Number(data.count);
-    }
-    if (log.task_id === 'local' && data.amount) {
-      totals.local = (totals.local || 0) + Number(data.amount);
-    }
-    if (log.task_id === 'water' && data.saved) {
-      totals.water = (totals.water || 0) + Number(data.saved);
-    }
-    if (log.task_id === 'waste' && data.count) {
-      totals.waste = (totals.waste || 0) + Number(data.count);
-    }
-  });
+  // 統計各任務累計值。規則已抽離至 esg-tasks.js（單一真實來源），
+  // 舊版在此硬編碼一份碳係數表，是缺陷 C（步行因 0 為 falsy 被算成汽車）的根因。
+  const totals = summarizeTaskLogs(logs);
 
   res.json({
-    tasks: [
-      { id: 'cleanup', title: 'Clean-up Walk', icon: '🗑️' },
-      { id: 'carbon', title: '碳足跡記錄', icon: '🌱' },
-      { id: 'biodiversity', title: '生態觀察', icon: '🦋' },
-      { id: 'local', title: '地方支持', icon: '🏪' },
-      { id: 'water', title: '水資源', icon: '💧' },
-      { id: 'waste', title: '廢棄物減量', icon: '♻️' },
-    ],
+    // 缺陷 A 修正：直接回傳含 fields 的任務目錄。前端 openTask() 與 modal
+    // 皆讀 task.fields；舊版只回 {id,title,icon}，點任何任務都會 TypeError。
+    tasks: ESG_TASKS,
     logs: logs.map(l => ({ ...l, data: JSON.parse(l.data || '{}') })),
     totals,
   });
@@ -674,20 +683,14 @@ app.post('/api/journeys/:id/esg-tasks', verifyToken, (req, res) => {
   run('INSERT INTO esg_task_logs (id,journey_id,task_id,email,data,created_at) VALUES (?,?,?,?,?,?)',
     id, req.params.id, task_id, req.user.email, JSON.stringify(data || {}), Date.now());
   
-  // 自動同步到 impact 表
-  const impactSync = {
-    cleanup: { metric_id: 'trash_collected', key: 'count', unit: '件' },
-    carbon: { metric_id: 'carbon_saved', key: 'distance', unit: 'kg' },
-    biodiversity: { metric_id: 'species_observed', key: 'count', unit: '種' },
-    local: { metric_id: 'local_spending', key: 'amount', unit: '元' },
-    water: { metric_id: 'water_saved', key: 'saved', unit: 'L' },
-    waste: { metric_id: 'waste_reduced', key: 'count', unit: '件' },
-  };
-  
-  const sync = impactSync[task_id];
-  if (sync && data[sync.key]) {
+  // 自動同步到 impact 表。
+  // 缺陷 B 修正：規則抽離至 esg-tasks.js。舊版把 carbon 的
+  // { metric_id:'carbon_saved', key:'distance', unit:'kg' } 硬寫成「公里數當 kg」，
+  // 導致 ImpactNotePage 對外產出的 GRI 305 碳排報告單位錯誤。
+  // 現由 carbonKg() 換算出 kg，並另存一筆 distance(km)，兩者單位各自正確。
+  for (const row of impactRowsForTask(task_id, data)) {
     run('INSERT INTO impact (id,journey_id,metric_id,value,note) VALUES (?,?,?,?,?)',
-      uid(), req.params.id, sync.metric_id, Number(data[sync.key]), JSON.stringify(data));
+      uid(), req.params.id, row.metric_id, row.value, JSON.stringify(data));
   }
   
   // 檢查授勳
@@ -881,8 +884,11 @@ app.get('/api/journeys/:id/summary', verifyToken, (req, res) => {
   const checkinCount = checkins.length;
   const checkinRate = memberCount > 0 ? Math.round((checkinCount / memberCount) * 100) : 0;
 
-  // 計算總影響值
-  const totalImpact = impact.reduce((sum, i) => sum + (i.value || 0), 0);
+  // 影響彙總：依 metric 分組，不跨單位硬加（5T-Trustworthy）。
+  // 缺陷 D 修正：舊版 total_impact_value = impact.reduce(+value) 會把
+  // kg 碳排 + 件垃圾 + 種生物 + 元消費 + 公升水 加成單一數字，
+  // 該數字沒有物理意義卻被當作「總影響值」對外呈現。
+  const impactSummary = summarizeImpact(impact);
 
   // 統計 mood 分佈
   const moodCounts = {};
@@ -911,7 +917,8 @@ app.get('/api/journeys/:id/summary', verifyToken, (req, res) => {
       checkin_count: checkinCount,
       checkin_rate: checkinRate,
       impact_count: impact.length,
-      total_impact_value: totalImpact,
+      impact_by_metric: impactSummary.by_metric,
+      impact_metric_count: impactSummary.metric_count,
       mood_distribution: moodCounts,
     },
     generated_at: Date.now(),

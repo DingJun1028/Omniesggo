@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { ERROR_CODES } from '@esggo/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,8 +102,9 @@ export async function POST(req: NextRequest) {
       local: false,
     });
   } catch (err) {
+    console.error('[API] app/api/evidence-upload/route.ts:', err);
     return NextResponse.json(
-      { success: false, error: err instanceof Error ? err.message : String(err) },
+      { success: false, error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code },
       { status: 500 }
     );
   }

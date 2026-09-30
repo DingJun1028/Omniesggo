@@ -29,7 +29,7 @@ function nextSeq() { return ++_seq; }
 
 /**
  * 由辨識+翻譯結果建立一筆雙語字幕。
- * @param {{text:string, language:string, engine:string}} stt
+ * @param {{text:string, language:string, engine:string, words?:Array<{text:string,start:number,end:number,probability:number}>}} stt
  * @param {{source:string, target:string, from:string, to:string, engine:string, cached:boolean}} tr
  * @returns {BilingualSubtitle}
  */
@@ -44,6 +44,9 @@ export function buildSubtitle(stt, tr) {
     ts: Date.now(),
     trace: hashOf(tr.source),
     final: true,
+    // 逐字時間戳: STT 有產出才帶, 前端據此做逐字高亮;
+    // 沒有時前端退回整段字幕 (兩種模式都必須能正常運作)。
+    ...(Array.isArray(stt.words) && stt.words.length ? { words: stt.words } : {}),
   };
 }
 

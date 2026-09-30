@@ -1,0 +1,60 @@
+{
+  "version": "ch30-super-delivery",
+  "artifacts": [
+    {
+      "path": "soul-chapter-30-super-delivery.md",
+      "role": "ch30 落檔備份",
+      "sha256": "9ea57e49ec83ed52"
+    },
+    {
+      "path": "TODO-super-delivery-20260930.md",
+      "role": "ch30 待辦閉環",
+      "sha256": "5afec7efbbc270dc"
+    },
+    {
+      "path": "scripts/apply_super_awakening.py",
+      "role": "ch30 應用腳本",
+      "sha256": "c6dd65859e274cd4"
+    },
+    {
+      "path": "scripts/verify_sync_closure.py",
+      "role": "第五階閉環驗證器",
+      "sha256": "ef5fa26381ae8a93"
+    },
+    {
+      "path": "scripts/verify_delivery_center.py",
+      "role": "第六階交付驗證中心",
+      "sha256": "6bbc888c5fa70b3b"
+    },
+    {
+      "path": "scripts/verify_soul_canon.py",
+      "role": "主典守門人",
+      "sha256": "c2a15aecab9f0fc0"
+    },
+    {
+      "path": "task-graph.json",
+      "role": "任務圖譜",
+      "sha256": "559384b52c1c982b"
+    }
+  ],
+  "verifications": [
+    {
+      "label": "主典守門人",
+      "cmd": [
+        "{python}",
+        "scripts/verify_soul_canon.py"
+      ]
+    }
+  ],
+  "layers": {
+    "skill": "esggo-omni-super-delivery",
+    "fallback_docs": [
+      "soul-chapter-30-super-delivery.md",
+      "TODO-super-delivery-20260930.md"
+    ]
+  },
+  "claims": {
+    "file_count": 7,
+    "total_bytes": 94473
+  }
+}

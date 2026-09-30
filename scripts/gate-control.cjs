@@ -11,7 +11,10 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const REPO_SRC = 'C:/Project/esggo';
+// 由腳本位置推導 repo 根, 不可硬編碼 C:/Project/esggo ——
+// 否則換個 checkout 路徑（含 CI 的 runner 暫存路徑）第一個 copyFileSync 就失敗，
+// 整個對照 harness 跑不起來。
+const REPO_SRC = path.resolve(__dirname, '..');
 const SANDBOX = path.join(os.tmpdir(), 'gate-ctrl-' + Date.now());
 
 const sh = (cmd, cwd) => execSync(cmd, { cwd, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'] });

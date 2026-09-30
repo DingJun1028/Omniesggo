@@ -12,6 +12,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getDelegationManager } from '../../../../agents/complete-delegation';
+import { ERROR_CODES } from '@esggo/errors';
 
 // ==========================================
 // GET /api/delegation/[id] - 獲取特定授權
@@ -60,7 +61,7 @@ export async function GET(
     console.error('[Delegation API] 獲取授權失敗:', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code,
       },
       { status: 500 }
     );
@@ -119,7 +120,7 @@ export async function DELETE(
     console.error('[Delegation API] 終止授權失敗:', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code,
       },
       { status: 500 }
     );
