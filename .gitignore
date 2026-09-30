@@ -171,6 +171,13 @@ package-lock.json
 android/
 ios/
 bin/
+# oa-twins/hyper/RESULTS.txt 為 probe 報告的 shell 重定向輸出，每次執行都會變動，不進版控。
+oa-twins/hyper/RESULTS.txt
+# 例外：oa-twins/bin/ 是正式原始碼（健康檢查腳本），非產出物。
+# 根目錄 bin/ 規則會把它整個忽略掉 —— 這正是 oa-twins/bin/oa-twin-health.py
+# 從未進版控、導致 README / run-selftest.bat / deploy 腳本三處靜默失敗的原因。
+!oa-twins/bin/
+!oa-twins/bin/**
 cli/scratch/
 config/
 dashboard/

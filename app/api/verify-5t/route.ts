@@ -15,6 +15,7 @@
 import { NextResponse } from 'next/server';
 import { calculateFiveTScore, FiveTGatekeeper, FiveTHashLock } from '@lib/five-t-protocol';
 import { verifyWebhookSignature } from '@lib/webhook-auth';
+import { ERROR_CODES } from '@esggo/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,7 +71,11 @@ export async function POST(request: Request) {
     });
   } catch (error: unknown) {
     console.error('[API/VERIFY-5T] Error:', error);
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'INTERNAL', pass: false }, { status: 500 });
+    // 5T Transparent: 不回傳原始 error.message（避免內部路徑/堆疊外洩）
+    return NextResponse.json(
+      { success: false, error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code, pass: false },
+      { status: 500 }
+    );
   }
 }
 

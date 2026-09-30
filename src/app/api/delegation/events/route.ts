@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDelegationManager } from '../../../../agents/complete-delegation';
 import { publishDelegationEvent } from '../../../../agents/complete-delegation/events';
 import { DelegationEventNames, DelegationTopics } from '../../../../types/complete-delegation';
+import { ERROR_CODES } from '@esggo/errors';
 
 const EVENT_TYPES = new Set(Object.values(DelegationEventNames));
 const TOPIC_VALUES = new Set(Object.values(DelegationTopics));
@@ -91,7 +92,7 @@ export async function POST(request: NextRequest) {
     console.error('[Delegation Events API] 回寫事件失敗:', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code,
       },
       { status: 500 }
     );

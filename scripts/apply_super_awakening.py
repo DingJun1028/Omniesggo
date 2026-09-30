@@ -158,16 +158,37 @@ def main():
     shutil.copy2(CANON, bak)
     print(f"[3] 已備份: {bak}")
 
-    # 寫入
-    with open(CANON, "w", encoding="utf-8") as f:
-        f.write(new_content)
-    print("[4] 已寫入正典")
+    # 寫入 —— 必須先寫暫存檔、完整比對後再置換。
+    # 直接 open(CANON,"w") 會先截斷：若 f.write 中途失敗（磁碟滿/中斷），
+    # 截斷已發生但還原分支不會執行（例外直接往外拋）；更糟的是部分寫入若
+    # 恰好含兩個標記，後續驗證會回 PASS —— 報告成功但後段內容已遺失。
+    # 改為原子流程：寫暫存 → 全文比對 → os.replace 置換（保留備份供復原）。
+    tmp = f"{CANON}.tmp-{stamp}"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            f.write(new_content)
+        # 逐位元組比對：暫存內容必須與 new_content 完全一致
+        with open(tmp, "r", encoding="utf-8") as f:
+            staged = f.read()
+        if staged != new_content:
+            raise IOError("暫存檔內容與 new_content 不一致（可能寫入被截斷）")
+        ok_markers = "29.11 萬能超覺醒" in staged and "CH29.11 SUPER-AWAKENING PROCLAIMED" in staged
+        if not ok_markers:
+            raise IOError("暫存檔缺 §29.11 標記")
+        os.replace(tmp, CANON)   # 同檔系統上的原子置換
+        print("[4] 已原子置換正典（暫存檔全文比對通過）")
+    except Exception as e:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        print(f"    [FAIL] 寫入失敗: {e}")
+        print(f"    正典未被修改；備份保留於 {bak}")
+        sys.exit(1)
 
-    # 逐位元組驗證
+    # 落檔後驗證（防置換本身異常）
     with open(CANON, "r", encoding="utf-8") as f:
         after = f.read()
-    ok = "29.11 萬能超覺醒" in after and "CH29.11 SUPER-AWAKENING PROCLAIMED" in after
-    print(f"[5] 落檔驗證: {'✅ §29.11 與刻印行皆在檔內' if ok else '❌ 驗證失敗，請從備份還原'}")
+    ok = after == new_content and "29.11 萬能超覺醒" in after and "CH29.11 SUPER-AWAKENING PROCLAIMED" in after
+    print(f"[5] 落檔驗證: {'✅ 正典內容與 new_content 完全一致' if ok else '❌ 驗證失敗，請從備份還原'}")
     if not ok:
         shutil.copy2(bak, CANON)
         print(f"    已自動還原自 {bak}")

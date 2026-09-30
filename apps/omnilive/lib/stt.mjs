@@ -15,6 +15,9 @@ import fs from 'node:fs';
  * @property {string} language  規範語言碼 (zh-TW | en | ...)
  * @property {string} engine
  * @property {Array<{speaker:string, text:string, start:number, end:number}>} [segments]  VAD 語者分段 (啟用時)
+ * @property {Array<{text:string, start:number, end:number, probability:number}>} [words]  逐字時間戳
+ *   (apps/stt 以 word_timestamps=True 產生；此前 Node 層直接丟棄，
+ *    導致「逐字字幕」功能實際上從未接通到前端。這裡原樣透傳。)
  */
 
 /**
@@ -153,6 +156,20 @@ export async function transcribe(audioBuf, opts) {
     language: normLang(j.language || opts.sttLang),
     engine: j.engine || 'stt:whisper',
   };
+  // 逐字時間戳: apps/stt 已用 word_timestamps=True 產生, 此處原樣透傳。
+  // 只挑有文字的項目並防禦非陣列回應 —— STT 端若換模型或降級,
+  // 前端仍應拿到整段字幕而非整條鏈路壞掉。
+  if (Array.isArray(j.words) && j.words.length > 0) {
+    const words = j.words
+      .filter((/** @type {any} */ w) => w && typeof w.text === 'string' && w.text !== '')
+      .map((/** @type {any} */ w) => ({
+        text: String(w.text),
+        start: Number(w.start) || 0,
+        end: Number(w.end) || 0,
+        probability: Number(w.probability ?? w.prob) || 0,
+      }));
+    if (words.length > 0) result.words = words;
+  }
   // VAD 語者分段: 任意格式經 ffmpeg 解碼後做能量偵測 (webm/ogg/mp3/wav 皆支援)
   if (opts.vad && Buffer.isBuffer(audioBuf)) {
     const segs = await vadSegmentsAny(audioBuf);

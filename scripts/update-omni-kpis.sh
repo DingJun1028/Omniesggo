@@ -5,6 +5,25 @@
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DATA_DIR="$REPO_ROOT/data"
+
+# Resolve a real python3: the WindowsApps "PythonManager" shim on PATH hangs
+# with no output, which silently stalls the whole script. Prefer an explicit
+# interpreter, then any python3 that isn't the Store shim, then plain python.
+resolve_python() {
+  if [ -n "$OMNI_KPI_PYTHON" ] && "$OMNI_KPI_PYTHON" --version >/dev/null 2>&1; then
+    echo "$OMNI_KPI_PYTHON"; return 0
+  fi
+  local c
+  for c in "$(command -v python3 2>/dev/null)" python3 python; do
+    case "$c" in *WindowsApps*) continue ;; esac
+    if [ -n "$c" ] && "$c" --version >/dev/null 2>&1; then echo "$c"; return 0; fi
+  done
+  return 1
+}
+if ! PY3="$(resolve_python)"; then
+  echo "[ERROR] no usable python3 found (set OMNI_KPI_PYTHON)"; exit 1
+fi
+export PY3
 # Windows-friendly path for python3 (MSYS conversion disabled)
 DATA_FILE="$(cygpath -w "$DATA_DIR/omni-factory-kpis.json" 2>/dev/null || echo "$DATA_DIR/omni-factory-kpis.json")"
 OLLAMA_URL="https://ollama.com/v1/models"
@@ -14,7 +33,7 @@ OLLAMA_KEY="${OLLAMA_CLOUD_API_KEY:-}"
 if [ ! -f "$DATA_FILE" ]; then
   echo "[WARN] $DATA_FILE not found — auto-seeding 30 modules"
   mkdir -p "$DATA_DIR"
-  python3 - "$DATA_FILE" <<'SEED'
+  "$PY3" - "$DATA_FILE" <<'SEED'
 import json, random, sys
 from datetime import datetime, timezone, timedelta
 data_file = sys.argv[1]
@@ -64,7 +83,7 @@ else
   echo "[INFO] 無 API Key，使用本地感測器模式"
 fi
 
-python3 - "$DATA_FILE" "$ollama_status" <<'PYEOF'
+"$PY3" - "$DATA_FILE" "$ollama_status" <<'PYEOF'
 import json, sys, random
 from datetime import datetime, timezone, timedelta
 

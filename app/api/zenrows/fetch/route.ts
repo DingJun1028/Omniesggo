@@ -5,6 +5,7 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { zenrowsFetch, verifyZenrowsWebhookSignature } from '@lib/zenrows-client';
+import { jsonErrorInternal } from '@lib/api-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,6 +30,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: body.url, output: text.slice(0, 2000) });
   } catch (error: unknown) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : 'UNKNOWN' }, { status: 500 });
+    return jsonErrorInternal(error, 'INTERNAL_ERROR', 500);
   }
 }

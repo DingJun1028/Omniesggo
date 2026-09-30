@@ -13,6 +13,7 @@
 //   OA_MEMORY_MIN_WRITES=1  最低寫入成功數 (預設 2 = 兩隻蜂都要寫入)
 //   OA_MEMORY_MIN_RECALL=1  最低召回成功數 (預設 1 = 至少一隻蜂召回 > 0)
 //   OA_MEMORY_TEST_TIMEOUT_MS=30000 單步 timeout
+//   OA_MEMORY_PING_TIMEOUT_MS=30000 /health timeout (預設 30s；勿設得比實測 RTT 小)
 //
 // 退出碼: 0 = 健康, 1 = 異常
 
@@ -64,6 +65,10 @@ const SVC = process.env.TDAI_SERVICE_ID ?? 'oa-team-swarm';
 const USER = 'admin';
 const QUIET = process.env.HEALTHCHECK_QUIET === '1';
 const TIMEOUT_MS = Number(process.env.OA_MEMORY_TEST_TIMEOUT_MS ?? 30000);
+// /health 的 budget 必須 >= 實際 RTT。本機 TDAI 在忙碌時單次 /v3/conversation/search
+// 實測要 10~17s，固定 5s 的 AbortController 會讓 ping 誤報 "This operation was aborted"
+// → 假告警。預設拉高到 30s（與 TIMEOUT_MS 同級），可用 env 覆寫。
+const PING_TIMEOUT_MS = Number(process.env.OA_MEMORY_PING_TIMEOUT_MS ?? 30000);
 const MIN_WRITES = Number(process.env.OA_MEMORY_MIN_WRITES ?? 2);
 const MIN_RECALL = Number(process.env.OA_MEMORY_MIN_RECALL ?? 1);
 
@@ -83,7 +88,7 @@ async function withTimeout(p, ms, tag) {
 
 async function ping() {
   const ac = new AbortController();
-  const t = setTimeout(() => ac.abort(), 5000);
+  const t = setTimeout(() => ac.abort(), PING_TIMEOUT_MS);
   try {
     const r = await fetch(`${CORE}/health`, { signal: ac.signal });
     if (!r.ok) return { ok: false, detail: `HTTP ${r.status}`, raw: null };
@@ -115,7 +120,10 @@ async function recall(sid, query) {
   const res = await fetch(`${CORE}/v3/conversation/search`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ service_id: SVC, user_id: USER, session_id: sid, query }),
+    // limit 是必要的：/v3/conversation/search 預設只回 top-1。兩隻蜂都寫了含
+    // "healthcheck" 的訊息時，語意較近的那則永遠贏，單靠 query 區分不出兩隻蜂，
+    // 跨代理召回會恆為 false → 假告警。實測 limit=10 才拿得到兩隻蜂各自的訊息。
+    body: JSON.stringify({ service_id: SVC, user_id: USER, session_id: sid, query, limit: 10 }),
   });
   const d = await res.json().catch(() => ({}));
   return d.data?.messages ?? [];

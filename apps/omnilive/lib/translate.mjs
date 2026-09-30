@@ -42,8 +42,10 @@ async function viaGoogleGtx(text, from, to) {
 
 // --- 引擎: MyMemory (免費, 零 key) ---
 async function viaMyMemory(text, from, to, email) {
-  const srcN = from === 'zh-TW' ? 'zh-CN' : from === 'en' ? 'en' : (from || 'en');
-  const tgtN = to === 'zh-TW' ? 'zh-CN' : to === 'en' ? 'en' : (to || 'en');
+  // MyMemory 原生支援 zh-TW 且術語地道 (「電腦軟體國際組織」),
+  // 不可降級成 zh-CN — 否則介面標示 to:'zh-TW' 卻輸出簡體。
+  const srcN = from === 'auto' ? 'en' : (from || 'en');
+  const tgtN = to || 'en';
   const lp = `${srcN}|${tgtN}`;
   const de = email ? `&de=${encodeURIComponent(email)}` : '';
   const u = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(lp)}${de}`;

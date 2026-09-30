@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDelegationManager } from '../../../../agents/complete-delegation';
 import { getDelegationMetrics } from '../../../../agents/complete-delegation/metrics';
+import { ERROR_CODES } from '@esggo/errors';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -70,7 +71,7 @@ export async function GET(request: NextRequest) {
     console.error('[Delegation Metrics API] 取得指標失敗:', error);
     return NextResponse.json(
       {
-        error: error instanceof Error ? error.message : 'Internal server error',
+        error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code,
       },
       { status: 500 }
     );

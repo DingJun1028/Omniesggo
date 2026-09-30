@@ -29,6 +29,12 @@ log "oa-twin-health.py 已複製"
 python3 -m py_compile "$TARGET/broker.py" "$TARGET/oa-twin-health.py"
 log "py_compile 通過"
 
+# 3b) 自檢回歸（真的跑，不是推定）
+python3 "$TARGET/broker.py" --self-test  || { log "!! self-test 失敗"; exit 1; }
+python3 "$TARGET/broker.py" --twin-test  || { log "!! twin-test 失敗"; exit 1; }
+python3 "$TARGET/broker.py" --rotate-test || { log "!! rotate-test 失敗"; exit 1; }
+log "三段自檢通過"
+
 # 4) systemd 常駐（可自理 / 可演化）
 UNIT="$TARGET/oa-twin-oab.service"
 cat > "$UNIT" <<EOF
@@ -39,7 +45,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=$TARGET
-ExecStart=/usr/bin/python3 $TARGET/broker.py --bus vps --instance oa-vps --store $TARGET
+ExecStart=/usr/bin/python3 $TARGET/broker.py --bus vps --instance oa-vps --store $TARGET --max-journal-bytes 33554432 --keep-archives 5 --max-archive-bytes 268435456
 Restart=always
 RestartSec=5
 

@@ -8,6 +8,7 @@ import type { NextRequest } from 'next/server';
 import { generateESGReport, exportReportAsMarkdown } from '@/core/ai/skills/report-generator';
 import { getAllTemplates, getTemplate } from '@/core/ai/skills/report-templates';
 import type { ReportFramework, ReportLanguage } from '@/core/ai/skills/report-templates';
+import { ERROR_CODES } from '@esggo/errors';
 
 interface ReportRequestBody {
   action: 'list_templates' | 'get_template' | 'generate' | 'export';
@@ -121,7 +122,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[ESG Report API] Error:', error);
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : 'Internal server error' },
+      { success: false, error: ERROR_CODES.INTERNAL_ERROR.message, code: ERROR_CODES.INTERNAL_ERROR.code },
       { status: 500 }
     );
   }

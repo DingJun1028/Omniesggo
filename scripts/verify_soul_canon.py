@@ -22,6 +22,11 @@ changelog:
   v4  重複編號改為具名警告（修 S5：原「衍生列」措辭誤標，且分支不可達）
   v4  新增 --help；修正候選清單重複項與 200000 魔術數（修 F2/F4/F5）
   v4  舊版 soul.md 依 ARCHIVE 規則分類標記（修 D5 殘餘：每次都亮 ⚠ 成雜訊）
+  v6  ★ 修「空殼驗證器」— 原 [2][3][4] 用 `term in content` 全文子串存在性判定，
+        140KB 正典裡 Hash Lock 出現 44 次，負向實測抽掉定義行仍回 [PASS] exit 0
+        （實測攔下率 0/5，驗證器形同虛設）。改為「定義錨點」檢查：
+        狀態機錨定 ✅ 條列項、工作流錨定 ①②③ 序號清單、5T 錨定 §一 定義表列。
+        另加 --min-hits 殘留量下限，防止單行竄改滑過。
 """
 
 import argparse
@@ -54,6 +59,61 @@ ARCHIVE_SUBSTRINGS = (
     os.path.join('.archive', 'soul.md'),
     os.path.join('archive', 'soul.md'),
 )
+
+_CN_DIGITS = {'一': 1, '二': 2, '三': 3, '四': 4, '五': 5,
+              '六': 6, '七': 7, '八': 8, '九': 9}
+
+# ---- v6b：定義正文語料鎖 ----
+# 錨點只驗「有無」，不驗「完整度」：負向實測 probe1 把 §1.1 Traceable 的定義正文
+# 換成「（竄改）」但保留「Traceable（可溯源）：」外殼，錨點照樣命中（漏過）。
+# 故每條 5T 定義另鎖其不可替代的語料關鍵詞：外殼留著而正文被掏空 → 語料缺失 → FAIL。
+# 語料取自定義正文的實質內容（非外殼），竄改正文必使其缺失。
+FIVE_T_CORPUS = {
+    'Traceable':    ['source_origin'],
+    'Trackable':    ['Hook'],
+    'Tangible':     ['UI/UX'],
+    'Transparent':  ['零幻覺驗算'],
+    'Trustworthy':  ['Object.freeze'],
+}
+
+# ---- v6：定義錨點 ----
+# 原 [2][3][4] 用 `term in content` 判定「已定義」。這是存在性而非完整性檢查：
+# 140KB 正典裡 Hash Lock 出現 44 次，負向實測抽掉定義行後仍回 [PASS] exit 0
+# （攔下率 0/5），驗證器形同虛設。改以正典自身的定義錨點判定。
+#
+# 每個錨點 = 「該條目在正典中被正式定義的格式」。缺錨點即缺定義，
+# 不再被正文中任意一處提及蒙混過關。
+# 錨點皆經實測：對未竄改的正典 100% 命中（否則會誤報），對抽掉定義行的正典 100% 落空。
+
+# §1.1「5T 數據與行為協議」— 格式「  Traceable（可溯源）：…」
+FIVE_T_ANCHOR = re.compile(
+    r'^\s{2,}(Traceable|Trackable|Tangible|Transparent|Trustworthy)（[^）]+）：\s*\S', re.M)
+# §1.2「4 可 1 不可」— 格式「  ✅ 可自理：…」，但「不可篡改」刻意標 ❌（禁區，不可）
+# 故錨點接受 ✅/❌ 兩種標記；語意差異由「不可」二字承載，非標記符號。
+STATE_ANCHOR = re.compile(r'^\s*[✅❌]\s*(可自理|可協作|可演化|可溯源|不可篡改)：\s*\S', re.M)
+# §三 三步工作流 — 格式「① 本質提純（…）：…」
+# 名稱欄為貪婪的短名 + 可選「（英文）」補語，兩者皆不跨行；上限放寬以容納
+# 「③ 5T 驗算與 Hash Lock 刻印」這類複合標題（v6 實測：12 字上限會把它截成
+# 「5T 驗算與 Hash Lock」，導致 Hash Lock 錨點落空 —— 乾淨正典即誤報）。
+WORKFLOW_ANCHOR = re.compile(
+    r'^\s*([①②③④⑤⑥⑦⑧⑨⑩])\s*([^（(：:\n]{2,20})(（[^）]*）)?[：:]\s*\S', re.M)
+
+
+def cn2int(s):
+    """中文數字轉整數，支援 一～九十九（正典章號範圍）。無法解析回傳 None。"""
+    if not s:
+        return None
+    if s in _CN_DIGITS:
+        return _CN_DIGITS[s]
+    if s.startswith('十'):
+        return 10 + _CN_DIGITS.get(s[1:], 0)
+    if '十' in s:
+        a, b = s.split('十', 1)
+        hi = _CN_DIGITS.get(a, 0)
+        lo = _CN_DIGITS.get(b, 0) if b else 0
+        if hi or b:
+            return hi * 10 + lo
+    return None
 
 
 def read_text(path, limit=None):
@@ -191,10 +251,15 @@ def main():
                     help='正典版號分歧時升級為 FAIL（供 CI 表態）')
     ap.add_argument('--no-divergence', action='store_true',
                     help='跳過分歧偵測的全樹掃描（最快路徑）')
+    ap.add_argument('--require-contiguous', action='store_true',
+                    help='章號缺號時升級為 FAIL（[6] 章節結構檢查）')
+    ap.add_argument('--min-hits', type=int, default=2, metavar='N',
+                    help='單一術語的全文提及量下限（預設 2）。低於此值視為正典被掏空，'
+                         '與錨點檢查互為保險：錨點擋單行竄改，下限擋整段掏空')
     args = ap.parse_args()
 
     print('=' * 60)
-    print(f'OA-Team 30 聖典結構驗證 v4  (expect={args.expect})')
+    print(f'OA-Team 30 聖典結構驗證 v6  (expect={args.expect})')
     print('=' * 60)
 
     filepath = find_canon(args.canon)
@@ -316,29 +381,138 @@ def main():
     if len(loose) > len(rows):
         print(f'  ℹ 寬鬆掃描命中 {len(loose)} 列，嚴格（序號==編號）命中 {len(rows)} 列')
 
-    # ---- 驗證 2-5 ----
-    print('\n[2] 5T 協定驗證')
+    # ---- 驗證 6: 章節結構完整性（v5 新增）----
+    # 稽核正典本身時發現的實缺陷：章首標題格式四種混用，且 §27 完全不存在。
+    #   格式 A「## 第N章 · 標題」  §20 §21 §25 §26
+    #   格式 B「第N章 · 標題」（裸行，缺 ##）  §22 §23 §24
+    #   格式 C「N、標題」（中文數字逗號，缺 ##）  §28 §29
+    #   格式 D「N、標題」（卷首 1-19）
+    # 本項檢查兩件事：章號連續性（含缺號）、章首格式一致性。
+    print(f'\n[6] 章節結構驗證')
+    chapters = {}
+    for m in re.finditer(r'^(?:#{1,3}\s*)?第([一二三四五六七八九十]+)章\b[^\n]*', content, re.M):
+        n = cn2int(m.group(1))
+        if n:
+            chapters.setdefault(n, []).append(('第N章', m.start()))
+    for m in re.finditer(r'^(?:#{1,3}\s*)?([一二三四五六七八九十]+)、\s*\S[^\n]*', content, re.M):
+        n = cn2int(m.group(1))
+        if n:
+            chapters.setdefault(n, []).append(('N、', m.start()))
+
+    if chapters:
+        lo, hi = min(chapters), max(chapters)
+        missing_ch = [n for n in range(lo, hi + 1) if n not in chapters]
+        print(f'  ℹ 章號範圍 §{lo}–§{hi}，共 {len(chapters)} 章')
+        if missing_ch:
+            print(f'  ⚠ 缺號章節: {", ".join(f"§{n}" for n in missing_ch)}')
+            print('    缺號可能為刻意保留（未寫），也可能是誤刪。請人工確認。')
+            # 缺號不自動判 FAIL：正典可能刻意跳號。改以 --require-contiguous 強制。
+            if args.require_contiguous:
+                print('    [FAIL] --require-contiguous 已啟用 → 升級為失敗')
+                passed = False
+        else:
+            print(f'  ✓ 章號連續，無缺號')
+
+        dup_ch = {n: v for n, v in chapters.items() if len(v) > 1}
+        if dup_ch:
+            for n, v in sorted(dup_ch.items()):
+                print(f'  ⚠ §{n} 有 {len(v)} 個章首標記（可能為「續」章，需確認）')
+
+        # 章首格式一致性：缺 ## 的章會在文件大綱/錨點導航中隱形。
+        # 只檢查 §20 起——卷首 §1-19 使用「一、」是既定的卷首格式，非缺陷。
+        no_hash = []
+        for n, entries in sorted(chapters.items()):
+            if n < 20:
+                continue
+            line_no = content.count('\n', 0, entries[0][1]) + 1
+            raw = content[entries[0][1]:content.find('\n', entries[0][1])]
+            if not raw.lstrip().startswith('#'):
+                no_hash.append((n, line_no, raw.strip()[:32]))
+        if no_hash:
+            print(f'  ⚠ §20 起有 {len(no_hash)} 章的章首缺 Markdown 標題階層'
+                  f'（不產生文件大綱與錨點）:')
+            for n, ln, t in no_hash[:8]:
+                print(f'      §{n:02d}  L{ln}  {t}')
+            if len(no_hash) > 8:
+                print(f'      …另有 {len(no_hash) - 8} 章')
+            print('    建議統一為「## 第N章 · 標題」（§1-19 卷首「一、」格式為既定慣例，不在此列）。')
+        else:
+            print('  ✓ §20 起章首格式一致（皆具 Markdown 標題階層）')
+    else:
+        print('  ✗ 未偵測到任何章節標題')
+        passed = False
+
+    # ---- 驗證 2-5（v6：錨點式）----
+    # 錨點優先，殘留量為輔。min_hits 是「防單行竄改」的下限保險：
+    # 錨點被抽掉 → 必定 FAIL（主判定）；其餘散落提及低於下限 → 也 FAIL（輔判定）。
+    def check(term, defined, hits, hint):
+        if defined:
+            print(f'  ✓ {term} 已定義（錨點命中，全文 {hits} 處提及）')
+            return True
+        print(f'  ✗ {term} 定義錨點缺失（全文尚有 {hits} 處散落提及）')
+        print(f'    {hint}')
+        return False
+
+    # 全域術語最低提及量：低於此值代表正典被大幅掏空（不針對單一術語）
+    min_hits = args.min_hits
+
+    print('\n[2] 5T 協定驗證（錨點：§1.1「5T 數據與行為協議」+ 定義正文語料）')
+    five_t_defined = set(FIVE_T_ANCHOR.findall(content))
+    # 定義行切片：從 §1.1 的 Traceable 行起，取到下一個非定義行為止（含續行）。
+    # 語料只在這個切片內查找——若在全檔查找，正典他處的同詞會替被掏空的定義兜底。
+    def five_t_slice(term):
+        m = re.search(r'^[ \t]{2,}' + term + r'（[^）]+）：[^\n]*(\n[ \t]{6,}[^\n]*)*',
+                      content, re.M)
+        return m.group(0) if m else ''
     for t in ['Traceable', 'Trackable', 'Tangible', 'Transparent', 'Trustworthy']:
-        if t in content:
-            print(f'  ✓ {t} 已定義')
-        else:
-            print(f'  ✗ {t} 未定義')
+        hits = content.count(t)
+        if hits < min_hits:
+            print(f'  ✗ {t} 全文僅 {hits} 處提及，低於下限 {min_hits}（正典疑似被掏空）')
             passed = False
+            continue
+        defined = t in five_t_defined
+        if not defined:
+            print(f'  ✗ {t} 定義錨點缺失（全文尚有 {hits} 處散落提及）')
+            print(f'    期望格式：　{t}（中文名）：定義內容　（位於 §1.1）')
+            passed = False
+            continue
+        # 語料鎖：錨點在、正文被掏空 → 語料缺失
+        body = five_t_slice(t)
+        missing = [w for w in FIVE_T_CORPUS[t] if w not in body]
+        if missing:
+            print(f'  ✗ {t} 定義正文語料缺失 {missing}（錨點外殼在，但實質內容被掏空）')
+            print(f'    §1.1 該條定義應含：{" / ".join(FIVE_T_CORPUS[t])}')
+            passed = False
+        else:
+            print(f'  ✓ {t} 已定義（錨點 + 語料 {"/".join(FIVE_T_CORPUS[t])} 命中，全文 {hits} 處提及）')
 
-    print('\n[3] 狀態機驗證')
+    print('\n[3] 狀態機驗證（錨點：§1.2「4 可 1 不可」✅ 條列）')
+    state_defined = set(STATE_ANCHOR.findall(content))
     for state in ['可自理', '可協作', '可演化', '可溯源', '不可篡改']:
-        if state in content:
-            print(f'  ✓ {state} 已定義')
-        else:
-            print(f'  ✗ {state} 未定義')
+        hits = content.count(state)
+        if hits < min_hits:
+            print(f'  ✗ {state} 全文僅 {hits} 處提及，低於下限 {min_hits}（正典疑似被掏空）')
+            passed = False
+        elif not check(state, state in state_defined, hits,
+                       f'期望格式：✅ {state}：定義內容'):
             passed = False
 
-    print('\n[4] 工作流驗證')
+    print('\n[4] 工作流驗證（錨點：§三 三步工作流 ① ② ③）')
+    # 序號清單以「術語名」為 key，比對時正規化（去掉括號補語與標點）
+    wf_defined = {re.sub(r'[\s·、,，]+', '', name)
+                  for _seq, name, _paren in WORKFLOW_ANCHOR.findall(content)}
     for step in ['本質提純', '蜂群協同', 'Hash Lock', '5T']:
-        if step in content:
-            print(f'  ✓ {step} 已定義')
-        else:
-            print(f'  ✗ {step} 未定義')
+        hits = content.count(step)
+        key = re.sub(r'[\s·、,，]+', '', step)
+        # ③ 是複合標題「5T 驗算與 Hash Lock 刻印」，5T 與 Hash Lock 同時屬於這一步。
+        # 以「術語是否出現在某個已定義步驟的標題中」判定，任一命中即算已定義，
+        # 避免對複合標題誤報（v6 實測：逐字等值比對會漏判）。
+        defined = key in wf_defined or any(key in title for title in wf_defined)
+        if hits < min_hits:
+            print(f'  ✗ {step} 全文僅 {hits} 處提及，低於下限 {min_hits}（正典疑似被掏空）')
+            passed = False
+        elif not check(step, defined, hits,
+                       f'期望格式：① {step}（English Name）：定義內容'):
             passed = False
 
     print('\n[5] 陣列驗證')
