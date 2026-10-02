@@ -1,10 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
-import LoginButton from '@/components/LoginButton';
-import { useEffect, useState } from 'react';
-import { HeroSection } from './components/HeroSection';
-
+import { OmniCard, OmniCardContent } from '@/components/omni-base/OmniCard';
+import { OmniBadge } from '@/components/omni-base/OmniBadge';
 
 const NAV_MODULES = [
   {
@@ -13,8 +11,7 @@ const NAV_MODULES = [
     title: '萬能中心',
     subtitle: 'OmniCore Center',
     desc: 'ZKP 知識封印 · L-Hub 蜂群 · Trinity 覺醒',
-    color: 'from-cyan-500/20 to-blue-500/10',
-    accent: '#63a6b0',
+    accentClass: 'text-cyan-600 dark:text-cyan-400',
     badge: '5T LIVE',
   },
   {
@@ -23,8 +20,7 @@ const NAV_MODULES = [
     title: 'ESG 報告產生器',
     subtitle: 'Sustain Write v5.0',
     desc: 'GRI 600+ 指標 · AI 自動合規 · PDF 封存',
-    color: 'from-emerald-500/20 to-green-500/10',
-    accent: '#52C41A',
+    accentClass: 'text-emerald-600 dark:text-emerald-400',
     badge: 'v5.0',
   },
   {
@@ -33,8 +29,7 @@ const NAV_MODULES = [
     title: '萬能永續中心',
     subtitle: 'Sustain Center ∞ Evolution',
     desc: 'ESG 儀表板 · 碳排驗算 · 永續發展無限進化',
-    color: 'from-teal-500/20 to-emerald-500/10',
-    accent: '#38b2ac',
+    accentClass: 'text-teal-600 dark:text-teal-400',
     badge: 'EVOLUTION',
   },
   {
@@ -43,8 +38,7 @@ const NAV_MODULES = [
     title: '村莊治理',
     subtitle: 'Village Governance',
     desc: '二次方投票 · 任務看板 · 社群協作',
-    color: 'from-purple-500/20 to-violet-500/10',
-    accent: '#a78bfa',
+    accentClass: 'text-purple-600 dark:text-purple-400',
     badge: 'DAO',
   },
   {
@@ -53,8 +47,7 @@ const NAV_MODULES = [
     title: '知識庫',
     subtitle: 'OmniWiki',
     desc: 'ESG 法規查詢 · GRI/TCFD/CSRD 解析',
-    color: 'from-amber-500/20 to-orange-500/10',
-    accent: '#ffd700',
+    accentClass: 'text-amber-600 dark:text-amber-400',
     badge: 'KI',
   },
   {
@@ -63,8 +56,7 @@ const NAV_MODULES = [
     title: 'AI 代理控制台',
     subtitle: 'OmniAgent Console',
     desc: 'CelestialFlow 監控 · 自癒協議 · 代理蜂群',
-    color: 'from-rose-500/20 to-pink-500/10',
-    accent: '#f87171',
+    accentClass: 'text-rose-600 dark:text-rose-400',
     badge: 'GNOSIS',
   },
   {
@@ -73,303 +65,108 @@ const NAV_MODULES = [
     title: '系統資源總覽',
     subtitle: 'Platform Resources',
     desc: '功能模組 · AI 模型 · 基礎設施 · 資源 inventory',
-    color: 'from-amber-500/20 to-yellow-500/10',
-    accent: '#D4AF37',
+    accentClass: 'text-yellow-600 dark:text-yellow-400',
     badge: 'SYS',
   },
 ];
 
 const FIVE_T = [
-  { symbol: 'T¹', label: 'Traceable', zh: '可溯源', color: '#63a6b0' },
-  { symbol: 'T²', label: 'Transparent', zh: '可驗算', color: '#52C41A' },
-  { symbol: 'T³', label: 'Tangible', zh: '可感知', color: '#ffd700' },
-  { symbol: 'T⁴', label: 'Trustworthy', zh: '不可篡改', color: '#a78bfa' },
-  { symbol: 'T⁵', label: 'Trackable', zh: '可追蹤', color: '#38b2ac' },
+  { symbol: 'T¹', label: 'Traceable', zh: '可溯源' },
+  { symbol: 'T²', label: 'Transparent', zh: '可驗算' },
+  { symbol: 'T³', label: 'Tangible', zh: '可感知' },
+  { symbol: 'T⁴', label: 'Trustworthy', zh: '不可篡改' },
+  { symbol: 'T⁵', label: 'Trackable', zh: '可追蹤' },
 ];
-
-// ⚡ Bolt Optimization: Extracted clock into isolated component to prevent full HomePage re-renders every 1s
-function LiveClock() {
-  const [now, setNow] = useState('');
-  useEffect(() => {
-    const tick = () => setNow(new Date().toLocaleString('zh-TW', { hour12: false }));
-    tick();
-    const id = setInterval(tick, 1000);
-    return () => clearInterval(id);
-  }, []);
-  return <span>🕐 {now}</span>;
-}
 
 export default function HomePage() {
   const { user, loading } = useAuth();
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1b2e 50%, #071420 100%)',
-        fontFamily: "'Inter', 'PingFang TC', 'Microsoft JhengHei', sans-serif",
-        color: '#e2e8f0',
-        overflowX: 'hidden',
-      }}
-      >
-      {/* ── 頂部狀態列 ── */}
-      <header
-        style={{
-          background: 'rgba(255,255,255,0.04)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid rgba(99, 166, 176, 0.2)',
-          padding: '12px 32px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-        }}
-      >
-        <div style={{ fontSize: 14, color: '#63a6b0', fontWeight: 600, letterSpacing: '0.04em' }}>
-          ESGGO 永續發展無限進化
-        </div>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '24px',
-            fontSize: 13,
-            color: '#94a3b8',
-          }}
-        >
-          <LiveClock />
-          <span style={{ color: '#63a6b0' }}>
-            {loading ? '驗證中...' : user ? `✅ ${user.email}` : '⭕ 未登入'}
-          </span>
-          <span style={{ color: '#ffd700', fontWeight: 700 }}>Gemini 2.5 Flash</span>
-          <LoginButton user={user ?? null} />
-        </div>
-      </header>
+    <div className="relative min-h-screen flex flex-col overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-500">
+      
+      {/* ── 主視覺 (Hero Section) ── */}
+      <section className="relative pt-24 pb-16 px-4 sm:px-6 text-center flex-1 flex flex-col items-center justify-center min-h-[55vh]">
+        {/* 背景光暈 (Liquid Glass Glow) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-cyan-400/20 dark:bg-cyan-500/10 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" />
 
-      {/* ── Hero 區塊 ── */}
-      <section
-        style={{
-          textAlign: 'center',
-          padding: '80px 32px 60px',
-          position: 'relative',
-          overflow: 'hidden',
-        }}
-      >
-        {/* 背景光暈 */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 600,
-            height: 600,
-            background: 'radial-gradient(circle, rgba(99,166,176,0.12) 0%, transparent 70%)',
-            pointerEvents: 'none',
-          }}
-        />
-
-        <div
-          style={{
-            display: 'inline-block',
-            background: 'linear-gradient(90deg, #63a6b0, #ffd700, #63a6b0)',
-            backgroundSize: '200% 100%',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            fontSize: 'clamp(42px, 6vw, 72px)',
-            fontWeight: 900,
-            letterSpacing: '-0.02em',
-            lineHeight: 1.1,
-            marginBottom: 16,
-            animation: 'shimmer 3s linear infinite',
-          }}
-        >
+        <h1 className="relative z-10 text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 via-emerald-500 to-cyan-600 dark:from-cyan-400 dark:via-emerald-300 dark:to-cyan-400 animate-pulse drop-shadow-sm">
           ESGGO 永續發展無限進化
-        </div>
-        <p
-          style={{
-            fontSize: 18,
-            color: '#94a3b8',
-            maxWidth: 520,
-            margin: '0 auto 12px',
-            lineHeight: 1.7,
-          }}
-        >
+        </h1>
+        <p className="relative z-10 text-lg md:text-2xl text-cyan-800 dark:text-cyan-100/90 mb-4 font-bold tracking-widest drop-shadow-sm">
           善向永續 · 全通之心 · 無作妙德
         </p>
-        <p style={{ fontSize: 14, color: '#64748b', maxWidth: 480, margin: '0 auto 40px' }}>
-          以 5T 協議驅動的萬能 (Omni) ESG 治理平台 — 從碳排計算到永續報告，全程 AI
-          賦能、可驗算、不可篡改。
+        <p className="relative z-10 text-sm md:text-base text-slate-700 dark:text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed font-medium">
+          以 5T 協議驅動的萬能 (Omni) ESG 治理平台 — 從碳排計算到永續報告，全程 AI 賦能、可驗算、不可篡改。
         </p>
 
-        {/* 5T 指示器 */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '12px',
-            flexWrap: 'wrap',
-          }}
-        >
+        {/* 5T 指示器 (採用 Liquid Glass 風格) */}
+        <div className="relative z-10 flex flex-wrap justify-center gap-3 md:gap-5">
           {FIVE_T.map((t) => (
             <div
               key={t.symbol}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                background: 'rgba(255,255,255,0.04)',
-                border: `1px solid ${t.color}40`,
-                borderRadius: 12,
-                padding: '8px 16px',
-                minWidth: 80,
-                transition: 'transform 0.2s, border-color 0.2s',
-                cursor: 'default',
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-3px)';
-                (e.currentTarget as HTMLDivElement).style.borderColor = t.color;
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
-                (e.currentTarget as HTMLDivElement).style.borderColor = `${t.color}40`;
-              }}
+              className="group flex flex-col items-center px-5 py-3 rounded-2xl backdrop-blur-xl bg-white/60 dark:bg-slate-900/40 border border-slate-200/50 dark:border-cyan-500/20 shadow-[0_4px_24px_rgba(0,0,0,0.02)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_40px_rgba(6,182,212,0.15)] dark:hover:border-cyan-400/40"
             >
-              <span style={{ fontSize: 18, fontWeight: 900, color: t.color }}>{t.symbol}</span>
-              <span style={{ fontSize: 10, color: '#94a3b8', marginTop: 2 }}>{t.zh}</span>
+              <span className="text-xl md:text-2xl font-black text-cyan-600 dark:text-cyan-400 group-hover:text-emerald-500 transition-colors">{t.symbol}</span>
+              <span className="text-[10px] md:text-xs text-slate-600 dark:text-slate-300 mt-1.5 font-bold tracking-wider">{t.zh}</span>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── 模組導航卡片 ── */}
-      <section
-        style={{
-          maxWidth: 1100,
-          margin: '0 auto',
-          padding: '0 24px 80px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '20px',
-        }}
-      >
-        {NAV_MODULES.map((mod) => (
-          <Link key={mod.href} href={mod.href} style={{ textDecoration: 'none' }}>
-            <div
-              style={{
-                background: `linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%)`,
-                backdropFilter: 'blur(16px)',
-                border: `1px solid rgba(255,255,255,0.08)`,
-                borderRadius: 20,
-                padding: '28px 24px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 10,
-                transition: 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
-                cursor: 'pointer',
-                height: '100%',
-              }}
-              onMouseEnter={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.transform = 'translateY(-4px)';
-                el.style.borderColor = `${mod.accent}60`;
-                el.style.boxShadow = `0 12px 40px ${mod.accent}20`;
-              }}
-              onMouseLeave={(e) => {
-                const el = e.currentTarget as HTMLDivElement;
-                el.style.transform = 'translateY(0)';
-                el.style.borderColor = 'rgba(255,255,255,0.08)';
-                el.style.boxShadow = 'none';
-              }}
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                }}
-              >
-                <span style={{ fontSize: 36 }}>{mod.icon}</span>
-                <span
-                  style={{
-                    fontSize: 10,
-                    fontWeight: 700,
-                    letterSpacing: '0.08em',
-                    color: mod.accent,
-                    background: `${mod.accent}18`,
-                    border: `1px solid ${mod.accent}40`,
-                    borderRadius: 6,
-                    padding: '2px 8px',
-                  }}
-                >
-                  {mod.badge}
-                </span>
-              </div>
-              <div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#e2e8f0', marginBottom: 2 }}>
-                  {mod.title}
-                </div>
-                <div style={{ fontSize: 12, color: mod.accent, fontWeight: 500 }}>
-                  {mod.subtitle}
-                </div>
-              </div>
-              <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, margin: 0 }}>
-                {mod.desc}
-              </p>
-              <div
-                style={{
-                  marginTop: 'auto',
-                  paddingTop: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 4,
-                }}
-              >
-                <span style={{ fontSize: 13, color: mod.accent, fontWeight: 600 }}>進入模組</span>
-                <span style={{ color: mod.accent, fontSize: 14 }}>→</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+      {/* ── 模組導航卡片 (OmniCard Grid) ── */}
+      <section className="relative z-10 max-w-[1200px] mx-auto px-4 sm:px-6 pb-24 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+          {NAV_MODULES.map((mod) => (
+            <Link key={mod.href} href={mod.href} className="group block h-full">
+              <OmniCard glow className="h-full hover:-translate-y-2 hover:border-cyan-400/50 transition-all duration-500">
+                <OmniCardContent className="flex flex-col h-full p-6 lg:p-8">
+                  
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="text-4xl lg:text-5xl drop-shadow-md group-hover:scale-110 transition-transform duration-500 group-hover:rotate-3">
+                      {mod.icon}
+                    </span>
+                    <OmniBadge variant="glass" className="font-bold tracking-wide shadow-sm">
+                      {mod.badge}
+                    </OmniBadge>
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="text-xl lg:text-2xl font-black text-slate-800 dark:text-slate-100 mb-1.5 group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                      {mod.title}
+                    </h3>
+                    <div className={`text-xs font-bold mb-4 tracking-widest uppercase ${mod.accentClass}`}>
+                      {mod.subtitle}
+                    </div>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                      {mod.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-8 pt-5 border-t border-slate-200 dark:border-slate-800/60 flex items-center gap-2 text-sm font-bold text-cyan-600 dark:text-cyan-500 group-hover:text-emerald-500 transition-colors">
+                    <span>進入模組</span>
+                    <span className="transform group-hover:translate-x-2 transition-transform duration-300">→</span>
+                  </div>
+                  
+                </OmniCardContent>
+              </OmniCard>
+            </Link>
+          ))}
+        </div>
       </section>
 
       {/* ── 底部系統狀態 ── */}
-      <footer
-        style={{
-          borderTop: '1px solid rgba(99,166,176,0.15)',
-          padding: '24px 32px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 12,
-          color: '#475569',
-          fontSize: 12,
-        }}
-      >
-        <span>⚡ OmniCore ♾️ ESGGO v5.1 · TRANSCENDED · 5T Protocol Active ♾️</span>
-        <span style={{ color: '#63a6b0' }}>上善若水，善向永續。知識即資產，服務即教學。</span>
-        <span>GCP CloudRun · Firebase Firestore · Gemini 2.5 Flash</span>
+      <footer className="relative z-10 border-t border-slate-200 dark:border-slate-800/60 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md px-4 sm:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono text-slate-500 dark:text-slate-400 transition-colors">
+        <div className="flex items-center gap-3">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></div>
+          <span className="font-bold tracking-tight">OmniCore ♾️ ESGGO v5.1 · TRANSCENDED · 5T Protocol Active</span>
+        </div>
+        <div className="text-cyan-700 dark:text-cyan-500 font-bold tracking-wide text-center">
+          上善若水，善向永續。知識即資產，服務即教學。
+        </div>
+        <div className="font-semibold tracking-tight">
+          GCP CloudRun · Firebase · Next.js · RWD Active
+        </div>
       </footer>
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
-        @keyframes shimmer {
-          0% { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-        @keyframes statusPulse {
-          0% { background: #52C41A; box-shadow: 0 0 12px #52C41A; }
-          50% { background: #38a169; box-shadow: none; }
-          100% { background: #52C41A; box-shadow: 0 0 12px #52C41A; }
-        }
-        * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(99,166,176,0.3); border-radius: 3px; }
-      `}</style>
-    </main>
+    </div>
   );
 }

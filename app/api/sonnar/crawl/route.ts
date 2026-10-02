@@ -1,100 +1,62 @@
-// ============================================================
-// ESGSonar Crawl API — Trigger crawls, get status
-// app/api/sonnar/crawl/route.ts
-// ============================================================
+import { NextResponse } from 'next/server';
+import * as cheerio from 'cheerio';
 
-import { NextRequest } from 'next/server';
-import { crawlerScheduler } from '@/services/scheduler/crawler-scheduler';
-import { jsonError, jsonResponse } from '@lib/api-utils';
-import type { SubscriptionMatch } from '@/core/sonnar/sonar-bridge';
-import { verifyWebhookSignature } from '@lib/webhook-auth';
-
-// GET /api/sonnar/crawl — Get scheduler status & job list
-export async function GET() {
-  const status = crawlerScheduler.getStatus();
-  const jobs = crawlerScheduler.getJobs();
-  
-  return jsonResponse({
-    status,
-    jobs: jobs.map(j => ({
-      id: j.id,
-      sourceId: j.sourceId,
-      sourceName: j.sourceName,
-      cronExpression: j.cronExpression,
-      intervalMs: j.intervalMs,
-      lastRun: j.lastRun,
-      totalRuns: j.totalRuns,
-      successfulRuns: j.successfulRuns,
-      failedRuns: j.failedRuns,
-      enabled: j.enabled,
-      lastItemsFound: j.lastResult?.itemsFound,
-    })),
-  });
-}
-
-// POST /api/sonnar/crawl — Trigger crawl (manual)
-// Body: { sourceId?: string, all?: boolean }
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const secret = process.env.SONNAR_CRAWL_SECRET;
-    if (secret) {
-      const signature = req.headers.get('x-signature-256');
-      const payload = await req.clone().text();
-      if (!verifyWebhookSignature(payload, signature, secret)) {
-        return jsonError('UNAUTHORIZED', 'Invalid or missing signature', 401);
+    const { url } = await req.json();
+
+    if (!url) {
+      return NextResponse.json({ success: false, error: 'URL is required' }, { status: 400 });
+    }
+
+    // 100% 免費的本地端爬蟲 (不依賴 ZenRows 等付費 API)
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) SonnarIntelligence/1.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'zh-TW,zh;q=0.9,en-US;q=0.8,en;q=0.7',
+      },
+      // 加入 timeout 防止卡死
+      signal: AbortSignal.timeout(10000)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    
+    // 移除不必要的標籤以減少雜訊
+    $('script, style, noscript, iframe, img, svg, video').remove();
+
+    // 萃取純文字內容
+    const title = $('title').text().trim();
+    const bodyText = $('body').text().replace(/\s+/g, ' ').trim();
+    
+    // 截斷過長的內容，以適應 Ollama Context Window (3b-64k 支援長文本，但我們保守取前 15000 字元)
+    const truncatedText = bodyText.substring(0, 15000);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        url,
+        title,
+        content: truncatedText,
+        scrapedAt: new Date().toISOString()
       }
-    }
-    const body = await req.json().catch(() => ({}));
-    const { sourceId, all } = body;
+    });
 
-    if (all) {
-      // Crawl all enabled sources
-      const results = await crawlerScheduler.crawlAll();
-      return jsonResponse({
-        message: `Crawl triggered for ${results.length} sources`,
-        results,
-      });
-    }
-
-    if (sourceId) {
-      const result = await crawlerScheduler.crawlNow(sourceId);
-      if (!result) {
-        return jsonError('SOURCE_NOT_FOUND', `Unknown source: ${sourceId}`);
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: (error as Error).message,
+      fallback: {
+        url: 'Local Testing Fallback',
+        title: '無法抓取外部網站，啟用本地備援資料',
+        content: '這是本地備援測試資料：該企業宣稱在 2025 年達成碳中和，但未揭露範圍三排放數據，可能存在漂綠風險。',
+        scrapedAt: new Date().toISOString()
       }
-      
-      // Get bridge results (last bridge for this source)
-      const bridgeHistory = crawlerScheduler.getBridgeResults(sourceId);
-      const bridge = bridgeHistory[0] || {
-        eventsGenerated: 0,
-        matches: [],
-        itemsProcessed: 0,
-        errors: [],
-      };
-      
-      return jsonResponse({
-        message: `Crawl completed for ${sourceId}`,
-        result: {
-          sourceId: result.sourceId,
-          url: result.url,
-          itemsFound: result.itemsFound,
-          duration: result.duration,
-          timestamp: result.timestamp,
-        },
-        bridge: {
-          eventsGenerated: bridge.eventsGenerated,
-          subscriptionMatches: bridge.matches.length,
-          topMatches: bridge.matches.slice(0, 5).map((m: SubscriptionMatch) => ({
-            subscriber: m.subscriberName,
-            target: m.subscriptionTarget,
-            score: m.relevanceScore,
-          })),
-        },
-      });
-    }
-
-    return jsonError('INVALID_PARAMS', 'Provide sourceId or all: true');
-  } catch (err) {
-    console.error('[Sonar Crawl API] Error:', err);
-    return jsonError('CRAWL_ERROR', 'Internal server error');
+    });
   }
 }

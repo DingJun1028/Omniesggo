@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hermex 手機版 Hermes WebUI 部署架構圖</title>
+  <title>Hermex ���p�P Hermes WebUI �[�c�ѪR/title>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -36,9 +36,9 @@
     <div class="header">
       <div class="header-row">
         <div class="pulse-dot"></div>
-        <h1>Hermex · 手機版 Hermes WebUI 部署架構</h1>
+        <h1>Hermex · ?��???Hermes WebUI ?�署?��?</h1>
       </div>
-      <p class="subtitle">24h 不斷線 · VPS 常駐 · 不開筆電也能用手機操作萬能代理</p>
+      <p class="subtitle">24h 不斷�?· VPS 常�? · 不�?筆電也能?��?機�?作萬?�代??/p>
     </div>
 
     <div class="diagram-container">
@@ -53,44 +53,44 @@
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
 
-        <!-- 手機 (External) -->
+        <!-- ?��? (External) -->
         <rect x="30" y="280" width="100" height="60" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5"/>
-        <text x="80" y="305" fill="white" font-size="11" font-weight="600" text-anchor="middle">📱 手機</text>
-        <text x="80" y="322" fill="#94a3b8" font-size="9" text-anchor="middle">Hermex 訪問</text>
+        <text x="80" y="305" fill="white" font-size="11" font-weight="600" text-anchor="middle">?�� ?��?</text>
+        <text x="80" y="322" fill="#94a3b8" font-size="9" text-anchor="middle">Hermex 訪�?</text>
 
-        <!-- Cloudflare 雲端邊界 -->
+        <!-- Cloudflare ?�端?��? -->
         <rect x="160" y="40" width="820" height="580" rx="12" fill="rgba(251, 191, 36, 0.05)" stroke="#fbbf24" stroke-width="1" stroke-dasharray="8,4"/>
-        <text x="172" y="58" fill="#fbbf24" font-size="10" font-weight="600">Cloudflare Edge (esggo.co 域名 · 不需開筆電)</text>
+        <text x="172" y="58" fill="#fbbf24" font-size="10" font-weight="600">Cloudflare Edge (esggo.co ?��? · 不�??��???</text>
 
-        <!-- cloudflared 隧道 -->
+        <!-- cloudflared ?��? -->
         <rect x="200" y="270" width="120" height="55" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5"/>
         <text x="260" y="292" fill="white" font-size="11" font-weight="600" text-anchor="middle">cloudflared</text>
-        <text x="260" y="308" fill="#94a3b8" font-size="9" text-anchor="middle">隧道 systemd</text>
+        <text x="260" y="308" fill="#94a3b8" font-size="9" text-anchor="middle">?��? systemd</text>
 
-        <!-- Oracle VPS 邊界 -->
+        <!-- Oracle VPS ?��? -->
         <rect x="350" y="120" width="620" height="460" rx="12" fill="rgba(136, 19, 55, 0.05)" stroke="#fb7185" stroke-width="1" stroke-dasharray="6,4"/>
-        <text x="362" y="138" fill="#fb7185" font-size="10" font-weight="600">Oracle VPS (161.118.248.180 · 常駐不關)</text>
+        <text x="362" y="138" fill="#fb7185" font-size="10" font-weight="600">Oracle VPS (161.118.248.180 · 常�?不�?)</text>
 
         <!-- nginx -->
         <rect x="390" y="270" width="120" height="55" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5"/>
         <text x="450" y="292" fill="white" font-size="11" font-weight="600" text-anchor="middle">nginx</text>
-        <text x="450" y="308" fill="#94a3b8" font-size="9" text-anchor="middle">:8795 靜態+反代</text>
+        <text x="450" y="308" fill="#94a3b8" font-size="9" text-anchor="middle">:8795 ?��?+?�代</text>
 
         <!-- hermes serve 後端 -->
         <rect x="560" y="270" width="130" height="55" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
         <text x="625" y="292" fill="white" font-size="11" font-weight="600" text-anchor="middle">hermes serve</text>
         <text x="625" y="308" fill="#94a3b8" font-size="9" text-anchor="middle">:9119 API/WS</text>
 
-        <!-- web_dist 前端 -->
+        <!-- web_dist ?�端 -->
         <rect x="390" y="400" width="160" height="90" rx="8" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5"/>
-        <text x="470" y="425" fill="white" font-size="11" font-weight="600" text-anchor="middle">WebUI 前端</text>
+        <text x="470" y="425" fill="white" font-size="11" font-weight="600" text-anchor="middle">WebUI ?�端</text>
         <text x="470" y="445" fill="#94a3b8" font-size="8" text-anchor="middle">web_dist/ (React)</text>
-        <text x="470" y="460" fill="#94a3b8" font-size="8" text-anchor="middle">viewport 手機自適應</text>
+        <text x="470" y="460" fill="#94a3b8" font-size="8" text-anchor="middle">viewport ?��??�適??/text>
         <text x="470" y="478" fill="#22d3ee" font-size="8" text-anchor="middle">hermex.esggo.co</text>
 
-        <!-- 持久化層 -->
+        <!-- ?��??�層 -->
         <rect x="620" y="400" width="130" height="90" rx="8" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5"/>
-        <text x="685" y="425" fill="white" font-size="11" font-weight="600" text-anchor="middle">Hermes 狀態</text>
+        <text x="685" y="425" fill="white" font-size="11" font-weight="600" text-anchor="middle">Hermes ?�??/text>
         <text x="685" y="445" fill="#94a3b8" font-size="8" text-anchor="middle">~/.hermes/</text>
         <text x="685" y="460" fill="#94a3b8" font-size="8" text-anchor="middle">對話/記憶</text>
         <text x="685" y="478" fill="#a78bfa" font-size="8" text-anchor="middle">SQLite</text>
@@ -105,7 +105,7 @@
         <text x="164" y="299" fill="#94a3b8" font-size="9" text-anchor="middle">HTTPS</text>
 
         <line x1="320" y1="297" x2="388" y2="297" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <text x="354" y="291" fill="#94a3b8" font-size="9" text-anchor="middle">反向代理</text>
+        <text x="354" y="291" fill="#94a3b8" font-size="9" text-anchor="middle">?��?�??</text>
 
         <line x1="510" y1="297" x2="558" y2="297" stroke="#22d3ee" stroke-width="1.5" marker-end="url(#arrowhead)"/>
         <text x="534" y="291" fill="#94a3b8" font-size="9" text-anchor="middle">/api/ws</text>
@@ -120,15 +120,15 @@
         <text x="754" y="291" fill="#94a3b8" font-size="9" text-anchor="middle">守護</text>
 
         <!-- Legend -->
-        <text x="720" y="500" fill="white" font-size="10" font-weight="600">圖例</text>
+        <text x="720" y="500" fill="white" font-size="10" font-weight="600">?��?</text>
         <rect x="720" y="512" width="16" height="10" rx="2" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1"/>
-        <text x="742" y="520" fill="#94a3b8" font-size="8">前端 / 後端</text>
+        <text x="742" y="520" fill="#94a3b8" font-size="8">?�端 / 後端</text>
         <rect x="720" y="528" width="16" height="10" rx="2" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1"/>
-        <text x="742" y="536" fill="#94a3b8" font-size="8">nginx 反代</text>
+        <text x="742" y="536" fill="#94a3b8" font-size="8">nginx ?�代</text>
         <rect x="720" y="544" width="16" height="10" rx="2" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1"/>
-        <text x="742" y="552" fill="#94a3b8" font-size="8">Cloudflare 雲</text>
+        <text x="742" y="552" fill="#94a3b8" font-size="8">Cloudflare ??/text>
         <rect x="720" y="560" width="16" height="10" rx="2" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1"/>
-        <text x="742" y="568" fill="#94a3b8" font-size="8">狀態/記憶</text>
+        <text x="742" y="568" fill="#94a3b8" font-size="8">?�??記憶</text>
         <rect x="720" y="576" width="16" height="10" rx="2" fill="rgba(136, 19, 55, 0.4)" stroke="#fb7185" stroke-width="1"/>
         <text x="742" y="584" fill="#94a3b8" font-size="8">systemd 守護</text>
       </svg>
@@ -138,42 +138,43 @@
       <div class="card">
         <div class="card-header">
           <div class="card-dot cyan"></div>
-          <h3>請求路徑</h3>
+          <h3>請�?路�?</h3>
         </div>
         <ul>
-          <li>• 手機瀏覽器 → hermex.esggo.co</li>
-          <li>• Cloudflare 邊緣 → cloudflared 隧道</li>
-          <li>• VPS nginx :8795 接收</li>
-          <li>• 反代 /api/ws → hermes serve :9119</li>
+          <li>???��??�覽????hermex.esggo.co</li>
+          <li>??Cloudflare ?�緣 ??cloudflared ?��?</li>
+          <li>??VPS nginx :8795 ?�收</li>
+          <li>???�代 /api/ws ??hermes serve :9119</li>
         </ul>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-dot emerald"></div>
-          <h3>24h 不斷線關鍵</h3>
+          <h3>24h 不斷線�???/h3>
         </div>
         <ul>
-          <li>• cloudflared = systemd (重開機自起)</li>
-          <li>• nginx = systemd (重開機自起)</li>
-          <li>• hermes serve 需補 systemd 守護</li>
-          <li>• 全部在 VPS，不依賴筆電</li>
+          <li>??cloudflared = systemd (?��?機自�?</li>
+          <li>??nginx = systemd (?��?機自�?</li>
+          <li>??hermes serve ?��?systemd 守護</li>
+          <li>???�部??VPS，�?依賴筆電</li>
         </ul>
       </div>
       <div class="card">
         <div class="card-header">
           <div class="card-dot rose"></div>
-          <h3>待補強 (本輪任務)</h3>
+          <h3>待�?�?(?�輪任�?)</h3>
         </div>
         <ul>
-          <li>• hermes serve 改 systemd 常駐</li>
-          <li>• Restart=always 崩潰自啟</li>
-          <li>• 驗證 VPS 重啟後自動恢復</li>
-          <li>• 手機實測 24h 不斷線</li>
+          <li>??hermes serve ??systemd 常�?</li>
+          <li>??Restart=always 崩潰?��?</li>
+          <li>??驗�? VPS ?��?後自?�恢�?/li>
+          <li>???��?實測 24h 不斷�?/li>
         </ul>
       </div>
     </div>
 
-    <p class="footer">Hermex Architecture • OA-Team 萬能蜂群 • 5T 不可篡改</p>
+    <p class="footer">Hermex Architecture ??OA-Team ?�能?�群 ??5T 不可篡改</p>
   </div>
 </body>
 </html>
+

@@ -3,17 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>OmniLive 萬能即時轉譯雙語字幕層</title>
+<title>OmniLive OmniLive qY½Ķrt/title>
 <script src="./qrcode.min.js"></script>
 <style>
-/* ===== 最新技術: 容器查詢 + dvh + 動態色彩 ===== */
+/* ===== ???? 容器?�?+ dvh + ???�?===== */
 :root{
   --bg:transparent;
   --gold:#c9a24b;--gold-soft:#b8941f;--txt:#f3ede1;--muted:#8a8275;
-  /* --green: 強調色。
-     品牌文件的 #3c6e43 在本深藍玻璃(#142A47)上僅 2.42:1，小字(.74rem)不可讀；
-     此處取經對比度驗證的 #5fb37e = 5.67:1 (WCAG AA 通過)。
-     勿直接改回品牌值，會讓 csec h3 / term b 變成看不見。 */
+  /* --green: 強調??     ???�??#3c6e43 ??�深???(#142A47)�? 2.42:1�??.74rem)不可讀?     �???�?�?�? #5fb37e = 5.67:1 (WCAG AA ??)??     ??????????? csec h3 / term b �???�?*/
   --green:#5fb37e;
   --glass:rgba(20,42,71,.62);--glass-strong:rgba(20,42,71,.82);
   --line:rgba(255,255,255,.14);--radius:6px;--gap:clamp(10px,2vw,16px);
@@ -27,13 +24,13 @@
 html,body{height:100%}
 body{
   font-family:var(--font);color:var(--txt);
-  /* 全屏透明浮層, 直接疊在 Zoom/YouTube 影片上 */
-  position:fixed;inset:0;pointer-events:none; /* 字幕層不擋底層操作 */
+  /* ????浮層, ?????Zoom/YouTube �??*/
+  position:fixed;inset:0;pointer-events:none; /* rh (Iz)*/
   background:transparent;overflow:hidden;
-  container-type:size; /* 啟用容器查詢 */
+  container-type:size; /* ??�容??�?*/
 }
 
-/* ===== 字幕舞台: 透明漂浮, 無容器邊框 ===== */
+/* ===== �???? ??漂浮, ?�???===== */
 #stage{
   position:absolute;left:0;right:0;
   top:0;bottom:0;
@@ -48,7 +45,7 @@ body{
   align-items:var(--sub-align);
   justify-content:flex-end;
   max-height:62dvh;overflow:hidden;
-  /* 拖曳手柄 (九宮格定位) */
+  /* ???? (\�?*/
   pointer-events:auto;cursor:grab;touch-action:none;
 }
 #subtitles.dragging{cursor:grabbing}
@@ -58,7 +55,7 @@ body{
   text-align:var(--sub-align);
 }
 .sub-group.finalized{animation:none}
-/* 逐字: 未顯現的字先淡出。只動 opacity, 不動版面, 避免整行重排造成字幕抖動。 */
+/* ??: ?�??�?淡出????opacity, �???? ????????�?????*/
 .sub-line .w{opacity:.28;transition:opacity .18s ease-out}
 .sub-line .w.on{opacity:1}
 .sub-group.active{position:relative}
@@ -72,15 +69,15 @@ body{
 .sub-line{
   display:inline-block;width:fit-content;max-width:100%;
   border-radius:12px;padding:4px 14px;line-height:1.28;font-weight:800;
-  /* 漂移字幕標準: 僅 text-shadow 保證任何背景可讀, 無不透明底 */
+  /* 漂移�?�?: ??text-shadow �?�?????, ?????*/
   text-shadow:0 2px 6px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.9);
   color:#fff;
 }
-.sub-line.src{font-size:clamp(1.05rem,3.4vw,1.7rem)}   /* 原文(英文) 較小 */
-.sub-line.tgt{font-size:clamp(1.5rem,5vw,2.6rem)}        /* 翻譯(中文) 大字 */
+.sub-line.src{font-size:clamp(1.05rem,3.4vw,1.7rem)}   /* ӷy (Source) */
+.sub-line.tgt{font-size:clamp(1.5rem,5vw,2.6rem)}        /* ؼлy (Target) */
 .sub-line .meta{font-size:.7rem;color:rgba(255,255,255,.55);font-weight:400;margin-top:2px;text-shadow:none;background:none!important;padding:0!important}
 
-/* ===== 玻璃工具條 (圖示化, 預設收合) ===== */
+/* ===== O (Hover) ===== */
 #toolbar{
   position:fixed;
   right:calc(clamp(12px,2vw,24px) + env(safe-area-inset-right));
@@ -105,7 +102,7 @@ body{
 .icon-btn.danger{color:#ff8a82}
 .icon-btn.danger.active{background:linear-gradient(135deg,#ff6b6b,#ff8e53);color:#fff}
 
-/* 展開面板 (點工具條上的 設定 才展開) */
+/* �????(點工??�? �? ???? */
 .sheet{
   width:min(92vw,360px);max-height:70dvh;overflow:auto;overscroll-behavior:contain;
   background:var(--glass-strong);backdrop-filter:blur(22px) saturate(160%);
@@ -122,9 +119,7 @@ body{
   border-radius:12px;padding:9px 14px;cursor:pointer;font-weight:600;font-size:.85rem;transition:.15s;flex:1;min-width:120px;
 }
 .btn:hover{border-color:var(--gold)}
-/* 鍵盤焦點指示 (WCAG 2.4.7)。原先全站無 focus 樣式，
-   鍵盤使用者操作時完全看不到自己在哪 —— 只用 :focus 會在滑鼠點擊時
-   也留下外框，故採 :focus-visible。 */
+/* ?????�?(WCAG 2.4.7)????��???focus ???   ??�使???�?完全????�己????????:focus ??��??�???   �?�?�????:focus-visible??*/
 :focus-visible{
   outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius);
 }
@@ -154,7 +149,7 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
 #errbar{background:rgba(226,85,79,.18);border:1px solid rgba(226,85,79,.5);color:#ffd9d6;border-radius:12px;padding:8px 12px;font-size:.76rem}
 .hidden{display:none!important}
 
-/* 課程浮窗 (右上角, 可收合) */
+/* �?�? (??? ???? */
 #courseWin{
   position:fixed;top:clamp(12px,2vw,24px);right:clamp(12px,2vw,24px);
   width:min(92vw,380px);max-height:80dvh;overflow:auto;
@@ -172,15 +167,15 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
 .csec h3{font-size:.74rem;color:var(--green);font-weight:700;letter-spacing:.03em}
 .csec .summary{font-size:.92rem;font-weight:700;line-height:1.4}
 .ckp{font-size:.82rem;line-height:1.45;padding-left:14px;position:relative}
-.ckp::before{content:'•';position:absolute;left:2px;color:var(--gold)}
+.ckp::before{content:'??;position:absolute;left:2px;color:var(--gold)}
 .term{background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:.78rem;line-height:1.4}
 .term b{color:var(--green)}
 .term a{color:var(--gold);text-decoration:none}
 .term a:hover{text-decoration:underline}
 .case{font-size:.78rem;line-height:1.45;color:var(--muted);padding-left:14px;position:relative}
-.case::before{content:'↳';position:absolute;left:0;color:var(--green)}
+.case::before{content:'??;position:absolute;left:0;color:var(--green)}
 
-/* ===== 容器查詢 RWD: 窄屏(手機) 字級自動縮小 ===== */
+/* ===== 容器?�?RWD: �?(??) �???�? ===== */
 @container (max-width:600px){
   .sub-line.src{font-size:clamp(.95rem,4.2vw,1.3rem)}
   .sub-line.tgt{font-size:clamp(1.2rem,6vw,1.9rem)}
@@ -190,7 +185,7 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
   #subtitles{max-height:48dvh}
 }
 
-/* === reduce-motion 尊重使用者偏好 === */
+/* === reduce-motion �?使用???=== */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{
     animation-duration:.01ms!important;
@@ -198,7 +193,7 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
   }
 }
 
-/* === brand OA mark 給浮動字幕視窗用 === */
+/* === brand OA mark 給浮??�?窗用 === */
 .brand-mark{
   width:18px;height:18px;
   border:1px solid var(--gold);
@@ -210,47 +205,105 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
   vertical-align:middle;
   flex:none;
 }
+
+/* --- L-Hub Ollama Generated: Liquid Glass Cyan Awakening --- */
+:root {
+  --bg: #020617;
+  --panel: rgba(2, 6, 23, 0.6);
+  --gold: #06b6d4; /* Cyan Core */
+  --text: #f8fafc;
+  --danger: #ef4444;
+  --success: #10b981;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  margin: 0;
+  overflow: hidden;
+}
+
+.capsule, #toolbar, .sub-group {
+  background: var(--panel) !important;
+  backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+#toolbar {
+  border-radius: 24px !important;
+  padding: 1.5rem !important;
+}
+
+.icon-btn, .pill-btn {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.2s ease-in-out;
+  border-radius: 9999px;
+  font-weight: 500;
+}
+
+.icon-btn:hover, .pill-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+  border-color: var(--gold);
+  background: rgba(6, 182, 212, 0.1);
+}
+
+.icon-btn.active {
+  background: var(--gold);
+  color: #020617;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.6);
+}
+
+.dot.bad { background: var(--danger); }
+.dot.good { background: var(--success); }
+.badge { background: var(--panel); border: 1px solid var(--gold); color: var(--gold); }
+/* --- End Ollama Design --- */
 </style>
 </head>
 <body>
 
-<!-- 字幕漂浮層 (可拖曳定位, 九宮格) -->
+<!-- �?漂浮?(????? 九宮?? -->
 <div id="stage">
-  <div id="subtitles"><div class="sub-line tgt placeholder">等待字幕…</div></div>
+  <div id="subtitles"><div class="sub-line tgt placeholder">�?�???/div></div>
 </div>
 
-<!-- 課程即時解說浮窗 -->
+<!-- �????�? -->
 <div id="courseWin">
   <header>
-    <b>課程 課程即時解說</b>
-    <button class="icon-btn" id="courseClose" title="收合">關閉</button>
+    <b>�? �????</b>
+    <button class="icon-btn" id="courseClose" title="??">??</button>
   </header>
   <div id="courseBody">
-    <div class="csec"><h3>章節概要</h3><div class="summary" id="cSummary">—</div></div>
-    <div class="csec"><h3>重點項目</h3><div id="cKeypoints"></div></div>
-    <div class="csec"><h3>重要名詞</h3><div id="cTerms"></div></div>
-    <div class="csec"><h3>類似案例</h3><div id="cCases"></div></div>
+    <div class="csec"><h3>�?�?</h3><div class="summary" id="cSummary">??/div></div>
+    <div class="csec"><h3>?????/h3><div id="cKeypoints"></div></div>
+    <div class="csec"><h3>????</h3><div id="cTerms"></div></div>
+    <div class="csec"><h3>類似�?</h3><div id="cCases"></div></div>
     <div class="hint" id="cUpdated"></div>
   </div>
 </div>
 
-<!-- 玻璃工具條 (圖示化) -->
+<!-- ??工具?(?�?? -->
 <div id="toolbar">
   <div class="sheet" id="sheet">
-    <!-- 建立分享 -->
+    <!-- �??�?-->
     <div id="sharePanel">
-      <h2>建立分享會議</h2>
+      <h2>�??�?�?/h2>
       <div class="row">
-        <button class="btn primary" id="createRoom">建立連結</button>
-        <input type="text" id="roomPwd" placeholder="房間密碼(選填)">
+        <button class="btn primary" id="createRoom">�????</button>
+        <input type="text" id="roomPwd" placeholder="ж密碼(?�?">
       </div>
       <div id="shareBody" class="hidden" style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
-        <div class="hint" style="color:var(--green)">主播️ 主持人連結</div>
-        <div class="share-link"><input type="text" id="casterLink" readonly><button class="btn" data-copy="casterLink" aria-label="複製主持人連結" title="複製主持人連結">複製</button></div>
-        <div class="hint" style="color:var(--gold)">觀眾️ 觀眾連結</div>
-        <div class="share-link"><input type="text" id="viewerLink" readonly><button class="btn" data-copy="viewerLink" aria-label="複製觀眾連結" title="複製觀眾連結">複製</button></div>
+        <div class="hint" style="color:var(--green)">主播?�?�??</div>
+        <div class="share-link"><input type="text" id="casterLink" readonly><button class="btn" data-copy="casterLink" aria-label="複製�?�??" title="複製�?�??">複製</button></div>
+        <div class="hint" style="color:var(--gold)">觀?? 觀???</div>
+        <div class="share-link"><input type="text" id="viewerLink" readonly><button class="btn" data-copy="viewerLink" aria-label="複製觀???" title="複製觀???">複製</button></div>
         <div class="row" style="margin-top:4px">
-          <button class="btn" id="openViewer">預覽觀眾</button>
+          <button class="btn" id="openViewer">?覽�???/button>
           <button class="btn" id="refreshCount">人數</button>
         </div>
         <div class="qr" id="qrBox"></div>
@@ -258,85 +311,85 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
       </div>
     </div>
 
-    <!-- 收音控制 -->
+    <!-- ?????-->
     <div id="casterPanel">
-      <h2>音訊來源 (Zoom 場景)</h2>
+      <h2>??�? (Zoom ???</h2>
       <div class="row">
         <select id="audioSource">
-          <option value="system-display" selected>系統音訊 / Zoom 共享聲音</option>
-          <option value="mic">本機麥克風</option>
-          <option value="device">指定輸入裝置</option>
-          <option value="caption">手動字幕輸入</option>
+          <option value="system-display" selected>系統?? / Zoom ?�???/option>
+          <option value="mic">??�??/option>
+          <option value="device">??輸入裝置</option>
+          <option value="caption">??�?輸入</option>
         </select>
       </div>
       <div class="row" style="margin-top:8px">
-        <button class="btn primary" id="startBtn">開始收音</button>
-        <button class="btn" id="stopBtn" disabled>停止</button>
-        <button class="btn" id="dlAudioBtn" disabled title="下載前端實際送給 STT 的音訊">⬇ 音訊</button>
+        <button class="btn primary" id="startBtn">?????/button>
+        <button class="btn" id="stopBtn" disabled>?�?/button>
+        <button class="btn" id="dlAudioBtn" disabled title="�??端實??�?STT ???>???</button>
       </div>
       <div class="row" style="margin-top:8px;align-items:center">
-        <span class="hint">音量</span>
+        <span class="hint">??</span>
         <div class="meter"><div id="meter"></div></div>
       </div>
       <div class="row" id="deviceRow" style="margin-top:6px;display:none">
-        <input type="text" id="deviceId" placeholder="虛擬音訊線 ID (留空=預設)">
+        <input type="text" id="deviceId" placeholder="?????ID (?�??�?">
       </div>
     </div>
 
-    <!-- 手動字幕 -->
+    <!-- ??�? -->
     <div>
-      <h2>手動字幕 (caption)</h2>
+      <h2>??�? (caption)</h2>
       <div class="row">
-        <input type="text" id="captionInput" placeholder="直接貼上發言文字…">
-        <button class="btn" id="sendCaption">送出</button>
+        <input type="text" id="captionInput" placeholder="??�貼???????>
+        <button class="btn" id="sendCaption">???/button>
       </div>
     </div>
 
-    <!-- 字幕設定 -->
+    <!-- �?�? -->
     <div>
-      <h2>字幕顯示</h2>
+      <h2>�?顯示</h2>
       <div class="row">
-        <label>字級 <input type="range" id="fontSize" min="14" max="48" value="28" style="flex:1"></label>
+        <label>�? <input type="range" id="fontSize" min="14" max="48" value="28" style="flex:1"></label>
       </div>
       <div class="row" style="margin-top:6px">
-        <label class="chk"><input type="checkbox" id="orderSrcFirst"> 原文在上</label>
-        <label class="chk"><input type="checkbox" id="bgToggle" checked> 背景可讀</label>
-        <label class="chk"><input type="checkbox" id="wordToggle" checked> 逐字</label>
+        <label class="chk"><input type="checkbox" id="orderSrcFirst"> ????</label>
+        <label class="chk"><input type="checkbox" id="bgToggle" checked> ????</label>
+        <label class="chk"><input type="checkbox" id="wordToggle" checked> ??</label>
         <label class="chk"><input type="checkbox" id="showToggle" checked> 顯示</label>
       </div>
       <div class="row" style="margin-top:6px">
-        <label>從 <select id="from"><option value="auto" selected>自動</option><option value="zh-TW">繁中</option><option value="en">英文</option></select></label>
-        <label>到 <select id="to"><option value="auto" selected>自動</option><option value="en">英文</option><option value="zh-TW">繁中</option></select></label>
-        <button class="btn" id="swapBtn" style="flex:0" aria-label="交換原文與翻譯方向" title="交換原文與翻譯方向">⇄</button>
+        <label>?<select id="from"><option value="auto" selected>??</option><option value="zh-TW">繁中</option><option value="en">??</option></select></label>
+        <label>??<select id="to"><option value="auto" selected>??</option><option value="en">??</option><option value="zh-TW">繁中</option></select></label>
+        <button class="btn" id="swapBtn" style="flex:0" aria-label="�????翻譯??? title="�????翻譯???>??/button>
       </div>
     </div>
 
-    <!-- 定位 -->
+    <!-- �? -->
     <div>
-      <h2>字幕位置 (拖曳或點選)</h2>
+      <h2>�?位置 (??????</h2>
       <div class="row" style="justify-content:center;gap:4px">
-        <button class="icon-btn" data-pos="top" title="置頂">⬆</button>
-        <button class="icon-btn" data-pos="center" title="置中">⬌</button>
-        <button class="icon-btn" data-pos="bottom" title="置底" style="background:var(--gold);color:#06121a">⬇</button>
+        <button class="icon-btn" data-pos="top" title="�?">?/button>
+        <button class="icon-btn" data-pos="center" title="置中">?/button>
+        <button class="icon-btn" data-pos="bottom" title="�?" style="background:var(--gold);color:#06121a">?/button>
       </div>
       <div class="row" style="justify-content:center;gap:4px;margin-top:4px">
-        <button class="icon-btn" data-align="left" title="靠左">⤙</button>
-        <button class="icon-btn" data-align="center" title="置中">⤞</button>
-        <button class="icon-btn" data-align="right" title="靠右">⤧</button>
+        <button class="icon-btn" data-align="left" title="?�?>?/button>
+        <button class="icon-btn" data-align="center" title="置中">?/button>
+        <button class="icon-btn" data-align="right" title="???>?/button>
       </div>
     </div>
 
-    <div class="status"><span class="dot bad" id="connDot"></span><span id="conn">未連線</span><span class="badge" id="roleBadge">—</span><span class="badge live hidden" id="roomBadge"></span></div>
+    <div class="status"><span class="dot bad" id="connDot"></span><span id="conn">???</span><span class="badge" id="roleBadge">??/span><span class="badge live hidden" id="roomBadge"></span></div>
     <div id="errbar" class="hidden"></div>
     <div class="log" id="log"></div>
   </div>
 
-  <!-- 圖示工具條 (必要四鍵) -->
+  <!-- ?示工??(�???? -->
   <div class="capsule">
-    <button class="icon-btn" id="btnFloat" title="開啟獨立字幕小窗 (跨頁面蓋在 Zoom/YouTube 上)">浮窗</button>
-    <button class="icon-btn" id="btnMic" title="開始/停止收音" class="danger">主播️</button>
-    <button class="icon-btn" id="btnLink" title="分享連結 / QR Code">分享</button>
-    <button class="icon-btn" id="btnSheet" title="設定面板">設定️</button>
+    <button class="icon-btn" id="btnFloat" title="????�?�? (�?????Zoom/YouTube ?">�?</button>
+    <button class="icon-btn" id="btnMic" title="??/?�??? class="danger">主播?/button>
+    <button class="icon-btn" id="btnLink" title="?�??? / QR Code">?�?/button>
+    <button class="icon-btn" id="btnSheet" title="�????>�??/button>
   </div>
 </div>
 
@@ -348,51 +401,51 @@ const fromSel=$('from'),toSel=$('to'),fontSize=$('fontSize');
 const orderChk=$('orderSrcFirst'),bgChk=$('bgToggle'),showChk=$('showToggle'),wordChk=$('wordToggle');
 const subsEl=$('subtitles'),captionInput=$('captionInput');
 
-// 主題切換 (按鈕若不存在則略過, 避免 null 崩潰)
+// �??? (????存在???? ?? null 崩潰)
 const themeBtn=document.getElementById('btnTheme');
 if(themeBtn) themeBtn.onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';};
 srcSel.onchange=()=>{deviceRow.style.display=srcSel.value==='device'?'flex':'none';};
 
 function log(m){const t=new Date().toLocaleTimeString();logEl.textContent=(t+' '+m+'\n')+logEl.textContent;}
-function showErr(m){errbar.textContent='注意 '+m;errbar.classList.remove('hidden');}
+function showErr(m){errbar.textContent='�? '+m;errbar.classList.remove('hidden');}
 function hideErr(){errbar.classList.add('hidden');}
 
-// ── 房間 / 角色解析 ──
+// ?? ж / ?? ??
 const ROOM=new URLSearchParams(location.search).get('room')||'';
 const ROLE=new URLSearchParams(location.search).get('role')||(ROOM?'viewer':'caster');
 const PWD=new URLSearchParams(location.search).get('pwd')||'';
 const isCaster = ROLE!=='viewer';
-$('roleBadge').textContent = isCaster?'角色: 主持人':'角色: 觀眾';
-if(ROOM){$('roomBadge').classList.remove('hidden');$('roomBadge').textContent='房間 '+ROOM;}
+$('roleBadge').textContent = isCaster?': �?H:': 觀??;
+if(ROOM){$('roomBadge').classList.remove('hidden');$('roomBadge').textContent='ж '+ROOM;}
 if(!isCaster){
   $('sharePanel').classList.add('hidden');
   $('casterPanel').classList.add('hidden');
   $('captionInput').closest('div').classList.add('hidden');
-  // 觀眾不需要建立面板; 但仍可開課程
+  // 觀???要建立面?? �???�?
   pollViewers();
 }
 
-// ── SSE 訂閱 (播放器核心) ──
+// ?? SSE 訂閱 (????? ??
 let es=null;
 function connectSSE(){
   if(es){ es.close(); es=null; }
   const room=new URLSearchParams(location.search).get('room')||'';
   const pwd=new URLSearchParams(location.search).get('pwd')||'';
   es=new EventSource('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''));
-  es.addEventListener('hello',e=>{connEl.textContent='SSE 已連線';connDot.className='dot';log('SSE hello: '+(e.data||''));});
+  es.addEventListener('hello',e=>{connEl.textContent='SSE �??';connDot.className='dot';log('SSE hello: '+(e.data||''));});
   es.addEventListener('subtitle',ev=>{
     try{const p=JSON.parse(ev.data);const d=p.data;if(!d)return;
-      renderSub(d.source,d.target,d.from+'→'+d.to+' · '+d.engine+' · #'+d.id,d.speaker,d.id,d.ts,d.words);}catch(e){}
+      renderSub(d.source,d.target,d.from+'??+d.to+' · '+d.engine+' · #'+d.id,d.speaker,d.id,d.ts,d.words);}catch(e){}
   });
-  es.onopen=()=>{connEl.textContent='SSE 已連線';connDot.className='dot';hideErr();};
-  es.onerror=()=>{connEl.textContent='SSE 重連中…';connDot.className='dot bad';
+  es.onopen=()=>{connEl.textContent='SSE �??';connDot.className='dot';hideErr();};
+  es.onerror=()=>{connEl.textContent='SSE ????;connDot.className='dot bad';
     fetch('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''),{method:'GET'}).then(r=>{
       if(r.status===401 && !isCaster) promptRoomPassword(room);
     }).catch(()=>{});
-    showErr('SSE 連線中斷，正在自動重連');setTimeout(connectSSE,3000);};
+    showErr('SSE ???中斷，正??????);setTimeout(connectSSE,3000);};
 }
 function promptRoomPassword(room){
-  const input=prompt('此房間需要密碼：');
+  const input=prompt('此房??�?�?');
   if(!input)return;
   crypto.subtle.digest('SHA-256',new TextEncoder().encode(input)).then(async h=>{
     const hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -406,9 +459,8 @@ function renderSub(src,tgt,meta,speaker,id,ts,words){
   const now=ts||Date.now();
   const merge = activeGroup && (now-lastSubTs) < 2500;
   lastSubTs=now;
-  // 逐字模式下 DOM 內是 .w span, textContent 只得已顯現的部分;
-  // 合併時必須用 data-full 取完整文字, 否則會截斷。
-  const full=(e)=>e.dataset.full!=null?e.dataset.full:e.textContent;
+  // ??�??DOM ???.w span, textContent ??已顯????;
+  // ?�?????data-full ????? ??????  const full=(e)=>e.dataset.full!=null?e.dataset.full:e.textContent;
   if(merge){
     const a=activeGroup.querySelector('.sub-line.src, .sub-line.tgt');
     const b=activeGroup.children[1];
@@ -426,9 +478,7 @@ function renderSub(src,tgt,meta,speaker,id,ts,words){
   a.dataset.full=orderChk.checked?(src||''):(tgt||'');
   b.dataset.full=orderChk.checked?(tgt||''):(src||'');
   a.textContent=a.dataset.full; b.textContent=b.dataset.full;
-  // 逐字: 原文有逐字時間戳且逐字模式開啟時以單字 span 漸進顯現。
-  // 譯文是整段一次翻譯、無對應時間戳, 維持整行 —— 刻意取捨。
-  const wEl = orderChk.checked ? a : b;
+  // ??: ???????????�????�?? span 漸進顯??  // �???�段?次翻譯、無�????? �??? ????????  const wEl = orderChk.checked ? a : b;
   if(wordChk && wordChk.checked && Array.isArray(words) && words.length>1) playWords(wEl, words);
   const m=document.createElement('div');m.className='sub-line';
   m.style.cssText='background:transparent;font-size:.7rem;color:rgba(255,255,255,.6);font-weight:400;text-shadow:none';
@@ -440,7 +490,7 @@ function renderSub(src,tgt,meta,speaker,id,ts,words){
   while(subsEl.children.length>8)subsEl.removeChild(subsEl.firstChild);
 }
 
-/* 逐字顯現: 依 whisper 單字時間戳, 累積相鄰單字的時間差後逐字淡入。 */
+/* ??顯現: ?whisper ?????? �????????差�???淡入??*/
 function playWords(el, words){
   const full=el.dataset.full||'';
   el.textContent='';
@@ -465,11 +515,11 @@ function playWords(el, words){
   }, t+600);
 }
 
-// 套用顯示設定 (漂浮層: bgToggle 開啟 = 黑底 50% 透明, 符合最佳實踐可讀性)
+// 套用顯示�? (漂浮? bgToggle ?? = �? 50% ??, �??佳實踐可讀??
 function applyStyles(){
   document.querySelectorAll('.sub-line.src').forEach(e=>e.style.fontSize='');
   subsEl.style.fontSize=fontSize.value+'px';
-  // 背景可讀: 開啟時每行加黑底 50% 透明 (清晰且不刺眼); 關閉則僅 text-shadow
+  // ????: ????�?�? 50% ?? (清晰�????; ???? text-shadow
   document.querySelectorAll('.sub-line').forEach(e=>{
     if(e.classList.contains('meta'))return;
     e.style.background = bgChk.checked ? 'rgba(0,0,0,.7)' : 'transparent';
@@ -484,15 +534,14 @@ function swapLang(){
   const f=fromSel.value, t=toSel.value;
   fromSel.value=t; toSel.value=f;
   localStorage.setItem('omnilive_lang',fromSel.value+'|'+toSel.value);
-  log('互換語言: '+fromSel.value+' → '+toSel.value);
+  log('�?�?: '+fromSel.value+' ??'+toSel.value);
 }
 $('swapBtn').onclick=swapLang;
 document.addEventListener('keydown',e=>{ if(e.key==='s'||e.key==='S'){ if(e.target.tagName!=='INPUT'&&e.target.tagName!=='SELECT'){ e.preventDefault(); swapLang(); } } });
 
-// 工具條收合
-const sheetEl=$('sheet');
+// 工具條收??const sheetEl=$('sheet');
 $('btnSheet').onclick=()=>{ sheetEl.classList.toggle('open'); $('btnSheet').classList.toggle('active'); };
-// 分享連結 / QR: 直接從工具列取得目前房間觀眾連結
+// ?�??? / QR: ??��?�??????ж觀???
 const linkBtn=$('btnLink');
 if(linkBtn) linkBtn.onclick=()=>{
   let link=$('viewerLink').value.trim();
@@ -501,15 +550,15 @@ if(linkBtn) linkBtn.onclick=()=>{
     const proto=(location.protocol||'https:');
     link=proto+'//'+location.host+'/?room='+encodeURIComponent(room);
   }
-  if(!link){ showErr('尚未建立房間：請先按 設定️ → 建立連結'); sheetEl.classList.add('open'); $('btnSheet').classList.add('active'); return; }
-  navigator.clipboard?.writeText(link).then(()=>log('已複製觀眾連結')).catch(()=>{});
+  if(!link){ showErr('尚未w[Jж�??? �????�????'); sheetEl.classList.add('open'); $('btnSheet').classList.add('active'); return; }
+  navigator.clipboard?.writeText(link).then(()=>log('�?�????')).catch(()=>{});
   showLinkQR(link);
 };
 function showLinkQR(link){
   let box=document.getElementById('qrModal');
   if(!box){ box=document.createElement('div'); box.id='qrModal';
     box.style.cssText='position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.6);z-index:50;pointer-events:auto';
-    box.innerHTML='<div style="background:#16161f;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:center;max-width:90vw"><div style="font-size:.8rem;color:#aeb6c8">觀眾連結 (已複製)</div><div id="qrBox2" style="background:#fff;border-radius:10px;padding:8px"></div><div id="qrLink2" style="font-size:.68rem;color:#cfd6e6;word-break:break-all;text-align:center;max-width:280px"></div><button id="qrClose" style="border:1px solid rgba(255,255,255,.14);background:transparent;color:#fff;border-radius:10px;padding:8px 16px;cursor:pointer">關閉</button></div>';
+    box.innerHTML='<div style="background:#16161f;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:center;max-width:90vw"><div style="font-size:.8rem;color:#aeb6c8">觀??? (�??</div><div id="qrBox2" style="background:#fff;border-radius:10px;padding:8px"></div><div id="qrLink2" style="font-size:.68rem;color:#cfd6e6;word-break:break-all;text-align:center;max-width:280px"></div><button id="qrClose" style="border:1px solid rgba(255,255,255,.14);background:transparent;color:#fff;border-radius:10px;padding:8px 16px;cursor:pointer">??</button></div>';
     document.body.appendChild(box);
     box.onclick=e=>{ if(e.target===box) box.remove(); };
     box.querySelector('#qrClose').onclick=()=>box.remove();
@@ -519,7 +568,7 @@ function showLinkQR(link){
   try{ new QRCode(q,{text:link,width:140,height:140,correctLevel:QRCode.CorrectLevel.M}); }catch(e){ q.textContent=link; }
   box.style.display='grid';
 }
-// 一鍵開啟獨立漂浮視窗: 真的蓋在 Zoom/YouTube 上, 達成同時顯示
+// 一????��??�?? ?????Zoom/YouTube ? ????顯示
 let floatWin=null;
 $('btnFloat').onclick=()=>{
   const room=new URLSearchParams(location.search).get('room')||'';
@@ -527,11 +576,11 @@ $('btnFloat').onclick=()=>{
   const url='/floating.html?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):'');
   if(floatWin && !floatWin.closed){ floatWin.focus(); return; }
   floatWin=window.open(url,'omnilive_float','width=480,height=300,top=80,left=80,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no');
-  if(!floatWin){ showErr('瀏覽器擋住 pop-up，請允許本站開新視窗'); return; }
+  if(!floatWin){ showErr('?�???pop-up�??�????��??'); return; }
   $('btnFloat').classList.add('active');
   const chk=setInterval(()=>{ if(floatWin.closed){ clearInterval(chk); $('btnFloat').classList.remove('active'); } },1000);
 };
-// 課程浮窗 (按鈕不存在則略過)
+// �?�? (??�?????)
 const courseWin=$('courseWin');
 const courseBtn=document.getElementById('btnCourse');
 if(courseBtn){
@@ -539,7 +588,7 @@ if(courseBtn){
 }
 const courseClose=document.getElementById('courseClose');
 if(courseClose) courseClose.onclick=()=>{ courseWin.classList.remove('open'); if(courseBtn)courseBtn.classList.remove('active'); stopCoursePolling(); };
-// 字幕位置 (九宮格)
+// �?位置 (九宮??
 document.querySelectorAll('[data-pos]').forEach(b=>b.onclick=()=>{
   document.documentElement.style.setProperty('--sub-pos',b.dataset.pos);
   const stage=$('stage');
@@ -556,7 +605,7 @@ document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{
 const posBtn=document.getElementById('btnPos');
 if(posBtn) posBtn.onclick=()=>{ sheetEl.classList.add('open'); $('btnSheet').classList.add('active'); document.getElementById('sheet').scrollIntoView({block:'nearest'}); };
 
-// 拖曳定位 (原生 pointer events)
+// ??��?? (?? pointer events)
 (function enableDrag(){
   const el=subsEl; let dragging=false,sx,sy,ox,oy;
   el.addEventListener('pointerdown',e=>{ if(e.target.closest('.sub-line.meta'))return; dragging=true; el.classList.add('dragging'); sx=e.clientX; sy=e.clientY;
@@ -569,7 +618,7 @@ if(posBtn) posBtn.onclick=()=>{ sheetEl.classList.add('open'); $('btnSheet').cla
 
 connectSSE();
 
-// ── 建立分享房間 ──
+// ?? �??享�???
 $('createRoom').onclick=async()=>{
   try{
     const pwd=$('roomPwd').value.trim();
@@ -581,9 +630,9 @@ $('createRoom').onclick=async()=>{
     renderQR(d.viewerLink);
     history.replaceState(null,'',d.casterLink.replace(location.origin,''));
     connectSSE();
-    log('建立房間 '+d.room+(d.passwordProtected?' ([保護]受密碼保護)':'')+' — 觀眾連結已產生');
+    log('w[Jж '+d.room+(d.passwordProtected?' ([保護]??�??':'')+' ??觀???已產??);
     pollViewers();
-  }catch(e){showErr('建立房間失敗: '+e.message);}
+  }catch(e){showErr('w[Jж�?: '+e.message);}
 };
 function renderQR(url){
   const box=$('qrBox');box.innerHTML='';
@@ -592,21 +641,21 @@ function renderQR(url){
 }
 document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{
   const v=$(b.getAttribute('data-copy')).value;
-  navigator.clipboard?.writeText(v).then(()=>{log('已複製連結');}).catch(()=>{});
+  navigator.clipboard?.writeText(v).then(()=>{log('�?�??');}).catch(()=>{});
 });
 $('openViewer').onclick=()=>{const v=$('viewerLink').value;if(v)window.open(v,'_blank');};
 async function pollViewers(){
   const room=new URLSearchParams(location.search).get('room');
   if(!room)return;
   try{const r=await fetch('/api/room/'+encodeURIComponent(room));const d=await r.json();
-    const txt='目前觀眾: '+d.viewers+' 人';
+    const txt='??觀?? '+d.viewers+' H;
     $('viewerCount').textContent=txt;
   }catch(e){}
 }
 $('refreshCount').onclick=pollViewers;
 if(ROOM)setInterval(pollViewers,5000);
 
-// ── 音訊擷取 (主持人) ──
+// ?? ???? (�?H ??
 let mediaStream=null,audioCtx=null,recorder=null,analyser=null,meterRAF=null,silenceTimer=null,peakSinceStart=0,gotAudio=false;
 function updateMeter(){
   if(!analyser)return;
@@ -615,27 +664,32 @@ function updateMeter(){
   let peak=0; for(const v of buf){const x=Math.abs(v-128)/128; if(x>peak)peak=x;}
   const pct=Math.min(100,Math.round(peak*180));
   const m=$('meter'); if(m){ m.style.width=pct+'%'; m.style.background=pct>4?'#28c76f':'#666'; }
-  if(pct>4){ gotAudio=true; peakSinceStart=Math.max(peakSinceStart,pct); if(errbar.classList.contains('hidden')===false && errbar.textContent.includes('沒有偵測到聲音')) hideErr(); }
+  if(pct>4){ gotAudio=true; peakSinceStart=Math.max(peakSinceStart,pct); if(errbar.classList.contains('hidden')===false && errbar.textContent.includes('�??�????)) hideErr(); }
   meterRAF=requestAnimationFrame(updateMeter);
 }
 function armSilenceWatchdog(){
   clearTimeout(silenceTimer);
   silenceTimer=setTimeout(()=>{
     if(!gotAudio){
-      showErr('注意 開始收音後 4 秒內沒有偵測到聲音：字幕會是空白。請檢查 — (1) Zoom 分享時是否勾選「分享這台電腦的聲音」；(2) 瀏覽器麥克風/標籤權限；(3) 改用「本機麥克風」來源再試。有聲音進來此訊息會自動消失。');
+      showErr('�? ?????4 秒內�??�????�???�空???檢查 ??(1) Zoom ?�???????享這台???????(2) ?�?�?�?標籤�??3) ????��?�?�??�?試�?????�?????消失??);
     }
   },4000);
 }
 $('startBtn').onclick=async()=>{
   hideErr();if(!isCaster)return;
   const src=srcSel.value;
-  if(src==='caption'){log('caption 模式：直接於下方貼文字送出');return;}
+  if(src==='caption'){log('caption �?：直??��??�貼?字送出');return;}
   try{
     let stream;
     if(src==='system-display'){
       stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
-      if(!stream.getAudioTracks().length){showErr('未取得系統音訊：Zoom 請用「分享」→ 勾選「分享這台電腦的聲音」；或改用本機麥克風。');}
-    }else if(src==='device'){
+      if(!stream.getAudioTracks().length){showErr('??得系統音�?Zoom 請用??享�? ????享這台???????????��?�?�??);}
+    }else 
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showErr('?��??�覽?��??�援麥�?風�???(請確保使??HTTPS ??Localhost ???)');
+        return;
+      }
+      if(src==='device'){
       const dev=$('deviceId').value.trim();
       stream=await navigator.mediaDevices.getUserMedia({audio:dev?{deviceId:{exact:dev}}:{}});
     }else{ stream=await navigator.mediaDevices.getUserMedia({audio:true}); }
@@ -652,13 +706,12 @@ $('startBtn').onclick=async()=>{
     flushTimer=setInterval(flushWindow, 6000);
     $('dlAudioBtn').disabled=false;
     $('startBtn').disabled=true;$('stopBtn').disabled=false;
-    connEl.textContent='收音中 ('+src+')';connDot.className='dot';log('開始收音: '+src+' — 每 6 秒送出一段');
-  }catch(e){showErr('無法取得音訊: '+e.message);log('收音失敗: '+e.message);}
+    connEl.textContent='???('+src+')';connDot.className='dot';log('????? '+src+' ???6 秒送出一?);
+  }catch(e){showErr('??????: '+e.message);log('??�失?: '+e.message);}
 };
-$('stopBtn').onclick=()=>{if(mediaStream){mediaStream.getTracks().forEach(t=>t.stop());mediaStream=null;}if(audioCtx){audioCtx.close();audioCtx=null;}if(meterRAF)cancelAnimationFrame(meterRAF);if(flushTimer){clearInterval(flushTimer);flushTimer=null;}analyser=null;recorder=null;captureBuf=null;gotAudio=false;$('startBtn').disabled=false;$('stopBtn').disabled=true;$('dlAudioBtn').disabled=true;connEl.textContent='已停止';connDot.className='dot bad';log('停止收音');};
-// 麥克風圖示快捷開關
-$('btnMic').onclick=()=>{ if($('startBtn').disabled){ $('stopBtn').click(); $('btnMic').classList.remove('active'); } else { $('startBtn').click(); $('btnMic').classList.add('active'); } };
-$('dlAudioBtn').onclick=()=>{ if(!debugBuf||debugBuf.length<SR*0.5){showErr('還沒有累積到音訊, 請先收音幾秒');return;} const pcm=encodeFloatTo16(debugBuf); const wav=encodeWav(pcm,16000); const blob=new Blob([wav],{type:'audio/wav'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='omnilive-captured-'+Date.now()+'.wav'; a.click(); log('已下載擷取音訊 ('+(debugBuf.length/SR).toFixed(1)+'s)'); };
+$('stopBtn').onclick=()=>{if(mediaStream){mediaStream.getTracks().forEach(t=>t.stop());mediaStream=null;}if(audioCtx){audioCtx.close();audioCtx=null;}if(meterRAF)cancelAnimationFrame(meterRAF);if(flushTimer){clearInterval(flushTimer);flushTimer=null;}analyser=null;recorder=null;captureBuf=null;gotAudio=false;$('startBtn').disabled=false;$('stopBtn').disabled=true;$('dlAudioBtn').disabled=true;connEl.textContent='�??;connDot.className='dot bad';log('?�???);};
+// �?�?示快????$('btnMic').onclick=()=>{ if($('startBtn').disabled){ $('stopBtn').click(); $('btnMic').classList.remove('active'); } else { $('startBtn').click(); $('btnMic').classList.add('active'); } };
+$('dlAudioBtn').onclick=()=>{ if(!debugBuf||debugBuf.length<SR*0.5){showErr('???累�????, �???�幾?');return;} const pcm=encodeFloatTo16(debugBuf); const wav=encodeWav(pcm,16000); const blob=new Blob([wav],{type:'audio/wav'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='omnilive-captured-'+Date.now()+'.wav'; a.click(); log('�?載擷???('+(debugBuf.length/SR).toFixed(1)+'s)'); };
 
 let captureBuf=null;
 let debugBuf=null;
@@ -682,14 +735,13 @@ function flushWindow(){
   const wav=encodeWav(pcm, 16000);
   const room=new URLSearchParams(location.search).get('room')||'';
   const lang=fromSel.value||'';
-  // auto 模式不送 lang 給 whisper (避免 auto→500 歷史問題); 讓 whisper 自行偵測
-  const url='/api/transcribe?room='+encodeURIComponent(room)+'&vad=1'+(lang && lang!=='auto'?'&lang='+encodeURIComponent(lang):'');
+  // auto �?�?lang ?whisper (?? auto??00 歷史??); ?whisper ???�?  const url='/api/transcribe?room='+encodeURIComponent(room)+'&vad=1'+(lang && lang!=='auto'?'&lang='+encodeURIComponent(lang):'');
   sttInflight=true;
   const release=()=>{ sttInflight=false; };
   const to=setTimeout(release, 45000);
   fetch(url,{method:'POST',headers:{'content-type':'audio/wav'},body:wav})
     .then(r=>r.ok?r.json():Promise.reject(r.status))
-    .then(d=>{ if(d.source)log('辨識: '+d.source.slice(0,40)); })
+    .then(d=>{ if(d.source)log('�?: '+d.source.slice(0,40)); })
     .catch(()=>{})
     .finally(()=>{ clearTimeout(to); release(); });
 }
@@ -707,19 +759,19 @@ function encodeWav(pcm, sampleRate){
 }
 function encodeFloatTo16(f){const u=new Uint8Array(f.length*2);const dv=new DataView(u.buffer);for(let i=0;i<f.length;i++){dv.setInt16(i*2,Math.max(-1,Math.min(1,f[i]))*0x7fff,true);}return u;}
 
-// ── 手動字幕送出 ──
+// ?? ??�??????
 $('sendCaption').onclick=async()=>{
-  const text=captionInput.value.trim();if(!text){showErr('請先輸入文字');return;}
+  const text=captionInput.value.trim();if(!text){showErr('�?輸入??');return;}
   const room=new URLSearchParams(location.search).get('room')||'';
   try{
     const r=await fetch('/api/speak',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text,room,from:fromSel.value,to:toSel.value})});
     const d=await r.json();
-    if(d.source)renderSub(d.source,d.target,(fromSel.value)+'→'+(toSel.value)+' · '+d.engine+' · #'+d.id);
-    captionInput.value='';log('手動字幕送出: '+text.slice(0,30));
-  }catch(e){showErr('送出失敗: '+e.message);}
+    if(d.source)renderSub(d.source,d.target,(fromSel.value)+'??+(toSel.value)+' · '+d.engine+' · #'+d.id);
+    captionInput.value='';log('??�???? '+text.slice(0,30));
+  }catch(e){showErr('??�失?: '+e.message);}
 };
 
-// ── 課程即時解說: 輪詢 /api/course ──
+// ?? �????: 輪詢 /api/course ??
 let courseTimer=null, courseAcc='';
 function courseText(){ return subsEl.textContent.trim(); }
 async function fetchCourse(){
@@ -729,11 +781,11 @@ async function fetchCourse(){
     if(!r.ok)return;
     const d=await r.json();
     if(!d.summary && !d.keypoints.length) return;
-    $('cSummary').textContent=d.summary||'—';
+    $('cSummary').textContent=d.summary||'??;
     $('cKeypoints').innerHTML=(d.keypoints||[]).map(k=>'<div class="ckp">'+escapeHtml(k)+'</div>').join('');
-    $('cTerms').innerHTML=(d.terms||[]).map(t=>'<div class="term"><b>'+escapeHtml(t.term||'')+'</b> ('+escapeHtml(t.en||'')+')<br>'+escapeHtml(t.explain||'')+'<br><a href="'+(t.wiki||'#')+'" target="_blank" rel="noopener">分享 維基百科</a></div>').join('');
+    $('cTerms').innerHTML=(d.terms||[]).map(t=>'<div class="term"><b>'+escapeHtml(t.term||'')+'</b> ('+escapeHtml(t.en||'')+')<br>'+escapeHtml(t.explain||'')+'<br><a href="'+(t.wiki||'#')+'" target="_blank" rel="noopener">?�?維基??</a></div>').join('');
     $('cCases').innerHTML=(d.similar_cases||[]).map(c=>'<div class="case">'+escapeHtml(c)+'</div>').join('');
-    $('cUpdated').textContent='更新: '+new Date().toLocaleTimeString();
+    $('cUpdated').textContent='??? '+new Date().toLocaleTimeString();
   }catch(e){}
 }
 function startCoursePolling(){ if(courseTimer)return; courseTimer=setInterval(()=>{ courseAcc=courseText()+'\n'+courseAcc; fetchCourse(); }, 45000); fetchCourse(); }
@@ -742,3 +794,5 @@ function escapeHtml(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&l
 </script>
 </body>
 </html>
+
+

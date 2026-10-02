@@ -2,20 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  /* OMNI ESG Reports Center — Liquid Glass 4D 動態玻璃質感
-     對齊《永續報告書架構補強建議》深空底色 + 霓虹光暈規範 */
-  .liquid-glass-container {
-    @apply relative overflow-hidden rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-500 hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] hover:border-white/20 hover:bg-white/10;
-  }
-
-  .liquid-glass-button {
-    @apply backdrop-blur-2xl bg-white/10 border border-white/20 shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all duration-300;
-  }
-}
-
 @layer base {
   :root {
+    --bg-light: #f8fafc; /* slate-50 */
+    --bg-dark: #020617;  /* slate-950 */
+    --text-light: #0f172a; /* slate-900 */
+    --text-dark: #f8fafc; /* slate-50 */
+
+    /* Tailwind token 對應色（tailwind.config.js → colors.*） */
     --bg: #F8FAFC;
     --surface: #FFFFFF;
     --surface-alt: #F1F5F9;
@@ -64,7 +58,7 @@
   }
 
   @media (prefers-color-scheme: dark) {
-    :root:not(.light) {
+    :root:not(.light):not(.dark) {
       --bg: #0F172A;
       --surface: #1E293B;
       --surface-alt: #0F172A;
@@ -88,17 +82,19 @@
       --border-color: var(--border);
     }
   }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-200 antialiased min-h-screen selection:bg-cyan-500/30 transition-colors duration-500;
+  }
+  
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-cyan-600/30 rounded-full hover:bg-cyan-500/50 transition-colors; }
 }
-
-html { scroll-behavior: smooth; }
-
-body {
-  @apply bg-primary text-primary transition-colors duration-300 font-sans min-h-screen;
-}
-
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: var(--scroll-track); }
-::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 2px; }
 
 a { @apply transition-colors duration-150; }
 a:hover { @apply text-accentTeal; }
@@ -106,4 +102,32 @@ a:hover { @apply text-accentTeal; }
 @media (max-width: 767px) {
   body { @apply text-sm; }
   ::-webkit-scrollbar { width: 2px; height: 2px; }
+}
+
+@layer components {
+  /* OMNI ESG Reports Center — Liquid Glass 4D 動態玻璃質感
+     對齊《永續報告書架構補強建議》深空底色 + 霓虹光暈規範 */
+  .liquid-glass-container {
+    @apply relative overflow-hidden rounded-3xl backdrop-blur-xl bg-white/5 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-500 hover:shadow-[0_0_30px_rgba(34,211,238,0.2)] hover:border-white/20 hover:bg-white/10;
+  }
+
+  .liquid-glass-button {
+    @apply backdrop-blur-2xl bg-white/10 border border-white/20 shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all duration-300;
+  }
+
+  /* Liquid Glass Cyan - Light Mode */
+  .liquid-glass-card {
+    @apply relative flex flex-col h-full rounded-2xl p-6 overflow-hidden transition-all duration-300;
+    /* Light Mode */
+    @apply backdrop-blur-xl bg-white/70 border border-cyan-100 shadow-sm hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_12px_40px_rgba(6,182,212,0.1)];
+  }
+
+  /* Liquid Glass Cyan - Dark Mode Override */
+  .dark .liquid-glass-card {
+    @apply backdrop-blur-xl bg-slate-900/40 border-cyan-500/10 hover:border-cyan-500/40 hover:shadow-[0_12px_40px_rgba(6,182,212,0.15)] shadow-none;
+  }
+
+  .omni-badge {
+    @apply px-2.5 py-0.5 rounded-md text-[10px] font-bold tracking-wider border backdrop-blur-sm transition-colors;
+  }
 }

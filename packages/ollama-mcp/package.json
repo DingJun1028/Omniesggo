@@ -1,0 +1,20 @@
+{
+  "name": "@esggo/ollama-mcp",
+  "version": "1.0.0",
+  "description": "Ollama MCP Server for local zero-cost AI inference",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx index.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsx": "^4.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

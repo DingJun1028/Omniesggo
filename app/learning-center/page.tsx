@@ -3,8 +3,122 @@
 import { useAuth } from '@/components/AuthProvider';
 import { useState, useEffect } from 'react';
 import { signOut } from '@/lib/auth';
+import { OmniCard, OmniCardContent, OmniCardHeader, OmniCardTitle } from '@/components/omni-base/OmniCard';
+import { OmniButton } from '@/components/omni-base/OmniButton';
+import { LogOut, User as UserIcon, BookOpen, CloudUpload, Image as ImageIcon, CalendarCheck, HelpCircle, Star, ExternalLink, Trash2 } from 'lucide-react';
 
 type ResourceItem = { id?: string; title: string; category?: string; url?: string };
+
+const TRANSLATIONS: Record<string, Record<string, string>> = {
+  'zh-Hant': {
+    welcome: '歡迎，',
+    logout: '登出',
+    login: '前往登入',
+    sectionResources: '資源管理 (僅管理員)',
+    recent: '近期新增',
+    delete: '刪除',
+    resTitle: '資源名稱',
+    catShared: '共用資源',
+    catAssignment: '作業區',
+    catReplay: '影片回放',
+    catConsulting: '顧問區',
+    catQuestion: '提問區',
+    catSurvey: '滿意度調查',
+    resUrl: '網址 (URL)',
+    saveResource: '儲存資源',
+    footer: 'OmniESGGo Learning Center • Powered by 5T Protocol',
+    c1Title: '共用資源與教材',
+    c1Desc: '存取講義、簡報與學習補充資料',
+    c1Link: '開啟資料夾',
+    c2Title: '作業與報告上傳',
+    c2Desc: '上傳您的 ESG 評估與實作報告',
+    c2Link: '前往上傳區',
+    c3Title: '課程回放影片',
+    c3Desc: '複習先前的線上課程與會議紀錄',
+    c3Link: '觀看回放',
+    c4Title: '顧問時段預約',
+    c4Desc: '與 ESG 專家預約一對一指導時間',
+    c4Link: '前往預約系統',
+    c5Title: '線上提問信箱',
+    c5Desc: '學習過程中遇到問題？隨時發問',
+    c5Link: '填寫問題單',
+    c6Title: '學習滿意度調查',
+    c6Desc: '分享您的回饋，協助我們持續進步',
+    c6Link: '填寫問卷',
+  },
+  'zh-Hans': {
+    welcome: '欢迎，',
+    logout: '退出',
+    login: '前往登录',
+    sectionResources: '资源管理 (仅管理员)',
+    recent: '近期新增',
+    delete: '删除',
+    resTitle: '资源名称',
+    catShared: '共用资源',
+    catAssignment: '作业区',
+    catReplay: '回放影片',
+    catConsulting: '顾问区',
+    catQuestion: '提问区',
+    catSurvey: '满意度调查',
+    resUrl: '网址 (URL)',
+    saveResource: '保存资源',
+    footer: 'OmniESGGo Learning Center • Powered by 5T Protocol',
+    c1Title: '共用资源与教材',
+    c1Desc: '存取讲义、简报与学习补充资料',
+    c1Link: '打开文件夹',
+    c2Title: '作业与报告上传',
+    c2Desc: '上传您的 ESG 评估与实作报告',
+    c2Link: '前往上传区',
+    c3Title: '课程回放影片',
+    c3Desc: '复习先前的线上课程与会议纪录',
+    c3Link: '观看回放',
+    c4Title: '顾问时段预约',
+    c4Desc: '与 ESG 专家预约一对一指导时间',
+    c4Link: '前往预约系统',
+    c5Title: '线上提问信箱',
+    c5Desc: '学习过程中遇到问题？随时发问',
+    c5Link: '填写问题单',
+    c6Title: '学习满意度调查',
+    c6Desc: '分享您的回馈，协助我们持续进步',
+    c6Link: '填写问卷',
+  },
+  'en': {
+    welcome: 'Welcome, ',
+    logout: 'Logout',
+    login: 'Go to Login',
+    sectionResources: 'Resource Management',
+    recent: 'Recent Items',
+    delete: 'Delete',
+    resTitle: 'Resource Title',
+    catShared: 'Shared Resources',
+    catAssignment: 'Assignments',
+    catReplay: 'Replays',
+    catConsulting: 'Consulting',
+    catQuestion: 'Q & A',
+    catSurvey: 'Survey',
+    resUrl: 'URL',
+    saveResource: 'Save Resource',
+    footer: 'OmniESGGo Learning Center • Powered by 5T Protocol',
+    c1Title: 'Shared Materials',
+    c1Desc: 'Access handouts, slides, and supplementary data',
+    c1Link: 'Open Folder',
+    c2Title: 'Assignments Upload',
+    c2Desc: 'Upload your ESG assessment and implementation reports',
+    c2Link: 'Go to Upload Area',
+    c3Title: 'Course Replays',
+    c3Desc: 'Review previous online classes and meeting records',
+    c3Link: 'Watch Replay',
+    c4Title: 'Consultation Booking',
+    c4Desc: 'Book a 1-on-1 session with an ESG expert',
+    c4Link: 'Go to Booking System',
+    c5Title: 'Online Q&A Box',
+    c5Desc: 'Got a question during your learning? Ask anytime',
+    c5Link: 'Submit Question',
+    c6Title: 'Satisfaction Survey',
+    c6Desc: 'Share your feedback to help us improve',
+    c6Link: 'Fill out Survey',
+  }
+};
 
 export default function LearningCenterPage() {
   const { user } = useAuth();
@@ -15,6 +129,8 @@ export default function LearningCenterPage() {
     const stored = (localStorage.getItem('lc_lang') as 'zh-Hant' | 'zh-Hans' | 'en') || 'zh-Hant';
     setLang(stored);
   }, []);
+
+  const t = (key: string) => TRANSLATIONS[lang]?.[key] || key;
 
   useEffect(() => {
     if (!user) return;
@@ -30,113 +146,108 @@ export default function LearningCenterPage() {
     };
   }, [user]);
 
-  const t = (key: string) => {
-    const dict: Record<string, Record<string, string>> = {
-      heroTitle: {
-        'zh-Hant': '2026 柏克萊國際人才培育課程 學習中心',
-        'zh-Hans': '2026 柏克莱国际人才培育课程 学习中心',
-        en: '2026 Berkeley International Talent Program · Learning Center',
-      },
-      heroLead: {
-        'zh-Hant': 'Berkeley Haas · ESGSunshine · 資源、作業、回放、諮詢、提問、滿意度。',
-        'zh-Hans': 'Berkeley Haas · ESGSunshine · 资源、作业、回放、咨询、提问、满意度。',
-        en: 'Berkeley Haas · ESGSunshine · resources, assignments, replays, consulting, questions, surveys.',
-      },
-      c1Title: { 'zh-Hant': '學員資源區', 'zh-Hans': '学员资源区', en: 'Resources' },
-      c1Desc: { 'zh-Hant': '教材、筆記、公告與補充資料。', 'zh-Hans': '教材、笔记、公告与补充资料。', en: 'Materials, notes, announcements, and member assets.' },
-      c2Title: { 'zh-Hant': '作業上傳', 'zh-Hans': '作业上传', en: 'Assignments' },
-      c2Desc: { 'zh-Hant': '提交每週矩陣成果與反思。', 'zh-Hans': '提交每周矩阵成果与反思。', en: 'Submit weekly matrices and reflections.' },
-      c3Title: { 'zh-Hant': '課程回放', 'zh-Hans': '课程回放', en: 'Replays' },
-      c3Desc: { 'zh-Hant': '週六主課與週日諮詢錄影。', 'zh-Hans': '周六主课与周日咨询录影。', en: 'Saturday lectures and Sunday consulting lab recordings.' },
-      c4Title: { 'zh-Hant': '諮詢預約', 'zh-Hans': '咨询预约', en: 'Consulting' },
-      c4Desc: { 'zh-Hant': '與專屬顧問聯繫安排時段。', 'zh-Hans': '与专属顾问联系安排时段。', en: 'Book a session with a dedicated advisor.' },
-      c5Title: { 'zh-Hant': '提問提交', 'zh-Hans': '提问提交', en: 'Questions' },
-      c5Desc: { 'zh-Hant': '課程、技術、行政問題統一提交。', 'zh-Hans': '课程、技术、行政问题统一提交。', en: 'Submit course, technical, or admin questions.' },
-      c6Title: { 'zh-Hant': '滿意調查', 'zh-Hans': '满意度调查', en: 'Survey' },
-      c6Desc: { 'zh-Hant': '每週課後調查，協助持續改善。', 'zh-Hans': '每周课后调查，协助持续改善。', en: 'Weekly post-class survey to improve content and support.' },
-      footer: { 'zh-Hant': '2026 Berkeley ESG Strategy & Innovation Program', 'zh-Hans': '2026 Berkeley ESG Strategy & Innovation Program', en: '2026 Berkeley ESG Strategy & Innovation Program' },
-      sectionResources: { 'zh-Hant': '已儲存資源', 'zh-Hans': '已保存资源', en: 'Saved resources' },
-      login: { 'zh-Hant': '登入 / 註冊', 'zh-Hans': '登录 / 注册', en: 'Sign in' },
-      logout: { 'zh-Hant': '登出', 'zh-Hans': '登出', en: 'Sign out' },
-      resTitle: { 'zh-Hant': '資源名稱', 'zh-Hans': '资源名称', en: 'Resource title' },
-      resUrl: { 'zh-Hant': '連結', 'zh-Hans': '链接', en: 'URL' },
-      saveResource: { 'zh-Hant': '儲存資源', 'zh-Hans': '保存资源', en: 'Save resource' },
-      recent: { 'zh-Hant': '最近存入', 'zh-Hans': '最近保存', en: 'Recent' },
-      delete: { 'zh-Hant': '刪除', 'zh-Hans': '删除', en: 'Delete' },
-      catShared: { 'zh-Hant': '共享資源', 'zh-Hans': '共享资源', en: 'Shared resource' },
-      catAssignment: { 'zh-Hant': '作業', 'zh-Hans': '作业', en: 'Assignment' },
-      catReplay: { 'zh-Hant': '回放', 'zh-Hans': '回放', en: 'Replay' },
-      catConsulting: { 'zh-Hant': '諮詢', 'zh-Hans': '咨询', en: 'Consulting' },
-      catQuestion: { 'zh-Hant': '提問', 'zh-Hans': '提问', en: 'Question' },
-      catSurvey: { 'zh-Hant': '問卷', 'zh-Hans': '问卷', en: 'Survey' },
-    };
-    return dict[key]?.[lang] ?? dict[key]?.['zh-Hant'] ?? key;
-  };
-
   return (
-    <main style={{ minHeight: '100vh', background: '#f6f8fb', padding: '24px 18px 40px', fontFamily: "'Inter','Noto Sans TC','Noto Sans SC',system-ui,sans-serif", color: '#1e293b' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 12 }}>
-          <select value={lang} onChange={(e) => { const v = e.target.value as 'zh-Hant' | 'zh-Hans' | 'en'; setLang(v); localStorage.setItem('lc_lang', v); }} style={{ padding: '8px 12px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', fontWeight: 600 }}>
-            <option value="zh-Hant">繁體</option>
-            <option value="zh-Hans">简体</option>
-            <option value="en">EN</option>
-          </select>
-        </div>
-
-        <div style={{ background: 'linear-gradient(125deg,#001f3f,#003262 55%,#0a3d7a)', borderRadius: 18, color: '#fff', padding: '36px 32px', marginBottom: 18 }}>
-          <img src="/logo.png" alt="ESG SUNSHINE" style={{ height: 72, width: 'auto', marginBottom: 14, filter: 'drop-shadow(0 6px 18px rgba(0,0,0,.35))' }} />
-          <h1 style={{ fontFamily: "'Noto Serif TC','Noto Sans SC',serif", fontWeight: 700, fontSize: 'clamp(20px,2vw,28px)', margin: '0 0 8px' }}>{t('heroTitle')}</h1>
-          <p style={{ margin: 0, color: 'rgba(255,255,255,.88)', maxWidth: 860, lineHeight: 1.75 }}>{t('heroLead')}</p>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 14 }}>
-            {user ? (
-              <>
-                <span style={{ background: 'rgba(255,255,255,.14)', border: '1px solid rgba(255,255,255,.28)', backdropFilter: 'blur(6px)', padding: '8px 14px', borderRadius: 999, color: '#fff', fontWeight: 600, fontSize: 13.5 }}>{user.displayName || user.email}</span>
-                <button onClick={() => signOut()} style={{ background: 'rgba(255,255,255,.10)', color: '#fff', border: '1px solid rgba(255,255,255,.35)', borderRadius: 10, padding: '8px 14px', fontWeight: 600, cursor: 'pointer' }}>{t('logout')}</button>
-              </>
-            ) : (
-              <a href="/" style={{ color: '#fff', textDecoration: 'underline' }}>{t('login')}</a>
-            )}
+    <div className="min-h-screen p-4 md:p-8 max-w-7xl mx-auto">
+      {/* 英雄區塊 (Hero Header) */}
+      <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-slate-900/40 border border-cyan-500/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-6 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="absolute top-0 right-0 -mt-20 -mr-20 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="flex items-center gap-4 relative z-10">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center text-slate-950 shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+            <BookOpen size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 tracking-tight">
+              知識與學習中心 (Learning Center)
+            </h1>
+            <p className="text-sm text-cyan-100/60 font-medium mt-1">
+              ESG 治理教材、線上課程資源與顧問預約系統
+            </p>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,minmax(0,1fr))', gap: 16 }}>
-          <Card titleKey="c1Title" descKey="c1Desc" icon="fa-folder-open" link="https://drive.google.com/drive/folders/1-ZOC6sPNGISeD7Rf6lYT3Q10yYZaTdAy?usp=sharing" linkKey="c1Link" t={t} />
-          <Card titleKey="c2Title" descKey="c2Desc" icon="fa-cloud-arrow-up" gold link="https://forms.gle/1paHpA5xSSSZJSFy8" linkKey="c2Link" t={t} />
-          <Card titleKey="c3Title" descKey="c3Desc" icon="fa-photo-film" link="https://drive.google.com/drive/folders/1-ZOC6sPNGISeD7Rf6lYT3Q10yYZaTdAy?usp=sharing" linkKey="c3Link" t={t} />
-          <Card titleKey="c4Title" descKey="c4Desc" icon="fa-calendar-check" gold link="https://docs.google.com/forms/d/e/1FAIpQLSdqFeKkOJOrg0erjaP1EFG9zyj98I5E3GpA4m1Zlzy2ZATiEw/viewform" linkKey="c4Link" t={t} />
-          <Card titleKey="c5Title" descKey="c5Desc" icon="fa-clipboard-question" link="https://forms.gle/ErFffsbVrmAgyFQJA" linkKey="c5Link" t={t} />
-          <Card titleKey="c6Title" descKey="c6Desc" icon="fa-star-half-stroke" gold link="/satisfaction-survey/index.html" linkKey="c6Link" t={t} />
+        <div className="flex items-center gap-3 relative z-10 bg-slate-950/50 backdrop-blur-md border border-cyan-500/20 px-4 py-2 rounded-xl">
+          {user ? (
+            <>
+              <div className="flex items-center gap-2">
+                <UserIcon size={14} className="text-cyan-400" />
+                <span className="text-sm font-bold text-slate-200">
+                  {t('welcome')}{user.email?.split('@')[0]}
+                </span>
+              </div>
+              <button 
+                onClick={() => signOut()} 
+                className="ml-2 text-rose-400 hover:text-rose-300 transition-colors p-1"
+                title={t('logout')}
+              >
+                <LogOut size={16} />
+              </button>
+            </>
+          ) : (
+            <a href="/" className="text-cyan-400 font-bold text-sm hover:underline">
+              {t('login')}
+            </a>
+          )}
         </div>
+      </div>
 
-        {user && (
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '18px 20px', marginTop: 14 }}>
-            <h2 style={{ margin: '0 0 10px', fontSize: 17, fontWeight: 800, color: '#003262', display: 'flex', alignItems: 'center', gap: 10 }}>{t('sectionResources')}</h2>
+      {/* 模組網格 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card titleKey="c1Title" descKey="c1Desc" icon={<BookOpen size={24} />} link="https://drive.google.com/drive/folders/1-ZOC6sPNGISeD7Rf6lYT3Q10yYZaTdAy?usp=sharing" linkKey="c1Link" t={t} />
+        <Card titleKey="c2Title" descKey="c2Desc" icon={<CloudUpload size={24} />} gold link="https://forms.gle/1paHpA5xSSSZJSFy8" linkKey="c2Link" t={t} />
+        <Card titleKey="c3Title" descKey="c3Desc" icon={<ImageIcon size={24} />} link="https://drive.google.com/drive/folders/1-ZOC6sPNGISeD7Rf6lYT3Q10yYZaTdAy?usp=sharing" linkKey="c3Link" t={t} />
+        <Card titleKey="c4Title" descKey="c4Desc" icon={<CalendarCheck size={24} />} gold link="https://docs.google.com/forms/d/e/1FAIpQLSdqFeKkOJOrg0erjaP1EFG9zyj98I5E3GpA4m1Zlzy2ZATiEw/viewform" linkKey="c4Link" t={t} />
+        <Card titleKey="c5Title" descKey="c5Desc" icon={<HelpCircle size={24} />} link="https://forms.gle/ErFffsbVrmAgyFQJA" linkKey="c5Link" t={t} />
+        <Card titleKey="c6Title" descKey="c6Desc" icon={<Star size={24} />} gold link="/satisfaction-survey/index.html" linkKey="c6Link" t={t} />
+      </div>
+
+      {/* 資源管理表單 */}
+      {user && (
+        <OmniCard glow className="mt-8 border-cyan-500/20">
+          <OmniCardHeader>
+            <OmniCardTitle className="text-cyan-400 flex items-center gap-2">
+              <BookOpen size={20} /> {t('sectionResources')}
+            </OmniCardTitle>
+          </OmniCardHeader>
+          <OmniCardContent>
             <ResourceForm t={t} onSaved={(row) => setResources((prev) => [row, ...prev])} />
-            <div style={{ marginTop: 14 }}>
-              <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{t('recent')}</div>
+            <div className="mt-8">
+              <div className="text-sm font-bold text-slate-400 mb-4">{t('recent')}</div>
               {resources.length === 0 ? (
-                <p style={{ margin: 0, color: '#64748b' }}>—</p>
+                <div className="text-slate-500 italic text-sm">—</div>
               ) : (
-                <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
+                <div className="grid gap-3">
                   {resources.slice(0, 20).map((item) => (
-                    <li key={item.id} style={{ fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span>
-                        <a href={item.url || '#'} target="_blank" rel="noopener" style={{ color: '#003262', fontWeight: 600 }}>{item.title}</a>
-                        {item.category ? <span style={{ color: '#64748b', marginLeft: 8 }}>({item.category})</span> : null}
-                      </span>
-                      <button data-id={item.id} className="deleteResourceBtn" style={{ background: 'transparent', color: '#dc2626', border: '1px solid #fca5a5', borderRadius: 8, padding: '6px 10px', fontSize: 12, cursor: 'pointer' }}>{t('delete')}</button>
-                    </li>
+                    <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-slate-900/50 border border-slate-800">
+                      <div className="flex items-center gap-3">
+                        <a href={item.url || '#'} target="_blank" rel="noopener" className="font-bold text-cyan-400 hover:text-cyan-300 transition-colors">
+                          {item.title}
+                        </a>
+                        {item.category && (
+                          <span className="text-xs bg-slate-800 text-slate-400 px-2 py-1 rounded-md border border-slate-700">
+                            {item.category}
+                          </span>
+                        )}
+                      </div>
+                      <button 
+                        data-id={item.id} 
+                        className="deleteResourceBtn text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 p-2 rounded-md transition-colors"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
-          </div>
-        )}
+          </OmniCardContent>
+        </OmniCard>
+      )}
 
-        <div style={{ textAlign: 'center', fontSize: 12.5, color: '#94a3b8', marginTop: 22 }}>{t('footer')}</div>
+      <div className="text-center text-sm text-slate-500 font-mono mt-12 mb-4">
+        {t('footer')}
       </div>
-    </main>
+    </div>
   );
 }
 
@@ -155,11 +266,10 @@ function ResourceForm({ t, onSaved }: { t: (key: string) => string; onSaved: (ro
       const res = await fetch('/api/admin/resources?id=' + encodeURIComponent(id), { method: 'DELETE' });
       const data = await res.json();
       if (data?.ok) {
-        btn.closest('li')?.remove();
+        btn.closest('div')?.remove();
       }
     };
-    const root = document.querySelector('main');
-    if (!root) return;
+    const root = document.querySelector('main') || document.body;
     root.addEventListener('click', handler);
     return () => {
       root.removeEventListener('click', handler);
@@ -167,9 +277,18 @@ function ResourceForm({ t, onSaved }: { t: (key: string) => string; onSaved: (ro
   }, []);
 
   return (
-    <form id="resourceForm" style={{ display: 'grid', gap: 10, maxWidth: 640, marginTop: 10 }}>
-      <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={t('resTitle')} style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#f8fafc' }} />
-      <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#f8fafc' }}>
+    <form id="resourceForm" className="grid grid-cols-1 md:grid-cols-4 gap-4" onSubmit={(e) => e.preventDefault()}>
+      <input 
+        value={title} 
+        onChange={(e) => setTitle(e.target.value)} 
+        placeholder={t('resTitle')} 
+        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500/50"
+      />
+      <select 
+        value={category} 
+        onChange={(e) => setCategory(e.target.value)} 
+        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500/50 appearance-none"
+      >
         <option value="shared_resource">{t('catShared')}</option>
         <option value="assignment">{t('catAssignment')}</option>
         <option value="replay">{t('catReplay')}</option>
@@ -177,33 +296,46 @@ function ResourceForm({ t, onSaved }: { t: (key: string) => string; onSaved: (ro
         <option value="question">{t('catQuestion')}</option>
         <option value="survey">{t('catSurvey')}</option>
       </select>
-      <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={t('resUrl')} style={{ padding: '10px 12px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#f8fafc' }} />
-      <button
-        type="submit"
-        style={{ justifySelf: 'start', padding: '10px 14px', borderRadius: 10, border: '1px solid #e2e8f0', background: 'linear-gradient(180deg,#FDB515,#f5b308)', color: '#003262', fontWeight: 700, cursor: 'pointer' }}
-      >
+      <input 
+        value={url} 
+        onChange={(e) => setUrl(e.target.value)} 
+        placeholder={t('resUrl')} 
+        className="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500/50"
+      />
+      <OmniButton type="button" variant="primary" className="h-full">
         {t('saveResource')}
-      </button>
-      {error ? <span style={{ color: '#dc2626', fontSize: 13 }}>{error}</span> : null}
+      </OmniButton>
+      {error && <div className="col-span-full text-rose-400 text-sm">{error}</div>}
     </form>
   );
 }
 
-function Card({ titleKey, descKey, icon, link, linkKey, t, gold = false }: { titleKey: string; descKey: string; icon: string; link: string; linkKey: string; t: (key: string) => string; gold?: boolean }) {
+function Card({ titleKey, descKey, icon, link, linkKey, t, gold = false }: { titleKey: string; descKey: string; icon: React.ReactNode; link: string; linkKey: string; t: (key: string) => string; gold?: boolean }) {
   return (
-    <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 22, display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,.06)' }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: gold ? 'linear-gradient(90deg,#FDB515,#f59e0b)' : 'linear-gradient(90deg,#003262,#FDB515)' }} />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-        <div style={{ width: 40, height: 40, borderRadius: 10, display: 'inline-grid', placeItems: 'center', background: gold ? 'linear-gradient(135deg,rgba(253,181,21,.12),#fff7e6)' : 'linear-gradient(135deg,rgba(0,50,98,.07),#eef4ff)', color: gold ? '#b45309' : '#003262', fontSize: 17, boxShadow: 'inset 0 0 0 1px rgba(0,50,98,.06)' }}><i className={'fa-solid ' + icon}></i></div>
-        <h3 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: '#003262' }}>{t(titleKey)}</h3>
-      </div>
-      <p style={{ margin: '6px 0 14px', fontSize: 13.5, color: '#475569' }}>{t(descKey)}</p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 'auto' }}>
-        <a href={link} target="_blank" rel="noopener" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'space-between', textDecoration: 'none', padding: '10px 12px', borderRadius: 9, fontWeight: 600, fontSize: 13.5, border: '1px solid #e2e8f0', background: 'linear-gradient(180deg,#fff,#fafafa)', color: '#003262' }}>
+    <OmniCard className={`group relative h-full transition-all duration-300 hover:-translate-y-1 ${gold ? 'border-yellow-500/30' : 'border-cyan-500/20'}`}>
+      <div className={`absolute top-0 left-0 right-0 h-1 ${gold ? 'bg-gradient-to-r from-yellow-500 to-amber-500' : 'bg-gradient-to-r from-cyan-500 to-blue-500'}`} />
+      <OmniCardContent className="flex flex-col h-full p-6">
+        <div className="flex items-center gap-4 mb-4">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-inner ${gold ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'}`}>
+            {icon}
+          </div>
+          <h3 className="text-lg font-bold text-slate-100 group-hover:text-cyan-400 transition-colors">
+            {t(titleKey)}
+          </h3>
+        </div>
+        <p className="text-sm text-slate-400 mb-6 flex-1">
+          {t(descKey)}
+        </p>
+        <a 
+          href={link} 
+          target="_blank" 
+          rel="noopener" 
+          className="flex items-center justify-between px-4 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-cyan-500/50 rounded-xl transition-all font-bold text-sm text-cyan-400 group-hover:text-cyan-300"
+        >
           <span>{t(linkKey)}</span>
-          <i className="fa-solid fa-arrow-up-right-from-square" style={{ color: '#64748b' }}></i>
+          <ExternalLink size={16} />
         </a>
-      </div>
-    </div>
+      </OmniCardContent>
+    </OmniCard>
   );
 }

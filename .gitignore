@@ -74,10 +74,10 @@ omniagent-gateway/node_modules/
 omniagent-gateway/logs/
 omniagent-gateway/package-lock.json
 
-# VPS gateway (esggo-vps-gateway) — installed deps only
+# VPS gateway (esggo-vps-gateway) ??installed deps only
 vps/node_modules/
 
-# e2e-k1 playwright sandbox — installed deps + run artifacts
+# e2e-k1 playwright sandbox ??installed deps + run artifacts
 e2e-k1/node_modules/
 e2e-k1/runs/
 
@@ -89,7 +89,6 @@ e2e-k1/runs/
 .playwright-mcp/
 .storybook/
 .codeturtle.yml
-.editorconfig
 .husky/
 .lintstagedrc.json
 .npmrc
@@ -171,12 +170,9 @@ package-lock.json
 android/
 ios/
 bin/
-# oa-twins/hyper/RESULTS.txt 為 probe 報告的 shell 重定向輸出，每次執行都會變動，不進版控。
-oa-twins/hyper/RESULTS.txt
-# 例外：oa-twins/bin/ 是正式原始碼（健康檢查腳本），非產出物。
-# 根目錄 bin/ 規則會把它整個忽略掉 —— 這正是 oa-twins/bin/oa-twin-health.py
-# 從未進版控、導致 README / run-selftest.bat / deploy 腳本三處靜默失敗的原因。
-!oa-twins/bin/
+# oa-twins/hyper/RESULTS.txt ??probe ?��???shell ?��??�輸?��?每次?��??��?變�?，�??��??��?oa-twins/hyper/RESULTS.txt
+# 例�?：oa-twins/bin/ ?�正式�?始碼（健康檢?�腳?��?，�??�出?��?# ?�目??bin/ 規�??��?它整?�忽?��? ?��??�正??oa-twins/bin/oa-twin-health.py
+# 從未?��??�、�???README / run-selftest.bat / deploy ?�本三�??��?失�??��??��?!oa-twins/bin/
 !oa-twins/bin/**
 cli/scratch/
 config/
@@ -315,8 +311,7 @@ esggo-deploy.bundle
 esggo-backup.bundle
 prisma/prisma/
 
-# 全量審計 sink 持久層（append-only JSONL，執行期產生）
-.audit/
+# ?��?審�? sink ?��?層�?append-only JSONL，執行�??��?�?.audit/
 
 .vercel
 
@@ -342,15 +337,13 @@ vault/Agents/context/.avatar-types.d.ts
 prisma-backup-*/
 
 # Vercel deploy: exclude non-esggo subdirectories from Vercel upload (64000+ tracked files exceed 15000 limit)
-# 忽略目錄內容但保留目錄本身，使 soul.md 負向例外可生效
-esggo-omni-center/*
-# 例外：主典 soul.md 需永久納入追蹤（§20 OmniTag 契約聖典編輯源頭）
-!esggo-omni-center/soul.md
+# 忽略?��??�容但�??�目?�本身�?�?soul.md 負�?例�??��???esggo-omni-center/*
+# 例�?：主??soul.md ?�永�?納入追蹤（�?0 OmniTag 契�??�典編輯源頭�?!esggo-omni-center/soul.md
 rules-tutorial/
 functions/node_modules/
 
 .env*
-# ── 調試產物 (本地 watchdog / trace, 不納入版本控制) ──
+# ?�?� 調試?�物 (?�地 watchdog / trace, 不�??��??�控?? ?�?�
 wd_out.txt
 wd_trace.txt
 _h.txt
@@ -359,25 +352,23 @@ _h.txt
 watchdog_*.txt
 watchdog_*.log
 
-# OmniFactory 本地設施配置 (含 Vault ID, 不進版本控制)
+# OmniFactory ?�地設施?�置 (??Vault ID, 不進�??�控??
 apps/omni-factory/.obsidian-config.json
 
-# FTG Journey 執行期產物 (SQLite 資料庫 + 健康日誌，不進版本控制)
+# FTG Journey ?��??�產??(SQLite 資�?�?+ ?�康?��?，�??��??�控??
 apps/ftg-journey-server/*.db
 oa-team-crewai/swarm-health-*.log
 
-# 封存區 (archive-protocol: 不可入 git)
+# 封�??� (archive-protocol: 不可??git)
 /archive/
 apps/ftg-journey-web/cloudflare.ini
 
-# 進化引擎動態產物 (本機生成, 不進 git)
+# ?��?引�??��??�物 (?��??��?, 不�?git)
 apps/evolution-engine/evolution-report.json
 apps/evolution-engine/proposals/
 
 # Hermes Auto-Repair & 5T Canon
-# 原規則 `.hermes/`（2026-09-28 移除）：整包排除會讓 auto-repair 的修復
-# 無法隨 repo 分發。改為只排除執行期狀態檔，見本檔下方 .hermes/**/*.json 區段。
-
+# ?��???`.hermes/`�?026-09-28 移除）�??��??�除?��? auto-repair ?�修�?# ?��???repo ?�發?�改?�只?�除?��??��??��?，�??��?下方 .hermes/**/*.json ?�段�?
 # Generated visual assets (local only, not in version control)
 generated/
 
@@ -389,26 +380,16 @@ generated/
 evolution-log.jsonl
 vault/.obsidian/plugins/github-sync/
 /vendor/
-# .hermes/ 混合了「可重現的程式碼」與「本機執行期狀態」兩類內容。
-# 整包排除會讓 auto-repair 修復無法隨 repo 分發（2026-09-28 起），
-# 整包納入則會把 41 個狀態/日誌檔（含 tracker-state.json、repair-log.jsonl）
-# 一併帶進版控。
-#
-# 注意：git 對「已被排除的目錄」不會再進入套用否定規則，所以
-# `/.hermes/` + `!/.hermes/auto-repair/` 會導致整個目錄仍被排除（實測數量=0）。
-# 正解是「不排除目錄本身，只排除該路徑下的狀態檔」。
-#
-# 只放行三個可重現的子系統（auto-repair / omnitag / vault-sync）；
-# 其餘路徑維持排除 —— 其中含 SSH 公鑰（desktop-attachments/*.key.pub）
-# 與權杖檔（desktop-attachments/tokens.tok），絕不可進版控。
-/.hermes/*
+# .hermes/ 混�?了「可?�現?��?式碼?��??�本機執行�??�?�」兩類內容�?# ?��??�除?��? auto-repair 修復?��???repo ?�發�?026-09-28 起�?�?# ?��?納入?��???41 ?��????��?檔�???tracker-state.json?�repair-log.jsonl�?# 一併帶?��??��?#
+# 注�?：git 對「已被�??��??��??��??��??�入套用?��?規�?，�?�?# `/.hermes/` + `!/.hermes/auto-repair/` ?��??�整?�目?��?被�??��?實測?��?=0）�?# �?��?�「�??�除?��??�身，只?�除該路徑�??��??��??��?#
+# ?�放行�??�可?�現?��?系統（auto-repair / omnitag / vault-sync）�?
+# ?��?路�?維�??�除 ?��??�中??SSH ?�鑰（desktop-attachments/*.key.pub�?# ?��??��?（desktop-attachments/tokens.tok）�?絕�??�進�??��?/.hermes/*
 !/.hermes/auto-repair/
 /.hermes/auto-repair/*.json
 /.hermes/auto-repair/*.jsonl
 /.hermes/auto-repair/*.log
-# auto-repair/ 底下另有一層巢狀的舊執行期資料（.hermes/5t-canon/verify-*.json），
-# 由過往腳本以相對路徑誤建，與主 .hermes/5t-canon/ 無關，一併排除。
-/.hermes/auto-repair/.hermes/
+# auto-repair/ 底�??��?一層巢?�?��??��??��??��?.hermes/5t-canon/verify-*.json）�?
+# ?��?往?�本以相對路徑誤建�??�主 .hermes/5t-canon/ ?��?，�?併�??��?/.hermes/auto-repair/.hermes/
 !/.hermes/omnitag/
 /.hermes/omnitag/*.json
 /.hermes/omnitag/*.jsonl
@@ -421,14 +402,12 @@ vault/.obsidian/plugins/github-sync/
 apps/ftg-2.5/
 apps/ftg-2.8/
 
-# PyInstaller 建置產物（spec/dist/work 皆為本機建置結果）
-_pyi/
+# PyInstaller 建置?�物（spec/dist/work ?�為?��?建置結�?�?_pyi/
 
-# 測試執行產物（每次執行覆寫，不具版本控價值）
+# 測試?��??�物（�?次執行�?寫�?不具?�本?�價?��?
 test_result.json
 
-# 萬能分身追蹤器暫存檔（每次修復覆寫，僅供本機稽核）
-.hermes/auto-repair/.tracker-evidence.tmp
+# ?�能?�身追蹤?�暫存�?（�?次修復�?寫�??��??��?稽核�?.hermes/auto-repair/.tracker-evidence.tmp
 
-# 未完成的一次性驗證草稿（含憑證佔位，不進版控）
+# ?��??��?一次性�?證�?稿�??��?證�?位�?不進�??��?
 wf-validate/

@@ -1,988 +1,209 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import {
-  SolidCard,
-  CardHeader,
-  MetricCard,
-  Badge,
-  Button,
-  Section,
-  ProgressBar,
-  Grid,
-  SOLID_CARD_TOKENS,
-} from '@esggo/ui';
+import React, { useState } from 'react';
+import { OmniCard } from '@/components/omni-base/OmniCard';
+import { OmniButton } from '@/components/omni-base/OmniButton';
+import { Search, ShieldAlert, Activity, CheckCircle, AlertTriangle } from 'lucide-react';
 
-// ─── Constants ────────────────────────────────────────────────
+export default function SonnarIntelligencePage() {
+  const [targetUrl, setTargetUrl] = useState('');
+  const [status, setStatus] = useState<'idle' | 'scraping' | 'analyzing' | 'done' | 'error'>('idle');
+  const [scrapedData, setScrapedData] = useState<any>(null);
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [errorMsg, setErrorMsg] = useState('');
 
-const KNOWN_REGIONS = new Set(['TW', 'EU', 'INT', 'US', 'AP']);
-
-// ─── Types ────────────────────────────────────────────────────
-
-interface Source {
-  id: string;
-  sourceId: string;
-  sourceName: string;
-  enabled: boolean;
-  totalRuns: number;
-  successfulRuns: number;
-  failedRuns: number;
-  lastItemsFound?: number;
-}
-
-interface RadarSignal {
-  source: { id: string; name: string };
-  signalStrength: number;
-  newItems: number;
-  changedItems: number;
-  anomaly: boolean;
-  anomalyType?: string;
-  topics: string[];
-  lastUpdate: string;
-}
-
-interface Topic {
-  topic: string;
-  count: number;
-  trend: 'up' | 'down' | 'stable';
-  sources: string[];
-}
-
-interface Alert {
-  id: string;
-  sourceName: string;
-  alertType: string;
-  severity: string;
-  title: string;
-  summary: string;
-  acknowledged: boolean;
-  createdAt: string;
-}
-
-interface WSEvent {
-  type: 'crawl_complete' | 'alert_new' | 'signal_update' | 'heartbeat';
-  data: Record<string, unknown>;
-  ts: number;
-}
-
-// ─── Constants ────────────────────────────────────────────────
-
-const SEVERITY_VARIANTS: Record<string, 'error' | 'warning' | 'blue' | 'muted'> = {
-  critical: 'error',
-  high: 'warning',
-  medium: 'warning',
-  low: 'muted',
-};
-
-const REGION_LABELS: Record<string, string> = {
-  TW: '🇹🇼 臺灣',
-  EU: '🇪🇺 歐盟',
-  INT: '🌍 國際',
-  US: '🇺🇸 美國',
-  AP: '🌏 亞太',
-  '3P': '📊 第三方',
-};
-
-const TREND_ICONS: Record<string, string> = { up: '↑', down: '↓', stable: '→' };
-
-// ─── CSS Bar Chart (zero deps) ────────────────────────────────
-
-const BarChart = React.memo(function BarChart({ data, maxVal, color }: { data: number[]; maxVal: number; color: string }) {
-  return (
-    <div className="flex items-end gap-1 h-20">
-      {data.map((v, i) => (
-        <div
-          key={i}
-          className={`flex-1 ${color} rounded-t transition-all duration-500`}
-          style={{
-            height: maxVal > 0 ? `${(v / maxVal) * 100}%` : '0%',
-            minHeight: v > 0 ? '2px' : '0',
-          }}
-          title={`${v}`}
-        />
-      ))}
-    </div>
-  );
-});
-
-// ─── Timeline sparkline ───────────────────────────────────────
-
-const Sparkline = React.memo(function Sparkline({ data, color = 'text-teal-400' }: { data: number[]; color?: string }) {
-  const pts = useMemo(() => {
-    if (data.length < 2) return null;
-    const max = Math.max(...data);
-    const step = 100 / (data.length - 1);
-    return data.map((v, i) => `${i * step},${100 - (max > 0 ? (v / max) * 90 : 0)}`).join(' ');
-  }, [data]);
-
-  if (!pts) return <span className="text-xs text-gray-500">--</span>;
-
-  return (
-    <svg viewBox="0 0 100 100" className={`w-full h-8 ${color}`} preserveAspectRatio="none">
-      <polyline
-        points={pts}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        vectorEffect="non-scaling-stroke"
-      />
-    </svg>
-  );
-});
-
-// ─── Main Dashboard ───────────────────────────────────────────
-
-const SONNAR_TABS = ['overview', 'crawl', 'alerts'] as const;
-
-export default function SonnarDashboard() {
-  const [sources, setSources] = useState<Source[]>([]);
-  const [signals, setSignals] = useState<RadarSignal[]>([]);
-  const [topics, setTopics] = useState<Topic[]>([]);
-  const [alerts, setAlerts] = useState<Alert[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [crawling, setCrawling] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'crawl' | 'alerts'>('overview');
-  const [regionFilter, setRegionFilter] = useState<string>('all');
-  const [severityFilter, setSeverityFilter] = useState<string>('all');
-  const [wsConnected, setWsConnected] = useState(false);
-  const [wsEvents, setWsEvents] = useState<WSEvent[]>([]);
-  const [evolution, setEvolution] = useState({ level: 1, xp: 0, nextXp: 120 });
-  const [evolving, setEvolving] = useState(false);
-
-  // Signal history (for sparklines) — keep last 20 ticks per source
-  const [signalHistory, setSignalHistory] = useState<Record<string, number[]>>({});
-  const signalHistoryRef = useRef<Record<string, number[]>>({});
-
-  // ─── Fetch ──────────────────────────────────────────────────
-  const fetchStatus = useCallback(async () => {
+  const handleScan = async () => {
+    if (!targetUrl) return;
+    
     try {
-      const [crawlRes, radarRes, alertsRes] = await Promise.all([
-        fetch('/api/sonnar/crawl'),
-        fetch('/api/sonnar/radar'),
-        fetch('/api/sonnar/alerts'),
-      ]);
+      setStatus('scraping');
+      setErrorMsg('');
+      
+      // Step 1: Local Scraping (Zero-Cost)
+      const crawlRes = await fetch('/api/sonnar/crawl', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: targetUrl })
+      });
       const crawlData = await crawlRes.json();
-      const radarData = await radarRes.json();
-      const alertsData = await alertsRes.json();
+      
+      const payload = crawlData.success ? crawlData.data : crawlData.fallback;
+      setScrapedData(payload);
 
-      if (crawlData.success) setSources(crawlData.data.jobs || []);
-      if (radarData.success) {
-        const sigs = radarData.data.signals || [];
-        setSignals(sigs);
-        setTopics(radarData.data.topicsAggregated || []);
+      if (!payload) throw new Error(crawlData.error || 'Scraping failed');
 
-        // Update signal history for sparklines
-        const newHistory = { ...signalHistoryRef.current };
-        sigs.forEach((s: RadarSignal) => {
-          const hist = newHistory[s.source.id] || [];
-          newHistory[s.source.id] = [...hist.slice(-19), s.signalStrength];
-        });
-        signalHistoryRef.current = newHistory;
-        setSignalHistory(newHistory);
-      }
-      if (alertsData.success) setAlerts(alertsData.data.alerts || []);
-    } catch (err) {
-      console.error('[Sonar] Fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // ─── WebSocket ──────────────────────────────────────────────
-  useEffect(() => {
-    let ws: WebSocket | null = null;
-    let reconnectTimer: ReturnType<typeof setTimeout>;
-
-    const connect = () => {
-      try {
-        const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-        ws = new WebSocket(`${proto}//${location.host}/gateway/sonnar/ws`);
-
-        ws.onopen = () => setWsConnected(true);
-        ws.onclose = () => {
-          setWsConnected(false);
-          reconnectTimer = setTimeout(connect, 5000);
-        };
-        ws.onerror = () => ws?.close();
-
-        ws.onmessage = (ev) => {
-          try {
-            const event: WSEvent = JSON.parse(ev.data);
-            setWsEvents((prev) => [...prev.slice(-49), event]); // keep last 50
-
-            if (event.type === 'crawl_complete' || event.type === 'signal_update') {
-              // Refresh data on crawl completion
-              fetchStatus();
-            }
-            if (event.type === 'alert_new') {
-              fetchStatus();
-            }
-          } catch {
-            /* ignore bad messages */
-          }
-        };
-      } catch {
-        reconnectTimer = setTimeout(connect, 5000);
-      }
-    };
-
-    connect();
-    return () => {
-      ws?.close();
-      clearTimeout(reconnectTimer);
-    };
-  }, [fetchStatus]);
-
-  useEffect(() => {
-    fetchStatus();
-    // Fallback polling if WS not connected
-    const interval = setInterval(() => {
-      if (!wsConnected) fetchStatus();
-    }, 30000);
-    return () => clearInterval(interval);
-  }, [fetchStatus, wsConnected]);
-
-  // ─── Actions ────────────────────────────────────────────────
-  const triggerCrawl = async (sourceId: string) => {
-    setCrawling(sourceId);
-    try {
-      await fetch('/api/sonnar/crawl', {
+      // Step 2: Local AI Analysis via Ollama (Zero-Cost)
+      setStatus('analyzing');
+      const aiRes = await fetch('/api/sonnar/knowledge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sourceId }),
+        body: JSON.stringify(payload)
       });
-      setTimeout(fetchStatus, 2000);
+      const aiData = await aiRes.json();
+      
+      setAnalysis(aiData.success ? aiData.analysis : aiData.fallback);
+      setStatus('done');
+
     } catch (err) {
-      console.error('[Sonar] Crawl error:', err);
-    } finally {
-      setCrawling(null);
+      setErrorMsg((err as Error).message);
+      setStatus('error');
     }
   };
-
-  const acknowledgeAlert = async (alertId: string) => {
-    try {
-      await fetch('/api/sonnar/alerts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ alertId, action: 'acknowledge' }),
-      });
-      setAlerts((prev) => prev.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a)));
-    } catch (err) {
-      console.error('[Sonar] Ack error:', err);
-    }
-  };
-
-  // ─── Derived data ───────────────────────────────────────────
-  const { regionCounts, maxRegionCount } = useMemo(() => {
-    const counts = signals.reduce<Record<string, number>>((acc, s) => {
-      const region = s.source.id.split('-')[0].toUpperCase();
-      const key = KNOWN_REGIONS.has(region) ? region : '3P';
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {});
-    return {
-      regionCounts: counts,
-      maxRegionCount: Math.max(...Object.values(counts), 1),
-    };
-  }, [signals]);
-
-  const { topicBarData, maxTopicCount } = useMemo(() => {
-    const data = topics.slice(0, 10).map((t) => t.count);
-    return {
-      topicBarData: data,
-      maxTopicCount: Math.max(...data, 1),
-    };
-  }, [topics]);
-
-  const unackAlerts = useMemo(() => alerts.filter((a) => !a.acknowledged), [alerts]);
-  const criticalAlerts = useMemo(
-    () => unackAlerts.filter((a) => a.severity === 'critical' || a.severity === 'high'),
-    [unackAlerts],
-  );
-
-  const filteredSignals = useMemo(() => {
-    if (regionFilter === 'all') return signals;
-    return signals.filter((s) => {
-      const region = s.source.id.split('-')[0].toUpperCase();
-      const key = KNOWN_REGIONS.has(region) ? region : '3P';
-      return key === regionFilter;
-    });
-  }, [signals, regionFilter]);
-
-  const anomalySignalCount = useMemo(() => signals.filter((s) => s.anomaly).length, [signals]);
-  const anomalySignalTrend = useMemo(
-    () => (anomalySignalCount > 0 ? 'up' : 'neutral'),
-    [anomalySignalCount],
-  );
-
-  // ─── Render ─────────────────────────────────────────────────
-  if (loading) {
-    return (
-      <div
-        style={{
-          minHeight: '100vh',
-          background: SOLID_CARD_TOKENS.bg,
-          color: SOLID_CARD_TOKENS.textPrimary,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div className="animate-spin w-12 h-12 border-4 border-teal-500 border-t-transparent rounded-full mx-auto mb-4" />
-          <p style={{ color: SOLID_CARD_TOKENS.textSecondary }}>ESGSonar 初始化中...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        background: SOLID_CARD_TOKENS.bg,
-        color: SOLID_CARD_TOKENS.textPrimary,
-      }}
-    >
-      {/* ─── Header ─── */}
-      <header
-        style={{
-          borderBottom: `1px solid ${SOLID_CARD_TOKENS.border}`,
-          background: SOLID_CARD_TOKENS.surface,
-        }}
-      >
-        <div
-          style={{
-            maxWidth: '1200px',
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '8px',
-                background: `linear-gradient(135deg, ${SOLID_CARD_TOKENS.teal}, ${SOLID_CARD_TOKENS.zkpBlue})`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: 700,
-                fontSize: '18px',
-                color: '#fff',
-              }}
-            >
-              S
-            </div>
-            <div>
-              <h1
-                style={{
-                  fontSize: '18px',
-                  fontWeight: 700,
-                  margin: 0,
-                  color: SOLID_CARD_TOKENS.teal,
-                }}
-              >
-                ESGSonar — ESGGO ∞ Evolution
-              </h1>
-              <p style={{ fontSize: '12px', color: SOLID_CARD_TOKENS.textSecondary, margin: 0 }}>
-                ESG 法規信號雷達 — 20 源監控 · 永續發展無限進化
-              </p>
-            </div>
+    <div className="min-h-screen bg-slate-950 p-6 font-sans text-slate-200">
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* Header */}
+        <header className="border-b border-slate-800 pb-6 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center">
+            <Activity className="w-6 h-6 text-cyan-400" />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: wsConnected ? SOLID_CARD_TOKENS.success : SOLID_CARD_TOKENS.error,
-                }}
-              />
-              <span style={{ fontSize: '12px', color: SOLID_CARD_TOKENS.textSecondary }}>
-                {wsConnected ? 'WS 即時' : '輪詢 30s'}
-              </span>
-            </div>
-            {criticalAlerts.length > 0 && (
-              <Badge variant="error">{criticalAlerts.length} 嚴重</Badge>
-            )}
-            {wsEvents.length > 0 && (
-              <span style={{ fontSize: '12px', color: SOLID_CARD_TOKENS.textMuted }}>
-                事件: {wsEvents.length}
-              </span>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* ─── Tabs ─── */}
-      <nav
-        style={{
-          borderBottom: `1px solid ${SOLID_CARD_TOKENS.border}`,
-          background: SOLID_CARD_TOKENS.surface,
-        }}
-      >
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', gap: '24px' }}>
-          {SONNAR_TABS.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              style={{
-                padding: '12px 0',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: activeTab === tab ? SOLID_CARD_TOKENS.teal : SOLID_CARD_TOKENS.textSecondary,
-                background: 'none',
-                border: 'none',
-                borderBottomWidth: '2px',
-                borderBottomStyle: 'solid',
-                borderBottomColor: activeTab === tab ? SOLID_CARD_TOKENS.teal : 'transparent',
-                cursor: 'pointer',
-              }}
-            >
-              {tab === 'overview' && '信號雷達'}
-              {tab === 'crawl' && '爬蟲控制'}
-              {tab === 'alerts' &&
-                `異常警報${unackAlerts.length > 0 ? ` (${unackAlerts.length})` : ''}`}
-            </button>
-          ))}
-        </div>
-      </nav>
-
-      {/* ESGGO Sonnar 進化 */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-        <div style={{
-          marginTop: 16,
-          marginBottom: 16,
-          background: `rgba(212,175,55,0.12)`,
-          border: `1px solid rgba(212,175,55,0.4)`,
-          borderRadius: 12,
-          padding: 14,
-          display: 'flex',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-        }}>
           <div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: SOLID_CARD_TOKENS.textSecondary }}>🧬 ESGGO Sonnar 進化</div>
-            <div style={{ display: 'flex', gap: 16, marginTop: 6 }}>
-              <div>
-                <div style={{ fontSize: 10, color: SOLID_CARD_TOKENS.textMuted }}>LEVEL</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: SOLID_CARD_TOKENS.gold }}>{evolution.level}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, color: SOLID_CARD_TOKENS.textMuted }}>XP</div>
-                <div style={{ fontSize: 22, fontWeight: 700, color: SOLID_CARD_TOKENS.teal }}>{evolution.xp}/{evolution.nextXp}</div>
-              </div>
+            <h1 className="text-3xl font-bold text-slate-50">Sonnar 威脅情資雷達</h1>
+            <p className="text-slate-400 mt-1">本地 100% 零成本爬蟲與防漂綠 (Greenwashing) AI 偵測系統</p>
+          </div>
+        </header>
+
+        {/* Scanner Input */}
+        <OmniCard className="p-6">
+          <h2 className="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
+            <Search className="w-5 h-5" />
+            啟動全域掃描
+          </h2>
+          <div className="flex gap-4">
+            <input 
+              type="url"
+              placeholder="輸入企業公開 ESG 報告或新聞網址 (例如: https://example.com/esg-2025)..."
+              className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition-all"
+              value={targetUrl}
+              onChange={(e) => setTargetUrl(e.target.value)}
+              disabled={status === 'scraping' || status === 'analyzing'}
+            />
+            <OmniButton 
+              onClick={handleScan}
+              disabled={!targetUrl || status === 'scraping' || status === 'analyzing'}
+              className="px-8"
+            >
+              {status === 'scraping' ? '爬取資料中...' : status === 'analyzing' ? 'Ollama 分析中...' : '發射探測波'}
+            </OmniButton>
+          </div>
+          {errorMsg && (
+            <div className="mt-4 p-3 bg-red-950/50 border border-red-500/50 text-red-400 rounded-lg text-sm">
+              系統錯誤: {errorMsg}
+            </div>
+          )}
+        </OmniCard>
+
+        {/* Status Tracker */}
+        {status !== 'idle' && (
+          <div className="flex items-center gap-4 text-sm font-medium">
+            <div className={`flex items-center gap-2 ${status === 'scraping' ? 'text-cyan-400 animate-pulse' : 'text-slate-500'}`}>
+              <div className="w-2 h-2 rounded-full bg-current" />
+              本地端無頭爬蟲擷取中
+            </div>
+            <div className="w-12 h-px bg-slate-800" />
+            <div className={`flex items-center gap-2 ${status === 'analyzing' ? 'text-cyan-400 animate-pulse' : 'text-slate-500'}`}>
+              <div className="w-2 h-2 rounded-full bg-current" />
+              Ollama (qwen2.5) 漂綠深度分析
             </div>
           </div>
-          <button
-            onClick={async () => {
-              if (evolving) return;
-              setEvolving(true);
-              try {
-                await new Promise(r => setTimeout(r, 500));
-                setEvolution(prev => {
-                  const xp = prev.xp + 20;
-                  let level = prev.level;
-                  let nextXp = prev.nextXp;
-                  while (xp >= nextXp) { level += 1; nextXp = Math.floor(nextXp * 1.2); }
-                  return { level, xp: xp % nextXp, nextXp };
-                });
-              } finally { setEvolving(false); }
-            }}
-            disabled={evolving}
-            style={{
-              padding: '8px 18px',
-              background: evolving ? '#E2E8F0' : 'rgba(212,175,55,0.18)',
-              color: SOLID_CARD_TOKENS.gold,
-              border: `1px solid rgba(212,175,55,0.5)`,
-              borderRadius: 10,
-              fontSize: 13,
-              fontWeight: 700,
-              cursor: evolving ? 'not-allowed' : 'pointer',
-              opacity: evolving ? 0.7 : 1,
-            }}
-          >
-            {evolving ? '🧬 進化中...' : '🧬 啟動 Sonnar 進化'}
-          </button>
-        </div>
-      </div>
+        )}
 
-      <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '24px' }}>
-        {/* ═══ Overview Tab ═══ */}
-        {activeTab === 'overview' && (
-          <>
-            {/* ─── Summary KPI Row ─── */}
-            <Grid columns={4} gap={16} style={{ marginBottom: '24px' }}>
-              <MetricCard label="監控來源" value={signals.length} unit="源" />
-              <MetricCard label="異常信號" value={anomalySignalCount} trend={anomalySignalTrend} />
-              <MetricCard
-                label="未讀警報"
-                value={unackAlerts.length}
-                trend={unackAlerts.length > 0 ? 'up' : 'neutral'}
-              />
-              <MetricCard label="主題數" value={topics.length} />
-            </Grid>
-
-            {/* ─── Region Distribution Chart ─── */}
-            <SolidCard>
-              <CardHeader title="來源區域分佈" />
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(6, 1fr)',
-                  gap: '12px',
-                  textAlign: 'center',
-                }}
-              >
-                {Object.entries(REGION_LABELS).map(([key, label]) => (
-                  <div key={key}>
-                    <p
-                      style={{
-                        fontSize: '11px',
-                        color: SOLID_CARD_TOKENS.textSecondary,
-                        marginBottom: '4px',
-                      }}
-                    >
-                      {label}
-                    </p>
-                    <div
-                      style={{
-                        height: '80px',
-                        display: 'flex',
-                        alignItems: 'flex-end',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <div
-                        style={{
-                          width: '32px',
-                          borderRadius: '4px 4px 0 0',
-                          height: `${((regionCounts[key] || 0) / maxRegionCount) * 100}%`,
-                          minHeight: regionCounts[key] ? '4px' : '0',
-                          background:
-                            key === 'TW'
-                              ? SOLID_CARD_TOKENS.teal
-                              : key === 'EU'
-                                ? SOLID_CARD_TOKENS.zkpBlue
-                                : key === 'INT'
-                                  ? SOLID_CARD_TOKENS.gold
-                                  : key === 'US'
-                                    ? '#F59E0B'
-                                    : key === 'AP'
-                                      ? '#EC4899'
-                                      : SOLID_CARD_TOKENS.textMuted,
-                          transition: 'height 0.5s',
-                        }}
-                      />
-                    </div>
-                    <p style={{ fontSize: '14px', fontWeight: 600, marginTop: '4px' }}>
-                      {regionCounts[key] || 0}
-                    </p>
+        {/* Results Dashboard */}
+        {status === 'done' && analysis && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in-up">
+            
+            {/* Left Column: Scraping Info */}
+            <div className="lg:col-span-1 space-y-6">
+              <OmniCard className="p-5 border-t-4 border-t-slate-700">
+                <h3 className="text-slate-400 text-sm font-medium mb-4">資料來源溯源 (Traceable)</h3>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <span className="text-slate-500 block text-xs">目標標題</span>
+                    <span className="text-slate-200 line-clamp-2">{scrapedData?.title || '未知的頁面標題'}</span>
                   </div>
-                ))}
-              </div>
-            </SolidCard>
-
-            {/* ─── Region Filter ─── */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
-              <Button
-                variant={regionFilter === 'all' ? 'primary' : 'ghost'}
-                size="sm"
-                onClick={() => setRegionFilter('all')}
-              >
-                全部
-              </Button>
-              {Object.entries(REGION_LABELS).map(([key, label]) => (
-                <Button
-                  key={key}
-                  variant={regionFilter === key ? 'primary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setRegionFilter(key)}
-                >
-                  {label}
-                </Button>
-              ))}
+                  <div>
+                    <span className="text-slate-500 block text-xs">爬取時間</span>
+                    <span className="text-slate-200">{new Date(scrapedData?.scrapedAt).toLocaleString()}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 block text-xs">內文字元數</span>
+                    <span className="text-cyan-400 font-mono">{scrapedData?.content?.length || 0} 字</span>
+                  </div>
+                </div>
+              </OmniCard>
+              
+              <OmniCard className={`p-5 border-t-4 ${
+                analysis.riskLevel === 'High' || analysis.riskLevel === 'Critical' 
+                  ? 'border-t-red-500 bg-red-950/10' 
+                  : analysis.riskLevel === 'Medium' 
+                    ? 'border-t-yellow-500 bg-yellow-950/10' 
+                    : 'border-t-emerald-500 bg-emerald-950/10'
+              }`}>
+                <h3 className="text-slate-400 text-sm font-medium mb-2">綜合風險評級 (Risk Level)</h3>
+                <div className="flex items-end gap-3 mt-4">
+                  <span className={`text-4xl font-black tracking-tight ${
+                    analysis.riskLevel === 'High' || analysis.riskLevel === 'Critical' 
+                      ? 'text-red-500' 
+                      : analysis.riskLevel === 'Medium' 
+                        ? 'text-yellow-500' 
+                        : 'text-emerald-500'
+                  }`}>
+                    {analysis.riskLevel || 'Unknown'}
+                  </span>
+                </div>
+                <p className="text-slate-500 text-xs mt-3 flex items-center gap-1">
+                  信心指數: <span className="text-cyan-400 font-mono">{analysis.confidence}%</span>
+                </p>
+              </OmniCard>
             </div>
 
-            {/* ─── Signal Cards (with sparkline) ─── */}
-            <Grid columns={3} gap={16}>
-              {filteredSignals.map((signal) => (
-                <SolidCard key={signal.source.id} variant={signal.anomaly ? 'warning' : 'default'}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      marginBottom: '8px',
-                    }}
-                  >
-                    <h3
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        margin: 0,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {signal.source.name}
-                    </h3>
-                    {signal.anomaly && <Badge variant="warning">⚠ 異常</Badge>}
-                  </div>
+            {/* Right Column: AI Analysis Details */}
+            <div className="lg:col-span-2 space-y-6">
+              <OmniCard className="p-6 h-full flex flex-col">
+                <h3 className="text-lg font-semibold text-slate-100 flex items-center gap-2 mb-4">
+                  <ShieldAlert className="w-5 h-5 text-cyan-400" />
+                  防漂綠智能判定結果
+                </h3>
+                
+                <div className="bg-slate-900/50 rounded-xl p-4 border border-slate-800 mb-6">
+                  <h4 className="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">AI 分析摘要</h4>
+                  <p className="text-slate-300 text-sm leading-relaxed">
+                    {analysis.summary}
+                  </p>
+                </div>
 
-                  {/* Sparkline */}
-                  <Sparkline data={signalHistory[signal.source.id] || []} />
-
-                  {/* Signal bar */}
-                  <div style={{ marginTop: '8px' }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        fontSize: '12px',
-                        color: SOLID_CARD_TOKENS.textSecondary,
-                        marginBottom: '4px',
-                      }}
-                    >
-                      <span>信號強度</span>
-                      <span>{signal.signalStrength}%</span>
-                    </div>
-                    <ProgressBar
-                      value={signal.signalStrength}
-                      color={
-                        signal.signalStrength > 80
-                          ? SOLID_CARD_TOKENS.error
-                          : signal.signalStrength > 50
-                            ? SOLID_CARD_TOKENS.warning
-                            : SOLID_CARD_TOKENS.teal
-                      }
-                    />
-                  </div>
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      gap: '16px',
-                      fontSize: '12px',
-                      color: SOLID_CARD_TOKENS.textSecondary,
-                      marginTop: '8px',
-                    }}
-                  >
-                    <span>
-                      新增:{' '}
-                      <span style={{ color: SOLID_CARD_TOKENS.success }}>{signal.newItems}</span>
-                    </span>
-                    <span>
-                      變動:{' '}
-                      <span style={{ color: SOLID_CARD_TOKENS.warning }}>
-                        {signal.changedItems}
-                      </span>
-                    </span>
-                  </div>
-
-                  {signal.topics.length > 0 && (
-                    <div
-                      style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}
-                    >
-                      {signal.topics.slice(0, 4).map((t) => (
-                        <Badge key={t} variant="muted" size="sm">
-                          {t}
-                        </Badge>
+                <div className="flex-1">
+                  <h4 className="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
+                    偵測到的疑點 / 紅旗指標 (Red Flags)
+                  </h4>
+                  {analysis.redFlags && analysis.redFlags.length > 0 ? (
+                    <ul className="space-y-3">
+                      {analysis.redFlags.map((flag: string, i: number) => (
+                        <li key={i} className="flex items-start gap-3 bg-slate-900/30 p-3 rounded-lg border border-red-500/20">
+                          <span className="text-red-500 mt-0.5">•</span>
+                          <span className="text-sm text-slate-300 leading-relaxed">{flag}</span>
+                        </li>
                       ))}
+                    </ul>
+                  ) : (
+                    <div className="flex items-center justify-center p-6 bg-emerald-950/20 border border-emerald-500/20 rounded-xl">
+                      <div className="text-center">
+                        <CheckCircle className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+                        <p className="text-emerald-400 text-sm font-medium">未偵測到明顯的漂綠指標</p>
+                        <p className="text-emerald-500/60 text-xs mt-1">此報告在透明度上表現良好</p>
+                      </div>
                     </div>
                   )}
-                </SolidCard>
-              ))}
-            </Grid>
-
-            {/* ─── Topic Bar Chart ─── */}
-            <SolidCard>
-              <CardHeader title="ESG 主題趨勢" />
-              {topics.length > 0 ? (
-                <div>
-                  <BarChart data={topicBarData} maxVal={maxTopicCount} color="bg-teal-500" />
-                  <div
-                    className="grid gap-3"
-                    style={{
-                      gridTemplateColumns: `repeat(${Math.min(topics.length, 10)}, 1fr)`,
-                      marginTop: '12px',
-                    }}
-                  >
-                    {topics.slice(0, 10).map((t) => (
-                      <div key={t.topic} style={{ textAlign: 'center' }}>
-                        <span style={{ fontSize: '12px', color: SOLID_CARD_TOKENS.textPrimary }}>
-                          {t.topic}
-                        </span>
-                        <span
-                          style={{
-                            display: 'block',
-                            fontSize: '11px',
-                            color: SOLID_CARD_TOKENS.textMuted,
-                          }}
-                        >
-                          {TREND_ICONS[t.trend]} {t.count}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
-              ) : (
-                <p style={{ color: SOLID_CARD_TOKENS.textMuted, fontSize: '14px' }}>尚無主題資料</p>
-              )}
-            </SolidCard>
-
-            {/* ─── WS Event Log ─── */}
-            {wsEvents.length > 0 && (
-              <SolidCard>
-                <CardHeader title="即時事件流" />
-                <div style={{ maxHeight: '128px', overflowY: 'auto' }}>
-                  {wsEvents
-                    .slice(-10)
-                    .reverse()
-                    .map((ev, i) => (
-                      <div
-                        key={i}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          fontSize: '12px',
-                          color: SOLID_CARD_TOKENS.textSecondary,
-                          marginBottom: '4px',
-                        }}
-                      >
-                        <span style={{ color: SOLID_CARD_TOKENS.textMuted }}>
-                          {new Date(ev.ts).toLocaleTimeString()}
-                        </span>
-                        <Badge
-                          variant={
-                            ev.type === 'alert_new'
-                              ? 'error'
-                              : ev.type === 'crawl_complete'
-                                ? 'success'
-                                : 'muted'
-                          }
-                          size="sm"
-                        >
-                          {ev.type}
-                        </Badge>
-                      </div>
-                    ))}
-                </div>
-              </SolidCard>
-            )}
-          </>
-        )}
-
-        {/* ═══ Crawl Control Tab ═══ */}
-        {activeTab === 'crawl' && (
-          <Section title="爬蟲控制" subtitle="管理 ESGSonar 所有法規來源的排程與手動執行">
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: '16px',
-              }}
-            >
-              <div />
-              <Button
-                variant="primary"
-                onClick={async () => {
-                  setCrawling('all');
-                  try {
-                    await fetch('/api/sonnar/crawl', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ all: true }),
-                    });
-                    setTimeout(fetchStatus, 3000);
-                  } finally {
-                    setCrawling(null);
-                  }
-                }}
-                disabled={crawling !== null}
-              >
-                {crawling === 'all' ? '執行中...' : '全部執行'}
-              </Button>
+              </OmniCard>
             </div>
 
-            {/* Group by region */}
-            {['tw', 'eu', 'int', 'us', 'ap', '3p'].map((region) => {
-              const regionSources = sources.filter((s) => s.sourceId.startsWith(region));
-              if (regionSources.length === 0) return null;
-              return (
-                <div key={region} style={{ marginBottom: '16px' }}>
-                  <h3
-                    style={{
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      color: SOLID_CARD_TOKENS.textSecondary,
-                      textTransform: 'uppercase',
-                      marginBottom: '8px',
-                    }}
-                  >
-                    {REGION_LABELS[region.toUpperCase()] || region}
-                  </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {regionSources.map((source) => (
-                      <SolidCard key={source.sourceId}>
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                          }}
-                        >
-                          <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <h4 style={{ fontSize: '14px', fontWeight: 600, margin: 0 }}>
-                                {source.sourceName}
-                              </h4>
-                              <span
-                                style={{
-                                  width: '8px',
-                                  height: '8px',
-                                  borderRadius: '50%',
-                                  background: source.enabled
-                                    ? SOLID_CARD_TOKENS.success
-                                    : SOLID_CARD_TOKENS.textMuted,
-                                }}
-                              />
-                            </div>
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                color: SOLID_CARD_TOKENS.textMuted,
-                                marginTop: '2px',
-                              }}
-                            >
-                              運行 {source.totalRuns} 次 · 成功 {source.successfulRuns} · 失敗{' '}
-                              {source.failedRuns}
-                              {source.lastItemsFound !== undefined &&
-                                ` · 上次 ${source.lastItemsFound} 項`}
-                            </div>
-                          </div>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => triggerCrawl(source.sourceId)}
-                            disabled={crawling !== null || !source.enabled}
-                          >
-                            {crawling === source.sourceId ? '爬取中...' : '立即爬取'}
-                          </Button>
-                        </div>
-                      </SolidCard>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </Section>
+          </div>
         )}
-
-        {/* ═══ Alerts Tab ═══ */}
-        {activeTab === 'alerts' && (
-          <Section title="異常警報" subtitle={`未讀: ${unackAlerts.length} / 共 ${alerts.length}`}>
-            {/* Severity filter tabs */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
-              {['all', 'critical', 'high', 'medium', 'low'].map((sev) => (
-                <Button
-                  key={sev}
-                  variant={sev === severityFilter ? 'primary' : 'ghost'}
-                  size="sm"
-                  onClick={() => setSeverityFilter(sev)}
-                >
-                  {sev === 'all' ? '全部' : sev.toUpperCase()}
-                  {sev !== 'all' && ` (${alerts.filter((a) => a.severity === sev).length})`}
-                </Button>
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {alerts
-                .filter((a) => severityFilter === 'all' || a.severity === severityFilter)
-                .map((alert) => (
-                <SolidCard key={alert.id} variant={alert.acknowledged ? 'default' : 'highlight'}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      justifyContent: 'space-between',
-                      gap: '16px',
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          marginBottom: '4px',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        <Badge variant={SEVERITY_VARIANTS[alert.severity] || 'muted'}>
-                          {alert.severity.toUpperCase()}
-                        </Badge>
-                        <span style={{ fontSize: '12px', color: SOLID_CARD_TOKENS.textSecondary }}>
-                          {alert.sourceName}
-                        </span>
-                        <span style={{ fontSize: '12px', color: SOLID_CARD_TOKENS.textMuted }}>
-                          {alert.alertType}
-                        </span>
-                        <span style={{ fontSize: '12px', color: SOLID_CARD_TOKENS.textMuted }}>
-                          {new Date(alert.createdAt).toLocaleString()}
-                        </span>
-                      </div>
-                      <h3 style={{ fontSize: '14px', fontWeight: 600, margin: '0 0 4px' }}>
-                        {alert.title}
-                      </h3>
-                      <p
-                        style={{
-                          fontSize: '13px',
-                          color: SOLID_CARD_TOKENS.textSecondary,
-                          margin: 0,
-                        }}
-                      >
-                        {alert.summary}
-                      </p>
-                    </div>
-                    {!alert.acknowledged && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => acknowledgeAlert(alert.id)}
-                      >
-                        確認
-                      </Button>
-                    )}
-                  </div>
-                </SolidCard>
-              ))}
-              {alerts.length === 0 && (
-                <div
-                  style={{
-                    textAlign: 'center',
-                    padding: '48px 0',
-                    color: SOLID_CARD_TOKENS.textMuted,
-                  }}
-                >
-                  目前無異常警報 ✅
-                </div>
-              )}
-            </div>
-          </Section>
-        )}
-      </main>
+      </div>
     </div>
   );
 }
