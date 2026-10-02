@@ -127,6 +127,15 @@ check('日文（判為 en）→ 目標 zh-TW', api.resolveTarget(dl('こんに�
 // ---------- 5. SRT 時間格式 ----------
 check('SRT 格式 00:00:01,500', api.fmtSRT(1.5) === '00:00:01,500', api.fmtSRT(1.5));
 check('SRT 格式 01:02:03,000', api.fmtSRT(3723) === '01:02:03,000', api.fmtSRT(3723));
+// 進位：先算整數毫秒總數再分解。反序分解會讓 1.9999 秒變 00:00:01,999 →
+// 玩家端讀成 1 秒整，白掉近一秒。
+check('SRT 進位 1.9999 → 00:00:02,000（非 1,999）', api.fmtSRT(1.9999) === '00:00:02,000', api.fmtSRT(1.9999));
+// 跨分鐘進位：101.9999s → 102000ms → 102s → 00:01:42,000。
+// 注意不是 00:01:41,999 —— 那會被播放器讀成 1 分 41.999 秒後截斷。
+check('SRT 跨分鐘進位 101.9999 → 00:01:42,000', api.fmtSRT(100 + 1.9999) === '00:01:42,000', api.fmtSRT(100 + 1.9999));
+// 跨小時進位：3599.9999s → 3600000ms → 01:00:00,000（不可變成 00:59:59,999）
+check('SRT 跨小時進位 3599.9999 → 01:00:00,000', api.fmtSRT(3599.9999) === '01:00:00,000', api.fmtSRT(3599.9999));
+check('SRT 小數不四捨五入成整秒（1.4 → ,400）', api.fmtSRT(1.4) === '00:00:01,400', api.fmtSRT(1.4));
 
 // ---------- 6. 翻譯鏈順序（實測基準） ----------
 api.S.chain = 'auto';
@@ -286,7 +295,76 @@ check('快捷鍵展開歷史', $('historyWrap').classList.contains('open'));
 doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 check('Esc 關閉設定抽屜', !$('drawer').classList.contains('open'));
 
-// ---------- 22. 無 console 錯誤 ----------
+// ---------- 22. 非字串 / 非有限值防護（NaN SRT 與 PeerJS 弱型別回歸） ----------
+//
+// 根因：PeerJS 收端（index.html Peer 收發）只檢查 `d.orig !== undefined`，
+// 而 `null !== undefined` 為 true，遠端分享端可送任意 JSON 型別打進來：
+//   - orig 為數字/物件 → .length 為 undefined → e 變 NaN → fmtSRT 輸出
+//     "aN:aN:aN,NaN"，SRT 格式非法，播放器直接跳過該段
+//   - orig 為 null → norm() 的 s.toLowerCase() 拋 TypeError，整個 render 崩潰
+//   - sec 為 NaN/±Infinity/undefined → 同樣產生非法時間碼
+// 修法（兩個收斂點，非症狀點）：
+//   1. UI.render 拒絕所有非字串 orig（根因，一次收斂 Web Speech / Whisper /
+//      BroadcastChannel / PeerJS 四條路徑）
+//   2. fmtSRT 把所有非有限值收斂為 0（防禦，SRT 唯一出口）
+//
+// 兩種斷言都要有：靜態錨點（守衛被刪時明確失敗）+ 動態行為（守衛被刪時拋錯）。
+
+// (a) 靜態錨點 —— 確認守衛原始碼確實在 index.html 裡
+check('靜態錨點：UI.render 含 typeof orig !== "string" 守衛',
+  html.includes("if(typeof orig !== 'string') return;"),
+  'UI.render 型別守衛已從 index.html 移除');
+check('靜態錨點：fmtSRT 含 !isFinite(sec) 守衛',
+  html.includes('if(!isFinite(sec)) sec = 0;'),
+  'fmtSRT 非有限值守衛已從 index.html 移除');
+
+// (b) 動態行為 —— 非字串 orig 一律不入史且不拋錯
+const histBeforeGuards = api.UI.hist.length;
+const nonStringCases = [
+  ['null', null],
+  ['數字 123', 123],
+  ['數字 0', 0],
+  ['物件 {}', {}],
+  ['陣列 []', []],
+  ['undefined', undefined],
+  ['布林 true', true],
+];
+for (const [label, val] of nonStringCases) {
+  let threw = null;
+  try { api.UI.render(val, 'trans', 'test', true); } catch (e) { threw = e; }
+  check(`render(${label}) 不拋例外（非字串輸入被守衛擋下）`, threw === null,
+    threw ? `${threw.name}: ${threw.message}` : '');
+}
+check('所有非字串輸入均未寫入歷史（NaN 時間碼無法產生）',
+  api.UI.hist.length === histBeforeGuards,
+  `hist ${histBeforeGuards}→${api.UI.hist.length}`);
+
+// (c) 動態行為 —— 非有限值 sec 全部收斂為合法時間碼
+const nonFiniteCases = [
+  ['NaN', NaN, '00:00:00,000'],
+  ['Infinity', Infinity, '00:00:00,000'],
+  ['-Infinity', -Infinity, '00:00:00,000'],
+  ['undefined', undefined, '00:00:00,000'],
+  ['null', null, '00:00:00,000'],
+];
+for (const [label, val, want] of nonFiniteCases) {
+  const got = api.fmtSRT(val);
+  const legal = /^\d{2}:\d{2}:\d{2},\d{3}$/.test(got);
+  check(`fmtSRT(${label}) 輸出合法時間碼`, legal && got === want, `got=${got} want=${want}`);
+}
+// 負數與超長值也要是合法 SRT（不可出現負號或溢出欄位）
+check('fmtSRT(-5) 收斂為合法時間碼', /^\d{2}:\d{2}:\d{2},\d{3}$/.test(api.fmtSRT(-5)), api.fmtSRT(-5));
+check('fmtSRT(3600) → 01:00:00,000', api.fmtSRT(3600) === '01:00:00,000', api.fmtSRT(3600));
+
+// (d) 正常字串仍須入史（守衛不可連正常路徑一起擋掉）
+api.UI.render('守衛回歸測試字串', 'guard regression', 'test', true);
+check('字串仍正常入史（守衛未誤擋正常路徑）',
+  api.UI.hist.length === histBeforeGuards + 1,
+  `hist ${histBeforeGuards}→${api.UI.hist.length}`);
+check('字串字幕已渲染至 DOM', $('origLine').textContent === '守衛回歸測試字串',
+  $('origLine').textContent);
+
+// ---------- 23. 無 console 錯誤 ----------
 const realErrors = consoleMsgs.filter(m => !/Could not parse CSS|Not implemented/.test(m));
 check('執行期間無未預期錯誤', realErrors.length === 0, realErrors.slice(0, 3).join(' | '));
 
