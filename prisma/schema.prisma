@@ -428,4 +428,3 @@ model AvatarContext {
   systemPrompt String?
   updatedAt   DateTime @updatedAt
 }
-
