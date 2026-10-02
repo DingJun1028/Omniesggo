@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { syncGamificationState } from "@/app/actions/gamification";
+import { syncGamificationState } from "../actions/gamification";
 
 export type Quest = {
   id: string;

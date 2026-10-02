@@ -210,63 +210,56 @@ export default function OmniCenterPage() {
   }, []);
 
   return (
-    <div className="min-h-[calc(100vh-52px)] p-5">
+    <div className="w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
       <style>{`
         @keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-6px)}}
       `}</style>
 
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-5">
-        <div
-          className={`w-10 h-10 rounded-xl bg-accentTeal flex items-center justify-center text-xl text-white transition-shadow duration-700 ${pulse ? 'shadow-[0_0_20px_var(--accent-teal)]' : 'shadow-[0_0_10px_rgba(0,158,176,0.6)]'}`}
-        >
-          ⊙
+      {/* Header (Liquid Glass RWD) */}
+      <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-white/70 dark:bg-slate-900/40 border border-cyan-100 dark:border-cyan-500/10 shadow-[0_8px_32px_rgba(0,0,0,0.05)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-6 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex items-center gap-4 relative z-10">
+          <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-2xl text-slate-950 transition-shadow duration-700 ${pulse ? 'shadow-[0_0_25px_rgba(6,182,212,0.6)]' : 'shadow-[0_0_15px_rgba(6,182,212,0.4)]'}`}>
+            <span className={pulse ? "animate-pulse" : ""}>◎</span>
+          </div>
+          <div>
+            <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-400 dark:to-emerald-400 tracking-tight">
+              萬能中心 Omni-Core
+            </h1>
+            <div className="text-sm text-slate-500 dark:text-cyan-100/60 font-medium">ESGGO 永續發展無限進化 · 無礙圓通</div>
+          </div>
         </div>
-        <div>
-          <h1 className="font-['Montserrat',sans-serif] text-xl font-bold text-accentTeal">
-            萬能中心 Omni-Core — 無限進化
-          </h1>
-          <div className="text-xs text-textSecondary">ESGGO 永續發展無限進化 · 無礙圓通</div>
-        </div>
-        <div className="ml-auto flex items-center gap-2">
-          {/* Dark Mode Toggle */}
-          <button
-            onClick={toggleDarkMode}
-            className="p-2 rounded-full hover:bg-secondary transition-colors text-textSecondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
-            title="切換主題"
-            aria-label={isDarkMode ? '切換至淺色主題' : '切換至深色主題'}
-          >
-            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+        <div className="flex items-center gap-3 relative z-10 bg-slate-100/50 dark:bg-slate-950/50 backdrop-blur-md border border-slate-200 dark:border-cyan-500/20 px-4 py-2 rounded-full">
           {isReady && (
-            <span className="text-[10px] bg-accentPurple/20 text-accentPurple px-2 py-[3px] rounded-md font-bold tracking-wide mr-2">
+            <span className="text-[10px] bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-400 px-2 py-1 rounded-md font-bold tracking-wider mr-2 border border-purple-200 dark:border-purple-500/30">
               AGNES CORE
             </span>
           )}
-          <div
-            className={`w-2 h-2 rounded-full bg-accentGreen transition-shadow duration-700 ${pulse ? 'shadow-[0_0_8px_var(--accent-green)]' : 'shadow-[0_0_4px_var(--accent-green)]'}`}
-          />
-          <span className="text-xs text-textSecondary">系統運行中</span>
+          <div className={`w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 transition-shadow duration-700 ${pulse ? 'shadow-[0_0_12px_rgba(16,185,129,0.8)]' : ''}`} />
+          <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400/90 tracking-wide">SYSTEM ONLINE</span>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div
-        role="tablist"
-        className="flex gap-1 mb-4 bg-secondary p-1 rounded-xl flex-wrap shadow-sm"
-      >
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            role="tab"
-            aria-selected={tab === t.id}
-            onClick={() => setTab(t.id)}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[13px] font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current ${tab === t.id ? 'bg-accentTeal text-white shadow-sm' : 'bg-transparent text-textSecondary hover:bg-borderColor/50'}`}
-          >
-            <span aria-hidden="true">{t.icon}</span>
-            {t.label}
-          </button>
-        ))}
+      {/* Tabs (Liquid Glass RWD Segment Control) */}
+      <div className="mb-6 overflow-x-auto pb-2 scrollbar-hide">
+        <div role="tablist" className="inline-flex gap-2 p-1.5 rounded-2xl backdrop-blur-md bg-slate-100/50 dark:bg-slate-900/40 border border-slate-200 dark:border-cyan-500/20 shadow-inner min-w-max">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
+                tab === t.id 
+                  ? 'bg-white dark:bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:shadow-[0_0_15px_rgba(6,182,212,0.2)] border border-cyan-100 dark:border-cyan-500/40' 
+                  : 'text-slate-500 dark:text-slate-400 hover:text-cyan-600 dark:hover:text-cyan-400 hover:bg-white/50 dark:hover:bg-cyan-500/10 border border-transparent'
+              }`}
+            >
+              <span aria-hidden="true" className={tab === t.id ? 'animate-pulse' : ''}>{t.icon}</span>
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Dashboard Tab */}

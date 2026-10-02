@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { I18nProvider } from './i18n/I18nProvider';
 import { AuthProvider } from '@/components/AuthProvider';
 import { AgnesProvider } from '@/components/AgnesProvider';
-import { GlobalNav } from './components/global-nav';
+import { AppShell } from './components/layout/AppShell';
 import { OmniErrorBoundary } from '@/core/services/error-boundary';
 import { KeyboardShortcutProvider } from './components/keyboard-shortcut-provider';
 import './globals.css';
@@ -24,18 +24,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&family=Noto+Serif+TC:wght=400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Fira+Code&family=Montserrat:wght@700&display=swap" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
       </head>
-      <body className="bg-primary text-textPrimary font-sans min-h-screen transition-colors duration-300">
+      <body className="min-h-screen font-sans">
         <ThemeProvider>
           <I18nProvider>
             <AuthProvider>
               <AgnesProvider>
                 <KeyboardShortcutProvider>
-                  <GlobalNav />
-                  <main>
+                  <AppShell>
                     <OmniErrorBoundary>
                       {children}
                     </OmniErrorBoundary>
-                  </main>
+                  </AppShell>
                 </KeyboardShortcutProvider>
               </AgnesProvider>
             </AuthProvider>

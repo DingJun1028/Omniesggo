@@ -155,7 +155,7 @@ interface ChatMessage {
 
 const chatHistory: ChatMessage[] = [];
 
-function processChatMessage(input: string): { reply: string; actions: string[] } {
+async function processChatMessage(input: string): Promise<{ reply: string; actions: string[] }> {
   chatHistory.push({ role: 'user', content: input, timestamp: Date.now() });
 
   const lowerInput = input.toLowerCase();
@@ -334,7 +334,7 @@ export async function POST(req: NextRequest) {
         if (!input.trim()) {
           return jsonError('INVALID_PARAMS', 'Empty input', 400);
         }
-        const result = processChatMessage(input);
+        const result = await processChatMessage(input);
         return jsonResponse({
           type: 'chat',
           reply: result.reply,
@@ -349,7 +349,7 @@ export async function POST(req: NextRequest) {
         if (!cmd) {
           return jsonError('INVALID_PARAMS', 'Unknown command', 400);
         }
-        const result = processChatMessage(cmd.action);
+        const result = await processChatMessage(cmd.action);
         return jsonResponse({
           type: 'quick_command',
           command: cmd,
