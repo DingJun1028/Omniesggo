@@ -311,7 +311,8 @@ esggo-deploy.bundle
 esggo-backup.bundle
 prisma/prisma/
 
-# [原註解部分損毀；可辨識片段: .audit/ — 2026-10-03 修復]
+# 稽核日誌（執行期產出，非原始碼）
+.audit/
 
 .vercel
 
@@ -338,7 +339,8 @@ prisma-backup-*/
 
 # Vercel deploy: exclude non-esggo subdirectories from Vercel upload (64000+ tracked files exceed 15000 limit)
 # [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
-# [原註解部分損毀；可辨識片段: esggo-omni-center/soul.md — 2026-10-03 修復]
+# esggo-omni-center 為整份 esggo 的複製，內含自動生成的 soul.md
+esggo-omni-center/soul.md
 rules-tutorial/
 functions/node_modules/
 
@@ -388,7 +390,8 @@ vault/.obsidian/plugins/github-sync/
 /.hermes/auto-repair/*.json
 /.hermes/auto-repair/*.jsonl
 /.hermes/auto-repair/*.log
-# [原註解部分損毀；可辨識片段: .hermes/5t-canon/verify-*.json auto-repair — 2026-10-03 修復]
+# 5T 驗證執行期產出（每次 verify 檔名含時戳，不可版控）
+.hermes/5t-canon/verify-*.json
 # [原註解部分損毀；可辨識片段: .hermes/auto-repair/.hermes/ auto-repair — 2026-10-03 修復]
 !/.hermes/omnitag/
 /.hermes/omnitag/*.json
@@ -402,7 +405,8 @@ vault/.obsidian/plugins/github-sync/
 apps/ftg-2.5/
 apps/ftg-2.8/
 
-# [原註解部分損毀；可辨識片段: _pyi/ — 2026-10-03 修復]
+# PyInstaller 建置中間產物（.toc / .pyz / base_library.zip / xref / warn）
+_pyi/
 
 # [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
 test_result.json
