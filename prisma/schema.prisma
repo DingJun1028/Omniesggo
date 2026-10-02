@@ -406,7 +406,7 @@ model DailyReportItem {
   @@index([itemType])
   @@index([alertId])
 }
-// ¢w¢w¢w ¸U¯à°O¾ĞÅé (Omni-Memory) ¢w¢w¢w
+// [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: Omni-Memory â€” 2026-10-03 ä¿®å¾©]
 
 model OmniMemory {
   id        String   @id @default(cuid())
@@ -428,3 +428,4 @@ model AvatarContext {
   systemPrompt String?
   updatedAt   DateTime @updatedAt
 }
+

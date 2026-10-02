@@ -5,7 +5,7 @@
   "installCommand": "pnpm install --no-frozen-lockfile",
   "devCommand": "pnpm run dev",
   "env": {
-    "NODE_OPTIONS": "--max-old-space-size=1536"
+    "NODE_OPTIONS": "--max-old-space-size=3072"
   },
   "github": {
     "autoJobCancelation": true

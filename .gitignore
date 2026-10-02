@@ -170,9 +170,9 @@ package-lock.json
 android/
 ios/
 bin/
-# oa-twins/hyper/RESULTS.txt ??probe ?±å???shell ?å??‘è¼¸?ºï?æ¯æ¬¡?·è??½æ?è®Šå?ï¼Œä??²ç??§ã€?oa-twins/hyper/RESULTS.txt
-# ä¾‹å?ï¼šoa-twins/bin/ ?¯æ­£å¼å?å§‹ç¢¼ï¼ˆå¥åº·æª¢?¥è…³?¬ï?ï¼Œé??¢å‡º?©ã€?# ?¹ç›®??bin/ è¦å??ƒæ?å®ƒæ•´?‹å¿½?¥æ? ?”â€??™æ­£??oa-twins/bin/oa-twin-health.py
-# å¾æœª?²ç??§ã€å???README / run-selftest.bat / deploy ?³æœ¬ä¸‰è??œé?å¤±æ??„å?? ã€?!oa-twins/bin/
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: oa-twins/hyper/RESULTS.txt â€” 2026-10-03 ä¿®å¾©]
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: oa-twin-health.py oa-twins/bin/ â€” 2026-10-03 ä¿®å¾©]
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: README oa-twins/bin/ run-selftest.bat â€” 2026-10-03 ä¿®å¾©]
 !oa-twins/bin/**
 cli/scratch/
 config/
@@ -311,7 +311,7 @@ esggo-deploy.bundle
 esggo-backup.bundle
 prisma/prisma/
 
-# ?¨é?å¯©è? sink ?ä?å±¤ï?append-only JSONLï¼ŒåŸ·è¡Œæ??¢ç?ï¼?.audit/
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: .audit/ â€” 2026-10-03 ä¿®å¾©]
 
 .vercel
 
@@ -337,13 +337,13 @@ vault/Agents/context/.avatar-types.d.ts
 prisma-backup-*/
 
 # Vercel deploy: exclude non-esggo subdirectories from Vercel upload (64000+ tracked files exceed 15000 limit)
-# å¿½ç•¥?®é??§å®¹ä½†ä??™ç›®?„æœ¬èº«ï?ä½?soul.md è² å?ä¾‹å??¯ç???esggo-omni-center/*
-# ä¾‹å?ï¼šä¸»??soul.md ?€æ°¸ä?ç´å…¥è¿½è¹¤ï¼ˆÂ?0 OmniTag å¥‘ç??–å…¸ç·¨è¼¯æºé ­ï¼?!esggo-omni-center/soul.md
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: esggo-omni-center/soul.md â€” 2026-10-03 ä¿®å¾©]
 rules-tutorial/
 functions/node_modules/
 
 .env*
-# ?€?€ èª¿è©¦?¢ç‰© (?¬åœ° watchdog / trace, ä¸ç??¥ç??¬æ§?? ?€?€
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
 wd_out.txt
 wd_trace.txt
 _h.txt
@@ -352,23 +352,23 @@ _h.txt
 watchdog_*.txt
 watchdog_*.log
 
-# OmniFactory ?¬åœ°è¨­æ–½?ç½® (??Vault ID, ä¸é€²ç??¬æ§??
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
 apps/omni-factory/.obsidian-config.json
 
-# FTG Journey ?·è??Ÿç”¢??(SQLite è³‡æ?åº?+ ?¥åº·?¥è?ï¼Œä??²ç??¬æ§??
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
 apps/ftg-journey-server/*.db
 oa-team-crewai/swarm-health-*.log
 
-# å°å??€ (archive-protocol: ä¸å¯??git)
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
 /archive/
 apps/ftg-journey-web/cloudflare.ini
 
-# ?²å?å¼•æ??•æ??¢ç‰© (?¬æ??Ÿæ?, ä¸é€?git)
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
 apps/evolution-engine/evolution-report.json
 apps/evolution-engine/proposals/
 
 # Hermes Auto-Repair & 5T Canon
-# ?Ÿè???`.hermes/`ï¼?026-09-28 ç§»é™¤ï¼‰ï??´å??’é™¤?ƒè? auto-repair ?„ä¿®å¾?# ?¡æ???repo ?†ç™¼?‚æ”¹?ºåª?’é™¤?·è??Ÿç??‹æ?ï¼Œè??¬æ?ä¸‹æ–¹ .hermes/**/*.json ?€æ®µã€?
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: auto-repair â€” 2026-10-03 ä¿®å¾©]
 # Generated visual assets (local only, not in version control)
 generated/
 
@@ -380,16 +380,16 @@ generated/
 evolution-log.jsonl
 vault/.obsidian/plugins/github-sync/
 /vendor/
-# .hermes/ æ··å?äº†ã€Œå¯?ç¾?„ç?å¼ç¢¼?è??Œæœ¬æ©ŸåŸ·è¡Œæ??€?‹ã€å…©é¡å…§å®¹ã€?# ?´å??’é™¤?ƒè? auto-repair ä¿®å¾©?¡æ???repo ?†ç™¼ï¼?026-09-28 èµ·ï?ï¼?# ?´å?ç´å…¥?‡æ???41 ?‹ç????¥è?æª”ï???tracker-state.json?repair-log.jsonlï¼?# ä¸€ä½µå¸¶?²ç??§ã€?#
-# æ³¨æ?ï¼šgit å°ã€Œå·²è¢«æ??¤ç??®é??ä??ƒå??²å…¥å¥—ç”¨?¦å?è¦å?ï¼Œæ?ä»?# `/.hermes/` + `!/.hermes/auto-repair/` ?ƒå??´æ•´?‹ç›®?„ä?è¢«æ??¤ï?å¯¦æ¸¬?¸é?=0ï¼‰ã€?# æ­?§£?¯ã€Œä??’é™¤?®é??¬èº«ï¼Œåª?’é™¤è©²è·¯å¾‘ä??„ç??‹æ??ã€?#
-# ?ªæ”¾è¡Œä??‹å¯?ç¾?„å?ç³»çµ±ï¼ˆauto-repair / omnitag / vault-syncï¼‰ï?
-# ?¶é?è·¯å?ç¶­æ??’é™¤ ?”â€??¶ä¸­??SSH ?¬é‘°ï¼ˆdesktop-attachments/*.key.pubï¼?# ?‡æ??–æ?ï¼ˆdesktop-attachments/tokens.tokï¼‰ï?çµ•ä??¯é€²ç??§ã€?/.hermes/*
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: auto-repair repair-log.jsonl tracker-state.json â€” 2026-10-03 ä¿®å¾©]
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: auto-repair â€” 2026-10-03 ä¿®å¾©]
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: auto-repair omnitag vault-sync â€” 2026-10-03 ä¿®å¾©]
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: desktop-attachments/*.key.pub desktop-attachments/tokens.tok â€” 2026-10-03 ä¿®å¾©]
 !/.hermes/auto-repair/
 /.hermes/auto-repair/*.json
 /.hermes/auto-repair/*.jsonl
 /.hermes/auto-repair/*.log
-# auto-repair/ åº•ä??¦æ?ä¸€å±¤å·¢?€?„è??·è??Ÿè??™ï?.hermes/5t-canon/verify-*.jsonï¼‰ï?
-# ?±é?å¾€?³æœ¬ä»¥ç›¸å°è·¯å¾‘èª¤å»ºï??‡ä¸» .hermes/5t-canon/ ?¡é?ï¼Œä?ä½µæ??¤ã€?/.hermes/auto-repair/.hermes/
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: .hermes/5t-canon/verify-*.json auto-repair â€” 2026-10-03 ä¿®å¾©]
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: .hermes/auto-repair/.hermes/ auto-repair â€” 2026-10-03 ä¿®å¾©]
 !/.hermes/omnitag/
 /.hermes/omnitag/*.json
 /.hermes/omnitag/*.jsonl
@@ -402,12 +402,32 @@ vault/.obsidian/plugins/github-sync/
 apps/ftg-2.5/
 apps/ftg-2.8/
 
-# PyInstaller å»ºç½®?¢ç‰©ï¼ˆspec/dist/work ?†ç‚º?¬æ?å»ºç½®çµæ?ï¼?_pyi/
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: _pyi/ â€” 2026-10-03 ä¿®å¾©]
 
-# æ¸¬è©¦?·è??¢ç‰©ï¼ˆæ?æ¬¡åŸ·è¡Œè?å¯«ï?ä¸å…·?ˆæœ¬?§åƒ¹?¼ï?
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
 test_result.json
 
-# ?¬èƒ½?†èº«è¿½è¹¤?¨æš«å­˜æ?ï¼ˆæ?æ¬¡ä¿®å¾©è?å¯«ï??…ä??¬æ?ç¨½æ ¸ï¼?.hermes/auto-repair/.tracker-evidence.tmp
+# [åŸè¨»è§£éƒ¨åˆ†ææ¯€ï¼›å¯è¾¨è­˜ç‰‡æ®µ: .hermes/auto-repair/.tracker-evidence.tmp auto-repair â€” 2026-10-03 ä¿®å¾©]
 
-# ?ªå??ç?ä¸€æ¬¡æ€§é?è­‰è?ç¨¿ï??«æ?è­‰ä?ä½ï?ä¸é€²ç??§ï?
+# [åŸè¨»è§£å·²ææ¯€ â€” big5/UTF-8 æ··åˆå¯«å…¥ï¼Œ2026-10-03 ä¿®å¾©]
 wf-validate/
+node_modules/
+
+**/node_modules
+
+# â”€â”€ æ†‘è­‰èˆ‡é‡‘é‘°ï¼ˆçµ•ä¸å…¥ç‰ˆï¼›2026-10-03 å¯¦æ¸¬æ›¾èª¤å…¥ commit b08cd5c4aï¼‰â”€â”€
+.hermes/desktop-attachments/
+*.tok
+*.key
+*.key.pub
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# æ¢æ¸¬æ®˜ç•™èˆ‡å‚™ä»½ï¼ˆæœƒæ±¡æŸ“ claims.workspace é‡æ¸¬æ¯é«”ï¼‰
+sync_probe.txt
+vdc_probe.txt
+*.bak-*
+

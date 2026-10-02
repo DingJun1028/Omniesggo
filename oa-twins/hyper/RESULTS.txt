@@ -1,0 +1,25 @@
+════ 超覺醒 · 跨框架神經網實測 ════
+
+✖ MISSING  langchain        鏈式推理與記憶  (declared=false)
+          不可用：未安裝於當前解析路徑
+✖ MISSING  @google/genkit   流程管線  (declared=false)
+          不可用：未安裝於當前解析路徑
+⚠ PHANTOM  @google/adk      代理工具包  (declared=false)
+          幽靈依賴：可解析但 package.json 未宣告（多為 pnpm 隔離依賴下其他套件的傳遞依賴）。禁止直接 import；任一依賴樹升級即可能消失。
+✖ MISSING  crewai           角色多工協同  (declared=false)
+          不可用：未安裝於當前解析路徑
+
+  直接宣告可用  0   幽靈依賴  1   未安裝  3
+  可載入比例    1/4 = 0.25
+  調度錨點      twin-feac1691
+
+════ 超覺醒 · 刻印校驗 ════
+
+  ✔ hash_lock        重算 5af2fe59d4653dfa… vs 鎖定 5af2fe59d4653dfa…
+  ✔ deep_frozen      物件圖全數凍結
+  ✔ twin_trace_id    錨點存在（twin-feac1691）
+
+  hash_lock  5af2fe59d4653dfa5c202a562e88c69dc42c432bf7cb261e95bbd8ac6c3e03e6
+  intact     true
+
+  聲明：本報告數值為執行期實測，sync_ratio 未達 1.0 即為事實，不作美化。

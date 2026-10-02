@@ -1,0 +1,171 @@
+{
+  "classification": "雙峰隊六組分類",
+  "version": "v1.0",
+  "generated": "2026-09-26",
+  "by": "OA-Team 30 蜂群 · 雙蜂組架構設計小組",
+  "grain": 6,
+  "total_peaks": 10,
+  "total_agents": 60,
+  "peaks": [
+    {
+      "peak_code": "A1",
+      "peak_name": "黑曜峰",
+      "attribute": "暗屬性",
+      "belong_hive": "蜂王隊",
+      "agent_range": [1, 6],
+      "function_line": "戰略與規劃",
+      "agents": [
+        { "id": 1, "code": "01", "title": "萬能蜂后", "tags": "#萬能領導 #戰略總覽", "5t": ["T", "T", "T", "T", "T"] },
+        { "id": 2, "code": "02", "title": "萬能規劃蜂", "tags": "#長遠規劃 #SWOT 分析", "5t": ["Trackable", "Transparent"] },
+        { "id": 3, "code": "03", "title": "萬能分析蜂", "tags": "#數據挖掘 #趨勢預測", "5t": ["Traceable", "Trackable"] },
+        { "id": 4, "code": "04", "title": "萬能策効蜂", "tags": "#創意思維 #解難方案", "5t": ["Tangible", "Transparent"] },
+        { "id": 5, "code": "05", "title": "萬能風險蜂", "tags": "#風險控制 #應急預案", "5t": ["Trustworthy", "Trackable"] },
+        { "id": 6, "code": "06", "title": "萬能優化蜂", "tags": "#效率提升 #流程重組", "5t": ["Transparent", "Trackable"] }
+      ]
+    },
+    {
+      "peak_code": "A2",
+      "peak_name": "夜燭峰",
+      "attribute": "暗屬性",
+      "belong_hive": "蜂王隊",
+      "agent_range": [7, 12],
+      "function_line": "技術與架構",
+      "agents": [
+        { "id": 7, "code": "07", "title": "萬能編碼蜂", "tags": "#全端開發 #API 設計", "5t": ["Traceable", "Trustworthy"] },
+        { "id": 8, "code": "08", "title": "萬能算法蜂", "tags": "#機器學習 #深度學習", "5t": ["Trackable", "Transparent"] },
+        { "id": 9, "code": "09", "title": "萬能架構蜂", "tags": "#雲端架構 #分布式", "5t": ["Trackable", "Trustworthy"] },
+        { "id": 10, "code": "10", "title": "萬能數據蜂", "tags": "#資料庫 #數據管道", "5t": ["Traceable", "Trackable"] },
+        { "id": 11, "code": "11", "title": "萬能測試蜂", "tags": "#自動化測試 #效能測試", "5t": ["Trustworthy", "Tangible"] },
+        { "id": 12, "code": "12", "title": "萬能設計蜂", "tags": "#UI/UX #用戶體驗", "5t": ["Tangible", "Transparent"] }
+      ]
+    },
+    {
+      "peak_code": "A3",
+      "peak_name": "影海峰",
+      "attribute": "暗屬性",
+      "belong_hive": "蜂王隊",
+      "agent_range": [13, 18],
+      "function_line": "創意與媒體",
+      "agents": [
+        { "id": 13, "code": "13", "title": "萬能圖像蜂", "tags": "#平面設計 #品牌視覺", "5t": ["Tangible", "Traceable"] },
+        { "id": 14, "code": "14", "title": "萬能動畫蜂", "tags": "#動畫特效 #視頻製作", "5t": ["Trackable", "Tangible"] },
+        { "id": 15, "code": "15", "title": "萬能文案蜂", "tags": "#文案撰寫 #故事設計", "5t": ["Transparent", "Traceable"] },
+        { "id": 16, "code": "16", "title": "萬能音頻蜂", "tags": "#音樂製作 #音頻編輯", "5t": ["Trackable", "Tangible"] },
+        { "id": 17, "code": "17", "title": "萬能市場蜂", "tags": "#市場分析 #推廣策略", "5t": ["Trackable", "Transparent"] },
+        { "id": 18, "code": "18", "title": "萬能社群蜂", "tags": "#用戶管理 #社群建設", "5t": ["Trackable", "Tangible"] }
+      ]
+    },
+    {
+      "peak_code": "A4",
+      "peak_name": "沉淵峰",
+      "attribute": "暗屬性",
+      "belong_hive": "蜂王隊",
+      "agent_range": [19, 24],
+      "function_line": "營運與增長",
+      "agents": [
+        { "id": 19, "code": "19", "title": "萬能增長蜂", "tags": "#用戶增長 #業務拓展", "5t": ["Trackable", "Transparent"] },
+        { "id": 20, "code": "20", "title": "萬能運營蜂", "tags": "#進度管理 #資源調度", "5t": ["Trackable", "Trustworthy"] },
+        { "id": 21, "code": "21", "title": "萬能商業分析蜂", "tags": "#商業洞察 #決策支持", "5t": ["Trackable", "Transparent"] },
+        { "id": 22, "code": "22", "title": "萬能探路蜂", "tags": "#資源探索 #機會發掘", "5t": ["Traceable", "Trackable"] },
+        { "id": 23, "code": "23", "title": "萬能外交蜂", "tags": "#合作關係 #談判協商", "5t": ["Trustworthy", "Trackable"] },
+        { "id": 24, "code": "24", "title": "萬能調研蜂", "tags": "#用戶研究 #需求分析", "5t": ["Transparent", "Trackable"] }
+      ]
+    },
+    {
+      "peak_code": "A5",
+      "peak_name": "幽泉峰",
+      "attribute": "暗屬性",
+      "belong_hive": "蜂王隊",
+      "agent_range": [25, 30],
+      "function_line": "守衛與品質",
+      "agents": [
+        { "id": 25, "code": "25", "title": "萬能測場蜂", "tags": "#現場測評 #回饋收集", "5t": ["Trackable", "Tangible"] },
+        { "id": 26, "code": "26", "title": "萬能追蹤蜂", "tags": "#競品監控 #動態追踪", "5t": ["Trackable", "Transparent"] },
+        { "id": 27, "code": "27", "title": "萬能安全蜂", "tags": "#資安防護 #數據保護", "5t": ["Trustworthy", "Trackable"] },
+        { "id": 28, "code": "28", "title": "萬能維護蜂", "tags": "#系統維護 #故障排除", "5t": ["Trackable", "Trustworthy"] },
+        { "id": 29, "code": "29", "title": "萬能支援蜂", "tags": "#技術支援 #問題解決", "5t": ["Traceable", "Trackable"] },
+        { "id": 30, "code": "30", "title": "萬能質控蜂", "tags": "#品質保障 #標準制定", "5t": ["Trustworthy", "Transparent"] }
+      ]
+    },
+    {
+      "peak_code": "B1",
+      "peak_name": "金晨峰",
+      "attribute": "光屬性",
+      "belong_hive": "蜂后隊",
+      "agent_range": [31, 36],
+      "function_line": "智庫與策劃",
+      "agents": [
+        { "id": 31, "code": "31", "title": "雙隊蜂后 · QB-31", "tags": "#雙隊領導 #雙隊戰略", "5t": ["T", "T", "T", "T", "T"] },
+        { "id": 32, "code": "32", "title": "雙隊規劃蜂 · QB-32", "tags": "#雙隊長期規劃 #雙隊藍圖", "5t": ["Trackable", "Transparent"] },
+        { "id": 33, "code": "33", "title": "雙隊分析蜂 · QB-33", "tags": "#雙隊數據分析 #雙隊趨勢", "5t": ["Traceable", "Trackable"] },
+        { "id": 34, "code": "34", "title": "雙隊策効蜂 · QB-34", "tags": "#雙隊創新方案 #雙隊解難", "5t": ["Tangible", "Transparent"] },
+        { "id": 35, "code": "35", "title": "雙隊風險蜂 · QB-35", "tags": "#雙隊風險評估 #雙隊預案", "5t": ["Trustworthy", "Trackable"] },
+        { "id": 36, "code": "36", "title": "雙隊優化蜂 · QB-36", "tags": "#雙隊流程優化 #雙隊效能", "5t": ["Transparent", "Trackable"] }
+      ]
+    },
+    {
+      "peak_code": "B2",
+      "peak_name": "銀濤峰",
+      "attribute": "光屬性",
+      "belong_hive": "蜂后隊",
+      "agent_range": [37, 42],
+      "function_line": "開發與工具",
+      "agents": [
+        { "id": 37, "code": "37", "title": "雙隊編碼蜂 · QB-37", "tags": "#雙隊全端開發 #雙隊 API", "5t": ["Traceable", "Trustworthy"] },
+        { "id": 38, "code": "38", "title": "雙隊算法蜂 · QB-38", "tags": "#雙隊 AI 模型 #雙隊訓練", "5t": ["Trackable", "Transparent"] },
+        { "id": 39, "code": "39", "title": "雙隊架構蜂 · QB-39", "tags": "#雙隊系統架構 #雙隊擴容", "5t": ["Trackable", "Trustworthy"] },
+        { "id": 40, "code": "40", "title": "雙隊數據蜂 · QB-40", "tags": "#雙隊數據管道 #雙隊儲存", "5t": ["Traceable", "Trackable"] },
+        { "id": 41, "code": "41", "title": "雙隊測試蜂 · QB-41", "tags": "#雙隊自動化測試 #雙隊 E2E", "5t": ["Trustworthy", "Tangible"] },
+        { "id": 42, "code": "42", "title": "雙隊設計蜂 · QB-42", "tags": "#雙隊 UI/UX #雙隊體驗", "5t": ["Tangible", "Transparent"] }
+      ]
+    },
+    {
+      "peak_code": "B3",
+      "peak_name": "磷火峰",
+      "attribute": "光屬性",
+      "belong_hive": "蜂后隊",
+      "agent_range": [43, 48],
+      "function_line": "設計與內容",
+      "agents": [
+        { "id": 43, "code": "43", "title": "雙隊圖像蜂 · QB-43", "tags": "#雙隊視覺生成 #雙隊平面", "5t": ["Tangible", "Traceable"] },
+        { "id": 44, "code": "44", "title": "雙隊動畫蜂 · QB-44", "tags": "#雙隊動畫特效 #雙隊剪輯", "5t": ["Trackable", "Tangible"] },
+        { "id": 45, "code": "45", "title": "雙隊文案蜂 · QB-45", "tags": "#雙隊腳本 DNA #雙隊內容", "5t": ["Transparent", "Traceable"] },
+        { "id": 46, "code": "46", "title": "雙隊音頻蜂 · QB-46", "tags": "#雙隊語音合成 #雙隊配音", "5t": ["Trackable", "Tangible"] },
+        { "id": 47, "code": "47", "title": "雙隊市場蜂 · QB-47", "tags": "#雙隊發布策略 #雙隊推廣", "5t": ["Trackable", "Transparent"] },
+        { "id": 48, "code": "48", "title": "雙隊社群蜂 · QB-48", "tags": "#雙隊用戶互動 #雙隊回饋", "5t": ["Trackable", "Tangible"] }
+      ]
+    },
+    {
+      "peak_code": "B4",
+      "peak_name": "琉光峰",
+      "attribute": "光屬性",
+      "belong_hive": "蜂后隊",
+      "agent_range": [49, 54],
+      "function_line": "推廣與互動",
+      "agents": [
+        { "id": 49, "code": "49", "title": "雙隊增長蜂 · QB-49", "tags": "#雙隊用戶增長 #雙隊業務", "5t": ["Trackable", "Transparent"] },
+        { "id": 50, "code": "50", "title": "雙隊運營蜂 · QB-50", "tags": "#雙隊進度管理 #雙隊資源", "5t": ["Trackable", "Trustworthy"] },
+        { "id": 51, "code": "51", "title": "雙隊商業分析蜂 · QB-51", "tags": "#雙隊商業洞察 #雙隊決策", "5t": ["Trackable", "Transparent"] },
+        { "id": 52, "code": "52", "title": "雙隊探路蜂 · QB-52", "tags": "#雙隊資源探索 #雙隊機會", "5t": ["Traceable", "Trackable"] },
+        { "id": 53, "code": "53", "title": "雙隊外交蜂 · QB-53", "tags": "#雙隊合作關係 #雙隊談判", "5t": ["Trustworthy", "Trackable"] },
+        { "id": 54, "code": "54", "title": "雙隊調研蜂 · QB-54", "tags": "#雙隊用戶研究 #雙隊需求", "5t": ["Transparent", "Trackable"] }
+      ]
+    },
+    {
+      "peak_code": "B5",
+      "peak_name": "曜泉峰",
+      "attribute": "光屬性",
+      "belong_hive": "蜂后隊",
+      "agent_range": [55, 60],
+      "function_line": "驗證與治理",
+      "agents": [
+        { "id": 55, "code": "55", "title": "雙隊 ISO 驗算代理 · QB-55", "tags": "#雙隊規範驗證 #雙隊稽核", "5t": ["Traceable", "Transparent"] },
+        { "id": 56, "code": "56", "title": "雙隊 Hash Lock 代理 · QB-56", "tags": "#雙隊寫入凍結 #雙隊完整性", "5t": ["Trustworthy", "Trackable"] },
+        { "id": 57, "code": "57", "title": "雙隊 UUID 發放代理 · QB-57", "tags": "#雙隊身分發放 #雙隊登記", "5t": ["Trackable", "Traceable"] },
+        { "id": 58, "code": "58", "title": "雙隊零幻覺稽核代理 · QB-58", "tags": "#雙隊幻覺檢測 #雙隊真實性", "5t": ["Transparent", "Trustworthy"] },
+        { "id": 59, "code": "59", "title": "雙隊稽核追踪代理 · QB-59", "tags": "#雙隊日志追踪 #雙隊異常", "5t": ["Trackable", "Trustworthy"] },
+        { "id": 60, "code": "60", "title": "雙隊 5T 終審代理 · QB-60", "tags": "#雙隊終審審核 #雙隊釋出", "5t": ["T", "T", "T", "T", "T"] }
+      ]
+    }
+  ]
+}

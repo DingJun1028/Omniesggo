@@ -1,0 +1,34 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "inclusionai/ling-3.0-flash-fin:free",
+  "provider": "ollama-cloud",
+  "base_url": "https://ollama.com/v1",
+  "timestamp": "2026-09-05T02:38:43.998130Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "7515dfbc-3cbc-4eb3-9034-c0ebf359aea0",
+  "actions_taken": [
+    "Step 1: 確認 config.yaml 既有 ollama-cloud provider 授權",
+    "Step 2: 新增 alias 'free-flash'",
+    "Step 3: curl 實測 ollama-cloud /v1/chat/completions",
+    "Step 4: 產出 5T-Canon PurifiedArtifact"
+  ],
+  "api_verification": {
+    "endpoint": "https://ollama.com/v1/chat/completions",
+    "success": true,
+    "error": null
+  },
+  "five_t_verification": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "content": "5T-Canon 證明書 — ollama-cloud 線上免費層授權驗證\n\n驗證時間: 2026-09-05T02:38:43.998130Z\n授權對象: inclusionai/ling-3.0-flash-fin:free (ollama-cloud 線上免費層)\n\n=== 5T 驗證 ===\n\n1. Traceable\n   - config.yaml 路徑: C:/Users/dingj/AppData/Local/hermes/config.yaml\n   - provider: ollama-cloud (base_url=https://ollama.com/v1)\n   - 當前 default: inclusionai/ling-3.0-flash-fin:free\n\n2. Trackable\n   - alias 'free-flash' 已綁定 ollama-cloud/inclusionai/ling-3.0-flash-fin:free\n   - memory fallback chain: ollama-cloud → local\n\n3. Tangible\n   - 實際 curl 呼叫成功: True\n   - HTTP 回應: 200 OK\n\n4. Transparent\n   - api_key 前 8 碼: bf8d50c8...\n   - 模型 context_length: 256000\n\n5. Trustworthy\n   - 雙 provider 容錯 (雲端 + 本地)\n   - SHA-256 hash 已鎖定\n\n=== 簽章 ===\n— Queen Bee & OA-Team 30 Swarm\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "82f33a9b76a6c69a7f079631a82b15c8d9db1ca5d423a5b9d7a3b89bc73bc45f",
+    "frozen": true
+  }
+}

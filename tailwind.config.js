@@ -49,6 +49,7 @@ module.exports = {
         'spin-slow': 'spin 8s linear infinite',
         'fade-in-up': 'fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
         'pulse-glow': 'pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'shimmer': 'shimmer 1.5s infinite',
       },
       keyframes: {
         fadeInUp: {
@@ -58,6 +59,9 @@ module.exports = {
         pulseGlow: {
           '0%, 100%': { opacity: '1', filter: 'brightness(1)' },
           '50%': { opacity: '.7', filter: 'brightness(1.2)' },
+        },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
         },
       },
     },
