@@ -74,15 +74,20 @@ function parseSpec(content: string): ModuleSpec {
   return spec as ModuleSpec;
 }
 
-const MEDCE_COLORS: Record<string, string> = { M: '#009EB0', S: '#10B981', G: '#3B82F6', E: '#F59E0B', D: '#8B5CF6', C: '#EF4444', A: '#06B6D4' };
+const MEDCE_COLORS: Record<string, string> = { M: 'bg-cyan-500 text-slate-900 shadow-[0_0_10px_rgba(6,182,212,0.6)]', S: 'bg-emerald-500 text-slate-900 shadow-[0_0_10px_rgba(16,185,129,0.6)]', G: 'bg-blue-500 text-slate-900 shadow-[0_0_10px_rgba(59,130,246,0.6)]', E: 'bg-yellow-500 text-slate-900 shadow-[0_0_10px_rgba(234,179,8,0.6)]', D: 'bg-purple-500 text-slate-900 shadow-[0_0_10px_rgba(168,85,247,0.6)]', C: 'bg-rose-500 text-slate-900 shadow-[0_0_10px_rgba(244,63,94,0.6)]', A: 'bg-teal-500 text-slate-900 shadow-[0_0_10px_rgba(20,184,166,0.6)]' };
 const MEDCE_NAMES: Record<string, string> = { M: '測量', S: '社會', G: '治理', E: '評估', D: '揭露', C: '合規', A: '參與' };
-const T5_COLORS = ['#3B82F6', '#22C55E', '#F59E0B', '#8B5CF6', '#06B6D4'];
+const T5_COLORS = ['bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.8)]', 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]', 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)]', 'bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]', 'bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.8)]'];
 const T5_NAMES = ['溯源', '透明', '可量化', '信任', '可追蹤'];
 
 export default function OmniFactoryHub({ searchParams }: { searchParams: { medce?: string; q?: string } }) {
-  const specsDir = join(process.cwd(), 'apps', 'omni-factory', 'specs');
-  const files = readdirSync(specsDir).filter((f) => f.endsWith('.md'));
-  const modules = files.map((f) => parseSpec(readFileSync(join(specsDir, f), 'utf8')));
+  let modules: ModuleSpec[] = [];
+  try {
+    const specsDir = join(process.cwd(), 'apps', 'omni-factory', 'specs');
+    const files = readdirSync(specsDir).filter((f) => f.endsWith('.md'));
+    modules = files.map((f) => parseSpec(readFileSync(join(specsDir, f), 'utf8')));
+  } catch (err) {
+    console.error('Failed to read omni-factory specs:', err);
+  }
 
   const filter = searchParams.medce || 'ALL';
   const search = searchParams.q || '';
@@ -94,28 +99,38 @@ export default function OmniFactoryHub({ searchParams }: { searchParams: { medce
   });
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
-      {/* Header */}
-      <header style={{ background: 'linear-gradient(135deg, #003262, #009EB0)', padding: '40px 32px' }}>
-        <h1 style={{ margin: 0, fontSize: 36, fontWeight: 800, color: '#FFF' }}>萬能工廠 OmniFactory</h1>
-        <p style={{ margin: '8px 0 0', color: 'rgba(255,255,255,0.8)' }}>{modules.length} 個模組 · P1–P7 流水線 · 5T 品質閘門</p>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 flex flex-col">
+      {/* 英雄區塊 (Hero Header) */}
+      <header className="relative overflow-hidden pt-24 pb-16 px-6 text-center border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-xl">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
+        <h1 className="relative z-10 text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 animate-pulse tracking-tight drop-shadow-md mb-4">
+          萬能工廠 OmniFactory
+        </h1>
+        <p className="relative z-10 text-sm md:text-base text-cyan-100/70 font-medium tracking-widest">
+          {modules.length} 個模組 · P1–P7 流水線 · 5T 品質閘門
+        </p>
       </header>
 
       {/* Filters */}
-      <form method="GET" style={{ maxWidth: 1440, margin: '0 auto', padding: '24px 32px 0' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+      <form method="GET" className="max-w-7xl mx-auto w-full px-6 pt-10">
+        <div className="flex flex-wrap gap-4 items-center bg-slate-900/40 backdrop-blur-md p-4 rounded-2xl border border-slate-700/50 shadow-[0_4px_24px_rgba(0,0,0,0.2)]">
           <input
             type="text"
             name="q"
             placeholder="搜尋模組..."
             defaultValue={search}
-            style={{ padding: '8px 12px', borderRadius: 8, border: '1px solid #E2E8F0', fontSize: 14, outline: 'none', flex: 1, minWidth: 200 }}
+            className="flex-1 min-w-[200px] bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-cyan-500/50 transition-colors"
           />
-          <button type="submit" style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: '#003262', color: '#FFF', cursor: 'pointer', fontSize: 14 }}>搜尋</button>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-            <button type="submit" name="medce" value="ALL" style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #E2E8F0', background: filter === 'ALL' ? '#003262' : '#FFF', color: filter === 'ALL' ? '#FFF' : '#64748B', cursor: 'pointer', fontSize: 12 }}>全部 ({modules.length})</button>
+          <button type="submit" className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold px-6 py-2 rounded-xl transition-colors shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+            搜尋
+          </button>
+          <div className="w-full h-px bg-slate-800/60 my-1" />
+          <div className="flex flex-wrap gap-2 w-full">
+            <button type="submit" name="medce" value="ALL" className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors border ${filter === 'ALL' ? 'bg-cyan-600 text-white border-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.4)]' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-cyan-500/50 hover:text-cyan-400'}`}>
+              全部 ({modules.length})
+            </button>
             {Object.entries(MEDCE_NAMES).map(([key, name]) => (
-              <button type="submit" name="medce" value={key} key={key} style={{ padding: '6px 12px', borderRadius: 6, border: '1px solid #E2E8F0', background: filter === key ? MEDCE_COLORS[key] : '#FFF', color: filter === key ? '#FFF' : '#64748B', cursor: 'pointer', fontSize: 12 }}>
+              <button key={key} type="submit" name="medce" value={key} className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors border ${filter === key ? 'bg-slate-800 text-white border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.3)]' : 'bg-slate-900 text-slate-400 border-slate-700 hover:border-cyan-500/50 hover:text-cyan-400'}`}>
                 {key} {name} ({modules.filter((m) => m.medce === key).length})
               </button>
             ))}
@@ -124,35 +139,68 @@ export default function OmniFactoryHub({ searchParams }: { searchParams: { medce
       </form>
 
       {/* Grid */}
-      <main style={{ maxWidth: 1440, margin: '0 auto', padding: 32 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 20 }}>
+      <main className="max-w-7xl mx-auto w-full px-6 py-10 flex-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filtered.sort((a, b) => a.id.localeCompare(b.id)).map((mod) => (
-            <Link key={mod.id} href={`/omni-factory/${mod.id.toLowerCase().replace('mod-', '')}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div style={{ background: '#FFF', borderRadius: 12, border: '1px solid #E2E8F0', padding: 20, height: '100%', boxSizing: 'border-box', transition: 'transform 0.15s, box-shadow 0.15s' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 32, height: 32, borderRadius: 8, background: MEDCE_COLORS[mod.medce] || '#64748B', color: '#FFF', fontWeight: 700 }}>{mod.medce}</span>
-                  <span style={{ fontSize: 12, color: '#64748B' }}>{MEDCE_NAMES[mod.medce] || mod.medce}</span>
+            <Link key={mod.id} href={`/omni-factory/${mod.id.toLowerCase().replace('mod-', '')}`} className="group block h-full">
+              <div className="flex flex-col h-full bg-slate-900/60 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-6 transition-all duration-300 hover:-translate-y-2 hover:border-cyan-500/40 hover:shadow-[0_10px_30px_rgba(6,182,212,0.15)] overflow-hidden relative">
+                
+                {/* Top Edge Glow */}
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                <div className="flex items-center gap-3 mb-4">
+                  <span className={`flex items-center justify-center w-10 h-10 rounded-xl font-black text-sm tracking-wider ${MEDCE_COLORS[mod.medce] || 'bg-slate-700 text-slate-300'}`}>
+                    {mod.medce}
+                  </span>
+                  <span className="text-xs font-bold text-slate-400 tracking-widest uppercase">
+                    {MEDCE_NAMES[mod.medce] || mod.medce}
+                  </span>
                 </div>
-                <h3 style={{ margin: '0 0 8px', fontSize: 16, fontWeight: 600 }}>{mod.title}</h3>
+                
+                <h3 className="text-lg font-bold text-slate-100 group-hover:text-cyan-400 transition-colors mb-4 line-clamp-2">
+                  {mod.title}
+                </h3>
+                
                 {mod.kpis && mod.kpis.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
+                  <div className="flex flex-wrap gap-2 mb-6">
                     {mod.kpis.slice(0, 2).map((kpi, i) => (
-                      <span key={i} style={{ fontSize: 12, background: '#F1F5F9', padding: '4px 8px', borderRadius: 4 }}>{kpi.label}: {kpi.value}{kpi.unit}</span>
+                      <span key={i} className="text-[11px] font-medium bg-slate-800 text-cyan-100/70 border border-slate-700 px-2 py-1 rounded-md">
+                        {kpi.label}: <strong className="text-cyan-400">{kpi.value}</strong>{kpi.unit}
+                      </span>
                     ))}
-                    {mod.kpis.length > 2 && <span style={{ fontSize: 12, color: '#94A3B8' }}>+{mod.kpis.length - 2}</span>}
+                    {mod.kpis.length > 2 && (
+                      <span className="text-[11px] font-medium bg-slate-800/50 text-slate-500 px-2 py-1 rounded-md">
+                        +{mod.kpis.length - 2}
+                      </span>
+                    )}
                   </div>
                 )}
-                <div style={{ display: 'flex', gap: 3 }}>
-                  {(['traceable', 'transparent', 'tangible', 'trustworthy', 'trackable'] as const).map((gate, i) => (
-                    <span key={gate} title={T5_NAMES[i]} style={{ width: 18, height: 4, borderRadius: 2, background: mod.t5[gate] ? T5_COLORS[i] : '#E2E8F0' }} />
-                  ))}
+                
+                <div className="mt-auto">
+                  <div className="flex gap-2 mb-4">
+                    {(['traceable', 'transparent', 'tangible', 'trustworthy', 'trackable'] as const).map((gate, i) => (
+                      <div 
+                        key={gate} 
+                        title={T5_NAMES[i]} 
+                        className={`h-1.5 flex-1 rounded-full ${mod.t5[gate] ? T5_COLORS[i] : 'bg-slate-800'}`} 
+                      />
+                    ))}
+                  </div>
+                  <div className="text-[10px] font-mono text-slate-500 tracking-wider">
+                    {mod.id}
+                  </div>
                 </div>
-                <div style={{ marginTop: 10, fontSize: 11, fontFamily: 'monospace', color: '#94A3B8' }}>{mod.id}</div>
+                
               </div>
             </Link>
           ))}
         </div>
-        {filtered.length === 0 && <p style={{ textAlign: 'center', color: '#94A3B8', padding: 40 }}>沒有符合條件的模組</p>}
+        
+        {filtered.length === 0 && (
+          <div className="text-center py-20 text-slate-500 border border-dashed border-slate-700 rounded-2xl bg-slate-900/20">
+            沒有符合條件的模組
+          </div>
+        )}
       </main>
     </div>
   );

@@ -1,63 +1,76 @@
-import { NextRequest } from 'next/server';
-import { jsonError, jsonResponse } from '@lib/api-utils';
+import { NextResponse } from 'next/server';
 
-function analyzeContext(context: string): { why: string; what: string; how: string; tags: string[] } {
-  const lower = context.toLowerCase();
+const OLLAMA_URL = 'http://127.0.0.1:11434/api/chat';
+const OLLAMA_MODEL = 'qwen2.5:3b-64k';
 
-  if (lower.includes('energy') || lower.includes('kwh') || lower.includes('electric')) {
-    return {
-      why: '能源使用數據是碳足跡盤查的核心輸入，直接影響範疇二排放計算。',
-      what: '此單據包含用電量、費率與計費期間，可用於計算組織型碳足跡。',
-      how: '建議將此數據與臺電帳單交叉比對，並導入能源管理系統(EMS)以自動化蒐集。',
-      tags: ['Energy', 'Scope2', 'EMS'],
-    };
-  }
-
-  if (lower.includes('water') || lower.includes('m3')) {
-    return {
-      why: '水資源使用是環境面(GRI 303)與CDP水安全問卷的重要揭露項目。',
-      what: '單據內含取水量、排水量與水質檢測數據。',
-      how: '建議建立水資源平衡表，並評估製程節水機會(目標減量10-15%)。',
-      tags: ['Water', 'GRI303', 'CDP'],
-    };
-  }
-
-  if (lower.includes('waste') || lower.includes('recycl')) {
-    return {
-      why: '廢棄物管理(範疇三)是循環經濟與零廢棄目標的關鍵指標。',
-      what: '此單據記錄了廢棄物種類、數量與處理方式(焚化/掩埋/回收)。',
-      how: '建議推動源頭減量與分類回收，目標達成90%以上回收率。',
-      tags: ['Waste', 'CircularEconomy', 'Scope3'],
-    };
-  }
-
-  if (lower.includes('emission') || lower.includes('carbon') || lower.includes('ghg')) {
-    return {
-      why: '碳排放數據是ESG評級(RBA、DJSI、MSCI)的核心評分指標。',
-      what: '單據包含組織型碳盤查(ISO 14064-1)的排放係數與活動數據。',
-      how: '建議採用科學基礎減量目標(SBTi)，並定期進行第三方查證。',
-      tags: ['Carbon', 'SBTi', 'ISO14064'],
-    };
-  }
-
-  return {
-    why: '此單據為ESG資料蒐集流程的一部分，需確認其完整性與正確性。',
-    what: '擷取了原始單據中的關鍵數據欄位與時間戳記。',
-    how: '建議將此資料輸入ESG管理平臺，並設定自動化資料品質檢查規則。',
-    tags: ['General', 'DataQuality'],
-  };
-}
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const context: string = body.context || body.text || '';
+    const { url, title, content } = await req.json();
 
-    const result = analyzeContext(context);
+    if (!content) {
+      return NextResponse.json({ success: false, error: 'Content is required for analysis' }, { status: 400 });
+    }
 
-    return jsonResponse(result);
-  } catch (err) {
-    console.error('[Sonar Knowledge] Error:', err);
-    return jsonError('INTERNAL_ERROR', 'Invalid request');
+    const systemPrompt = `You are Sonnar, an advanced ESG Threat Intelligence and Greenwashing Detection AI.
+You will be given the extracted text from a corporate ESG report, news article, or press release.
+Your task is to analyze the text and identify potential "Greenwashing" (漂綠) risks, regulatory non-compliance, and inconsistencies.
+Provide a concise, structured JSON response with the following keys:
+- "riskLevel": String ("Low", "Medium", "High", "Critical")
+- "summary": String (Brief summary of the findings in Traditional Chinese)
+- "redFlags": Array of Strings (Specific questionable claims or missing data, in Traditional Chinese)
+- "confidence": Number (0-100)`;
+
+    const userPrompt = `URL: ${url}\nTitle: ${title}\nContent:\n${content}\n\nPlease analyze this document for ESG risks.`;
+
+    // 呼叫本地 100% 免費 Ollama 算力
+    const response = await fetch(OLLAMA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        stream: false,
+        format: 'json' // 要求 JSON 輸出
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ollama API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    let analysisResult;
+    try {
+      analysisResult = JSON.parse(data.message?.content || '{}');
+    } catch (e) {
+      // 容錯處理
+      analysisResult = {
+        riskLevel: 'Unknown',
+        summary: '無法解析 AI 回應',
+        redFlags: [],
+        confidence: 0
+      };
+    }
+
+    return NextResponse.json({
+      success: true,
+      analysis: analysisResult
+    });
+
+  } catch (error) {
+    return NextResponse.json({ 
+      success: false, 
+      error: (error as Error).message,
+      // 備援結果 (當 Ollama 沒開時)
+      fallback: {
+        riskLevel: 'Medium',
+        summary: '本地分析服務無法連線，啟用降級評估。',
+        redFlags: ['需要進一步的人工審查', '無法驗證範圍三溫室氣體數據'],
+        confidence: 50
+      }
+    });
   }
 }
