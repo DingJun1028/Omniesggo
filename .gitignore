@@ -136,7 +136,12 @@ vps/.next-broken/
 omnipotent-repository/
 
 # Agents local state
+# 治理：b4ba0af5f (2026-08-16) 為解 Vercel upload <15000 上限，
+# 停止追蹤 esggo-omni-center/.agents（當時移除 681 檔 / 94,949 行）。
+# 該決策未使用 .gitignore 落地，致內容於修補註解時回流。
+# 恢復此規則以維持原治理；.agents/ 屬代理本地狀態，非部署產物。
 .agents/tmp_log.txt
+esggo-omni-center/.agents/
 
 # Standalone loose files
 NoteSearch.jsx
