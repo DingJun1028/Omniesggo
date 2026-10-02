@@ -1,20 +1,31 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import fs from 'fs';
+import path from 'path';
 
-const prisma = new PrismaClient();
+// 100% Zero-Cost Local File-based Memory Store (Fallback since Supabase is unconfigured)
+const MEMORY_FILE = path.join(process.cwd(), 'data', 'omni-memory.json');
+
+// Ensure data directory exists
+const ensureMemoryFile = () => {
+  const dir = path.dirname(MEMORY_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(MEMORY_FILE)) {
+    fs.writeFileSync(MEMORY_FILE, JSON.stringify({ contexts: {}, chats: [] }, null, 2));
+  }
+};
 
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId') || 'default-user';
     
-    const context = await prisma.avatarContext.findUnique({
-      where: { userId }
-    });
+    ensureMemoryFile();
+    const db = JSON.parse(fs.readFileSync(MEMORY_FILE, 'utf-8'));
+    const context = db.contexts[userId] || {};
     
     return NextResponse.json({
       success: true,
-      context: context ? JSON.parse(context.preferences || '{}') : {}
+      context
     });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
@@ -26,17 +37,23 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { userId = 'default-user', agentId = 'omni-core', content, role = 'user' } = body;
 
+    ensureMemoryFile();
+    const db = JSON.parse(fs.readFileSync(MEMORY_FILE, 'utf-8'));
+    
     // Save chat interaction to local memory
-    const memory = await prisma.omniMemory.create({
-      data: {
-        userId,
-        agentId,
-        role,
-        content
-      }
+    const memoryId = `mem_${Date.now()}`;
+    db.chats.push({
+      id: memoryId,
+      userId,
+      agentId,
+      role,
+      content,
+      createdAt: new Date().toISOString()
     });
 
-    return NextResponse.json({ success: true, memoryId: memory.id });
+    fs.writeFileSync(MEMORY_FILE, JSON.stringify(db, null, 2));
+
+    return NextResponse.json({ success: true, memoryId });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
