@@ -1,0 +1,16 @@
+# ESGGO 萬能系統 - 編碼結界 (Encoding Barrier)
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{js,ts,jsx,tsx,json,md,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.{py,sh,bat,ps1}]
+indent_style = space
+indent_size = 4
