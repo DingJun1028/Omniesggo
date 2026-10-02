@@ -118,6 +118,10 @@ temp*.py
 .next-broken/
 build_output*.txt
 test_output.txt
+# PowerShell 重定向產生的 build log（UTF-16LE BOM，非 UTF-8）
+ts-output.txt
+tsc_full_output.txt
+lint_output_*.txt
 omni-trace.txt
 trace.txt
 files_to_*.txt
