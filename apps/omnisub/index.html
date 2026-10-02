@@ -1027,6 +1027,7 @@ var UI = {
 
   render:function(orig, trans, engine, isTranslated){
     if(this.paused) return;
+    if(typeof orig !== 'string') return;
     $('origLine').className = '';
     $('origLine').textContent = orig;
     $('transLine').classList.toggle('stale', !isTranslated);
@@ -1122,10 +1123,16 @@ var UI = {
   }
 };
 function fmtSRT(sec){
-  var h = Math.floor(sec / 3600);
-  var m = Math.floor((sec % 3600) / 60);
-  var s = Math.floor(sec % 60);
-  var ms = Math.round((sec - Math.floor(sec)) * 1000);
+  // 非有限值防禦：NaN/Infinity 會讓 Math.max(0,NaN)=NaN，pad2(NaN) 產出 'aN'
+  // → 整列時間碼變成 'aN:aN:aN,NaN'（SRT 格式非法，多數播放器直接跳過該段）
+  if(!isFinite(sec)) sec = 0;
+  // 先四捨五入到「毫秒總數」再分解，否則 1.9999 會得到 1,000ms 而秒數未進位
+  // （顯示為 00:00:01,000，比實際時間少 1 秒）
+  var t = Math.max(0, Math.round(sec * 1000));
+  var h = Math.floor(t / 3600000);
+  var m = Math.floor((t % 3600000) / 60000);
+  var s = Math.floor((t % 60000) / 1000);
+  var ms = t % 1000;
   return pad2(h) + ':' + pad2(m) + ':' + pad2(s) + ',' + ('00' + ms).slice(-3);
 }
 function pad2(n){ return ('0' + n).slice(-2); }
