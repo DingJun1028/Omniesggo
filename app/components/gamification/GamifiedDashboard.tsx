@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Trophy, Target, CheckCircle, Flame, Star, Shield, Users } from "lucide-react";
-import { useOmniGamification } from "@/app/hooks/useOmniGamification";
-import { getLeaderboard } from "@/app/actions/gamification";
+import { useOmniGamification } from "../../hooks/useOmniGamification";
+import { getLeaderboard } from "../../actions/gamification";
 
 const IconMap = {
   Target: <Target className="w-6 h-6 text-emerald-400" />,
