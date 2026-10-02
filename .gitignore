@@ -401,6 +401,13 @@ vault/.obsidian/plugins/github-sync/
 /.hermes/auto-repair/*.log
 # 5T 驗證執行期產出（每次 verify 檔名含時戳，不可版控）
 .hermes/5t-canon/verify-*.json
+# 5T Canon 敏感治理產出 — 可能含 API Key / Hash Lock 明文，禁止版控
+.hermes/5t-canon/fullchain-*.json
+.hermes/5t-canon/ollama-cloud-*.json
+.hermes/5t-canon/god-mode-*.json
+.hermes/5t-canon/*key*.json
+.hermes/5t-canon/*vault*.json
+.hermes/5t-canon/*auth*.json
 # [原註解部分損毀；可辨識片段: .hermes/auto-repair/.hermes/ auto-repair — 2026-10-03 修復]
 !/.hermes/omnitag/
 /.hermes/omnitag/*.json
