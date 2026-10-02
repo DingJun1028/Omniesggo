@@ -406,3 +406,25 @@ model DailyReportItem {
   @@index([itemType])
   @@index([alertId])
 }
+// ─── 萬能記憶體 (Omni-Memory) ───
+
+model OmniMemory {
+  id        String   @id @default(cuid())
+  userId    String
+  agentId   String
+  role      String   @default("user")
+  content   String
+  metadata  String?  // JSON string
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([agentId])
+}
+
+model AvatarContext {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  preferences String?  // JSON string
+  systemPrompt String?
+  updatedAt   DateTime @updatedAt
+}
