@@ -5,8 +5,9 @@ import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../
 import { OmniButton } from '../../src/components/omni-base/OmniButton';
 import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
 import {
-  ShieldCheck, ShieldAlert, Key, Search, FileCheck, UploadCloud, CheckCircle2, AlertTriangle, FileSpreadsheet
+  ShieldCheck, ShieldAlert, Key, Search, FileCheck, UploadCloud, CheckCircle2, AlertTriangle, FileSpreadsheet, Printer
 } from 'lucide-react';
+import { PrintableCertificate, ICertificateData } from '../../src/components/verifier/printable-certificate';
 
 interface VerificationResult {
   isVerified: boolean;
@@ -29,6 +30,7 @@ export default function VerifierPage() {
   const [file, setFile] = useState<File | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [result, setResult] = useState<VerificationResult | null>(null);
+  const [showCertificateModal, setShowCertificateModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleVerifyHash = async () => {
@@ -261,10 +263,41 @@ export default function VerifierPage() {
                     {result.uploadRecord.hashLock}
                   </div>
                 </div>
+
+                <div className="pt-2 flex justify-end">
+                  <OmniButton
+                    variant="emerald"
+                    onClick={() => setShowCertificateModal(true)}
+                  >
+                    <Printer className="w-4 h-4 mr-1.5" />
+                    檢視 / 列印 5T 官方防偽憑證 (Certificate)
+                  </OmniButton>
+                </div>
               </div>
             )}
           </OmniCardContent>
         </OmniCard>
+      )}
+
+      {/* Printable Certificate Modal */}
+      {showCertificateModal && result?.uploadRecord && (
+        <PrintableCertificate
+          data={{
+            uuid: result.uploadRecord.uuid,
+            sourceOrigin: result.uploadRecord.sourceSystem || 'JunAiKey_OmniAgent',
+            hashLock: result.uploadRecord.hashLock,
+            sealedAt: result.uploadRecord.sealedAt,
+            specVersion: 'v3.4.0',
+            fiveTProtocolSeals: {
+              truth: { verified: true, sourceOrigin: result.uploadRecord.sourceSystem },
+              goodness: { verified: true, standard: 'ISO 14064-1 & Taipower 2024' },
+              beauty: { verified: true, uiStyle: 'Liquid Glass Cyan' },
+              trust: { verified: true, hashLock: result.uploadRecord.hashLock },
+              trackable: { verified: true, uuid: result.uploadRecord.uuid },
+            },
+          }}
+          onClose={() => setShowCertificateModal(false)}
+        />
       )}
     </div>
   );
