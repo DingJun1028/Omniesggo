@@ -465,3 +465,29 @@ model NetZeroRoadmap {
   @@index([hashLock])
 }
 
+// --- 5T Supply Chain ESG & CSDD ---
+model SupplyChainVendor {
+  id              String   @id @default(uuid())
+  supplierName    String
+  industry        String   @default("Manufacturing")
+  tier            String   @default("Tier 1")
+  rating          String   @default("B") // A, B, C, D
+  riskLevel       String   @default("Medium") // Low, Medium, High, Critical
+  envScore        Float    @default(80.0)
+  socialScore     Float    @default(85.0)
+  govScore        Float    @default(88.0)
+  strengthsJson   String   @default("[]")
+  weaknessesJson  String   @default("[]")
+  recommendation  String   @default("")
+  rawData         String   @default("")
+  hashLock        String   @unique
+  sourceOrigin    String   @default("omni-supply-chain")
+  createdBy       String   @default("system")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([rating])
+  @@index([riskLevel])
+  @@index([hashLock])
+}
+
