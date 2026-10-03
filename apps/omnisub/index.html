@@ -209,6 +209,26 @@ body{
 .toast.warn{border-color:var(--warn);color:#f0e0bd}
 .toast.err{border-color:var(--error);color:#f0cdc3}
 @keyframes fadein{from{opacity:0;transform:translateY(8px)}}
+
+/* ===== 輕薄短小模式 Compact mode ===== */
+#panel.compact{
+  top:12px;
+  width:min(660px,96vw);
+  padding:30px 10px 8px;
+  gap:2px;
+  background:rgba(7,14,26,.88);
+  border:1px solid rgba(201,162,75,.45);
+  box-shadow:0 12px 36px rgba(0,0,0,.75), 0 0 24px rgba(201,162,75,.25);
+}
+#panel.compact #titlebar{height:22px;top:4px;left:8px;right:8px;padding:0 6px}
+#panel.compact #titlebar .name small{display:none}
+#panel.compact .rail-left,#panel.compact .rail-right,#panel.compact .rail-bottom,
+#panel.compact #hintBox,#panel.compact #historyWrap,#panel.compact #errBox,
+#panel.compact #modelProgress,#panel.compact #modelNote{display:none !important}
+#panel.compact #subtitleArea{min-height:48px;padding:4px 8px;gap:2px}
+#panel.compact #origLine{font-size:11.5px;min-height:14px}
+#panel.compact #transLine{font-size:calc(var(--trans-size) * 0.95);min-height:22px}
+#panel.compact #engineBadge{font-size:9.5px;padding:0 5px;margin-top:1px}
 </style>
 </head>
 <body>
@@ -219,6 +239,7 @@ body{
   <div id="titlebar" data-tip="拖曳移動面板 Drag panel">
     <span class="dot"></span>
     <span class="name">OmniSub <small>萬能即時語音擷取翻譯 · 零算力版</small></span>
+    <button class="btn small" id="compactBtn" style="margin-left:auto;margin-right:6px;height:20px;padding:0 6px;font-size:11px" data-tip="一體成形 輕薄短小懸浮模式 Toggle compact overlay (M)">輕薄</button>
     <span id="statusText">待機 Idle</span>
   </div>
 
@@ -490,7 +511,7 @@ var AC = {
   running:false, mode:null, rafId:0,
   buffer:[], bufferMs:0, chunkMs:0,
   /* VAD 狀態：噪聲地板自適應 + 語音連續判定 */
-  noiseFloor:0.006, voiceRms:0, speaking:false, lastVoiceAt:0, silenceMs:0,
+  noiseFloor:0.002, voiceRms:0, speaking:false, lastVoiceAt:0, silenceMs:0,
 
   async startSystem(){
     var stream;
@@ -516,6 +537,9 @@ var AC = {
     this.mode = 'system';
     this.setupGraph();
     LOG.log('capture.start', { mode:'system' });
+    if(S.sttEngine === 'webspeech'){
+      toast('系統音訊請搭配 Whisper 離線引擎；Web Speech 僅支援麥克風', 'warn', 4500);
+    }
     return true;
   },
 
@@ -579,7 +603,7 @@ var AC = {
       /* 噪聲地板：EMA 追蹤低能量段，只在非語音時更新 */
       if(!self.speaking){
         self.noiseFloor = self.noiseFloor * 0.94 + rms * 0.06;
-        self.noiseFloor = Math.max(0.0012, Math.min(self.noiseFloor, 0.08));
+        self.noiseFloor = Math.max(0.0008, Math.min(self.noiseFloor, 0.08));
       }
       self.voiceRms = rms;
       self.rafId = requestAnimationFrame(loop);
@@ -592,12 +616,16 @@ var AC = {
   gate(rms){
     if(!S.vad) return true;
     var mult = 1 + (S.vadThr / 10);
-    return rms > 0.006 && rms > this.noiseFloor * mult;
+    return rms > 0.002 && rms > this.noiseFloor * mult;
   },
 
   onAudio(inBuf){
     if(!this.running) return;
     if(UI.paused) return;                            // 暫停時真的停止一切處理
+
+    if(this.ctx && this.ctx.state === 'suspended'){
+      try{ this.ctx.resume(); }catch(_){}
+    }
 
     var mono = inBuf.getChannelData(0);
     var n = mono.length;
@@ -613,8 +641,8 @@ var AC = {
       this.silenceMs = 0;
     }else if(this.speaking){
       this.silenceMs += (n / this.ctx.sampleRate) * 1000;
-      /* 尾端靜音超過 450ms → 視為句尾結束，強制沖刷尾段，避免吃掉最後幾個字 */
-      if(this.silenceMs > 450){
+      /* 尾端靜音超過 280ms → 視為句尾結束，快充沖刷尾段，大幅降低字幕延遲 */
+      if(this.silenceMs > 280){
         this.speaking = false;
         this.flush();
       }
@@ -846,6 +874,7 @@ var STT = {
    ========================================================= */
 var Translation = {
   busy:false,
+  pending:null,
   cache:Object.create(null),
   cacheOrder:[],
   CACHE_MAX:240,
@@ -886,8 +915,14 @@ var Translation = {
 
   async run(text, forcedSrc){
     if(!text || !text.trim()) return;
-    /* 只保留最新字幕：翻譯請求排隊會造成舊字幕覆蓋新字幕（技能書記載根因） */
-    if(this.busy){ LOG.log('translate.skip_busy', {}); return; }
+    /* 修正「聲音過慢 / 音間太快 丟字問題」：
+       當前一個翻譯在打網路請求時，不直接丟棄新到的字幕，而是寫入 pending 佇列，
+       等當前請求一完成立刻緊接著翻譯最新一句。避免快語速時中間句全部漏掉。 */
+    if(this.busy){
+      this.pending = { text: text, forcedSrc: forcedSrc };
+      LOG.log('translate.queued_pending', { text: text.slice(0, 24) });
+      return;
+    }
     this.busy = true;
     try{
       var src = forcedSrc || detectLang(text);
@@ -918,6 +953,11 @@ var Translation = {
       UI.render(text, '', '翻譯異常 translate error', false);
     }finally{
       this.busy = false;
+      if(this.pending){
+        var next = this.pending;
+        this.pending = null;
+        this.run(next.text, next.forcedSrc);
+      }
     }
   },
 
@@ -1102,6 +1142,16 @@ var UI = {
     $('transLine').textContent = '—';
     $('transLine').classList.remove('stale');
     $('engineBadge').textContent = '';
+  },
+
+  /* 一體成形 輕薄短小懸浮字幕模式 */
+  toggleCompact:function(force){
+    var isCompact = (force !== undefined) ? !!force : !$('panel').classList.contains('compact');
+    $('panel').classList.toggle('compact', isCompact);
+    var btn = $('compactBtn');
+    if(btn) btn.classList.toggle('active', isCompact);
+    toast(isCompact ? '進入一體成形輕薄短小模式 Compact mode' : '恢復完整面板 Full panel', 'info', 1600);
+    LOG.log('ui.compact', { compact:isCompact });
   },
 
   /* SRT 匯出：1-based 序號 + HH:MM:SS,mmm */
@@ -1304,6 +1354,12 @@ $('clearBtn').onclick = function(){ UI.clear(); toast('已清空 Cleared'); };
 $('srtBtn').onclick   = function(){ UI.exportSRT(); };
 $('drawerBtn').onclick= function(){ $('drawer').classList.toggle('open'); };
 $('drawerClose').onclick = function(){ $('drawer').classList.remove('open'); };
+if($('compactBtn')){ $('compactBtn').onclick = function(){ UI.toggleCompact(); }; }
+document.addEventListener('keydown', function(e){
+  if((e.key === 'm' || e.key === 'M') && !e.ctrlKey && !e.altKey && e.target && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA'){
+    UI.toggleCompact();
+  }
+});
 
 $('sttToggleBtn').onclick = function(){
   var next = S.sttEngine === 'whisper' ? 'webspeech' : 'whisper';

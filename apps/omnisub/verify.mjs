@@ -289,11 +289,18 @@ try {
 } catch (e) { srtOk = false; srtErr = e.message; }
 check('SRT 匯出觸發下載', srtOk, srtErr);
 
-// ---------- 21. 鍵盤快捷鍵 ----------
+// ---------- 21. 鍵盤快捷鍵與一體成形輕薄短小模式 ----------
 $('histBtn').dispatchEvent(new window.Event('click'));
 check('快捷鍵展開歷史', $('historyWrap').classList.contains('open'));
 doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 check('Esc 關閉設定抽屜', !$('drawer').classList.contains('open'));
+
+// 一體成形 輕薄短小懸浮模式驗證
+check('輕薄短小按鈕存在', !!$('compactBtn'));
+$('compactBtn').dispatchEvent(new window.Event('click'));
+check('點擊輕薄按鈕進入輕薄短小模式', $('panel').classList.contains('compact'));
+doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'm', bubbles: true }));
+check('快捷鍵 M 可切換恢復完整面板', !$('panel').classList.contains('compact'));
 
 // ---------- 22. 非字串 / 非有限值防護（NaN SRT 與 PeerJS 弱型別回歸） ----------
 //
