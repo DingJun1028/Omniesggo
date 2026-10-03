@@ -2,17 +2,22 @@ import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from './OmniCard';
 
 export interface OmniBadgeProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline' | 'glass';
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline' | 'glass' | 'emerald' | 'cyan' | 'amber' | 'indigo' | 'rose';
 }
 
 export const OmniBadge = forwardRef<HTMLDivElement, OmniBadgeProps>(
   ({ className, variant = 'default', children, ...props }, ref) => {
     
-    const variants = {
+    const variants: Record<string, string> = {
       default: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300',
+      cyan: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300',
       success: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300',
+      emerald: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300',
       warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
+      amber: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
+      indigo: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300',
       danger: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300',
+      rose: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300',
       outline: 'border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300',
       glass: 'backdrop-blur-sm bg-white/20 dark:bg-slate-900/40 border border-white/40 dark:border-slate-700 text-slate-800 dark:text-slate-200',
     };

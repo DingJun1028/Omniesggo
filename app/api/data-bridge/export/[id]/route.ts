@@ -41,7 +41,7 @@ export async function GET(
         trustworthy: { verified: true, hashLock: upload.hashLock },
         trackable: { verified: true, dbRecordId: upload.id },
       },
-      recordsSample: upload.records.map((r) => JSON.parse(r.data)),
+      recordsSample: upload.records.map((r: any) => JSON.parse(r.rawJson || '{}')),
     };
 
     return new Response(JSON.stringify(certificate, null, 2), {

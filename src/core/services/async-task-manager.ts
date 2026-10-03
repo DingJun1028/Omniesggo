@@ -149,6 +149,7 @@ export function createTask(
     scope1Tco2e: number;
     scope2Tco2e: number;
   },
+  renderOptions?: any,
 ): string {
   const taskId = `tsk-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();

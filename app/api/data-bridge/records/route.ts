@@ -13,7 +13,7 @@ export async function GET() {
       }
     });
 
-    const formatted = uploads.map((u) => ({
+    const formatted = uploads.map((u: any) => ({
       id: u.id,
       sourceSystem: u.sourceSystem,
       dataType: u.dataType,

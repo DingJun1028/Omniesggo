@@ -7,10 +7,11 @@ export function cn(...inputs: (string | undefined | null | false)[]) {
 // ── OmniCard (Liquid Glass Cyan) ──
 interface OmniCardProps extends HTMLAttributes<HTMLDivElement> {
   glow?: boolean;
+  variant?: string;
 }
 
 export const OmniCard = forwardRef<HTMLDivElement, OmniCardProps>(
-  ({ className, glow = false, children, ...props }, ref) => {
+  ({ className, glow = false, variant, children, ...props }, ref) => {
     return (
       <div
         ref={ref}

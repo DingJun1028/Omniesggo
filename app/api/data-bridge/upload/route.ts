@@ -61,7 +61,7 @@ function parseXlsx(buffer: ArrayBuffer): { headers: string[]; rows: Record<strin
   if (raw.length === 0) return { headers: [], rows: [] };
   const rawHeaders = Object.keys(raw[0]);
   const headers = rawHeaders.map(normalizeColumnName);
-  const rows = raw.map(r => {
+  const rows = raw.map((r: any) => {
     const row: Record<string, string> = {};
     rawHeaders.forEach((h, i) => { row[headers[i]] = String(r[h] ?? ''); });
     return row;
@@ -195,12 +195,15 @@ export async function POST(req: Request) {
           id: uuid,
           sourceSystem: file.name,
           dataType: dataType,
+          fileName: file.name,
+          fileSize: file.size,
           recordCount: parsed.rows.length,
+          headers: JSON.stringify(parsed.headers),
           hashLock: hashLock,
           metrics: JSON.stringify(analysis),
           records: {
             create: parsed.rows.slice(0, 200).map((row) => ({
-              data: JSON.stringify(row),
+              rawJson: JSON.stringify(row),
             })),
           },
         },

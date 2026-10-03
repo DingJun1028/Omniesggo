@@ -491,3 +491,35 @@ model SupplyChainVendor {
   @@index([hashLock])
 }
 
+// --- 5T Data Bridge Models ---
+model DataBridgeUpload {
+  id           String             @id @default(uuid())
+  sourceSystem String             // ERP, HR, IOT, MANUAL
+  dataType     String             // ENERGY, COMMUTE, MATERIALS, GENERAL
+  fileName     String
+  fileSize     Int
+  recordCount  Int
+  headers      String             // JSON string
+  metrics      String             // JSON string
+  hashLock     String             @unique
+  sourceOrigin String             @default("omni-data-bridge")
+  createdAt    DateTime           @default(now())
+  sealedAt     DateTime           @default(now())
+  records      DataBridgeRecord[]
+
+  @@index([sourceSystem])
+  @@index([dataType])
+  @@index([hashLock])
+}
+
+model DataBridgeRecord {
+  id           String           @id @default(uuid())
+  uploadId     String
+  upload       DataBridgeUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  rawJson      String
+  sourceOrigin String           @default("omni-data-bridge-record")
+  createdAt    DateTime         @default(now())
+
+  @@index([uploadId])
+}
+
