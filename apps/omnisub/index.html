@@ -777,7 +777,10 @@ var STT = {
     if(this.ws){ try{ this.ws.stop(); }catch(_){} this.ws = null; }
   },
 
-  /* ---------- Whisper 離線（WASM，可擷取系統音） ---------- */
+  /* ---------- transformers.js 多 CDN 載入（單一鏡像失效不致命） ----------
+     修正：原版硬寫 cdnjs 的 transformers/3.7.6，但 @huggingface/transformers
+     從未發布到 cdnjs（全版本 404），故 Whisper 永遠無法載入。
+     改為依序嘗試多個鏡像，第一個成功即快取。 */
   async initWhisper(){
     if(this.pipe) return this.pipe;
     if(this.loading) return null;
@@ -788,7 +791,7 @@ var STT = {
     $('modelNote').textContent = '載入離線模型中（首次需下載，之後由瀏覽器快取）。' +
       '完全在本機推論，不上傳任何音訊。';
     try{
-      var lib = await import('https://cdnjs.cloudflare.com/ajax/libs/transformers/3.7.6/transformers.min.js');
+      var lib = await loadTransformersLib();
       lib.env.allowLocalModels = false;
       var self = this;
       this.pipe = await lib.pipeline('automatic-speech-recognition', S.model, {
@@ -1418,6 +1421,36 @@ applySTTEngine();
 applyVadHint();
 applyModelSizeHint();
 applyChainHint();
+
+/* ---------- transformers.js 多鏡像載入器 ----------
+   修正記錄：原版硬寫
+     https://cdnjs.cloudflare.com/ajax/libs/transformers/3.7.6/transformers.min.js
+   但 @huggingface/transformers 套件從未發布到 cdnjs（全版本 HTTP 404），
+   導致 Whisper 引擎永遠無法載入、字幕不出現。此處依序嘗試多個鏡像。 */
+var TRANSFORMERS_CDNS = [
+  'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6/dist/transformers.min.js',
+  'https://unpkg.com/@huggingface/transformers@3.7.6/dist/transformers.min.js',
+  'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js'
+];
+var __tfLib = null;
+async function loadTransformersLib(){
+  if(__tfLib) return __tfLib;
+  var errs = [];
+  for(var i=0;i<TRANSFORMERS_CDNS.length;i++){
+    try{
+      var m = await import(TRANSFORMERS_CDNS[i]);
+      if(m && typeof m.pipeline === 'function'){
+        __tfLib = m;
+        LOG.log('transformers.loaded', { cdn:TRANSFORMERS_CDNS[i] });
+        return __tfLib;
+      }
+      errs.push(TRANSFORMERS_CDNS[i] + ' → 模組無 pipeline()');
+    }catch(e){
+      errs.push(TRANSFORMERS_CDNS[i] + ' → ' + (e && e.message ? e.message : String(e)));
+    }
+  }
+  throw new Error('所有鏡像皆載入失敗：\n' + errs.join('\n'));
+}
 
 if(location.protocol === 'file:'){
   showErr('以 file:// 開啟：Whisper 模型與部分翻譯端點的跨網域請求可能被瀏覽器阻擋。\n' +
