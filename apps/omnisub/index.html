@@ -518,11 +518,13 @@ function toApiCode(code){
 }
 /* Whisper 離線模型使用的語言名稱對應（避免預設為 English 導致中文辨識錯亂） */
 function toWhisperLang(code){
-  if(!code) return 'chinese';
+  if(!code) return 'zh';
   var c = String(code).toLowerCase();
-  if(c.startsWith('zh') || c.includes('tw') || c.includes('cn')) return 'chinese';
-  if(c.startsWith('en')) return 'english';
-  return 'chinese';
+  if(c.startsWith('zh') || c.includes('tw') || c.includes('cn')) return 'zh';
+  if(c.startsWith('en')) return 'en';
+  if(c.startsWith('ja')) return 'ja';
+  if(c.startsWith('ko')) return 'ko';
+  return 'zh';
 }
 
 /* =========================================================
@@ -941,7 +943,11 @@ var STT = {
     var opts = {
       chunk_length_s: Math.min(30, Math.max(2, S.chunk)),
       task: 'transcribe',
-      language: lang
+      language: lang,
+      generate_kwargs: {
+        language: lang,
+        task: 'transcribe'
+      }
     };
     var out = await pipe(pcm, opts);
     var text = '';
