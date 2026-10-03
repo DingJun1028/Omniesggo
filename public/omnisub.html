@@ -521,16 +521,26 @@ var AC = {
         audio:{ systemAudio:'include', echoCancellation:false, noiseSuppression:false }
       });
     }catch(e){
-      showErr('無法擷取螢幕音訊 Cannot capture screen audio:\n' + e.message +
-              '\n請改按「麥克風」，或以 https / http://localhost 開啟本頁。');
+      var errName = (e && e.name) ? e.name : 'UnknownError';
+      var errDetail = (e && e.message) ? e.message : String(e);
+      var reason = '存取失敗 (' + errName + ')';
+      if(errName === 'NotAllowedError'){
+        reason = '使用者取消或拒絕了分頁/螢幕音訊分享 (NotAllowedError)';
+      }else if(errName === 'NotFoundError'){
+        reason = '找不到音訊擷取來源 (NotFoundError)';
+      }else if(errName === 'NotReadableError'){
+        reason = '系統音訊硬體被其他程式獨佔或無法讀取 (NotReadableError)';
+      }
+      showErr('【螢幕音訊擷取失敗】' + reason + '\n詳細訊息: ' + errDetail +
+              '\n【解決建議】：請再試一次並選擇特定分頁，或改按「麥克風」模式，並確認頁面以 https / http://localhost 開啟。');
       setLED('error');
       return false;
     }
     stream.getVideoTracks().forEach(function(t){ t.stop(); });   // 關掉影像，僅留音訊
     if(!stream.getAudioTracks().length){
       stream.getTracks().forEach(function(t){ t.stop(); });
-      showErr('沒有擷取到音訊軌。\n請務必勾選「分享分頁音訊 / Share tab audio」\n' +
-              'No audio track — you must tick "Share tab audio".');
+      showErr('【音訊軌缺失】畫面選擇視窗未包含音訊軌。\n' +
+              '【解決方式】：請重新按下「系統」，且於彈出的視窗下方務必勾選「分享分頁音訊 / Share tab audio」。');
       return false;
     }
     this.stream = new MediaStream(stream.getAudioTracks());
@@ -549,7 +559,18 @@ var AC = {
         audio:{ echoCancellation:true, noiseSuppression:true }
       });
     }catch(e){
-      showErr('無法使用麥克風 Mic error:\n' + e.message);
+      var errName = (e && e.name) ? e.name : 'UnknownError';
+      var errDetail = (e && e.message) ? e.message : String(e);
+      var reason = '無法啟動麥克風 (' + errName + ')';
+      if(errName === 'NotAllowedError'){
+        reason = '瀏覽器麥克風權限被拒絕 (NotAllowedError)';
+      }else if(errName === 'NotFoundError'){
+        reason = '電腦未連接或找不到麥克風裝置 (NotFoundError)';
+      }else if(errName === 'NotReadableError'){
+        reason = '麥克風硬體被其他軟體佔用或無法存取 (NotReadableError)';
+      }
+      showErr('【麥克風存取失敗】' + reason + '\n詳細訊息: ' + errDetail +
+              '\n【解決建議】：請點擊網址列左側鎖頭圖標允許麥克風權限，或檢查硬體連接。');
       return false;
     }
     this.mode = 'mic';
@@ -780,8 +801,15 @@ var STT = {
       r.onerror = function(e){
         if(e.error === 'no-speech' || e.error === 'aborted'){ done(); return; }
         console.warn('[OmniSub] speech error:', e.error);
-        showErr('Web Speech 錯誤：' + e.error +
-                '\n若持續發生，請改用 Whisper 離線引擎。');
+        var errMap = {
+          'not-allowed': '麥克風授權被拒絕 (not-allowed)，請在網址列允許存取麥克風',
+          'audio-capture': '找不到錄音麥克風設備 (audio-capture)',
+          'network': 'Web Speech API 網路連線逾時 (network)，請檢查連線或切換 Whisper 離線引擎',
+          'service-not-allowed': '瀏覽器拒絕語音服務 (service-not-allowed)'
+        };
+        var detail = errMap[e.error] || ('代碼: ' + e.error);
+        showErr('【Web Speech 辨識失敗】' + detail +
+                '\n【解決建議】：若持續發生，請於設定切換為 Whisper WASM 離線引擎。');
         setLED('error');
         done();
       };
@@ -836,8 +864,12 @@ var STT = {
       setLED(AC.running ? 'listening' : 'idle');
       LOG.log('whisper.ready', { model:S.model });
     }catch(e){
-      showErr('Whisper 模型載入失敗：\n' + (e && e.message ? e.message : String(e)) +
-              '\n（以 file:// 開啟時瀏覽器會阻擋 CDN；請改用 http://localhost，或切回 Web Speech 引擎）');
+      var errStr = (e && e.message ? e.message : String(e));
+      showErr('【Whisper WASM 模型載入失敗】 (模型: ' + S.model + ')\n詳細錯誤: ' + errStr +
+              '\n【具體原因診斷與建議】：\n' +
+              '1. 若以 file:// 本地檔案開啟，瀏覽器 CORS 政策會阻擋自 CDN 下載 WebAssembly 模組與權重檔。\n' +
+              '2. 請改用 http://localhost (例如 npx serve) 或部署至 https 網域開啟。\n' +
+              '3. 可在設定中選擇輕量 tiny 模型，或切回 Web Speech 引擎免下載即用。');
       $('modelProgress').style.display = 'none';
       setLED('error');
       this.pipe = null;
@@ -946,11 +978,11 @@ var Translation = {
           return;
         }
       }
-      UI.render(text, '', '僅辨識 STT-only（翻譯全數逾時）', false);
-      toast('翻譯全部失敗 Translation all failed', 'warn');
+      UI.render(text, '', '僅辨識 STT-only（' + (this.lastErrorDetail || '翻譯端點逾時') + '）', false);
+      toast('翻譯端點回應失敗：' + (this.lastErrorDetail || '全數逾時'), 'warn');
     }catch(e){
       console.warn(e);
-      UI.render(text, '', '翻譯異常 translate error', false);
+      UI.render(text, '', '翻譯異常 translate error: ' + (e && e.message ? e.message : String(e)), false);
     }finally{
       this.busy = false;
       if(this.pending){
@@ -989,7 +1021,10 @@ var Translation = {
     }
     var onFail = function(err){
       self.cooldown[eng] = now + 60000;            // 失敗冷卻 60 秒
-      LOG.log('translate.engine_error', { engine:eng, error:err });
+      var errStr = (err && err.message) ? err.message : String(err);
+      if(errStr === 'AbortError' || errStr.includes('abort') || errStr.includes('Abort')) errStr = '請求逾時 Timeout';
+      self.lastErrorDetail = nameMap[eng] + ': ' + errStr;
+      LOG.log('translate.engine_error', { engine:eng, error:errStr });
       return null;
     };
 
