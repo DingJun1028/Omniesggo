@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
 import { OmniButton } from '../../src/components/omni-base/OmniButton';
 import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
 import {
   Database, UploadCloud, FileSpreadsheet, Key, ShieldCheck,
-  Activity, Link as LinkIcon, CheckCircle2, AlertCircle, TableProperties
+  Activity, Link as LinkIcon, CheckCircle2, AlertCircle, TableProperties, Clock, FileCheck
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -38,6 +38,16 @@ interface UploadResponse {
   preview?: Record<string, string>[];
 }
 
+interface HistoricalRecord {
+  id: string;
+  sourceSystem: string;
+  dataType: string;
+  recordCount: number;
+  hashLock: string;
+  metrics?: { metrics?: Record<string, string>; type?: string };
+  createdAt: string;
+}
+
 // ─── DataType Config ──────────────────────────────────────────────────────────
 const DATA_TYPES = [
   { value: 'hr_attendance', label: '人資系統：員工出缺勤 (通勤碳足跡)', scope: 'Scope 3' },
@@ -54,7 +64,24 @@ export default function DataBridgePage() {
   const [logs, setLogs]                     = useState<BridgeLog[]>([]);
   const [isSyncing, setIsSyncing]           = useState(false);
   const [result, setResult]                 = useState<UploadResponse | null>(null);
+  const [history, setHistory]               = useState<HistoricalRecord[]>([]);
   const fileInputRef                        = useRef<HTMLInputElement>(null);
+
+  const fetchHistory = async () => {
+    try {
+      const res = await fetch('/api/data-bridge/records');
+      const data = await res.json();
+      if (data.success && Array.isArray(data.uploads)) {
+        setHistory(data.uploads);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch historical uploads', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistory();
+  }, []);
 
   const addLog = (message: string, status: BridgeLog['status'] = 'info', hash?: string) => {
     setLogs(prev => [{
@@ -109,6 +136,7 @@ export default function DataBridgePage() {
       addLog(`✨ 5T 橋接任務圓滿完成！`, 'success');
 
       setResult(data);
+      fetchHistory();
     } catch (err) {
       addLog(`❌ 網路錯誤：${(err as Error).message}`, 'error');
     }
@@ -304,6 +332,55 @@ export default function DataBridgePage() {
               </OmniCardContent>
             </OmniCard>
           )}
+
+          {/* ── Historical 5T Sealed Vault Panel ── */}
+          <OmniCard variant="glass">
+            <OmniCardHeader>
+              <OmniCardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-cyan-500" />
+                  歷史 5T 封印庫 (Sealed Vault)
+                </div>
+                <OmniBadge variant="cyan">{history.length} 筆批次記錄</OmniBadge>
+              </OmniCardTitle>
+            </OmniCardHeader>
+            <OmniCardContent>
+              {history.length === 0 ? (
+                <div className="py-8 text-center text-xs text-slate-400 dark:text-slate-500 italic">
+                  尚無歷史上傳封印紀錄
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800">
+                  <table className="text-xs w-full">
+                    <thead className="bg-slate-100 dark:bg-slate-900">
+                      <tr>
+                        <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">來源檔案</th>
+                        <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">資料類型</th>
+                        <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">筆數</th>
+                        <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">5T Hash Lock</th>
+                        <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">封印時間</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                      {history.map((item) => (
+                        <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                          <td className="px-3 py-2 font-medium text-slate-800 dark:text-slate-200">{item.sourceSystem}</td>
+                          <td className="px-3 py-2 text-slate-600 dark:text-slate-400">{item.dataType}</td>
+                          <td className="px-3 py-2 font-mono text-cyan-600 dark:text-cyan-400">{item.recordCount} 筆</td>
+                          <td className="px-3 py-2 font-mono text-[10px] text-emerald-600 dark:text-emerald-400 max-w-[140px] truncate" title={item.hashLock}>
+                            {item.hashLock}
+                          </td>
+                          <td className="px-3 py-2 text-slate-400 whitespace-nowrap">
+                            {new Date(item.createdAt).toLocaleString('zh-TW', { hour12: false })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </OmniCardContent>
+          </OmniCard>
 
           {/* ── API Integration Panel ── */}
           <OmniCard variant="default">
