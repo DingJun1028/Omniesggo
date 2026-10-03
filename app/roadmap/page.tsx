@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingDown, ShieldCheck, Download, Save, RefreshCw, 
-  Zap, DollarSign, Activity, CheckCircle2, AlertTriangle, Plus, Trash2, ArrowRight
+  Zap, DollarSign, Activity, CheckCircle2, AlertTriangle, Plus, Trash2, ArrowRight, FileText
 } from 'lucide-react';
 import { AbatementMeasure, DEFAULT_MEASURES } from '../api/roadmap/plan/route';
 

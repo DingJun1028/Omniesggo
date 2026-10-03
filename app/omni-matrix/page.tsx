@@ -105,7 +105,7 @@ export default function OmniMatrixPage() {
             <OmniCardHeader>
               <OmniCardTitle className="flex items-center gap-2">
                 <ShieldCheck className="w-6 h-6 text-emerald-500" />
-                5T 協議矩陣
+                5T 協議結界矩陣
               </OmniCardTitle>
             </OmniCardHeader>
             <OmniCardContent>
@@ -113,12 +113,72 @@ export default function OmniMatrixPage() {
                 {Object.entries(status.fiveTProtocol).map(([key, data]) => (
                   <div key={key} className="flex items-center justify-between p-3 rounded-lg bg-white/60 dark:bg-slate-800/40 border border-white/80 dark:border-slate-700/50">
                     <div className="flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-[pulse-glow_2s_infinite]" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-[pulse-glow_2s_infinite]" />
                       <span className="capitalize font-bold text-slate-700 dark:text-slate-300">{key}</span>
                     </div>
                     <OmniBadge variant="emerald">{data.status}</OmniBadge>
                   </div>
                 ))}
+              </div>
+            </OmniCardContent>
+          </OmniCard>
+
+          {/* 5T SVG MACC Abatement Curve Visualization */}
+          <OmniCard variant="cyber" glow className="col-span-1 md:col-span-3">
+            <OmniCardHeader>
+              <OmniCardTitle className="flex items-center gap-2">
+                <Activity className="w-6 h-6 text-cyan-400" />
+                5T 淨零邊際減碳成本動態曲線 (MACC Interactive Curve)
+              </OmniCardTitle>
+            </OmniCardHeader>
+            <OmniCardContent>
+              <div className="p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/20">
+                <svg className="w-full h-48" viewBox="0 0 800 180">
+                  <defs>
+                    <linearGradient id="cyanGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.5" />
+                      <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.0" />
+                    </linearGradient>
+                    <linearGradient id="emeraldGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#10b981" stopOpacity="0.5" />
+                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  
+                  {/* Grid lines */}
+                  <line x1="50" y1="20" x2="750" y2="20" stroke="#334155" strokeDasharray="4 4" />
+                  <line x1="50" y1="90" x2="750" y2="90" stroke="#06b6d4" strokeOpacity="0.3" />
+                  <line x1="50" y1="150" x2="750" y2="150" stroke="#334155" strokeDasharray="4 4" />
+                  
+                  {/* Zero axis */}
+                  <line x1="50" y1="90" x2="750" y2="90" stroke="#94a3b8" strokeWidth="1.5" />
+
+                  {/* MACC Measure Bars */}
+                  {/* Bar 1: Solar Power (-$45/t) */}
+                  <rect x="70" y="90" width="110" height="40" fill="url(#emeraldGrad)" stroke="#10b981" strokeWidth="1.5" rx="4" />
+                  <text x="125" y="115" fill="#10b981" fontSize="11" textAnchor="middle" fontWeight="bold">綠能發電 -$45/t</text>
+
+                  {/* Bar 2: LED & Energy Efficiency (-$20/t) */}
+                  <rect x="190" y="90" width="130" height="25" fill="url(#emeraldGrad)" stroke="#10b981" strokeWidth="1.5" rx="4" />
+                  <text x="255" y="107" fill="#10b981" fontSize="11" textAnchor="middle" fontWeight="bold">設備節能 -$20/t</text>
+
+                  {/* Bar 3: EV Fleet ($15/t) */}
+                  <rect x="330" y="70" width="120" height="20" fill="url(#cyanGrad)" stroke="#06b6d4" strokeWidth="1.5" rx="4" />
+                  <text x="390" y="84" fill="#06b6d4" fontSize="11" textAnchor="middle" fontWeight="bold">電動運具 +$15/t</text>
+
+                  {/* Bar 4: Waste Heat Recovery ($38/t) */}
+                  <rect x="460" y="45" width="140" height="45" fill="url(#cyanGrad)" stroke="#06b6d4" strokeWidth="1.5" rx="4" />
+                  <text x="530" y="70" fill="#06b6d4" fontSize="11" textAnchor="middle" fontWeight="bold">廢熱回收 +$38/t</text>
+
+                  {/* Bar 5: Carbon Capture CCUS ($110/t) */}
+                  <rect x="610" y="20" width="120" height="70" fill="url(#cyanGrad)" stroke="#38bdf8" strokeWidth="1.5" rx="4" />
+                  <text x="670" y="55" fill="#38bdf8" fontSize="11" textAnchor="middle" fontWeight="bold">CCUS 碳捕捉 +$110/t</text>
+                </svg>
+                <div className="flex justify-between items-center text-xs text-slate-400 mt-2 font-mono">
+                  <span>← 負邊際成本 (投資淨收益)</span>
+                  <span className="text-cyan-400 font-bold">2030 目標減碳量: 21,000 tCO2e/年</span>
+                  <span>正邊際成本 (脫碳投資) →</span>
+                </div>
               </div>
             </OmniCardContent>
           </OmniCard>
