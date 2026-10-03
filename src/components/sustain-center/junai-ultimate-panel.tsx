@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Key, Sparkles, ShieldCheck, Flame, Cpu, Hash, Award, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Key, Sparkles, ShieldCheck, Flame, Cpu, Hash, Award, RefreshCw } from 'lucide-react';
 import type { IUltimateAwakeningState } from '@/lib/junaikey/ultimate-awakening';
 
 export function JunAiUltimatePanel() {
@@ -72,7 +72,7 @@ export function JunAiUltimatePanel() {
                 萬能元鑰 JunAiKey · 超覺醒終極奧義 (Self-Evolving Ultimate Skill)
               </h2>
               <span className="text-[10px] font-mono bg-amber-400/10 text-amber-400 px-2 py-0.5 rounded border border-amber-400/30">
-                77 SKILLS CONVERGED
+                78 SKILLS CONVERGED
               </span>
             </div>
             <p className="text-slate-400 text-xs font-mono">
@@ -127,6 +127,37 @@ export function JunAiUltimatePanel() {
             <div className="p-2 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">
               4. 印 (Seal)
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 5 Sacred Pillars Matrix */}
+      <div className="p-4 rounded-xl bg-slate-950/90 border border-amber-500/30 space-y-3 font-mono">
+        <div className="flex items-center justify-between text-xs text-amber-300 font-bold border-b border-slate-800 pb-2">
+          <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-amber-400" /> 終極奧義五重神聖柱石矩陣 (5 Sacred Pillars Matrix)</span>
+          <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/30">100% OPERATIONAL</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 text-xs">
+          <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-amber-400 font-bold block">1. Sovereign Core</span>
+            <span className="text-[11px] text-slate-200 block">OmniAgent + JunAiKey</span>
+          </div>
+          <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-cyan-400 font-bold block">2. Swarm Intelligence</span>
+            <span className="text-[11px] text-slate-200 block">10 OpenCode Skills</span>
+          </div>
+          <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-purple-400 font-bold block">3. Causal Engineering</span>
+            <span className="text-[11px] text-slate-200 block">OmniJules 9-Step Karma</span>
+          </div>
+          <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-emerald-400 font-bold block">4. Local AI Engine</span>
+            <span className="text-[11px] text-slate-200 block">Ollama Zero-Cloud AI</span>
+          </div>
+          <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 space-y-1">
+            <span className="text-[10px] text-yellow-400 font-bold block">5. Crypto Trust</span>
+            <span className="text-[11px] text-slate-200 block">5T Lock + ZKP Seal</span>
           </div>
         </div>
       </div>
