@@ -27,7 +27,7 @@ export default function OmniSubPage() {
                 OmniSub.esggo.co 萬能即時語音擷取翻譯
               </h1>
               <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
-                98/98 VERIFIED
+                101/101 VERIFIED
               </span>
             </div>
             <p className="text-[11px] text-[#f3ede1]/60 font-mono">
