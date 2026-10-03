@@ -585,6 +585,23 @@ var AC = {
     this.ctx = new Ctx();
     if(this.ctx.state === 'suspended') this.ctx.resume();
 
+    var self = this;
+    if(this.stream){
+      var tr = this.stream.getAudioTracks()[0];
+      if(tr){
+        tr.onended = function(){
+          showErr('【音訊軌中斷】分頁分享或麥克風連線已結束 (Audio track ended)。');
+          self.stop();
+        };
+        tr.onmute = function(){
+          toast('音訊軌被系統靜音 Audio track muted', 'warn');
+        };
+        tr.onunmute = function(){
+          toast('音訊軌已取消靜音 Audio track unmuted', 'info');
+        };
+      }
+    }
+
     this.analyser = this.ctx.createAnalyser();
     this.analyser.fftSize = 1024;
     this.src = this.ctx.createMediaStreamSource(this.stream);
@@ -598,7 +615,6 @@ var AC = {
     /* ScriptProcessor：單檔可攜（AudioWorklet 需額外 module 檔，file:// 會被 CORS 擋）。
        註：ScriptProcessor 已 deprecated 但仍為單檔場景唯一免額外檔案方案。 */
     this.processor = this.ctx.createScriptProcessor(4096, 1, 1);
-    var self = this;
     this.processor.onaudioprocess = function(e){ self.onAudio(e.inputBuffer); };
     this.src.connect(this.processor);
     var mute = this.ctx.createGain();
@@ -637,7 +653,7 @@ var AC = {
   gate(rms){
     if(!S.vad) return true;
     var mult = 1 + (S.vadThr / 10);
-    return rms > 0.002 && rms > this.noiseFloor * mult;
+    return rms > 0.0005 && rms > this.noiseFloor * mult;
   },
 
   onAudio(inBuf){
@@ -662,8 +678,8 @@ var AC = {
       this.silenceMs = 0;
     }else if(this.speaking){
       this.silenceMs += (n / this.ctx.sampleRate) * 1000;
-      /* 尾端靜音超過 280ms → 視為句尾結束，快充沖刷尾段，大幅降低字幕延遲 */
-      if(this.silenceMs > 280){
+      /* 尾端靜音超過 360ms → 視為句尾自然停頓換氣，沖刷尾段 */
+      if(this.silenceMs > 360){
         this.speaking = false;
         this.flush();
       }
@@ -675,26 +691,26 @@ var AC = {
     this.push(mono);
   },
 
-  /* 重採樣至 16kHz：用 OfflineAudioContext 原生重採樣，品質遠優於線性插值，
-     且不需自寫 DSP → 降低 CPU（零算力） */
-  async resample16k(float32){
-    var inRate = this.ctx.sampleRate;
+  /* 重採樣至 16kHz：高效線性插值 (零 OfflineAudioContext GC 開銷) */
+  resample16k(float32){
+    var inRate = (this.ctx && this.ctx.sampleRate) ? this.ctx.sampleRate : 48000;
     if(inRate === 16000) return float32;
-    var outLen = Math.max(1, Math.floor(float32.length * 16000 / inRate));
-    var off = new OfflineAudioContext(1, outLen, 16000);
-    var src = off.createBufferSource();
-    var buf = off.createBuffer(1, float32.length, inRate);
-    buf.copyToChannel(float32, 0);
-    src.buffer = buf;
-    src.connect(off.destination);
-    src.start();
-    var rendered = await off.startRendering();
-    return rendered.getChannelData(0).slice(0);
+    var ratio = inRate / 16000;
+    var outLen = Math.max(1, Math.floor(float32.length / ratio));
+    var out = new Float32Array(outLen);
+    for(var i = 0; i < outLen; i++){
+      var pos = i * ratio;
+      var idx = Math.floor(pos);
+      var frac = pos - idx;
+      var next = (idx + 1 < float32.length) ? float32[idx + 1] : float32[idx];
+      out[i] = float32[idx] * (1 - frac) + next * frac;
+    }
+    return out;
   },
 
-  async push(mono){
-    if(mono.length !== 4096) return;                 // 只收主路徑的單幀
-    var pcm = await this.resample16k(mono);
+  push(mono){
+    if(!mono || !mono.length) return;                 // 相容可變 buffer size
+    var pcm = this.resample16k(mono);
     this.buffer.push(pcm);
     this.bufferMs += pcm.length / 16000 * 1000;
     if(this.bufferMs >= this.chunkMs) this.flush();
@@ -906,12 +922,13 @@ var STT = {
    ========================================================= */
 var Translation = {
   busy:false,
-  pending:null,
+  pendingQueue:[],
   cache:Object.create(null),
   cacheOrder:[],
   CACHE_MAX:240,
   lastEngine:null,
   lastSrc:null,
+  lastErrorDetail:null,
   cooldown:{ gtx:0, mymemory:0, libre:0 },
 
   normKey:function(text, src, tgt){
@@ -947,12 +964,13 @@ var Translation = {
 
   async run(text, forcedSrc){
     if(!text || !text.trim()) return;
-    /* 修正「聲音過慢 / 音間太快 丟字問題」：
-       當前一個翻譯在打網路請求時，不直接丟棄新到的字幕，而是寫入 pending 佇列，
-       等當前請求一完成立刻緊接著翻譯最新一句。避免快語速時中間句全部漏掉。 */
+    /* 修正「音間太快 佇列漏字問題」：
+       升級為 pendingQueue 多元素陣列佇列，避免連續說話時中間句被單一 slot 覆蓋丟失 */
     if(this.busy){
-      this.pending = { text: text, forcedSrc: forcedSrc };
-      LOG.log('translate.queued_pending', { text: text.slice(0, 24) });
+      if(this.pendingQueue.length < 12){
+        this.pendingQueue.push({ text: text, forcedSrc: forcedSrc });
+      }
+      LOG.log('translate.queued_pending', { queueLen: this.pendingQueue.length, text: text.slice(0, 24) });
       return;
     }
     this.busy = true;
@@ -985,9 +1003,8 @@ var Translation = {
       UI.render(text, '', '翻譯異常 translate error: ' + (e && e.message ? e.message : String(e)), false);
     }finally{
       this.busy = false;
-      if(this.pending){
-        var next = this.pending;
-        this.pending = null;
+      if(this.pendingQueue.length > 0){
+        var next = this.pendingQueue.shift();
         this.run(next.text, next.forcedSrc);
       }
     }
@@ -1121,10 +1138,11 @@ var UI = {
 
     /* 去重：Whisper 相鄰段落常重疊同一句，正規化後未前進就不重複入史
        （技能書記載「重複顯示整句」根因：startsWith 因標點差異失效）。
-       畫面仍會更新，保持字幕是最新的那句。 */
+       附帶時間戳逾時 (12s)，避免講者間隔重複發言被錯誤硬攔。 */
     var key = this.norm(orig);
-    if(this.seen[key]) return;
-    this.seen[key] = 1;
+    var nowTs = Date.now();
+    if(this.seen[key] && (nowTs - this.seen[key] < 12000)) return;
+    this.seen[key] = nowTs;
     this.seenOrder.push(key);
 
     this.hist.push({
