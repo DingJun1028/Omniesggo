@@ -13,6 +13,7 @@ import { useAuth } from '@/components/AuthProvider';
 const NAV_ITEMS = [
   { href: '/omni-center', label: '指揮中心', icon: LayoutDashboard },
   { href: '/data-bridge', label: '數據橋接器', icon: Database },
+  { href: '/parser', label: 'PDF 解析器', icon: FileText },
   { href: '/materiality', label: '重大性矩陣', icon: Sliders },
   { href: '/roadmap', label: '淨零路徑', icon: TrendingDown },
   { href: '/supply-chain', label: '供應鏈盡調', icon: Building2 },
