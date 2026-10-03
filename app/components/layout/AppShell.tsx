@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, FileText, Globe, Users, 
   BookOpen, Bot, Settings, Menu, X, Leaf,
-  Database, ShieldCheck, Sliders, TrendingDown, Building2
+  Database, ShieldCheck, Sliders, TrendingDown, Building2, Sun, Moon
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 
@@ -27,8 +27,36 @@ const NAV_ITEMS = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const pathname = usePathname();
   const { user } = useAuth();
+
+  // 載入與初始化雙色系主題 (Light / Dark Theme)
+  useEffect(() => {
+    const saved = typeof window !== 'undefined' ? (localStorage.getItem('theme') as 'light' | 'dark' | null) : null;
+    const initial = saved || (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'dark');
+    setTheme(initial);
+    if (initial === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('theme', next);
+    if (next === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   // 關閉側邊欄位當路由改變時 (Mobile)
   useEffect(() => {
@@ -136,11 +164,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           
           <div className="flex items-center gap-4">
-             {/* Omni Assistant / Theme Toggle triggers can be placed here */}
-             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold tracking-wider">
-               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-               SYSTEM ONLINE
-             </div>
+            {/* Dual Theme Switcher (Sun / Moon) */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full border border-slate-200 dark:border-cyan-500/30 bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-cyan-300 hover:bg-slate-100 dark:hover:bg-cyan-950 transition-all shadow-sm flex items-center justify-center"
+              title={`切換至${theme === 'dark' ? '淺色' : '暗色'}主題`}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-600" />}
+            </button>
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold tracking-wider">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              SYSTEM ONLINE
+            </div>
           </div>
         </header>
 
