@@ -4,13 +4,18 @@ import { useEffect, useState } from 'react';
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
 import { OmniButton } from '../../src/components/omni-base/OmniButton';
 import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
-import { Hexagon, Activity, ShieldCheck, Cpu } from 'lucide-react';
+import { Hexagon, Activity, ShieldCheck, Cpu, Database } from 'lucide-react';
 
 interface SystemStatus {
   entropyLevel: number;
   resonance: number;
   activeAgents: Array<{ name: string; role: string; status: string }>;
   fiveTProtocol: Record<string, { status: string; lastCheck: string }>;
+  dataBridgeStats?: {
+    totalUploads: number;
+    totalRecords: number;
+    latestHashLock: string;
+  };
   systemMessage: string;
 }
 
@@ -117,6 +122,36 @@ export default function OmniMatrixPage() {
               </div>
             </OmniCardContent>
           </OmniCard>
+
+          {/* Data Bridge Statistics */}
+          {status.dataBridgeStats && (
+            <OmniCard variant="cyber" glow className="col-span-1 md:col-span-3">
+              <OmniCardHeader>
+                <OmniCardTitle className="flex items-center gap-2">
+                  <Database className="w-6 h-6 text-cyan-400" />
+                  Data Bridge 實體數據封印統計 (Trackable & Trustworthy)
+                </OmniCardTitle>
+              </OmniCardHeader>
+              <OmniCardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">已封印資料批次 (Sealed Batches)</div>
+                    <div className="text-2xl font-black text-cyan-600 dark:text-cyan-400">{status.dataBridgeStats.totalUploads} 批次</div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">已正規化 ESG 總列數 (Ingested Rows)</div>
+                    <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{status.dataBridgeStats.totalRecords} 列</div>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800">
+                    <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">最新 SHA-256 Hash Lock</div>
+                    <div className="text-xs font-mono text-cyan-500 truncate" title={status.dataBridgeStats.latestHashLock}>
+                      {status.dataBridgeStats.latestHashLock}
+                    </div>
+                  </div>
+                </div>
+              </OmniCardContent>
+            </OmniCard>
+          )}
 
           {/* Agent Roster */}
           <OmniCard variant="glass" glow className="col-span-1 md:col-span-3">
