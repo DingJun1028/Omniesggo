@@ -56,7 +56,10 @@ body{
 /* ===== 浮動面板 Floating panel ===== */
 #panel{
   position:fixed; top:8vh; left:50%; transform:translateX(-50%);
-  width:min(700px,94vw);
+  width:min(720px,94vw);
+  min-width:320px; max-width:98vw;
+  min-height:120px; max-height:92vh;
+  resize:both; overflow:hidden;
   background:var(--glass);
   border:1px solid var(--line);
   border-radius:var(--radius);
@@ -68,6 +71,14 @@ body{
   opacity:var(--panel-opacity);
   user-select:none;
 }
+#resizeHandle{
+  position:absolute; right:2px; bottom:2px;
+  width:14px; height:14px; cursor:se-resize;
+  border-right:2px solid var(--gold); border-bottom:2px solid var(--gold);
+  border-bottom-right-radius:4px; opacity:.7; transition:.2s;
+  touch-action:none; z-index:15;
+}
+#resizeHandle:hover{opacity:1;box-shadow:0 0 10px var(--gold)}
 #titlebar{
   position:absolute; top:8px; left:13px; right:13px; height:26px;
   display:flex; align-items:center; gap:8px; padding:0 10px;
@@ -309,6 +320,7 @@ body{
       <span class="btn-label">引擎<br>STT</span>
     </div>
   </div>
+  <div id="resizeHandle" data-tip="拖曳邊角調整視窗大小 Drag corner to resize"></div>
 </div>
 
 <!-- ===== 設定抽屜 Settings drawer ===== -->
@@ -810,9 +822,14 @@ var STT = {
           if(res.isFinal) finalText += res[0].transcript;
           else interim += res[0].transcript;
         }
-        if(interim) UI.showInterim(interim.trim());
-        if(finalText && finalText.trim()) UI.showInterim('');
-        if(finalText && finalText.trim()) self.emit(finalText.trim());
+        if(interim && interim.trim()){
+          UI.showInterim(interim.trim());
+          Translation.runInterim(interim.trim());
+        }
+        if(finalText && finalText.trim()){
+          UI.showInterim('');
+          self.emit(finalText.trim());
+        }
       };
       r.onerror = function(e){
         if(e.error === 'no-speech' || e.error === 'aborted'){ done(); return; }
@@ -929,6 +946,7 @@ var Translation = {
   lastEngine:null,
   lastSrc:null,
   lastErrorDetail:null,
+  interimTimer:null,
   cooldown:{ gtx:0, mymemory:0, libre:0 },
 
   normKey:function(text, src, tgt){
@@ -943,6 +961,32 @@ var Translation = {
       var old = this.cacheOrder.shift();
       delete this.cache[old];
     }
+  },
+
+  /* 即時預測翻譯（Chrome Live Caption 式字句同步） */
+  runInterim:function(text){
+    if(!text || text.trim().length < 3) return;
+    if(this.busy) return;
+    var self = this;
+    if(this.interimTimer) clearTimeout(this.interimTimer);
+    this.interimTimer = setTimeout(function(){
+      if(self.busy) return;
+      var src = detectLang(text);
+      var tgt = resolveTarget(src);
+      var key = self.normKey(text, src, tgt);
+      if(self.cache[key]){
+        UI.renderInterim(text, self.cache[key], (self.lastEngine || 'MyMemory') + ' · 快取');
+        return;
+      }
+      var chain = self.chainFor();
+      var eng = chain[0] || 'mymemory';
+      self.tryEngine(eng, text, toApiCode(src), toApiCode(tgt)).then(function(got){
+        if(got && got.trans){
+          self.remember(key, got.trans);
+          UI.renderInterim(text, got.trans, got.name);
+        }
+      }).catch(function(_){});
+    }, 150);
   },
 
   /* 備援鏈順序（2026-10 實測結果，非臆測）：
@@ -1118,6 +1162,24 @@ var UI = {
     el.className = text ? 'interim' : '';
     el.textContent = text || '等待語音 Waiting for speech';
     $('transLine').classList.add('stale');
+  },
+
+  renderInterim:function(orig, trans, engine){
+    if(this.paused) return;
+    var origEl = $('origLine');
+    var transEl = $('transLine');
+    if(origEl){
+      origEl.className = 'interim';
+      origEl.textContent = orig;
+    }
+    if(transEl){
+      transEl.className = 'interim';
+      transEl.textContent = trans || '...';
+    }
+    var b = $('engineBadge');
+    if(b){
+      b.textContent = '即時 Live: ' + (engine || '—');
+    }
   },
 
   render:function(orig, trans, engine, isTranslated){
@@ -1406,10 +1468,37 @@ $('histBtn').onclick  = function(){ $('historyWrap').classList.toggle('open'); }
 $('clearBtn').onclick = function(){ UI.clear(); toast('已清空 Cleared'); };
 $('srtBtn').onclick   = function(){ UI.exportSRT(); };
 $('drawerBtn').onclick= function(){ $('drawer').classList.toggle('open'); };
-$('drawerClose').onclick = function(){ $('drawer').classList.remove('open'); };
+/* 自由縮放視窗邊框與角點 (Drag-to-Resize Panel) */
+(function(){
+  var handle = $('resizeHandle'), p = $('panel');
+  if(!handle || !p) return;
+  var startW = 0, startH = 0, startX = 0, startY = 0;
+  handle.onpointerdown = function(e){
+    e.preventDefault(); e.stopPropagation();
+    startX = e.clientX; startY = e.clientY;
+    startW = p.offsetWidth; startH = p.offsetHeight;
+    handle.setPointerCapture(e.pointerId);
+    handle.onpointermove = function(ev){
+      var nw = Math.max(320, startW + (ev.clientX - startX));
+      var nh = Math.max(110, startH + (ev.clientY - startY));
+      p.style.width = nw + 'px';
+      p.style.height = nh + 'px';
+    };
+    handle.onpointerup = handle.onpointercancel = function(ev){
+      handle.onpointermove = handle.onpointerup = handle.onpointercancel = null;
+      try{ handle.releasePointerCapture(ev.pointerId); }catch(_){}
+    };
+  };
+})();
+
 if($('compactBtn')){ $('compactBtn').onclick = function(){ UI.toggleCompact(); }; }
-document.addEventListener('keydown', function(e){
-  if((e.key === 'm' || e.key === 'M') && !e.ctrlKey && !e.altKey && e.target && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA'){
+window.addEventListener('keydown', function(e){
+  var tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toUpperCase() : '';
+  if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+
+  var isM = (e.code === 'KeyM' || e.key === 'm' || e.key === 'M');
+  if(isM && !e.ctrlKey && !e.altKey && !e.metaKey){
+    e.preventDefault();
     UI.toggleCompact();
   }
 });
