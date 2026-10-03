@@ -31,7 +31,7 @@ overrides:
   "minimatch": ">=9.0.7"
   "fast-uri": ">=3.1.6 <4"
   "fast-xml-parser": ">=5.10.1"
-  "brace-expansion": ">=5.0.9"
+  "brace-expansion": ">=5.0.12 <6"
   # 安全修補：必須加 <major 上界，裸 '>=' 會讓 pnpm 跳到跨 major。
   # （原註解引用的 AGENTS.md #4 經實查不存在：root AGENTS.md 無編號條文）
   "nanoid": ">=3.3.18 <4"
@@ -77,8 +77,12 @@ overrides:
   # ⛔ 回退 (2026-08-17 09:00 部署前驗證): undici@8 移除了 lib/handler/wrap-handler.js，
   #    jsdom@29.1.1 硬性 require 該路徑 → OmniCore CI / learning-center-ci / VPS 建置三紅。
   #    jsdom@29 只接受 ^7.25.0；跨 major 亦違反 major 上界原則。維持 7.x 修補版。
-  "undici": ">=7.29.0 <8"
-  "js-yaml": ">=5.0.0 <6"
+  "undici": ">=7.29.1 <8"
+  "@grpc/grpc-js": ">=1.13.6 <2"
+  "cross-spawn": ">=7.0.6 <8"
+  "express": ">=4.21.2 <5"
+  "cookie": ">=0.7.2 <1"
+
   "hono": ">=4.13.5 <5"
   # sharp 修補升級（0.35.0 已修 CVE-2026-33327/33328/35590/35591）。
   # 原註解引用的「AGENTS.md #7」經實查並無出處（root AGENTS.md 無編號條文），
