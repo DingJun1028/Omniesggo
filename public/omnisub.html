@@ -1584,10 +1584,10 @@ function applyModelSizeHint(){
 
 $('startSysBtn').onclick = async function(){
   if(S.sttEngine === 'webspeech'){
-    showErr('Web Speech 引擎僅支援麥克風（瀏覽器限制：無法辨識分頁音訊）。\n' +
-            '要擷取 Zoom / 會議分頁音訊，請在左側「引擎」切到 Whisper 離線。');
-    toast('請改用 Whisper 引擎或按「麥克風」', 'warn');
-    return;
+    S.sttEngine = 'whisper'; save();
+    if($('selSTTEngine')) $('selSTTEngine').value = 'whisper';
+    applySTTEngine();
+    toast('已自動無縫切換至 Whisper 離線引擎擷取系統音訊 Auto-switched to Whisper', 'info', 2800);
   }
   if(!STT.pipe) await STT.initWhisper();
   if(await AC.startSystem()){ STT.wsWanted = false; setLED('listening'); }
