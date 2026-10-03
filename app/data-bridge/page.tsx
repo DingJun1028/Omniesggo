@@ -6,7 +6,7 @@ import { OmniButton } from '../../src/components/omni-base/OmniButton';
 import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
 import {
   Database, UploadCloud, FileSpreadsheet, Key, ShieldCheck,
-  Activity, Link as LinkIcon, CheckCircle2, AlertCircle, TableProperties, Clock, FileCheck
+  Activity, Link as LinkIcon, CheckCircle2, AlertCircle, TableProperties, Clock, FileCheck, Download
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -359,6 +359,7 @@ export default function DataBridgePage() {
                         <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">筆數</th>
                         <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">5T Hash Lock</th>
                         <th className="px-3 py-2 text-left font-semibold text-slate-600 dark:text-slate-300">封印時間</th>
+                        <th className="px-3 py-2 text-center font-semibold text-slate-600 dark:text-slate-300">操作</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -372,6 +373,16 @@ export default function DataBridgePage() {
                           </td>
                           <td className="px-3 py-2 text-slate-400 whitespace-nowrap">
                             {new Date(item.createdAt).toLocaleString('zh-TW', { hour12: false })}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <a
+                              href={`/api/data-bridge/export/${item.id}`}
+                              download
+                              className="inline-flex items-center gap-1 text-[11px] font-semibold text-cyan-600 hover:text-cyan-500 dark:text-cyan-400 hover:underline"
+                            >
+                              <Download className="w-3 h-3" />
+                              下載憑證
+                            </a>
                           </td>
                         </tr>
                       ))}
