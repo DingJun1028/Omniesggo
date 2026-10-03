@@ -6,11 +6,11 @@
 <title>OmniLive OmniLive qY¬Ωƒ∂rt/title>
 <script src="./qrcode.min.js"></script>
 <style>
-/* ===== ???? ÂÆπÂô®?Ë©?+ dvh + ???ÂΩ?===== */
+/* ===== ???? ÂÆπÂô®??+ dvh + ????===== */
 :root{
   --bg:transparent;
   --gold:#c9a24b;--gold-soft:#b8941f;--txt:#f3ede1;--muted:#8a8275;
-  /* --green: Âº∑Ë™ø??     ???‰ª??#3c6e43 ??¨Ê∑±???(#142A47)‰∏? 2.42:1Ôº??.74rem)‰∏çÂèØËÆÄ?     Ê≠???Â∞?Â∫?Ë≠? #5fb37e = 5.67:1 (WCAG AA ??)??     ??????????? csec h3 / term b ËÆ???Ë¶?*/
+  /* --green: Âº∑Ë™øËâ≤ÔºåÁ¨¶Âêà WCAG AA Â∞çÊØîÂ∫¶Ê®ôÊ∫ñ (5.67:1) */
   --green:#5fb37e;
   --glass:rgba(20,42,71,.62);--glass-strong:rgba(20,42,71,.82);
   --line:rgba(255,255,255,.14);--radius:6px;--gap:clamp(10px,2vw,16px);
@@ -24,13 +24,13 @@
 html,body{height:100%}
 body{
   font-family:var(--font);color:var(--txt);
-  /* ????ÊµÆÂ±§, ?????Zoom/YouTube ÂΩ??*/
+  /* ????ÊµÆÂ±§, ?????Zoom/YouTube ??*/
   position:fixed;inset:0;pointer-events:none; /* rh (Iz)*/
   background:transparent;overflow:hidden;
-  container-type:size; /* ??®ÂÆπ??Ë©?*/
+  container-type:size; /* ??ÂÆπ???*/
 }
 
-/* ===== Â≠???? ??ÊºÇÊµÆ, ?ÂÆ???===== */
+/* ===== ???? ??ÊºÇÊµÆ, ????===== */
 #stage{
   position:absolute;left:0;right:0;
   top:0;bottom:0;
@@ -45,7 +45,7 @@ body{
   align-items:var(--sub-align);
   justify-content:flex-end;
   max-height:62dvh;overflow:hidden;
-  /* ???? (\Ï¶?*/
+  /* ???? (\?*/
   pointer-events:auto;cursor:grab;touch-action:none;
 }
 #subtitles.dragging{cursor:grabbing}
@@ -55,7 +55,7 @@ body{
   text-align:var(--sub-align);
 }
 .sub-group.finalized{animation:none}
-/* ??: ?È°??Â≠?Ê∑°Âá∫????opacity, ‰∏???? ????????Â≠?????*/
+/* ??: ????Ê∑°Âá∫????opacity, ???? ?????????????*/
 .sub-line .w{opacity:.28;transition:opacity .18s ease-out}
 .sub-line .w.on{opacity:1}
 .sub-group.active{position:relative}
@@ -69,7 +69,7 @@ body{
 .sub-line{
   display:inline-block;width:fit-content;max-width:100%;
   border-radius:12px;padding:4px 14px;line-height:1.28;font-weight:800;
-  /* ÊºÇÁßªÂ≠?Ê®?: ??text-shadow ‰ø?‰ª?????, ?????*/
+  /* ÊºÇÁßª??: ??text-shadow ??????, ?????*/
   text-shadow:0 2px 6px rgba(0,0,0,.95),0 0 3px rgba(0,0,0,.9);
   color:#fff;
 }
@@ -102,7 +102,7 @@ body{
 .icon-btn.danger{color:#ff8a82}
 .icon-btn.danger.active{background:linear-gradient(135deg,#ff6b6b,#ff8e53);color:#fff}
 
-/* Â±????(ÈªûÂ∑•??‰∏? Ë®? ???? */
+/* ????(ÈªûÂ∑•??? ? ???? */
 .sheet{
   width:min(92vw,360px);max-height:70dvh;overflow:auto;overscroll-behavior:contain;
   background:var(--glass-strong);backdrop-filter:blur(22px) saturate(160%);
@@ -119,7 +119,7 @@ body{
   border-radius:12px;padding:9px 14px;cursor:pointer;font-weight:600;font-size:.85rem;transition:.15s;flex:1;min-width:120px;
 }
 .btn:hover{border-color:var(--gold)}
-/* ?????Á§?(WCAG 2.4.7)????®Á???focus ???   ??§‰Ωø???‰Ω?ÂÆåÂÖ®????™Â∑±????????:focus ??®Ê??Èª???   ‰π?‰∏?Ê°????:focus-visible??*/
+/* ??????(WCAG 2.4.7)???????focus ???   ??‰Ωø????ÂÆåÂÖ®????Â∑±????????:focus ???????   ??????:focus-visible??*/
 :focus-visible{
   outline:2px solid var(--gold);outline-offset:2px;border-radius:var(--radius);
 }
@@ -149,7 +149,7 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
 #errbar{background:rgba(226,85,79,.18);border:1px solid rgba(226,85,79,.5);color:#ffd9d6;border-radius:12px;padding:8px 12px;font-size:.76rem}
 .hidden{display:none!important}
 
-/* Ë™?Êµ? (??? ???? */
+/* ?? (??? ???? */
 #courseWin{
   position:fixed;top:clamp(12px,2vw,24px);right:clamp(12px,2vw,24px);
   width:min(92vw,380px);max-height:80dvh;overflow:auto;
@@ -175,7 +175,7 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
 .case{font-size:.78rem;line-height:1.45;color:var(--muted);padding-left:14px;position:relative}
 .case::before{content:'??;position:absolute;left:0;color:var(--green)}
 
-/* ===== ÂÆπÂô®?Ë©?RWD: Á™?(??) Â≠???Á∏? ===== */
+/* ===== ÂÆπÂô®??RWD: ?(??) ???? ===== */
 @container (max-width:600px){
   .sub-line.src{font-size:clamp(.95rem,4.2vw,1.3rem)}
   .sub-line.tgt{font-size:clamp(1.2rem,6vw,1.9rem)}
@@ -185,7 +185,7 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
   #subtitles{max-height:48dvh}
 }
 
-/* === reduce-motion Â∞?‰ΩøÁî®???=== */
+/* === reduce-motion ?‰ΩøÁî®???=== */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{
     animation-duration:.01ms!important;
@@ -193,7 +193,7 @@ label{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px
   }
 }
 
-/* === brand OA mark Áµ¶ÊµÆ??Âπ?Á™óÁî® === */
+/* === brand OA mark Áµ¶ÊµÆ???Á™óÁî® === */
 .brand-mark{
   width:18px;height:18px;
   border:1px solid var(--gold);
@@ -267,43 +267,43 @@ body {
 </head>
 <body>
 
-<!-- Â≠?ÊºÇÊµÆ?(????? ‰πùÂÆÆ?? -->
+<!-- ?ÊºÇÊµÆ?(????? ‰πùÂÆÆ?? -->
 <div id="stage">
-  <div id="subtitles"><div class="sub-line tgt placeholder">Á≠?Â≠???/div></div>
+  <div id="subtitles"><div class="sub-line tgt placeholder">????/div></div>
 </div>
 
-<!-- Ë™????Êµ? -->
+<!-- ????? -->
 <div id="courseWin">
   <header>
-    <b>Ë™? Ë™????</b>
+    <b>? ????</b>
     <button class="icon-btn" id="courseClose" title="??">??</button>
   </header>
   <div id="courseBody">
-    <div class="csec"><h3>Á´?Ê¶?</h3><div class="summary" id="cSummary">??/div></div>
+    <div class="csec"><h3>??</h3><div class="summary" id="cSummary">??/div></div>
     <div class="csec"><h3>?????/h3><div id="cKeypoints"></div></div>
     <div class="csec"><h3>????</h3><div id="cTerms"></div></div>
-    <div class="csec"><h3>È°û‰ººÊ°?</h3><div id="cCases"></div></div>
+    <div class="csec"><h3>È°û‰ºº?</h3><div id="cCases"></div></div>
     <div class="hint" id="cUpdated"></div>
   </div>
 </div>
 
-<!-- ??Â∑•ÂÖ∑?(?Á§?? -->
+<!-- ??Â∑•ÂÖ∑?(??? -->
 <div id="toolbar">
   <div class="sheet" id="sheet">
-    <!-- Âª??‰∫?-->
+    <!-- ???-->
     <div id="sharePanel">
-      <h2>Âª??‰∫?Ë≠?/h2>
+      <h2>????/h2>
       <div class="row">
-        <button class="btn primary" id="createRoom">Âª????</button>
-        <input type="text" id="roomPwd" placeholder="–∂ÂØÜÁ¢º(?Â°?">
+        <button class="btn primary" id="createRoom">????</button>
+        <input type="text" id="roomPwd" placeholder="–∂ÂØÜÁ¢º(??">
       </div>
       <div id="shareBody" class="hidden" style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
-        <div class="hint" style="color:var(--green)">‰∏ªÊí≠?‰∏?‰∫??</div>
-        <div class="share-link"><input type="text" id="casterLink" readonly><button class="btn" data-copy="casterLink" aria-label="Ë§áË£Ω‰∏?‰∫??" title="Ë§áË£Ω‰∏?‰∫??">Ë§áË£Ω</button></div>
+        <div class="hint" style="color:var(--green)">‰∏ªÊí≠????</div>
+        <div class="share-link"><input type="text" id="casterLink" readonly><button class="btn" data-copy="casterLink" aria-label="Ë§áË£Ω???" title="Ë§áË£Ω???">Ë§áË£Ω</button></div>
         <div class="hint" style="color:var(--gold)">ËßÄ?? ËßÄ???</div>
         <div class="share-link"><input type="text" id="viewerLink" readonly><button class="btn" data-copy="viewerLink" aria-label="Ë§áË£ΩËßÄ???" title="Ë§áË£ΩËßÄ???">Ë§áË£Ω</button></div>
         <div class="row" style="margin-top:4px">
-          <button class="btn" id="openViewer">?Ë¶ΩË???/button>
+          <button class="btn" id="openViewer">?Ë¶Ω???/button>
           <button class="btn" id="refreshCount">‰∫∫Êï∏</button>
         </div>
         <div class="qr" id="qrBox"></div>
@@ -313,43 +313,43 @@ body {
 
     <!-- ?????-->
     <div id="casterPanel">
-      <h2>??‰æ? (Zoom ???</h2>
+      <h2>??? (Zoom ???</h2>
       <div class="row">
         <select id="audioSource">
-          <option value="system-display" selected>Á≥ªÁµ±?? / Zoom ?‰∫???/option>
-          <option value="mic">??È∫??/option>
+          <option value="system-display" selected>Á≥ªÁµ±?? / Zoom ????/option>
+          <option value="mic">????/option>
           <option value="device">??Ëº∏ÂÖ•Ë£ùÁΩÆ</option>
-          <option value="caption">??Â≠?Ëº∏ÂÖ•</option>
+          <option value="caption">???Ëº∏ÂÖ•</option>
         </select>
       </div>
       <div class="row" style="margin-top:8px">
         <button class="btn primary" id="startBtn">?????/button>
-        <button class="btn" id="stopBtn" disabled>?Ê≠?/button>
-        <button class="btn" id="dlAudioBtn" disabled title="‰∏??Á´ØÂØ¶??Áµ?STT ???>???</button>
+        <button class="btn" id="stopBtn" disabled>??/button>
+        <button class="btn" id="dlAudioBtn" disabled title="??Á´ØÂØ¶???STT ???>???</button>
       </div>
       <div class="row" style="margin-top:8px;align-items:center">
         <span class="hint">??</span>
         <div class="meter"><div id="meter"></div></div>
       </div>
       <div class="row" id="deviceRow" style="margin-top:6px;display:none">
-        <input type="text" id="deviceId" placeholder="?????ID (?Á©??Ë®?">
+        <input type="text" id="deviceId" placeholder="?????ID (????">
       </div>
     </div>
 
-    <!-- ??Â≠? -->
+    <!-- ??? -->
     <div>
-      <h2>??Â≠? (caption)</h2>
+      <h2>??? (caption)</h2>
       <div class="row">
-        <input type="text" id="captionInput" placeholder="??•Ë≤º???????>
+        <input type="text" id="captionInput" placeholder="??Ë≤º???????>
         <button class="btn" id="sendCaption">???/button>
       </div>
     </div>
 
-    <!-- Â≠?Ë®? -->
+    <!-- ?? -->
     <div>
-      <h2>Â≠?È°ØÁ§∫</h2>
+      <h2>?È°ØÁ§∫</h2>
       <div class="row">
-        <label>Â≠? <input type="range" id="fontSize" min="14" max="48" value="28" style="flex:1"></label>
+        <label>? <input type="range" id="fontSize" min="14" max="48" value="28" style="flex:1"></label>
       </div>
       <div class="row" style="margin-top:6px">
         <label class="chk"><input type="checkbox" id="orderSrcFirst"> ????</label>
@@ -360,20 +360,20 @@ body {
       <div class="row" style="margin-top:6px">
         <label>?<select id="from"><option value="auto" selected>??</option><option value="zh-TW">ÁπÅ‰∏≠</option><option value="en">??</option></select></label>
         <label>??<select id="to"><option value="auto" selected>??</option><option value="en">??</option><option value="zh-TW">ÁπÅ‰∏≠</option></select></label>
-        <button class="btn" id="swapBtn" style="flex:0" aria-label="‰∫????ÁøªË≠Ø??? title="‰∫????ÁøªË≠Ø???>??/button>
+        <button class="btn" id="swapBtn" style="flex:0" aria-label="????ÁøªË≠Ø??? title="????ÁøªË≠Ø???>??/button>
       </div>
     </div>
 
-    <!-- ÂÆ? -->
+    <!-- ? -->
     <div>
-      <h2>Â≠?‰ΩçÁΩÆ (??????</h2>
+      <h2>?‰ΩçÁΩÆ (??????</h2>
       <div class="row" style="justify-content:center;gap:4px">
-        <button class="icon-btn" data-pos="top" title="ÁΩ?">?/button>
+        <button class="icon-btn" data-pos="top" title="?">?/button>
         <button class="icon-btn" data-pos="center" title="ÁΩÆ‰∏≠">?/button>
-        <button class="icon-btn" data-pos="bottom" title="ÁΩ?" style="background:var(--gold);color:#06121a">?/button>
+        <button class="icon-btn" data-pos="bottom" title="?" style="background:var(--gold);color:#06121a">?/button>
       </div>
       <div class="row" style="justify-content:center;gap:4px;margin-top:4px">
-        <button class="icon-btn" data-align="left" title="?Â∑?>?/button>
+        <button class="icon-btn" data-align="left" title="??>?/button>
         <button class="icon-btn" data-align="center" title="ÁΩÆ‰∏≠">?/button>
         <button class="icon-btn" data-align="right" title="???>?/button>
       </div>
@@ -384,12 +384,12 @@ body {
     <div class="log" id="log"></div>
   </div>
 
-  <!-- ?Á§∫Â∑•??(Âø???? -->
+  <!-- ?Á§∫Â∑•??(???? -->
   <div class="capsule">
-    <button class="icon-btn" id="btnFloat" title="????Â≠?Â∞? (Ë∑?????Zoom/YouTube ?">Êµ?</button>
-    <button class="icon-btn" id="btnMic" title="??/?Ê≠??? class="danger">‰∏ªÊí≠?/button>
-    <button class="icon-btn" id="btnLink" title="?‰∫??? / QR Code">?‰∫?/button>
-    <button class="icon-btn" id="btnSheet" title="Ë®????>Ë®??/button>
+    <button class="icon-btn" id="btnFloat" title="?????? (?????Zoom/YouTube ?">?</button>
+    <button class="icon-btn" id="btnMic" title="??/???? class="danger">‰∏ªÊí≠?/button>
+    <button class="icon-btn" id="btnLink" title="???? / QR Code">??/button>
+    <button class="icon-btn" id="btnSheet" title="????>??/button>
   </div>
 </div>
 
@@ -401,13 +401,13 @@ const fromSel=$('from'),toSel=$('to'),fontSize=$('fontSize');
 const orderChk=$('orderSrcFirst'),bgChk=$('bgToggle'),showChk=$('showToggle'),wordChk=$('wordToggle');
 const subsEl=$('subtitles'),captionInput=$('captionInput');
 
-// ‰∏??? (????Â≠òÂú®???? ?? null Â¥©ÊΩ∞)
+// ??? (????Â≠òÂú®???? ?? null Â¥©ÊΩ∞)
 const themeBtn=document.getElementById('btnTheme');
 if(themeBtn) themeBtn.onclick=()=>{document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark';};
 srcSel.onchange=()=>{deviceRow.style.display=srcSel.value==='device'?'flex':'none';};
 
 function log(m){const t=new Date().toLocaleTimeString();logEl.textContent=(t+' '+m+'\n')+logEl.textContent;}
-function showErr(m){errbar.textContent='Ê≥? '+m;errbar.classList.remove('hidden');}
+function showErr(m){errbar.textContent='? '+m;errbar.classList.remove('hidden');}
 function hideErr(){errbar.classList.add('hidden');}
 
 // ?? –∂ / ?? ??
@@ -415,13 +415,13 @@ const ROOM=new URLSearchParams(location.search).get('room')||'';
 const ROLE=new URLSearchParams(location.search).get('role')||(ROOM?'viewer':'caster');
 const PWD=new URLSearchParams(location.search).get('pwd')||'';
 const isCaster = ROLE!=='viewer';
-$('roleBadge').textContent = isCaster?': ‰∏?H:': ËßÄ??;
+$('roleBadge').textContent = isCaster?': ?H:': ËßÄ??;
 if(ROOM){$('roomBadge').classList.remove('hidden');$('roomBadge').textContent='–∂ '+ROOM;}
 if(!isCaster){
   $('sharePanel').classList.add('hidden');
   $('casterPanel').classList.add('hidden');
   $('captionInput').closest('div').classList.add('hidden');
-  // ËßÄ???Ë¶ÅÂª∫Á´ãÈù¢?? ‰Ω???Ë™?
+  // ËßÄ???Ë¶ÅÂª∫Á´ãÈù¢?? ????
   pollViewers();
 }
 
@@ -432,12 +432,12 @@ function connectSSE(){
   const room=new URLSearchParams(location.search).get('room')||'';
   const pwd=new URLSearchParams(location.search).get('pwd')||'';
   es=new EventSource('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''));
-  es.addEventListener('hello',e=>{connEl.textContent='SSE Â∑??';connDot.className='dot';log('SSE hello: '+(e.data||''));});
+  es.addEventListener('hello',e=>{connEl.textContent='SSE ??';connDot.className='dot';log('SSE hello: '+(e.data||''));});
   es.addEventListener('subtitle',ev=>{
     try{const p=JSON.parse(ev.data);const d=p.data;if(!d)return;
       renderSub(d.source,d.target,d.from+'??+d.to+' ¬∑ '+d.engine+' ¬∑ #'+d.id,d.speaker,d.id,d.ts,d.words);}catch(e){}
   });
-  es.onopen=()=>{connEl.textContent='SSE Â∑??';connDot.className='dot';hideErr();};
+  es.onopen=()=>{connEl.textContent='SSE ??';connDot.className='dot';hideErr();};
   es.onerror=()=>{connEl.textContent='SSE ????;connDot.className='dot bad';
     fetch('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''),{method:'GET'}).then(r=>{
       if(r.status===401 && !isCaster) promptRoomPassword(room);
@@ -445,7 +445,7 @@ function connectSSE(){
     showErr('SSE ???‰∏≠Êñ∑ÔºåÊ≠£??????);setTimeout(connectSSE,3000);};
 }
 function promptRoomPassword(room){
-  const input=prompt('Ê≠§Êàø??Ë¶?Á¢?');
+  const input=prompt('Ê≠§Êàø????');
   if(!input)return;
   crypto.subtle.digest('SHA-256',new TextEncoder().encode(input)).then(async h=>{
     const hex=[...new Uint8Array(h)].map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -459,8 +459,8 @@ function renderSub(src,tgt,meta,speaker,id,ts,words){
   const now=ts||Date.now();
   const merge = activeGroup && (now-lastSubTs) < 2500;
   lastSubTs=now;
-  // ??Ê®??DOM ???.w span, textContent ??Â∑≤È°Ø????;
-  // ?‰Ω?????data-full ????? ??????  const full=(e)=>e.dataset.full!=null?e.dataset.full:e.textContent;
+  // ????DOM ???.w span, textContent ??Â∑≤È°Ø????;
+  // ??????data-full ????? ??????  const full=(e)=>e.dataset.full!=null?e.dataset.full:e.textContent;
   if(merge){
     const a=activeGroup.querySelector('.sub-line.src, .sub-line.tgt');
     const b=activeGroup.children[1];
@@ -478,7 +478,7 @@ function renderSub(src,tgt,meta,speaker,id,ts,words){
   a.dataset.full=orderChk.checked?(src||''):(tgt||'');
   b.dataset.full=orderChk.checked?(tgt||''):(src||'');
   a.textContent=a.dataset.full; b.textContent=b.dataset.full;
-  // ??: ???????????Ê®????‰ª?? span Êº∏ÈÄ≤È°Ø??  // Ë≠???¥ÊÆµ?Ê¨°ÁøªË≠Ø„ÄÅÁÑ°Â∞????? Á∂??? ????????  const wEl = orderChk.checked ? a : b;
+  // ??: ????????????????? span Êº∏ÈÄ≤È°Ø??  // ???ÊÆµ?Ê¨°ÁøªË≠Ø„ÄÅÁÑ°????? ??? ????????  const wEl = orderChk.checked ? a : b;
   if(wordChk && wordChk.checked && Array.isArray(words) && words.length>1) playWords(wEl, words);
   const m=document.createElement('div');m.className='sub-line';
   m.style.cssText='background:transparent;font-size:.7rem;color:rgba(255,255,255,.6);font-weight:400;text-shadow:none';
@@ -490,7 +490,7 @@ function renderSub(src,tgt,meta,speaker,id,ts,words){
   while(subsEl.children.length>8)subsEl.removeChild(subsEl.firstChild);
 }
 
-/* ??È°ØÁèæ: ?whisper ?????? Á¥????????Â∑ÆÂ???Ê∑°ÂÖ•??*/
+/* ??È°ØÁèæ: ?whisper ?????? ????????Â∑Æ???Ê∑°ÂÖ•??*/
 function playWords(el, words){
   const full=el.dataset.full||'';
   el.textContent='';
@@ -515,11 +515,11 @@ function playWords(el, words){
   }, t+600);
 }
 
-// Â•óÁî®È°ØÁ§∫Ë®? (ÊºÇÊµÆ? bgToggle ?? = Èª? 50% ??, Á¨??‰Ω≥ÂØ¶Ë∏êÂèØËÆÄ??
+// Â•óÁî®È°ØÁ§∫? (ÊºÇÊµÆ? bgToggle ?? = ? 50% ??, ??‰Ω≥ÂØ¶Ë∏êÂèØËÆÄ??
 function applyStyles(){
   document.querySelectorAll('.sub-line.src').forEach(e=>e.style.fontSize='');
   subsEl.style.fontSize=fontSize.value+'px';
-  // ????: ????Ë°?Èª? 50% ?? (Ê∏ÖÊô∞‰∏????; ???? text-shadow
+  // ????: ?????? 50% ?? (Ê∏ÖÊô∞????; ???? text-shadow
   document.querySelectorAll('.sub-line').forEach(e=>{
     if(e.classList.contains('meta'))return;
     e.style.background = bgChk.checked ? 'rgba(0,0,0,.7)' : 'transparent';
@@ -534,14 +534,14 @@ function swapLang(){
   const f=fromSel.value, t=toSel.value;
   fromSel.value=t; toSel.value=f;
   localStorage.setItem('omnilive_lang',fromSel.value+'|'+toSel.value);
-  log('‰∫?Ë™?: '+fromSel.value+' ??'+toSel.value);
+  log('??: '+fromSel.value+' ??'+toSel.value);
 }
 $('swapBtn').onclick=swapLang;
 document.addEventListener('keydown',e=>{ if(e.key==='s'||e.key==='S'){ if(e.target.tagName!=='INPUT'&&e.target.tagName!=='SELECT'){ e.preventDefault(); swapLang(); } } });
 
 // Â∑•ÂÖ∑Ê¢ùÊî∂??const sheetEl=$('sheet');
 $('btnSheet').onclick=()=>{ sheetEl.classList.toggle('open'); $('btnSheet').classList.toggle('active'); };
-// ?‰∫??? / QR: ??•Â?Â∑??????–∂ËßÄ???
+// ???? / QR: ?????????–∂ËßÄ???
 const linkBtn=$('btnLink');
 if(linkBtn) linkBtn.onclick=()=>{
   let link=$('viewerLink').value.trim();
@@ -550,15 +550,15 @@ if(linkBtn) linkBtn.onclick=()=>{
     const proto=(location.protocol||'https:');
     link=proto+'//'+location.host+'/?room='+encodeURIComponent(room);
   }
-  if(!link){ showErr('Â∞öÊú™w[J–∂Ôº??? Ë®????Âª????'); sheetEl.classList.add('open'); $('btnSheet').classList.add('active'); return; }
-  navigator.clipboard?.writeText(link).then(()=>log('Â∑?Ë£????')).catch(()=>{});
+  if(!link){ showErr('Â∞öÊú™w[J–∂??? ????????'); sheetEl.classList.add('open'); $('btnSheet').classList.add('active'); return; }
+  navigator.clipboard?.writeText(link).then(()=>log('?????')).catch(()=>{});
   showLinkQR(link);
 };
 function showLinkQR(link){
   let box=document.getElementById('qrModal');
   if(!box){ box=document.createElement('div'); box.id='qrModal';
     box.style.cssText='position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.6);z-index:50;pointer-events:auto';
-    box.innerHTML='<div style="background:#16161f;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:center;max-width:90vw"><div style="font-size:.8rem;color:#aeb6c8">ËßÄ??? (Â∑??</div><div id="qrBox2" style="background:#fff;border-radius:10px;padding:8px"></div><div id="qrLink2" style="font-size:.68rem;color:#cfd6e6;word-break:break-all;text-align:center;max-width:280px"></div><button id="qrClose" style="border:1px solid rgba(255,255,255,.14);background:transparent;color:#fff;border-radius:10px;padding:8px 16px;cursor:pointer">??</button></div>';
+    box.innerHTML='<div style="background:#16161f;border:1px solid rgba(255,255,255,.14);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;align-items:center;max-width:90vw"><div style="font-size:.8rem;color:#aeb6c8">ËßÄ??? (??</div><div id="qrBox2" style="background:#fff;border-radius:10px;padding:8px"></div><div id="qrLink2" style="font-size:.68rem;color:#cfd6e6;word-break:break-all;text-align:center;max-width:280px"></div><button id="qrClose" style="border:1px solid rgba(255,255,255,.14);background:transparent;color:#fff;border-radius:10px;padding:8px 16px;cursor:pointer">??</button></div>';
     document.body.appendChild(box);
     box.onclick=e=>{ if(e.target===box) box.remove(); };
     box.querySelector('#qrClose').onclick=()=>box.remove();
@@ -568,7 +568,7 @@ function showLinkQR(link){
   try{ new QRCode(q,{text:link,width:140,height:140,correctLevel:QRCode.CorrectLevel.M}); }catch(e){ q.textContent=link; }
   box.style.display='grid';
 }
-// ‰∏Ä????®Á??Êµ?? ?????Zoom/YouTube ? ????È°ØÁ§∫
+// ‰∏Ä???????? ?????Zoom/YouTube ? ????È°ØÁ§∫
 let floatWin=null;
 $('btnFloat').onclick=()=>{
   const room=new URLSearchParams(location.search).get('room')||'';
@@ -576,11 +576,11 @@ $('btnFloat').onclick=()=>{
   const url='/floating.html?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):'');
   if(floatWin && !floatWin.closed){ floatWin.focus(); return; }
   floatWin=window.open(url,'omnilive_float','width=480,height=300,top=80,left=80,resizable=yes,scrollbars=no,toolbar=no,menubar=no,location=no,status=no');
-  if(!floatWin){ showErr('?Ë¶???pop-upÔº??Ë®????∞Ë??'); return; }
+  if(!floatWin){ showErr('????pop-up????????'); return; }
   $('btnFloat').classList.add('active');
   const chk=setInterval(()=>{ if(floatWin.closed){ clearInterval(chk); $('btnFloat').classList.remove('active'); } },1000);
 };
-// Ë™?Êµ? (??‰∏?????)
+// ?? (???????)
 const courseWin=$('courseWin');
 const courseBtn=document.getElementById('btnCourse');
 if(courseBtn){
@@ -588,7 +588,7 @@ if(courseBtn){
 }
 const courseClose=document.getElementById('courseClose');
 if(courseClose) courseClose.onclick=()=>{ courseWin.classList.remove('open'); if(courseBtn)courseBtn.classList.remove('active'); stopCoursePolling(); };
-// Â≠?‰ΩçÁΩÆ (‰πùÂÆÆ??
+// ?‰ΩçÁΩÆ (‰πùÂÆÆ??
 document.querySelectorAll('[data-pos]').forEach(b=>b.onclick=()=>{
   document.documentElement.style.setProperty('--sub-pos',b.dataset.pos);
   const stage=$('stage');
@@ -605,7 +605,7 @@ document.querySelectorAll('[data-align]').forEach(b=>b.onclick=()=>{
 const posBtn=document.getElementById('btnPos');
 if(posBtn) posBtn.onclick=()=>{ sheetEl.classList.add('open'); $('btnSheet').classList.add('active'); document.getElementById('sheet').scrollIntoView({block:'nearest'}); };
 
-// ??≥Â?? (?? pointer events)
+// ???? (?? pointer events)
 (function enableDrag(){
   const el=subsEl; let dragging=false,sx,sy,ox,oy;
   el.addEventListener('pointerdown',e=>{ if(e.target.closest('.sub-line.meta'))return; dragging=true; el.classList.add('dragging'); sx=e.clientX; sy=e.clientY;
@@ -618,7 +618,7 @@ if(posBtn) posBtn.onclick=()=>{ sheetEl.classList.add('open'); $('btnSheet').cla
 
 connectSSE();
 
-// ?? Âª??‰∫´–???
+// ?? ??‰∫´???
 $('createRoom').onclick=async()=>{
   try{
     const pwd=$('roomPwd').value.trim();
@@ -630,9 +630,9 @@ $('createRoom').onclick=async()=>{
     renderQR(d.viewerLink);
     history.replaceState(null,'',d.casterLink.replace(location.origin,''));
     connectSSE();
-    log('w[J–∂ '+d.room+(d.passwordProtected?' ([‰øùË≠∑]??Á¢??':'')+' ??ËßÄ???Â∑≤Áî¢??);
+    log('w[J–∂ '+d.room+(d.passwordProtected?' ([‰øùË≠∑]????':'')+' ??ËßÄ???Â∑≤Áî¢??);
     pollViewers();
-  }catch(e){showErr('w[J–∂Â§?: '+e.message);}
+  }catch(e){showErr('w[J–∂?: '+e.message);}
 };
 function renderQR(url){
   const box=$('qrBox');box.innerHTML='';
@@ -641,7 +641,7 @@ function renderQR(url){
 }
 document.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{
   const v=$(b.getAttribute('data-copy')).value;
-  navigator.clipboard?.writeText(v).then(()=>{log('Â∑?Ë£??');}).catch(()=>{});
+  navigator.clipboard?.writeText(v).then(()=>{log('???');}).catch(()=>{});
 });
 $('openViewer').onclick=()=>{const v=$('viewerLink').value;if(v)window.open(v,'_blank');};
 async function pollViewers(){
@@ -655,7 +655,7 @@ async function pollViewers(){
 $('refreshCount').onclick=pollViewers;
 if(ROOM)setInterval(pollViewers,5000);
 
-// ?? ???? (‰∏?H ??
+// ?? ???? (?H ??
 let mediaStream=null,audioCtx=null,recorder=null,analyser=null,meterRAF=null,silenceTimer=null,peakSinceStart=0,gotAudio=false;
 function updateMeter(){
   if(!analyser)return;
@@ -664,29 +664,29 @@ function updateMeter(){
   let peak=0; for(const v of buf){const x=Math.abs(v-128)/128; if(x>peak)peak=x;}
   const pct=Math.min(100,Math.round(peak*180));
   const m=$('meter'); if(m){ m.style.width=pct+'%'; m.style.background=pct>4?'#28c76f':'#666'; }
-  if(pct>4){ gotAudio=true; peakSinceStart=Math.max(peakSinceStart,pct); if(errbar.classList.contains('hidden')===false && errbar.textContent.includes('Ê≤??Ê∏????)) hideErr(); }
+  if(pct>4){ gotAudio=true; peakSinceStart=Math.max(peakSinceStart,pct); if(errbar.classList.contains('hidden')===false && errbar.textContent.includes('??????)) hideErr(); }
   meterRAF=requestAnimationFrame(updateMeter);
 }
 function armSilenceWatchdog(){
   clearTimeout(silenceTimer);
   silenceTimer=setTimeout(()=>{
     if(!gotAudio){
-      showErr('Ê≥? ?????4 ÁßíÂÖßÊ≤??Ê∏????Â≠???ØÁ©∫???Ê™¢Êü• ??(1) Zoom ?‰∫???????‰∫´ÈÄôÂè∞???????(2) ?Ë¶?È∫?È¢?Ê®ôÁ±§Ê¨??3) ????¨Ê?È∫?È¢??Ê∫?Ë©¶„Ä?????Ê≠?????Ê∂àÂ§±??);
+      showErr('? ?????4 ÁßíÂÖß?????????Á©∫???Ê™¢Êü• ??(1) Zoom ????????‰∫´ÈÄôÂè∞???????(2) ????Ê®ôÁ±§??3) ?????????Ë©¶??????????Ê∂àÂ§±??);
     }
   },4000);
 }
 $('startBtn').onclick=async()=>{
   hideErr();if(!isCaster)return;
   const src=srcSel.value;
-  if(src==='caption'){log('caption Ê®?ÔºöÁõ¥??º‰??πË≤º?Â≠óÈÄÅÂá∫');return;}
+  if(src==='caption'){log('caption ?ÔºöÁõ¥????Ë≤º?Â≠óÈÄÅÂá∫');return;}
   try{
     let stream;
     if(src==='system-display'){
       stream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
-      if(!stream.getAudioTracks().length){showErr('??ÂæóÁ≥ªÁµ±Èü≥Ë®?Zoom Ë´ãÁî®??‰∫´„Ä? ????‰∫´ÈÄôÂè∞???????????¨Ê?È∫?È¢??);}
+      if(!stream.getAudioTracks().length){showErr('??ÂæóÁ≥ªÁµ±Èü≥?Zoom Ë´ãÁî®??‰∫´? ????‰∫´ÈÄôÂè∞???????????????);}
     }else 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showErr('?®Á??èË¶Ω?®‰??ØÊè¥È∫•Â?È¢®Â???(Ë´ãÁ¢∫‰øù‰Ωø??HTTPS ??Localhost ???)');
+        showErr('???Ë¶Ω???Êè¥È∫•?È¢®???(Ë´ãÁ¢∫‰øù‰Ωø??HTTPS ??Localhost ???)');
         return;
       }
       if(src==='device'){
@@ -707,11 +707,11 @@ $('startBtn').onclick=async()=>{
     $('dlAudioBtn').disabled=false;
     $('startBtn').disabled=true;$('stopBtn').disabled=false;
     connEl.textContent='???('+src+')';connDot.className='dot';log('????? '+src+' ???6 ÁßíÈÄÅÂá∫‰∏Ä?);
-  }catch(e){showErr('??????: '+e.message);log('??≥Â§±?: '+e.message);}
+  }catch(e){showErr('??????: '+e.message);log('??Â§±?: '+e.message);}
 };
-$('stopBtn').onclick=()=>{if(mediaStream){mediaStream.getTracks().forEach(t=>t.stop());mediaStream=null;}if(audioCtx){audioCtx.close();audioCtx=null;}if(meterRAF)cancelAnimationFrame(meterRAF);if(flushTimer){clearInterval(flushTimer);flushTimer=null;}analyser=null;recorder=null;captureBuf=null;gotAudio=false;$('startBtn').disabled=false;$('stopBtn').disabled=true;$('dlAudioBtn').disabled=true;connEl.textContent='Â∑??;connDot.className='dot bad';log('?Ê≠???);};
-// È∫?È¢?Á§∫Âø´????$('btnMic').onclick=()=>{ if($('startBtn').disabled){ $('stopBtn').click(); $('btnMic').classList.remove('active'); } else { $('startBtn').click(); $('btnMic').classList.add('active'); } };
-$('dlAudioBtn').onclick=()=>{ if(!debugBuf||debugBuf.length<SR*0.5){showErr('???Á¥ØÁ????, Ë´???≥Âπæ?');return;} const pcm=encodeFloatTo16(debugBuf); const wav=encodeWav(pcm,16000); const blob=new Blob([wav],{type:'audio/wav'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='omnilive-captured-'+Date.now()+'.wav'; a.click(); log('Â∑?ËºâÊì∑???('+(debugBuf.length/SR).toFixed(1)+'s)'); };
+$('stopBtn').onclick=()=>{if(mediaStream){mediaStream.getTracks().forEach(t=>t.stop());mediaStream=null;}if(audioCtx){audioCtx.close();audioCtx=null;}if(meterRAF)cancelAnimationFrame(meterRAF);if(flushTimer){clearInterval(flushTimer);flushTimer=null;}analyser=null;recorder=null;captureBuf=null;gotAudio=false;$('startBtn').disabled=false;$('stopBtn').disabled=true;$('dlAudioBtn').disabled=true;connEl.textContent='??;connDot.className='dot bad';log('????);};
+// ??Á§∫Âø´????$('btnMic').onclick=()=>{ if($('startBtn').disabled){ $('stopBtn').click(); $('btnMic').classList.remove('active'); } else { $('startBtn').click(); $('btnMic').classList.add('active'); } };
+$('dlAudioBtn').onclick=()=>{ if(!debugBuf||debugBuf.length<SR*0.5){showErr('???Á¥Ø????, ???Âπæ?');return;} const pcm=encodeFloatTo16(debugBuf); const wav=encodeWav(pcm,16000); const blob=new Blob([wav],{type:'audio/wav'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='omnilive-captured-'+Date.now()+'.wav'; a.click(); log('?ËºâÊì∑???('+(debugBuf.length/SR).toFixed(1)+'s)'); };
 
 let captureBuf=null;
 let debugBuf=null;
@@ -735,13 +735,13 @@ function flushWindow(){
   const wav=encodeWav(pcm, 16000);
   const room=new URLSearchParams(location.search).get('room')||'';
   const lang=fromSel.value||'';
-  // auto Ê®?‰∏?lang ?whisper (?? auto??00 Ê≠∑Âè≤??); ?whisper ???Ê∏?  const url='/api/transcribe?room='+encodeURIComponent(room)+'&vad=1'+(lang && lang!=='auto'?'&lang='+encodeURIComponent(lang):'');
+  // auto ??lang ?whisper (?? auto??00 Ê≠∑Âè≤??); ?whisper ????  const url='/api/transcribe?room='+encodeURIComponent(room)+'&vad=1'+(lang && lang!=='auto'?'&lang='+encodeURIComponent(lang):'');
   sttInflight=true;
   const release=()=>{ sttInflight=false; };
   const to=setTimeout(release, 45000);
   fetch(url,{method:'POST',headers:{'content-type':'audio/wav'},body:wav})
     .then(r=>r.ok?r.json():Promise.reject(r.status))
-    .then(d=>{ if(d.source)log('Ëæ?: '+d.source.slice(0,40)); })
+    .then(d=>{ if(d.source)log('?: '+d.source.slice(0,40)); })
     .catch(()=>{})
     .finally(()=>{ clearTimeout(to); release(); });
 }
@@ -759,19 +759,19 @@ function encodeWav(pcm, sampleRate){
 }
 function encodeFloatTo16(f){const u=new Uint8Array(f.length*2);const dv=new DataView(u.buffer);for(let i=0;i<f.length;i++){dv.setInt16(i*2,Math.max(-1,Math.min(1,f[i]))*0x7fff,true);}return u;}
 
-// ?? ??Â≠??????
+// ?? ????????
 $('sendCaption').onclick=async()=>{
-  const text=captionInput.value.trim();if(!text){showErr('Ë´?Ëº∏ÂÖ•??');return;}
+  const text=captionInput.value.trim();if(!text){showErr('?Ëº∏ÂÖ•??');return;}
   const room=new URLSearchParams(location.search).get('room')||'';
   try{
     const r=await fetch('/api/speak',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text,room,from:fromSel.value,to:toSel.value})});
     const d=await r.json();
     if(d.source)renderSub(d.source,d.target,(fromSel.value)+'??+(toSel.value)+' ¬∑ '+d.engine+' ¬∑ #'+d.id);
-    captionInput.value='';log('??Â≠???? '+text.slice(0,30));
-  }catch(e){showErr('??∫Â§±?: '+e.message);}
+    captionInput.value='';log('?????? '+text.slice(0,30));
+  }catch(e){showErr('??Â§±?: '+e.message);}
 };
 
-// ?? Ë™????: Ëº™Ë©¢ /api/course ??
+// ?? ????: Ëº™Ë©¢ /api/course ??
 let courseTimer=null, courseAcc='';
 function courseText(){ return subsEl.textContent.trim(); }
 async function fetchCourse(){
@@ -783,7 +783,7 @@ async function fetchCourse(){
     if(!d.summary && !d.keypoints.length) return;
     $('cSummary').textContent=d.summary||'??;
     $('cKeypoints').innerHTML=(d.keypoints||[]).map(k=>'<div class="ckp">'+escapeHtml(k)+'</div>').join('');
-    $('cTerms').innerHTML=(d.terms||[]).map(t=>'<div class="term"><b>'+escapeHtml(t.term||'')+'</b> ('+escapeHtml(t.en||'')+')<br>'+escapeHtml(t.explain||'')+'<br><a href="'+(t.wiki||'#')+'" target="_blank" rel="noopener">?‰∫?Á∂≠Âü∫??</a></div>').join('');
+    $('cTerms').innerHTML=(d.terms||[]).map(t=>'<div class="term"><b>'+escapeHtml(t.term||'')+'</b> ('+escapeHtml(t.en||'')+')<br>'+escapeHtml(t.explain||'')+'<br><a href="'+(t.wiki||'#')+'" target="_blank" rel="noopener">??Á∂≠Âü∫??</a></div>').join('');
     $('cCases').innerHTML=(d.similar_cases||[]).map(c=>'<div class="case">'+escapeHtml(c)+'</div>').join('');
     $('cUpdated').textContent='??? '+new Date().toLocaleTimeString();
   }catch(e){}
