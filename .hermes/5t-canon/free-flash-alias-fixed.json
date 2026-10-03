@@ -1,0 +1,30 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "gemma4:31b",
+  "provider": "ollama-cloud",
+  "base_url": "https://ollama.com/v1",
+  "timestamp": "2026-09-05T02:58:01.005247Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "60f74fa5-df6c-4cab-bd57-f39f43a1efc5",
+  "alias_change": {
+    "name": "free-flash",
+    "from": "ollama-cloud/inclusionai/ling-3.0-flash-fin:free",
+    "to": "ollama-cloud/gemma4:31b",
+    "reason": "ling-flash not found on ollama-cloud; gemma4:31b verified HTTP 200",
+    "backup": "config.yaml.bak.20260905_105801"
+  },
+  "five_t_verification": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "content": "5T-Canon 證明書 — free-flash alias 修正\n\n時間: 2026-09-05T02:58:01.005247Z\n\n=== 動作 ===\n1. config.yaml 備份: config.yaml.bak.20260905_105801\n2. alias 'free-flash' 重指:\n   - 從: ollama-cloud/inclusionai/ling-3.0-flash-fin:free (404 not found)\n   - 到: ollama-cloud/gemma4:31b (✓ HTTP 200 已驗證)\n\n=== 5T ===\n- Traceable: config.yaml:aliases.free-flash 變更可溯\n- Trackable: 備份檔保留舊值\n- Tangible: 切換後下次 /model free-flash 將路由到 gemma4:31b\n- Transparent: 真因 = ling-flash 在 ollama-cloud 未上架\n- Trustworthy: SHA-256 hash 鎖定\n\n— Queen Bee & OA-Team 30 Swarm\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "05ac155a67b34738b183375128167aed4934252e134c10945c76caeed3336e6c",
+    "frozen": true
+  }
+}

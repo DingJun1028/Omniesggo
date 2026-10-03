@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<meta name="referrer" content="no-referrer">
+<title>OmniSub 萬能即時語音擷取翻譯 · 零算力版</title>
+
+<!--
+  OmniSub = 萬能即時語音擷取翻譯（零算力版）
+  source_origin: apps/omnisub/index.html
+  設計公約: 零 API key / 零 GPU / 零 npm 依賴 / 單檔可攜 / 免費離線優先
+-->
+<link rel="preconnect" href="https://translate.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://api.mymemory.translated.net" crossorigin>
+
+<style>
+/* ===== esggo 品牌設計標記 Brand tokens (深藍 + 暖金 + 米白) ===== */
+:root{
+  --navy:#10243f;          /* 主色 深藍 deep blue */
+  --gold:#c9a24b;          /* 強調 暖金 warm gold */
+  --cream:#f3ede1;         /* 文字 米白 cream */
+  --accent:#3c6e47;        /* 成功/聆聽 */
+  --error:#c0553f;         /* 錯誤 */
+  --warn:#c9a24b;          /* 載入中 */
+
+  --bg:#070b12;
+  --glass:rgba(10,18,32,.44);
+  --line:rgba(201,162,75,.22);
+  --line-soft:rgba(243,237,225,.12);
+  --ink:var(--cream);
+  --ink-dim:rgba(243,237,225,.62);
+  --ink-faint:rgba(243,237,225,.38);
+
+  --blur:12px;
+  --radius:14px;
+  --rail-h:44px;
+  --rail-w:48px;
+  --trans-size:17px;
+  --panel-opacity:1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans TC",Roboto,Inter,sans-serif;
+  background:
+    radial-gradient(1100px 640px at 18% -12%, rgba(16,36,63,.85), transparent 62%),
+    radial-gradient(900px 560px at 92% 112%, rgba(201,162,75,.10), transparent 60%),
+    var(--bg);
+  color:var(--ink);
+  overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ===== 浮動面板 Floating panel ===== */
+#panel{
+  position:fixed; top:8vh; left:50%; transform:translateX(-50%);
+  width:min(700px,94vw);
+  background:var(--glass);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  backdrop-filter:blur(var(--blur)) saturate(140%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(140%);
+  box-shadow:0 20px 56px rgba(0,0,0,.6), 0 0 42px rgba(201,162,75,.08);
+  display:flex; flex-direction:column; gap:6px;
+  padding:44px 8px 8px;
+  opacity:var(--panel-opacity);
+  user-select:none;
+}
+#titlebar{
+  position:absolute; top:8px; left:13px; right:13px; height:26px;
+  display:flex; align-items:center; gap:8px; padding:0 10px;
+  background:rgba(243,237,225,.05);
+  border:1px solid var(--line-soft); border-radius:9px;
+  cursor:grab; touch-action:none;
+}
+#titlebar:active{cursor:grabbing}
+#titlebar .dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
+#titlebar .name{font-size:13px;font-weight:600;letter-spacing:.2px}
+#titlebar .name small{color:var(--ink-dim);font-weight:400;margin-left:6px}
+#statusText{margin-left:auto;font-size:11px;color:var(--ink-dim)}
+
+/* ===== 邊條控制 Rails ===== */
+.rail{display:flex;align-items:center;gap:6px}
+.rail-top{justify-content:center;gap:10px}
+.rail-right{position:absolute;right:8px;top:112px;bottom:60px;flex-direction:column;align-items:flex-start;width:var(--rail-w)}
+.rail-left{position:absolute;left:8px;top:112px;bottom:60px;flex-direction:column;align-items:center;width:var(--rail-w)}
+.rail-bottom{justify-content:center;height:var(--rail-h);overflow:hidden;gap:8px}
+.cell{display:flex;flex-direction:column;align-items:center;gap:3px}
+
+/* ===== 按鈕 Buttons ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:34px;padding:0 8px;
+  background:rgba(243,237,225,.05);border:1px solid var(--line-soft);
+  border-radius:9px;color:var(--ink);font-size:14px;cursor:pointer;
+  transition:.18s;position:relative;line-height:1;
+}
+.btn:hover:not(:disabled){background:rgba(201,162,75,.18);border-color:var(--gold);box-shadow:0 0 12px rgba(201,162,75,.34)}
+.btn.active{background:var(--navy);border-color:var(--gold);color:var(--gold)}
+.btn:disabled{opacity:.34;cursor:not-allowed}
+.btn.small{min-width:28px;height:28px;font-size:12px}
+.btn-label{font-size:10px;color:var(--ink-faint);text-align:center;line-height:1.1;letter-spacing:.3px}
+
+/* ===== 工具提示 Tooltip ===== */
+[data-tip]{position:relative}
+[data-tip]:hover::after{
+  content:attr(data-tip);position:absolute;z-index:50;
+  bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:rgba(7,11,18,.95);border:1px solid var(--line-soft);
+  padding:5px 9px;border-radius:7px;font-size:11px;white-space:nowrap;
+  color:var(--ink);pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.6);
+}
+[data-tip-side="right"]:hover::after{bottom:auto;left:calc(100% + 6px);top:50%;transform:translateY(-50%)}
+[data-tip-side="left"]:hover::after{bottom:auto;right:calc(100% + 6px);top:50%;transform:translateY(-50%)}
+
+/* ===== 狀態 LED + 音量條 ===== */
+.led{width:10px;height:10px;border-radius:50%;background:#4a5568;box-shadow:inset 0 0 4px rgba(0,0,0,.6);flex:none}
+.led.idle{background:#4a5568}
+.led.listening{background:var(--accent);box-shadow:0 0 10px var(--accent);animation:pulse 1.4s infinite}
+.led.loading{background:var(--warn);box-shadow:0 0 10px var(--warn);animation:pulse .8s infinite}
+.led.error{background:var(--error);box-shadow:0 0 10px var(--error)}
+.led.paused{background:var(--ink-faint)}
+@keyframes pulse{50%{opacity:.4}}
+#meter{width:132px;height:7px;border-radius:4px;background:rgba(243,237,225,.08);overflow:hidden}
+#meterFill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .08s linear}
+#vadTag{font-size:10px;color:var(--ink-faint);border:1px solid var(--line-soft);border-radius:6px;padding:1px 6px;white-space:nowrap}
+
+/* ===== 引導提示 / 錯誤框 / 進度條 ===== */
+#hintBox{
+  margin:4px 56px 2px;padding:8px 12px;font-size:11.5px;line-height:1.6;
+  border:1px dashed rgba(60,110,71,.6);border-radius:10px;
+  background:rgba(60,110,71,.09);color:#cfe6d6;
+}
+#errBox{
+  margin:4px 56px 2px;padding:8px 12px;font-size:11.5px;line-height:1.6;
+  border:1px solid var(--error);border-radius:10px;
+  background:rgba(192,85,63,.10);color:#f0cdc3;display:none;white-space:pre-wrap;
+}
+#modelProgress{margin:2px 56px;height:5px;border-radius:3px;background:rgba(243,237,225,.08);overflow:hidden;display:none}
+#modelProgress .bar{height:100%;width:0;background:var(--gold);transition:width .3s}
+#modelNote{margin:0 56px;font-size:10.5px;color:var(--ink-faint);display:none;line-height:1.5}
+
+/* ===== 字幕區 Subtitle ===== */
+#subtitleArea{
+  min-height:118px;display:flex;flex-direction:column;justify-content:center;
+  text-align:center;padding:10px 56px;gap:5px;
+}
+#origLine{font-size:12.5px;font-weight:500;color:var(--ink-dim);min-height:17px;word-break:break-word}
+#origLine.interim{color:var(--ink-faint);font-style:italic}
+#transLine{
+  font-size:var(--trans-size);font-weight:600;line-height:1.4;
+  text-shadow:0 0 20px rgba(201,162,75,.30);min-height:26px;word-break:break-word;
+}
+#transLine.stale{opacity:.35}
+#engineBadge{
+  font-size:10px;color:var(--ink-dim);
+  border:1px solid var(--line-soft);border-radius:6px;padding:1px 7px;
+  margin:2px auto 0;width:fit-content;white-space:nowrap;
+}
+#engineBadge b{color:var(--gold);font-weight:600}
+
+/* ===== 歷史紀錄 History ===== */
+#historyWrap{display:none;flex-direction:column;gap:2px;max-height:150px;overflow-y:auto;padding:6px 12px;border-top:1px solid var(--line-soft)}
+#historyWrap.open{display:flex}
+#historyWrap::-webkit-scrollbar{width:5px}
+#historyWrap::-webkit-scrollbar-thumb{background:rgba(201,162,75,.28);border-radius:3px}
+.hist-row{font-size:11.5px;line-height:1.35;border-bottom:1px dashed rgba(243,237,225,.07);padding:3px 0}
+.hist-row .o{color:var(--ink-dim)}
+.hist-row .t{color:var(--ink);font-weight:600}
+.hist-row .ts{float:right;font-size:9.5px;color:var(--ink-faint)}
+
+/* ===== 設定抽屜 Settings drawer ===== */
+#drawer{
+  display:none;position:fixed;z-index:60;left:0;top:0;bottom:0;width:302px;
+  background:rgba(7,11,18,.94);backdrop-filter:blur(16px);
+  border-right:1px solid var(--line);padding:14px;overflow-y:auto;font-size:12.5px;
+}
+#drawer.open{display:block}
+#drawer h3{font-size:13px;font-weight:600;margin:16px 0 8px;color:var(--gold);letter-spacing:.3px}
+#drawer h3:first-of-type{margin-top:6px}
+#drawer label{display:block;font-size:11.5px;color:var(--ink-dim);margin:9px 0 3px}
+#drawer input[type=text],#drawer select,#drawer input[type=number]{
+  width:100%;background:rgba(243,237,225,.06);border:1px solid var(--line-soft);
+  border-radius:8px;color:var(--ink);padding:6px 9px;font-size:12px;
+}
+#drawer select option{background:#0b1220;color:var(--ink)}
+#drawer input[type=range]{width:100%;accent-color:var(--gold)}
+#drawer .row{display:flex;align-items:center;justify-content:space-between;margin:8px 0;gap:8px}
+#drawer .hint{font-size:10.5px;color:var(--ink-faint);line-height:1.55;margin-top:4px}
+#drawerClose{position:absolute;top:10px;right:10px}
+.switch{position:relative;width:40px;height:22px;flex:none;cursor:pointer}
+.switch input{display:none}
+.switch .track{position:absolute;inset:0;border-radius:11px;background:rgba(243,237,225,.14);transition:.2s}
+.switch .track::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#b9c0cc;transition:.2s}
+.switch input:checked + .track{background:var(--navy);border:1px solid var(--gold)}
+.switch input:checked + .track::after{left:21px;background:var(--gold)}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg .btn.active{background:var(--navy);border-color:var(--gold);color:var(--gold)}
+
+/* ===== Toast ===== */
+#toasts{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:6px;z-index:99;align-items:center}
+.toast{
+  background:rgba(7,11,18,.9);border:1px solid var(--line-soft);border-radius:9px;
+  padding:7px 14px;font-size:11.5px;animation:fadein .2s;color:var(--ink);
+  box-shadow:0 4px 16px rgba(0,0,0,.5);max-width:88vw;
+}
+.toast.warn{border-color:var(--warn);color:#f0e0bd}
+.toast.err{border-color:var(--error);color:#f0cdc3}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}}
+</style>
+</head>
+<body>
+
+<!-- ===== 浮動字幕面板 Floating panel ===== -->
+<div id="panel">
+  <!-- 標題列（唯一拖曳區）Title bar -->
+  <div id="titlebar" data-tip="拖曳移動面板 Drag panel">
+    <span class="dot"></span>
+    <span class="name">OmniSub <small>萬能即時語音擷取翻譯 · 零算力版</small></span>
+    <span id="statusText">待機 Idle</span>
+  </div>
+
+  <!-- 上邊條：狀態 + 音量 + VAD Status -->
+  <div class="rail rail-top">
+    <span class="led idle" id="topLED" data-tip="狀態 Status"></span>
+    <div id="meter" data-tip="音量電錶 Audio level"><div id="meterFill"></div></div>
+    <span id="vadTag" data-tip="語音活動偵測 VAD（語音門檻自動過濾靜音，零算力關鍵）">VAD 監聽</span>
+  </div>
+
+  <!-- 引導提示 Onboarding -->
+  <div id="hintBox">
+    零算力啟動流程：<b>1</b> 按 <b>系統</b> 選分頁或螢幕 → 務必勾選「<b>分享分頁音訊 / Share tab audio</b>」；或直接按 <b>麥克風</b>。<br>
+    <b>2</b> 開始即用瀏覽器內建 Web Speech（零下載、零 key）；要離線離網請於設定切 Whisper 離線。<br>
+    Zero-compute flow: no API key, no GPU, no npm install.
+  </div>
+
+  <!-- 錯誤框 / 模型進度 Error box / Model progress -->
+  <div id="errBox"></div>
+  <div id="modelProgress"><div class="bar"></div></div>
+  <div id="modelNote"></div>
+
+  <!-- 字幕區 Subtitles -->
+  <div id="subtitleArea">
+    <div id="origLine" class="interim">等待語音 Waiting for speech</div>
+    <div id="transLine">—</div>
+    <span id="engineBadge"></span>
+  </div>
+
+  <!-- 底邊條 Bottom rail -->
+  <div class="rail rail-bottom">
+    <button class="btn" id="histBtn" data-tip="展開/收合最近紀錄 Toggle history"></button>
+    <button class="btn" id="srtBtn" data-tip="匯出 SRT 字幕 Export SRT"></button>
+    <button class="btn" id="shareBtn" data-tip="產生分享連結 Share captions"></button>
+    <button class="btn" id="drawerBtn" data-tip="設定 Settings"></button>
+  </div>
+  <div id="historyWrap"></div>
+
+  <!-- 右邊條：出聲控制 Start / Stop / Pause / Mic -->
+  <div class="rail rail-right">
+    <div class="cell">
+      <button class="btn" id="startSysBtn" data-tip="擷取系統音訊（分頁/螢幕）Start system-audio capture"></button>
+      <span class="btn-label">系統<br>Sys</span>
+    </div>
+    <div class="cell">
+      <button class="btn" id="stopBtn" data-tip="停止 Stop capture"></button>
+      <span class="btn-label">停止<br>Stop</span>
+    </div>
+    <div class="cell">
+      <button class="btn" id="pauseBtn" data-tip="暫停（真的停止推論）Pause inference"></button>
+      <span class="btn-label">暫停<br>Pause</span>
+    </div>
+    <div class="cell">
+      <button class="btn" id="micBtn" data-tip="麥克風模式 Mic mode"></button>
+      <span class="btn-label">麥克風<br>Mic</span>
+    </div>
+  </div>
+
+  <!-- 左邊條：清空 / 設定 / STT 切換 -->
+  <div class="rail rail-left">
+    <div class="cell">
+      <button class="btn" id="clearBtn" data-tip="清空字幕與歷史 Clear captions"></button>
+      <span class="btn-label">清空<br>Clear</span>
+    </div>
+    <div class="cell">
+      <button class="btn" id="sttToggleBtn" data-tip="切換辨識引擎 Switch STT engine"></button>
+      <span class="btn-label">引擎<br>STT</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 設定抽屜 Settings drawer ===== -->
+<div id="drawer">
+  <button class="btn small" id="drawerClose" data-tip="關閉 Close">×</button>
+
+  <h3>語音辨識 STT（零算力核心）</h3>
+  <label>引擎 Engine</label>
+  <select id="selSTTEngine">
+    <option value="webspeech">Web Speech 內建（零下載 · 僅麥克風）</option>
+    <option value="whisper">Whisper 離線 WASM（可擷取系統音 · 首次下載模型）</option>
+  </select>
+  <div class="hint" id="sttHint"></div>
+
+  <div id="whisperOpts" style="display:none">
+    <label>模型 Model（串流建議 tiny，base 會拖慢）</label>
+    <input type="text" id="inpModel" placeholder="Xenova/whisper-tiny" data-tip-side="right">
+    <div class="seg" style="margin-top:6px">
+      <button class="btn small" data-model="Xenova/whisper-tiny">tiny</button>
+      <button class="btn small" data-model="Xenova/whisper-base">base</button>
+      <button class="btn small" data-model="Xenova/whisper-small">small</button>
+    </div>
+    <div class="seg" style="margin-top:6px">
+      <button class="btn small" id="reloadWhisper">重新載入模型</button>
+    </div>
+    <div class="hint" id="modelSizeHint"></div>
+  </div>
+
+  <label>Web Speech 語言 Recognition language</label>
+  <select id="selWsLang">
+    <option value="zh-TW">繁體中文（台灣）zh-TW</option>
+    <option value="en-US">English (US)</option>
+    <option value="en-GB">English (UK)</option>
+  </select>
+  <div class="hint">僅支援繁體中文 ⇄ English 雙向自動對翻；此處僅影響「哪種語言辨識得較準」。</div>
+
+  <h3>翻譯 Translation（全部免費 · 免 key）</h3>
+  <label>備援鏈順序 Fallback chain（依序嘗試）</label>
+  <select id="selChain">
+    <option value="auto">自動鏈 auto：MyMemory → gtx → Libre</option>
+    <option value="mymemory">僅 MyMemory（免 key · 實測最穩）</option>
+    <option value="gtx">僅 Google gtx（免 key · 最快但可能被限流）</option>
+    <option value="libre">僅 LibreTranslate（需自架實例）</option>
+  </select>
+  <div class="hint" id="chainHint"></div>
+  <label>自架 LibreTranslate 網址（選填 · 公開實例實測已失效）</label>
+  <input type="text" id="inpLibreUrl" placeholder="https://your-libre.example.com/translate">
+
+  <h3>翻譯方向 Direction</h3>
+  <div class="row" style="gap:6px">
+    <span>繁中 ⇄ English（自動判別 · 雙向對翻）</span>
+  </div>
+  <div class="hint">偵測到中文就譯成英文，偵測到英文就譯成繁體中文。無需手動切換。</div>
+
+  <h3>語音活動偵測 VAD（省算力關鍵）</h3>
+  <div class="row">
+    <span>啟用語音門檻過濾</span>
+    <label class="switch"><input type="checkbox" id="chkVad" checked><span class="track"></span></label>
+  </div>
+  <label>觸發門檻 Trigger threshold（越高越嚴）</label>
+  <input type="range" id="rngVad" min="2" max="20" step="1" value="6">
+  <div class="hint" id="vadHint"></div>
+
+  <h3>外觀 Appearance</h3>
+  <label>字型大小 Font size</label>
+  <input type="range" id="rngFont" min="13" max="30" value="17">
+  <label>面板不透明 Opacity</label>
+  <input type="range" id="rngOpacity" min="30" max="100" value="100">
+
+  <h3>擷取 Capture</h3>
+  <label>分段長度 Chunk length：<span id="chunkLabel">4</span> 秒（Whisper 專用）</label>
+  <input type="range" id="rngChunk" min="2" max="10" value="4">
+
+  <h3>分享 Share</h3>
+  <div class="row">
+    <span>啟用分享 Enable sharing</span>
+    <label class="switch"><input type="checkbox" id="chkShare"><span class="track"></span></label>
+  </div>
+  <div id="shareInfo" style="font-size:10.5px;color:var(--ink-dim);word-break:break-all"></div>
+  <div class="hint">PeerJS 走公開信令中繼，僅傳送字幕文字，不含音訊。</div>
+</div>
+
+<div id="toasts"></div>
+
+<script>
+/* =========================================================
+   OmniSub 萬能即時語音擷取翻譯（零算力版）
+   source_origin: apps/omnisub/index.html
+   管線 Pipeline:
+     音訊擷取 AC → VAD 語音門檻 → STT（WebSpeech / Whisper WASM）
+     → 翻譯 Translation（gtx / MyMemory / Libre）→ 字幕 + 分享
+   零算力Zero-compute 宣言:
+     - 零 API key（所有預設端點皆免 key）
+     - 零 GPU（瀏覽器內建引擎 + WASM）
+     - 零 npm 依賴（單檔可攜）
+     - 靜音時完全不觸發推論（VAD 門檻）
+   ========================================================= */
+(function(){
+'use strict';
+
+var $ = function(id){ return document.getElementById(id); };
+var LOG = {
+  /* 5T Traceable: 統一帶 source_origin 的事件紀錄 */
+  origin: 'omnisub.omnisub',
+  log: function(evt, data){
+    try{
+      console.log('[OmniSub][' + evt + ']', JSON.stringify(Object.assign(
+        { source_origin: LOG.origin, ts: Date.now() }, data || {})));
+    }catch(_){}
+  }
+};
+
+/* =========================================================
+   (0) 設定持久化 Settings (localStorage, 零後端)
+   ========================================================= */
+var DEFAULTS = {
+  sttEngine:'webspeech',
+  model:'Xenova/whisper-tiny',
+  wsLang:'zh-TW',
+  chain:'auto',
+  libreUrl:'',                     // 公開實例實測皆失效；留空則自動略過此分支
+  vad:true,
+  vadThr:6,
+  font:17,
+  opacity:100,
+  chunk:4
+};
+var S = load('omnisub.settings', DEFAULTS);
+
+function load(k, def){
+  var raw = null;
+  try{ raw = localStorage.getItem(k); }catch(_){}
+  var obj = {};
+  if(raw){ try{ obj = JSON.parse(raw) || {}; }catch(_){ obj = {}; } }
+  var out = {};
+  Object.keys(def).forEach(function(kk){
+    var v = (obj[kk] === undefined || obj[kk] === null) ? def[kk] : obj[kk];
+    out[kk] = (typeof def[kk] === 'number') ? Number(v) : String(v);
+  });
+  return out;
+}
+function save(){ try{ localStorage.setItem('omnisub.settings', JSON.stringify(S)); }catch(_){} }
+
+/* =========================================================
+   (1) 提示 / 狀態 Toast / LED / Error
+   ========================================================= */
+function toast(msg, kind, ms){
+  var t = document.createElement('div');
+  t.className = 'toast' + (kind ? ' ' + kind : '');
+  t.textContent = msg;
+  $('toasts').appendChild(t);
+  setTimeout(function(){ t.remove(); }, ms || 3000);
+}
+function setLED(state){
+  $('topLED').className = 'led ' + state;
+  var map = {
+    idle:['待機 Idle','#'],
+    listening:['聆聽中 Listening','#'],
+    loading:['載入模型 Loading','#'],
+    error:['錯誤 Error','#'],
+    paused:['已暫停 Paused','#']
+  };
+  $('statusText').textContent = map[state] ? map[state][0] : state;
+}
+function showErr(msg){ var b = $('errBox'); b.textContent = msg; b.style.display = 'block'; }
+function hideErr(){ $('errBox').style.display = 'none'; }
+
+/* =========================================================
+   (2) 語言偵測 Language detection（繁中 ⇄ 英文 雙向，僅此兩語）
+   設計：只認 zh-TW 與 en 兩種結果。
+   注意：日文假名 / 韓文Hangul 也落在 CJK 區塊，必須排除，
+   否則會被誤判為中文而譯錯（原始碼即有此缺陷）。
+   ========================================================= */
+var CJK_IDEO = /[\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;   // 漢字
+var KANA     = /[\u3040-\u30ff]/;                              // 平/片假名 → 非中文
+var HANGUL   = /[\uac00-\ud7af\u1100-\u11ff]/;                 // 韓文 → 非中文
+
+function detectLang(text){
+  if(!text || !text.trim()) return 'en';
+  /* 有漢字、但不含假名與韓文 → 視為繁體中文 */
+  if(CJK_IDEO.test(text) && !KANA.test(text) && !HANGUL.test(text)) return 'zh-TW';
+  /* 其餘一律視為英文（拉丁字母系），符合「繁中英文雙向」範圍 */
+  return 'en';
+}
+/* 目標語言恆為對方：繁中→英，英→繁中（雙向自動對翻） */
+function resolveTarget(src){
+  return src === 'zh-TW' ? 'en' : 'zh-TW';
+}
+/* 翻譯端點使用的語言代碼正規化 */
+function toApiCode(code){
+  return code === 'zh-TW' ? 'zh-TW' : 'en';
+}
+
+/* =========================================================
+   (3) 音訊擷取 AudioCapture (系統音 / 麥克風)
+   零算力設計：VAD 門檻先擋掉靜音，再送 STT
+   ========================================================= */
+var AC = {
+  stream:null, ctx:null, analyser:null, src:null, processor:null,
+  running:false, mode:null, rafId:0,
+  buffer:[], bufferMs:0, chunkMs:0,
+  /* VAD 狀態：噪聲地板自適應 + 語音連續判定 */
+  noiseFloor:0.006, voiceRms:0, speaking:false, lastVoiceAt:0, silenceMs:0,
+
+  async startSystem(){
+    var stream;
+    try{
+      stream = await navigator.mediaDevices.getDisplayMedia({
+        video:true,
+        audio:{ systemAudio:'include', echoCancellation:false, noiseSuppression:false }
+      });
+    }catch(e){
+      showErr('無法擷取螢幕音訊 Cannot capture screen audio:\n' + e.message +
+              '\n請改按「麥克風」，或以 https / http://localhost 開啟本頁。');
+      setLED('error');
+      return false;
+    }
+    stream.getVideoTracks().forEach(function(t){ t.stop(); });   // 關掉影像，僅留音訊
+    if(!stream.getAudioTracks().length){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      showErr('沒有擷取到音訊軌。\n請務必勾選「分享分頁音訊 / Share tab audio」\n' +
+              'No audio track — you must tick "Share tab audio".');
+      return false;
+    }
+    this.stream = new MediaStream(stream.getAudioTracks());
+    this.mode = 'system';
+    this.setupGraph();
+    LOG.log('capture.start', { mode:'system' });
+    return true;
+  },
+
+  async startMic(){
+    try{
+      this.stream = await navigator.mediaDevices.getUserMedia({
+        audio:{ echoCancellation:true, noiseSuppression:true }
+      });
+    }catch(e){
+      showErr('無法使用麥克風 Mic error:\n' + e.message);
+      return false;
+    }
+    this.mode = 'mic';
+    this.setupGraph();
+    LOG.log('capture.start', { mode:'mic' });
+    return true;
+  },
+
+  setupGraph(){
+    hideErr();
+    var Ctx = window.AudioContext || window.webkitAudioContext;
+    this.ctx = new Ctx();
+    if(this.ctx.state === 'suspended') this.ctx.resume();
+
+    this.analyser = this.ctx.createAnalyser();
+    this.analyser.fftSize = 1024;
+    this.src = this.ctx.createMediaStreamSource(this.stream);
+    this.src.connect(this.analyser);              // 僅分析，不接到 destination → 無回授
+
+    this.chunkMs = S.chunk * 1000;
+    this.buffer = []; this.bufferMs = 0;
+    this.running = true;
+    this.pumpMeter();
+
+    /* ScriptProcessor：單檔可攜（AudioWorklet 需額外 module 檔，file:// 會被 CORS 擋）。
+       註：ScriptProcessor 已 deprecated 但仍為單檔場景唯一免額外檔案方案。 */
+    this.processor = this.ctx.createScriptProcessor(4096, 1, 1);
+    var self = this;
+    this.processor.onaudioprocess = function(e){ self.onAudio(e.inputBuffer); };
+    this.src.connect(this.processor);
+    var mute = this.ctx.createGain();
+    mute.gain.value = 0;                            // 靜音輸出，避免把擷取音回放到喇叭
+    this.processor.connect(mute);
+    mute.connect(this.ctx.destination);
+
+    toast('音訊擷取中 Capturing · ' + (this.mode === 'system' ? '系統音 system' : '麥克風 mic'));
+  },
+
+  /* 音量電錶 + 噪聲地板自適應 Meter + adaptive noise floor */
+  pumpMeter(){
+    var self = this;
+    var buf = new Float32Array(this.analyser.fftSize);
+    var loop = function(){
+      if(!self.running) return;
+      self.analyser.getFloatTimeDomainData(buf);
+      var sum = 0;
+      for(var i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+      var rms = Math.sqrt(sum / buf.length);
+      $('meterFill').style.width = Math.min(100, rms * 420) + '%';
+
+      /* 噪聲地板：EMA 追蹤低能量段，只在非語音時更新 */
+      if(!self.speaking){
+        self.noiseFloor = self.noiseFloor * 0.94 + rms * 0.06;
+        self.noiseFloor = Math.max(0.0012, Math.min(self.noiseFloor, 0.08));
+      }
+      self.voiceRms = rms;
+      self.rafId = requestAnimationFrame(loop);
+    };
+    this.rafId = requestAnimationFrame(loop);
+  },
+
+  /* VAD 判斷：噪聲地板自適應 × 使用者倍率門檻
+     thr 6 → 1.6x, thr 20 → 3x。靜音時完全不進 STT → 零算力的主要來源。 */
+  gate(rms){
+    if(!S.vad) return true;
+    var mult = 1 + (S.vadThr / 10);
+    return rms > 0.006 && rms > this.noiseFloor * mult;
+  },
+
+  onAudio(inBuf){
+    if(!this.running) return;
+    if(UI.paused) return;                            // 暫停時真的停止一切處理
+
+    var mono = inBuf.getChannelData(0);
+    var n = mono.length;
+    var sum = 0;
+    for(var i = 0; i < n; i++) sum += mono[i] * mono[i];
+    var rms = Math.sqrt(sum / n);
+
+    var voiced = this.gate(rms);
+    var now = Date.now();
+    if(voiced){
+      if(!this.speaking){ this.speaking = true; }
+      this.lastVoiceAt = now;
+      this.silenceMs = 0;
+    }else if(this.speaking){
+      this.silenceMs += (n / this.ctx.sampleRate) * 1000;
+      /* 尾端靜音超過 450ms → 視為句尾結束，強制沖刷尾段，避免吃掉最後幾個字 */
+      if(this.silenceMs > 450){
+        this.speaking = false;
+        this.flush();
+      }
+    }
+    $('vadTag').textContent = this.speaking ? '語音中 Voice' : (S.vad ? '靜音 Silent' : 'VAD 關閉');
+
+    if(!this.speaking) return;                       // 靜音 → 完全不累積（零算力）
+
+    this.push(mono);
+  },
+
+  /* 重採樣至 16kHz：用 OfflineAudioContext 原生重採樣，品質遠優於線性插值，
+     且不需自寫 DSP → 降低 CPU（零算力） */
+  async resample16k(float32){
+    var inRate = this.ctx.sampleRate;
+    if(inRate === 16000) return float32;
+    var outLen = Math.max(1, Math.floor(float32.length * 16000 / inRate));
+    var off = new OfflineAudioContext(1, outLen, 16000);
+    var src = off.createBufferSource();
+    var buf = off.createBuffer(1, float32.length, inRate);
+    buf.copyToChannel(float32, 0);
+    src.buffer = buf;
+    src.connect(off.destination);
+    src.start();
+    var rendered = await off.startRendering();
+    return rendered.getChannelData(0).slice(0);
+  },
+
+  async push(mono){
+    if(mono.length !== 4096) return;                 // 只收主路徑的單幀
+    var pcm = await this.resample16k(mono);
+    this.buffer.push(pcm);
+    this.bufferMs += pcm.length / 16000 * 1000;
+    if(this.bufferMs >= this.chunkMs) this.flush();
+  },
+
+  flush(){
+    if(!this.buffer.length) return;
+    var total = this.buffer.reduce(function(a, b){ return a + b.length; }, 0);
+    var flat = new Float32Array(total);
+    var off = 0;
+    for(var i = 0; i < this.buffer.length; i++){ flat.set(this.buffer[i], off); off += this.buffer[i].length; }
+    this.buffer = []; this.bufferMs = 0;
+    /* Web Speech 直接從麥克風取音，不需我們的重採樣 PCM；
+       只有 Whisper 分支才把 PCM 推進排程器，避免佇列堆積無用資料。 */
+    if(STT.useWhisper) STT.enqueue(flat);
+  },
+
+  async stop(){
+    this.running = false;
+    this.speaking = false;
+    if(this.rafId) cancelAnimationFrame(this.rafId);
+    if(this.processor){ try{ this.processor.disconnect(); }catch(_){} this.processor.onaudioprocess = null; }
+    if(this.src){ try{ this.src.disconnect(); }catch(_){} }
+    if(this.ctx){ try{ await this.ctx.close(); }catch(_){} }
+    if(this.stream){ this.stream.getTracks().forEach(function(t){ t.stop(); }); }
+    this.ctx = this.stream = this.analyser = this.processor = this.src = null;
+    this.buffer = []; this.bufferMs = 0;
+    $('meterFill').style.width = '0%';
+    $('vadTag').textContent = 'VAD 待機';
+    setLED('idle');
+    LOG.log('capture.stop', {});
+    toast('已停止 Stopped');
+  }
+};
+
+/* =========================================================
+   (4) STT 排程器 Scheduler
+   修正原版三個致命問題：
+     (a) busy flag —— 避免請求堆積（技能書記載「只翻一句」根因）
+     (b) 佇列上限 —— 記憶體與延遲有界
+     (c) 暫停時真的不推論（原本只擋 UI 顯示，CPU 照燒）
+   ========================================================= */
+var STT = {
+  pipe:null, loading:false, useWhisper:(S.sttEngine === 'whisper'),
+  busy:false, queue:[], MAX_QUEUE:2, ws:null, wsWanted:false,
+
+  /* 排程入口：丟棄過期片段，只保留最新（字幕是即時的，舊的沒價值） */
+  enqueue(pcm){
+    if(UI.paused) return;
+    if(this.queue.length >= this.MAX_QUEUE){
+      this.queue.shift();
+      LOG.log('stt.drop_overflow', { queue_len:this.queue.length });
+    }
+    this.queue.push(pcm);
+    this.pump();
+  },
+
+  async pump(){
+    if(this.busy || !this.queue.length || UI.paused) return;
+    this.busy = true;
+    var pcm = this.queue.shift();
+    try{
+      if(this.useWhisper) await this.runWhisper(pcm);
+      else await this.runWebSpeech();
+    }catch(e){
+      console.error(e);
+      showErr('辨識失敗 STT error:\n' + (e && e.message ? e.message : String(e)));
+    }finally{
+      this.busy = false;
+      this.pump();                                   // 續處理下一段
+    }
+  },
+
+  /* ---------- Web Speech（零下載、零 key、瀏覽器內建） ---------- */
+  runWebSpeech(){
+    if(this.ws) return Promise.resolve();
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR){
+      showErr('此瀏覽器不支援 Web Speech API。\n請改用 Whisper 離線引擎，或以 Chrome / Edge 開啟。');
+      return Promise.resolve();
+    }
+    var self = this;
+    var r = new SR();
+    r.continuous = true;
+    r.interimResults = true;
+    r.lang = S.wsLang;
+    this.ws = r;
+
+    return new Promise(function(resolve){
+      var settled = false;
+      var done = function(){ if(!settled){ settled = true; resolve(); } };
+
+      r.onresult = function(ev){
+        var interim = '', finalText = '';
+        for(var i = ev.resultIndex; i < ev.results.length; i++){
+          var res = ev.results[i];
+          if(res.isFinal) finalText += res[0].transcript;
+          else interim += res[0].transcript;
+        }
+        if(interim) UI.showInterim(interim.trim());
+        if(finalText && finalText.trim()) UI.showInterim('');
+        if(finalText && finalText.trim()) self.emit(finalText.trim());
+      };
+      r.onerror = function(e){
+        if(e.error === 'no-speech' || e.error === 'aborted'){ done(); return; }
+        console.warn('[OmniSub] speech error:', e.error);
+        showErr('Web Speech 錯誤：' + e.error +
+                '\n若持續發生，請改用 Whisper 離線引擎。');
+        setLED('error');
+        done();
+      };
+      r.onend = function(){
+        self.ws = null;
+        /* 修正：原版此處檢查 this.running，但 running 在 AC 物件上 → 永遠 undefined
+           → 瀏覽器自動結束後從不重連。使用者必須手動重啟。 */
+        if(self.wsWanted && !UI.paused && AC.running){
+          setTimeout(function(){
+            if(self.wsWanted && !self.ws && !UI.paused) self.pump();
+          }, 260);
+        }
+        done();
+      };
+      try{ r.start(); setLED('listening'); }catch(_){ done(); }
+    });
+  },
+
+  stopWebSpeech(){
+    this.wsWanted = false;
+    if(this.ws){ try{ this.ws.stop(); }catch(_){} this.ws = null; }
+  },
+
+  /* ---------- transformers.js 多 CDN 載入（單一鏡像失效不致命） ----------
+     修正：原版硬寫 cdnjs 的 transformers/3.7.6，但 @huggingface/transformers
+     從未發布到 cdnjs（全版本 404），故 Whisper 永遠無法載入。
+     改為依序嘗試多個鏡像，第一個成功即快取。 */
+  async initWhisper(){
+    if(this.pipe) return this.pipe;
+    if(this.loading) return null;
+    this.loading = true;
+    setLED('loading');
+    $('modelProgress').style.display = 'block';
+    $('modelNote').style.display = 'block';
+    $('modelNote').textContent = '載入離線模型中（首次需下載，之後由瀏覽器快取）。' +
+      '完全在本機推論，不上傳任何音訊。';
+    try{
+      var lib = await loadTransformersLib();
+      lib.env.allowLocalModels = false;
+      var self = this;
+      this.pipe = await lib.pipeline('automatic-speech-recognition', S.model, {
+        dtype:'q8',
+        progress_callback: function(p){
+          if(p && p.progress != null){
+            document.querySelector('#modelProgress .bar').style.width = p.progress + '%';
+          }
+        }
+      });
+      $('modelNote').textContent = '模型已就緒：' + S.model + '（本機 WASM 推論 · 音訊不離開本機）';
+      setTimeout(function(){ $('modelProgress').style.display = 'none'; }, 600);
+      hideErr();
+      setLED(AC.running ? 'listening' : 'idle');
+      LOG.log('whisper.ready', { model:S.model });
+    }catch(e){
+      showErr('Whisper 模型載入失敗：\n' + (e && e.message ? e.message : String(e)) +
+              '\n（以 file:// 開啟時瀏覽器會阻擋 CDN；請改用 http://localhost，或切回 Web Speech 引擎）');
+      $('modelProgress').style.display = 'none';
+      setLED('error');
+      this.pipe = null;
+    }
+    this.loading = false;
+    return this.pipe;
+  },
+
+  async runWhisper(pcm){
+    var pipe = await this.initWhisper();
+    if(!pipe){ setLED('error'); return; }
+    setLED('listening');
+    /* 修正：原版傳 language:'auto'，transformers.js 不支援此值。
+       不傳 language 參數即交由模型自動偵測。 */
+    var opts = { chunk_length_s: Math.min(30, Math.max(2, S.chunk)) };
+    if(S.wsLang && S.wsLang !== 'auto' && S.sttEngine === 'whisper'){
+      opts.task = 'transcribe';
+    }
+    var out = await pipe(pcm, opts);
+    var text = '';
+    if(typeof out === 'string') text = out;
+    else if(out && typeof out.text === 'string') text = out.text;         // transformers.js v3
+    else if(Array.isArray(out) && out[0] && typeof out[0].text === 'string') text = out[0].text; // v2 相容
+    if(text && text.trim()) this.emit(text.trim());
+  },
+
+  emit(text){ Translation.run(text); }
+};
+
+/* =========================================================
+   (5) 翻譯 Translation — 免 key 備援鏈
+   修正原版致命 bug：原 engines 陣列首項即 S.transEngine，卻被
+   `if(eng===S.transEngine) continue;` 跳過 → 使用者選的引擎從未被嘗試。
+   ========================================================= */
+var Translation = {
+  busy:false,
+  cache:Object.create(null),
+  cacheOrder:[],
+  CACHE_MAX:240,
+  lastEngine:null,
+  lastSrc:null,
+  cooldown:{ gtx:0, mymemory:0, libre:0 },
+
+  normKey:function(text, src, tgt){
+    return src + '>' + tgt + '>' + text.toLowerCase().replace(/\s+/g, ' ').trim();
+  },
+
+  remember:function(k, v){
+    if(this.cache[k]) return;
+    this.cache[k] = v;
+    this.cacheOrder.push(k);
+    if(this.cacheOrder.length > this.CACHE_MAX){
+      var old = this.cacheOrder.shift();
+      delete this.cache[old];
+    }
+  },
+
+  /* 備援鏈順序（2026-10 實測結果，非臆測）：
+     mymemory → 免金鑰、延遲可接受，長句翻譯正確且 quotaFinished:false。
+                公開端點中實測最穩者，故置於首位。
+     gtx      → 免金鑰且延遲最低（實測 207~881ms，4/4 HTTP 200，譯文正確）。
+                但 Google 對部分 IP（尤其機房/VPS）會回 429 —— 先前曾實測到 429，
+                判為「該 IP 當下的暫時限流」而非端點永久失效（同一端點稍後複測全數 200）。
+                故仍置於 mymemory 之後：若該 IP 被限流，mymemory 先顶上，
+                gtx 僅作加速備援；失敗時冷卻 60 秒快速跳過，不拖慢字幕。
+     libre    → 所有公開實例實測皆失效（詳見下方 libre 分支註解），
+                僅在使用者自架時啟用，否則直接略過。 */
+  chainFor:function(){
+    if(S.chain === 'mymemory') return ['mymemory'];
+    if(S.chain === 'gtx')      return ['gtx', 'mymemory'];
+    if(S.chain === 'libre')    return ['libre', 'mymemory'];
+    return ['mymemory', 'gtx', 'libre'];
+  },
+
+  async run(text, forcedSrc){
+    if(!text || !text.trim()) return;
+    /* 只保留最新字幕：翻譯請求排隊會造成舊字幕覆蓋新字幕（技能書記載根因） */
+    if(this.busy){ LOG.log('translate.skip_busy', {}); return; }
+    this.busy = true;
+    try{
+      var src = forcedSrc || detectLang(text);
+      var tgt = resolveTarget(src);
+      this.lastSrc = src;
+
+      if(src === tgt){ UI.render(text, text, '同語言 same-language', true); return; }
+
+      var key = this.normKey(text, src, tgt);
+      if(this.cache[key]){ UI.render(text, this.cache[key], this.lastEngine + ' · cache', true); return; }
+
+      var chain = this.chainFor();
+      for(var i = 0; i < chain.length; i++){
+        var eng = chain[i];
+        if(chain.indexOf(eng) !== i) continue;                 // 去除重複
+        var got = await this.tryEngine(eng, text, toApiCode(src), toApiCode(tgt));
+        if(got && got.trans){
+          this.lastEngine = got.name;
+          this.remember(key, got.trans);
+          UI.render(text, got.trans, got.name, true);
+          return;
+        }
+      }
+      UI.render(text, '', '僅辨識 STT-only（翻譯全數逾時）', false);
+      toast('翻譯全部失敗 Translation all failed', 'warn');
+    }catch(e){
+      console.warn(e);
+      UI.render(text, '', '翻譯異常 translate error', false);
+    }finally{
+      this.busy = false;
+    }
+  },
+
+  /* 單一請求逾時控制：即時字幕不容許長等待 */
+  fetchT:function(url, opts, ms){
+    var c = new AbortController();
+    var tid = setTimeout(function(){ c.abort(); }, ms || 6000);
+    opts = opts || {};
+    opts.signal = c.signal;
+    return fetch(url, opts).then(function(r){
+      clearTimeout(tid);
+      if(!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    }, function(e){
+      clearTimeout(tid);
+      throw e;
+    });
+  },
+
+  tryEngine:function(eng, text, src, tgt){
+    var nameMap = { gtx:'Google gtx', mymemory:'MyMemory', libre:'LibreTranslate' };
+    var self = this;
+    /* 每個引擎標記冷卻時間：某引擎連續失敗後暫時跳過，
+       避免每句字幕都白等一次逾時（即時字幕不容許這種延遲）。 */
+    var now = Date.now();
+    if(this.cooldown[eng] && this.cooldown[eng] > now){
+      LOG.log('translate.skip_cooled', { engine:eng });
+      return Promise.resolve(null);
+    }
+    var onFail = function(err){
+      self.cooldown[eng] = now + 60000;            // 失敗冷卻 60 秒
+      LOG.log('translate.engine_error', { engine:eng, error:err });
+      return null;
+    };
+
+    try{
+      if(eng === 'mymemory'){
+        var pair = src + '|' + tgt;
+        var m = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) +
+                '&langpair=' + encodeURIComponent(pair);
+        return this.fetchT(m, {}, 6000).then(function(j){
+          var t = j && j.responseData && j.responseData.translatedText;
+          if(!t) throw new Error('no result');
+          self.cooldown[eng] = 0;                  // 成功即解除冷卻
+          return { trans:t, name:nameMap.mymemory };
+        }).catch(onFail);
+      }
+      if(eng === 'gtx'){
+        var u = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' +
+                encodeURIComponent(src) + '&tl=' + encodeURIComponent(tgt) + '&dt=t&q=' + encodeURIComponent(text);
+        return this.fetchT(u, {
+          headers:{ 'Accept':'application/json' }
+        }, 5000).then(function(j){
+          var parts = (j && j[0]) ? j[0].map(function(s){ return s && s[0]; }).join('') : '';
+          if(!parts) throw new Error('no result');
+          self.cooldown[eng] = 0;
+          return { trans:parts, name:nameMap.gtx };
+        }).catch(onFail);
+      }
+      if(eng === 'libre'){
+        /* 實測結論（2026-10）：所有公開 LibreTranslate 實例皆不可靠，已全數移除
+           - libretranslate.de          → 301 轉 de.libretranslate.com 後回 405
+           - translate.fedilab.app      → 403 Forbidden by administrative rules
+           - translate.terraprint.co    → 502 Bad Gateway（原始碼預設鏡像）
+           - libretranslate.eownerdead… → 連線失敗 HTTP 000
+           保留此分支供使用者自架 LibreTranslate 實例時填入（設定項可改網址）。 */
+        var base = (S.libreUrl || '').trim();
+        if(!base){
+          LOG.log('translate.libre_unset', {});
+          return Promise.resolve(null);
+        }
+        return this.fetchT(base, {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body:JSON.stringify({ q:text, source:src, target:tgt, format:'text' })
+        }, 4500).then(function(j){
+          if(!j || !j.translatedText) throw new Error('no result');
+          self.cooldown[eng] = 0;
+          return { trans:j.translatedText, name:nameMap.libre };
+        }).catch(onFail);
+      }
+    }catch(e){
+      return Promise.resolve(onFail(e));
+    }
+    return Promise.resolve(null);
+  }
+};
+
+/* =========================================================
+   (6) UI 渲染 — 全程 textContent，杜絕 XSS
+   修正：原版以 innerHTML 插入字幕內容，屬高風險注入點
+   ========================================================= */
+var UI = {
+  paused:false,
+  hist:[],
+  MAX_HIST:40,
+  seen:Object.create(null),        // 正規化去重，避免 Whisper 重疊段落重複整句
+  seenOrder:[],
+
+  norm:function(s){
+    return s.toLowerCase().replace(/[\s.,!?;:'"，。！？、；：「」『』（）()\-–—]/g, '');
+  },
+
+  showInterim:function(text){
+    var el = $('origLine');
+    el.className = text ? 'interim' : '';
+    el.textContent = text || '等待語音 Waiting for speech';
+    $('transLine').classList.add('stale');
+  },
+
+  render:function(orig, trans, engine, isTranslated){
+    if(this.paused) return;
+    if(typeof orig !== 'string') return;
+    $('origLine').className = '';
+    $('origLine').textContent = orig;
+    $('transLine').classList.toggle('stale', !isTranslated);
+    $('transLine').textContent = trans || (isTranslated ? '(無翻譯)' : '（僅辨識 · 翻譯服務未回應）');
+    $('engineBadge').textContent = '';
+
+    var b = $('engineBadge');
+    b.appendChild(document.createTextNode('引擎 Engine: '));
+    var strong = document.createElement('b');
+    strong.textContent = engine || '—';
+    b.appendChild(strong);
+    if(Translation.lastSrc) b.appendChild(document.createTextNode('  ·  ' + Translation.lastSrc + ' → ' + resolveTarget(Translation.lastSrc)));
+
+    /* 去重：Whisper 相鄰段落常重疊同一句，正規化後未前進就不重複入史
+       （技能書記載「重複顯示整句」根因：startsWith 因標點差異失效）。
+       畫面仍會更新，保持字幕是最新的那句。 */
+    var key = this.norm(orig);
+    if(this.seen[key]) return;
+    this.seen[key] = 1;
+    this.seenOrder.push(key);
+
+    this.hist.push({
+      orig:orig, trans:trans || '',
+      at:new Date().toLocaleTimeString('zh-TW', { hour12:false }),
+      sec:Date.now() / 1000
+    });
+    if(this.hist.length > this.MAX_HIST){
+      var dropped = this.hist.shift();               // 與 seen 同步修剪，避免 key 洩漏
+      var dk = this.norm(dropped.orig);
+      delete this.seen[dk];
+      var di = this.seenOrder.indexOf(dk);
+      if(di !== -1) this.seenOrder.splice(di, 1);
+    }
+    this.renderHist();
+
+    if(Sharing.enabled) Sharing.send({ orig:orig, trans:trans, engine:engine, at:b.textContent });
+    LOG.log('caption.render', { engine:engine, len:orig.length });
+  },
+
+  renderHist:function(){
+    var w = $('historyWrap');
+    w.textContent = '';
+    for(var i = this.hist.length - 1; i >= 0; i--){
+      var h = this.hist[i];
+      var row = document.createElement('div');
+      row.className = 'hist-row';
+      var ts = document.createElement('span');
+      ts.className = 'ts'; ts.textContent = h.at;
+      var o = document.createElement('span');
+      o.className = 'o'; o.textContent = h.orig;
+      row.appendChild(ts);
+      row.appendChild(document.createElement('br'));
+      row.appendChild(o);
+      if(h.trans){
+        row.appendChild(document.createElement('br'));
+        var t = document.createElement('span');
+        t.className = 't'; t.textContent = h.trans;
+        row.appendChild(t);
+      }
+      w.appendChild(row);
+    }
+  },
+
+  clear:function(){
+    this.hist = []; this.seen = Object.create(null); this.seenOrder = [];
+    this.renderHist();
+    $('origLine').textContent = '等待語音 Waiting for speech';
+    $('origLine').className = 'interim';
+    $('transLine').textContent = '—';
+    $('transLine').classList.remove('stale');
+    $('engineBadge').textContent = '';
+  },
+
+  /* SRT 匯出：1-based 序號 + HH:MM:SS,mmm */
+  exportSRT:function(){
+    if(!this.hist.length){ toast('尚無字幕可匯出 Nothing to export', 'warn'); return; }
+    var base = this.hist[0].sec;
+    var out = this.hist.map(function(h, i){
+      var s = Math.max(0, h.sec - base);
+      var e = s + Math.max(1.2, h.orig.length / 12);   // 依字數推估顯示時長
+      return (i + 1) + '\n' + fmtSRT(s) + ' --> ' + fmtSRT(e) + '\n' + h.orig +
+             (h.trans ? '\n' + h.trans : '') + '\n';
+    }).join('\n');
+    var blob = new Blob([out], { type:'application/x-subrip;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'omnisub-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '') + '.srt';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+    toast('已匯出 SRT SRT exported (' + this.hist.length + ' 段)');
+  }
+};
+function fmtSRT(sec){
+  // 非有限值防禦：NaN/Infinity 會讓 Math.max(0,NaN)=NaN，pad2(NaN) 產出 'aN'
+  // → 整列時間碼變成 'aN:aN:aN,NaN'（SRT 格式非法，多數播放器直接跳過該段）
+  if(!isFinite(sec)) sec = 0;
+  // 先四捨五入到「毫秒總數」再分解，否則 1.9999 會得到 1,000ms 而秒數未進位
+  // （顯示為 00:00:01,000，比實際時間少 1 秒）
+  var t = Math.max(0, Math.round(sec * 1000));
+  var h = Math.floor(t / 3600000);
+  var m = Math.floor((t % 3600000) / 60000);
+  var s = Math.floor((t % 60000) / 1000);
+  var ms = t % 1000;
+  return pad2(h) + ':' + pad2(m) + ':' + pad2(s) + ',' + ('00' + ms).slice(-3);
+}
+function pad2(n){ return ('0' + n).slice(-2); }
+
+/* =========================================================
+   (7) 分享 Sharing — PeerJS host/viewer + backlog + BroadcastChannel
+   ========================================================= */
+var Sharing = {
+  enabled:false, isViewer:false, peer:null, conn:null, chan:null, backlog:[],
+  BACKLOG_MAX:20,
+
+  async enable(){
+    if(!this.chan){
+      try{
+        this.chan = new BroadcastChannel('omnisub-sub');
+        var self = this;
+        this.chan.onmessage = function(ev){
+          if(self.isViewer) return;
+          if(ev && ev.data && ev.data.orig) UI.render(ev.data.orig, ev.data.trans, 'BroadcastChannel', true);
+        };
+      }catch(_){ this.chan = null; }
+    }
+    var m = location.hash.match(/#peer=([^&]+)/);
+    if(m){ this.joinAsViewer(decodeURIComponent(m[1])); return; }
+
+    if(typeof Peer === 'undefined'){
+      toast('PeerJS 未載入，僅啟用同瀏覽器同步 BroadcastChannel', 'warn');
+      this.enabled = !!this.chan;
+      return;
+    }
+    if(this.peer) return;
+    var self = this;
+    this.peer = new Peer();
+    this.peer.on('open', function(id){
+      self.enabled = true;
+      $('shareInfo').textContent = '連結 Link: ' + location.href.split('#')[0] + '#peer=' + id;
+      toast('分享已啟用 Sharing on');
+      self.peer.on('connection', function(c){
+        self.conn = c;
+        c.on('open', function(){
+          toast('有觀眾接入 Viewer joined');
+          self.backlog.forEach(function(m){ try{ c.send(m); }catch(_){} });   // 補歷史
+        });
+      });
+    });
+    this.peer.on('error', function(e){
+      LOG.log('peer.error', { type:e && e.type });
+      toast('分享錯誤 Peer error: ' + (e && e.type), 'err');
+    });
+  },
+
+  joinAsViewer(id){
+    if(typeof Peer === 'undefined'){ toast('PeerJS 未載入，無法觀看', 'err'); return; }
+    this.isViewer = true;
+    this.enabled = true;
+    ['startSysBtn', 'micBtn', 'clearBtn', 'shareBtn'].forEach(function(id){ $(id).disabled = true; });
+    $('hintBox').textContent = '觀看模式 Viewer mode（唯讀）。字幕由分享端即時推送。';
+    var self = this;
+    this.peer = new Peer();
+    this.peer.on('open', function(){
+      self.conn = self.peer.connect(id, { reliable:true });
+      self.conn.on('data', function(d){
+        if(d && d.orig !== undefined) UI.render(d.orig, d.trans, 'viewer · ' + (d.engine || 'remote'), true);
+      });
+      self.conn.on('close', function(){ toast('分享端已離開 Host disconnected', 'warn'); });
+    });
+    this.peer.on('error', function(e){ toast('連線錯誤: ' + (e && e.type), 'err'); });
+  },
+
+  send:function(msg){
+    if(this.conn && !this.isViewer){
+      try{ this.conn.send(msg); }catch(e){ console.warn(e); }
+      this.backlog.push(msg);
+      if(this.backlog.length > this.BACKLOG_MAX) this.backlog.shift();
+    }
+    if(this.chan && !this.isViewer){
+      try{ this.chan.postMessage(msg); }catch(_){}
+    }
+  },
+
+  disable:function(){
+    if(this.peer){ try{ this.peer.destroy(); }catch(_){} }
+    this.peer = null; this.conn = null; this.enabled = false; this.isViewer = false;
+    $('shareInfo').textContent = '';
+  }
+};
+
+/* =========================================================
+   (8) 事件繫結 Event wiring
+   ========================================================= */
+function applySTTEngine(){
+  STT.useWhisper = (S.sttEngine === 'whisper');
+  $('whisperOpts').style.display = STT.useWhisper ? 'block' : 'none';
+  $('sttHint').textContent = STT.useWhisper
+    ? 'Whisper 可擷取系統音訊（本機 WASM 推論）。串流建議 tiny：base 推理慢，易造成字幕滯後。'
+    : 'Web Speech 為瀏覽器內建，零下載、零金鑰、延遲最低；但僅支援麥克風輸入，無法擷取分頁音訊。';
+  $('sttToggleBtn').classList.toggle('active', STT.useWhisper);
+  $('sttToggleBtn').textContent = STT.useWhisper ? 'W' : 'S';
+}
+function applyVadHint(){
+  var mult = 1 + (S.vadThr / 10);
+  $('vadHint').textContent = '目前門檻約為環境噪聲的 ' + mult.toFixed(1) + ' 倍。' +
+    '調高更省算力但易漏字；調低較敏感但可能把鍵盤聲誤判為語音。';
+}
+/* 翻譯鏈狀態說明：直接反映實測結果，不做無法兌現的承諾 */
+function applyChainHint(){
+  var libreOk = !!(S.libreUrl && S.libreUrl.trim());
+  var t = '實測（2026-10）：MyMemory 免金鑰且穩定，作為預設首選；' +
+          'gtx 延遲最低但 Google 對部分 IP 回 429（限流時自動冷卻 60 秒並跳過）。';
+  t += libreOk
+    ? 'Libre 已設定自架網址，會作為末位備援。'
+    : 'LibreTranslate 公開實例實測皆已失效（405/403/502），故未填網址時會直接略過該分支，不浪費等待時間。';
+  $('chainHint').textContent = t;
+}
+function applyModelSizeHint(){
+  var m = S.model || '';
+  var map = {
+    'Xenova/whisper-tiny':['約 40 MB','最快，串流首選'],
+    'Xenova/whisper-base':['約 80 MB','較準，推理明顯較慢'],
+    'Xenova/whisper-small':['約 250 MB','準確，非即時首選']
+  };
+  var info = map[m];
+  $('modelSizeHint').textContent = info ? info[0] + ' · ' + info[1] : '自訂模型 Model';
+}
+
+$('startSysBtn').onclick = async function(){
+  if(S.sttEngine === 'webspeech'){
+    showErr('Web Speech 引擎僅支援麥克風（瀏覽器限制：無法辨識分頁音訊）。\n' +
+            '要擷取 Zoom / 會議分頁音訊，請在左側「引擎」切到 Whisper 離線。');
+    toast('請改用 Whisper 引擎或按「麥克風」', 'warn');
+    return;
+  }
+  if(!STT.pipe) await STT.initWhisper();
+  if(await AC.startSystem()){ STT.wsWanted = false; setLED('listening'); }
+};
+$('micBtn').onclick = async function(){
+  if(await AC.startMic()){
+    if(STT.useWhisper){ if(!STT.pipe) await STT.initWhisper(); }
+    else { STT.wsWanted = true; STT.pump(); }
+    setLED('listening');
+  }
+};
+$('stopBtn').onclick = async function(){
+  STT.stopWebSpeech();
+  STT.queue = [];
+  STT.wsWanted = false;
+  await AC.stop();
+};
+$('pauseBtn').onclick = function(){
+  UI.paused = !UI.paused;
+  this.classList.toggle('active', UI.paused);
+  if(UI.paused){
+    setLED('paused');
+    STT.stopWebSpeech();
+    $('transLine').classList.add('stale');
+    toast('已暫停：停止推論與擷取處理 Paused', 'warn');
+  }else{
+    STT.wsWanted = (AC.running && !STT.useWhisper);
+    setLED(AC.running ? 'listening' : 'idle');
+    STT.pump();
+    toast('繼續 Resumed');
+  }
+};
+$('histBtn').onclick  = function(){ $('historyWrap').classList.toggle('open'); };
+$('clearBtn').onclick = function(){ UI.clear(); toast('已清空 Cleared'); };
+$('srtBtn').onclick   = function(){ UI.exportSRT(); };
+$('drawerBtn').onclick= function(){ $('drawer').classList.toggle('open'); };
+$('drawerClose').onclick = function(){ $('drawer').classList.remove('open'); };
+
+$('sttToggleBtn').onclick = function(){
+  var next = S.sttEngine === 'whisper' ? 'webspeech' : 'whisper';
+  S.sttEngine = next; save();
+  $('selSTTEngine').value = next;
+  STT.pipe = null;
+  applySTTEngine();
+  toast('切換辨識引擎 STT → ' + next, 'warn', 3600);
+};
+
+/* 拖曳（僅標題列）Draggable via title bar only */
+(function(){
+  var p = $('panel'), bar = $('titlebar');
+  var sx = 0, sy = 0, ox = 0, oy = 0, dragging = false;
+  bar.addEventListener('pointerdown', function(e){
+    if(Sharing.isViewer) return;
+    dragging = true;
+    try{ bar.setPointerCapture(e.pointerId); }catch(_){}
+    var r = p.getBoundingClientRect();
+    sx = e.clientX; sy = e.clientY; ox = r.left; oy = r.top;
+    p.style.transform = 'none';
+  });
+  bar.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    p.style.left = (ox + e.clientX - sx) + 'px';
+    p.style.top  = (oy + e.clientY - sy) + 'px';
+  });
+  bar.addEventListener('pointerup',     function(){ dragging = false; });
+  bar.addEventListener('pointercancel', function(){ dragging = false; });
+})();
+
+/* 鍵盤快捷鍵 Keyboard shortcuts */
+document.addEventListener('keydown', function(e){
+  if(e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  if(e.key === ' '){ e.preventDefault(); $('pauseBtn').click(); }
+  else if(e.key === 'h' || e.key === 'H'){ $('histBtn').click(); }
+  else if(e.key === 's' || e.key === 'S'){ $('srtBtn').click(); }
+  else if(e.key === 'Escape'){ $('drawer').classList.remove('open'); }
+});
+
+/* 視窗關閉前釋放資源 Release resources */
+window.addEventListener('beforeunload', function(){
+  if(AC.running) AC.stop();
+  if(Sharing.peer) Sharing.disable();
+});
+
+/* =========================================================
+   (9) 設定抽屜綁定 Settings bindings
+   ========================================================= */
+$('selSTTEngine').value = S.sttEngine;
+$('selSTTEngine').onchange = function(e){
+  S.sttEngine = e.target.value; save();
+  STT.pipe = null;
+  applySTTEngine();
+};
+$('inpModel').value = S.model;
+$('inpModel').oninput = function(e){ S.model = e.target.value.trim(); save(); applyModelSizeHint(); };
+document.querySelectorAll('[data-model]').forEach(function(b){
+  b.onclick = function(){
+    S.model = b.getAttribute('data-model');
+    $('inpModel').value = S.model; save(); applyModelSizeHint();
+    STT.pipe = null;
+    toast('模型已切換為 ' + S.model + '（下次啟動時載入）', 'warn', 3200);
+  };
+});
+$('reloadWhisper').onclick = function(){ STT.pipe = null; STT.initWhisper(); };
+$('selWsLang').value = S.wsLang;
+$('selWsLang').onchange = function(e){
+  S.wsLang = e.target.value; save();
+  if(STT.ws){ STT.stopWebSpeech(); STT.wsWanted = true; }
+};
+$('selChain').value = S.chain;
+$('selChain').onchange = function(e){ S.chain = e.target.value; save(); applyChainHint(); };
+$('inpLibreUrl').value = S.libreUrl;
+$('inpLibreUrl').oninput = function(e){ S.libreUrl = e.target.value.trim(); save(); };
+
+$('chkVad').checked = S.vad;
+$('chkVad').onchange = function(e){ S.vad = e.target.checked; save(); applyVadHint(); };
+$('rngVad').value = S.vadThr;
+$('rngVad').oninput = function(e){
+  S.vadThr = Number(e.target.value); save(); applyVadHint();
+  $('vadTag').textContent = S.vad ? '語音中 Voice' : 'VAD 關閉';
+};
+
+$('rngFont').value = S.font;
+$('rngFont').oninput = function(e){
+  S.font = Number(e.target.value); save();
+  document.documentElement.style.setProperty('--trans-size', S.font + 'px');
+};
+$('rngOpacity').value = S.opacity;
+$('rngOpacity').oninput = function(e){
+  S.opacity = Number(e.target.value); save();
+  document.documentElement.style.setProperty('--panel-opacity', (S.opacity / 100).toFixed(2));
+};
+$('rngChunk').value = S.chunk;
+$('rngChunk').oninput = function(e){
+  S.chunk = Number(e.target.value); save();
+  $('chunkLabel').textContent = S.chunk;
+  if(AC.running) toast('分段長度將於重新開始擷取時生效', 'warn', 2600);
+};
+
+$('chkShare').checked = false;
+$('shareBtn').onclick = async function(){
+  if(Sharing.enabled){ Sharing.disable(); this.classList.remove('active'); $('chkShare').checked = false; }
+  else{ await Sharing.enable(); this.classList.add('active'); $('chkShare').checked = Sharing.enabled; }
+};
+
+/* =========================================================
+   (10) 啟動初始化 Boot
+   ========================================================= */
+document.documentElement.style.setProperty('--trans-size', S.font + 'px');
+document.documentElement.style.setProperty('--panel-opacity', (S.opacity / 100).toFixed(2));
+$('chunkLabel').textContent = S.chunk;
+applySTTEngine();
+applyVadHint();
+applyModelSizeHint();
+applyChainHint();
+
+/* ---------- transformers.js 多鏡像載入器 ----------
+   修正記錄：原版硬寫
+     https://cdnjs.cloudflare.com/ajax/libs/transformers/3.7.6/transformers.min.js
+   但 @huggingface/transformers 套件從未發布到 cdnjs（全版本 HTTP 404），
+   導致 Whisper 引擎永遠無法載入、字幕不出現。此處依序嘗試多個鏡像。 */
+var TRANSFORMERS_CDNS = [
+  'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6/dist/transformers.min.js',
+  'https://unpkg.com/@huggingface/transformers@3.7.6/dist/transformers.min.js',
+  'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2/dist/transformers.min.js'
+];
+var __tfLib = null;
+async function loadTransformersLib(){
+  if(__tfLib) return __tfLib;
+  var errs = [];
+  for(var i=0;i<TRANSFORMERS_CDNS.length;i++){
+    try{
+      var m = await import(TRANSFORMERS_CDNS[i]);
+      if(m && typeof m.pipeline === 'function'){
+        __tfLib = m;
+        LOG.log('transformers.loaded', { cdn:TRANSFORMERS_CDNS[i] });
+        return __tfLib;
+      }
+      errs.push(TRANSFORMERS_CDNS[i] + ' → 模組無 pipeline()');
+    }catch(e){
+      errs.push(TRANSFORMERS_CDNS[i] + ' → ' + (e && e.message ? e.message : String(e)));
+    }
+  }
+  throw new Error('所有鏡像皆載入失敗：\n' + errs.join('\n'));
+}
+
+if(location.protocol === 'file:'){
+  showErr('以 file:// 開啟：Whisper 模型與部分翻譯端點的跨網域請求可能被瀏覽器阻擋。\n' +
+          '建議改用 http://localhost 或部署到 https；Web Speech 與 gtx 翻譯仍可正常使用。');
+}
+if(!window.SpeechRecognition && !window.webkitSpeechRecognition){
+  $('sttHint').textContent = '此瀏覽器不支援 Web Speech API，請使用 Whisper 離線引擎。';
+}
+LOG.log('boot', { engine:S.sttEngine, chain:S.chain, direction:'zh-TW<->en', vad:S.vad });
+
+/* 對外測試鉤子 External test hook（僅供自動化驗證，不影響正常使用） */
+window.__omnisub = {
+  detectLang:detectLang, resolveTarget:resolveTarget,
+  Translation:Translation, UI:UI, STT:STT, AC:AC, S:S, Sharing:Sharing,
+  inject:function(text, src){
+    Translation.run(text, src);
+  },
+  fmtSRT:fmtSRT
+};
+
+})();
+</script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 # SustainWrite 永續撰寫
 
+[MEDCE: D 揭露 | C 合規、E 參與]
+
 **路徑：** `/editor`
 
 ## 功能定位

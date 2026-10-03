@@ -1,0 +1,14 @@
+{
+  "level": 1,
+  "exp": 0,
+  "nextLevelExp": 1000,
+  "syncRate": 45.5,
+  "coreTraits": [
+    "Truth",
+    "Goodness",
+    "Beauty",
+    "Trust",
+    "Transferful"
+  ],
+  "memoryFragments": 12
+}

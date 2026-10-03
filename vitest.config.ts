@@ -1,7 +1,58 @@
 import { defineConfig } from 'vitest/config';
+import type { Plugin } from 'vite';
 import path from 'path';
+import fs from 'node:fs';
+
+/**
+ * 5T Trackable — 補齊 tsconfig `paths` 的順位 fallback 語意。
+ *
+ * 根因（2026-10-02 實測）: tsconfig.json 宣告
+ *     "@lib/*": ["./src/lib/*", "./lib/*"]
+ * 是「依序 fallback」陣列 —— `@lib/redis` 在 src/lib/ 找不到時，改解析到根目錄
+ * `lib/redis/`（真實存在）。Next.js build 讀 tsconfig，故 production build 通過；
+ * 舊的 resolve.alias 是單一映射（'@lib' → ./src/lib），Vite alias「先符合者勝」
+ * 而非「不存在就往下一順位」，於是 @lib/redis 解析失敗：
+ *     Error: Cannot find package '@lib/redis' imported from
+ *     src/core/services/async-task-manager.ts
+ * 症狀：任何 transitively import @lib/redis 的測試整檔載入失敗（0 test），
+ * 與測試內容無關 —— 基礎設施脆弱性，會隨每個新測試復發。
+ *
+ * 修法取捨（全部實測過，勿走回頭路）:
+ *   1. resolve.tsconfigPaths: true（Vite 8 原生）   → 無效，@/ 與 @lib/ 全滅
+ *   2. vite-tsconfig-paths 套件                      → 被載入但未解析，同樣全滅
+ *   3. 保留 resolve.alias 的 '@'，'@lib' 交由此 plugin → 本行
+ * 關鍵：Vite 內建 alias plugin 先於一般 pre-plugin 執行，故 '@lib' 必須
+ * 從 alias 移除才輪得到本 resolver；'@' 則維持 alias（既有數百測試依賴）。
+ */
+function tsconfigPathsFallback(): Plugin {
+  const roots = [path.resolve(__dirname, './src/lib'), path.resolve(__dirname, './lib')];
+  const candidates = (base: string): string[] => [
+    base,
+    `${base}.ts`,
+    `${base}.tsx`,
+    `${base}.mts`,
+    path.join(base, 'index.ts'),
+    path.join(base, 'index.tsx'),
+  ];
+  return {
+    name: 'esggo:tsconfig-paths-fallback',
+    enforce: 'pre',
+    resolveId(source) {
+      if (source !== '@lib' && !source.startsWith('@lib/')) return null;
+      const sub = source === '@lib' ? '' : source.slice('@lib/'.length);
+      if (!sub) return null;
+      for (const root of roots) {
+        for (const candidate of candidates(path.join(root, sub))) {
+          if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) return candidate;
+        }
+      }
+      return null;
+    },
+  };
+}
 
 export default defineConfig({
+  plugins: [tsconfigPathsFallback()],
   test: {
     globals: true,
     environment: 'node',
@@ -43,6 +94,11 @@ export default defineConfig({
       // 被根 vitest 抓取時會報 "No test suite found in file"。
       // 該套件由 ci.yml 的 "UT API Tests (node --test)" job 執行，覆蓋率不減。
       'apps/universal-translator/test/**',
+      // 根目錄 e2e/ 是 Playwright 套件（playwright.config.ts 的 testDir: './e2e'），
+      // 檔名 *.spec.ts 命中 vitest 預設 include 會被誤抓，報
+      // "Cannot find package '@playwright/test'" (ERR_MODULE_NOT_FOUND)。
+      // 該套件由 `pnpm run test:e2e`（playwright test）執行，非 vitest。
+      'e2e/**',
       // e2e-k1 是自帶 package.json + playwright.config.mjs 的獨立 Playwright 套件，
       // 且不在 pnpm-workspace packages 清單內（@playwright/test 從未安裝），
       // 被根 vitest 抓取時會報 "Cannot find package '@playwright/test'" (ERR_MODULE_NOT_FOUND)。
@@ -85,8 +141,10 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      // 保留 '@'：既有數百測試依賴此映射。
+      // 不得宣告 '@lib' —— Vite 內建 alias plugin 優先於一般 pre-plugin，
+      // 會擋掉 tsconfigPathsFallback() 的順位 fallback（實測）。
       '@': path.resolve(__dirname, './src'),
-      '@lib': path.resolve(__dirname, './src/lib'),
     },
   },
 });

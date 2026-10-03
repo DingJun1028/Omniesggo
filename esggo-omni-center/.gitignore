@@ -1,0 +1,34 @@
+# esggo-omni-center 專屬忽略規則
+# 存在理由：本目錄若只依賴 repo 根目錄的 **/node_modules 兜底，
+# 一旦有人用 git add -f / git update-index --add 就會把依賴樹灌進版控。
+# 2026-10-03 曾發生 commit 664834c31 夾帶 174,448 個 node_modules 檔案入樹。
+
+# 依賴樹
+node_modules/
+**/node_modules
+.pnpm-store/
+
+# 建置產出
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# 測試與快取
+coverage/
+.vitest/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+# 環境與憑證（絕不入版）
+.env
+.env.*
+!.env.example
+
+# 暫存與產出檔
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

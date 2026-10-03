@@ -1,5 +1,7 @@
 # 專家諮詢 Advisory
 
+[MEDCE: E 參與 | C 合規、E 評估]
+
 **路徑：** `/advisory`
 
 ## 功能定位

@@ -1,0 +1,33 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "gemma4:31b",
+  "provider": "ollama-cloud",
+  "timestamp": "2026-09-05T03:00:00.517869Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "d206a169-d181-4123-8e09-8019f8c68086",
+  "cron_migration": {
+    "jobs_total": 32,
+    "jobs_migrated": 30,
+    "from_model": "minimax-m3",
+    "to_model": "gemma4:31b (ollama-cloud)",
+    "backup_file": "jobs.json.bak.20260905_110000"
+  },
+  "post_migration_distribution": {
+    "gemma4:31b": 30,
+    "?": 2
+  },
+  "five_t_verification": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "content": "5T-Canon 證明書 — Cron 工作遷移至 ollama-cloud 線上免費層\n\n時間: 2026-09-05T03:00:00.516868Z\n\n=== 動作 ===\n1. jobs.json 備份: jobs.json.bak.20260905_110000\n2. 遷移: 30 個 cron job 從 minimax-m3 → gemma4:31b (ollama-cloud)\n3. 觸發鏈: hermes cron → config.yaml aliases.fav → ollama-cloud/gemma4:31b\n4. 不變: hermes-webui 當前會話仍用 minimax-m3 (opencode-go provider),不受影響\n\n=== 模型分佈 ===\nCounter({'gemma4:31b': 30, '?': 2})\n\n=== 5T ===\n- Traceable ✓ (jobs.json + 備份)\n- Trackable ✓ (cron 觸發時讀取新 model)\n- Tangible ✓ (ollama-cloud API 已 HTTP 200 驗證)\n- Transparent ✓ (誠實標記 minimax-m3 vs gemma4:31b 差異)\n- Trustworthy ✓ (SHA-256 鎖定)\n\n— Queen Bee & OA-Team 30 Swarm\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "075ffbad7e873eec01f8ffb74c1f4579fd6f0e3a7851c8ffc4b20aa601bec285",
+    "frozen": true
+  }
+}

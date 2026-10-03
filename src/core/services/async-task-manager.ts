@@ -38,11 +38,34 @@ export type TaskStatus =
   | 'failed'
   | 'cancelled';
 
+/**
+ * 5T Transparent: render toggles requested by the client at POST time.
+ * Defaults are `true` so an omitted field never silently drops chart/imagery output.
+ * These MUST reach reportV5ToHtml/reportV5ToMarkdown — a toggle that is accepted but
+ * never consumed is a 5T Transparent violation (a control that lies).
+ */
+export interface ReportRenderOptions {
+  readonly charts: boolean;
+  readonly imagery: boolean;
+}
+
+export const DEFAULT_RENDER_OPTIONS: ReportRenderOptions = { charts: true, imagery: true };
+
+export function normalizeRenderOptions(raw: unknown): ReportRenderOptions {
+  if (!raw || typeof raw !== 'object') return DEFAULT_RENDER_OPTIONS;
+  const o = raw as Record<string, unknown>;
+  return {
+    charts: o.charts === undefined ? DEFAULT_RENDER_OPTIONS.charts : Boolean(o.charts),
+    imagery: o.imagery === undefined ? DEFAULT_RENDER_OPTIONS.imagery : Boolean(o.imagery),
+  };
+}
+
 export interface TaskProgress {
   readonly taskId: string;
   readonly status: TaskStatus;
   readonly taskType?: 'report_generation' | 'grammar_rewrite' | 'ocr_processing';
   readonly templateId?: string;
+  readonly renderOptions?: ReportRenderOptions;
   readonly noteIds?: readonly string[];
   readonly customCompany?: {
     readonly name: string;
@@ -149,6 +172,7 @@ export function createTask(
     scope1Tco2e: number;
     scope2Tco2e: number;
   },
+  renderOptions?: unknown,
 ): string {
   const taskId = `tsk-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();
@@ -173,6 +197,7 @@ export function createTask(
     startedAt: now,
     updatedAt: now,
     templateId: templateId || 'gri',
+    renderOptions: normalizeRenderOptions(renderOptions),
     ...(noteIds && noteIds.length > 0 ? { noteIds } : {}),
     ...(customCompany ? { customCompany } : {}),
   };
@@ -301,7 +326,10 @@ export function startAsyncTask(
   updateTaskStateRedis(taskId, 'running').catch(() => {});
 
   let chapterIndex = 0;
-  const totalChapters = 28;
+  // 5T Trackable: chapter count must come from the single source of truth set by
+  // createTask() (gri=28, tcfd=12, investor=5). Hardcoding 28 here made progress
+  // polling contradict the task's own totalChapters for non-GRI templates.
+  const totalChapters = task.totalChapters;
   let wordsSoFar = 0;
   const startTime = Date.now();
 

@@ -10,7 +10,7 @@ import { jsonResponse, jsonError } from '@lib/api-utils';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
-  const { companyId, templateId, noteIds, customCompany } = await req.json();
+  const { companyId, templateId, noteIds, customCompany, renderOptions } = await req.json();
 
   if (!companyId) {
     return jsonError('INVALID_PARAMS', 'companyId is required', 400);
@@ -22,7 +22,9 @@ export async function POST(req: NextRequest) {
     origin: 'ESG_REPORT_AGENT'
   });
 
-  const taskId = createTask(companyId, templateId, noteIds, customCompany);
+  // 5T Transparent: renderOptions is carried on the task and consumed by the
+  // preview/download renderers. It is NOT dropped here.
+  const taskId = createTask(companyId, templateId, noteIds, customCompany, renderOptions);
   startAsyncTask(taskId, companyId);
 
   return jsonResponse({
