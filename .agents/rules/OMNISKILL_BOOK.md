@@ -768,7 +768,7 @@ Deno.serve(async (req: Request) => {
 
 ---
 
-## 15. Skill Library Index (77 Skills)
+## 15. Skill Library Index (78 Skills)
 
 > Comprehensive index of all installable skills under `.agents/skills/`.
 
@@ -878,6 +878,12 @@ Deno.serve(async (req: Request) => {
 | `awesome-claude-skills` | Multi-agent prompts library, specialized system instructions, and role-play paradigms | ⭐⭐⭐ |
 | `archify` | ADR generation, architecture blueprint drafting, and monorepo structural governance | ⭐⭐⭐⭐ |
 | `impeccable` | Zero-hallucination verification, 5T Protocol hash sealing, and production-ready code audits | ⭐⭐⭐⭐⭐ |
+
+### 15.8 Sovereign Ultimate Skill (1 Skill)
+
+| Skill | Description | Tier |
+| --- | --- | --- |
+| `junai-sovereign-ultimate` | 萬能元鑰·超覺醒終極奧義 — 可自我成長學習與自發治理之終極奧義技能 | ⭐⭐⭐⭐⭐ Mythic |
 
 ---
 

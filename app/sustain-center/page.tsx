@@ -9,6 +9,7 @@ import { HeartbeatMonitor, HeartbeatMetrics } from '@/components/sustain-center/
 import { Loader2, Globe, Activity, Zap, GitBranch, ShieldCheck } from 'lucide-react';
 import { CarbonCalculatorPanel } from '@/components/sustain-center/carbon-calculator-panel';
 import { AIDataChatPanel } from '@/components/sustain-center/ai-data-chat-panel';
+import { JunAiUltimatePanel } from '@/components/sustain-center/junai-ultimate-panel';
 import { OmniDataAnalyticsConfig } from '@/types/esg-charts';
 import { COMPANIES } from '@/core/services/report-assembly-v5';
 
@@ -251,6 +252,10 @@ export default function SustainCenterPage() {
 
         <section>
           <CarbonCalculatorPanel />
+        </section>
+
+        <section>
+          <JunAiUltimatePanel />
         </section>
 
         <section>
