@@ -240,6 +240,8 @@ body{
 #panel.compact #origLine{font-size:11.5px;min-height:14px}
 #panel.compact #transLine{font-size:calc(var(--trans-size) * 0.95);min-height:22px}
 #panel.compact #engineBadge{font-size:9.5px;padding:0 5px;margin-top:1px}
+body.popout-mode { background:#020617 !important; padding:0 !important; margin:0 !important; overflow:hidden !important; }
+body.popout-mode #panel { position:fixed !important; top:0 !important; left:0 !important; width:100% !important; height:100% !important; max-width:none !important; border-radius:0 !important; border:none !important; box-shadow:none !important; }
 </style>
 </head>
 <body>
@@ -557,16 +559,19 @@ var AC = {
       setLED('error');
       return false;
     }
-    stream.getVideoTracks().forEach(function(t){ t.stop(); });   // 關掉影像，僅留音訊
+    this.rawDisplayStream = stream; // 保持原始 displayMedia Stream，避免呼叫 videoTrack.stop() 導致 Chrome 斷開音訊軌
     if(!stream.getAudioTracks().length){
       stream.getTracks().forEach(function(t){ t.stop(); });
-      showErr('【音訊軌缺失】畫面選擇視窗未包含音訊軌。\n' +
-              '【解決方式】：請重新按下「系統」，且於彈出的視窗下方務必勾選「分享分頁音訊 / Share tab audio」。');
+      showErr('【音訊軌缺失】您選擇的視窗/畫面未勾選音訊分享。\n\n' +
+              '【解決方式】：\n' +
+              '1. 請重新按「系統」按鈕。\n' +
+              '2. 在瀏覽器視窗中點選「Chrome 分頁 (Tab)」或「整個螢幕 (Screen)」。\n' +
+              '3. 務必勾選左下角 / 下方的「分享分頁音訊 / Share audio」！');
       return false;
     }
     this.stream = new MediaStream(stream.getAudioTracks());
     this.mode = 'system';
-    this.setupGraph();
+    await this.setupGraph();
     LOG.log('capture.start', { mode:'system' });
     if(S.sttEngine === 'webspeech'){
       toast('系統音訊請搭配 Whisper 離線引擎；Web Speech 僅支援麥克風', 'warn', 4500);
@@ -595,16 +600,18 @@ var AC = {
       return false;
     }
     this.mode = 'mic';
-    this.setupGraph();
+    await this.setupGraph();
     LOG.log('capture.start', { mode:'mic' });
     return true;
   },
 
-  setupGraph(){
+  async setupGraph(){
     hideErr();
     var Ctx = window.AudioContext || window.webkitAudioContext;
-    this.ctx = new Ctx();
-    if(this.ctx.state === 'suspended') this.ctx.resume();
+    if(!this.ctx) this.ctx = new Ctx();
+    if(this.ctx.state === 'suspended'){
+      try{ await this.ctx.resume(); }catch(_){}
+    }
 
     var self = this;
     if(this.stream){
@@ -757,6 +764,10 @@ var AC = {
     if(this.src){ try{ this.src.disconnect(); }catch(_){} }
     if(this.ctx){ try{ await this.ctx.close(); }catch(_){} }
     if(this.stream){ this.stream.getTracks().forEach(function(t){ t.stop(); }); }
+    if(this.rawDisplayStream){
+      this.rawDisplayStream.getTracks().forEach(function(t){ try{ t.stop(); }catch(_){} });
+      this.rawDisplayStream = null;
+    }
     this.ctx = this.stream = this.analyser = this.processor = this.src = null;
     this.buffer = []; this.bufferMs = 0;
     $('meterFill').style.width = '0%';
@@ -1270,17 +1281,24 @@ var UI = {
     $('engineBadge').textContent = '';
   },
 
-  /* 獨立 OS 置頂視窗 (Document Picture-in-Picture / Video PIP 備援) */
+  /* 獨立 OS 置頂與彈出視窗 (Document Picture-in-Picture / Popout Window / Video PIP 三階彈出) */
   pipWin: null,
+  popoutWin: null,
   pipVideo: null,
   pipCanvas: null,
   pipAnimFrame: null,
 
   async togglePIP(){
     var self = this;
+    // 關閉已有 PIP / Popout 視窗
     if(this.pipWin){
       try { this.pipWin.close(); } catch(_){}
       this.pipWin = null;
+      return;
+    }
+    if(this.popoutWin && !this.popoutWin.closed){
+      try { this.popoutWin.close(); } catch(_){}
+      this.popoutWin = null;
       return;
     }
     if(document.pictureInPictureElement){
@@ -1288,6 +1306,7 @@ var UI = {
       return;
     }
 
+    // 第一階：Document Picture-in-Picture API (Chrome 116+ 真實 OS 獨立置頂視窗)
     if('documentPictureInPicture' in window){
       try {
         var p = $('panel');
@@ -1336,10 +1355,11 @@ var UI = {
         });
         return;
       } catch(err){
-        console.warn('[PIP] Document PIP failed, trying Video PIP fallback:', err);
+        console.warn('[PIP] Document PIP failed, trying Video PIP and Popout Window:', err);
       }
     }
 
+    // 第二階：Canvas + Video Picture-in-Picture 畫中畫置頂
     try {
       if(!this.pipCanvas){
         this.pipCanvas = document.createElement('canvas');
@@ -1348,7 +1368,8 @@ var UI = {
         this.pipVideo = document.createElement('video');
         this.pipVideo.muted = true;
         this.pipVideo.playsInline = true;
-        this.pipVideo.style.display = 'none';
+        // 修正：不可設為 display:none，否則瀏覽器會拒絕 requestPictureInPicture layout 檢查
+        this.pipVideo.style.cssText = 'position:fixed; width:1px; height:1px; left:-9999px; top:-9999px; opacity:0.01; pointer-events:none;';
         document.body.appendChild(this.pipVideo);
       }
 
@@ -1387,31 +1408,39 @@ var UI = {
       drawFrame();
 
       var stream = canvas.captureStream ? canvas.captureStream(15) : null;
-      if(!stream || !this.pipVideo.requestPictureInPicture){
-        toast('此瀏覽器未支援 Video PIP 獨立置頂視窗', 'warn', 2600);
+      if(stream && this.pipVideo.requestPictureInPicture){
+        this.pipVideo.srcObject = stream;
+        await this.pipVideo.play();
+        await this.pipVideo.requestPictureInPicture();
+
+        var pipBtn = $('pipBtn');
+        if(pipBtn) pipBtn.classList.add('active');
+
+        toast('已開啟畫中畫最上層字幕 Video PIP Enabled', 'info', 2000);
+        LOG.log('ui.pip', { type: 'videoPIP', status: 'opened' });
+
+        this.pipVideo.addEventListener('leavepictureinpicture', function(){
+          if(self.pipAnimFrame) cancelAnimationFrame(self.pipAnimFrame);
+          var btn = $('pipBtn');
+          if(btn) btn.classList.remove('active');
+          toast('最上層置頂視窗已關閉 PIP Closed', 'info', 1600);
+          LOG.log('ui.pip', { type: 'videoPIP', status: 'closed' });
+        }, { once: true });
         return;
       }
-      this.pipVideo.srcObject = stream;
-      await this.pipVideo.play();
-      await this.pipVideo.requestPictureInPicture();
-
-      var pipBtn = $('pipBtn');
-      if(pipBtn) pipBtn.classList.add('active');
-
-      toast('已開啟畫中畫最上層字幕 Video PIP Enabled', 'info', 2000);
-      LOG.log('ui.pip', { type: 'videoPIP', status: 'opened' });
-
-      this.pipVideo.addEventListener('leavepictureinpicture', function(){
-        if(self.pipAnimFrame) cancelAnimationFrame(self.pipAnimFrame);
-        var btn = $('pipBtn');
-        if(btn) btn.classList.remove('active');
-        toast('最上層置頂視窗已關閉 PIP Closed', 'info', 1600);
-        LOG.log('ui.pip', { type: 'videoPIP', status: 'closed' });
-      }, { once: true });
-
     } catch(err){
-      toast('無法啟動 Picture-in-Picture 置頂視窗：' + (err.message || err), 'error', 3600);
-      console.error('[PIP] Video PIP failed:', err);
+      console.warn('[PIP] Video PIP failed, falling back to Popout Window:', err);
+    }
+
+    // 第三階：Popout 獨立快顯視窗 (window.open)
+    var popUrl = location.href.split('#')[0].split('?')[0] + '?mode=popout';
+    this.popoutWin = window.open(popUrl, 'OmniSubFloatWindow', 'width=580,height=220,top=120,left=120,resizable=yes');
+    if(!this.popoutWin){
+      toast('無法彈出獨立視窗：請允許瀏覽器快顯視窗權限 (Popup Blocked)', 'error', 3600);
+    } else {
+      var btn = $('pipBtn');
+      if(btn) btn.classList.add('active');
+      toast('已開啟獨立彈出字幕視窗 Popout Subtitle Window Opened', 'info', 2000);
     }
   },
 
@@ -1821,6 +1850,13 @@ if(!window.SpeechRecognition && !window.webkitSpeechRecognition){
   $('sttHint').textContent = '此瀏覽器不支援 Web Speech API，請使用 Whisper 離線引擎。';
 }
 LOG.log('boot', { engine:S.sttEngine, chain:S.chain, direction:'zh-TW<->en', vad:S.vad });
+
+if(location.search.includes('mode=popout')){
+  document.body.classList.add('popout-mode');
+  UI.toggleCompact(true);
+  Sharing.isViewer = true;
+  Sharing.enable();
+}
 
 /* 對外測試鉤子 External test hook（僅供自動化驗證，不影響正常使用） */
 window.__omnisub = {
