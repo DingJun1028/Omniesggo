@@ -5,12 +5,15 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, FileText, Globe, Users, 
-  BookOpen, Bot, Settings, Menu, X, Leaf 
+  BookOpen, Bot, Settings, Menu, X, Leaf,
+  Database, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 
 const NAV_ITEMS = [
   { href: '/omni-center', label: '指揮中心', icon: LayoutDashboard },
+  { href: '/data-bridge', label: '數據橋接器', icon: Database },
+  { href: '/verifier', label: '5T 驗證器', icon: ShieldCheck },
   { href: '/sustain-write/v5', label: '報告產生器', icon: FileText },
   { href: '/sustain-center', label: '永續中心', icon: Globe },
   { href: '/village', label: '村莊治理', icon: Users },
