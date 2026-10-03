@@ -428,3 +428,27 @@ model AvatarContext {
   systemPrompt String?
   updatedAt   DateTime @updatedAt
 }
+
+// �w�w�w 5T Data Bridge Models �w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w
+model DataBridgeUpload {
+  id            String             @id @default(uuid())
+  sourceSystem  String
+  dataType      String
+  recordCount   Int
+  hashLock      String             @unique
+  metrics       String?            // JSON string for ESG metrics
+  createdAt     DateTime           @default(now())
+  sealedAt      DateTime           @default(now())
+  records       DataBridgeRecord[]
+}
+
+model DataBridgeRecord {
+  id          String           @id @default(uuid())
+  uploadId    String
+  upload      DataBridgeUpload @relation(fields: [uploadId], references: [id], onDelete: Cascade)
+  data        String           // JSON string for normalized row data
+  createdAt   DateTime         @default(now())
+
+  @@index([uploadId])
+}
+

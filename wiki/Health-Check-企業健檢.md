@@ -1,5 +1,7 @@
 # 企業健檢 Health Check
 
+[MEDCE: E 評估 | M 測量、C 合規]
+
 **路徑：** `/health-check`
 
 ## 功能定位

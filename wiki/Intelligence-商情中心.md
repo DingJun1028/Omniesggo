@@ -1,5 +1,7 @@
 # 商情中心 Intelligence
 
+[MEDCE: M 測量 | E 參與、D 揭露]
+
 **路徑：** `/intelligence`
 
 ## 功能定位

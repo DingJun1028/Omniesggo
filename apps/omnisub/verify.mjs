@@ -368,6 +368,61 @@ check('字串字幕已渲染至 DOM', $('origLine').textContent === '守衛回�
 const realErrors = consoleMsgs.filter(m => !/Could not parse CSS|Not implemented/.test(m));
 check('執行期間無未預期錯誤', realErrors.length === 0, realErrors.slice(0, 3).join(' | '));
 
+// ---------- 24. CDN 多鏡像回退契約 ----------
+// 為何是靜態斷言：loadTransformersLib 位於 index.html 的 module scope，未 export，
+// 本 harness 無法直接呼叫；而真實下載 800KB+ bundle 會讓測試失去決定性與離線性。
+// 故此處只鎖「契約」——鏡像順序、能力檢查、禁用來源、錯誤彙總。
+// 真實可用性（HTTP 狀態碼）由 curl 另行驗證，不在此節假設。
+const cdnBlock = html.match(/var TRANSFORMERS_CDNS\s*=\s*\[[\s\S]*?\];/);
+check('index.html 宣告 TRANSFORMERS_CDNS 陣列', !!cdnBlock,
+  cdnBlock ? '' : '找不到 var TRANSFORMERS_CDNS = [...];');
+const cdnUrls = cdnBlock ? [...cdnBlock[0].matchAll(/https:\/\/[^'"\s]+/g)].map(m => m[0]) : [];
+check('TRANSFORMERS_CDNS 恰有 3 個鏡像', cdnUrls.length === 3, `got ${cdnUrls.length}`);
+check('鏡像順序為 jsDelivr -> unpkg -> Xenova',
+  !!cdnUrls[0]?.includes('cdn.jsdelivr.net/npm/@huggingface/transformers') &&
+  !!cdnUrls[1]?.includes('unpkg.com/@huggingface/transformers') &&
+  !!cdnUrls[2]?.includes('cdn.jsdelivr.net/npm/@xenova/transformers'),
+  cdnUrls.join(' | '));
+check('三個鏡像皆為 https', cdnUrls.every(u => u.startsWith('https://')));
+check('三個鏡像皆指向 transformers bundle 檔',
+  cdnUrls.every(u => /transformers(\.min)?\.js$/.test(u)));
+
+// 透明揭露殘餘風險：前兩條同屬 jsDelivr，三條 URL 只有兩個 CDN 營運者。
+// 這不是缺陷，是「單點故障尚未完全消除」的誠實記錄；改動鏡像陣列時會同步檢查。
+const cdnHosts = [...new Set(cdnUrls.map(u => new URL(u).hostname))];
+check('【已知殘餘風險】三鏡像實際僅 2 個 CDN 營運者（jsDelivr 權重集中）',
+  cdnHosts.length === 2, cdnHosts.join(', '));
+
+check('存在 __tfLib 模組快取（避免每次初始化重複下載）',
+  /var\s+__tfLib\s*=/.test(html));
+check('存在 loadTransformersLib 函式',
+  /async\s+function\s+loadTransformersLib\s*\(/.test(html));
+
+// 能力檢查：HTTP 200 不代表模組 API 相容，必須驗 pipeline 確為 function。
+const capChecks = (html.match(/typeof\s+\w+\.pipeline\s*===\s*['"]function['"]/g) || []).length;
+check('對載入到的模組做 pipeline 能力檢查', capChecks >= 1, `count=${capChecks}`);
+check('能力檢查不合格時不靜默採用（改為記錄並續下一個鏡像）',
+  /errs\.push\([^)]*無\s*pipeline/.test(html));
+check('全鏡像失敗時拋出彙總錯誤（而非只報最後一個）',
+  /所有鏡像皆載入失敗/.test(html));
+
+// 可執行程式不得使用 cdnjs；該網址只允許出現在註解中作為失效記錄。
+const codeOnly = html
+  .replace(/\/\*[\s\S]*?\*\//g, '')
+  .replace(/^\s*\/\/.*$/gm, '');
+const cdnjsInCode = (codeOnly.match(/cdnjs\.cloudflare\.com/g) || []).length;
+check('可執行程式完全不含 cdnjs 網址（僅註解記錄失效來源）',
+  cdnjsInCode === 0, `code hits=${cdnjsInCode}`);
+check('失效來源仍留有註解記錄（可溯源，Traceable）',
+  /cdnjs\.cloudflare\.com/.test(html));
+
+// 已知行為分歧：@xenova/transformers 2.x 不支援 dtype（僅舊式 quantized），
+// 而程式硬傳 dtype:'q8'。它靠 quantized 預設 true 僥倖命中同一個存在的檔名——
+// 這是巧合不是契約。列為顯式斷言，使日後無聲退化會被看見。
+check('【已知分歧】app 傳 dtype 而末位鏡像為不支援 dtype 的 Xenova 2.x（需持續監控）',
+  /dtype\s*:\s*['"]q8['"]/.test(html) && !!cdnUrls[2]?.includes('@xenova/transformers@2.'),
+  'dtype:q8 僅 @huggingface/transformers 3.x 認得');
+
 // ---------- 輸出 ----------
 console.log(results.join('\n'));
 console.log(`\n=== 結果: ${pass} PASS / ${fail} FAIL ===`);
