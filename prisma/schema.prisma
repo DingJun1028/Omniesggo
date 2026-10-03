@@ -447,3 +447,21 @@ model MaterialityAssessment {
   @@index([hashLock])
 }
 
+// --- 5T Net-Zero Pathway & MACC ---
+model NetZeroRoadmap {
+  id                String   @id @default(uuid())
+  title             String   @default("Net-Zero Carbon Abatement Pathway 2050")
+  baseYear          Int      @default(2024)
+  baseEmissions     Float    @default(50000.0) // tCO2e/year
+  target2030Percent Float    @default(42.0)    // 42% reduction by 2030 (SBTi 1.5C)
+  measuresJson      String   // Array of abatement measures
+  hashLock          String   @unique
+  sourceOrigin      String   @default("omni-roadmap")
+  createdBy         String   @default("system")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([baseYear])
+  @@index([hashLock])
+}
+
