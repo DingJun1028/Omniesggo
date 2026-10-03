@@ -250,7 +250,8 @@ body{
   <div id="titlebar" data-tip="拖曳移動面板 Drag panel">
     <span class="dot"></span>
     <span class="name">OmniSub <small>萬能即時語音擷取翻譯 · 零算力版</small></span>
-    <button class="btn small" id="compactBtn" style="margin-left:auto;margin-right:6px;height:20px;padding:0 6px;font-size:11px" data-tip="一體成形 輕薄短小懸浮模式 Toggle compact overlay (M)">輕薄</button>
+    <button class="btn small" id="pipBtn" style="margin-left:auto;margin-right:6px;height:20px;padding:0 6px;font-size:11px" data-tip="獨立 OS 最上層置頂視窗 Toggle Picture-in-Picture overlay (P)">置頂 PIP</button>
+    <button class="btn small" id="compactBtn" style="margin-right:6px;height:20px;padding:0 6px;font-size:11px" data-tip="一體成形 輕薄短小懸浮模式 Toggle compact overlay (M)">輕薄</button>
     <span id="statusText">待機 Idle</span>
   </div>
 
@@ -1269,6 +1270,151 @@ var UI = {
     $('engineBadge').textContent = '';
   },
 
+  /* 獨立 OS 置頂視窗 (Document Picture-in-Picture / Video PIP 備援) */
+  pipWin: null,
+  pipVideo: null,
+  pipCanvas: null,
+  pipAnimFrame: null,
+
+  async togglePIP(){
+    var self = this;
+    if(this.pipWin){
+      try { this.pipWin.close(); } catch(_){}
+      this.pipWin = null;
+      return;
+    }
+    if(document.pictureInPictureElement){
+      try { await document.exitPictureInPicture(); } catch(_){}
+      return;
+    }
+
+    if('documentPictureInPicture' in window){
+      try {
+        var p = $('panel');
+        var rect = p ? p.getBoundingClientRect() : { width: 560, height: 220 };
+        var w = Math.max(380, Math.min(800, Math.round(rect.width || 560)));
+        var h = Math.max(150, Math.min(600, Math.round(rect.height || 220)));
+
+        var pipWin = await window.documentPictureInPicture.requestWindow({ width: w, height: h });
+        this.pipWin = pipWin;
+
+        [].slice.call(document.styleSheets).forEach(function(sheet){
+          try {
+            if(sheet.cssRules){
+              var style = pipWin.document.createElement('style');
+              [].slice.call(sheet.cssRules).forEach(function(rule){
+                style.appendChild(pipWin.document.createTextNode(rule.cssText));
+              });
+              pipWin.document.head.appendChild(style);
+            } else if(sheet.href){
+              var link = pipWin.document.createElement('link');
+              link.rel = 'stylesheet'; link.href = sheet.href;
+              pipWin.document.head.appendChild(link);
+            }
+          } catch(e){}
+        });
+
+        var extraStyle = pipWin.document.createElement('style');
+        extraStyle.textContent = 'html, body { margin:0; padding:0; background:#020617; overflow:hidden; width:100%; height:100%; color:#f8fafc; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; } #panel { position:fixed; top:0; left:0; width:100%; height:100%; max-width:none; max-height:none; border-radius:0; border:none; box-shadow:none; }';
+        pipWin.document.head.appendChild(extraStyle);
+
+        pipWin.document.body.appendChild(p);
+
+        var pipBtn = $('pipBtn');
+        if(pipBtn) pipBtn.classList.add('active');
+
+        toast('已開啟獨立最上層置頂視窗 Picture-in-Picture Enabled', 'info', 2000);
+        LOG.log('ui.pip', { type: 'documentPictureInPicture', status: 'opened' });
+
+        pipWin.addEventListener('pagehide', function(){
+          document.body.appendChild(p);
+          self.pipWin = null;
+          var btn = $('pipBtn');
+          if(btn) btn.classList.remove('active');
+          toast('最上層置頂視窗已關閉 PIP Window Closed', 'info', 1600);
+          LOG.log('ui.pip', { type: 'documentPictureInPicture', status: 'closed' });
+        });
+        return;
+      } catch(err){
+        console.warn('[PIP] Document PIP failed, trying Video PIP fallback:', err);
+      }
+    }
+
+    try {
+      if(!this.pipCanvas){
+        this.pipCanvas = document.createElement('canvas');
+        this.pipCanvas.width = 640;
+        this.pipCanvas.height = 200;
+        this.pipVideo = document.createElement('video');
+        this.pipVideo.muted = true;
+        this.pipVideo.playsInline = true;
+        this.pipVideo.style.display = 'none';
+        document.body.appendChild(this.pipVideo);
+      }
+
+      var canvas = this.pipCanvas;
+      var ctx = canvas ? canvas.getContext('2d') : null;
+
+      var drawFrame = function(){
+        if(!ctx) return;
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.strokeStyle = '#06b6d4';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '16px -apple-system, sans-serif';
+        var origText = $('origLine') ? $('origLine').textContent : '';
+        ctx.fillText((origText || '').slice(0, 48), 16, 42);
+
+        ctx.fillStyle = '#06b6d4';
+        ctx.font = 'bold 24px -apple-system, sans-serif';
+        var transText = $('transLine') ? $('transLine').textContent : '';
+        ctx.fillText((transText || '').slice(0, 36), 16, 96);
+
+        ctx.fillStyle = '#10b981';
+        ctx.font = '12px -apple-system, sans-serif';
+        var badge = $('engineBadge') ? $('engineBadge').textContent : '';
+        ctx.fillText('OmniSub PIP · ' + badge, 16, 140);
+
+        if(self.pipVideo && !self.pipVideo.paused){
+          self.pipAnimFrame = requestAnimationFrame(drawFrame);
+        }
+      };
+
+      drawFrame();
+
+      var stream = canvas.captureStream ? canvas.captureStream(15) : null;
+      if(!stream || !this.pipVideo.requestPictureInPicture){
+        toast('此瀏覽器未支援 Video PIP 獨立置頂視窗', 'warn', 2600);
+        return;
+      }
+      this.pipVideo.srcObject = stream;
+      await this.pipVideo.play();
+      await this.pipVideo.requestPictureInPicture();
+
+      var pipBtn = $('pipBtn');
+      if(pipBtn) pipBtn.classList.add('active');
+
+      toast('已開啟畫中畫最上層字幕 Video PIP Enabled', 'info', 2000);
+      LOG.log('ui.pip', { type: 'videoPIP', status: 'opened' });
+
+      this.pipVideo.addEventListener('leavepictureinpicture', function(){
+        if(self.pipAnimFrame) cancelAnimationFrame(self.pipAnimFrame);
+        var btn = $('pipBtn');
+        if(btn) btn.classList.remove('active');
+        toast('最上層置頂視窗已關閉 PIP Closed', 'info', 1600);
+        LOG.log('ui.pip', { type: 'videoPIP', status: 'closed' });
+      }, { once: true });
+
+    } catch(err){
+      toast('無法啟動 Picture-in-Picture 置頂視窗：' + (err.message || err), 'error', 3600);
+      console.error('[PIP] Video PIP failed:', err);
+    }
+  },
+
   /* 一體成形 輕薄短小懸浮字幕模式 */
   toggleCompact:function(force){
     var isCompact = (force !== undefined) ? !!force : !$('panel').classList.contains('compact');
@@ -1501,6 +1647,7 @@ $('drawerBtn').onclick= function(){ $('drawer').classList.toggle('open'); };
   };
 })();
 
+if($('pipBtn')){ $('pipBtn').onclick = function(){ UI.togglePIP(); }; }
 if($('compactBtn')){ $('compactBtn').onclick = function(){ UI.toggleCompact(); }; }
 window.addEventListener('keydown', function(e){
   var tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toUpperCase() : '';
@@ -1510,6 +1657,11 @@ window.addEventListener('keydown', function(e){
   if(isM && !e.ctrlKey && !e.altKey && !e.metaKey){
     e.preventDefault();
     UI.toggleCompact();
+  }
+  var isP = (e.code === 'KeyP' || e.key === 'p' || e.key === 'P');
+  if(isP && !e.ctrlKey && !e.altKey && !e.metaKey){
+    e.preventDefault();
+    UI.togglePIP();
   }
 });
 
@@ -1549,6 +1701,7 @@ document.addEventListener('keydown', function(e){
   if(e.key === ' '){ e.preventDefault(); $('pauseBtn').click(); }
   else if(e.key === 'h' || e.key === 'H'){ $('histBtn').click(); }
   else if(e.key === 's' || e.key === 'S'){ $('srtBtn').click(); }
+  else if(e.key === 'p' || e.key === 'P'){ if(!e.ctrlKey && !e.altKey && !e.metaKey) UI.togglePIP(); }
   else if(e.key === 'Escape'){ $('drawer').classList.remove('open'); }
 });
 

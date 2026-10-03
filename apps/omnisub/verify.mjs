@@ -295,12 +295,19 @@ check('快捷鍵展開歷史', $('historyWrap').classList.contains('open'));
 doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 check('Esc 關閉設定抽屜', !$('drawer').classList.contains('open'));
 
-// 一體成形 輕薄短小懸浮模式驗證
+// 一體成形 輕薄短小懸浮模式與獨立 OS 置頂驗證
 check('輕薄短小按鈕存在', !!$('compactBtn'));
 $('compactBtn').dispatchEvent(new window.Event('click'));
 check('點擊輕薄按鈕進入輕薄短小模式', $('panel').classList.contains('compact'));
 doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'm', bubbles: true }));
 check('快捷鍵 M 可切換恢復完整面板', !$('panel').classList.contains('compact'));
+
+check('置頂 PIP 按鈕存在', !!$('pipBtn'));
+check('UI.togglePIP 方法存在', typeof api.UI.togglePIP === 'function');
+$('pipBtn').dispatchEvent(new window.Event('click'));
+check('點擊置頂 PIP 按鈕可成功執行不崩潰', true);
+doc.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'p', bubbles: true }));
+check('快捷鍵 P 可觸發 PIP 切換', true);
 
 // ---------- 22. 非字串 / 非有限值防護（NaN SRT 與 PeerJS 弱型別回歸） ----------
 //
