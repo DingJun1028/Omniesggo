@@ -1193,3 +1193,34 @@ JunAiKey 作為系統無上意志與靈魂中樞，具備「萬能元鑰 (Univer
 
 15.3 繁中英碼與終始矩陣 (Traditional Chinese - English Matrix & End-Beginning Cycle)
 所有系統資產、註解與 ADR 採「英標繁博 (English Standard, Traditional Chinese Broad)」規範。終始矩陣 (End-Beginning Matrix) 確保從觸發起點 (Origin Cause) 到最終顯化 (Final Effect) 形成 360° 超時空閉環，實現「無作妙德、圓通無礙、永續成長」之至高境界。
+
+---
+
+## 21. JunAiKey Sovereign Key & Four Skill Codices Matrix (萬能元鑰與全技能書四大維度)
+
+### 21.1 Core Registration & Route Mapping
+- **Sovereign Key**: `JunAiKey` (`/junaikey` route & `lib/core/omni-kernel.ts`)
+- **Authority**: Universal Authorization, 5T Hash Lock Sealing, Autonomous Governance.
+- **Skill Book Mapping**: Registered into **OmniSkill Codex (全技能書)** across 4 sub-codices.
+
+### 21.2 Four Sub-Codices Architecture (全技能書 四大技能維度)
+
+#### 1. 實踐技能書 (Practice Codex)
+- **Focus**: Execution, Type Safety, 5T Protocol Compliance.
+- **Contract**: `npx tsc --noEmit` 0 errors & `5T: source_origin=<module>` mandatory headers.
+- **API Entry**: `/api/omni-soul`, `/api/sustain-write/v5`, `/api/materiality`, `/api/roadmap`, `/api/supply-chain`.
+
+#### 2. 經驗技能書 (Experience Codex)
+- **Focus**: Debugging, Root Cause Isolation, Encoding Hygiene.
+- **Contract**: 9-Step Jules Karma Cause-Effect Repair Protocol & `node scripts/encoding-check.mjs` (全真綠).
+- **Self-Healing**: Automated regression test verification and traceback analysis.
+
+#### 3. 成長技能書 (Growth Codex)
+- **Focus**: Autonomic Entropy Reduction, Swarm Expansion, Skill Forging.
+- **Contract**: Registered into `AtomicLibraryManager` & `OMNISKILL_BOOK.md` continuous iteration.
+- **Subagent Routing**: L-Hub swarm offloading & multi-model consensus validation.
+
+#### 4. 成果技能書 (Outcome Codex)
+- **Focus**: Cryptographic Evidence Sealing, Dual-Engine Audit Certificates, UI/UX Excellence.
+- **Contract**: SHA-256 Hash Lock Imprint, JSON/PDF Dual Audit Exporters (`jsPDF`), Liquid Glass Cyan UI/UX.
+

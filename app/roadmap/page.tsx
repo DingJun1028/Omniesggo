@@ -118,6 +118,11 @@ export default function RoadmapPage() {
     window.open(`/api/roadmap/export/${saveResult.id}`, '_blank');
   };
 
+  const handleExportPdfCertificate = () => {
+    if (!saveResult?.id) return;
+    window.open(`/api/roadmap/export-pdf/${saveResult.id}`, '_blank');
+  };
+
   // 統計與路徑計算
   const totalPlannedReduction = measures.reduce((acc, m) => acc + m.reductionPotential, 0);
   const target2030Emissions = baseEmissions * (1 - target2030Percent / 100);
@@ -168,13 +173,22 @@ export default function RoadmapPage() {
             {isSaving ? '5T 刻印中...' : '封印 5T 減碳路徑'}
           </button>
           {saveResult?.id && (
-            <button
-              onClick={handleExportCertificate}
-              className="px-4 py-2.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-sm font-medium flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
-            >
-              <Download className="w-4 h-4" />
-              匯出 5T 淨零證書
-            </button>
+            <>
+              <button
+                onClick={handleExportCertificate}
+                className="px-4 py-2.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-sm font-medium flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+              >
+                <Download className="w-4 h-4" />
+                JSON 證書
+              </button>
+              <button
+                onClick={handleExportPdfCertificate}
+                className="px-4 py-2.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 text-sm font-medium flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"
+              >
+                <FileText className="w-4 h-4" />
+                PDF 證書
+              </button>
+            </>
           )}
         </div>
       </div>

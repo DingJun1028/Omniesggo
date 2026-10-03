@@ -14,6 +14,22 @@ const ensureMemoryFile = () => {
   }
 };
 
+function checkAuth(req: Request): NextResponse | null {
+  const memoryKey = process.env.MEMORY_API_KEY;
+  if (memoryKey) {
+    const headerKey = req.headers.get('x-memory-key');
+    if (!headerKey || headerKey !== memoryKey) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+  } else {
+    const userId = req.headers.get('x-user-id');
+    if (!userId) {
+      return NextResponse.json({ success: false, error: 'Missing x-user-id header' }, { status: 401 });
+    }
+  }
+  return null;
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -33,6 +49,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const authErr = checkAuth(req);
+  if (authErr) return authErr;
+
   try {
     const body = await req.json();
     const { userId = 'default-user', agentId = 'omni-core', content, role = 'user' } = body;
@@ -54,6 +73,19 @@ export async function POST(req: Request) {
     fs.writeFileSync(MEMORY_FILE, JSON.stringify(db, null, 2));
 
     return NextResponse.json({ success: true, memoryId });
+  } catch (error) {
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: Request) {
+  const authErr = checkAuth(req);
+  if (authErr) return authErr;
+
+  try {
+    ensureMemoryFile();
+    fs.writeFileSync(MEMORY_FILE, JSON.stringify({ contexts: {}, chats: [] }, null, 2));
+    return NextResponse.json({ success: true, message: 'Memory cleared' });
   } catch (error) {
     return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }

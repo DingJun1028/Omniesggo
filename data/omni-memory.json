@@ -21,6 +21,27 @@
       "agentId": "omni-core",
       "role": "user",
       "createdAt": "2026-10-02T14:27:59.840Z"
+    },
+    {
+      "id": "mem_1791028951414",
+      "userId": "default-user",
+      "agentId": "omni-core",
+      "role": "user",
+      "createdAt": "2026-10-03T12:02:31.414Z"
+    },
+    {
+      "id": "mem_1791028951433",
+      "userId": "default-user",
+      "agentId": "omni-core",
+      "role": "user",
+      "createdAt": "2026-10-03T12:02:31.433Z"
+    },
+    {
+      "id": "mem_1791028951448",
+      "userId": "default-user",
+      "agentId": "omni-core",
+      "role": "user",
+      "createdAt": "2026-10-03T12:02:31.448Z"
     }
   ]
 }
