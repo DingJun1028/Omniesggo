@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
+import { PrismaClient } from '@prisma/client';
+import crypto from 'crypto';
+
+const prisma = new PrismaClient();
 
 // ─── 5T Column Mapping Registry ──────────────────────────────────────────────
 const COLUMN_SYNONYMS: Record<string, string[]> = {
@@ -181,9 +185,29 @@ export async function POST(req: Request) {
     // ─ 5T Stamp ─
     const uuid = crypto.randomUUID();
     const timestamp = Date.now();
-    // Deterministic hash from UUID + timestamp (no crypto.subtle in edge — simplified)
-    const hashRaw = `${uuid}:${timestamp}:${parsed.rows.length}`;
-    const hashLock = hashRaw.split('').reduce((acc, c) => ((acc << 5) - acc + c.charCodeAt(0)) | 0, 0).toString(16).padStart(8, '0');
+    const hashPayload = `${uuid}:${timestamp}:${parsed.rows.length}:${file.name}`;
+    const hashLock = crypto.createHash('sha256').update(hashPayload).digest('hex');
+
+    // ─ Persist to Prisma Database (Supabase PostgreSQL) ─
+    try {
+      await prisma.dataBridgeUpload.create({
+        data: {
+          id: uuid,
+          sourceSystem: file.name,
+          dataType: dataType,
+          recordCount: parsed.rows.length,
+          hashLock: hashLock,
+          metrics: JSON.stringify(analysis),
+          records: {
+            create: parsed.rows.slice(0, 200).map((row) => ({
+              data: JSON.stringify(row),
+            })),
+          },
+        },
+      });
+    } catch (dbErr) {
+      console.warn('[data-bridge/upload] Database write warning (falling back to memory response):', dbErr);
+    }
 
     // ─ Fire JunAiKey Growth ─
     const apiKey = process.env.OMNI_JUNAIKEY_GROWTH_KEY;
