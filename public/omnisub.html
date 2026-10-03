@@ -513,6 +513,14 @@ function resolveTarget(src){
 function toApiCode(code){
   return code === 'zh-TW' ? 'zh-TW' : 'en';
 }
+/* Whisper 離線模型使用的語言名稱對應（避免預設為 English 導致中文辨識錯亂） */
+function toWhisperLang(code){
+  if(!code) return 'chinese';
+  var c = String(code).toLowerCase();
+  if(c.startsWith('zh') || c.includes('tw') || c.includes('cn')) return 'chinese';
+  if(c.startsWith('en')) return 'english';
+  return 'chinese';
+}
 
 /* =========================================================
    (3) 音訊擷取 AudioCapture (系統音 / 麥克風)
@@ -915,12 +923,14 @@ var STT = {
     var pipe = await this.initWhisper();
     if(!pipe){ setLED('error'); return; }
     setLED('listening');
-    /* 修正：原版傳 language:'auto'，transformers.js 不支援此值。
-       不傳 language 參數即交由模型自動偵測。 */
-    var opts = { chunk_length_s: Math.min(30, Math.max(2, S.chunk)) };
-    if(S.wsLang && S.wsLang !== 'auto' && S.sttEngine === 'whisper'){
-      opts.task = 'transcribe';
-    }
+    /* 顯式傳遞 language 參數至 transformers.js Whisper pipeline，
+       避免預設為 English (en) 導致繁體中文語音被錯譯成英文單字。 */
+    var lang = toWhisperLang(S.wsLang);
+    var opts = {
+      chunk_length_s: Math.min(30, Math.max(2, S.chunk)),
+      task: 'transcribe',
+      language: lang
+    };
     var out = await pipe(pcm, opts);
     var text = '';
     if(typeof out === 'string') text = out;
