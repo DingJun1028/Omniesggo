@@ -768,7 +768,7 @@ Deno.serve(async (req: Request) => {
 
 ---
 
-## 15. Skill Library Index (67 Skills)
+## 15. Skill Library Index (77 Skills)
 
 > Comprehensive index of all installable skills under `.agents/skills/`.
 
@@ -864,9 +864,20 @@ Deno.serve(async (req: Request) => {
 | `lhub-ai-routing`                           | AI model routing/offloading     |
 | `adk-boundary`                              | Agent Development Kit boundary  |
 | `global-healing` (alias of esggo-standards) | Global consistency              |
-| `find-skills`                               | Skill discovery                 |
-| `customize-opencode`                        | OpenCode configuration          |
-| `developing-genkit-*` (5 variants)          | AI development                  |
+### 15.7 OpenCode Advanced Swarm Suite (10 Skills)
+
+| Skill | Description | Tier |
+| --- | --- | --- |
+| `superpowers` | Meta-skill orchestration, workflow automation, and multi-step agent capability amplification | ⭐⭐⭐⭐⭐ |
+| `ponytail` | Code cleanliness, refactoring discipline, and elegant component design patterns | ⭐⭐⭐ |
+| `ui-ux-pro-max-skill` | Liquid Glass Cyan / UI-UX excellence, animation tuning, and W3C ARIA accessibility master | ⭐⭐⭐⭐ |
+| `graphify` | Knowledge graph visualization, AST flow analysis, and node-link relationship mapping | ⭐⭐⭐ |
+| `caveman` | Ultra-concise, high-density token-efficient reasoning and minimal output compression | ⭐⭐⭐ |
+| `agent-skills` | Swarm delegation, subagent capabilities discovery, and tool calling optimization | ⭐⭐⭐⭐ |
+| `Understand-Anything` | Deep codebase breakdown, complex algorithm explanation, and zero-hallucination analysis | ⭐⭐⭐ |
+| `awesome-claude-skills` | Multi-agent prompts library, specialized system instructions, and role-play paradigms | ⭐⭐⭐ |
+| `archify` | ADR generation, architecture blueprint drafting, and monorepo structural governance | ⭐⭐⭐⭐ |
+| `impeccable` | Zero-hallucination verification, 5T Protocol hash sealing, and production-ready code audits | ⭐⭐⭐⭐⭐ |
 
 ---
 
