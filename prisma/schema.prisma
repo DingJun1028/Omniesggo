@@ -429,7 +429,7 @@ model AvatarContext {
   updatedAt   DateTime @updatedAt
 }
 
-// �w�w�w 5T Data Bridge Models �w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w�w
+// --- 5T Data Bridge Models ---
 model DataBridgeUpload {
   id            String             @id @default(uuid())
   sourceSystem  String
