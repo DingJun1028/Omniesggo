@@ -74,6 +74,10 @@ let db = null;
 /** @type {boolean} Whether Firebase is active. */
 export let useFirebase = false;
 
+export const getCurrentAuthUser = () => {
+  return auth?.currentUser || null;
+};
+
 /** @type {boolean} Whether NCBDB (NoCodeBackend) is active. 無縫轉移後端. */
 export let useNcb = isNcbEnabled();
 

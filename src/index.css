@@ -1,31 +1,61 @@
+@import './styles/brand-htb.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import './styles/brand-htb.css';
-
-/* ===== Berkeley ESGGO Design Tokens ===== */
+/* ===== ESGGO Liquid Glass Cyan Design System ===== */
 :root {
   --berkeley-blue: #003262;
   --berkeley-gold: #FDB515;
   --berkeley-gold-dim: #b47b00;
   --berkeley-surface: #F8FAFC;
+
+  /* Liquid Glass Core Palette */
+  --cyan-core: #06b6d4;
+  --emerald-soul: #10b981;
+  --void-stark: #020617;
+  --slate-dark: #0f172a;
 }
 
-/* ===== Global mobile-first optimization ===== */
+/* Global mobile-first & glass smooth scrolling */
 html {
   -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
 }
 
 body {
+  background-color: #020617;
+  color: #f8fafc;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.1) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.8) 0px, transparent 50%);
+  background-attachment: fixed;
 }
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #020617;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.6);
+}
 
 .select-arrow-blue {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23003366'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2306b6d4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 10px;
@@ -33,25 +63,43 @@ body {
 
 .select-arrow-gold {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23b47b00'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23f59e0b'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 10px;
 }
 
-/* Prevent accidental horizontal page scroll on small screens */
 #root {
   overflow-x: hidden;
 }
 
 @layer components {
-  /* Thumb-friendly minimum tap target for touch devices */
   .tap-target {
     @apply min-h-[44px];
   }
+
+  /* Liquid Glass Components */
+  .liquid-glass {
+    @apply bg-slate-900/60 backdrop-blur-xl border border-cyan-500/20 shadow-2xl shadow-cyan-950/30;
+  }
+
+  .liquid-glass-card {
+    @apply bg-slate-900/50 backdrop-blur-lg border border-white/10 transition-all duration-300 hover:border-cyan-400/50 hover:shadow-lg hover:shadow-cyan-500/10 hover:-translate-y-0.5;
+  }
+
+  .gradient-text-cyan {
+    @apply bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent;
+  }
+
+  .gradient-text-gold {
+    @apply bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent;
+  }
+
+  .glow-cyan-badge {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.15)];
+  }
 }
 
-/* Forms: comfortable sizing on mobile to prevent iOS pinch-zoom on focus */
 @media (max-width: 768px) {
   input,
   select,
@@ -64,9 +112,9 @@ body {
   }
 }
 
-/* Hide number-input spinners for a cleaner look */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+

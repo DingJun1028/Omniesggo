@@ -49,6 +49,7 @@
     "@tailwindcss/typography": "^0.5.20",
     "@upstash/redis": "^1.39.0",
     "commander": "^12.1.0",
+    "firebase": "^12.17.0",
     "framer-motion": "^12.43.0",
     "ioredis": "^5.11.1",
     "isomorphic-dompurify": "^3.23.0",
@@ -118,7 +119,6 @@
       "5t-protocol"
     ]
   },
-
   "resolutions": {
     "undici": "^7.29.1",
     "ip-address": "^10.7.1",
