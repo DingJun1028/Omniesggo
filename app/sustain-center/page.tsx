@@ -4,10 +4,10 @@ import React, { useEffect, useCallback, useState } from 'react';
 import { UniversalOmniConsole } from '../omni-center/universal-omni-console';
 import { OmniDataAnalyticsPanel } from '@/components/omni-data-analytics-panel';
 import { InsightGrid } from '@/components/sustain-center/insight-grid';
-import { TrustLedger } from '@/components/sustain-center/trust-ledger';
-import type { LedgerItem } from '@/components/sustain-center/trust-ledger';
+import { TrustLedger, type LedgerItem } from '@/components/sustain-center/trust-ledger';
 import { HeartbeatMonitor, HeartbeatMetrics } from '@/components/sustain-center/heartbeat-monitor';
 import { Loader2, Globe, Activity, Zap, GitBranch, ShieldCheck } from 'lucide-react';
+import { CarbonCalculatorPanel } from '@/components/sustain-center/carbon-calculator-panel';
 import { OmniDataAnalyticsConfig } from '@/types/esg-charts';
 import { COMPANIES } from '@/core/services/report-assembly-v5';
 
@@ -247,6 +247,10 @@ export default function SustainCenterPage() {
             </div>
           </section>
         )}
+
+        <section>
+          <CarbonCalculatorPanel />
+        </section>
 
         <section>
           <OmniDataAnalyticsPanel configs={data.charts} />
