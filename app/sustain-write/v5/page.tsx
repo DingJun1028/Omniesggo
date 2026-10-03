@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileText, ChevronDown, ChevronUp, X, Wand2 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import { UniversalOmniConsole } from '../../omni-center/universal-omni-console';
 import { db } from '@lib/firebase';
 import { doc, setDoc } from '@lib/firebase';
@@ -910,6 +911,41 @@ export default function SustainWriteV5Page() {
                         className="px-4 py-2 text-sm font-medium rounded bg-secondary border border-borderColor text-textPrimary hover:border-accentTeal transition-colors"
                       >
                         ⬇️ 下載 Markdown
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (!taskProgress?.result?.companyId) return;
+                          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                          doc.setFillColor(2, 6, 23);
+                          doc.rect(0, 0, 210, 45, 'F');
+                          doc.setTextColor(6, 182, 212);
+                          doc.setFontSize(22);
+                          doc.setFont('helvetica', 'bold');
+                          doc.text('5T ESG SUSTAINABILITY REPORT', 15, 20);
+                          doc.setTextColor(248, 250, 252);
+                          doc.setFontSize(12);
+                          doc.setFont('helvetica', 'normal');
+                          doc.text(`Company: ${selectedCompany || 'Corporate Entity'} | Template: ${selectedTemplate || 'GRI'}`, 15, 28);
+                          doc.setTextColor(16, 185, 129);
+                          doc.setFontSize(10);
+                          doc.text(`Trinity Hash: ${taskProgress.result.trinityHash.slice(0, 32)}...`, 15, 36);
+                          
+                          doc.setTextColor(15, 23, 42);
+                          doc.setFontSize(11);
+                          doc.setFont('helvetica', 'bold');
+                          doc.text('Report Generation Audit Summary', 15, 55);
+                          doc.setFontSize(10);
+                          doc.setFont('helvetica', 'normal');
+                          doc.text(`Task ID: ${taskProgress.taskId}`, 15, 63);
+                          doc.text(`Total Words Generated: ${taskProgress.result.totalWords.toLocaleString()} words`, 15, 70);
+                          doc.text(`5T Decisions Count: ${taskProgress.decisionsCount}`, 15, 77);
+                          doc.text(`Generation Duration: ${(taskProgress.result.durationMs / 1000).toFixed(1)}s`, 15, 84);
+                          
+                          doc.save(`5T_ESG_Report_${taskProgress.result.companyId}.pdf`);
+                        }}
+                        className="px-4 py-2 text-sm font-medium rounded bg-secondary border border-accentGreen/50 text-accentGreen hover:bg-accentGreen/10 transition-colors font-bold"
+                      >
+                        📄 下載 PDF 報告
                       </button>
                       <button
                         onClick={() => {
