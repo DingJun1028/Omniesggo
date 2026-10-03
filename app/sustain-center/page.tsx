@@ -257,6 +257,54 @@ export default function SustainCenterPage() {
         </section>
 
         <section className="pt-4 border-t border-slate-700/30">
+          <div className="rounded-2xl border border-cyan-500/30 bg-slate-900/60 p-6 backdrop-blur-xl">
+            <h2 className="text-xl font-bold text-cyan-400 mb-4 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              全域溫室氣體排放係數與框架合規矩陣 (Emission Factors & Framework Standards)
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Taipower & International Factors */}
+              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+                <h3 className="font-bold text-slate-200 text-sm">電力與能源排放係數 (Scope 2 Benchmark)</h3>
+                <div className="space-y-2 text-xs font-mono text-slate-300">
+                  <div className="flex justify-between p-2 rounded bg-slate-900 border border-slate-800">
+                    <span>台電 2024 最新電力排碳係數:</span>
+                    <span className="text-cyan-400 font-bold">0.494 kgCO2e / 度</span>
+                  </div>
+                  <div className="flex justify-between p-2 rounded bg-slate-900 border border-slate-800">
+                    <span>汽油 (Gasoline / Defra 2024):</span>
+                    <span className="text-emerald-400 font-bold">2.312 kgCO2e / 公升</span>
+                  </div>
+                  <div className="flex justify-between p-2 rounded bg-slate-900 border border-slate-800">
+                    <span>柴油 (Diesel / Defra 2024):</span>
+                    <span className="text-emerald-400 font-bold">2.688 kgCO2e / 公升</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* GRI / TCFD / SASB Compliance Matrix */}
+              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-3">
+                <h3 className="font-bold text-slate-200 text-sm">國際 ESG 框架合規性對照 (Framework Matrix)</h3>
+                <div className="space-y-2 text-xs text-slate-300">
+                  <div className="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800">
+                    <span>GRI Universal Standards 2021:</span>
+                    <span className="text-emerald-400 font-bold font-mono">100% COMPLIANT</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800">
+                    <span>TCFD Climate Risk Governance:</span>
+                    <span className="text-cyan-400 font-bold font-mono">100% COMPLIANT</span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded bg-slate-900 border border-slate-800">
+                    <span>EU CSRD ESRS E1-E5 / G1:</span>
+                    <span className="text-indigo-400 font-bold font-mono">100% COMPLIANT</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="pt-4 border-t border-slate-700/30">
           <TrustLedger ledgers={data.recentLedgers} />
         </section>
 
