@@ -161,7 +161,7 @@ export default function VerifierPage() {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".csv,.xlsx,.xls"
+                  accept=".pdf,.json,.csv,.xlsx,.xls"
                   className="hidden"
                   onChange={(e) => e.target.files?.[0] && setFile(e.target.files[0])}
                 />
@@ -174,8 +174,8 @@ export default function VerifierPage() {
                 ) : (
                   <div className="flex flex-col items-center">
                     <UploadCloud className="w-10 h-10 text-slate-400 mb-2" />
-                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">點擊或拖曳檔案進行 Hash Lock 比對</span>
-                    <span className="text-xs text-slate-400 mt-1">系統將即時計算運算雜湊值並與 DB 封印比對</span>
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-300">點擊或拖曳 PDF / JSON 證書 / CSV 檔案進行 5T 封印比對</span>
+                    <span className="text-xs text-slate-400 mt-1">系統將即時計算 SHA-256 雜湊鎖並與 DB 封印對比</span>
                   </div>
                 )}
               </div>
@@ -184,7 +184,7 @@ export default function VerifierPage() {
                   variant="emerald"
                   onClick={handleVerifyFile}
                   isLoading={isVerifying}
-                  disabled={!file || isSyncingVerifying(isVerifying)}
+                  disabled={!file || isVerifying}
                 >
                   <ShieldCheck className="w-4 h-4 mr-1.5" />
                   比對 5T 封印

@@ -64,6 +64,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setIsSidebarOpen(false);
   }, [pathname]);
 
+  // 註冊 PWA Service Worker (100% De-Google 離線快取網)
+  useEffect(() => {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.warn('[sw] Service Worker registration failed:', err);
+      });
+    }
+  }, []);
+
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden selection:bg-cyan-500/30">
       
