@@ -160,90 +160,8 @@ export function generateV5Report(companyId: string): V5GeneratedReport | null {
   };
 }
 
-/**
- * 5T Transparent — render toggles honoured by the renderer.
- *
- * The client (app/sustain-write/page.tsx) exposes 「圖表」/「智慧配圖」 switches.
- * Before this, the route accepted the flags and nothing downstream read them, so the
- * controls were accepted but had no effect. These options are now consumed here, and
- * every emitted visual is derived from real report data (wordCount / evidenceCount).
- */
-export interface V5RenderOptions {
-  charts: boolean;
-  imagery: boolean;
-}
-
-const DEFAULT_V5_RENDER_OPTIONS: V5RenderOptions = { charts: true, imagery: true };
-
-/** An omitted field must never mean "false" — it means "not specified" → keep default. */
-function resolveRenderOptions(raw?: Partial<V5RenderOptions> | null): V5RenderOptions {
-  if (!raw || typeof raw !== 'object') return { ...DEFAULT_V5_RENDER_OPTIONS };
-  return {
-    charts: typeof raw.charts === 'boolean' ? raw.charts : true,
-    imagery: typeof raw.imagery === 'boolean' ? raw.imagery : true,
-  };
-}
-
-/**
- * Read the toggles from a GET query string (preview / download routes).
- *
- * Only an explicit `0`/`false` turns a feature OFF. `1`, `true`, and anything absent
- * or unparseable all mean ON — a toggle must never silently disable output just
- * because the client sent a malformed value (5T Transparent: no silent drop).
- */
-export function renderOptionsFromQuery(
-  params: URLSearchParams | { get(name: string): string | null },
-): V5RenderOptions {
-  const read = (name: string): boolean | undefined => {
-    const raw = params.get(name);
-    if (raw === null || raw === undefined) return undefined;
-    const v = String(raw).trim().toLowerCase();
-    if (v === '0' || v === 'false') return false;
-    return true;
-  };
-  const charts = read('charts');
-  const imagery = read('imagery');
-  return resolveRenderOptions({
-    ...(charts === undefined ? {} : { charts }),
-    ...(imagery === undefined ? {} : { imagery }),
-  });
-}
-
-/** Bar chart scaled from the report's real per-chapter wordCount values. */
-function buildChapterWordCountChart(report: V5GeneratedReport): string {
-  const chapters = report.chapters;
-  if (chapters.length === 0) return '';
-  const maxWords = Math.max(...chapters.map((ch) => ch.wordCount || 0), 1);
-  const barW = 44;
-  const gap = 14;
-  const plotH = 170;
-  const width = chapters.length * (barW + gap) + gap;
-  let bars = '';
-  for (const ch of chapters) {
-    const words = ch.wordCount || 0;
-    const h = Math.max(2, Math.round((words / maxWords) * plotH));
-    const x = gap + (ch.num - 1) * (barW + gap);
-    bars += `<rect data-chapter="${ch.num}" data-words="${words}" x="${x}" y="${plotH - h}" width="${barW}" height="${h}" fill="#009EB0"><title>第${ch.num}章 ${ch.title}：${words.toLocaleString()} 字</title></rect>`;
-  }
-  return (
-    `<svg data-viz="chapter-wordcount" data-unit="字" viewBox="0 0 ${width} ${plotH}" ` +
-    `width="100%" height="${plotH}" role="img" aria-label="各章節字數統計" ` +
-    `style="max-width:${width}px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;margin:20px 0">` +
-    `<line x1="0" y1="${plotH}" x2="${width}" y2="${plotH}" stroke="#cbd5e1" stroke-width="1"/>` +
-    bars +
-    `</svg>`
-  );
-}
-
-export function reportV5ToHtml(
-  report: V5GeneratedReport,
-  options?: Partial<V5RenderOptions> | null,
-): string {
-  const opts = resolveRenderOptions(options);
+export function reportV5ToHtml(report: V5GeneratedReport): string {
   const year = '2025';
-  // 5T Transparent — chapter count is read from the report, never a literal.
-  // (It used to be hardcoded to 28, which contradicted TCFD=12 / Investor=5.)
-  const chapterCount = report.chapters.length;
   let html = `<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>${report.companyName} ${year}年永續報告書 — ESGGO v5.0</title>`;
   html += `<style>body{font-family:"Noto Sans TC",sans-serif;max-width:1200px;margin:0 auto;padding:20px;line-height:1.8;color:#1e293b}`;
   html += `h1{color:#009EB0;border-bottom:3px solid #009EB0;padding-bottom:12px}`;
@@ -254,50 +172,28 @@ export function reportV5ToHtml(
   html += `th{background:#f1f5f9}tr:nth-child(even){background:#f8fafc}`;
   html += `.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;margin:30px 0}`;
   html += `.stat{background:#f1f5f9;padding:18px;border-radius:12px;text-align:center}`;
-  html += `figure{margin:24px 0;padding:16px;background:#f1f5f9;border-left:4px solid #D4AF37;border-radius:8px}`;
   html += `.stat-value{font-size:28px;font-weight:700;color:#009EB0}</style></head><body>`;
   html += `<h1>${report.companyName}</h1>`;
   html += `<h2 style="border:none;color:#475569;font-size:16px;margin-top:5px">${year}年永续报告书 — ESGGO v5.0 万能系統版</h2>`;
-  html += `<div class="stats"><div class="stat" data-stat="chapters" data-value="${chapterCount}"><div class="stat-value">${chapterCount}</div><div style="font-size:12px;color:#64748b">章节数</div></div>`;
-  html += `<div class="stat" data-stat="totalWords" data-value="${report.totalWords}"><div class="stat-value">${report.totalWords.toLocaleString()}</div><div style="font-size:12px;color:#64748b">總字数</div></div>`;
-  html += `<div class="stat" data-stat="fiveT" data-value="5T"><div class="stat-value">5T</div><div style="font-size:12px;color:#64748b">真善美信通</div></div>`;
-  html += `<div class="stat" data-stat="zkp" data-value="ZKP"><div class="stat-value">ZKP</div><div style="font-size:12px;color:#64748b">零知識證明</div></div></div>`;
-
-  if (opts.charts) {
-    html += buildChapterWordCountChart(report);
-  }
+  html += `<div class="stats"><div class="stat"><div class="stat-value">28</div><div style="font-size:12px;color:#64748b">章节数</div></div>`;
+  html += `<div class="stat"><div class="stat-value">${report.totalWords.toLocaleString()}</div><div style="font-size:12px;color:#64748b">總字数</div></div>`;
+  html += `<div class="stat"><div class="stat-value">5T</div><div style="font-size:12px;color:#64748b">真善美信通</div></div>`;
+  html += `<div class="stat"><div class="stat-value">ZKP</div><div style="font-size:12px;color:#64748b">零知識證明</div></div></div>`;
 
   for (const ch of report.chapters) {
-    if (opts.imagery) {
-      html += `<figure data-figure="${ch.id}" data-chapter="${ch.num}"><figcaption>第${ch.num}章 ${ch.title}｜${(ch.wordCount || 0).toLocaleString()} 字・${ch.evidenceCount ?? 0} 項證據</figcaption></figure>`;
-    }
     html += ch.content;
   }
 
-  html += `<hr><p style="text-align:center;color:#64748b;font-size:12px">ESGGO v5.0 | 章節數：${chapterCount} | 總字数：${report.totalWords.toLocaleString()} | Trinity Hash: ${report.trinityHash}</p>`;
+  html += `<hr><p style="text-align:center;color:#64748b;font-size:12px">ESGGO v5.0 | 總字数：${report.totalWords.toLocaleString()} | Trinity Hash: ${report.trinityHash}</p>`;
   html += `</body></html>`;
   return html;
 }
 
-export function reportV5ToMarkdown(
-  report: V5GeneratedReport,
-  options?: Partial<V5RenderOptions> | null,
-): string {
-  const opts = resolveRenderOptions(options);
+export function reportV5ToMarkdown(report: V5GeneratedReport): string {
   let md = `# ${report.companyName} ${report.reportVersion} 永续报告\n\n`;
-  md += `> 章節數：${report.chapters.length} | 總字数：${report.totalWords.toLocaleString()} | Trinity Hash: ${report.trinityHash}\n\n---\n\n`;
-  if (opts.charts && report.chapters.length > 0) {
-    md += `## 各章節字數統計\n\n| 章節 | 標題 | 字數 | 證據數 |\n| --- | --- | ---: | ---: |\n`;
-    for (const ch of report.chapters) {
-      md += `| ${ch.num} | ${ch.title} | ${(ch.wordCount || 0).toLocaleString()} | ${ch.evidenceCount ?? 0} |\n`;
-    }
-    md += `\n---\n\n`;
-  }
+  md += `> 總字数：${report.totalWords.toLocaleString()} | Trinity Hash: ${report.trinityHash}\n\n---\n\n`;
   for (const ch of report.chapters) {
     md += `## 第${ch.num}章 ${ch.title}\n\n`;
-    if (opts.imagery) {
-      md += `> 圖示：第${ch.num}章 ${ch.title}（${(ch.wordCount || 0).toLocaleString()} 字・${ch.evidenceCount ?? 0} 項證據）\n\n`;
-    }
     md += ch.content.replace(/<[^>]+>/g, '') + '\n\n---\n\n';
   }
   return md;

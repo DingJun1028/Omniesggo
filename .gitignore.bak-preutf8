@@ -1,0 +1,432 @@
+# dependencies
+/node_modules
+/.pnpm-store
+packages/*/node_modules
+apps/*/node_modules
+
+# next.js
+/.next/
+/out/
+
+# misc local scratch (never commit)
+/_tmp_vps/
+/pastes/
+/oracle-always-free/
+my-worker/node_modules/
+oa-swarm/node_modules/
+
+# production
+/build
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# local env files
+.env*.local
+.env
+.env.secrets
+.env.example
+!vps/.env.example
+!apps/omni-blueprint-hub/.env.example
+.env.local.sample
+secrets/
+
+# VPS gateway runtime secrets (NEVER commit)
+vps/.env.gateway
+vps/.env.gateway.run
+vps/.env
+
+# real secret files (keep out of git; local-only)
+.env.secrets
+.env.secrets.*
+.env.production
+.env.staging
+
+# Private keys & certificates (NEVER commit)
+*.key
+*.pem
+*.p12
+*.pfx
+*.cert
+*.crt
+secrets/
+.secrets/
+*-secret.json
+*-credentials.json
+service-account*.json
+gcp-sa-key*.txt
+
+# Watchdog & runtime logs
+logs/watchdog.log
+logs/*.log
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# OmniAgent Gateway
+omniagent-gateway/node_modules/
+omniagent-gateway/logs/
+omniagent-gateway/package-lock.json
+
+# VPS gateway (esggo-vps-gateway) ??installed deps only
+vps/node_modules/
+
+# e2e-k1 playwright sandbox ??installed deps + run artifacts
+e2e-k1/node_modules/
+e2e-k1/runs/
+
+# Local AI tool configs
+.gemini/
+.jules/
+.kilo/
+.playwright-mjs/
+.playwright-mcp/
+.storybook/
+.codeturtle.yml
+.husky/
+.lintstagedrc.json
+.npmrc
+.vscode/
+
+# Debug / watchdog trace artifacts (never commit)
+wd_out.txt
+wd_trace.txt
+_h.txt
+*.trace
+*_trace.txt
+watchdog_*.txt
+watchdog_*.log
+
+# Temp / scratch / backup
+.tmp-*
+tmp_*
+*.bak
+*.bak.*
+*.cpuprofile
+scratch/
+.scratch/
+temp/
+temp*.js
+temp*.py
+.next-backup-*/
+.next-broken/
+build_output*.txt
+test_output.txt
+omni-trace.txt
+trace.txt
+files_to_*.txt
+task.md
+dev.pid
+
+# VPS local deployment
+vps/.next-backup-*/
+vps/.next-broken/
+
+# Omnipotent repository
+omnipotent-repository/
+
+# Agents local state
+.agents/tmp_log.txt
+
+# Standalone loose files
+NoteSearch.jsx
+Setting.js
+User.js
+script.js
+searchWorker.js
+fix-*.js
+fix-*.cjs
+fix_*.py
+tmp-fix-*.cjs
+/index.html
+mongo-init.js
+ctl.ps1
+clean_logs.ps1
+render-build.sh
+# Test / CI artifacts
+playwright-report/
+test-results/
+vitest_output/
+
+# Logs
+logs/
+
+# Sample / misc
+twse_sample.txt
+vps_env.txt
+whitepaper.md
+soul.md
+patch_supabase.py
+update_supabase.py
+package-lock.json
+
+# Extra non-source directories
+android/
+ios/
+bin/
+# oa-twins/hyper/RESULTS.txt ??probe ?±å???shell ?å??‘è¼¸?ºï?æ¯æ¬¡?·è??½æ?è®Šå?ï¼Œä??²ç??§ã€?oa-twins/hyper/RESULTS.txt
+# ä¾‹å?ï¼šoa-twins/bin/ ?¯æ­£å¼å?å§‹ç¢¼ï¼ˆå¥åº·æª¢?¥è…³?¬ï?ï¼Œé??¢å‡º?©ã€?# ?¹ç›®??bin/ è¦å??ƒæ?å®ƒæ•´?‹å¿½?¥æ? ?”â€??™æ­£??oa-twins/bin/oa-twin-health.py
+# å¾æœª?²ç??§ã€å???README / run-selftest.bat / deploy ?³æœ¬ä¸‰è??œé?å¤±æ??„å?? ã€?!oa-twins/bin/
+!oa-twins/bin/**
+cli/scratch/
+config/
+dashboard/
+dataconnect/
+esggo/node_modules/
+esggo-dashboard/
+esggo-funtions/
+esggo-omnimcp/
+funtions/
+inventory-tracker/
+my-agent/
+omnimcp/
+omniscope/
+prisma/node_modules/
+#packages/
+render_cli/
+server/
+shared-memory/
+/skills/
+undefined/
+workers/
+C:/
+
+# PDF.js extracted
+pdfjs-*/
+public/pdfjs_extracted/
+lib/web/cmaps/
+public/lib/
+
+# Pen / design files
+*.pen
+
+# Gemini CLI
+Gemini CLI*/
+
+# Chinese-named dirs
+
+# Extra docs (non-essential for build)
+ADK_GUIDE.md
+ADR_Index.md
+API_SPECIFICATION.md
+BEST_PRACTICES*.md
+BRAND_ATOMIC_LIBRARY.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+DESIGN.md
+DOCUMENT_CENTER.md
+ESGGO_STARTUP_GUIDE.md
+ESG_GO_Brand_Style_Specification.md
+GEMINI.md
+HEALING-SYSTEM.md
+JUN_AI_KEY_ARCHITECTURE.md
+NCBDB_PROTOCOL.md
+OMNICOMPONENT_*.md
+OMNIFACTORY_*.md
+OMNI_GUIDE.md
+OMNI_SKILLS_BOOK.md
+OPTIMIZATION_RECOMMENDATIONS.md
+README_OMNICOMPONENT.md
+README_PROD.md
+ROADMAP.md
+USER-GUIDE.md
+VERCEL_ENV_SETUP.md
+VPS_CONNECTION_GUIDE.md
+VISUAL_FUNCTION_TEST_REPORT.md*
+WALKTHROUGH.md
+WIKI.md
+WIKI_FUNCTION_FLOW.md
+auth_proxy_setup.md
+data_proxy_setup.md
+implementation_plan.md
+ki-esg-2026-001.md
+
+# SQL / data dumps
+*.sql
+logic_registry*.db
+
+# Config variants (keep next.config.js only)
+components.json
+docker-compose.yml
+apphosting.yaml
+chromatic.config.json
+eslint.config.mjs
+tailwind.config.mjs
+openapi.yaml
+firebase.json
+firestore.*
+skills-lock.json
+lib_lint.json
+
+# Render / Vercel / GCP
+render.yaml
+Projectesggo.gcp-sa-key-b64.txt
+
+# Supabase (local)
+supabase/
+
+# GitHub workflows
+
+# ADRs
+adr/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ruff_cache/
+.pytest_cache/
+*.egg
+dist/
+*.whl
+.python-version
+
+# FTG Tours build artifacts
+apps/ftg-tours-website/ftg-dist.tar
+apps/ftg-tours-website/nul
+
+# IDE
+.idea/
+.vscode/
+
+# Static reports are now in data/reports/
+README.OMNICOMPONENT.md
+TECHNICAL_INTEGRITY.md
+UNIVERSAL_COMPONENT_MATRIX.md
+
+.vercel
+.env*.local
+.venv/
+
+# OmniDB schema build scripts (intentional, not dumps)
+!vps/omni/sql/
+!vps/omni/sql/*.sql
+esggo-deploy.bundle
+esggo-backup.bundle
+prisma/prisma/
+
+# ?¨é?å¯©è? sink ?ä?å±¤ï?append-only JSONLï¼ŒåŸ·è¡Œæ??¢ç?ï¼?.audit/
+
+.vercel
+
+# turbo task runner artifacts
+**/.turbo/
+
+# Omni-Sanctuary secret vault (only index commits, no plaintext)
+Omni-Sanctuary/Artifacts/keys/*.txt
+Omni-Sanctuary/Artifacts/keys/*.json
+Omni-Sanctuary/Artifacts/keys/*.env
+tencentdb-memory/.env
+apps/tencentdb-memory/.env
+
+# CLI node_modules
+cli/*/node_modules/
+firebase-service-account.json
+vault/Agents/context/.avatar-registry.json
+vault/Agents/context/.avatar-types.d.ts
+!apps/ftg-tools/.env.example
+
+# Local CLI / agent runtime state (NOT for git)
+.zenrows/
+prisma-backup-*/
+
+# Vercel deploy: exclude non-esggo subdirectories from Vercel upload (64000+ tracked files exceed 15000 limit)
+# å¿½ç•¥?®é??§å®¹ä½†ä??™ç›®?„æœ¬èº«ï?ä½?soul.md è² å?ä¾‹å??¯ç???esggo-omni-center/*
+# ä¾‹å?ï¼šä¸»??soul.md ?€æ°¸ä?ç´å…¥è¿½è¹¤ï¼ˆÂ?0 OmniTag å¥‘ç??–å…¸ç·¨è¼¯æºé ­ï¼?!esggo-omni-center/soul.md
+rules-tutorial/
+functions/node_modules/
+
+.env*
+# ?€?€ èª¿è©¦?¢ç‰© (?¬åœ° watchdog / trace, ä¸ç??¥ç??¬æ§?? ?€?€
+wd_out.txt
+wd_trace.txt
+_h.txt
+*.trace
+*_trace.txt
+watchdog_*.txt
+watchdog_*.log
+
+# OmniFactory ?¬åœ°è¨­æ–½?ç½® (??Vault ID, ä¸é€²ç??¬æ§??
+apps/omni-factory/.obsidian-config.json
+
+# FTG Journey ?·è??Ÿç”¢??(SQLite è³‡æ?åº?+ ?¥åº·?¥è?ï¼Œä??²ç??¬æ§??
+apps/ftg-journey-server/*.db
+oa-team-crewai/swarm-health-*.log
+
+# å°å??€ (archive-protocol: ä¸å¯??git)
+/archive/
+apps/ftg-journey-web/cloudflare.ini
+
+# ?²å?å¼•æ??•æ??¢ç‰© (?¬æ??Ÿæ?, ä¸é€?git)
+apps/evolution-engine/evolution-report.json
+apps/evolution-engine/proposals/
+
+# Hermes Auto-Repair & 5T Canon
+# ?Ÿè???`.hermes/`ï¼?026-09-28 ç§»é™¤ï¼‰ï??´å??’é™¤?ƒè? auto-repair ?„ä¿®å¾?# ?¡æ???repo ?†ç™¼?‚æ”¹?ºåª?’é™¤?·è??Ÿç??‹æ?ï¼Œè??¬æ?ä¸‹æ–¹ .hermes/**/*.json ?€æ®µã€?
+# Generated visual assets (local only, not in version control)
+generated/
+
+# Obsidian workspace config (local layout, not version controlled)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Evolution engine log (auto-generated)
+evolution-log.jsonl
+vault/.obsidian/plugins/github-sync/
+/vendor/
+# .hermes/ æ··å?äº†ã€Œå¯?ç¾?„ç?å¼ç¢¼?è??Œæœ¬æ©ŸåŸ·è¡Œæ??€?‹ã€å…©é¡å…§å®¹ã€?# ?´å??’é™¤?ƒè? auto-repair ä¿®å¾©?¡æ???repo ?†ç™¼ï¼?026-09-28 èµ·ï?ï¼?# ?´å?ç´å…¥?‡æ???41 ?‹ç????¥è?æª”ï???tracker-state.json?repair-log.jsonlï¼?# ä¸€ä½µå¸¶?²ç??§ã€?#
+# æ³¨æ?ï¼šgit å°ã€Œå·²è¢«æ??¤ç??®é??ä??ƒå??²å…¥å¥—ç”¨?¦å?è¦å?ï¼Œæ?ä»?# `/.hermes/` + `!/.hermes/auto-repair/` ?ƒå??´æ•´?‹ç›®?„ä?è¢«æ??¤ï?å¯¦æ¸¬?¸é?=0ï¼‰ã€?# æ­?§£?¯ã€Œä??’é™¤?®é??¬èº«ï¼Œåª?’é™¤è©²è·¯å¾‘ä??„ç??‹æ??ã€?#
+# ?ªæ”¾è¡Œä??‹å¯?ç¾?„å?ç³»çµ±ï¼ˆauto-repair / omnitag / vault-syncï¼‰ï?
+# ?¶é?è·¯å?ç¶­æ??’é™¤ ?”â€??¶ä¸­??SSH ?¬é‘°ï¼ˆdesktop-attachments/*.key.pubï¼?# ?‡æ??–æ?ï¼ˆdesktop-attachments/tokens.tokï¼‰ï?çµ•ä??¯é€²ç??§ã€?/.hermes/*
+!/.hermes/auto-repair/
+/.hermes/auto-repair/*.json
+/.hermes/auto-repair/*.jsonl
+/.hermes/auto-repair/*.log
+# auto-repair/ åº•ä??¦æ?ä¸€å±¤å·¢?€?„è??·è??Ÿè??™ï?.hermes/5t-canon/verify-*.jsonï¼‰ï?
+# ?±é?å¾€?³æœ¬ä»¥ç›¸å°è·¯å¾‘èª¤å»ºï??‡ä¸» .hermes/5t-canon/ ?¡é?ï¼Œä?ä½µæ??¤ã€?/.hermes/auto-repair/.hermes/
+!/.hermes/omnitag/
+/.hermes/omnitag/*.json
+/.hermes/omnitag/*.jsonl
+/.hermes/omnitag/*.log
+!/.hermes/vault-sync/
+/.hermes/vault-sync/*.json
+/.hermes/vault-sync/*.jsonl
+/.hermes/vault-sync/*.log
+/_upstream_vt/
+apps/ftg-2.5/
+apps/ftg-2.8/
+
+# PyInstaller å»ºç½®?¢ç‰©ï¼ˆspec/dist/work ?†ç‚º?¬æ?å»ºç½®çµæ?ï¼?_pyi/
+
+# æ¸¬è©¦?·è??¢ç‰©ï¼ˆæ?æ¬¡åŸ·è¡Œè?å¯«ï?ä¸å…·?ˆæœ¬?§åƒ¹?¼ï?
+test_result.json
+
+# ?¬èƒ½?†èº«è¿½è¹¤?¨æš«å­˜æ?ï¼ˆæ?æ¬¡ä¿®å¾©è?å¯«ï??…ä??¬æ?ç¨½æ ¸ï¼?.hermes/auto-repair/.tracker-evidence.tmp
+
+# ?ªå??ç?ä¸€æ¬¡æ€§é?è­‰è?ç¨¿ï??«æ?è­‰ä?ä½ï?ä¸é€²ç??§ï?
+wf-validate/
+node_modules/
+
+**/node_modules
+
+# â”€â”€ æ†‘è­‰èˆ‡é‡‘é‘°ï¼ˆçµ•ä¸å…¥ç‰ˆï¼›2026-10-03 å¯¦æ¸¬æ›¾èª¤å…¥ commit b08cd5c4aï¼‰â”€â”€
+.hermes/desktop-attachments/
+*.tok
+*.key
+*.key.pub
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# æ¢æ¸¬æ®˜ç•™èˆ‡å‚™ä»½ï¼ˆæœƒæ±¡æŸ“ claims.workspace é‡æ¸¬æ¯é«”ï¼‰
+sync_probe.txt
+vdc_probe.txt
+*.bak-*

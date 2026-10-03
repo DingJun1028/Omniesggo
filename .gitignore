@@ -118,10 +118,6 @@ temp*.py
 .next-broken/
 build_output*.txt
 test_output.txt
-# PowerShell 重定向產生的 build log（UTF-16LE BOM，非 UTF-8）
-ts-output.txt
-tsc_full_output.txt
-lint_output_*.txt
 omni-trace.txt
 trace.txt
 files_to_*.txt
@@ -136,12 +132,7 @@ vps/.next-broken/
 omnipotent-repository/
 
 # Agents local state
-# 治理：b4ba0af5f (2026-08-16) 為解 Vercel upload <15000 上限，
-# 停止追蹤 esggo-omni-center/.agents（當時移除 681 檔 / 94,949 行）。
-# 該決策未使用 .gitignore 落地，致內容於修補註解時回流。
-# 恢復此規則以維持原治理；.agents/ 屬代理本地狀態，非部署產物。
 .agents/tmp_log.txt
-esggo-omni-center/.agents/
 
 # Standalone loose files
 NoteSearch.jsx
@@ -179,9 +170,9 @@ package-lock.json
 android/
 ios/
 bin/
-# [原註解部分損毀；可辨識片段: oa-twins/hyper/RESULTS.txt — 2026-10-03 修復]
-# [原註解部分損毀；可辨識片段: oa-twin-health.py oa-twins/bin/ — 2026-10-03 修復]
-# [原註解部分損毀；可辨識片段: README oa-twins/bin/ run-selftest.bat — 2026-10-03 修復]
+# oa-twins/hyper/RESULTS.txt ??probe ?��???shell ?��??�輸?��?每次?��??��?變�?，�??��??��?oa-twins/hyper/RESULTS.txt
+# 例�?：oa-twins/bin/ ?�正式�?始碼（健康檢?�腳?��?，�??�出?��?# ?�目??bin/ 規�??��?它整?�忽?��? ?��??�正??oa-twins/bin/oa-twin-health.py
+# 從未?��??�、�???README / run-selftest.bat / deploy ?�本三�??��?失�??��??��?!oa-twins/bin/
 !oa-twins/bin/**
 cli/scratch/
 config/
@@ -320,8 +311,7 @@ esggo-deploy.bundle
 esggo-backup.bundle
 prisma/prisma/
 
-# 稽核日誌（執行期產出，非原始碼）
-.audit/
+# ?��?審�? sink ?��?層�?append-only JSONL，執行�??��?�?.audit/
 
 .vercel
 
@@ -347,14 +337,13 @@ vault/Agents/context/.avatar-types.d.ts
 prisma-backup-*/
 
 # Vercel deploy: exclude non-esggo subdirectories from Vercel upload (64000+ tracked files exceed 15000 limit)
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
-# esggo-omni-center 為整份 esggo 的複製，內含自動生成的 soul.md
-esggo-omni-center/soul.md
+# 忽略?��??�容但�??�目?�本身�?�?soul.md 負�?例�??��???esggo-omni-center/*
+# 例�?：主??soul.md ?�永�?納入追蹤（�?0 OmniTag 契�??�典編輯源頭�?!esggo-omni-center/soul.md
 rules-tutorial/
 functions/node_modules/
 
 .env*
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
+# ?�?� 調試?�物 (?�地 watchdog / trace, 不�??��??�控?? ?�?�
 wd_out.txt
 wd_trace.txt
 _h.txt
@@ -363,23 +352,23 @@ _h.txt
 watchdog_*.txt
 watchdog_*.log
 
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
+# OmniFactory ?�地設施?�置 (??Vault ID, 不進�??�控??
 apps/omni-factory/.obsidian-config.json
 
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
+# FTG Journey ?��??�產??(SQLite 資�?�?+ ?�康?��?，�??��??�控??
 apps/ftg-journey-server/*.db
 oa-team-crewai/swarm-health-*.log
 
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
+# 封�??� (archive-protocol: 不可??git)
 /archive/
 apps/ftg-journey-web/cloudflare.ini
 
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
+# ?��?引�??��??�物 (?��??��?, 不�?git)
 apps/evolution-engine/evolution-report.json
 apps/evolution-engine/proposals/
 
 # Hermes Auto-Repair & 5T Canon
-# [原註解部分損毀；可辨識片段: auto-repair — 2026-10-03 修復]
+# ?��???`.hermes/`�?026-09-28 移除）�??��??�除?��? auto-repair ?�修�?# ?��???repo ?�發?�改?�只?�除?��??��??��?，�??��?下方 .hermes/**/*.json ?�段�?
 # Generated visual assets (local only, not in version control)
 generated/
 
@@ -391,24 +380,16 @@ generated/
 evolution-log.jsonl
 vault/.obsidian/plugins/github-sync/
 /vendor/
-# [原註解部分損毀；可辨識片段: auto-repair repair-log.jsonl tracker-state.json — 2026-10-03 修復]
-# [原註解部分損毀；可辨識片段: auto-repair — 2026-10-03 修復]
-# [原註解部分損毀；可辨識片段: auto-repair omnitag vault-sync — 2026-10-03 修復]
-# [原註解部分損毀；可辨識片段: desktop-attachments/*.key.pub desktop-attachments/tokens.tok — 2026-10-03 修復]
+# .hermes/ 混�?了「可?�現?��?式碼?��??�本機執行�??�?�」兩類內容�?# ?��??�除?��? auto-repair 修復?��???repo ?�發�?026-09-28 起�?�?# ?��?納入?��???41 ?��????��?檔�???tracker-state.json?�repair-log.jsonl�?# 一併帶?��??��?#
+# 注�?：git 對「已被�??��??��??��??��??�入套用?��?規�?，�?�?# `/.hermes/` + `!/.hermes/auto-repair/` ?��??�整?�目?��?被�??��?實測?��?=0）�?# �?��?�「�??�除?��??�身，只?�除該路徑�??��??��??��?#
+# ?�放行�??�可?�現?��?系統（auto-repair / omnitag / vault-sync）�?
+# ?��?路�?維�??�除 ?��??�中??SSH ?�鑰（desktop-attachments/*.key.pub�?# ?��??��?（desktop-attachments/tokens.tok）�?絕�??�進�??��?/.hermes/*
 !/.hermes/auto-repair/
 /.hermes/auto-repair/*.json
 /.hermes/auto-repair/*.jsonl
 /.hermes/auto-repair/*.log
-# 5T 驗證執行期產出（每次 verify 檔名含時戳，不可版控）
-.hermes/5t-canon/verify-*.json
-# 5T Canon 敏感治理產出 — 可能含 API Key / Hash Lock 明文，禁止版控
-.hermes/5t-canon/fullchain-*.json
-.hermes/5t-canon/ollama-cloud-*.json
-.hermes/5t-canon/god-mode-*.json
-.hermes/5t-canon/*key*.json
-.hermes/5t-canon/*vault*.json
-.hermes/5t-canon/*auth*.json
-# [原註解部分損毀；可辨識片段: .hermes/auto-repair/.hermes/ auto-repair — 2026-10-03 修復]
+# auto-repair/ 底�??��?一層巢?�?��??��??��??��?.hermes/5t-canon/verify-*.json）�?
+# ?��?往?�本以相對路徑誤建�??�主 .hermes/5t-canon/ ?��?，�?併�??��?/.hermes/auto-repair/.hermes/
 !/.hermes/omnitag/
 /.hermes/omnitag/*.json
 /.hermes/omnitag/*.jsonl
@@ -421,33 +402,12 @@ vault/.obsidian/plugins/github-sync/
 apps/ftg-2.5/
 apps/ftg-2.8/
 
-# PyInstaller 建置中間產物（.toc / .pyz / base_library.zip / xref / warn）
-_pyi/
+# PyInstaller 建置?�物（spec/dist/work ?�為?��?建置結�?�?_pyi/
 
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
+# 測試?��??�物（�?次執行�?寫�?不具?�本?�價?��?
 test_result.json
 
-# [原註解部分損毀；可辨識片段: .hermes/auto-repair/.tracker-evidence.tmp auto-repair — 2026-10-03 修復]
+# ?�能?�身追蹤?�暫存�?（�?次修復�?寫�??��??��?稽核�?.hermes/auto-repair/.tracker-evidence.tmp
 
-# [原註解已損毀 — big5/UTF-8 混合寫入，2026-10-03 修復]
+# ?��??��?一次性�?證�?稿�??��?證�?位�?不進�??��?
 wf-validate/
-node_modules/
-
-**/node_modules
-
-# ── 憑證與金鑰（絕不入版；2026-10-03 實測曾誤入 commit b08cd5c4a）──
-.hermes/desktop-attachments/
-*.tok
-*.key
-*.key.pub
-*.pem
-*.p12
-*.pfx
-id_rsa*
-id_ed25519*
-
-# 探測殘留與備份（會污染 claims.workspace 量測母體）
-sync_probe.txt
-vdc_probe.txt
-*.bak-*
-

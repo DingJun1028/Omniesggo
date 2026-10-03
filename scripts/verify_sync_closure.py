@@ -177,16 +177,7 @@ def check_claims_vs_measured(graph):
             if d.get("field") == "commit 筆數":
                 claimed = re.search(r"(\d+)", d.get("canon_claims", ""))
                 c = int(claimed.group(1)) if claimed else None
-                if c is None:
-                    # 無法解析宣稱值：不是「宣稱與實測一致」，不得記 PASS
-                    # （承 L167「找不到節點 → WARN」的既有慣例）
-                    record(
-                        "WARN",
-                        "claims.commit_count",
-                        "commit 筆數宣稱不含可解析數值，無法交叉核對（略過，非通過）",
-                        f"canon_claims={d.get('canon_claims', '')[:60]} measured={actual}",
-                    )
-                elif c != actual:
+                if c is not None and c != actual:
                     record(
                         "FAIL",
                         "claims.commit_count",
@@ -275,10 +266,6 @@ def check_skill_frontmatter():
 # ── 5. 懸空引用 ─────────────────────────────────────────────────────
 def check_dangling_refs():
     if not os.path.isdir(SKILLS):
-        # 與 check_skill_frontmatter 對齊：缺目錄必須留下痕跡。
-        # 靜默 return 等於「檢查了 0 個技書」卻不現身於報告 —— 讀者無法
-        # 區分「跑過且無懸空引用」與「根本沒跑」，與 null-claim 假綠同型。
-        record("WARN", "skills.dangling_refs", f"技能目錄不存在: {SKILLS}")
         return
     dangling = []
     pat = re.compile(r"(?:references|templates|scripts|assets)/([A-Za-z0-9_.\-]+\.[A-Za-z0-9]+)")

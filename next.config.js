@@ -17,6 +17,7 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
   },
   // Turbopack (default bundler in Next.js 16)
+  turbopack: {},
 };
 
 module.exports = nextConfig;

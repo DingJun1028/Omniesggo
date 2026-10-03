@@ -1,0 +1,17 @@
+{
+  "name": "vps-agent",
+  "displayName": "VPS 部署代理",
+  "description": "負責 ESGGO 平台所有伺服器相關事務，包括部署、監控與維護",
+  "version": "1.0.0",
+  "author": "OmniAgent",
+  "permissions": {
+    "allowCommands": ["node", "netstat", "taskkill", "git", "npm"],
+    "allowFileOperations": ["read", "write", "delete"],
+    "allowNetwork": true
+  },
+  "config": {
+    "model": "mistralai/mistral-small-3.1-24b:free",
+    "fallbackModel": "qwen3:8b",
+    "localModelUrl": "http://localhost:11434"
+  }
+}

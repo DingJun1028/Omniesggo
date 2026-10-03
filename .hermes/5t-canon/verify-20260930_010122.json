@@ -1,0 +1,25 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "gemma4:e4b",
+  "provider": "ollama-cloud",
+  "timestamp": "2026-09-29T16:58:33.892103Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "363e27ef-eb39-4f28-8088-933eceebbebf",
+  "five_t_verification": {
+    "vault_key": true,
+    "cfg_match": true,
+    "api_ok": true
+  },
+  "cron_state": {
+    "total": 37,
+    "on_ollama": 2,
+    "issues": []
+  },
+  "content": "5T-Canon 自檢守護報告\n\n時間: 2026-09-29T16:58:33.892103Z\n整體: PASS\n\n=== 5T 驗證 ===\nTraceable: ✓ (vault key 57 chars)\nTrackable: ✓ (vault == config.yaml)\nTangible:  ✓ (cloud=you (dingjunhong1028) have reached your monthly usage limit, upgrade for higher limits: https://ollama.com/upgrade or add usage credits: https://ollama.com/settings (ref: b472940a-07df-4ac8-8325-5dd15161825d) | local=local qwen2.5:3b (via fallback: http://localhost:11434 qwen2.5:3b: curl exit=28: curl: (28) Operation timed out after 45017 milliseconds with 0 bytes received\n; http://localhost:11434 qwen3-vl:2b: curl exit=28: curl: (28) Operation timed out after 45003 milliseconds with 0 bytes received\n; http://localhost:11434 gemma4:e4b: curl exit=28: curl: (28) Operation timed out after 45010 milliseconds with 0 bytes received\n))\nTransparent: ✓ (本 JSON 即證據)\nTrustworthy: ✓ (SHA-256 鎖定)\n\n— verify-5t-canon.py v1.0\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "4a39603858f416f28d365a67e0924d980ce84cbc043e880915a5e08c978b25f6",
+    "frozen": true
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "smart-ai-router",
+  "version": "2.0.0-beta.1",
+  "description": "Enhanced smart AI router for ESG domain tasks with dynamic model discovery and time-travel debugging",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo 'No tests defined'",
+    "demo": "ts-node demo.ts"
+  },
+  "keywords": [
+    "AI",
+    "router",
+    "ESG",
+    "dynamic-model-discovery",
+    "model-conversion",
+    "shadow-testing",
+    "time-travel-debugging"
+  ],
+  "author": "ESG Team",
+  "license": "MIT",
+  "dependencies": {
+    "@eventstore/db-client": "^8.0.0",
+    "axios": "^1.6.0",
+    "node-cache": "^5.1.2",
+    "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/esggo/smart-ai-router.git"
+  }
+}

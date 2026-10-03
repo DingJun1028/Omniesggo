@@ -1,7 +1,5 @@
 # 數位分身 Digital Twin
 
-[MEDCE: M 測量 | E 評估、C 合規]
-
 **路徑：** `/digital-twin`
 
 ## 功能定位

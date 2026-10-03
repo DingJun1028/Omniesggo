@@ -5,20 +5,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { 
   LayoutDashboard, FileText, Globe, Users, 
-  BookOpen, Bot, Settings, Menu, X, Leaf, Sparkles, ShieldCheck, ScanSearch, Database, Factory, Hexagon
+  BookOpen, Bot, Settings, Menu, X, Leaf 
 } from 'lucide-react';
 import { useAuth } from '@/components/AuthProvider';
 
 const NAV_ITEMS = [
   { href: '/omni-center', label: '指揮中心', icon: LayoutDashboard },
-  { href: '/omni-matrix', label: '全通中樞 (OmniMatrix)', icon: Hexagon },
-  { href: '/junaikey', label: '化身進化 (JunAiKey)', icon: Sparkles },
-  { href: '/supply-chain', label: '供應鏈評級 (Supply Chain)', icon: Factory },
-  { href: '/data-bridge', label: '企業橋接 (Data Bridge)', icon: Database },
-  { href: '/trust', label: '數位信任 (Trust)', icon: ShieldCheck },
   { href: '/sustain-write/v5', label: '報告產生器', icon: FileText },
-  { href: '/scanner', label: '文件解析 (Scanner)', icon: ScanSearch },
-  { href: '/carbon', label: '碳盤查 (Carbon)', icon: Leaf },
   { href: '/sustain-center', label: '永續中心', icon: Globe },
   { href: '/village', label: '村莊治理', icon: Users },
   { href: '/wiki', label: '知識庫', icon: BookOpen },

@@ -55,17 +55,6 @@ Provide a concise, structured JSON response with the following keys:
       };
     }
 
-    // 每次成功執行 AI 分析，自動注入 35 點化身經驗值 (Fire and forget)
-    const apiKey = process.env.OMNI_JUNAIKEY_GROWTH_KEY;
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://127.0.0.1:3000';
-    if (apiKey) {
-      fetch(`${baseUrl}/api/junaikey/growth`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-        body: JSON.stringify({ expGain: 35 })
-      }).catch((err) => console.log('Exp injection skipped:', err.message));
-    }
-
     return NextResponse.json({
       success: true,
       analysis: analysisResult
