@@ -235,7 +235,7 @@ export function AkkaduBroadcastWall() {
       <OmniBaseCard className="!p-5 sm:!p-6 relative overflow-hidden !bg-[#10243f] !border-[#c9a24b]/40 shadow-[0_24px_64px_rgba(0,0,0,0.65)] font-sans" statusIndicator="trustworthy">
         
         {/* Workspace Header: Room Code & View Mode Controls */}
-        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 pb-4 border-b border-[#c9a24b]/25 mb-4">
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 pb-4 border-b border-[#c9a24b]/25 mb-4 relative z-20">
           {/* Room Code & Title */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 min-w-0">
             <div className="flex items-center gap-2.5 shrink-0">
@@ -302,7 +302,7 @@ export function AkkaduBroadcastWall() {
         </div>
 
         {/* Integrated Action Toolbar: Share Link & Export Options */}
-        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 p-3 rounded-xl bg-[#070b12]/80 border border-[#c9a24b]/30 mb-5">
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 p-3 rounded-xl bg-[#070b12]/80 border border-[#c9a24b]/30 mb-5 relative z-20">
           {/* Share Link Banner */}
           <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap sm:flex-nowrap">
             <div className="p-1 rounded-md bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 shrink-0">

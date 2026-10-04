@@ -36,9 +36,9 @@ export const OmniBaseCard: React.FC<OmniBaseCardProps> = ({
       error: 'bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]'
     };
     return (
-      <div className="absolute top-4 right-4 flex items-center gap-2 z-10">
+      <div className="absolute top-4 right-4 flex items-center gap-2 z-10 pointer-events-none">
         {hashLock && (
-          <span className="font-mono text-[10px] text-cyan-700/60 dark:text-cyan-400/50 hidden sm:inline-block tracking-widest border border-cyan-500/20 px-1.5 py-0.5 rounded backdrop-blur-sm">
+          <span className="font-mono text-[10px] text-cyan-700/60 dark:text-cyan-400/50 hidden sm:inline-block tracking-widest border border-cyan-500/20 px-1.5 py-0.5 rounded backdrop-blur-sm pointer-events-auto">
             {hashLock}
           </span>
         )}
