@@ -160,8 +160,25 @@ export function generateV5Report(companyId: string): V5GeneratedReport | null {
   };
 }
 
-export function reportV5ToHtml(report: V5GeneratedReport): string {
+export interface RenderOptions {
+  charts?: boolean;
+  imagery?: boolean;
+}
+
+export function renderOptionsFromQuery(query: URLSearchParams | string): { charts: boolean; imagery: boolean } {
+  const params = typeof query === 'string' ? new URLSearchParams(query) : query;
+  const c = params.get('charts');
+  const i = params.get('imagery');
+  return {
+    charts: c !== '0' && c !== 'false',
+    imagery: i !== '0' && i !== 'false',
+  };
+}
+
+export function reportV5ToHtml(report: V5GeneratedReport, options?: RenderOptions): string {
   const year = '2025';
+  const showCharts = options?.charts !== false;
+  const showImagery = options?.imagery !== false;
   let html = `<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><title>${report.companyName} ${year}年永續報告書 — ESGGO v5.0</title>`;
   html += `<style>body{font-family:"Noto Sans TC",sans-serif;max-width:1200px;margin:0 auto;padding:20px;line-height:1.8;color:#1e293b}`;
   html += `h1{color:#009EB0;border-bottom:3px solid #009EB0;padding-bottom:12px}`;
@@ -175,12 +192,24 @@ export function reportV5ToHtml(report: V5GeneratedReport): string {
   html += `.stat-value{font-size:28px;font-weight:700;color:#009EB0}</style></head><body>`;
   html += `<h1>${report.companyName}</h1>`;
   html += `<h2 style="border:none;color:#475569;font-size:16px;margin-top:5px">${year}年永续报告书 — ESGGO v5.0 万能系統版</h2>`;
-  html += `<div class="stats"><div class="stat"><div class="stat-value">28</div><div style="font-size:12px;color:#64748b">章节数</div></div>`;
+  html += `<div class="stats"><div class="stat" data-stat="chapters" data-value="${report.chapters?.length || 0}"><div class="stat-value">${report.chapters?.length || 0}</div><div style="font-size:12px;color:#64748b">章节数</div></div>`;
   html += `<div class="stat"><div class="stat-value">${report.totalWords.toLocaleString()}</div><div style="font-size:12px;color:#64748b">總字数</div></div>`;
   html += `<div class="stat"><div class="stat-value">5T</div><div style="font-size:12px;color:#64748b">真善美信通</div></div>`;
   html += `<div class="stat"><div class="stat-value">ZKP</div><div style="font-size:12px;color:#64748b">零知識證明</div></div></div>`;
 
+  if (showCharts) {
+    html += `<div data-viz="chapter-wordcount"><svg width="100%" height="200" viewBox="0 0 800 200">`;
+    for (let idx = 0; idx < report.chapters.length; idx++) {
+      const ch = report.chapters[idx];
+      html += `<rect data-chapter="${ch.num}" x="${idx * 60}" y="${200 - Math.min(180, ch.wordCount / 10)}" width="40" height="${Math.min(180, ch.wordCount / 10)}" fill="#009EB0" />`;
+    }
+    html += `</svg></div>`;
+  }
+
   for (const ch of report.chapters) {
+    if (showImagery) {
+      html += `<figure data-figure="ch-${ch.num}"></figure>`;
+    }
     html += ch.content;
   }
 
@@ -189,7 +218,7 @@ export function reportV5ToHtml(report: V5GeneratedReport): string {
   return html;
 }
 
-export function reportV5ToMarkdown(report: V5GeneratedReport): string {
+export function reportV5ToMarkdown(report: V5GeneratedReport, _options?: RenderOptions): string {
   let md = `# ${report.companyName} ${report.reportVersion} 永续报告\n\n`;
   md += `> 總字数：${report.totalWords.toLocaleString()} | Trinity Hash: ${report.trinityHash}\n\n---\n\n`;
   for (const ch of report.chapters) {

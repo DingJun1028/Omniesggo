@@ -71,6 +71,22 @@ export interface TaskProgress {
     readonly durationMs: number;
     readonly companyId: string;
   };
+  readonly renderOptions?: {
+    readonly charts?: boolean;
+    readonly imagery?: boolean;
+  };
+}
+
+export const DEFAULT_RENDER_OPTIONS = { charts: true, imagery: true };
+
+export function normalizeRenderOptions(opts?: any): { charts: boolean; imagery: boolean } {
+  if (!opts || typeof opts !== 'object') {
+    return { ...DEFAULT_RENDER_OPTIONS };
+  }
+  return {
+    charts: opts.charts !== false,
+    imagery: opts.imagery !== false,
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -174,6 +190,7 @@ export function createTask(
     startedAt: now,
     updatedAt: now,
     templateId: templateId || 'gri',
+    renderOptions: normalizeRenderOptions(renderOptions),
     ...(noteIds && noteIds.length > 0 ? { noteIds } : {}),
     ...(customCompany ? { customCompany } : {}),
   };

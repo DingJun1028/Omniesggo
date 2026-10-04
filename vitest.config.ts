@@ -48,6 +48,8 @@ export default defineConfig({
       // 被根 vitest 抓取時會報 "Cannot find package '@playwright/test'" (ERR_MODULE_NOT_FOUND)。
       // 該套件應由 Playwright 自身執行，非 vitest。
       'e2e-k1/**',
+      'e2e/**',
+      '**/*.spec.ts',
       // ftg-tools 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
       //   - fal-images.test.mjs      → 根 vitest 報 "No test suite found in file"
       //   - ftg-mcp/server.test.mjs  → 以 process.cwd() 解析 ftg-gen.js / ftg-mcp/server.js，
@@ -86,6 +88,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@lib/redis': path.resolve(__dirname, './lib/redis'),
       '@lib': path.resolve(__dirname, './src/lib'),
     },
   },

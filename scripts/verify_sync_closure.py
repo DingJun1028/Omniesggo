@@ -177,7 +177,14 @@ def check_claims_vs_measured(graph):
             if d.get("field") == "commit 筆數":
                 claimed = re.search(r"(\d+)", d.get("canon_claims", ""))
                 c = int(claimed.group(1)) if claimed else None
-                if c is not None and c != actual:
+                if c is None:
+                    record(
+                        "WARN",
+                        "claims.commit_count",
+                        f"canon_claims 無法解析為數字: {d.get('canon_claims')!r}",
+                        actual,
+                    )
+                elif c != actual:
                     record(
                         "FAIL",
                         "claims.commit_count",
@@ -266,6 +273,7 @@ def check_skill_frontmatter():
 # ── 5. 懸空引用 ─────────────────────────────────────────────────────
 def check_dangling_refs():
     if not os.path.isdir(SKILLS):
+        record("WARN", "skills.dangling_refs", f"技能目錄不存在，無法檢查懸空引用: {SKILLS}")
         return
     dangling = []
     pat = re.compile(r"(?:references|templates|scripts|assets)/([A-Za-z0-9_.\-]+\.[A-Za-z0-9]+)")
