@@ -102,15 +102,15 @@ export function AkkaduBroadcastWall() {
             <Radio className="w-5 h-5 animate-pulse" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-base sm:text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-[#f3ede1] via-[#c9a24b] to-[#06b6d4] truncate">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <h2 className="text-base sm:text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-[#f3ede1] via-[#c9a24b] to-[#06b6d4]">
                 Akkadu 即時連線 · 字幕轉播牆
               </h2>
-              <span className="text-[10px] font-mono font-bold bg-[#c9a24b]/20 text-[#c9a24b] px-2 py-0.5 rounded-lg border border-[#c9a24b]/40 shrink-0 shadow-[0_0_10px_rgba(201,162,75,0.2)]">
+              <span className="text-[10px] font-mono font-bold bg-[#c9a24b]/20 text-[#c9a24b] px-2.5 py-0.5 rounded-lg border border-[#c9a24b]/40 shrink-0 whitespace-nowrap shadow-[0_0_10px_rgba(201,162,75,0.2)]">
                 5T VERIFIED
               </span>
             </div>
-            <p className="text-xs text-[#f3ede1]/70 font-medium truncate">
+            <p className="text-xs text-[#f3ede1]/70 font-medium leading-relaxed">
               Akkadu Live Subtitle Stream • 雙語即時牆 • 5T 密碼學刻印封印
             </p>
           </div>
@@ -193,8 +193,38 @@ export function AkkaduBroadcastWall() {
           </div>
         </div>
 
+        {/* Empty State / No Subtitles Guide */}
+        {subtitles.length === 0 && (
+          <div className="py-16 px-6 text-center flex flex-col items-center justify-center rounded-2xl bg-[#070b12]/80 border border-[#c9a24b]/25 backdrop-blur-xl my-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#c9a24b]/20 to-[#06b6d4]/20 border border-[#c9a24b]/40 flex items-center justify-center text-[#c9a24b] mb-4 shadow-[0_0_20px_rgba(201,162,75,0.3)] animate-pulse">
+              <Radio className="w-7 h-7" />
+            </div>
+            <h3 className="text-lg font-black text-[#f3ede1] mb-2">轉播牆目前等待即時字幕連線中</h3>
+            <p className="text-xs text-[#f3ede1]/70 max-w-md mb-6 leading-relaxed">
+              尚未接收到房號 <span className="font-mono font-bold text-[#c9a24b]">{roomCode}</span> 的字幕串流。您可以透過下方表單推播字幕，或點擊下方按鈕啟動測試連線。
+            </p>
+            <button
+              onClick={() => {
+                fetch('/api/omnisub/akkadu', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    room: roomCode,
+                    speaker: 'Akkadu AI 雙語對翻員',
+                    originalText: 'Welcome to ESG GO 2026 Global Sustainability Summit. Akkadu live stream initialized.',
+                    translatedText: '歡迎來到 ESG GO 2026 全球永續峰會。Akkadu 即時連線轉播牆啟動成功！',
+                  }),
+                }).then(() => fetchStream());
+              }}
+              className="px-6 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-[#c9a24b] via-[#d4af37] to-[#06b6d4] text-[#070b12] shadow-[0_0_25px_rgba(201,162,75,0.4)] hover:shadow-[0_0_35px_rgba(201,162,75,0.6)] cursor-pointer transition-all flex items-center gap-2 active:scale-95"
+            >
+              <span>⚡ 點擊啟動 Akkadu 即時雙語轉播連線</span>
+            </button>
+          </div>
+        )}
+
         {/* Dynamic Display Modes */}
-        {viewMode === 'wall' && (
+        {viewMode === 'wall' && subtitles.length > 0 && (
           <div
             ref={scrollRef}
             className="space-y-4 max-h-[550px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#c9a24b]/40"

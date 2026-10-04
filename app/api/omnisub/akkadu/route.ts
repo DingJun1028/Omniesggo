@@ -25,26 +25,41 @@ export async function GET(req: NextRequest) {
     {
       id: 'akkadu-sub-001',
       room,
-      speaker: 'Akkadu Live Interpreter',
-      originalText: 'Welcome to ESG GO 2026 Global Sustainability Summit.',
-      translatedText: '歡迎來到 ESG GO 2026 全球永續峰會。',
+      speaker: 'Akkadu AI 雙語對翻員',
+      originalText: 'Welcome to ESG GO 2026 Global Sustainability Summit. Akkadu live subtitle stream active.',
+      translatedText: '歡迎來到 ESG GO 2026 全球永續峰會。Akkadu 即時字幕轉播牆已成功啟動連線。',
       srcLang: 'en',
       targetLang: 'zh-Hant',
-      timestamp: Date.now() - 5000,
+      timestamp: Date.now() - 10000,
       hashLock: crypto.createHash('sha256').update(`akkadu-sub-001-${Date.now()}`).digest('hex'),
     },
     {
       id: 'akkadu-sub-002',
       room,
-      speaker: 'Akkadu Live Interpreter',
-      originalText: 'Today we present the 5T Protocol & AI-powered real-time subtitle translation.',
-      translatedText: '今天我們將展示 5T 協議與 AI 驅動的即時字幕翻譯技術。',
+      speaker: 'JunAiKey 靈魂編排器',
+      originalText: 'OmniCore 5T Protocol cryptographic seal verified: 101/101 TRUSTED.',
+      translatedText: 'OmniCore 5T 協議密碼學刻印驗證通過：101/101 誠信可信度。',
       srcLang: 'en',
       targetLang: 'zh-Hant',
-      timestamp: Date.now() - 2000,
+      timestamp: Date.now() - 5000,
       hashLock: crypto.createHash('sha256').update(`akkadu-sub-002-${Date.now()}`).digest('hex'),
     },
+    {
+      id: 'akkadu-sub-003',
+      room,
+      speaker: 'Akkadu 即時語音',
+      originalText: 'Real-time subtitle broadcasting is online. Type below or speak into mic to push live streams.',
+      translatedText: '即時字幕轉播牆持續連線中。您可在下方推播即時字幕，或切換至單機 STT 模式開啟麥克風。',
+      srcLang: 'en',
+      targetLang: 'zh-Hant',
+      timestamp: Date.now() - 1000,
+      hashLock: crypto.createHash('sha256').update(`akkadu-sub-003-${Date.now()}`).digest('hex'),
+    },
   ];
+
+  if (!roomStreams.has(room)) {
+    roomStreams.set(room, items);
+  }
 
   return jsonResponse({
     success: true,
