@@ -50,9 +50,12 @@ export async function GET() {
         { name: 'daily-report', interval: '24h', description: '每日永續觀察者日報生成' },
         { name: 'achievement-check', interval: '1h', description: '用戶成就/階級檢查' },
         { name: 'crawler-trigger', interval: '6h', description: 'ESG 爬蟲觸發' },
+        { name: 'esggo-monitor-vps-health', interval: '30m', agentId: 13, description: 'Hermes Agent 13: VPS 健康狀態自動巡檢' },
+        { name: 'esggo-monitor-docker-status', interval: '2h', agentId: 14, description: 'Hermes Agent 14: Docker & 本地 AI 服務巡檢' },
+        { name: 'esggo-daily-report', interval: '24h', agentId: 28, description: 'Hermes Agent 28: 30 萬能蜂群全自動巡檢日報' },
       ],
     },
-    metadata: { timestamp: Date.now(), provider: 'cron-scheduler' },
+    metadata: { timestamp: Date.now(), provider: 'hermes-30-agent-cron-scheduler' },
   });
 }
 
@@ -63,7 +66,13 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { job } = body;
 
-    const { generateDailyReportJob, checkUserAchievements } = await import('@/lib/cron-jobs');
+    const {
+      generateDailyReportJob,
+      checkUserAchievements,
+      monitorVpsHealthJob,
+      monitorDockerStatusJob,
+      generateSwarmDailyReportJob,
+    } = await import('@/lib/cron-jobs');
 
     switch (job) {
       case 'daily-report': {
@@ -74,6 +83,21 @@ export async function POST(req: NextRequest) {
         const result = await checkUserAchievements();
         return jsonResponse(result);
       }
+      case 'esggo-monitor-vps-health':
+      case 'vps-health-check': {
+        const result = await monitorVpsHealthJob();
+        return jsonResponse({ success: result.success, data: result });
+      }
+      case 'esggo-monitor-docker-status':
+      case 'docker-status-check': {
+        const result = await monitorDockerStatusJob();
+        return jsonResponse({ success: result.success, data: result });
+      }
+      case 'esggo-daily-report':
+      case 'swarm-daily-report': {
+        const result = await generateSwarmDailyReportJob();
+        return jsonResponse({ success: result.success, data: result });
+      }
       default:
         return jsonError('INVALID_ACTION', `Unknown job: ${job}`);
     }
@@ -82,3 +106,4 @@ export async function POST(req: NextRequest) {
     return jsonError('INTERNAL_ERROR');
   }
 }
+

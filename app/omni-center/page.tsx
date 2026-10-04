@@ -10,11 +10,13 @@ import { WuzuoNoteView } from './wuzuo-note-view';
 import { OmniCalendarView } from './omni-calendar-view';
 import { UniversalOmniConsole } from './universal-omni-console';
 import LearningCenter from './learning-center';
+import { HermesCronStatus } from './hermes-cron-status';
 import { useAgnesApi } from '../../src/components/AgnesProvider';
 import { Moon, Sun } from 'lucide-react';
 import { OmniBaseCard } from '@/components/omni-base-card';
 
-type Tab = 'dashboard' | 'notes' | 'tasks' | 'chat' | 'fiveT' | 'rag' | 'zkp' | 'calendar' | 'omniFn' | 'evolution' | 'learning';
+type Tab = 'dashboard' | 'notes' | 'tasks' | 'chat' | 'fiveT' | 'rag' | 'zkp' | 'calendar' | 'omniFn' | 'evolution' | 'learning' | 'hermesCron';
+
 
 const FIVE_T = [
   { key: 'traceable', zh: '真', color: 'var(--accent-blue)' },
@@ -123,6 +125,7 @@ const radarPath = Object.values(SCORES).map((v,i)=>{
 const tabs: {id:Tab; label:string; icon:string}[] = [
   {id:'learning', label:'學習中心',icon:'🎓'},
   {id:'dashboard',label:'萬能總攬',icon:'◎'},
+  {id:'hermesCron',label:'Hermes 排程',icon:'🐝'},
   {id:'notes',    label:'萬能筆記',icon:'📝'},
   {id:'tasks',    label:'萬能任務',icon:'✅'},
   {id:'calendar', label:'萬能日曆',icon:'📅'},
@@ -416,6 +419,13 @@ export default function OmniCenterPage() {
               </div>
             </OmniBaseCard>
           </div>
+        </div>
+      )}
+
+      {/* Hermes Cron Tab */}
+      {tab === 'hermesCron' && (
+        <div className="max-w-6xl mx-auto">
+          <HermesCronStatus />
         </div>
       )}
 
