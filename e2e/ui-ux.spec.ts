@@ -25,7 +25,7 @@ test.describe('Liquid Glass UI/UX Verification', () => {
     
     // Verify header and title
     await expect(page.getByText(/Local AI Station/).first()).toBeVisible();
-    await expect(page.getByText(/零算力成本/).first()).toBeVisible();
+    await expect(page.getByText(/零雲端成本/).first()).toBeVisible();
     await expect(page.getByPlaceholder(/輸入關於 ESG 碳盤查/)).toBeVisible();
   });
 });
