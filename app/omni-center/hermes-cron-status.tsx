@@ -71,7 +71,7 @@ export function HermesCronStatus() {
   };
 
   return (
-    <OmniBaseCard className="!p-6 my-4" statusIndicator="trackable">
+    <OmniBaseCard className="!p-6 my-4" statusIndicator="trustworthy">
       <div className="flex items-center justify-between mb-4 border-b border-cyan-500/20 pb-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/40 flex items-center justify-center text-xl">
