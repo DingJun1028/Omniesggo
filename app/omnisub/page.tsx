@@ -16,16 +16,16 @@ export default function OmniSubPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#070b12] bg-[radial-gradient(1100px_640px_at_18%_-12%,rgba(16,36,63,0.9),transparent_62%),radial-gradient(900px_560px_at_92%_112%,rgba(201,162,75,0.15),transparent_60%)] text-[#f3ede1] overflow-x-hidden selection:bg-[#c9a24b]/30 selection:text-[#f3ede1]">
-      {/* Top Navigation & Status Bar (OmniSub v1 Deep Navy & Warm Gold) */}
-      <header className="flex flex-wrap items-center justify-between px-6 py-4 bg-[#10243f]/75 backdrop-blur-xl border-b border-[#c9a24b]/30 z-20 shrink-0 shadow-[0_12px_45px_rgba(0,0,0,0.6),0_0_35px_rgba(201,162,75,0.1)]">
+    <div className="flex flex-col min-h-screen bg-[#070b12] text-[#f3ede1] overflow-x-hidden selection:bg-[#c9a24b]/30 selection:text-[#f3ede1]">
+      {/* Top Navigation & Status Bar (OmniSub Solid Theme - No Gradients) */}
+      <header className="flex flex-wrap items-center justify-between px-6 py-4 bg-[#10243f] border-b border-[#c9a24b]/30 z-20 shrink-0 shadow-[0_12px_45px_rgba(0,0,0,0.6)]">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-2xl bg-[#c9a24b]/20 border border-[#c9a24b]/50 text-[#c9a24b] shadow-[0_0_20px_rgba(201,162,75,0.3)]">
             <Mic className="w-5 h-5 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="font-black text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#f3ede1] via-[#c9a24b] to-[#e6ca65]">
+              <h1 className="font-black text-xl tracking-tight text-[#c9a24b]">
                 OmniSub.esggo.co 萬能即時語音與 Akkadu 字幕轉播牆
               </h1>
               <span className="text-[10px] font-mono bg-[#c9a24b]/20 text-[#c9a24b] px-2.5 py-0.5 rounded-lg border border-[#c9a24b]/40 font-bold whitespace-nowrap shrink-0 shadow-[0_0_12px_rgba(201,162,75,0.25)]">
@@ -40,13 +40,13 @@ export default function OmniSubPage() {
 
         {/* Mode Switcher Buttons */}
         <div className="flex items-center gap-3 mt-3 sm:mt-0 flex-wrap">
-          <div className="flex items-center gap-1 bg-[#070b12]/90 p-1.5 rounded-2xl border border-[#c9a24b]/35 shadow-[inset_0_2px_8px_rgba(0,0,0,0.7)]">
+          <div className="flex items-center gap-1 bg-[#070b12] p-1.5 rounded-2xl border border-[#c9a24b]/35 shadow-[inset_0_2px_8px_rgba(0,0,0,0.7)]">
             <button
               onClick={() => setMode('akkadu')}
               className={`flex items-center gap-2 px-4 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
                 mode === 'akkadu'
-                  ? 'bg-gradient-to-r from-[#c9a24b] to-[#d4af37] text-[#070b12] shadow-[0_0_20px_rgba(201,162,75,0.5)]'
-                  : 'text-[#f3ede1]/65 hover:text-[#f3ede1] hover:bg-[#10243f]/60'
+                  ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_20px_rgba(201,162,75,0.5)]'
+                  : 'text-[#f3ede1]/65 hover:text-[#f3ede1] hover:bg-[#10243f]'
               }`}
             >
               <Radio className="w-4 h-4" />
@@ -56,8 +56,8 @@ export default function OmniSubPage() {
               onClick={() => setMode('speech')}
               className={`flex items-center gap-2 px-4 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer ${
                 mode === 'speech'
-                  ? 'bg-gradient-to-r from-[#c9a24b] to-[#d4af37] text-[#070b12] shadow-[0_0_20px_rgba(201,162,75,0.5)]'
-                  : 'text-[#f3ede1]/65 hover:text-[#f3ede1] hover:bg-[#10243f]/60'
+                  ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_20px_rgba(201,162,75,0.5)]'
+                  : 'text-[#f3ede1]/65 hover:text-[#f3ede1] hover:bg-[#10243f]'
               }`}
             >
               <Tv className="w-4 h-4" />

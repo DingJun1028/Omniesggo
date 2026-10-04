@@ -95,15 +95,15 @@ export function AkkaduBroadcastWall() {
 
   return (
     <div className={`w-full transition-all ${isFullscreen ? 'fixed inset-0 z-50 bg-[#020617] p-6 overflow-y-auto flex flex-col justify-between' : ''}`}>
-      {/* Akkadu Controller Top Bar (OmniSub v1 Classic Navy & Gold) */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 md:p-5 rounded-2xl bg-[#10243f]/75 backdrop-blur-xl border border-[#c9a24b]/30 shadow-[0_20px_56px_rgba(0,0,0,0.6),0_0_35px_rgba(201,162,75,0.12)] mb-6">
+      {/* Akkadu Controller Top Bar (OmniSub Solid Theme - No Gradients) */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 md:p-5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/30 shadow-[0_20px_56px_rgba(0,0,0,0.6)] mb-6">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c9a24b] to-[#d4af37] flex items-center justify-center text-[#070b12] font-black shadow-[0_0_20px_rgba(201,162,75,0.4)] shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-[#c9a24b] flex items-center justify-center text-[#070b12] font-black shadow-[0_0_20px_rgba(201,162,75,0.4)] shrink-0">
             <Radio className="w-5 h-5 animate-pulse" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-[#f3ede1] via-[#c9a24b] to-[#e6ca65]">
+              <h2 className="text-base sm:text-lg font-black text-[#c9a24b]">
                 Akkadu 即時連線 · 字幕轉播牆
               </h2>
               <span className="text-[10px] font-mono font-bold bg-[#c9a24b]/20 text-[#c9a24b] px-2.5 py-0.5 rounded-lg border border-[#c9a24b]/40 shrink-0 whitespace-nowrap shadow-[0_0_12px_rgba(201,162,75,0.25)]">
@@ -118,7 +118,7 @@ export function AkkaduBroadcastWall() {
 
         {/* Room & Mode Settings */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
-          <div className="flex items-center gap-2 bg-[#070b12]/90 px-3 py-1.5 rounded-xl border border-[#c9a24b]/40 shrink-0 shadow-[inset_0_2px_6px_rgba(0,0,0,0.7)]">
+          <div className="flex items-center gap-2 bg-[#070b12] px-3 py-1.5 rounded-xl border border-[#c9a24b]/40 shrink-0 shadow-[inset_0_2px_6px_rgba(0,0,0,0.7)]">
             <span className="text-xs font-mono text-[#c9a24b] font-bold shrink-0">房號/Stream Code:</span>
             <input
               type="text"
@@ -128,22 +128,22 @@ export function AkkaduBroadcastWall() {
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-[#070b12]/90 p-1 rounded-xl border border-[#c9a24b]/30 shrink-0">
+          <div className="flex items-center gap-1 bg-[#070b12] p-1 rounded-xl border border-[#c9a24b]/30 shrink-0">
             <button
               onClick={() => setViewMode('wall')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'wall' ? 'bg-[#c9a24b]/25 text-[#c9a24b] border border-[#c9a24b]/50 shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'wall' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
             >
               轉播牆
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'grid' ? 'bg-[#c9a24b]/25 text-[#c9a24b] border border-[#c9a24b]/50 shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'grid' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
             >
               網格卡片
             </button>
             <button
               onClick={() => setViewMode('marquee')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'marquee' ? 'bg-[#c9a24b]/25 text-[#c9a24b] border border-[#c9a24b]/50 shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'marquee' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
             >
               跑馬燈
             </button>
@@ -170,7 +170,7 @@ export function AkkaduBroadcastWall() {
       </div>
 
       {/* Main Broadcast Wall Screen */}
-      <OmniBaseCard className="!p-4 sm:!p-6 relative overflow-hidden !bg-[#10243f]/60 backdrop-blur-2xl !border-[#c9a24b]/35 shadow-[0_20px_56px_rgba(0,0,0,0.6),0_0_42px_rgba(201,162,75,0.15)]" statusIndicator="trustworthy">
+      <OmniBaseCard className="!p-4 sm:!p-6 relative overflow-hidden !bg-[#10243f] !border-[#c9a24b]/35 shadow-[0_20px_56px_rgba(0,0,0,0.6)]" statusIndicator="trustworthy">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-[#c9a24b]/20">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-[#3c6e47] animate-ping" />
@@ -195,7 +195,7 @@ export function AkkaduBroadcastWall() {
 
         {/* Empty State / No Subtitles Guide */}
         {subtitles.length === 0 && (
-          <div className="py-16 px-6 text-center flex flex-col items-center justify-center rounded-2xl bg-[#070b12]/80 border border-[#c9a24b]/25 backdrop-blur-xl my-4">
+          <div className="py-16 px-6 text-center flex flex-col items-center justify-center rounded-2xl bg-[#070b12] border border-[#c9a24b]/25 my-4">
             <div className="w-14 h-14 rounded-2xl bg-[#c9a24b]/20 border border-[#c9a24b]/40 flex items-center justify-center text-[#c9a24b] mb-4 shadow-[0_0_20px_rgba(201,162,75,0.3)] animate-pulse">
               <Radio className="w-7 h-7" />
             </div>
@@ -216,7 +216,7 @@ export function AkkaduBroadcastWall() {
                   }),
                 }).then(() => fetchStream());
               }}
-              className="px-6 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-[#c9a24b] to-[#d4af37] text-[#070b12] shadow-[0_0_25px_rgba(201,162,75,0.4)] hover:shadow-[0_0_35px_rgba(201,162,75,0.6)] cursor-pointer transition-all flex items-center gap-2 active:scale-95"
+              className="px-6 py-2.5 rounded-xl text-xs font-black bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] shadow-[0_0_25px_rgba(201,162,75,0.4)] hover:shadow-[0_0_35px_rgba(201,162,75,0.6)] cursor-pointer transition-all flex items-center gap-2 active:scale-95"
             >
               <span>⚡ 點擊啟動 Akkadu 即時雙語轉播連線</span>
             </button>
@@ -232,7 +232,7 @@ export function AkkaduBroadcastWall() {
             {subtitles.map((sub, idx) => (
               <div
                 key={sub.id || idx}
-                className="p-4 sm:p-5 rounded-2xl bg-[#070b12]/80 border border-[#c9a24b]/30 backdrop-blur-xl hover:border-[#c9a24b]/70 transition-all shadow-[0_8px_30px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-bottom-2 duration-300"
+                className="p-4 sm:p-5 rounded-2xl bg-[#070b12] border border-[#c9a24b]/30 hover:border-[#c9a24b]/70 transition-all shadow-[0_8px_30px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-bottom-2 duration-300"
               >
                 <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export function AkkaduBroadcastWall() {
 
                 {sub.translatedText && (
                   <div
-                    className="font-bold text-[#c9a24b] leading-relaxed tracking-wide bg-gradient-to-r from-[#f3ede1] via-[#c9a24b] to-[#e6ca65] bg-clip-text text-transparent break-words"
+                    className="font-bold text-[#c9a24b] leading-relaxed tracking-wide break-words"
                     style={{ fontSize: `${Math.round(fontSize * 0.9)}px` }}
                   >
                     {sub.translatedText}
@@ -274,7 +274,7 @@ export function AkkaduBroadcastWall() {
             {subtitles.map((sub, idx) => (
               <div
                 key={sub.id || idx}
-                className="p-4 rounded-xl bg-[#070b12]/80 border border-[#c9a24b]/30 backdrop-blur-md flex flex-col justify-between"
+                className="p-4 rounded-xl bg-[#070b12] border border-[#c9a24b]/30 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -295,13 +295,13 @@ export function AkkaduBroadcastWall() {
         )}
 
         {viewMode === 'marquee' && (
-          <div className="py-12 bg-[#070b12]/90 rounded-2xl border border-[#c9a24b]/30 overflow-hidden relative w-full">
+          <div className="py-12 bg-[#070b12] rounded-2xl border border-[#c9a24b]/30 overflow-hidden relative w-full">
             <div className="animate-marquee whitespace-nowrap flex gap-8 w-max">
               {[...subtitles, ...subtitles].map((sub, idx) => (
-                <div key={`${sub.id}-${idx}`} className="inline-block px-6 py-4 rounded-xl bg-[#10243f]/60 border border-[#c9a24b]/40 shrink-0 min-w-[280px] max-w-[480px] shadow-[0_8px_25px_rgba(0,0,0,0.5)]">
+                <div key={`${sub.id}-${idx}`} className="inline-block px-6 py-4 rounded-xl bg-[#10243f] border border-[#c9a24b]/40 shrink-0 min-w-[280px] max-w-[480px] shadow-[0_8px_25px_rgba(0,0,0,0.5)]">
                   <div className="text-xs text-[#f3ede1]/60 font-medium mb-1">🎙️ {sub.speaker}</div>
                   <div className="text-sm text-[#f3ede1] font-semibold mb-1 truncate">{sub.originalText}</div>
-                  <div className="text-base text-[#c9a24b] font-bold bg-gradient-to-r from-[#f3ede1] via-[#c9a24b] to-[#e6ca65] bg-clip-text text-transparent truncate">
+                  <div className="text-base text-[#c9a24b] font-bold truncate">
                     {sub.translatedText}
                   </div>
                 </div>
@@ -318,19 +318,19 @@ export function AkkaduBroadcastWall() {
               placeholder="講者名稱 (Speaker Name)"
               value={speakerName}
               onChange={(e) => setSpeakerName(e.target.value)}
-              className="w-full sm:w-48 px-3.5 py-2.5 text-xs font-medium rounded-xl bg-[#070b12]/90 border border-[#c9a24b]/35 text-[#f3ede1] placeholder:text-[#f3ede1]/40 outline-none focus:border-[#c9a24b]/80 transition-all shrink-0"
+              className="w-full sm:w-48 px-3.5 py-2.5 text-xs font-medium rounded-xl bg-[#070b12] border border-[#c9a24b]/35 text-[#f3ede1] placeholder:text-[#f3ede1]/40 outline-none focus:border-[#c9a24b]/80 transition-all shrink-0"
             />
             <input
               type="text"
               placeholder="輸入即時字幕內容推送到轉播牆 (Push subtitle to Akkadu stream wall)..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 w-full min-w-0 px-4 py-2.5 text-xs font-medium rounded-xl bg-[#070b12]/90 border border-[#c9a24b]/35 text-[#f3ede1] placeholder:text-[#f3ede1]/40 outline-none focus:border-[#c9a24b]/80 transition-all"
+              className="flex-1 w-full min-w-0 px-4 py-2.5 text-xs font-medium rounded-xl bg-[#070b12] border border-[#c9a24b]/35 text-[#f3ede1] placeholder:text-[#f3ede1]/40 outline-none focus:border-[#c9a24b]/80 transition-all"
             />
           </div>
           <button
             type="submit"
-            className="w-full lg:w-auto px-6 py-2.5 text-xs font-black rounded-xl bg-gradient-to-r from-[#c9a24b] to-[#d4af37] hover:from-[#d4af37] hover:to-[#e6ca65] text-[#070b12] shadow-[0_0_25px_rgba(201,162,75,0.4)] hover:shadow-[0_0_35px_rgba(201,162,75,0.6)] cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-2"
+            className="w-full lg:w-auto px-6 py-2.5 text-xs font-black rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] shadow-[0_0_25px_rgba(201,162,75,0.4)] hover:shadow-[0_0_35px_rgba(201,162,75,0.6)] cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-2"
           >
             <span>推送即時字幕 🚀</span>
             <Send className="w-3.5 h-3.5" />
