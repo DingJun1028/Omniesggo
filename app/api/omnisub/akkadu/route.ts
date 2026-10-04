@@ -75,13 +75,10 @@ export async function GET(req: NextRequest) {
   }
 
   return jsonResponse({
-    success: true,
-    data: {
-      room,
-      status: 'STREAMING',
-      itemCount: items.length,
-      subtitles: items,
-    },
+    room,
+    status: 'STREAMING',
+    itemCount: items.length,
+    subtitles: items,
     metadata: {
       provider: 'Akkadu-OmniSub-Bridge',
       sourceOrigin: 'app/api/omnisub/akkadu/route.ts',
@@ -124,15 +121,7 @@ export async function POST(req: NextRequest) {
     const updated = [...existing, newItem].slice(-100);
     roomStreams.set(room, updated);
 
-    return jsonResponse({
-      success: true,
-      data: newItem,
-      metadata: {
-        hashLock,
-        timestamp,
-        fiveTSeal: '5T: source_origin=akkadu-live-bridge',
-      },
-    });
+    return jsonResponse(newItem);
   } catch (err: unknown) {
     return jsonError('INTERNAL_ERROR', err instanceof Error ? err.message : String(err));
   }
