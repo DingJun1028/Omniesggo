@@ -50,6 +50,10 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
         run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::warning::VERCEL_TOKEN not configured in this repo/environment; skipping Vercel deploy"
+            exit 0
+          fi
           npm i -g vercel@latest
           vercel deploy --prod --yes --archive=tgz --token "$VERCEL_TOKEN"
 

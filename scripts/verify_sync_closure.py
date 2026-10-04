@@ -167,8 +167,10 @@ def check_claims_vs_measured(graph):
         record("WARN", "claims.node", "找不到 ch30-fix-false-claims 節點，略過交叉核對")
         return
 
-    # 實測 commit 筆數
-    out, code = run(["git", "log", "--oneline", "1405bd432..HEAD"])
+    # 實測 commit 筆數（錨點 commit 不在此 clone 時，退回完整 HEAD 歷史，避免 CI 假警報）
+    _, anchor_code = run(["git", "cat-file", "-e", "1405bd432^{commit}"])
+    rev_range = "1405bd432..HEAD" if anchor_code == 0 else "HEAD"
+    out, code = run(["git", "log", "--oneline", rev_range])
     if code != 0:
         record("WARN", "claims.git_log", f"git log 執行失敗: {out[:120]}")
     else:

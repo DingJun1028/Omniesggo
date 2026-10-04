@@ -70,8 +70,14 @@ def _with_claim(value):
 
 
 def _repo_wide_commit_count():
+    anchor = subprocess.run(
+        ["git", "cat-file", "-e", "1405bd432^{commit}"],
+        cwd=str(ROOT),
+        capture_output=True,
+    )
+    rev_range = "1405bd432..HEAD" if anchor.returncode == 0 else "HEAD"
     out = subprocess.run(
-        ["git", "log", "--oneline", "1405bd432..HEAD"],
+        ["git", "log", "--oneline", rev_range],
         cwd=str(ROOT),
         capture_output=True,
         text=True,
