@@ -30,9 +30,14 @@ MODE="gate"
 if [ "${1:-}" = "--list" ]; then MODE="list"; SHA="${2:-HEAD}"; else SHA="${1:-HEAD}"; fi
 
 fetch_checks() {
+  # NOTE: --paginate re-runs the jq filter per page, and the check-runs endpoint
+  # can report the same check on more than one page (SonarCloud appeared 3x).
+  # Sort -u de-duplicates the identical "name|status|conclusion" triples so each
+  # check is counted — and printed — exactly once.
   gh api "repos/$REPO/commits/$SHA/check-runs" \
     --paginate \
-    --jq '.check_runs[] | "\(.name)|\(.status)|\(.conclusion // "")"' 2>/dev/null
+    --jq '.check_runs[] | "\(.name)|\(.status)|\(.conclusion // "")"' 2>/dev/null \
+    | sort -u
 }
 
 # --- known-flaky allow-list -------------------------------------------------
