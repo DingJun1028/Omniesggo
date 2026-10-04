@@ -18,22 +18,5 @@ module.exports = {
       merge_logs: true,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
     },
-    {
-      name: 'omniagent-gateway',
-      script: './omniagent-gateway/omni-server.mjs',
-      cwd: '/var/www/esggo',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 8642,
-        DATABASE_URL: 'file:./dev.db',
-      },
-      instances: 1,
-      autorestart: true,
-      max_restarts: 10,
-      restart_delay: 5000,
-      watch: false,
-      merge_logs: true,
-      log_date_format: 'YYYY-MM-DD HH:mm:ss',
-    },
   ],
 };
