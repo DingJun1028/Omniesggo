@@ -17,6 +17,7 @@ export interface AkkaduSubtitle {
 }
 
 export function AkkaduBroadcastWall() {
+  const [mounted, setMounted] = useState(false);
   const [roomCode, setRoomCode] = useState('AKKADU-LIVE-888');
   const [isStreaming, setIsStreaming] = useState(true);
   const [viewMode, setViewMode] = useState<'wall' | 'grid' | 'marquee'>('wall');
@@ -28,6 +29,19 @@ export function AkkaduBroadcastWall() {
   const [speakerName, setSpeakerName] = useState('Akkadu Live Interpreter');
 
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const formatTime = (ts: number) => {
+    if (!mounted) return '';
+    try {
+      return new Date(ts).toLocaleTimeString();
+    } catch {
+      return '';
+    }
+  };
 
   // Fetch live stream from API
   const fetchStream = async () => {
@@ -239,8 +253,8 @@ export function AkkaduBroadcastWall() {
                     <span className="px-2.5 py-0.5 rounded-md bg-[#c9a24b]/20 text-[#c9a24b] text-[11px] font-bold border border-[#c9a24b]/40">
                       🎙️ {sub.speaker}
                     </span>
-                    <span className="text-[10px] font-mono text-[#f3ede1]/50">
-                      {new Date(sub.timestamp).toLocaleTimeString()}
+                    <span className="text-[10px] font-mono text-[#f3ede1]/50" suppressHydrationWarning>
+                      {formatTime(sub.timestamp)}
                     </span>
                   </div>
 
@@ -279,8 +293,8 @@ export function AkkaduBroadcastWall() {
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-bold text-[#c9a24b]">{sub.speaker}</span>
-                    <span className="text-[10px] font-mono text-[#f3ede1]/50">
-                      {new Date(sub.timestamp).toLocaleTimeString()}
+                    <span className="text-[10px] font-mono text-[#f3ede1]/50" suppressHydrationWarning>
+                      {formatTime(sub.timestamp)}
                     </span>
                   </div>
                   <p className="text-sm font-medium text-[#f3ede1] mb-2 break-words">{sub.originalText}</p>
