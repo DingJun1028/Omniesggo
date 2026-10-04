@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Radio, Tv, Maximize2, Minimize2, Share2, Copy, Check, Play, Pause, RefreshCw, Volume2, ShieldCheck, Sparkles, Globe, Layers } from 'lucide-react';
+import { Radio, Maximize2, Minimize2, Share2, Check, Send } from 'lucide-react';
 import { OmniBaseCard } from '@/components/omni-base-card';
 
 export interface AkkaduSubtitle {
@@ -18,7 +18,6 @@ export interface AkkaduSubtitle {
 
 export function AkkaduBroadcastWall() {
   const [roomCode, setRoomCode] = useState('AKKADU-LIVE-888');
-  const [connected, setConnected] = useState(true);
   const [isStreaming, setIsStreaming] = useState(true);
   const [viewMode, setViewMode] = useState<'wall' | 'grid' | 'marquee'>('wall');
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -99,11 +98,11 @@ export function AkkaduBroadcastWall() {
       {/* Akkadu Controller Top Bar */}
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-cyan-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-slate-950 font-black shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-slate-950 font-black shadow-[0_0_15px_rgba(6,182,212,0.4)] shrink-0">
             <Radio className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-300">
                 Akkadu 即時連線 · 字幕轉播牆
               </h2>
@@ -120,12 +119,12 @@ export function AkkaduBroadcastWall() {
         {/* Room & Mode Settings */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
           <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-cyan-500/30">
-            <span className="text-xs font-mono text-cyan-400 font-bold">房號/Stream Code:</span>
+            <span className="text-xs font-mono text-cyan-400 font-bold shrink-0">房號/Stream Code:</span>
             <input
               type="text"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              className="w-36 bg-transparent text-xs font-mono font-bold text-slate-100 outline-none uppercase"
+              className="w-32 bg-transparent text-xs font-mono font-bold text-slate-100 outline-none uppercase"
             />
           </div>
 
@@ -153,7 +152,7 @@ export function AkkaduBroadcastWall() {
           <div className="flex items-center gap-2">
             <button
               onClick={copyShareLink}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all whitespace-nowrap"
             >
               {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Share2 className="w-3.5 h-3.5" />}
               {copiedLink ? '已複製轉播連結' : '分享轉播牆'}
@@ -161,7 +160,7 @@ export function AkkaduBroadcastWall() {
 
             <button
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all"
+              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-bold transition-all shrink-0"
               title={isFullscreen ? '退出全螢幕' : '全螢幕轉播'}
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -172,7 +171,7 @@ export function AkkaduBroadcastWall() {
 
       {/* Main Broadcast Wall Screen */}
       <OmniBaseCard className="!p-6 relative overflow-hidden" statusIndicator="trustworthy">
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-cyan-500/20">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-cyan-500/20">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="text-xs font-mono font-bold text-emerald-400 tracking-wider">
@@ -180,7 +179,7 @@ export function AkkaduBroadcastWall() {
             </span>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-mono text-slate-400">
+          <div className="flex items-center gap-3 text-xs font-mono text-slate-400">
             <span>字型大小:</span>
             <input
               type="range"
@@ -190,7 +189,7 @@ export function AkkaduBroadcastWall() {
               onChange={(e) => setFontSize(Number(e.target.value))}
               className="w-24 accent-cyan-400 cursor-pointer"
             />
-            <span>{fontSize}px</span>
+            <span className="w-8 font-bold text-cyan-300">{fontSize}px</span>
           </div>
         </div>
 
@@ -205,7 +204,7 @@ export function AkkaduBroadcastWall() {
                 key={sub.id || idx}
                 className="p-5 rounded-2xl bg-slate-950/60 border border-cyan-500/30 backdrop-blur-xl hover:border-cyan-400/60 transition-all shadow-[0_4px_25px_rgba(0,0,0,0.4)] animate-in fade-in slide-in-from-bottom-2 duration-300"
               >
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
                     <span className="px-2.5 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 text-[11px] font-bold border border-cyan-500/40">
                       🎙️ {sub.speaker}
@@ -266,12 +265,15 @@ export function AkkaduBroadcastWall() {
         )}
 
         {viewMode === 'marquee' && (
-          <div className="py-12 bg-slate-950/80 rounded-2xl border border-cyan-500/30 overflow-hidden relative">
+          <div className="py-12 bg-slate-950/80 rounded-2xl border border-cyan-500/30 overflow-hidden relative w-full">
             <div className="animate-marquee whitespace-nowrap flex gap-8">
               {subtitles.map((sub, idx) => (
-                <div key={sub.id || idx} className="inline-block px-6 py-4 rounded-xl bg-cyan-950/40 border border-cyan-500/40">
-                  <div className="text-sm text-slate-300 font-semibold">{sub.originalText}</div>
-                  <div className="text-base text-cyan-300 font-bold">{sub.translatedText}</div>
+                <div key={sub.id || idx} className="inline-block px-6 py-4 rounded-xl bg-cyan-950/40 border border-cyan-500/40 shrink-0">
+                  <div className="text-xs text-slate-400 font-medium mb-1">🎙️ {sub.speaker}</div>
+                  <div className="text-sm text-slate-200 font-semibold mb-1">{sub.originalText}</div>
+                  <div className="text-base text-cyan-300 font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                    {sub.translatedText}
+                  </div>
                 </div>
               ))}
             </div>
@@ -279,26 +281,29 @@ export function AkkaduBroadcastWall() {
         )}
 
         {/* Live Input Simulator Form */}
-        <form onSubmit={handlePushSubtitle} className="mt-6 pt-4 border-t border-cyan-500/20 flex flex-col sm:flex-row items-center gap-3">
-          <input
-            type="text"
-            placeholder="講者名稱 (Speaker Name)"
-            value={speakerName}
-            onChange={(e) => setSpeakerName(e.target.value)}
-            className="w-full sm:w-48 px-3 py-2 text-xs rounded-xl bg-slate-950/80 border border-cyan-500/30 text-slate-100 outline-none focus:border-cyan-400"
-          />
-          <input
-            type="text"
-            placeholder="輸入即時字幕內容推送到轉播牆 (Push subtitle to Akkadu stream wall)..."
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            className="flex-1 w-full px-4 py-2 text-xs rounded-xl bg-slate-950/80 border border-cyan-500/30 text-slate-100 outline-none focus:border-cyan-400"
-          />
+        <form onSubmit={handlePushSubtitle} className="mt-6 pt-4 border-t border-cyan-500/20 flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full">
+          <div className="flex flex-col sm:flex-row items-center gap-3 flex-1 min-w-0 w-full">
+            <input
+              type="text"
+              placeholder="講者名稱 (Speaker Name)"
+              value={speakerName}
+              onChange={(e) => setSpeakerName(e.target.value)}
+              className="w-full sm:w-48 px-3.5 py-2.5 text-xs font-medium rounded-xl bg-slate-950/80 border border-cyan-500/30 text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-400/80 transition-all shrink-0"
+            />
+            <input
+              type="text"
+              placeholder="輸入即時字幕內容推送到轉播牆 (Push subtitle to Akkadu stream wall)..."
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+              className="flex-1 w-full min-w-0 px-4 py-2.5 text-xs font-medium rounded-xl bg-slate-950/80 border border-cyan-500/30 text-slate-100 placeholder:text-slate-500 outline-none focus:border-cyan-400/80 transition-all"
+            />
+          </div>
           <button
             type="submit"
-            className="w-full sm:w-auto px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 transition-all shadow-[0_0_15px_rgba(6,182,212,0.4)] whitespace-nowrap"
+            className="w-full md:w-auto px-6 py-2.5 text-xs font-black rounded-xl bg-gradient-to-r from-cyan-400 via-emerald-400 to-emerald-500 hover:from-cyan-300 hover:to-emerald-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-2"
           >
-            推送即時字幕 🚀
+            <span>推送即時字幕</span>
+            <Send className="w-3.5 h-3.5" />
           </button>
         </form>
       </OmniBaseCard>
