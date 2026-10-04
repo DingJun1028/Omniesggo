@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Radio, Maximize2, Minimize2, Share2, Check, Send, Download, FileText, ShieldCheck } from 'lucide-react';
+import { Radio, Maximize2, Minimize2, Share2, Check, Send, Download, FileText, ShieldCheck, Link as LinkIcon, Code, Copy } from 'lucide-react';
 import { OmniBaseCard } from '@/components/omni-base-card';
 
 export interface AkkaduSubtitle {
@@ -25,6 +25,7 @@ export function AkkaduBroadcastWall() {
   const [fontSize, setFontSize] = useState(24);
   const [subtitles, setSubtitles] = useState<AkkaduSubtitle[]>([]);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [copiedEmbedCode, setCopiedEmbedCode] = useState(false);
   const [inputText, setInputText] = useState('');
   const [speakerName, setSpeakerName] = useState('Akkadu Live Interpreter');
 
@@ -105,6 +106,14 @@ export function AkkaduBroadcastWall() {
     navigator.clipboard.writeText(link);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const copyEmbedCode = () => {
+    const link = `${window.location.origin}/omnisub?room=${encodeURIComponent(roomCode)}`;
+    const iframeCode = `<iframe src="${link}" width="100%" height="650" allow="autoplay; microphone" style="border:0; border-radius:16px; box-shadow:0 12px 40px rgba(0,0,0,0.5);"></iframe>`;
+    navigator.clipboard.writeText(iframeCode);
+    setCopiedEmbedCode(true);
+    setTimeout(() => setCopiedEmbedCode(false), 2000);
   };
 
   // Export SRT Subtitle File
@@ -267,9 +276,19 @@ export function AkkaduBroadcastWall() {
             <button
               onClick={copyShareLink}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b]/15 hover:bg-[#c9a24b]/25 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap shadow-[0_0_12px_rgba(201,162,75,0.2)] cursor-pointer"
+              title="複製轉播牆共享網址"
             >
-              {copiedLink ? <Check className="w-3.5 h-3.5 text-[#3c6e47]" /> : <Share2 className="w-3.5 h-3.5" />}
-              {copiedLink ? '已複製轉播連結' : '分享轉播牆'}
+              {copiedLink ? <Check className="w-3.5 h-3.5 text-[#3c6e47]" /> : <LinkIcon className="w-3.5 h-3.5" />}
+              {copiedLink ? '已複製共享網址' : '複製共享網址'}
+            </button>
+
+            <button
+              onClick={copyEmbedCode}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b]/15 hover:bg-[#c9a24b]/25 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap shadow-[0_0_12px_rgba(201,162,75,0.2)] cursor-pointer"
+              title="複製 IFrame HTML 嵌入碼"
+            >
+              {copiedEmbedCode ? <Check className="w-3.5 h-3.5 text-[#3c6e47]" /> : <Code className="w-3.5 h-3.5" />}
+              {copiedEmbedCode ? '已複製嵌入碼' : '複製嵌入碼'}
             </button>
 
             <button
@@ -307,6 +326,40 @@ export function AkkaduBroadcastWall() {
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
           </div>
+        </div>
+      </div>
+
+      {/* Akkadu Live Share Link Precision Banner */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/35 shadow-[0_12px_32px_rgba(0,0,0,0.5)] mb-6">
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <div className="p-1.5 rounded-lg bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 shrink-0">
+            <LinkIcon className="w-4 h-4" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-mono text-[#c9a24b] font-bold tracking-wide">
+              Akkadu 直播即時共享網址 (Akkadu Precision Live Stream Share Link):
+            </div>
+            <div className="text-xs font-mono text-[#f3ede1]/90 truncate font-semibold">
+              {mounted ? `${window.location.origin}/omnisub?room=${encodeURIComponent(roomCode)}` : `/omnisub?room=${roomCode}`}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={copyShareLink}
+            className="px-3 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_12px_rgba(201,162,75,0.3)] whitespace-nowrap"
+          >
+            <Copy className="w-3.5 h-3.5" />
+            <span>{copiedLink ? '已複製網址' : '一鍵複製網址'}</span>
+          </button>
+          <button
+            onClick={copyEmbedCode}
+            className="px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+          >
+            <Code className="w-3.5 h-3.5" />
+            <span>{copiedEmbedCode ? '已複製嵌入碼' : '複製 IFrame 嵌入碼'}</span>
+          </button>
         </div>
       </div>
 
