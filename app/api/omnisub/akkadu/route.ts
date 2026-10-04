@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
     const { room = 'AKKADU-LIVE-DEMO', speaker = 'Akkadu Stream', originalText, translatedText, srcLang = 'zh-Hant', targetLang = 'en' } = body;
 
     if (!originalText && !translatedText) {
-      return jsonError('INVALID_INPUT', 'Missing subtitle text');
+      return jsonError('INVALID_PARAMS', 'Missing subtitle text');
     }
 
     const id = `akkadu-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
