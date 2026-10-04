@@ -1,0 +1,7 @@
+﻿### Execution Trace (OmniCore Matrix):
+- Viewed: app/omnisub/page.tsx, app/omnisub/akkadu-broadcast-wall.tsx, public/omnisub.html
+- Ran: npx tsc --noEmit, git commit 4bcab95a1, ssh esggo-vps pnpm build & pm2 reload esggo-core
+- Modified: app/omnisub/page.tsx, app/omnisub/akkadu-broadcast-wall.tsx - Unified design tokens with Deep Navy (#10243f), Warm Gold (#c9a24b), Cream (#f3ede1), and Liquid Cyan (#06b6d4) glassmorphism theme.
+
+### Synthesis & Outcome:
+OmniSub main page and Akkadu broadcast wall visual styling completely harmonized with omnisub.html classic theme. Build succeeded, PM2 process 15 reloaded and live on https://omnisub.esggo.co.

@@ -62,10 +62,10 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   // Referrer policy
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  // Permissions policy — disable camera, microphone, geolocation by default
+  // Permissions policy — allow microphone for speech recognition, disable camera/geolocation by default
   headers.set(
     'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=(), interest-cohort=()'
+    'microphone=(self), camera=(), geolocation=(), interest-cohort=()'
   );
 
   // Strict Transport Security (HSTS) — only in production
@@ -76,17 +76,18 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
     );
   }
 
-  // Content Security Policy — restrictive baseline
+  // Content Security Policy — permissive for fonts, workers, and translation APIs
   headers.set(
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // Next.js requires unsafe-inline/eval
-      "style-src 'self' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://static.cloudflareinsights.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com",
       "img-src 'self' data: blob: https:",
-      "font-src 'self' data:",
-      "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com",
-      "frame-ancestors 'none'",
+      "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
+      "worker-src 'self' blob:",
+      "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.mymemory.translated.net https://translate.googleapis.com https://static.cloudflareinsights.com",
+      "frame-ancestors 'self'",
       "base-uri 'self'",
       "form-action 'self'",
     ].join('; ')
