@@ -17,6 +17,9 @@
 #   .hermes/auto-repair/ci-gate.sh --list <sha>    # 只列出所有 check 狀態
 set -uo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export SCRIPT_DIR
+
 REPO="${GREEN_GATE_REPO:-$(gh repo view --json nameWithOwner --jq .nameWithOwner 2>/dev/null)}"
 if [ -z "$REPO" ]; then
   echo "CIGATE: cannot determine repo (gh not authed or not in a git repo)"
@@ -30,6 +33,31 @@ fetch_checks() {
   gh api "repos/$REPO/commits/$SHA/check-runs" \
     --paginate \
     --jq '.check_runs[] | "\(.name)|\(.status)|\(.conclusion // "")"' 2>/dev/null
+}
+
+# --- known-flaky allow-list -------------------------------------------------
+# Entries live in ci-gate-known-flaky.txt as  <name>|<allowed conclusion>|<reason>
+# Returns the reason string when (name, conclusion) matches an entry, else "".
+# NOTE: SCRIPT_DIR is resolved by the caller (see below). Deriving the path from
+# BASH_SOURCE inside a nested $(...) / eval context resolves to empty, which
+# silently made the whole allow-list a no-op — so the path is passed in as $3.
+flaky_reason() {
+  local want="$1" concl="$2" file line n c
+  file="${3:-${SCRIPT_DIR:-.}}/ci-gate-known-flaky.txt"
+  [ -f "$file" ] || return 0
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in \#*) continue ;; esac
+    line="${line%%#*}"                       # strip trailing comments
+    line="$(printf '%s' "$line" | tr -d '\r' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    [ -z "$line" ] && continue
+    [ "${line#*|}" = "$line" ] && continue    # needs at least one pipe
+    n="${line%%|*}"; c="$(printf '%s' "$line" | cut -d'|' -f2)"
+    if [ "$n" = "$want" ] && [ "$c" = "$concl" ]; then
+      printf '%s' "$(printf '%s' "$line" | cut -d'|' -f3-)"
+      return 0
+    fi
+  done < "$file"
+  return 0
 }
 
 if [ "$MODE" = "list" ]; then
@@ -47,9 +75,10 @@ declare -a PENDING=()
 declare -a RED=()
 declare -a GREEN=()
 declare -a MANUAL=()
+declare -a WARNED=()   # known-flaky 降級項：不算綠也不算紅，但必須被看見
 
 while :; do
-  PENDING=(); RED=(); GREEN=(); MANUAL=()
+  PENDING=(); RED=(); GREEN=(); MANUAL=(); WARNED=()
   while IFS='|' read -r name status concl; do
     [ -z "$name" ] && continue
     case "$status" in
@@ -65,7 +94,17 @@ while :; do
           # these as plain RED would send auto-repair into a loop it can never
           # win; classify them so a human can re-run or dismiss them.
           cancelled|timed_out|action_required|stale)
-            MANUAL+=("$name|$concl") ;;
+            # A known-flaky entry may downgrade this to WARN, but ONLY if the
+            # live conclusion still matches what the allow-list records — if
+            # the service starts working, the entry expires and we block
+            # again (so the exemption can never become a silent pass).
+            wl_reason="$(flaky_reason "$name" "$concl" "$SCRIPT_DIR")"
+            if [ -n "$wl_reason" ]; then
+              WARNED+=("$name|$concl|$wl_reason")
+              echo "CIGATE: WARN  $name ($concl) allowed by known-flaky: $wl_reason"
+            else
+              MANUAL+=("$name|$concl")
+            fi ;;
           *) RED+=("$name|$concl") ;;
         esac ;;
       *) RED+=("$name|status=$status") ;;
@@ -85,6 +124,7 @@ echo "==================== CI ALL-GREEN GATE ===================="
 for g in ${GREEN[@]+"${GREEN[@]}"}; do  IFS='|' read -r n c <<<"$g"; printf '  PASS  %-42s %s\n' "$n" "$c"; done
 for r in ${RED[@]+"${RED[@]}"};   do  IFS='|' read -r n c <<<"$r"; printf '  FAIL  %-42s %s\n' "$n" "$c"; done
 for m in ${MANUAL[@]+"${MANUAL[@]}"}; do IFS='|' read -r n c <<<"$m"; printf '  ASK   %-42s %s (外部服務，需人工 re-run)\n' "$n" "$c"; done
+for w in ${WARNED[@]+"${WARNED[@]}"}; do IFS='|' read -r n c r <<<"$w"; printf '  WARN  %-42s %s (known-flaky 例外，非綠燈)\n' "$n" "$c"; [ -n "$r" ] && printf '        └─ 理由: %s\n' "$r"; done
 for p in ${PENDING[@]+"${PENDING[@]}"}; do printf '  WAIT  %s\n' "$p"; done
 echo "--------------------------------------------------------"
 
@@ -117,5 +157,20 @@ if [ ${#PENDING[@]} -gt 0 ]; then
   exit 1
 fi
 
-echo "CIGATE VERDICT: 全綠 ✅  → 可開下一個 PR"
+# known-flaky 例外存在時，絕不宣稱「全綠」——遠端 check 確實不是綠的。
+# 區分兩種誠實陳述：
+#   有例外 → 「條件式放行 ⚠」（例外必須是使用者明示批准、且有實測證據者）
+#   無例外 → 「真全綠 ✅」
+if [ ${#WARNED[@]} -gt 0 ]; then
+  echo "CIGATE VERDICT: 條件式放行 ⚠  → 遠端 checks 並非全綠（${#WARNED[@]} 項為已記錄例外）"
+  echo ""
+  echo "以下 check 在 GitHub 上確實不是綠燈，僅因列入 known-flaky 白名單而未被阻擋："
+  for w in ${WARNED[@]+"${WARNED[@]}"}; do IFS='|' read -r n c r <<<"$w"; echo "  - $n ($c)"; done
+  echo ""
+  echo "白名單: .hermes/auto-repair/ci-gate-known-flaky.txt（狀態一變即自動失效）"
+  echo "注意: 這不是全綠。若要真正解除，須修復該服務本身（見上列理由中的根因）。"
+  exit 0
+fi
+
+echo "CIGATE VERDICT: 真全綠 ✅  → 可開下一個 PR"
 exit 0

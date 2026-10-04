@@ -98,6 +98,62 @@ repo 已有 `.github/workflows/auto-repair.yml`，內含：
 （`failure` → `failure || cancelled || timed_out` 等）。
 **本文件只記錄，未修改** — 避免在未經驗證的情況下改動 CI 觸發條件。
 
+## known-flaky 白名單（條件式放行，非全綠）
+
+`ci-gate-known-flaky.txt` 允許特定 check 由 ASK 降級為 WARN。
+**降級不等於綠燈** — verdict 會明確輸出「條件式放行 ⚠」並列出例外項，
+只有完全沒有例外時才會輸出「真全綠 ✅」。
+
+語法：`<check 名稱>|<允許的結論>|<理由與證據>`（第三欄必填，須附實測證據）。
+
+### 例外會自動失效（已實測驗證）
+
+`flaky_reason()` 同時比對 check 名稱**與** live conclusion。
+結論一旦改變（例如服務真的修好了、回傳 `success`），
+白名單立即失效，該 check 重新被判為 ASK 並以 `exit 1` 阻擋。
+
+實測證據（2026-10-05，8/8 通過）：
+
+| 情境 | 預期 | 實測 |
+|---|---|---|
+| 名稱+結論都相同 | 放行 | ✅ 放行 |
+| 結論改為 `success`/`failure`/`skipped` | 失效 | ✅ 失效 |
+| check 名稱不同 | 失效 | ✅ 失效 |
+| 僅前綴相同（`Widget` vs `Widget Check`） | 失效 | ✅ 失效 |
+| 僅大小寫不同 | 失效 | ✅ 失效 |
+| 白名單檔不存在 | 不報錯 | ✅ 不報錯 |
+
+端到端反向驗證：移除白名單檔後重跑 gate，
+`SonarCloud Code Analysis (cancelled)` 立即回到 ASK 且 `exit 1`。
+
+### 目前唯一例外：SonarCloud Code Analysis
+
+實測根因（2026-10-05）：
+
+1. SonarCloud 由**外部 GitHub App**（slug `sonarqubecloud`）建立 check，
+   repo 內 `.github/workflows/` **無** sonar workflow。
+2. SonarCloud 端**從未註冊此專案**：查詢 `esggo_esggo-monorepo` 回
+   `Component key not found`。App 卻已綁定此 repo（共 26 個 check-suite app），
+   因此 App 建了 check 卻無從執行 → `cancelled`。
+3. `sonar-project.properties` 宣告 `sonar.projectKey=esggo-monorepo`
+   與 org `esggo`，但 repo 內**沒有任何 `SONAR_TOKEN` secret**（58 個 secret 中無），
+   無法在本 repo 觸發分析。
+4. `POST /check-runs/{id}/rerequest` 回 `{}` 但狀態不變 — GitHub API
+   無法單獨重啟外部 App 的分析。
+
+此 check **不阻擋 GitHub merge**：branch protection 不可用
+（private repo + free plan，API 回 403），SonarCloud 非 required check。
+
+### 真正解除條件（非白名單繞過）
+
+必須讓 SonarCloud 回傳真實結論，而非靠白名單放行：
+
+- 在 SonarCloud 建立 `esggo` org 底下的對應專案，且 `projectKey` 與 repo 對應；或
+- 移除 SonarCloud App 對此 repo 的綁定（若不再需要該服務）；或
+- 在 repo 內建立 sonar workflow 並注入 `SONAR_TOKEN` secret。
+
+在此之前，gate 一律以「條件式放行 ⚠」誠實標示，不宣稱全綠。
+
 ## 誠實標示原則
 
 「CI 全綠」只代表 **GitHub checks 全部通過**。

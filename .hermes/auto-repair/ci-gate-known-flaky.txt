@@ -1,0 +1,24 @@
+# CI 全綠閘 known-flaky 白名單
+#
+# source_origin: 實測 2026-10-04 — Omniesggo main 分支 commit 歷史調查
+#
+# 用途：某些 GitHub check 由「外部 GitHub App」建立，repo 內沒有對應 workflow，
+#       因此 .github/workflows/auto-repair.yml（只對 conclusion=='failure' 觸發）
+#       **永遠無法修復它們**。列入此檔可讓 ci-gate.sh 將其從 ASK 降級為 WARN，
+#       但必須附上實測證據 —— 不得憑空放行。
+#
+# 規則：每筆需有「證據」欄。gate 會驗證該 check 當前結論確實等於 listed 狀態，
+#       狀態一變（例如 SonarCloud 真的跑起來了）即失效，自動恢復為阻擋。
+#
+# 語法：<check 名稱>|<允許的結論>|<理由與證據>
+
+# SonarCloud Code Analysis|cancelled|
+#   證據：2026-10-04 實測，連續 3 個 main commit (10542e90, 2dafd414, ba81997a)
+#         結論皆為 cancelled，從未在此 repo 成功過。
+#   根因：repo 內無 sonar workflow（grep .github/workflows/ 無結果），
+#         check 由外部 SonarCloud GitHub App 建立，獨立於 GitHub Actions 之外，
+#         故 auto-repair.yml 無從觸發；POST /check-runs/{id}/rerequest 回應 {} 但狀態不變。
+#   影響：不阻擋 GitHub merge —— branch protection 不可用（private repo + free
+#         plan，API 回 403），SonarCloud 非 required check。
+#   解除條件：SonarCloud 開始回傳 success/failure，或 repo 自行建立 sonar workflow。
+SonarCloud Code Analysis|cancelled|外部 App，repo 無 workflow，從未成功；非 required check

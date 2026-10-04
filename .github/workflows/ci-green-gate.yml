@@ -1,0 +1,75 @@
+# =============================================================================
+# [超覺醒] 萬能修復 (全域) — PR CI 全綠閘 (強制點)
+# =============================================================================
+# 目的：讓「遠端 checks 必須全綠才能開下一個 PR」成為不可繞過的規則，
+#       而非只存在於 .hermes/auto-repair/ 的一支腳本。
+#
+# 設計要點：
+#   1. 本 workflow 在 pull_request 觸發，跑 .hermes/auto-repair/ci-gate.sh
+#      檢查**同一個 PR head commit** 的所有 GitHub check-runs。
+#   2. 已知外部服務例外（SonarCloud）走 known-flaky 白名單 → 輸出
+#      「條件式放行 ⚠」並 exit 0，但**絕不宣稱全綠**（見 CI-GATE.md）。
+#   3. 白名單為空且全部 checks 成功時，才輸出「真全綠 ✅」。
+#   4. gate 阻擋 (exit 1) 時本 job 直接失敗 → GitHub 顯示紅燈，
+#      且因 job 名稱固定為 "CI Green Gate"，可日後設為 required check。
+#
+# 注意：branch protection 目前不可用（private repo + free plan），
+#       因此本 job 本身無法強制 merge 阻擋；它是可見的守門訊號 + 日後
+#       可升級為 required check 的落點。詳見 .hermes/auto-repair/CI-GATE.md。
+# =============================================================================
+
+name: CI Green Gate (PR)
+
+on:
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  checks: read
+  statuses: read
+
+# 與其他 workflow 併行，不互相阻塞
+concurrency:
+  group: ci-green-gate-${{ github.event.pull_request.head.sha }}
+  cancel-in-progress: true
+
+jobs:
+  green-gate:
+    name: CI Green Gate
+    runs-on: ubuntu-latest
+    # 讓出空間給真正的 CI/auto-repair 先產出 checks，再做判定
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # 必須檢查 PR 的 head commit，不是 merge commit，
+          # 否則會去查一個沒有任何 checks 的 commit 而誤判。
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Ensure gh CLI is available
+        run: gh --version
+
+      - name: Run CI all-green gate
+        env:
+          # gate 透過 `gh api` 讀取 check-runs；GitHub runner 上必須顯式
+          # 提供 token，否則 gh 會認證失敗（actions/checkout 不會自動設定）。
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GREEN_GATE_REPO: ${{ github.repository }}
+          # pull_request 事件下，同 commit 的其他 checks 可能仍在跑；
+          # 給它們時間完成，避免過早判定。
+          GREEN_GATE_WAIT: '600'
+        run: bash .hermes/auto-repair/ci-gate.sh "${{ github.event.pull_request.head.sha }}"
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### CI 全綠閘結果"
+            echo ""
+            echo "PR: #${{ github.event.pull_request.number }}"
+            echo "head sha: \`${{ github.event.pull_request.head.sha }}\`"
+            echo ""
+            echo "規則詳見 \`.hermes/auto-repair/CI-GATE.md\`。"
+            echo "例外白名單：\`.hermes/auto-repair/ci-gate-known-flaky.txt\`（狀態一變即自動失效）"
+          } >> "$GITHUB_STEP_SUMMARY"
