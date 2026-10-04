@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import crypto from 'crypto';
-import { jsonResponse, jsonError } from '@/lib/api-utils';
+import { jsonResponse, jsonError, jsonErrorInternal } from '@/lib/api-utils';
 
 /**
  * OmniSub 雙向即時翻譯服務 (繁中 ⇄ English)
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const { text, srcLang = 'auto', targetLang } = body;
 
     if (!text || typeof text !== 'string' || !text.trim()) {
-      return jsonError('Text is required for translation', 400);
+      return jsonError('INVALID_PARAMS', 'Text is required for translation', 400);
     }
 
     const trimmed = text.trim();
@@ -77,6 +77,6 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (error: any) {
-    return jsonError(error?.message || 'Translation failed', 500);
+    return jsonErrorInternal(error, 'INTERNAL_ERROR', 500);
   }
 }
