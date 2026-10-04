@@ -16,7 +16,7 @@
     "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "cross-env NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--max-old-space-size=1536 tsx scripts/validate-env.ts 2>/dev/null || true && next build",
-    "start": "bash -c 'set -a; source .env 2>/dev/null; set +a; next start -H 127.0.0.1'",
+    "start": "bash -c 'set -a; source .env 2>/dev/null; set +a; next start -H 0.0.0.0'",
     "lint": "ts-node scripts/celestial-gate.ts",
     "lint:full": "eslint src/ --max-warnings 50",
     "typecheck": "tsc -p tsconfig.core.json",
