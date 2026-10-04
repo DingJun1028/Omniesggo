@@ -18,7 +18,7 @@ export interface AkkaduSubtitle {
 
 export function AkkaduBroadcastWall() {
   const [mounted, setMounted] = useState(false);
-  const [roomCode, setRoomCode] = useState('AKKADU-LIVE-888');
+  const [roomCode, setRoomCode] = useState('GIHC');
   const [isStreaming, setIsStreaming] = useState(true);
   const [viewMode, setViewMode] = useState<'wall' | 'grid' | 'marquee' | 'live-stream'>('wall');
   const [isFullscreen, setIsFullscreen] = useState(false);
