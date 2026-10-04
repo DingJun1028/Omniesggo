@@ -96,60 +96,60 @@ export function AkkaduBroadcastWall() {
   return (
     <div className={`w-full transition-all ${isFullscreen ? 'fixed inset-0 z-50 bg-[#020617] p-6 overflow-y-auto flex flex-col justify-between' : ''}`}>
       {/* Akkadu Controller Top Bar */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-cyan-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-6">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 md:p-5 rounded-2xl bg-slate-900/60 backdrop-blur-xl border border-cyan-500/20 shadow-[0_4px_20px_rgba(0,0,0,0.3)] mb-6">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-emerald-500 flex items-center justify-center text-slate-950 font-black shadow-[0_0_15px_rgba(6,182,212,0.4)] shrink-0">
             <Radio className="w-5 h-5 animate-pulse" />
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-300">
+              <h2 className="text-base sm:text-lg font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-300 truncate">
                 Akkadu 即時連線 · 字幕轉播牆
               </h2>
-              <span className="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/40">
+              <span className="text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/40 shrink-0">
                 5T VERIFIED
               </span>
             </div>
-            <p className="text-xs text-slate-400 font-medium">
+            <p className="text-xs text-slate-400 font-medium truncate">
               Akkadu Live Subtitle Stream • 雙語即時牆 • 5T 密碼學刻印封印
             </p>
           </div>
         </div>
 
         {/* Room & Mode Settings */}
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-between lg:justify-end">
-          <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-cyan-500/30">
+        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
+          <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-cyan-500/30 shrink-0">
             <span className="text-xs font-mono text-cyan-400 font-bold shrink-0">房號/Stream Code:</span>
             <input
               type="text"
               value={roomCode}
               onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              className="w-32 bg-transparent text-xs font-mono font-bold text-slate-100 outline-none uppercase"
+              className="w-28 sm:w-32 bg-transparent text-xs font-mono font-bold text-slate-100 outline-none uppercase"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-cyan-500/30">
+          <div className="flex items-center gap-1 bg-slate-950/80 p-1 rounded-xl border border-cyan-500/30 shrink-0">
             <button
               onClick={() => setViewMode('wall')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${viewMode === 'wall' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${viewMode === 'wall' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200'}`}
             >
               轉播牆
             </button>
             <button
               onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${viewMode === 'grid' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${viewMode === 'grid' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200'}`}
             >
               網格卡片
             </button>
             <button
               onClick={() => setViewMode('marquee')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all ${viewMode === 'marquee' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap ${viewMode === 'marquee' ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40' : 'text-slate-400 hover:text-slate-200'}`}
             >
               跑馬燈
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={copyShareLink}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all whitespace-nowrap"
@@ -170,7 +170,7 @@ export function AkkaduBroadcastWall() {
       </div>
 
       {/* Main Broadcast Wall Screen */}
-      <OmniBaseCard className="!p-6 relative overflow-hidden" statusIndicator="trustworthy">
+      <OmniBaseCard className="!p-4 sm:!p-6 relative overflow-hidden" statusIndicator="trustworthy">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-cyan-500/20">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
@@ -202,7 +202,7 @@ export function AkkaduBroadcastWall() {
             {subtitles.map((sub, idx) => (
               <div
                 key={sub.id || idx}
-                className="p-5 rounded-2xl bg-slate-950/60 border border-cyan-500/30 backdrop-blur-xl hover:border-cyan-400/60 transition-all shadow-[0_4px_25px_rgba(0,0,0,0.4)] animate-in fade-in slide-in-from-bottom-2 duration-300"
+                className="p-4 sm:p-5 rounded-2xl bg-slate-950/60 border border-cyan-500/30 backdrop-blur-xl hover:border-cyan-400/60 transition-all shadow-[0_4px_25px_rgba(0,0,0,0.4)] animate-in fade-in slide-in-from-bottom-2 duration-300"
               >
                 <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                   <div className="flex items-center gap-2">
@@ -220,7 +220,7 @@ export function AkkaduBroadcastWall() {
                 </div>
 
                 <div
-                  className="font-semibold text-slate-100 leading-relaxed tracking-wide mb-1"
+                  className="font-semibold text-slate-100 leading-relaxed tracking-wide mb-1 break-words"
                   style={{ fontSize: `${fontSize}px` }}
                 >
                   {sub.originalText}
@@ -228,7 +228,7 @@ export function AkkaduBroadcastWall() {
 
                 {sub.translatedText && (
                   <div
-                    className="font-bold text-cyan-300 leading-relaxed tracking-wide bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent"
+                    className="font-bold text-cyan-300 leading-relaxed tracking-wide bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent break-words"
                     style={{ fontSize: `${Math.round(fontSize * 0.9)}px` }}
                   >
                     {sub.translatedText}
@@ -253,8 +253,8 @@ export function AkkaduBroadcastWall() {
                       {new Date(sub.timestamp).toLocaleTimeString()}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-slate-200 mb-2">{sub.originalText}</p>
-                  <p className="text-sm font-bold text-emerald-400">{sub.translatedText}</p>
+                  <p className="text-sm font-medium text-slate-200 mb-2 break-words">{sub.originalText}</p>
+                  <p className="text-sm font-bold text-emerald-400 break-words">{sub.translatedText}</p>
                 </div>
                 <div className="mt-3 pt-2 border-t border-cyan-500/10 text-[9px] font-mono text-slate-500 truncate">
                   HashLock: {sub.hashLock}
@@ -266,12 +266,12 @@ export function AkkaduBroadcastWall() {
 
         {viewMode === 'marquee' && (
           <div className="py-12 bg-slate-950/80 rounded-2xl border border-cyan-500/30 overflow-hidden relative w-full">
-            <div className="animate-marquee whitespace-nowrap flex gap-8">
-              {subtitles.map((sub, idx) => (
-                <div key={sub.id || idx} className="inline-block px-6 py-4 rounded-xl bg-cyan-950/40 border border-cyan-500/40 shrink-0">
+            <div className="animate-marquee whitespace-nowrap flex gap-8 w-max">
+              {[...subtitles, ...subtitles].map((sub, idx) => (
+                <div key={`${sub.id}-${idx}`} className="inline-block px-6 py-4 rounded-xl bg-cyan-950/40 border border-cyan-500/40 shrink-0 min-w-[280px] max-w-[480px]">
                   <div className="text-xs text-slate-400 font-medium mb-1">🎙️ {sub.speaker}</div>
-                  <div className="text-sm text-slate-200 font-semibold mb-1">{sub.originalText}</div>
-                  <div className="text-base text-cyan-300 font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                  <div className="text-sm text-slate-200 font-semibold mb-1 truncate">{sub.originalText}</div>
+                  <div className="text-base text-cyan-300 font-bold bg-gradient-to-r from-cyan-400 to-emerald-400 bg-clip-text text-transparent truncate">
                     {sub.translatedText}
                   </div>
                 </div>
@@ -281,8 +281,8 @@ export function AkkaduBroadcastWall() {
         )}
 
         {/* Live Input Simulator Form */}
-        <form onSubmit={handlePushSubtitle} className="mt-6 pt-4 border-t border-cyan-500/20 flex flex-col md:flex-row items-stretch md:items-center gap-3 w-full">
-          <div className="flex flex-col sm:flex-row items-center gap-3 flex-1 min-w-0 w-full">
+        <form onSubmit={handlePushSubtitle} className="mt-6 pt-4 border-t border-cyan-500/20 flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 min-w-0 w-full">
             <input
               type="text"
               placeholder="講者名稱 (Speaker Name)"
@@ -300,9 +300,9 @@ export function AkkaduBroadcastWall() {
           </div>
           <button
             type="submit"
-            className="w-full md:w-auto px-6 py-2.5 text-xs font-black rounded-xl bg-gradient-to-r from-cyan-400 via-emerald-400 to-emerald-500 hover:from-cyan-300 hover:to-emerald-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-2"
+            className="w-full lg:w-auto px-6 py-2.5 text-xs font-black rounded-xl bg-gradient-to-r from-cyan-400 via-emerald-400 to-emerald-500 hover:from-cyan-300 hover:to-emerald-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-2"
           >
-            <span>推送即時字幕</span>
+            <span>推送即時字幕 🚀</span>
             <Send className="w-3.5 h-3.5" />
           </button>
         </form>
