@@ -53,16 +53,13 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
   // Prevent MIME type sniffing
   headers.set('X-Content-Type-Options', 'nosniff');
 
-  // Clickjacking protection
-  headers.set('X-Frame-Options', 'DENY');
-
   // XSS protection (legacy browsers)
   headers.set('X-XSS-Protection', '1; mode=block');
 
   // Referrer policy
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  // Permissions policy — allow microphone for speech recognition, disable camera/geolocation by default
+  // Permissions policy — allow microphone for speech recognition
   headers.set(
     'Permissions-Policy',
     'microphone=(self), camera=(), geolocation=(), interest-cohort=()'
@@ -76,7 +73,7 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
     );
   }
 
-  // Content Security Policy — permissive for fonts, workers, and translation APIs
+  // Content Security Policy — permissive for fonts, workers, translation APIs, and Akkadu iframe relay
   headers.set(
     'Content-Security-Policy',
     [
@@ -86,8 +83,9 @@ function applySecurityHeaders(response: NextResponse): NextResponse {
       "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com",
       "worker-src 'self' blob:",
-      "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.mymemory.translated.net https://translate.googleapis.com https://static.cloudflareinsights.com https://cloudflareinsights.com https://*.cloudflareinsights.com https://cdnjs.cloudflare.com",
-      "frame-ancestors 'self'",
+      "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://api.mymemory.translated.net https://translate.googleapis.com https://static.cloudflareinsights.com https://cloudflareinsights.com https://*.cloudflareinsights.com https://cdnjs.cloudflare.com https://*.akkadu.ai https://akkadu.ai",
+      "frame-src 'self' https://*.akkadu.ai https://akkadu.ai https://www.akkadu.ai",
+      "frame-ancestors 'self' https: http:",
       "base-uri 'self'",
       "form-action 'self'",
     ].join('; ')

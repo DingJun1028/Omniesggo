@@ -55,7 +55,7 @@ export function AkkaduBroadcastWall() {
     setRoomCode(val.toUpperCase());
   };
 
-  const officialAkkaduUrl = `https://akkadu.ai/live/${roomCode.toLowerCase()}`;
+  const officialAkkaduUrl = `https://www.akkadu.ai/live/${roomCode.toLowerCase()}`;
 
   // Fetch live stream from API
   const fetchStream = async () => {
