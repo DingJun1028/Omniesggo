@@ -19,4 +19,13 @@ test.describe('Liquid Glass UI/UX Verification', () => {
     await expect(page.getByText(/萬能中心/)).toBeVisible();
     await expect(page.locator('.backdrop-blur-md, .backdrop-blur-xl').first()).toBeVisible();
   });
+
+  test('Local AI Station page should load with model switcher and presets', async ({ page }) => {
+    await page.goto('/local-ai');
+    
+    // Verify header and title
+    await expect(page.getByText(/Local AI Station/)).toBeVisible();
+    await expect(page.getByText(/零算力成本/)).toBeVisible();
+    await expect(page.getByPlaceholder(/輸入關於 ESG 碳盤查/)).toBeVisible();
+  });
 });
