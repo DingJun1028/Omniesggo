@@ -231,8 +231,8 @@ export function AkkaduBroadcastWall() {
 
   return (
     <div className={`w-full transition-all ${isFullscreen ? 'fixed inset-0 z-50 bg-[#020617] p-6 overflow-y-auto flex flex-col justify-between' : ''}`}>
-      {/* Akkadu Controller Top Bar (OmniSub Solid Theme - No Gradients) */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 md:p-5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/30 shadow-[0_20px_56px_rgba(0,0,0,0.6)] mb-6">
+      {/* Row 1: Akkadu Controller Top Bar */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 md:p-5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/30 shadow-[0_20px_56px_rgba(0,0,0,0.6)] mb-4">
         <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-[#c9a24b] flex items-center justify-center text-[#070b12] font-black shadow-[0_0_20px_rgba(201,162,75,0.4)] shrink-0">
             <Radio className="w-5 h-5 animate-pulse" />
@@ -246,13 +246,13 @@ export function AkkaduBroadcastWall() {
                 5T VERIFIED
               </span>
             </div>
-            <p className="text-xs text-[#f3ede1]/70 font-medium leading-relaxed">
+            <p className="text-xs text-[#f3ede1]/70 font-medium leading-relaxed mt-0.5">
               Akkadu Live Subtitle Stream • 雙語即時牆 • 5T 密碼學刻印封印
             </p>
           </div>
         </div>
 
-        {/* Room & Mode Settings */}
+        {/* Room Input & Mode Settings */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
           <div className="flex items-center gap-2 bg-[#070b12] px-3 py-1.5 rounded-xl border border-[#c9a24b]/40 shrink-0 shadow-[inset_0_2px_6px_rgba(0,0,0,0.7)]">
             <span className="text-xs font-mono text-[#c9a24b] font-bold shrink-0">房號/Akkadu 網址:</span>
@@ -261,7 +261,7 @@ export function AkkaduBroadcastWall() {
               value={roomCode}
               onChange={(e) => handleRoomCodeChange(e.target.value)}
               placeholder="輸入房號 (GIHC) 或 Akkadu 網址..."
-              className="w-32 sm:w-56 bg-transparent text-xs font-mono font-bold text-[#f3ede1] placeholder:text-[#f3ede1]/30 outline-none uppercase tracking-wider"
+              className="w-32 sm:w-52 bg-transparent text-xs font-mono font-bold text-[#f3ede1] placeholder:text-[#f3ede1]/30 outline-none uppercase tracking-wider"
             />
           </div>
 
@@ -292,93 +292,76 @@ export function AkkaduBroadcastWall() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            <button
-              onClick={copyShareLink}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b]/15 hover:bg-[#c9a24b]/25 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap shadow-[0_0_12px_rgba(201,162,75,0.2)] cursor-pointer"
-              title="複製轉播牆共享網址"
-            >
-              {copiedLink ? <Check className="w-3.5 h-3.5 text-[#3c6e47]" /> : <LinkIcon className="w-3.5 h-3.5" />}
-              {copiedLink ? '已複製共享網址' : '複製共享網址'}
-            </button>
-
-            <button
-              onClick={copyEmbedCode}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b]/15 hover:bg-[#c9a24b]/25 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap shadow-[0_0_12px_rgba(201,162,75,0.2)] cursor-pointer"
-              title="複製 IFrame HTML 嵌入碼"
-            >
-              {copiedEmbedCode ? <Check className="w-3.5 h-3.5 text-[#3c6e47]" /> : <Code className="w-3.5 h-3.5" />}
-              {copiedEmbedCode ? '已複製嵌入碼' : '複製嵌入碼'}
-            </button>
-
-            <button
-              onClick={handleDownloadSRT}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
-              title="匯出 SRT 字幕檔"
-            >
-              <Download className="w-3.5 h-3.5" />
-              匯出 SRT
-            </button>
-
-            <button
-              onClick={handleDownloadVTT}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
-              title="匯出 VTT Web 字幕檔"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              匯出 VTT
-            </button>
-
-            <button
-              onClick={handleDownload5TReport}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all whitespace-nowrap cursor-pointer shadow-[0_0_16px_rgba(201,162,75,0.35)]"
-              title="下載 5T 密碼學誠信驗證報告"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#070b12]" />
-              5T 驗證報告
-            </button>
-
-            <button
-              onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 rounded-xl bg-[#10243f] hover:bg-[#10243f]/80 text-[#f3ede1] border border-[#c9a24b]/35 text-xs font-bold transition-all shrink-0 cursor-pointer"
-              title={isFullscreen ? '退出全螢幕' : '全螢幕轉播'}
-            >
-              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-            </button>
-          </div>
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-2 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all shrink-0 cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
+            title={isFullscreen ? '退出全螢幕' : '全螢幕轉播'}
+          >
+            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
-      {/* Akkadu Live Share Link Precision Banner */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/35 shadow-[0_12px_32px_rgba(0,0,0,0.5)] mb-6">
-        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+      {/* Row 2: Precision Share & Export Action Toolbar */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/35 shadow-[0_12px_32px_rgba(0,0,0,0.5)] mb-6">
+        {/* Left: Share Link & Embed Code */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1 flex-wrap sm:flex-nowrap">
           <div className="p-1.5 rounded-lg bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 shrink-0">
             <LinkIcon className="w-4 h-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-mono text-[#c9a24b] font-bold tracking-wide">
-              Akkadu 直播即時共享網址 (Akkadu Precision Live Stream Share Link):
+            <div className="text-[10px] font-mono text-[#c9a24b] font-bold tracking-wide uppercase">
+              Akkadu Live Stream Share Link (直播即時共享網址):
             </div>
             <div className="text-xs font-mono text-[#f3ede1]/90 truncate font-semibold">
               {mounted ? `${window.location.origin}/omnisub?room=${encodeURIComponent(roomCode)}` : `/omnisub?room=${roomCode}`}
             </div>
           </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={copyShareLink}
+              className="px-3 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_12px_rgba(201,162,75,0.3)] whitespace-nowrap"
+            >
+              {copiedLink ? <Check className="w-3.5 h-3.5 text-[#070b12]" /> : <Copy className="w-3.5 h-3.5" />}
+              <span>{copiedLink ? '已複製網址' : '一鍵複製網址'}</span>
+            </button>
+            <button
+              onClick={copyEmbedCode}
+              className="px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+            >
+              {copiedEmbedCode ? <Check className="w-3.5 h-3.5 text-[#3c6e47]" /> : <Code className="w-3.5 h-3.5" />}
+              <span>{copiedEmbedCode ? '已複製嵌入碼' : '複製嵌入碼'}</span>
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Right: Export Subtitles & 5T Verification Report */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap pt-2 lg:pt-0 border-t lg:border-t-0 border-[#c9a24b]/20">
           <button
-            onClick={copyShareLink}
-            className="px-3 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_12px_rgba(201,162,75,0.3)] whitespace-nowrap"
+            onClick={handleDownloadSRT}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
+            title="匯出 SRT 字幕檔"
           >
-            <Copy className="w-3.5 h-3.5" />
-            <span>{copiedLink ? '已複製網址' : '一鍵複製網址'}</span>
+            <Download className="w-3.5 h-3.5" />
+            匯出 SRT
           </button>
+
           <button
-            onClick={copyEmbedCode}
-            className="px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+            onClick={handleDownloadVTT}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
+            title="匯出 VTT Web 字幕檔"
           >
-            <Code className="w-3.5 h-3.5" />
-            <span>{copiedEmbedCode ? '已複製嵌入碼' : '複製 IFrame 嵌入碼'}</span>
+            <FileText className="w-3.5 h-3.5" />
+            匯出 VTT
+          </button>
+
+          <button
+            onClick={handleDownload5TReport}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all whitespace-nowrap cursor-pointer shadow-[0_0_16px_rgba(201,162,75,0.35)]"
+            title="下載 5T 密碼學誠信驗證報告"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-[#070b12]" />
+            5T 驗證報告
           </button>
         </div>
       </div>
