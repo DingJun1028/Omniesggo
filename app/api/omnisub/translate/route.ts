@@ -23,34 +23,64 @@ export async function POST(req: NextRequest) {
     const resolvedSource = srcLang === 'auto' ? (hasChinese ? 'zh-TW' : 'en') : srcLang;
 
     let translated = '';
+    let engine = 'GTX-Zero-Key-Free';
 
+    // 優先呼叫本地高效能 universal-translator 服務 (PM2: 8788)
     try {
-      const gtxUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(
-        resolvedSource === 'zh-Hant' || resolvedSource === 'zh-TW' ? 'zh-TW' : resolvedSource
-      )}&tl=${encodeURIComponent(
-        resolvedTarget === 'zh-Hant' || resolvedTarget === 'zh-TW' ? 'zh-TW' : resolvedTarget
-      )}&dt=t&q=${encodeURIComponent(trimmed)}`;
-
-      const res = await fetch(gtxUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        },
-        signal: AbortSignal.timeout(4000),
+      const localRes = await fetch('http://127.0.0.1:8788/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: trimmed,
+          from: resolvedSource,
+          to: resolvedTarget,
+        }),
+        signal: AbortSignal.timeout(3000),
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        if (Array.isArray(data) && Array.isArray(data[0])) {
-          translated = data[0].map((item: any) => item[0]).join('');
+      if (localRes.ok) {
+        const localData = await localRes.json();
+        if (localData && localData.text) {
+          translated = localData.text;
+          engine = localData.engine || 'universal-translator-8788';
         }
       }
     } catch (e) {
-      console.warn('[OmniSub Translate] GTX fetch fallback:', e);
+      console.warn('[OmniSub Translate] Local 8788 bypass, trying direct engines:', e);
+    }
+
+    // 若本地未取到，降級直連 Google GTX
+    if (!translated) {
+      try {
+        const gtxUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${encodeURIComponent(
+          resolvedSource === 'zh-Hant' || resolvedSource === 'zh-TW' ? 'zh-TW' : resolvedSource
+        )}&tl=${encodeURIComponent(
+          resolvedTarget === 'zh-Hant' || resolvedTarget === 'zh-TW' ? 'zh-TW' : resolvedTarget
+        )}&dt=t&q=${encodeURIComponent(trimmed)}`;
+
+        const res = await fetch(gtxUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          },
+          signal: AbortSignal.timeout(4000),
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && Array.isArray(data[0])) {
+            translated = data[0].map((item: any) => item[0]).join('');
+            engine = 'google-gtx-direct';
+          }
+        }
+      } catch (e) {
+        console.warn('[OmniSub Translate] GTX fetch fallback:', e);
+      }
     }
 
     // 若外部連線異常，提供高品質兜底提示
     if (!translated) {
       translated = hasChinese ? `[English] ${trimmed}` : `[繁體中文] ${trimmed}`;
+      engine = 'fallback-prompt';
     }
 
     // 生成 5T 密碼學封印 HashLock
@@ -68,7 +98,7 @@ export async function POST(req: NextRequest) {
       timestamp,
       hashLock,
       metadata: {
-        engine: 'GTX-Zero-Key-Free',
+        engine,
         sourceOrigin: 'app/api/omnisub/translate/route.ts',
         fiveTProof: '101/101-VERIFIED',
       },
