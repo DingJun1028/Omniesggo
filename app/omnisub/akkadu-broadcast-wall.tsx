@@ -231,164 +231,153 @@ export function AkkaduBroadcastWall() {
 
   return (
     <div className={`w-full transition-all ${isFullscreen ? 'fixed inset-0 z-50 bg-[#020617] p-6 overflow-y-auto flex flex-col justify-between' : ''}`}>
-      {/* Row 1: Akkadu Controller Top Bar */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 p-4 md:p-5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/30 shadow-[0_20px_56px_rgba(0,0,0,0.6)] mb-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 rounded-xl bg-[#c9a24b] flex items-center justify-center text-[#070b12] font-black shadow-[0_0_20px_rgba(201,162,75,0.4)] shrink-0">
-            <Radio className="w-5 h-5 animate-pulse" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h2 className="text-base sm:text-lg font-black text-[#c9a24b]">
-                Akkadu 即時連線 · 字幕轉播牆
+      {/* Master Integrated Workspace Card */}
+      <OmniBaseCard className="!p-5 sm:!p-6 relative overflow-hidden !bg-[#10243f] !border-[#c9a24b]/40 shadow-[0_24px_64px_rgba(0,0,0,0.65)] font-sans" statusIndicator="trustworthy">
+        
+        {/* Workspace Header: Room Code & View Mode Controls */}
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 pb-4 border-b border-[#c9a24b]/25 mb-4">
+          {/* Room Code & Title */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 min-w-0">
+            <div className="flex items-center gap-2.5 shrink-0">
+              <div className="w-9 h-9 rounded-xl bg-[#c9a24b] flex items-center justify-center text-[#070b12] font-black shadow-[0_0_18px_rgba(201,162,75,0.4)]">
+                <Radio className="w-5 h-5 animate-pulse" />
+              </div>
+              <h2 className="text-base sm:text-lg font-black text-[#c9a24b] whitespace-nowrap">
+                Akkadu 字幕轉播牆
               </h2>
-              <span className="text-[10px] font-mono font-bold bg-[#c9a24b]/20 text-[#c9a24b] px-2.5 py-0.5 rounded-lg border border-[#c9a24b]/40 shrink-0 whitespace-nowrap shadow-[0_0_12px_rgba(201,162,75,0.25)]">
+              <span className="text-[10px] font-mono font-bold bg-[#c9a24b]/20 text-[#c9a24b] px-2 py-0.5 rounded-md border border-[#c9a24b]/40 shrink-0 whitespace-nowrap shadow-[0_0_10px_rgba(201,162,75,0.2)]">
                 5T VERIFIED
               </span>
             </div>
-            <p className="text-xs text-[#f3ede1]/70 font-medium leading-relaxed mt-0.5">
-              Akkadu Live Subtitle Stream • 雙語即時牆 • 5T 密碼學刻印封印
-            </p>
-          </div>
-        </div>
 
-        {/* Room Input & Mode Settings */}
-        <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
-          <div className="flex items-center gap-2 bg-[#070b12] px-3 py-1.5 rounded-xl border border-[#c9a24b]/40 shrink-0 shadow-[inset_0_2px_6px_rgba(0,0,0,0.7)]">
-            <span className="text-xs font-mono text-[#c9a24b] font-bold shrink-0">房號/Akkadu 網址:</span>
-            <input
-              type="text"
-              value={roomCode}
-              onChange={(e) => handleRoomCodeChange(e.target.value)}
-              placeholder="輸入房號 (GIHC) 或 Akkadu 網址..."
-              className="w-32 sm:w-52 bg-transparent text-xs font-mono font-bold text-[#f3ede1] placeholder:text-[#f3ede1]/30 outline-none uppercase tracking-wider"
-            />
-          </div>
-
-          <div className="flex items-center gap-1 bg-[#070b12] p-1 rounded-xl border border-[#c9a24b]/30 shrink-0 flex-wrap">
-            <button
-              onClick={() => setViewMode('wall')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'wall' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
-            >
-              轉播牆
-            </button>
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'grid' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
-            >
-              網格卡片
-            </button>
-            <button
-              onClick={() => setViewMode('marquee')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'marquee' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
-            >
-              跑馬燈
-            </button>
-            <button
-              onClick={() => setViewMode('live-stream')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'live-stream' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
-            >
-              📺 官方原聲同屏
-            </button>
-          </div>
-
-          <button
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            className="p-2 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all shrink-0 cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
-            title={isFullscreen ? '退出全螢幕' : '全螢幕轉播'}
-          >
-            {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-          </button>
-        </div>
-      </div>
-
-      {/* Row 2: Precision Share & Export Action Toolbar */}
-      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#10243f] border border-[#c9a24b]/35 shadow-[0_12px_32px_rgba(0,0,0,0.5)] mb-6">
-        {/* Left: Share Link & Embed Code */}
-        <div className="flex items-center gap-2.5 min-w-0 flex-1 flex-wrap sm:flex-nowrap">
-          <div className="p-1.5 rounded-lg bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 shrink-0">
-            <LinkIcon className="w-4 h-4" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-[10px] font-mono text-[#c9a24b] font-bold tracking-wide uppercase">
-              Akkadu Live Stream Share Link (直播即時共享網址):
-            </div>
-            <div className="text-xs font-mono text-[#f3ede1]/90 truncate font-semibold">
-              {mounted ? `${window.location.origin}/omnisub?room=${encodeURIComponent(roomCode)}` : `/omnisub?room=${roomCode}`}
+            <div className="flex items-center gap-2 bg-[#070b12] px-3 py-1.5 rounded-xl border border-[#c9a24b]/40 w-full sm:w-auto shadow-[inset_0_2px_6px_rgba(0,0,0,0.7)]">
+              <span className="text-xs font-mono text-[#c9a24b] font-bold shrink-0">房號/Akkadu 網址:</span>
+              <input
+                type="text"
+                value={roomCode}
+                onChange={(e) => handleRoomCodeChange(e.target.value)}
+                placeholder="輸入房號 (GIHC) 或 Akkadu 網址..."
+                className="w-full sm:w-48 bg-transparent text-xs font-mono font-bold text-[#f3ede1] placeholder:text-[#f3ede1]/35 outline-none uppercase tracking-wider"
+              />
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+
+          {/* View Mode Switcher & Fullscreen Button */}
+          <div className="flex items-center gap-2 flex-wrap justify-between sm:justify-end">
+            <div className="flex items-center gap-1 bg-[#070b12] p-1 rounded-xl border border-[#c9a24b]/30 shrink-0 flex-wrap">
+              <button
+                onClick={() => setViewMode('wall')}
+                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'wall' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+              >
+                轉播牆
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'grid' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+              >
+                網格卡片
+              </button>
+              <button
+                onClick={() => setViewMode('marquee')}
+                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'marquee' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+              >
+                跑馬燈
+              </button>
+              <button
+                onClick={() => setViewMode('live-stream')}
+                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'live-stream' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+              >
+                📺 官方原聲同屏
+              </button>
+            </div>
+
             <button
-              onClick={copyShareLink}
-              className="px-3 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_12px_rgba(201,162,75,0.3)] whitespace-nowrap"
+              onClick={() => setIsFullscreen(!isFullscreen)}
+              className="p-2 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all shrink-0 cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
+              title={isFullscreen ? '退出全螢幕' : '全螢幕轉播'}
             >
-              {copiedLink ? <Check className="w-3.5 h-3.5 text-[#070b12]" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedLink ? '已複製網址' : '一鍵複製網址'}</span>
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </button>
+          </div>
+        </div>
+
+        {/* Integrated Action Toolbar: Share Link & Export Options */}
+        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 p-3 rounded-xl bg-[#070b12]/80 border border-[#c9a24b]/30 mb-5">
+          {/* Share Link Banner */}
+          <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap sm:flex-nowrap">
+            <div className="p-1 rounded-md bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 shrink-0">
+              <LinkIcon className="w-3.5 h-3.5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[9px] font-mono text-[#c9a24b] font-bold uppercase">
+                Akkadu Stream Share URL:
+              </div>
+              <div className="text-xs font-mono text-[#f3ede1]/90 truncate font-semibold">
+                {mounted ? `${window.location.origin}/omnisub?room=${encodeURIComponent(roomCode)}` : `/omnisub?room=${roomCode}`}
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={copyShareLink}
+                className="px-2.5 py-1 rounded-lg bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all cursor-pointer flex items-center gap-1 shadow-[0_0_10px_rgba(201,162,75,0.3)] whitespace-nowrap"
+              >
+                {copiedLink ? <Check className="w-3 h-3 text-[#070b12]" /> : <Copy className="w-3 h-3" />}
+                <span>{copiedLink ? '已複製' : '複製網址'}</span>
+              </button>
+              <button
+                onClick={copyEmbedCode}
+                className="px-2.5 py-1 rounded-lg bg-[#10243f] hover:bg-[#10243f]/80 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap"
+              >
+                {copiedEmbedCode ? <Check className="w-3 h-3 text-[#3c6e47]" /> : <Code className="w-3 h-3" />}
+                <span>{copiedEmbedCode ? '已複製' : '複製嵌入碼'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Export Toolbar & Font Adjuster */}
+          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between sm:justify-end pt-2 xl:pt-0 border-t xl:border-t-0 border-[#c9a24b]/20">
+            <div className="flex items-center gap-2 text-xs font-mono text-[#f3ede1]/70 mr-2">
+              <span>字型:</span>
+              <input
+                type="range"
+                min="16"
+                max="48"
+                value={fontSize}
+                onChange={(e) => setFontSize(Number(e.target.value))}
+                className="w-20 accent-[#c9a24b] cursor-pointer"
+              />
+              <span className="w-7 font-bold text-[#c9a24b] text-[11px]">{fontSize}px</span>
+            </div>
+
             <button
-              onClick={copyEmbedCode}
-              className="px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap"
+              onClick={handleDownloadSRT}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+              title="匯出 SRT 字幕檔"
             >
-              {copiedEmbedCode ? <Check className="w-3.5 h-3.5 text-[#3c6e47]" /> : <Code className="w-3.5 h-3.5" />}
-              <span>{copiedEmbedCode ? '已複製嵌入碼' : '複製嵌入碼'}</span>
+              <Download className="w-3 h-3" />
+              SRT
+            </button>
+
+            <button
+              onClick={handleDownloadVTT}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+              title="匯出 VTT 字幕檔"
+            >
+              <FileText className="w-3 h-3" />
+              VTT
+            </button>
+
+            <button
+              onClick={handleDownload5TReport}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.3)]"
+              title="下載 5T 密碼學誠信驗證報告"
+            >
+              <ShieldCheck className="w-3 h-3 text-[#070b12]" />
+              5T 驗證報告
             </button>
           </div>
         </div>
-
-        {/* Right: Export Subtitles & 5T Verification Report */}
-        <div className="flex items-center gap-2 shrink-0 flex-wrap pt-2 lg:pt-0 border-t lg:border-t-0 border-[#c9a24b]/20">
-          <button
-            onClick={handleDownloadSRT}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
-            title="匯出 SRT 字幕檔"
-          >
-            <Download className="w-3.5 h-3.5" />
-            匯出 SRT
-          </button>
-
-          <button
-            onClick={handleDownloadVTT}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#070b12] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
-            title="匯出 VTT Web 字幕檔"
-          >
-            <FileText className="w-3.5 h-3.5" />
-            匯出 VTT
-          </button>
-
-          <button
-            onClick={handleDownload5TReport}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all whitespace-nowrap cursor-pointer shadow-[0_0_16px_rgba(201,162,75,0.35)]"
-            title="下載 5T 密碼學誠信驗證報告"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-[#070b12]" />
-            5T 驗證報告
-          </button>
-        </div>
-      </div>
-
-      {/* Main Broadcast Wall Screen */}
-      <OmniBaseCard className="!p-4 sm:!p-6 relative overflow-hidden !bg-[#10243f] !border-[#c9a24b]/35 shadow-[0_20px_56px_rgba(0,0,0,0.6)]" statusIndicator="trustworthy">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-[#c9a24b]/20">
-          <div className="flex items-center gap-2">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#3c6e47] animate-ping" />
-            <span className="text-xs font-mono font-bold text-[#c9a24b] tracking-wider">
-              LIVE BROADCAST STREAM · {roomCode}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 text-xs font-mono text-[#f3ede1]/70">
-            <span>字型大小:</span>
-            <input
-              type="range"
-              min="16"
-              max="48"
-              value={fontSize}
-              onChange={(e) => setFontSize(Number(e.target.value))}
-              className="w-24 accent-[#c9a24b] cursor-pointer"
-            />
-            <span className="w-8 font-bold text-[#c9a24b]">{fontSize}px</span>
-          </div>
-        </div>
+        {/* Main Subtitle Display Area */}
 
         {/* Empty State / No Subtitles Guide */}
         {subtitles.length === 0 && (
