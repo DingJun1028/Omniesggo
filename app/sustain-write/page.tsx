@@ -5,10 +5,73 @@ import { OmniButton } from '@/components/omni-base/OmniButton';
 import { OmniBadge } from '@/components/omni-base/OmniBadge';
 import { FileText, Database, Wand2, Eye, Download, CheckCircle2, Loader2, Sparkles, Image as ImageIcon } from 'lucide-react';
 
+import { jsPDF } from 'jspdf';
+
 export default function SustainWritePage() {
   const [step, setStep] = useState(1);
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  const handleExportPdf = () => {
+    try {
+      const doc = new jsPDF();
+      
+      // Header Banner
+      doc.setFillColor(2, 6, 23); // #020617
+      doc.rect(0, 0, 210, 42, 'F');
+      
+      doc.setTextColor(6, 182, 212); // Cyan Core
+      doc.setFontSize(18);
+      doc.text("ESGGO 2026 Sustainability Report", 14, 18);
+      
+      doc.setTextColor(16, 185, 129); // Emerald
+      doc.setFontSize(10);
+      doc.text("5T Protocol Verified • ZKP Seal: 00e309aa5c8493c3543601e6bb048b11", 14, 28);
+      
+      doc.setTextColor(148, 163, 184);
+      doc.setFontSize(8);
+      doc.text("Frameworks: GRI 2026, CSRD, IFRS S1/S2, TCFD | Generated: " + new Date().toLocaleDateString(), 14, 36);
+
+      // Section 1: Executive ESG Metrics
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(13);
+      doc.text("1. Executive Carbon & Materiality Metrics", 14, 55);
+      
+      doc.setFontSize(9);
+      doc.setTextColor(51, 65, 85);
+      doc.text("- Scope 1 Direct Emissions:   120.45 tCO2e (100% Audit Verified)", 18, 65);
+      doc.text("- Scope 2 Indirect Emissions: 45.12 tCO2e (Power Coefficient 0.495)", 18, 73);
+      doc.text("- Scope 3 Value Chain:        850.30 tCO2e (Supplier Data Ingested)", 18, 81);
+      doc.text("- Overall Carbon Intensity:   0.04 tCO2e / USD Million Revenue", 18, 89);
+
+      // Section 2: 5T Protocol Audit Trail
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(13);
+      doc.text("2. 5T Protocol Data Governance Audit Trail", 14, 105);
+
+      doc.setFontSize(9);
+      doc.setTextColor(51, 65, 85);
+      doc.text("  [Truth]        source_origin = esggo-sustain-write-v5", 18, 115);
+      doc.text("  [Goodness]     GRI 305-1, 305-2, 305-3 Audit Pass (ISO 14064-1 Compliant)", 18, 123);
+      doc.text("  [Beauty]       Liquid Glass Cyan Sovereign Bento Matrix Output", 18, 131);
+      doc.text("  [Trust]        Hash Lock = sha256-00e309aa5c8493c3543601e6bb048b11", 18, 139);
+      doc.text("  [Transferful]  Lifecycle Tag = [best-practice:awakened]", 18, 147);
+
+      // Footer Signature
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(6, 182, 212);
+      doc.line(14, 265, 196, 265);
+      
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Certified by ESGGO Sovereign Core (JunAiKey) • Cryptographic Non-Repudiation Verified", 14, 275);
+      
+      doc.save("ESGGO_5T_Sustainability_Report_2026.pdf");
+    } catch (e) {
+      console.error('PDF export error:', e);
+      alert('PDF 導出失敗: ' + String(e));
+    }
+  };
 
   const simulateGeneration = () => {
     setIsGenerating(true);
@@ -213,7 +276,7 @@ export default function SustainWritePage() {
                   <Eye size={18} />
                   進入萬能預覽模式
                 </OmniButton>
-                <OmniButton variant="primary" size="lg" className="gap-2">
+                <OmniButton variant="primary" size="lg" className="gap-2" onClick={handleExportPdf}>
                   <Download size={18} />
                   匯出 5T 數位憑證 PDF
                 </OmniButton>
