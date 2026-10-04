@@ -1,9 +1,10 @@
 # =============================================================================
 # Dependabot configuration — auto-PR for dependency updates
+# NOTE: Dependabot has no "pnpm" ecosystem; pnpm lockfiles are handled by "npm".
 # =============================================================================
 version: 2
 updates:
-  - package-ecosystem: "pnpm"
+  - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
@@ -11,11 +12,8 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - "dependencies"
-      - "pnpm"
     commit-message:
       prefix: "deps"
-    reviewers:
-      - "wing-ops"
 
   - package-ecosystem: "docker"
     directory: "/vps"
@@ -25,6 +23,5 @@ updates:
     open-pull-requests-limit: 3
     labels:
       - "dependencies"
-      - "docker"
-    reviewers:
-      - "wing-ops"
+    commit-message:
+      prefix: "deps"
