@@ -231,7 +231,7 @@ def main():
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args()
 
-    ts = datetime.datetime.utcnow().isoformat() + "Z"
+    ts = datetime.datetime.now(datetime.timezone.utc).isoformat()
     result = {"timestamp": ts, "checks": {}, "overall_pass": False}
 
     # 1. Traceable: vault key
