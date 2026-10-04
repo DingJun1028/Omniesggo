@@ -17,9 +17,22 @@ interface AkkaduSubtitleItem {
 // In-memory buffer for active room subtitle streams (max 100 items per room)
 const roomStreams = new Map<string, AkkaduSubtitleItem[]>();
 
+function cleanRoomCode(raw: string): string {
+  if (!raw) return 'AKKADU-LIVE-DEMO';
+  let val = raw.trim();
+  if (val.includes('akkadu') && val.includes('/live/')) {
+    const parts = val.split('/live/');
+    if (parts[1]) {
+      val = parts[1].split('?')[0].split('#')[0];
+    }
+  }
+  return val.toUpperCase();
+}
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const room = searchParams.get('room') || 'AKKADU-LIVE-DEMO';
+  const rawRoom = searchParams.get('room') || 'AKKADU-LIVE-DEMO';
+  const room = cleanRoomCode(rawRoom);
 
   const items = roomStreams.get(room) || [
     {
@@ -81,7 +94,8 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { room = 'AKKADU-LIVE-DEMO', speaker = 'Akkadu Stream', originalText, translatedText, srcLang = 'zh-Hant', targetLang = 'en' } = body;
+    const { room: rawRoom = 'AKKADU-LIVE-DEMO', speaker = 'Akkadu Stream', originalText, translatedText, srcLang = 'zh-Hant', targetLang = 'en' } = body;
+    const room = cleanRoomCode(rawRoom);
 
     if (!originalText && !translatedText) {
       return jsonError('INVALID_PARAMS', 'Missing subtitle text');

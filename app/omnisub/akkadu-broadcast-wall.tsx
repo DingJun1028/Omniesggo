@@ -20,7 +20,7 @@ export function AkkaduBroadcastWall() {
   const [mounted, setMounted] = useState(false);
   const [roomCode, setRoomCode] = useState('AKKADU-LIVE-888');
   const [isStreaming, setIsStreaming] = useState(true);
-  const [viewMode, setViewMode] = useState<'wall' | 'grid' | 'marquee'>('wall');
+  const [viewMode, setViewMode] = useState<'wall' | 'grid' | 'marquee' | 'live-stream'>('wall');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [fontSize, setFontSize] = useState(24);
   const [subtitles, setSubtitles] = useState<AkkaduSubtitle[]>([]);
@@ -43,6 +43,19 @@ export function AkkaduBroadcastWall() {
       return '';
     }
   };
+
+  const handleRoomCodeChange = (raw: string) => {
+    let val = raw.trim();
+    if (val.includes('akkadu') && val.includes('/live/')) {
+      const parts = val.split('/live/');
+      if (parts[1]) {
+        val = parts[1].split('?')[0].split('#')[0];
+      }
+    }
+    setRoomCode(val.toUpperCase());
+  };
+
+  const officialAkkaduUrl = `https://akkadu.ai/live/${roomCode.toLowerCase()}`;
 
   // Fetch live stream from API
   const fetchStream = async () => {
@@ -242,16 +255,17 @@ export function AkkaduBroadcastWall() {
         {/* Room & Mode Settings */}
         <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto justify-start lg:justify-end">
           <div className="flex items-center gap-2 bg-[#070b12] px-3 py-1.5 rounded-xl border border-[#c9a24b]/40 shrink-0 shadow-[inset_0_2px_6px_rgba(0,0,0,0.7)]">
-            <span className="text-xs font-mono text-[#c9a24b] font-bold shrink-0">房號/Stream Code:</span>
+            <span className="text-xs font-mono text-[#c9a24b] font-bold shrink-0">房號/Akkadu 網址:</span>
             <input
               type="text"
               value={roomCode}
-              onChange={(e) => setRoomCode(e.target.value.toUpperCase())}
-              className="w-28 sm:w-32 bg-transparent text-xs font-mono font-bold text-[#f3ede1] outline-none uppercase tracking-wider"
+              onChange={(e) => handleRoomCodeChange(e.target.value)}
+              placeholder="輸入房號 (GIHC) 或 Akkadu 網址..."
+              className="w-32 sm:w-56 bg-transparent text-xs font-mono font-bold text-[#f3ede1] placeholder:text-[#f3ede1]/30 outline-none uppercase tracking-wider"
             />
           </div>
 
-          <div className="flex items-center gap-1 bg-[#070b12] p-1 rounded-xl border border-[#c9a24b]/30 shrink-0">
+          <div className="flex items-center gap-1 bg-[#070b12] p-1 rounded-xl border border-[#c9a24b]/30 shrink-0 flex-wrap">
             <button
               onClick={() => setViewMode('wall')}
               className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'wall' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
@@ -269,6 +283,12 @@ export function AkkaduBroadcastWall() {
               className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'marquee' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
             >
               跑馬燈
+            </button>
+            <button
+              onClick={() => setViewMode('live-stream')}
+              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${viewMode === 'live-stream' ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_12px_rgba(201,162,75,0.3)]' : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'}`}
+            >
+              📺 官方原聲同屏
             </button>
           </div>
 
@@ -500,6 +520,33 @@ export function AkkaduBroadcastWall() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {viewMode === 'live-stream' && (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between bg-[#070b12] px-4 py-3 rounded-2xl border border-[#c9a24b]/40 shadow-[inset_0_2px_8px_rgba(0,0,0,0.7)]">
+              <div className="flex items-center gap-2 text-xs font-mono text-[#c9a24b] font-bold">
+                <Radio className="w-4 h-4 text-[#c9a24b] animate-pulse" />
+                <span className="truncate">Akkadu 直播網址: {officialAkkaduUrl}</span>
+              </div>
+              <a
+                href={officialAkkaduUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-bold text-[#c9a24b] hover:underline flex items-center gap-1 bg-[#c9a24b]/15 px-3 py-1 rounded-lg border border-[#c9a24b]/40"
+              >
+                <span>原聲直播頁面</span>
+              </a>
+            </div>
+            <div className="w-full h-[620px] rounded-2xl overflow-hidden border border-[#c9a24b]/40 shadow-[0_20px_56px_rgba(0,0,0,0.6)] relative bg-[#070b12]">
+              <iframe
+                src={officialAkkaduUrl}
+                title="Akkadu Live Stream Relay"
+                className="w-full h-full border-0"
+                allow="microphone; autoplay; fullscreen"
+              />
             </div>
           </div>
         )}
