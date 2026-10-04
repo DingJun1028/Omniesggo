@@ -61,15 +61,12 @@ export async function POST(req: NextRequest) {
       .digest('hex');
 
     return jsonResponse({
-      success: true,
-      data: {
-        originalText: trimmed,
-        translatedText: translated,
-        sourceLang: resolvedSource,
-        targetLang: resolvedTarget,
-        timestamp,
-        hashLock,
-      },
+      originalText: trimmed,
+      translatedText: translated,
+      sourceLang: resolvedSource,
+      targetLang: resolvedTarget,
+      timestamp,
+      hashLock,
       metadata: {
         engine: 'GTX-Zero-Key-Free',
         sourceOrigin: 'app/api/omnisub/translate/route.ts',
