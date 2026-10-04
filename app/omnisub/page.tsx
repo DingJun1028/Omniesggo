@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Mic, ShieldCheck, Sparkles, Globe, ExternalLink, Activity } from 'lucide-react';
+import { Mic, ShieldCheck, Sparkles, Globe, ExternalLink, Activity, Radio, Tv, Layers } from 'lucide-react';
+import { AkkaduBroadcastWall } from './akkadu-broadcast-wall';
 
 export default function OmniSubPage() {
   const [status, setStatus] = useState<any>(null);
+  const [mode, setMode] = useState<'akkadu' | 'speech'>('akkadu');
 
   useEffect(() => {
     fetch('/api/omnisub/status')
@@ -14,55 +16,87 @@ export default function OmniSubPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-[#070b12] text-[#f3ede1] overflow-hidden">
-      {/* Top Header Bar */}
-      <header className="flex flex-wrap items-center justify-between px-6 py-3 bg-[#10243f]/80 backdrop-blur-md border-b border-[#c9a24b]/30 z-20 shrink-0">
+    <div className="flex flex-col min-h-screen bg-[#020617] text-[#f8fafc] overflow-x-hidden">
+      {/* Top Navigation & Status Bar (Liquid Glass Cyan) */}
+      <header className="flex flex-wrap items-center justify-between px-6 py-4 bg-slate-900/60 backdrop-blur-xl border-b border-cyan-500/20 z-20 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-[#c9a24b]/10 border border-[#c9a24b]/40 text-[#c9a24b]">
+          <div className="p-2.5 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-emerald-500/20 border border-cyan-400/40 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.3)]">
             <Mic className="w-5 h-5 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-extrabold text-lg tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-[#c9a24b] via-yellow-200 to-[#f3ede1]">
-                OmniSub.esggo.co 萬能即時語音擷取翻譯
+              <h1 className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-emerald-400 to-yellow-300">
+                OmniSub.esggo.co 萬能即時語音與 Akkadu 字幕轉播牆
               </h1>
-              <span className="text-[10px] font-mono bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/30">
+              <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/40 font-bold">
                 101/101 VERIFIED
               </span>
             </div>
-            <p className="text-[11px] text-[#f3ede1]/60 font-mono">
-              繁體中文 ⇄ English 雙向自動對翻 • 零 API Key • 零算力費用 • 雙語字幕
+            <p className="text-xs text-slate-400 font-mono">
+              Akkadu 直播連線 • 繁中 ⇄ English 雙向自動對翻 • 5T 密碼學刻印封印
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/80 border border-[#c9a24b]/30 text-xs font-mono text-[#c9a24b]">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>5T SEALED: {status?.hashLock ? status.hashLock.substring(0, 12) + '...' : 'ACTIVE'}</span>
+        {/* Mode Switcher Buttons */}
+        <div className="flex items-center gap-3 mt-3 sm:mt-0">
+          <div className="flex items-center gap-1 bg-slate-950/80 p-1.5 rounded-2xl border border-cyan-500/30">
+            <button
+              onClick={() => setMode('akkadu')}
+              className={`flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                mode === 'akkadu'
+                  ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Radio className="w-4 h-4" />
+              Akkadu 連線轉播牆
+            </button>
+            <button
+              onClick={() => setMode('speech')}
+              className={`flex items-center gap-2 px-4 py-1.5 text-xs font-bold rounded-xl transition-all ${
+                mode === 'speech'
+                  ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-slate-950 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <Tv className="w-4 h-4" />
+              單機離線 STT 模式
+            </button>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-950/80 border border-cyan-500/30 text-xs font-mono text-cyan-400">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>5T: {status?.hashLock ? status.hashLock.substring(0, 10) + '...' : 'SEALED'}</span>
           </div>
 
           <a
             href="/omnisub.html"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#c9a24b]/20 hover:bg-[#c9a24b]/30 border border-[#c9a24b]/50 text-xs font-bold text-[#c9a24b] transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/40 text-xs font-bold text-cyan-300 transition-all"
           >
             <Globe className="w-3.5 h-3.5" />
-            獨立頁面全螢幕
+            全螢幕視窗
             <ExternalLink className="w-3 h-3" />
           </a>
         </div>
       </header>
 
-      {/* Embedded Fullscreen OmniSub App */}
-      <main className="flex-1 relative w-full h-full bg-[#070b12]">
-        <iframe
-          src="/omnisub.html"
-          title="OmniSub.esggo.co App"
-          className="w-full h-full border-0"
-          allow="microphone; display-capture; autoplay"
-        />
+      {/* Main Content Area */}
+      <main className="flex-1 w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
+        {mode === 'akkadu' ? (
+          <AkkaduBroadcastWall />
+        ) : (
+          <div className="w-full h-[80vh] rounded-2xl overflow-hidden border border-cyan-500/20 shadow-2xl relative bg-[#070b12]">
+            <iframe
+              src="/omnisub.html"
+              title="OmniSub.esggo.co App"
+              className="w-full h-full border-0"
+              allow="microphone; display-capture; autoplay"
+            />
+          </div>
+        )}
       </main>
     </div>
   );
