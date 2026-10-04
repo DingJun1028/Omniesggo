@@ -12,3 +12,14 @@
 ### Synthesis & Outcome:
 - Oh My Hermes (`omh`) 2.0.5 全域安裝與 Setup 流程已 100% 圓滿完成！
 - 狀態指示器回傳 `plugin:ready`，130 項工作流已完整連結至 Hermes 核心與蜂群設定檔。
+[2026-10-04T20:56:00+08:00] [5T-TRACE] [OH-MY-HERMES & HERMES-WORKFLOW]
+- Project: ESG GO
+- Task: Oh My Hermes (OMH) Setup & Practical Workflow Verification
+- Status: SUCCESS (58/58 Doctor checks passed, HUD ready, Gateway PID 33724 healthy, OpenCode free model space-bunny-free aligned)
+- Modules Verified:
+  * OMH CLI v2.0.5 (C:\Users\dingj\.local\bin\omh.exe)
+  * Hermes Native Plugin Bridge (omh v2.0.5 enabled)
+  * Model Chains Routing Configuration (Clean Token Schema)
+  * G1-G10 Case Catalog & Playbook Recommender
+
+[2026-10-04T21:18:00+08:00] [5T-TRACE] [OBSIDIAN-ANTIGRAVITY + MOBILE SYNC] Installed VSIX, configured light appearance, bound mobile iCloud vault DingJun, initialized Antigravity Hub.
