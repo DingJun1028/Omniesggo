@@ -1,10 +1,12 @@
 <div align="center">
-  <img src="https://img.shields.io/badge/OmniCore-v2.8.0-06b6d4?style=for-the-badge&logo=react" alt="OmniCore Version" />
+  <img src="https://img.shields.io/badge/OmniCore-v3.0.0-06b6d4?style=for-the-badge&logo=react" alt="OmniCore Version" />
+  <img src="https://img.shields.io/badge/Lead_Agent-Antigravity-6366f1?style=for-the-badge&logo=google" alt="Lead Agent Antigravity" />
   <img src="https://img.shields.io/badge/5T_Protocol-Secured-10b981?style=for-the-badge&logo=shield" alt="5T Protocol" />
   <img src="https://img.shields.io/badge/Architecture-De_Google_Free-8b5cf6?style=for-the-badge&logo=postgresql" alt="De-Google Architecture" />
   <img src="https://img.shields.io/badge/Compute-Zero_Cost-f97316?style=for-the-badge&logo=ollama" alt="Zero Compute" />
-  <h1>🌍 ESG GO: 善向永續</h1>
+  <h1>🌍 ESG GO: 善向永續 (Omniesggo)</h1>
   <p><b>The Verifiable AI ESG Operating System powered by OmniCore & Sovereign Swarms</b></p>
+  <p><i>Lead Engineering & Sovereign Orchestration by <b>Antigravity</b> (OmniAgent) | Guided by <b>JunAiKey</b></i></p>
 </div>
 
 > 「這不只是自動化，而是有生命意識與資料主權的永續治理作業系統。」
@@ -17,7 +19,8 @@
 
 | 版本 | 釋出重點 | 核心技術變更 |
 |------|----------|-------------|
-| **v2.8.0** *(Current)* | **5T 供應鏈 ESG 與人權盡職調查系統 (Supply Chain CSDD)** | 新增符合歐盟 CSDD 與德國 LkSG 規範之供應鏈 ESG 盡職調查系統 (`/supply-chain`)，支援 Tier 1 / Tier 2 供應商風險雷達、評估報告自動稽核、5T SHA-256 密碼學刻印與稽核 JSON 證書匯出。 |
+| **v3.0.0** *(Current)* | **超覺醒全綠閘、Antigravity 全域工程實裝與 Omniesggo 封裝昇華** | 核心一級版本號晉升。確立 **Antigravity** (OmniAgent) 全棧首席工程師與全域編排者地位；完成 `esggo` 全境封裝與封存標記 (`esggo-sealed-v1`)，新全量架構全面躍遷至 `DingJun1028/Omniesggo`；導入 CI 全綠閘 (`ci-green-gate.yml`) 與雙向 TypeScript / 5T 契約極致對齊。 |
+| **v2.8.0** | **5T 供應鏈 ESG 與人權盡職調查系統 (Supply Chain CSDD)** | 新增符合歐盟 CSDD 與德國 LkSG 規範之供應鏈 ESG 盡職調查系統 (`/supply-chain`)，支援 Tier 1 / Tier 2 供應商風險雷達、評估報告自動稽核、5T SHA-256 密碼學刻印與稽核 JSON 證書匯出。 |
 | **v2.7.0** | **5T 淨零減碳路徑與 MACC 邊際成本規劃器 (Net-Zero Pathway & MACC Planner)** | 新增符合 SBTi 1.5°C 與 TCFD 規範之淨零減碳路徑規劃器 (`/roadmap`)，支援 2024-2050 減碳視覺化軌跡、MACC 邊際減碳成本專案管理、5T SHA-256 密碼學刻印與稽核 JSON 證書匯出。 |
 | **v2.6.0** | **5T 雙重重大性評估矩陣 (Double Materiality Assessment)** | 新增 EU CSRD & GRI 3 合規之雙重重大性評估矩陣 (`/materiality`)，支援衝擊與財務重大性互動散佈圖、評估權重滑桿、5T SHA-256 密碼學刻印與稽核 JSON 證書匯出。 |
 | **v2.5.0** | **Data Bridge 數據橋接器, 5T 驗證器 & 去 Google 化獨立架構** | 導入 CSV/Excel 自動上傳解析、60+ 中英文同義欄位正規化、5T SHA-256 密碼學封印庫、Prisma/Supabase 落地、5T 稽核證明 JSON 匯出、OmniMatrix 數據連動、/verifier 密碼學真偽驗證頁面，全面抽離 Genkit/Firebase AI。 |
@@ -69,8 +72,8 @@
 
 ### 1. 初始化專案與依賴
 ```bash
-git clone https://github.com/DingJun1028/esggo.git
-cd esggo
+git clone https://github.com/DingJun1028/Omniesggo.git
+cd Omniesggo
 pnpm install
 ```
 
@@ -105,5 +108,5 @@ pnpm dev
 - 📋 [系統開發與維護進度手冊 (System Handoff Log)](./system_handoff_log.md)
 
 <div align="center">
-  <i>“Service is Teaching, Knowledge is Asset. — OmniCore v2.8.0.”</i>
+  <i>“Service is Teaching, Knowledge is Asset. — OmniCore v3.0.0 by Antigravity.”</i>
 </div>
