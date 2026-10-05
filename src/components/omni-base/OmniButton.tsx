@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { cn } from './OmniCard';
 
 export interface OmniButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'glass' | 'ghost' | 'danger' | 'cyber' | 'emerald';
+  variant?: 'primary' | 'secondary' | 'glass' | 'ghost' | 'danger' | 'cyber' | 'emerald' | 'outline';
   size?: 'sm' | 'md' | 'lg' | 'icon';
   isLoading?: boolean;
 }
@@ -13,6 +13,7 @@ export const OmniButton = forwardRef<HTMLButtonElement, OmniButtonProps>(
     const variants: Record<string, string> = {
       primary: 'bg-teal-700 text-white hover:bg-teal-800 shadow-sm border border-transparent dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300 dark:font-bold',
       secondary: 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-300/80 shadow-sm dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border-slate-700',
+      outline: 'bg-transparent text-slate-800 border border-slate-300 hover:bg-slate-100 shadow-sm dark:text-slate-200 dark:border-slate-700 dark:hover:bg-slate-800',
       emerald: 'bg-emerald-700 text-white hover:bg-emerald-800 shadow-sm border border-transparent dark:bg-emerald-400 dark:text-slate-950 dark:hover:bg-emerald-300 dark:font-bold',
       cyber: 'bg-teal-700 text-white font-semibold hover:bg-teal-800 shadow-sm border border-transparent dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300 dark:font-bold',
       glass: 'bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm dark:bg-slate-900/60 dark:text-cyan-300 dark:border-cyan-500/30 dark:hover:bg-slate-800/80',

@@ -2,7 +2,7 @@ import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from './OmniCard';
 
 export interface OmniBadgeProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline' | 'glass' | 'emerald' | 'cyan' | 'amber' | 'indigo' | 'rose';
+  variant?: 'default' | 'success' | 'warning' | 'danger' | 'outline' | 'glass' | 'emerald' | 'cyan' | 'amber' | 'indigo' | 'rose' | 'teal';
 }
 
 export const OmniBadge = forwardRef<HTMLDivElement, OmniBadgeProps>(
@@ -10,6 +10,7 @@ export const OmniBadge = forwardRef<HTMLDivElement, OmniBadgeProps>(
     
     const variants: Record<string, string> = {
       default: 'bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30',
+      teal: 'bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30',
       cyan: 'bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30',
       success: 'bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30',
       emerald: 'bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30',
