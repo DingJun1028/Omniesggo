@@ -118,23 +118,23 @@ export default function MaterialityPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
       
       {/* ── Top Navigation Header ── */}
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-cyan-500/20">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-white/10">
         <div>
-          <div className="flex items-center gap-3">
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
               EU CSRD & GRI 3 Compliant
             </span>
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
               5T Protocol Sealed
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100">
             雙重重大性矩陣評估 (Double Materiality Assessment)
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-3xl leading-relaxed">
             結合衝擊重大性 (Impact Materiality) 與財務重大性 (Financial Materiality)，經 5T 密碼學 Hash Lock 封印。
           </p>
         </div>
@@ -144,7 +144,7 @@ export default function MaterialityPage() {
           <button
             onClick={fetchLatestAssessment}
             disabled={isLoading}
-            className="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 text-sm font-medium flex items-center gap-2 transition-all"
+            className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             刷新
@@ -152,7 +152,7 @@ export default function MaterialityPage() {
           <button
             onClick={handleSaveAssessment}
             disabled={isSaving}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all"
+            className="px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-cyan-400 dark:hover:bg-cyan-300 dark:text-slate-950 font-bold text-sm flex items-center gap-2 shadow-sm transition-all"
           >
             <Save className="w-4 h-4" />
             {isSaving ? '5T 刻印中...' : '封印 5T 雜湊鎖'}
@@ -161,7 +161,7 @@ export default function MaterialityPage() {
             <>
               <button
                 onClick={handleExportCertificate}
-                className="px-4 py-2.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-sm font-medium flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-teal-700 border border-teal-300 dark:bg-cyan-950/80 dark:hover:bg-cyan-900 dark:border-cyan-500/40 dark:text-cyan-300 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
               >
                 <Download className="w-4 h-4" />
                 JSON 證書
@@ -206,11 +206,11 @@ export default function MaterialityPage() {
       <div className="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column: Interactive Double Materiality Matrix (7 cols) */}
-        <div className="lg:col-span-7 bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 backdrop-blur-2xl flex flex-col shadow-[0_0_30px_rgba(2,6,23,0.5)]">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="lg:col-span-7 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-cyan-400" />
-              <h2 className="font-bold text-lg text-slate-100">雙重重大性散佈矩陣 (Matrix Plot)</h2>
+              <Layers className="w-5 h-5 text-teal-600 dark:text-cyan-400" />
+              <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">雙重重大性散佈矩陣 (Matrix Plot)</h2>
             </div>
             <div className="flex items-center gap-4 text-xs">
               <div className="flex items-center gap-1.5 text-emerald-400">
@@ -331,13 +331,13 @@ export default function MaterialityPage() {
         <div className="lg:col-span-5 flex flex-col gap-6">
           
           {/* Selected / Topic Evaluator Panel */}
-          <div className="bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 backdrop-blur-2xl shadow-[0_0_30px_rgba(2,6,23,0.5)]">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <Sliders className="w-5 h-5 text-emerald-400" />
-                <h3 className="font-bold text-lg text-slate-100">議題權重評估面板</h3>
+                <Sliders className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">議題權重評估面板</h3>
               </div>
-              <span className="text-xs text-slate-400">點擊點陣圖切換</span>
+              <span className="text-xs text-slate-500 dark:text-slate-400">點擊點陣圖切換</span>
             </div>
 
             <div className="mt-4 space-y-4 max-h-[580px] overflow-y-auto pr-1">
@@ -350,10 +350,10 @@ export default function MaterialityPage() {
                     key={t.id}
                     onClick={() => setSelectedTopic(t)}
                     className={`
-                      p-4 rounded-2xl border transition-all duration-300 cursor-pointer
+                      p-4 rounded-xl border transition-all duration-300 cursor-pointer
                       ${isSelected 
-                        ? 'bg-cyan-950/50 border-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.15)]' 
-                        : 'bg-slate-950/40 border-slate-800 hover:border-slate-700'
+                        ? 'bg-teal-50/80 dark:bg-cyan-950/50 border-teal-500/60 dark:border-cyan-500/60 shadow-sm' 
+                        : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
                       }
                     `}
                   >

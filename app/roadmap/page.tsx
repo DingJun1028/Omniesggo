@@ -133,23 +133,23 @@ export default function RoadmapPage() {
   const totalAnnualSavingsOrCost = measures.reduce((acc, m) => acc + m.reductionPotential * m.costPerTon, 0);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
       
       {/* ── Top Navigation Header ── */}
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-cyan-500/20">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-white/10">
         <div>
-          <div className="flex items-center gap-3">
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
               SBTi 1.5°C Near-Term Compliant
             </span>
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
               MACC Carbon Abatement Curve
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100">
             淨零減碳路徑與 MACC 邊際成本規劃器
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-3xl leading-relaxed">
             設定基準年碳排、2030 近程與 2050 淨零目標，試算熱力減碳措施與成本效益，經 5T Hash Lock 封印。
           </p>
         </div>
@@ -159,7 +159,7 @@ export default function RoadmapPage() {
           <button
             onClick={fetchLatestRoadmap}
             disabled={isLoading}
-            className="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 text-sm font-medium flex items-center gap-2 transition-all"
+            className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
             刷新
@@ -167,7 +167,7 @@ export default function RoadmapPage() {
           <button
             onClick={handleSaveRoadmap}
             disabled={isSaving}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold text-sm flex items-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all"
+            className="px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-cyan-400 dark:hover:bg-cyan-300 dark:text-slate-950 font-bold text-sm flex items-center gap-2 shadow-sm transition-all"
           >
             <Save className="w-4 h-4" />
             {isSaving ? '5T 刻印中...' : '封印 5T 減碳路徑'}
@@ -176,7 +176,7 @@ export default function RoadmapPage() {
             <>
               <button
                 onClick={handleExportCertificate}
-                className="px-4 py-2.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/40 text-cyan-300 text-sm font-medium flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+                className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-teal-700 border border-teal-300 dark:bg-cyan-950/80 dark:hover:bg-cyan-900 dark:border-cyan-500/40 dark:text-cyan-300 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
               >
                 <Download className="w-4 h-4" />
                 JSON 證書
@@ -195,13 +195,13 @@ export default function RoadmapPage() {
 
       {/* ── Status Banner ── */}
       {saveResult && (
-        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-xl bg-teal-50 dark:bg-cyan-950/40 border border-teal-200 dark:border-cyan-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <ShieldCheck className="w-6 h-6 text-cyan-400 shrink-0 animate-pulse" />
+            <ShieldCheck className="w-6 h-6 text-teal-600 dark:text-cyan-400 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-cyan-200">{saveResult.message}</p>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
-                Hash Lock: <span className="text-cyan-400">{saveResult.hashLock}</span>
+              <p className="text-sm font-semibold text-slate-900 dark:text-cyan-200">{saveResult.message}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                Hash Lock: <span className="text-teal-700 dark:text-cyan-400 font-bold">{saveResult.hashLock}</span>
               </p>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function RoadmapPage() {
       )}
 
       {errorMessage && (
-        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-sm">
+        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-sm">
           {errorMessage}
         </div>
       )}
@@ -221,34 +221,34 @@ export default function RoadmapPage() {
       <div className="max-w-7xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
         
         {/* Card 1: Baseline Emissions */}
-        <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-5 backdrop-blur-xl">
-          <span className="text-xs text-slate-400 font-medium">基準年溫室氣體排放量</span>
+        <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">基準年溫室氣體排放量</span>
           <div className="flex items-baseline gap-2 mt-2">
             <input
               type="number"
               value={baseEmissions}
               onChange={(e) => setBaseEmissions(Number(e.target.value))}
-              className="w-32 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1 text-2xl font-black text-cyan-400 font-mono focus:outline-none focus:border-cyan-500"
+              className="w-32 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1 text-2xl font-black text-teal-700 dark:text-cyan-400 font-mono focus:outline-none focus:border-cyan-500"
             />
-            <span className="text-xs text-slate-400 font-mono">tCO₂e/年</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">tCO₂e/年</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-2">基準年份: {baseYear}</div>
+          <div className="text-[11px] text-slate-400 mt-2">基準年份: {baseYear}</div>
         </div>
 
         {/* Card 2: 2030 SBTi Target */}
-        <div className="bg-slate-900/40 border border-slate-800 rounded-3xl p-5 backdrop-blur-xl">
-          <span className="text-xs text-slate-400 font-medium">2030 SBTi 1.5°C 減量目標</span>
+        <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">2030 SBTi 1.5°C 減量目標</span>
           <div className="flex items-baseline gap-2 mt-2">
             <input
               type="number"
               value={target2030Percent}
               onChange={(e) => setTarget2030Percent(Number(e.target.value))}
-              className="w-24 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1 text-2xl font-black text-emerald-400 font-mono focus:outline-none focus:border-emerald-500"
+              className="w-24 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1 text-2xl font-black text-emerald-700 dark:text-emerald-400 font-mono focus:outline-none focus:border-emerald-500"
             />
-            <span className="text-xs text-slate-400 font-mono">% (相較 {baseYear})</span>
+            <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">% (相較 {baseYear})</span>
           </div>
-          <div className="text-[11px] text-slate-400 mt-2">
-            目標剩餘上限: <span className="font-mono text-emerald-300 font-bold">{target2030Emissions.toLocaleString()} tCO₂e</span>
+          <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-2">
+            目標剩餘上限: <span className="font-mono text-emerald-700 dark:text-emerald-300 font-bold">{target2030Emissions.toLocaleString()} tCO₂e</span>
           </div>
         </div>
 

@@ -88,11 +88,11 @@ body {
   }
 
   .gradient-text-cyan {
-    @apply bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400 bg-clip-text text-transparent;
+    @apply text-cyan-600 dark:text-cyan-400 font-bold;
   }
 
   .gradient-text-gold {
-    @apply bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 bg-clip-text text-transparent;
+    @apply text-amber-600 dark:text-amber-400 font-bold;
   }
 
   .glow-cyan-badge {

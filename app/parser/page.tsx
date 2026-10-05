@@ -111,21 +111,21 @@ export default function EsgReportParserPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
       
       {/* ── Top Header ── */}
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-cyan-500/20">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-white/10">
         <div>
-          <div className="flex items-center gap-3">
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-cyan-100 dark:bg-cyan-500/10 text-cyan-800 dark:text-cyan-400 border border-cyan-300 dark:border-cyan-500/30">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
               100% De-Google Local PDF Engine
             </span>
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-100 dark:bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
               5T Hash Lock Sealed
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 via-teal-500 to-emerald-600 dark:from-cyan-400 dark:via-teal-300 dark:to-emerald-400 flex items-center gap-3">
-            <FileText className="w-9 h-9 text-cyan-500" />
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100 flex items-center gap-3">
+            <FileText className="w-8 h-8 text-teal-600 dark:text-cyan-400" />
             ESG 永續報告書 PDF 自動解析器 (ESG PDF Parser)
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-3xl leading-relaxed">
             無需上傳外部雲端，採用 100% 本地 Node.js 高速提取 Scope 1/2/3 溫室氣體數據並進行 5T 密碼學封印。
           </p>
         </div>
@@ -136,7 +136,7 @@ export default function EsgReportParserPage() {
       </div>
 
       {errorMessage && (
-        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-rose-100 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-sm flex items-center gap-2">
+        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-sm flex items-center gap-2">
           <AlertCircle className="w-5 h-5 shrink-0" />
           {errorMessage}
         </div>
@@ -146,21 +146,21 @@ export default function EsgReportParserPage() {
       <div className="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column: Upload Dropzone (5 cols) */}
-        <div className="lg:col-span-5 bg-white/70 dark:bg-slate-900/40 border border-slate-200 dark:border-cyan-500/20 rounded-3xl p-6 backdrop-blur-2xl flex flex-col shadow-sm dark:shadow-[0_0_30px_rgba(2,6,23,0.5)]">
-          <h2 className="font-bold text-lg text-slate-800 dark:text-slate-100 pb-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
-            <Upload className="w-5 h-5 text-cyan-500" />
+        <div className="lg:col-span-5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col">
+          <h2 className="font-bold text-base text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+            <Upload className="w-5 h-5 text-teal-600 dark:text-cyan-400" />
             上傳 ESG 報告書 (PDF)
           </h2>
 
-          <div className="mt-6 flex flex-col items-center justify-center p-8 border-2 border-dashed border-cyan-300 dark:border-cyan-500/40 rounded-2xl bg-cyan-50/50 dark:bg-cyan-950/20 hover:bg-cyan-100/50 dark:hover:bg-cyan-950/40 transition-all cursor-pointer relative">
+          <div className="mt-5 flex flex-col items-center justify-center p-8 border-2 border-dashed border-teal-200 dark:border-cyan-500/30 rounded-xl bg-teal-50/30 dark:bg-slate-950/40 hover:bg-teal-50/60 dark:hover:bg-slate-900/60 transition-all cursor-pointer relative">
             <input 
               type="file" 
               accept=".pdf"
               onChange={handleFileChange}
               className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
             />
-            <FileText className="w-12 h-12 text-cyan-500 mb-3 animate-bounce" />
-            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
+            <FileText className="w-12 h-12 text-teal-600 dark:text-cyan-400 mb-3" />
+            <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
               {file ? file.name : '點擊或拖曳 PDF 檔案至此區'}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-mono">
@@ -168,21 +168,21 @@ export default function EsgReportParserPage() {
             </p>
           </div>
 
-          <div className="mt-6">
+          <div className="mt-5">
             <OmniButton 
               variant="emerald" 
               onClick={handleUploadAndParse} 
               isLoading={isParsing}
-              className="w-full py-3 text-base"
+              className="w-full py-3 text-sm font-bold shadow-sm"
             >
-              <Activity className="w-5 h-5" />
+              <Activity className="w-4 h-4" />
               {isParsing ? '100% 本地 5T 解析中...' : '開始 5T 本地提取與封印'}
             </OmniButton>
           </div>
 
-          <div className="mt-6 p-4 rounded-xl bg-slate-100 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-2">
-            <p className="font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1">
-              <ShieldCheck className="w-4 h-4 text-emerald-500" /> 100% De-Google 本地隱私承諾
+          <div className="mt-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-2">
+            <p className="font-bold text-slate-900 dark:text-slate-300 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> 100% De-Google 本地隱私承諾
             </p>
             <p>• PDF 檔案完全在您的本機 Node.js 環境進行解析，無任何數據被發送至雲端廠商。</p>
             <p>• 解析結果即刻以 SHA-256 雜湊鎖封印並寫入 Supabase/Prisma 紀錄鏈。</p>
@@ -272,20 +272,37 @@ export default function EsgReportParserPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs font-mono text-slate-600 dark:text-slate-400 pt-2">
+                  <div className="grid grid-cols-2 gap-4 text-xs font-mono text-slate-600 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
                     <div>解析頁數: <span className="text-slate-900 dark:text-slate-200 font-bold">{result.pageCount} 頁</span></div>
-                    <div>資料來源印記: <span className="text-emerald-600 dark:text-emerald-400 font-bold">{result.sourceOrigin}</span></div>
+                    <div>資料來源印記: <span className="text-emerald-700 dark:text-emerald-400 font-bold">{result.sourceOrigin}</span></div>
                   </div>
                 </OmniCardContent>
               </OmniCard>
             </>
           ) : (
-            <div className="flex-1 min-h-[350px] bg-white/50 dark:bg-slate-900/20 border border-dashed border-slate-300 dark:border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-center text-center">
-              <FileText className="w-16 h-16 text-slate-300 dark:text-slate-700 mb-4 animate-pulse" />
-              <h3 className="text-lg font-bold text-slate-600 dark:text-slate-400">等待上傳 ESG 報告書 PDF</h3>
-              <p className="text-xs text-slate-400 max-w-md mt-2">
-                請於左側選擇檔案上傳，或點擊右上角「帶入範例測試」開始體驗 100% 本地 5T 自動解析！
+            <div className="flex-1 min-h-[420px] bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center text-center shadow-sm">
+              <div className="w-16 h-16 rounded-2xl bg-teal-50 dark:bg-slate-800 flex items-center justify-center text-teal-600 dark:text-cyan-400 mb-4 border border-teal-100 dark:border-white/10">
+                <FileText className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">等待上傳 ESG 報告書 PDF</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mt-2 leading-relaxed">
+                請於左側選擇檔案上傳，或點擊右上角「帶入範例測試」開始體驗 100% 本地 5T 自動解析。
               </p>
+              
+              <div className="mt-6 grid grid-cols-3 gap-3 w-full max-w-md text-left">
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="text-[10px] text-slate-500 uppercase font-mono">標準</div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">ISO 14064-1</div>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="text-[10px] text-slate-500 uppercase font-mono">確信層級</div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">5T Hash Lock</div>
+                </div>
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800">
+                  <div className="text-[10px] text-slate-500 uppercase font-mono">執行環境</div>
+                  <div className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5">100% Local</div>
+                </div>
+              </div>
             </div>
           )}
 

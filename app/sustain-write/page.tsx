@@ -95,17 +95,17 @@ export default function SustainWritePage() {
   return (
     <div className="w-full max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">
       {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-slate-900/40 border border-emerald-500/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-6 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="relative overflow-hidden rounded-3xl backdrop-blur-xl bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-emerald-500/10 shadow-[0_8px_32px_rgba(0,0,0,0.05)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] p-6 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="absolute top-0 left-0 -mt-20 -ml-20 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="flex items-center gap-4 relative z-10">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-400 to-cyan-400 flex items-center justify-center text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500 dark:bg-emerald-600 flex items-center justify-center text-white shadow-[0_0_15px_rgba(16,185,129,0.4)]">
             <Sparkles size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tight">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-emerald-400 tracking-tight">
               萬能永續報告產生器 (Omni Sustain-Write)
             </h1>
-            <div className="text-sm text-emerald-100/60 font-medium mt-1">
+            <div className="text-sm text-slate-600 dark:text-emerald-100/60 font-medium mt-1">
               支援 28 萬字超長文本結構化生成 · RAG 數據對接 · 圖文並茂自動排版
             </div>
           </div>
@@ -247,7 +247,7 @@ export default function SustainWritePage() {
                   />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-emerald-400 to-cyan-400">{progress}%</span>
+                  <span className="text-4xl font-black text-slate-900 dark:text-emerald-400">{progress}%</span>
                   <span className="text-xs text-slate-500 mt-1">
                     已生成 {Math.floor(280000 * (progress / 100)).toLocaleString()} 字
                   </span>

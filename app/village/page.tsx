@@ -172,10 +172,10 @@ export default function VillagePage() {
             <Leaf size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-400 tracking-tight">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-emerald-400 tracking-tight">
               善向永續村 (Village) ∞ Evolution
             </h1>
-            <div className="text-sm text-emerald-100/60 font-medium mt-1">
+            <div className="text-sm text-slate-600 dark:text-emerald-100/60 font-medium mt-1">
               基於 5T 協議的去中心化永續社群與平方投票 (Quadratic Voting) 協作看板
             </div>
           </div>
@@ -258,7 +258,7 @@ export default function VillagePage() {
 
                       <div className="flex flex-col sm:flex-row justify-between items-end mt-6 pt-6 border-t border-slate-800/50 gap-6">
                         <div>
-                          <div className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 font-mono mb-1">
+                          <div className="text-3xl font-black text-slate-900 dark:text-emerald-400 font-mono mb-1">
                             {proj.current_points.toLocaleString()}{' '}
                             <span className="text-sm text-slate-500 font-sans tracking-widest">
                               / {proj.goal_points.toLocaleString()} PTS

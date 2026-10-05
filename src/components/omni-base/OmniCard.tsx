@@ -17,9 +17,9 @@ export const OmniCard = forwardRef<HTMLDivElement, OmniCardProps>(
         ref={ref}
         className={cn(
           'relative flex flex-col rounded-2xl overflow-hidden transition-all duration-300',
-          'backdrop-blur-xl bg-white/70 border border-cyan-100 shadow-sm', // Light Mode Base
-          'dark:bg-slate-900/40 dark:border-cyan-500/10 dark:shadow-none', // Dark Mode Base
-          glow && 'hover:-translate-y-1 hover:border-cyan-300 hover:shadow-[0_12px_40px_rgba(6,182,212,0.1)] dark:hover:border-cyan-500/40 dark:hover:shadow-[0_12px_40px_rgba(6,182,212,0.15)]',
+          'bg-white border border-slate-200/90 shadow-[0_1px_3px_rgba(0,0,0,0.04)]', // Light Editorial Base
+          'dark:bg-slate-900/60 dark:border-white/10 dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]', // Dark Editorial Base
+          glow && 'hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md dark:hover:border-cyan-500/30 dark:hover:shadow-[0_12px_40px_rgba(6,182,212,0.15)]',
           className
         )}
         {...props}

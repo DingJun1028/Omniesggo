@@ -89,7 +89,7 @@ export default function HomePage() {
         {/* 背景光暈 (Liquid Glass Glow) */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[600px] sm:h-[600px] bg-cyan-400/20 dark:bg-cyan-500/10 rounded-full blur-[80px] sm:blur-[120px] pointer-events-none" />
 
-        <h1 className="relative z-10 text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 via-emerald-500 to-cyan-600 dark:from-cyan-400 dark:via-emerald-300 dark:to-cyan-400 animate-pulse drop-shadow-sm">
+        <h1 className="relative z-10 text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-6 text-slate-900 dark:text-slate-100 drop-shadow-sm font-sans">
           ESGGO 永續發展無限進化
         </h1>
         <p className="relative z-10 text-lg md:text-2xl text-cyan-800 dark:text-cyan-100/90 mb-4 font-bold tracking-widest drop-shadow-sm">

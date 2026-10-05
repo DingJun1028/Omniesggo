@@ -97,7 +97,7 @@ export function PrintableCertificate({ data, onClose }: Props) {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 font-mono text-xs">
               <Sparkles className="w-3.5 h-3.5" /> OFFICIAL 5T COMPLIANCE CERTIFICATE
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-white">
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-amber-500 dark:text-amber-300">
               ESG GO 永續治理 5T 防偽密碼學確信憑證
             </h1>
             <p className="text-xs text-slate-400 font-mono">

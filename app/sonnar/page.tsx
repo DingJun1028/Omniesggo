@@ -51,17 +51,17 @@ export default function SonnarIntelligencePage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 p-6 font-sans text-slate-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 font-sans text-slate-900 dark:text-slate-100">
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Header */}
-        <header className="border-b border-slate-800 pb-6 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/50 flex items-center justify-center">
-            <Activity className="w-6 h-6 text-cyan-400" />
+        <header className="border-b border-slate-200 dark:border-white/10 pb-6 flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-teal-50 dark:bg-cyan-500/20 border border-teal-200 dark:border-cyan-500/50 flex items-center justify-center">
+            <Activity className="w-6 h-6 text-teal-600 dark:text-cyan-400" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-slate-50">Sonnar 威脅情資雷達</h1>
-            <p className="text-slate-400 mt-1">本地 100% 零成本爬蟲與防漂綠 (Greenwashing) AI 偵測系統</p>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">Sonnar 威脅情資雷達</h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">本地 100% 零成本爬蟲與防漂綠 (Greenwashing) AI 偵測系統</p>
           </div>
         </header>
 

@@ -46,7 +46,7 @@ export default function OmniMatrixPage() {
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-emerald-500 dark:from-cyan-400 dark:to-emerald-400 flex items-center gap-3">
+          <h1 className="text-4xl font-black text-slate-900 dark:text-cyan-400 flex items-center gap-3">
             <Hexagon className="w-10 h-10 text-cyan-500" />
             全通中樞 (OmniMatrix)
           </h1>
@@ -73,7 +73,7 @@ export default function OmniMatrixPage() {
               <div className="flex flex-col items-center justify-center py-8">
                 <div className="relative">
                   <div className="absolute inset-0 bg-cyan-500/20 blur-3xl rounded-full" />
-                  <div className="relative z-10 text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-cyan-400 to-emerald-300">
+                  <div className="relative z-10 text-6xl font-black text-cyan-700 dark:text-cyan-300">
                     {status.resonance}%
                   </div>
                 </div>

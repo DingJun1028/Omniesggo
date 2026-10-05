@@ -157,10 +157,10 @@ export default function LearningCenterPage() {
             <BookOpen size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-400 tracking-tight">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-cyan-400 tracking-tight">
               知識與學習中心 (Learning Center)
             </h1>
-            <p className="text-sm text-cyan-100/60 font-medium mt-1">
+            <p className="text-sm text-slate-600 dark:text-cyan-100/60 font-medium mt-1">
               ESG 治理教材、線上課程資源與顧問預約系統
             </p>
           </div>

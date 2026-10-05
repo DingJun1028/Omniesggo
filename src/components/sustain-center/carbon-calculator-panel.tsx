@@ -86,7 +86,7 @@ export function CarbonCalculatorPanel() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Calculator className="w-6 h-6 text-cyan-400" />
-            <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-teal-300 to-white">
+            <h2 className="text-2xl font-bold text-cyan-600 dark:text-cyan-300">
               互動式 5T 溫室氣體碳試算面板 (Carbon Calculator)
             </h2>
           </div>

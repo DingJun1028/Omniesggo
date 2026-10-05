@@ -113,14 +113,14 @@ export default function SustainCenterPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 gap-4">
-        <Loader2 className="animate-spin text-cyan-400" size={40} />
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 gap-4">
+        <Loader2 className="animate-spin text-teal-600 dark:text-cyan-400" size={40} />
         <p className="font-mono text-sm animate-pulse">Syncing Holographic ESG Command Center...</p>
       </div>
     );
   }
 
-  if (!data) return <div className="p-8 text-center">Failed to load data.</div>;
+  if (!data) return <div className="p-8 text-center text-slate-600 dark:text-slate-400">Failed to load data.</div>;
 
   const insights = data.insights.map((item) => ({
     id: item.id,
@@ -135,8 +135,8 @@ export default function SustainCenterPage() {
   const evolutionProgress = Math.min(100, Math.round((evolution.xp / evolution.nextXp) * 100));
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-400">
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-[#0f1b21] to-slate-950 border-b border-slate-700/50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-400">
+      <div className="relative overflow-hidden bg-white/80 dark:bg-slate-900/60 border-b border-slate-200 dark:border-white/10">
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
         <div className="absolute inset-0 bg-gradient-to-t from-transparent to-accentTeal/5 opacity-50 blur-3xl" />
         <div className="max-w-7xl mx-auto px-6 py-10 relative z-10">
@@ -157,7 +157,7 @@ export default function SustainCenterPage() {
 
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
               <div>
-                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-white drop-shadow-[0_0_15px_rgba(99,166,176,0.3)]">
+                <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-2 text-slate-900 dark:text-cyan-400">
                   萬能永續中心
                 </h1>
                 <p className="text-slate-400 max-w-2xl text-sm leading-relaxed mb-2">

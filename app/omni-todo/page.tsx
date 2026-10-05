@@ -23,10 +23,10 @@ export default function OmniTodoPage() {
             <span className="text-xl">📋</span>
           </div>
           <div>
-            <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-emerald-400 tracking-tight">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-cyan-400 tracking-tight">
               萬能待辦 OmniTodo ∞ Evolution
             </h1>
-            <p className="text-sm text-cyan-100/60 font-medium mt-1">
+            <p className="text-sm text-slate-600 dark:text-cyan-100/60 font-medium mt-1">
               統一管理 ESG 任務、工作事項、個人待辦 · 永續發展無限進化
             </p>
           </div>

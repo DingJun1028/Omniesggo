@@ -52,10 +52,10 @@ export default function DigitalTrustHubPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 p-8 flex flex-col items-center">
       <div className="w-full max-w-5xl flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 flex items-center gap-2">
-            <span>???</span> 數位信任中心 (Trust Hub)
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-emerald-400 flex items-center gap-2">
+            <span>🛡️</span> 數位信任中心 (Trust Hub)
           </h1>
-          <p className="text-slate-400 mt-1">基於 5T 協議的零知識證明與 Hash Lock 密碼學存證系統</p>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">基於 5T 協議的零知識證明與 Hash Lock 密碼學存證系統</p>
         </div>
         <OmniBadge variant="emerald">ZKP Secured</OmniBadge>
       </div>

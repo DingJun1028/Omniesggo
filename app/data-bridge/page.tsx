@@ -150,9 +150,7 @@ export default function DataBridgePage() {
 
       {/* ── Header ── */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text
-          bg-gradient-to-r from-cyan-600 to-emerald-500 dark:from-cyan-400 dark:to-emerald-400
-          flex items-center gap-3">
+        <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-cyan-400 flex items-center gap-3">
           <Database className="w-9 h-9 text-cyan-500 shrink-0" />
           企業資料橋接 (Data Bridge)
         </h1>

@@ -103,7 +103,7 @@ export default function OmniFactoryHub({ searchParams }: { searchParams: { medce
       {/* 英雄區塊 (Hero Header) */}
       <header className="relative overflow-hidden pt-24 pb-16 px-6 text-center border-b border-cyan-500/20 bg-slate-900/50 backdrop-blur-xl">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[100px] pointer-events-none" />
-        <h1 className="relative z-10 text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-emerald-400 to-cyan-400 animate-pulse tracking-tight drop-shadow-md mb-4">
+        <h1 className="relative z-10 text-4xl md:text-5xl font-black text-slate-900 dark:text-cyan-400 tracking-tight drop-shadow-md mb-4">
           萬能工廠 OmniFactory
         </h1>
         <p className="relative z-10 text-sm md:text-base text-cyan-100/70 font-medium tracking-widest">

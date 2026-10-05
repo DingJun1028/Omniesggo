@@ -49,15 +49,15 @@ export default async function JunAiKeyGrowthPage() {
   const progressPercentage = (data.exp / data.nextLevelExp) * 100;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-8 flex flex-col items-center">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 p-8 flex flex-col items-center">
       
       {/* Header */}
       <div className="w-full max-w-4xl flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-cyan-400">
             Omni-Avatar (JunAiKey)
           </h1>
-          <p className="text-slate-400 mt-1">化身進化與記憶同步率控制台</p>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">化身進化與記憶同步率控制台</p>
         </div>
         <OmniBadge variant="cyan">系統連線正常</OmniBadge>
       </div>

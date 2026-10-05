@@ -60,7 +60,7 @@ export function GamifiedDashboard() {
                 className="absolute -top-[50%] -left-[50%] w-[200%] h-[200%] bg-[conic-gradient(from_0deg,transparent_0_340deg,rgba(6,182,212,0.4)_360deg)] opacity-30"
               />
               <Zap className="w-20 h-20 text-yellow-400 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]" />
-              <h1 className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400 mb-2">
+              <h1 className="text-5xl font-black text-cyan-400 dark:text-cyan-300 mb-2">
                 LEVEL UP!
               </h1>
               <p className="text-2xl font-bold text-slate-200">

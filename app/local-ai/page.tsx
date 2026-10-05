@@ -163,7 +163,7 @@ export default function LocalAiStationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans p-4 sm:p-6 md:p-8">
       {/* Background Radial Glow */}
       <div className="fixed top-0 right-1/3 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
       <div className="fixed bottom-0 left-1/4 w-[500px] h-[500px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none" />
@@ -171,7 +171,7 @@ export default function LocalAiStationPage() {
       <div className="max-w-7xl mx-auto space-y-6 relative z-10">
         
         {/* Top Header */}
-        <header className="rounded-3xl p-6 md:p-8 border border-cyan-500/30 bg-slate-900/60 backdrop-blur-2xl shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <header className="rounded-2xl p-6 md:p-8 border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900/60 shadow-sm dark:shadow-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center text-slate-950 shadow-[0_0_25px_rgba(6,182,212,0.4)]">
               <Bot className="w-8 h-8" />

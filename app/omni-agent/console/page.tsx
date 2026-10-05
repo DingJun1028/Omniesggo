@@ -68,7 +68,7 @@ export default function OmniAgentConsole() {
           <Activity className="text-white" size={24} />
         </div>
         <div>
-          <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#63a6b0] to-[#ffd700]">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-cyan-400">
             全知之眼 (Omni-Console)
           </h1>
           <p className="text-textSecondary text-sm">全通之心覺醒狀態即時監控面板</p>

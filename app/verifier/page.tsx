@@ -82,7 +82,7 @@ export default function VerifierPage() {
     <div className="p-6 md:p-8 max-w-5xl mx-auto space-y-8 bg-slate-50 dark:bg-slate-950 min-h-screen">
       {/* Header */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-cyan-500 dark:from-emerald-400 dark:to-cyan-400 flex items-center gap-3">
+        <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-emerald-400 flex items-center gap-3">
           <ShieldCheck className="w-9 h-9 text-emerald-500 shrink-0" />
           5T 防偽與防篡改驗證器 (5T Verifier)
         </h1>
@@ -104,8 +104,8 @@ export default function VerifierPage() {
                 onClick={() => { setActiveTab('hash'); setResult(null); }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === 'hash'
-                    ? 'bg-emerald-500 text-white shadow-md'
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    ? 'bg-teal-700 dark:bg-teal-500 text-white shadow-sm'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                 }`}
               >
                 Hash Lock / UUID 比對
@@ -114,8 +114,8 @@ export default function VerifierPage() {
                 onClick={() => { setActiveTab('file'); setResult(null); }}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                   activeTab === 'file'
-                    ? 'bg-emerald-500 text-white shadow-md'
-                    : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    ? 'bg-teal-700 dark:bg-teal-500 text-white shadow-sm'
+                    : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
                 }`}
               >
                 檔案防篡改掃描

@@ -100,7 +100,7 @@ export default function DynamicFormEngine({
   return (
     <div className="liquid-glass-container p-8 max-w-3xl mx-auto">
       <div className="mb-8 border-b border-white/10 pb-4">
-        <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-300 to-blue-400">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-cyan-300">
           {schema.title}
         </h2>
         <p className="text-cyan-500/80 text-sm mt-1 font-mono tracking-widest">

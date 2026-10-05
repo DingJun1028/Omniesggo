@@ -39,13 +39,13 @@ export default function CarbonDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-8 flex flex-col items-center">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 p-8 flex flex-col items-center">
       <div className="w-full max-w-5xl flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-cyan-400">
             AI 碳盤查與減碳顧問 (Carbon AI)
           </h1>
-          <p className="text-slate-400 mt-1">智慧運算範疇一二三排放，由本地端模型提供專屬減碳策略</p>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">智慧運算範疇一二三排放，由本地端模型提供專屬減碳策略</p>
         </div>
         <OmniBadge variant="emerald">Local AI 滿載</OmniBadge>
       </div>

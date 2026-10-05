@@ -101,23 +101,23 @@ export default function SupplyChainPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
       
       {/* ── Top Header ── */}
-      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-cyan-500/20">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-white/10">
         <div>
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
               EU CSDD & Germany LkSG Compliant
             </span>
-            <span className="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
               5T Sealed Audit Pipeline
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-teal-300 to-emerald-400">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100">
             供應鏈 ESG 永續與人權盡職調查 (Supply Chain CSDD)
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-3xl leading-relaxed">
             運用 AI 自動審查 Tier 1 / Tier 2 供應商報告，評定 ESG 等級與風險層級，並進行 5T 密碼學 Hash Lock 封印。
           </p>
         </div>
@@ -125,7 +125,7 @@ export default function SupplyChainPage() {
         <button
           onClick={fetchVendors}
           disabled={isLoading}
-          className="px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 text-sm font-medium flex items-center gap-2 transition-all self-start md:self-auto"
+          className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm self-start md:self-auto"
         >
           <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           重新整理清單
@@ -133,7 +133,7 @@ export default function SupplyChainPage() {
       </div>
 
       {errorMessage && (
-        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-sm">
+        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-sm">
           {errorMessage}
         </div>
       )}
@@ -142,11 +142,11 @@ export default function SupplyChainPage() {
       <div className="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column: Vendor Form (5 cols) */}
-        <div className="lg:col-span-5 bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 backdrop-blur-2xl flex flex-col shadow-[0_0_30px_rgba(2,6,23,0.5)]">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="lg:col-span-5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-cyan-400" />
-              <h2 className="font-bold text-lg text-slate-100">供應商資料審查</h2>
+              <Building2 className="w-5 h-5 text-teal-600 dark:text-cyan-400" />
+              <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">供應商資料審查</h2>
             </div>
             <button
               onClick={handleSimulatePreset}
@@ -210,7 +210,7 @@ export default function SupplyChainPage() {
             <button
               onClick={handleEvaluate}
               disabled={isEvaluating}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all"
+              className="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-cyan-400 dark:hover:bg-cyan-300 dark:text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
             >
               <Search className="w-4 h-4" />
               {isEvaluating ? 'AI 盡職調查評鑑中...' : '執行 5T 盡職調查評鑑'}
@@ -223,12 +223,12 @@ export default function SupplyChainPage() {
           
           {/* Active Result Card (If present) */}
           {activeEvaluation && (
-            <div className="bg-cyan-950/40 border border-cyan-500/40 rounded-3xl p-6 backdrop-blur-2xl shadow-[0_0_30px_rgba(6,182,212,0.15)] animate-fade-in">
-              <div className="flex items-center justify-between pb-4 border-b border-cyan-500/30">
+            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] animate-fade-in">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-2">
-                  <Award className="w-6 h-6 text-cyan-400" />
+                  <Award className="w-6 h-6 text-teal-600 dark:text-cyan-400" />
                   <div>
-                    <h3 className="font-bold text-lg text-slate-100">{activeEvaluation.supplierName}</h3>
+                    <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">{activeEvaluation.supplierName}</h3>
                     <p className="text-xs text-slate-400">{activeEvaluation.industry} · {activeEvaluation.tier}</p>
                   </div>
                 </div>
@@ -283,20 +283,20 @@ export default function SupplyChainPage() {
           )}
 
           {/* Vendors History Table */}
-          <div className="bg-slate-900/40 border border-cyan-500/20 rounded-3xl p-6 backdrop-blur-2xl shadow-[0_0_30px_rgba(2,6,23,0.5)]">
-            <h3 className="font-bold text-lg text-slate-100 pb-3 border-b border-slate-800 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
               <span>已評鑑供應商清單 ({vendors.length})</span>
-              <span className="text-xs font-normal text-slate-400">5T Hash Lock 封印庫</span>
+              <span className="text-xs font-normal text-slate-500 dark:text-slate-400">5T Hash Lock 封印庫</span>
             </h3>
 
             <div className="space-y-3 mt-4 max-h-[420px] overflow-y-auto pr-1">
               {vendors.length === 0 ? (
-                <div className="text-center py-10 text-slate-500 text-sm">
+                <div className="text-center py-10 text-slate-400 text-sm">
                   尚無已評鑑的供應商紀錄，請於左側輸入資料進行評估。
                 </div>
               ) : (
                 vendors.map((v) => (
-                  <div key={v.id} className="p-4 rounded-2xl bg-slate-950/50 border border-slate-800 hover:border-slate-700 transition-all flex items-center justify-between gap-4">
+                  <div key={v.id} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all flex items-center justify-between gap-4">
                     <div>
                       <div className="flex items-center gap-2">
                         <span className={`

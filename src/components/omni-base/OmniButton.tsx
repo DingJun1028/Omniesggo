@@ -11,13 +11,13 @@ export const OmniButton = forwardRef<HTMLButtonElement, OmniButtonProps>(
   ({ className, variant = 'primary', size = 'md', isLoading, children, disabled, ...props }, ref) => {
     
     const variants: Record<string, string> = {
-      primary: 'bg-cyan-600 text-white hover:bg-cyan-500 shadow-md shadow-cyan-600/20 dark:bg-cyan-500 dark:hover:bg-cyan-400 dark:shadow-cyan-500/20 border border-transparent',
-      secondary: 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-md shadow-emerald-600/20 dark:bg-emerald-500 dark:hover:bg-emerald-400 border border-transparent',
-      emerald: 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-md shadow-emerald-600/20 dark:bg-emerald-500 dark:hover:bg-emerald-400 border border-transparent',
-      cyber: 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 font-bold hover:brightness-110 shadow-lg shadow-cyan-500/20 border border-transparent',
-      glass: 'backdrop-blur-md bg-cyan-100/50 dark:bg-cyan-950/40 border border-cyan-300/50 dark:border-cyan-500/30 text-cyan-800 dark:text-cyan-300 hover:bg-cyan-200/60 dark:hover:bg-cyan-900/60 hover:shadow-[0_0_20px_rgba(6,182,212,0.2)]',
-      ghost: 'hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300',
-      danger: 'bg-rose-500 text-white hover:bg-rose-400 shadow-md border border-transparent',
+      primary: 'bg-teal-700 text-white hover:bg-teal-800 shadow-sm border border-transparent dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300 dark:font-bold',
+      secondary: 'bg-slate-100 text-slate-800 hover:bg-slate-200 border border-slate-300/80 shadow-sm dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 dark:border-slate-700',
+      emerald: 'bg-emerald-700 text-white hover:bg-emerald-800 shadow-sm border border-transparent dark:bg-emerald-400 dark:text-slate-950 dark:hover:bg-emerald-300 dark:font-bold',
+      cyber: 'bg-teal-700 text-white font-semibold hover:bg-teal-800 shadow-sm border border-transparent dark:bg-cyan-400 dark:text-slate-950 dark:hover:bg-cyan-300 dark:font-bold',
+      glass: 'bg-white text-slate-800 border border-slate-300 hover:bg-slate-50 shadow-sm dark:bg-slate-900/60 dark:text-cyan-300 dark:border-cyan-500/30 dark:hover:bg-slate-800/80',
+      ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 border border-transparent dark:text-slate-300 dark:hover:bg-slate-800',
+      danger: 'bg-rose-600 text-white hover:bg-rose-500 shadow-sm border border-transparent dark:bg-rose-500 dark:hover:bg-rose-400',
     };
 
     const sizes = {

@@ -9,17 +9,17 @@ export const OmniBadge = forwardRef<HTMLDivElement, OmniBadgeProps>(
   ({ className, variant = 'default', children, ...props }, ref) => {
     
     const variants: Record<string, string> = {
-      default: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300',
-      cyan: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/50 dark:text-cyan-300',
-      success: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300',
-      emerald: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300',
-      warning: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300',
-      amber: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300',
-      indigo: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300',
-      danger: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300',
-      rose: 'bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300',
-      outline: 'border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300',
-      glass: 'backdrop-blur-sm bg-white/20 dark:bg-slate-900/40 border border-white/40 dark:border-slate-700 text-slate-800 dark:text-slate-200',
+      default: 'bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30',
+      cyan: 'bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30',
+      success: 'bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30',
+      emerald: 'bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30',
+      warning: 'bg-amber-50 text-amber-800 border border-amber-200/90 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-500/30',
+      amber: 'bg-amber-50 text-amber-800 border border-amber-200/90 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-500/30',
+      indigo: 'bg-indigo-50 text-indigo-800 border border-indigo-200/90 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-500/30',
+      danger: 'bg-rose-50 text-rose-800 border border-rose-200/90 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-500/30',
+      rose: 'bg-rose-50 text-rose-800 border border-rose-200/90 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-500/30',
+      outline: 'border border-slate-300 text-slate-700 bg-white dark:border-slate-700 dark:text-slate-300 dark:bg-slate-900',
+      glass: 'bg-slate-100/80 text-slate-800 border border-slate-200 dark:bg-slate-900/60 dark:border-white/10 dark:text-slate-200',
     };
 
     return (

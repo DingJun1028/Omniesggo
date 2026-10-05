@@ -226,7 +226,7 @@ export default function OmniCenterPage() {
             <span className={pulse ? "animate-pulse" : ""}>◎</span>
           </div>
           <div>
-            <h1 className="text-2xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 to-emerald-600 dark:from-cyan-400 dark:to-emerald-400 tracking-tight">
+            <h1 className="text-2xl font-black text-slate-900 dark:text-cyan-400 tracking-tight">
               萬能中心 Omni-Core
             </h1>
             <div className="text-sm text-slate-500 dark:text-cyan-100/60 font-medium">ESGGO 永續發展無限進化 · 無礙圓通</div>

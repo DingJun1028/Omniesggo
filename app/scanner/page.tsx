@@ -47,13 +47,13 @@ export default function DocumentScannerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 p-8 flex flex-col items-center">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 p-8 flex flex-col items-center">
       <div className="w-full max-w-5xl flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 flex items-center gap-2">
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-blue-400 flex items-center gap-2">
             <span>🔍</span> AI 智慧文件解析 (ESG Scanner)
           </h1>
-          <p className="text-slate-400 mt-1">上傳供應鏈報告或永續文件，由本地大語言模型自動萃取核心指標</p>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">上傳供應鏈報告或永續文件，由本地大語言模型自動萃取核心指標</p>
         </div>
         <OmniBadge variant="indigo">OCR + NLP 雙引擎</OmniBadge>
       </div>

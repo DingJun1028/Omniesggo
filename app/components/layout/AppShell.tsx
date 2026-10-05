@@ -101,7 +101,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)] group-hover:shadow-[0_0_25px_rgba(6,182,212,0.6)] transition-all">
               <Leaf className="w-5 h-5 text-slate-950" />
             </div>
-            <span className="font-bold text-lg tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 dark:from-cyan-400 dark:to-emerald-400">
+            <span className="font-bold text-lg tracking-wider text-slate-900 dark:text-cyan-400">
               OmniESGGo
             </span>
           </Link>
@@ -176,14 +176,37 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
           
           <div className="flex items-center gap-4">
-            {/* Dual Theme Switcher (Sun / Moon) */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full border border-slate-200 dark:border-cyan-500/30 bg-white/80 dark:bg-slate-900/80 text-slate-700 dark:text-cyan-300 hover:bg-slate-100 dark:hover:bg-cyan-950 transition-all shadow-sm flex items-center justify-center"
-              title={`切換至${theme === 'dark' ? '淺色' : '暗色'}主題`}
-            >
-              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-cyan-600" />}
-            </button>
+            {/* OmniSub Editorial 雙主題切換膠囊 */}
+            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-inner">
+              <button
+                type="button"
+                onClick={() => theme !== 'light' && toggleTheme()}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  theme === 'light'
+                    ? 'bg-white text-teal-800 shadow-sm font-semibold'
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+                title="清新典雅 (Light Editorial)"
+              >
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span className="hidden sm:inline">清新淺色</span>
+                <span className="sm:hidden">淺色</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => theme !== 'dark' && toggleTheme()}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  theme === 'dark'
+                    ? 'bg-slate-900 text-teal-300 shadow-sm font-semibold border border-teal-500/30'
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+                title="深色手冊 (Dark Editorial)"
+              >
+                <Moon className="w-3.5 h-3.5 text-teal-300" />
+                <span className="hidden sm:inline">深色手冊</span>
+                <span className="sm:hidden">深色</span>
+              </button>
+            </div>
 
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-200 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-semibold tracking-wider">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
