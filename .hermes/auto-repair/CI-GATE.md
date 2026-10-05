@@ -159,3 +159,4 @@ repo 已有 `.github/workflows/auto-repair.yml`，內含：
 「CI 全綠」只代表 **GitHub checks 全部通過**。
 它不代表：功能正確、產物落地、部署成功、回歸無誤。
 真實功能驗證必須另外實測，不得以 gate 通過代替實測證據。
+# CI Green Gate E2E probe — verifies the gate workflow fires and judges on a real PR.
