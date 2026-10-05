@@ -3,9 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Sliders, ShieldCheck, Download, Save, RefreshCw, 
-  Layers, Info, FileText, CheckCircle2, Sparkles, HelpCircle 
+  Layers, FileText, CheckCircle2, Sparkles, HelpCircle 
 } from 'lucide-react';
 import { MaterialityTopic, DEFAULT_TOPICS } from '../api/materiality/assess/route';
+import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
+import { OmniButton } from '../../src/components/omni-base/OmniButton';
+import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
 
 export default function MaterialityPage() {
   const [topics, setTopics] = useState<MaterialityTopic[]>(DEFAULT_TOPICS);
@@ -118,21 +121,17 @@ export default function MaterialityPage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans">
       
       {/* ── Top Navigation Header ── */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-white/10">
         <div>
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
-              EU CSRD & GRI 3 Compliant
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
-              5T Protocol Sealed
-            </span>
+            <OmniBadge variant="teal">EU CSRD & GRI Compliant</OmniBadge>
+            <OmniBadge variant="emerald">5T Protocol Sealed</OmniBadge>
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100">
-            雙重重大性矩陣評估 (Double Materiality Assessment)
+            雙重重大性矩陣評估 (Double Materiality Matrix)
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-3xl leading-relaxed">
             結合衝擊重大性 (Impact Materiality) 與財務重大性 (Financial Materiality)，經 5T 密碼學 Hash Lock 封印。
@@ -140,39 +139,39 @@ export default function MaterialityPage() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <button
+        <div className="flex flex-wrap items-center gap-3">
+          <OmniButton
+            variant="outline"
             onClick={fetchLatestAssessment}
             disabled={isLoading}
-            className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
           >
-            <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
             刷新
-          </button>
-          <button
+          </OmniButton>
+          <OmniButton
+            variant="primary"
             onClick={handleSaveAssessment}
             disabled={isSaving}
-            className="px-5 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-cyan-400 dark:hover:bg-cyan-300 dark:text-slate-950 font-bold text-sm flex items-center gap-2 shadow-sm transition-all"
           >
-            <Save className="w-4 h-4" />
+            <Save className="w-4 h-4 mr-1.5" />
             {isSaving ? '5T 刻印中...' : '封印 5T 雜湊鎖'}
-          </button>
+          </OmniButton>
           {saveResult?.id && (
             <>
-              <button
+              <OmniButton
+                variant="outline"
                 onClick={handleExportCertificate}
-                className="px-4 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-teal-700 border border-teal-300 dark:bg-cyan-950/80 dark:hover:bg-cyan-900 dark:border-cyan-500/40 dark:text-cyan-300 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm"
               >
-                <Download className="w-4 h-4" />
+                <Download className="w-4 h-4 mr-1.5" />
                 JSON 證書
-              </button>
-              <button
+              </OmniButton>
+              <OmniButton
+                variant="emerald"
                 onClick={handleExportPdfCertificate}
-                className="px-4 py-2.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 text-sm font-medium flex items-center gap-2 transition-all shadow-[0_0_15px_rgba(16,185,129,0.2)]"
               >
-                <FileText className="w-4 h-4" />
+                <FileText className="w-4 h-4 mr-1.5" />
                 PDF 證書
-              </button>
+              </OmniButton>
             </>
           )}
         </div>
@@ -180,24 +179,24 @@ export default function MaterialityPage() {
 
       {/* ── Status Banner ── */}
       {saveResult && (
-        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-teal-50 dark:bg-cyan-950/40 border border-teal-200 dark:border-cyan-500/30 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <ShieldCheck className="w-6 h-6 text-cyan-400 shrink-0 animate-pulse" />
+            <ShieldCheck className="w-6 h-6 text-teal-600 dark:text-cyan-400 shrink-0" />
             <div>
-              <p className="text-sm font-semibold text-cyan-200">{saveResult.message}</p>
-              <p className="text-xs text-slate-400 font-mono mt-0.5">
-                Hash Lock: <span className="text-cyan-400">{saveResult.hashLock}</span>
+              <p className="text-sm font-semibold text-teal-900 dark:text-cyan-200">{saveResult.message}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">
+                Hash Lock: <span className="text-teal-700 dark:text-cyan-400">{saveResult.hashLock}</span>
               </p>
             </div>
           </div>
-          <span className="text-xs text-slate-500 font-mono">
+          <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
             刻印時間: {new Date(saveResult.createdAt).toLocaleString('zh-TW')}
           </span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-300 text-sm">
+        <div className="max-w-7xl mx-auto mt-6 p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-sm">
           {errorMessage}
         </div>
       )}
@@ -206,54 +205,54 @@ export default function MaterialityPage() {
       <div className="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column: Interactive Double Materiality Matrix (7 cols) */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+        <OmniCard variant="glass" className="lg:col-span-7 p-6 flex flex-col">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <Layers className="w-5 h-5 text-teal-600 dark:text-cyan-400" />
               <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">雙重重大性散佈矩陣 (Matrix Plot)</h2>
             </div>
-            <div className="flex items-center gap-4 text-xs">
-              <div className="flex items-center gap-1.5 text-emerald-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span> E 環境
+            <div className="flex items-center gap-4 text-xs font-semibold">
+              <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> E 環境
               </div>
-              <div className="flex items-center gap-1.5 text-cyan-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> S 社會
+              <div className="flex items-center gap-1.5 text-teal-700 dark:text-cyan-400">
+                <span className="w-2.5 h-2.5 rounded-full bg-teal-500 dark:bg-cyan-400"></span> S 社會
               </div>
-              <div className="flex items-center gap-1.5 text-amber-400">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span> G 治理
+              <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span> G 治理
               </div>
             </div>
           </div>
 
           {/* Matrix Plot Container */}
-          <div className="relative w-full aspect-square max-h-[480px] my-6 bg-slate-950/80 border border-slate-800 rounded-2xl p-8 overflow-hidden select-none">
+          <div className="relative w-full aspect-square max-h-[480px] my-6 bg-slate-100/90 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 overflow-hidden select-none">
             
             {/* Quadrant Lines */}
             <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
-              <div className="border-r border-b border-slate-800/60 p-2 text-[10px] text-slate-600 font-mono">次要議題區</div>
-              <div className="border-b border-slate-800/60 p-2 text-[10px] text-cyan-900 font-mono text-right">衝擊導向關注區</div>
-              <div className="border-r border-slate-800/60 p-2 text-[10px] text-emerald-900 font-mono">財務導向關注區</div>
-              <div className="bg-gradient-to-br from-cyan-950/30 to-emerald-950/30 p-2 text-[10px] text-cyan-400 font-bold font-mono text-right flex flex-col justify-end items-end">
+              <div className="border-r border-b border-slate-300 dark:border-slate-800/60 p-2 text-[10px] text-slate-500 dark:text-slate-600 font-mono">次要議題區</div>
+              <div className="border-b border-slate-300 dark:border-slate-800/60 p-2 text-[10px] text-teal-700 dark:text-cyan-900 font-mono text-right">衝擊導向關注區</div>
+              <div className="border-r border-slate-300 dark:border-slate-800/60 p-2 text-[10px] text-emerald-700 dark:text-emerald-900 font-mono">財務導向關注區</div>
+              <div className="bg-teal-500/10 dark:bg-cyan-950/30 p-2 text-[10px] text-teal-800 dark:text-cyan-400 font-bold font-mono text-right flex flex-col justify-end items-end">
                 <span>⭐ 高度雙重重大區域</span>
-                <span className="text-[9px] text-cyan-500/70 font-normal">Score ≥ {threshold}</span>
+                <span className="text-[9px] text-teal-600 dark:text-cyan-500/70 font-normal">Score ≥ {threshold}</span>
               </div>
             </div>
 
             {/* Threshold Line Indicators */}
             <div 
-              className="absolute left-0 right-0 border-t border-dashed border-cyan-500/40 pointer-events-none"
+              className="absolute left-0 right-0 border-t border-dashed border-teal-500/60 dark:border-cyan-500/40 pointer-events-none"
               style={{ bottom: `${((threshold - 1) / 4) * 100}%` }}
             />
             <div 
-              className="absolute top-0 bottom-0 border-l border-dashed border-cyan-500/40 pointer-events-none"
+              className="absolute top-0 bottom-0 border-l border-dashed border-teal-500/60 dark:border-cyan-500/40 pointer-events-none"
               style={{ left: `${((threshold - 1) / 4) * 100}%` }}
             />
 
             {/* Axis Labels */}
-            <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-semibold text-slate-400 tracking-wider">
+            <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wider">
               財務重大性 (Financial Materiality) ➔
             </div>
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-semibold text-slate-400 tracking-wider">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-semibold text-slate-600 dark:text-slate-400 tracking-wider">
               衝擊重大性 (Impact Materiality) ➔
             </div>
 
@@ -264,8 +263,7 @@ export default function MaterialityPage() {
               const isMaterial = t.impactScore >= threshold && t.financialScore >= threshold;
               const isSelected = selectedTopic?.id === t.id;
 
-              let bgColor = t.category === 'E' ? 'bg-emerald-500' : t.category === 'S' ? 'bg-cyan-500' : 'bg-amber-500';
-              let shadowColor = t.category === 'E' ? 'shadow-emerald-500/50' : t.category === 'S' ? 'shadow-cyan-500/50' : 'shadow-amber-500/50';
+              let bgColor = t.category === 'E' ? 'bg-emerald-500' : t.category === 'S' ? 'bg-teal-500 dark:bg-cyan-500' : 'bg-amber-500';
 
               return (
                 <div
@@ -278,8 +276,8 @@ export default function MaterialityPage() {
                   `}
                 >
                   <div className={`
-                    w-7 h-7 rounded-full ${bgColor} text-slate-950 font-bold text-xs flex items-center justify-center
-                    shadow-lg ${shadowColor} border-2 ${isMaterial ? 'border-white animate-pulse' : 'border-slate-800'}
+                    w-7 h-7 rounded-full ${bgColor} text-slate-950 font-black text-xs flex items-center justify-center
+                    shadow-md border-2 ${isMaterial ? 'border-white ring-2 ring-teal-500' : 'border-slate-800 dark:border-slate-700'}
                   `}>
                     {t.category}
                   </div>
@@ -287,11 +285,11 @@ export default function MaterialityPage() {
                   {/* Tooltip Label */}
                   <div className={`
                     absolute left-1/2 -translate-x-1/2 bottom-8 whitespace-nowrap px-2.5 py-1 rounded-lg text-[11px] font-medium
-                    bg-slate-900/95 border border-cyan-500/40 text-slate-200 pointer-events-none transition-all shadow-xl
+                    bg-slate-900 border border-slate-700 text-slate-100 pointer-events-none transition-all shadow-xl
                     ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 group-hover:opacity-100 scale-95'}
                   `}>
                     {t.name}
-                    <div className="text-[9px] text-cyan-400 font-mono">
+                    <div className="text-[9px] text-teal-300 dark:text-cyan-400 font-mono">
                       (Impact: {t.impactScore} · Fin: {t.financialScore})
                     </div>
                   </div>
@@ -301,17 +299,17 @@ export default function MaterialityPage() {
           </div>
 
           {/* Matrix Summary Stats */}
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-800 text-center">
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800">
-              <span className="text-xs text-slate-400">總評估議題數</span>
-              <p className="text-xl font-bold text-slate-100 mt-0.5">{topics.length}</p>
+          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+              <span className="text-xs text-slate-600 dark:text-slate-400">總評估議題數</span>
+              <p className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-0.5">{topics.length}</p>
             </div>
-            <div className="p-3 rounded-2xl bg-cyan-950/40 border border-cyan-500/30">
-              <span className="text-xs text-cyan-300">高度重大議題</span>
-              <p className="text-xl font-bold text-cyan-400 mt-0.5">{materialTopics.length}</p>
+            <div className="p-3 rounded-2xl bg-teal-50 dark:bg-cyan-950/40 border border-teal-200 dark:border-cyan-500/30">
+              <span className="text-xs text-teal-800 dark:text-cyan-300">高度重大議題</span>
+              <p className="text-xl font-bold text-teal-700 dark:text-cyan-400 mt-0.5">{materialTopics.length}</p>
             </div>
-            <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800">
-              <span className="text-xs text-slate-400">門檻臨界值</span>
+            <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+              <span className="text-xs text-slate-600 dark:text-slate-400">門檻臨界值</span>
               <div className="flex items-center justify-center gap-1 mt-0.5">
                 <input
                   type="number"
@@ -320,19 +318,17 @@ export default function MaterialityPage() {
                   step="0.1"
                   value={threshold}
                   onChange={(e) => setThreshold(Number(e.target.value))}
-                  className="w-16 bg-slate-900 border border-slate-700 rounded text-center text-sm font-bold text-slate-200 py-0.5"
+                  className="w-16 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-center text-sm font-bold text-slate-900 dark:text-slate-200 py-0.5"
                 />
               </div>
             </div>
           </div>
-        </div>
+        </OmniCard>
 
         {/* Right Column: Topic Score Evaluator & Sliders (5 cols) */}
         <div className="lg:col-span-5 flex flex-col gap-6">
-          
-          {/* Selected / Topic Evaluator Panel */}
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+          <OmniCard variant="glass" className="p-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Sliders className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">議題權重評估面板</h3>
@@ -352,8 +348,8 @@ export default function MaterialityPage() {
                     className={`
                       p-4 rounded-xl border transition-all duration-300 cursor-pointer
                       ${isSelected 
-                        ? 'bg-teal-50/80 dark:bg-cyan-950/50 border-teal-500/60 dark:border-cyan-500/60 shadow-sm' 
-                        : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                        ? 'bg-teal-50/90 dark:bg-cyan-950/50 border-teal-500 dark:border-cyan-500 shadow-sm' 
+                        : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
                       }
                     `}
                   >
@@ -361,27 +357,25 @@ export default function MaterialityPage() {
                       <div className="flex items-center gap-2">
                         <span className={`
                           px-2 py-0.5 rounded text-xs font-bold
-                          ${t.category === 'E' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 
-                            t.category === 'S' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 
-                            'bg-amber-500/20 text-amber-400 border border-amber-500/30'}
+                          ${t.category === 'E' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/30' : 
+                            t.category === 'S' ? 'bg-teal-100 text-teal-800 dark:bg-cyan-500/20 dark:text-cyan-400 border border-teal-300 dark:border-cyan-500/30' : 
+                            'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-300 dark:border-amber-500/30'}
                         `}>
                           {t.category}
                         </span>
-                        <h4 className="font-semibold text-sm text-slate-200">{t.name}</h4>
+                        <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100">{t.name}</h4>
                       </div>
                       {isMaterial && (
-                        <span className="px-2 py-0.5 rounded-md bg-emerald-950/60 text-emerald-400 text-[10px] font-bold border border-emerald-500/40 shrink-0">
-                          重大議題
-                        </span>
+                        <OmniBadge variant="emerald">重大議題</OmniBadge>
                       )}
                     </div>
 
                     {/* Sliders Area */}
                     <div className="grid grid-cols-2 gap-4 mt-3">
                       <div>
-                        <div className="flex justify-between text-xs text-slate-400 mb-1">
+                        <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 mb-1">
                           <span>衝擊重大性</span>
-                          <span className="font-mono font-bold text-cyan-400">{t.impactScore}</span>
+                          <span className="font-mono font-bold text-teal-700 dark:text-cyan-400">{t.impactScore}</span>
                         </div>
                         <input
                           type="range"
@@ -390,13 +384,13 @@ export default function MaterialityPage() {
                           step="0.1"
                           value={t.impactScore}
                           onChange={(e) => handleScoreChange(t.id, 'impactScore', Number(e.target.value))}
-                          className="w-full accent-cyan-400 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                          className="w-full accent-teal-600 dark:accent-cyan-400 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-lg cursor-pointer"
                         />
                       </div>
                       <div>
-                        <div className="flex justify-between text-xs text-slate-400 mb-1">
+                        <div className="flex justify-between text-xs text-slate-600 dark:text-slate-400 mb-1">
                           <span>財務重大性</span>
-                          <span className="font-mono font-bold text-emerald-400">{t.financialScore}</span>
+                          <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">{t.financialScore}</span>
                         </div>
                         <input
                           type="range"
@@ -405,7 +399,7 @@ export default function MaterialityPage() {
                           step="0.1"
                           value={t.financialScore}
                           onChange={(e) => handleScoreChange(t.id, 'financialScore', Number(e.target.value))}
-                          className="w-full accent-emerald-400 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                          className="w-full accent-emerald-600 dark:accent-emerald-400 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-lg cursor-pointer"
                         />
                       </div>
                     </div>
@@ -417,14 +411,14 @@ export default function MaterialityPage() {
                         value={t.rationale}
                         onChange={(e) => handleRationaleChange(t.id, e.target.value)}
                         placeholder="請輸入議題評估依據 (Rationale)..."
-                        className="w-full text-xs bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500/50"
+                        className="w-full text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-3 py-1.5 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-teal-500"
                       />
                     </div>
                   </div>
                 );
               })}
             </div>
-          </div>
+          </OmniCard>
         </div>
 
       </div>

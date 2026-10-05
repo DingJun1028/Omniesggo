@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Building2, ShieldCheck, Download, Search, Sparkles, 
-  CheckCircle2, AlertTriangle, RefreshCw, FileText, Plus, ShieldAlert, Award
+  CheckCircle2, RefreshCw, Award
 } from 'lucide-react';
+import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
+import { OmniButton } from '../../src/components/omni-base/OmniButton';
+import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
 
 interface VendorRecord {
   id: string;
@@ -101,18 +104,14 @@ export default function SupplyChainPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans">
       
       {/* ── Top Header ── */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-white/10">
         <div>
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
-              EU CSDD & Germany LkSG Compliant
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
-              5T Sealed Audit Pipeline
-            </span>
+          <div className="flex items-center gap-2">
+            <OmniBadge variant="teal">EU CSDD & Germany LkSG Compliant</OmniBadge>
+            <OmniBadge variant="emerald">5T Sealed Audit Pipeline</OmniBadge>
           </div>
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100">
             供應鏈 ESG 永續與人權盡職調查 (Supply Chain CSDD)
@@ -122,14 +121,14 @@ export default function SupplyChainPage() {
           </p>
         </div>
 
-        <button
+        <OmniButton
+          variant="outline"
           onClick={fetchVendors}
           disabled={isLoading}
-          className="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300/80 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-sm font-semibold flex items-center gap-2 transition-all shadow-sm self-start md:self-auto"
         >
-          <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`w-4 h-4 mr-1.5 ${isLoading ? 'animate-spin' : ''}`} />
           重新整理清單
-        </button>
+        </OmniButton>
       </div>
 
       {errorMessage && (
@@ -142,15 +141,15 @@ export default function SupplyChainPage() {
       <div className="max-w-7xl mx-auto mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
         
         {/* Left Column: Vendor Form (5 cols) */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] flex flex-col">
-          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+        <OmniCard variant="glass" className="lg:col-span-5 p-6 flex flex-col">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <Building2 className="w-5 h-5 text-teal-600 dark:text-cyan-400" />
               <h2 className="font-bold text-base text-slate-900 dark:text-slate-100">供應商資料審查</h2>
             </div>
             <button
               onClick={handleSimulatePreset}
-              className="text-xs text-cyan-400 hover:underline flex items-center gap-1 font-medium"
+              className="text-xs text-teal-600 dark:text-cyan-400 hover:underline flex items-center gap-1 font-semibold"
             >
               <Sparkles className="w-3.5 h-3.5" /> 帶入測試範例
             </button>
@@ -158,23 +157,23 @@ export default function SupplyChainPage() {
 
           <div className="mt-4 space-y-4">
             <div>
-              <label className="text-xs font-semibold text-slate-400">供應商公司名稱 *</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">供應商公司名稱 *</label>
               <input
                 type="text"
                 value={supplierName}
                 onChange={(e) => setSupplierName(e.target.value)}
                 placeholder="例如: 綠能科技股份有限公司"
-                className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-cyan-500/50"
+                className="w-full mt-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs font-semibold text-slate-400">產業別</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">產業別</label>
                 <select
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 focus:outline-none"
+                  className="w-full mt-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none"
                 >
                   <option value="電子零組件與半導體">電子零組件與半導體</option>
                   <option value="金屬加工與精密機械">金屬加工與精密機械</option>
@@ -183,11 +182,11 @@ export default function SupplyChainPage() {
                 </select>
               </div>
               <div>
-                <label className="text-xs font-semibold text-slate-400">供應鏈層級</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">供應鏈層級</label>
                 <select
                   value={tier}
                   onChange={(e) => setTier(e.target.value)}
-                  className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-300 focus:outline-none"
+                  className="w-full mt-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-slate-200 focus:outline-none"
                 >
                   <option value="Tier 1">Tier 1 (直接一階供應商)</option>
                   <option value="Tier 2">Tier 2 (二階原物料商)</option>
@@ -197,101 +196,103 @@ export default function SupplyChainPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-400">CSR / 永續報告與稽核數據 *</label>
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">CSR / 永續報告與稽核數據 *</label>
               <textarea
                 rows={6}
                 value={rawData}
                 onChange={(e) => setRawData(e.target.value)}
                 placeholder="貼上供應商問卷、ISO 證書摘要或勞安稽核文字..."
-                className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-300 font-mono focus:outline-none focus:border-cyan-500/50 resize-none"
+                className="w-full mt-1 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-900 dark:text-slate-200 font-mono focus:outline-none focus:border-teal-500 resize-none"
               />
             </div>
 
-            <button
+            <OmniButton
+              variant="primary"
               onClick={handleEvaluate}
-              disabled={isEvaluating}
-              className="w-full py-3 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-cyan-400 dark:hover:bg-cyan-300 dark:text-slate-950 font-bold text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
+              isLoading={isEvaluating}
+              className="w-full justify-center"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-4 h-4 mr-1.5" />
               {isEvaluating ? 'AI 盡職調查評鑑中...' : '執行 5T 盡職調查評鑑'}
-            </button>
+            </OmniButton>
           </div>
-        </div>
+        </OmniCard>
 
         {/* Right Column: Active Result & Vendors List (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
           
           {/* Active Result Card (If present) */}
           {activeEvaluation && (
-            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] animate-fade-in">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+            <OmniCard variant="glass" className="p-6">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2">
                   <Award className="w-6 h-6 text-teal-600 dark:text-cyan-400" />
                   <div>
                     <h3 className="font-bold text-base text-slate-900 dark:text-slate-100">{activeEvaluation.supplierName}</h3>
-                    <p className="text-xs text-slate-400">{activeEvaluation.industry} · {activeEvaluation.tier}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{activeEvaluation.industry} · {activeEvaluation.tier}</p>
                   </div>
                 </div>
 
                 {/* Rating Badge */}
                 <div className="flex items-center gap-2">
                   <span className={`
-                    w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xl shadow-lg
-                    ${activeEvaluation.rating === 'A' ? 'bg-emerald-500 text-slate-950 shadow-emerald-500/40' :
-                      activeEvaluation.rating === 'B' ? 'bg-cyan-500 text-slate-950 shadow-cyan-500/40' :
-                      'bg-amber-500 text-slate-950 shadow-amber-500/40'}
+                    w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xl shadow-md
+                    ${activeEvaluation.rating === 'A' ? 'bg-emerald-500 text-slate-950' :
+                      activeEvaluation.rating === 'B' ? 'bg-teal-500 dark:bg-cyan-500 text-slate-950' :
+                      'bg-amber-500 text-slate-950'}
                   `}>
                     {activeEvaluation.rating}
                   </span>
-                  <button
+                  <OmniButton
+                    variant="outline"
                     onClick={() => handleExportCertificate(activeEvaluation.id)}
-                    className="p-2 rounded-xl bg-cyan-900/60 hover:bg-cyan-800 border border-cyan-500/40 text-cyan-300 text-xs font-medium flex items-center gap-1.5 transition-all"
+                    className="text-xs py-1.5 px-3"
                   >
-                    <Download className="w-4 h-4" /> 證書
-                  </button>
+                    <Download className="w-3.5 h-3.5 mr-1" /> 證書
+                  </OmniButton>
                 </div>
               </div>
 
               {/* ESG Radar Scores */}
               <div className="grid grid-cols-3 gap-3 my-4 text-center">
-                <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800">
-                  <span className="text-[11px] text-slate-400">E 環境治理</span>
-                  <p className="text-lg font-bold text-emerald-400 mt-0.5">{activeEvaluation.envScore} / 100</p>
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400">E 環境治理</span>
+                  <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{activeEvaluation.envScore} / 100</p>
                 </div>
-                <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800">
-                  <span className="text-[11px] text-slate-400">S 勞動人權</span>
-                  <p className="text-lg font-bold text-cyan-400 mt-0.5">{activeEvaluation.socialScore} / 100</p>
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400">S 勞動人權</span>
+                  <p className="text-lg font-bold text-teal-600 dark:text-cyan-400 mt-0.5">{activeEvaluation.socialScore} / 100</p>
                 </div>
-                <div className="p-3 rounded-2xl bg-slate-950/60 border border-slate-800">
-                  <span className="text-[11px] text-slate-400">G 誠信公司治理</span>
-                  <p className="text-lg font-bold text-amber-400 mt-0.5">{activeEvaluation.govScore} / 100</p>
+                <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                  <span className="text-[11px] text-slate-600 dark:text-slate-400">G 誠信公司治理</span>
+                  <p className="text-lg font-bold text-amber-600 dark:text-amber-400 mt-0.5">{activeEvaluation.govScore} / 100</p>
                 </div>
               </div>
 
               {/* Advice */}
-              <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs text-slate-300">
-                <span className="font-bold text-cyan-400">採購與輔導建議: </span>
+              <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300">
+                <span className="font-bold text-teal-700 dark:text-cyan-400">採購與輔導建議: </span>
                 {activeEvaluation.recommendation}
               </div>
 
               {/* Hash Lock footer */}
-              <div className="mt-3 text-[10px] font-mono text-slate-500 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-                Hash Lock: <span className="text-cyan-400">{activeEvaluation.hashLock}</span>
+              <div className="mt-3 text-[10px] font-mono text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-teal-600 dark:text-cyan-400" />
+                Hash Lock: <span className="text-teal-700 dark:text-cyan-400">{activeEvaluation.hashLock}</span>
               </div>
-            </div>
+            </OmniCard>
           )}
 
           {/* Vendors History Table */}
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <OmniCard variant="glass" className="p-6">
+            <h3 className="font-bold text-base text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <span>已評鑑供應商清單 ({vendors.length})</span>
               <span className="text-xs font-normal text-slate-500 dark:text-slate-400">5T Hash Lock 封印庫</span>
             </h3>
 
             <div className="space-y-3 mt-4 max-h-[420px] overflow-y-auto pr-1">
               {vendors.length === 0 ? (
-                <div className="text-center py-10 text-slate-400 text-sm">
+                <div className="text-center py-10 text-slate-500 dark:text-slate-400 text-sm">
                   尚無已評鑑的供應商紀錄，請於左側輸入資料進行評估。
                 </div>
               ) : (
@@ -301,33 +302,34 @@ export default function SupplyChainPage() {
                       <div className="flex items-center gap-2">
                         <span className={`
                           w-6 h-6 rounded-lg text-xs font-bold flex items-center justify-center
-                          ${v.rating === 'A' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' :
-                            v.rating === 'B' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' :
-                            'bg-amber-500/20 text-amber-400 border border-amber-500/40'}
+                          ${v.rating === 'A' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-500/40' :
+                            v.rating === 'B' ? 'bg-teal-100 text-teal-800 dark:bg-cyan-500/20 dark:text-cyan-400 border border-teal-300 dark:border-cyan-500/40' :
+                            'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400 border border-amber-300 dark:border-amber-500/40'}
                         `}>
                           {v.rating}
                         </span>
-                        <h4 className="font-semibold text-sm text-slate-200">{v.supplierName}</h4>
+                        <h4 className="font-semibold text-sm text-slate-900 dark:text-slate-100">{v.supplierName}</h4>
                       </div>
-                      <p className="text-xs text-slate-400 mt-1">
-                        {v.industry} · {v.tier} · 風險: <span className={v.riskLevel === 'Low' ? 'text-emerald-400' : 'text-amber-400'}>{v.riskLevel}</span>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">
+                        {v.industry} · {v.tier} · 風險: <span className={v.riskLevel === 'Low' ? 'text-emerald-600 dark:text-emerald-400 font-semibold' : 'text-amber-600 dark:text-amber-400 font-semibold'}>{v.riskLevel}</span>
                       </p>
-                      <p className="text-[10px] font-mono text-slate-500 mt-1">
+                      <p className="text-[10px] font-mono text-slate-500 dark:text-slate-500 mt-1">
                         Lock: {v.hashLock.slice(0, 24)}...
                       </p>
                     </div>
 
-                    <button
+                    <OmniButton
+                      variant="outline"
                       onClick={() => handleExportCertificate(v.id)}
-                      className="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1 transition-all shrink-0"
+                      className="text-xs py-1.5 px-3 shrink-0"
                     >
-                      <Download className="w-3.5 h-3.5" /> 證書
-                    </button>
+                      <Download className="w-3.5 h-3.5 mr-1" /> 證書
+                    </OmniButton>
                   </div>
                 ))
               )}
             </div>
-          </div>
+          </OmniCard>
 
         </div>
 
