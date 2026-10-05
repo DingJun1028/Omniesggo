@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     const result = await runGeminiWithWorkersAIFallback(
       async () => {
-        const { GoogleGenAI } = await import('@google/genai');
+        const { GoogleGenAI } = await import('@/lib/genai');
         const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
         const r = await ai.models.generateContent({
           model: 'gemini-2.5-flash',

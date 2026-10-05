@@ -11,32 +11,34 @@
 //   6) Oracle：後端 proxy 對接；（純 optional，沒有後端時不破壞機能不能用）
 // ============================================================
 
-import { initializeApp } from 'firebase/app';
+const initializeApp = () => ({});
 import {
-  getAuth,
-  signInAnonymously,
-  onAuthStateChanged,
+  auth as _auth,
+  getCurrentUser as getAuth,
+  signInWithEmail as signInAnonymously, // fallback
+  onAuthChange as onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  getIdTokenResult,
-} from 'firebase/auth';
+  signInWithGoogle as signInWithPopup,
+  signOut as firebaseSignOut
+} from './lib/auth';
+
 import {
-  initializeFirestore,
-  persistentLocalCache,
   collection,
   onSnapshot,
   doc,
   setDoc,
   deleteDoc,
-  serverTimestamp,
-  FirestoreError,
   getDoc,
   query,
   where,
   getDocs,
-  writeBatch,
-} from 'firebase/firestore';
+  writeBatch
+} from './lib/firebase';
+
+const initializeFirestore = () => ({});
+const persistentLocalCache = () => ({});
+const serverTimestamp = () => new Date().toISOString();
+class FirestoreError extends Error {}
 
 // 2026-08-25 無縫轉移: 新增 NCBDB 作為跨裝置共用後端 (對齊根專案 ncbQuery)
 import { isNcbEnabled, ncbSubmissions, ncbProfiles, ncbTAs, ncbPairings } from './ncb-client';

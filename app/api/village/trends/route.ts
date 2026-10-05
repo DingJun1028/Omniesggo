@@ -43,7 +43,7 @@ export async function GET() {
       );
     }
 
-    const { GoogleGenAI } = await import('@google/genai');
+    const { GoogleGenAI } = await import('@/lib/genai');
     const { adminDb } = await import('@/lib/firebase-admin');
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || process.env.AGNES_API || '' });
 

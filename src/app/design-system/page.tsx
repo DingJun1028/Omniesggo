@@ -1,49 +1,73 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  SolidCard,
-  CardHeader,
-  MetricCard,
-  Badge,
-  Button,
-  Section,
-  Grid,
-  Divider,
-  ProgressBar,
-} from '@esggo/ui';
+import Link from 'next/link';
+import { Palette, Layers, Type, BrainCircuit, Droplet, Monitor, Sparkles } from 'lucide-react';
 
 export default function DesignSystemPage() {
   const [activeTab, setActiveTab] = useState<'components' | 'colors' | 'typography'>('components');
 
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', padding: '32px' }}>
-      <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: 'var(--accent-teal)', margin: 0 }}>
-            Solid Card Design System
-          </h1>
-          <p style={{ color: 'var(--text-secondary)', marginTop: '8px' }}>
-            ESGGO UI Component Library — Teal + Gold + ZKP Blue
-          </p>
-        </div>
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans relative overflow-x-hidden p-6 md:p-10">
+      {/* Liquid Glass Background Effects */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-sky-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[30%] h-[30%] bg-cyan-500/5 rounded-full blur-[100px] pointer-events-none" />
 
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
-          {(['components', 'colors', 'typography'] as const).map((tab) => (
-            <Button
-              key={tab}
-              variant={activeTab === tab ? 'primary' : 'ghost'}
-              size="sm"
-              onClick={() => setActiveTab(tab)}
+      <div className="relative z-10 max-w-6xl mx-auto space-y-8">
+        {/* Header */}
+        <header className="border-b border-slate-800/60 pb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+          <div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-sky-500/10 border border-sky-500/20 rounded-full">
+                <Palette className="w-3 h-3 text-sky-400" />
+                <span className="text-xs font-semibold text-sky-400 tracking-widest uppercase">Design System</span>
+              </div>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              <span className="bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400 bg-clip-text text-transparent">
+                Liquid Glass Cyan
+              </span>
+            </h1>
+            <p className="text-slate-400 mt-2 text-base">
+              ESGGO 善向永續 · 視覺核心語彙與元件庫
+            </p>
+          </div>
+          
+          <div className="flex gap-4">
+             <Link href="/omni" className="flex items-center gap-2 px-4 py-2 bg-slate-900/60 hover:bg-slate-800/80 border border-slate-700/50 rounded-xl transition-all">
+                <BrainCircuit className="w-4 h-4 text-cyan-400" />
+                <span className="text-sm font-medium text-slate-300">返回 OmniCenter</span>
+             </Link>
+          </div>
+        </header>
+
+        {/* Tabs */}
+        <div className="flex gap-3 border-b border-slate-800/50 pb-px">
+          {[
+            { id: 'components', label: '元件 (Components)', icon: Layers },
+            { id: 'colors', label: '色彩 (Colors)', icon: Droplet },
+            { id: 'typography', label: '字體 (Typography)', icon: Type }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all border-b-2 ${
+                activeTab === tab.id 
+                  ? 'border-cyan-400 text-cyan-400 bg-cyan-500/5' 
+                  : 'border-transparent text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
             >
-              {tab === 'components' ? '元件' : tab === 'colors' ? '色彩' : '字體'}
-            </Button>
+              <tab.icon className="w-4 h-4" /> {tab.label}
+            </button>
           ))}
         </div>
 
-        {activeTab === 'components' && <ComponentsShowcase />}
-        {activeTab === 'colors' && <ColorsShowcase />}
-        {activeTab === 'typography' && <TypographyShowcase />}
+        {/* Content */}
+        <div className="pt-4">
+          {activeTab === 'components' && <ComponentsShowcase />}
+          {activeTab === 'colors' && <ColorsShowcase />}
+          {activeTab === 'typography' && <TypographyShowcase />}
+        </div>
       </div>
     </div>
   );
@@ -51,184 +75,127 @@ export default function DesignSystemPage() {
 
 function ComponentsShowcase() {
   return (
-    <>
-      <Section title="指標卡片" subtitle="Metric Cards — 關鍵數據一目瞭然">
-        <Grid columns={4}>
-          <MetricCard label="碳排放量" value="12,450" unit="tCO2e" change={-8} trend="up" />
-          <MetricCard label="再生能源佔比" value="67" unit="%" change={12} trend="up" />
-          <MetricCard label="員工流動率" value="8.2" unit="%" change={3} trend="down" />
-          <MetricCard label="董事會獨立性" value="75" unit="%" trend="neutral" />
-        </Grid>
-      </Section>
-
-      <Divider />
-
-      <Section title="卡片" subtitle="Solid Cards — 內容分塊容器">
-        <Grid columns={2}>
-          <SolidCard>
-            <CardHeader title="預設卡片" subtitle="Default variant with standard border" />
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-              用於一般內容區塊，左側無色塊標記。
-            </p>
-          </SolidCard>
-
-          <SolidCard variant="highlight">
-            <CardHeader title="重點卡片" subtitle="Highlight variant with teal left border" />
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-              用於需要強調的重要資訊，左側青色色塊標記。
-            </p>
-          </SolidCard>
-
-          <SolidCard variant="success">
-            <CardHeader title="成功卡片" subtitle="Success variant with green left border" />
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-              用於正面指標或完成狀態。
-            </p>
-          </SolidCard>
-
-          <SolidCard variant="warning">
-            <CardHeader title="警告卡片" subtitle="Warning variant with amber left border" />
-            <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
-              用於需要注意的警示資訊。
-            </p>
-          </SolidCard>
-        </Grid>
-      </Section>
-
-      <Divider />
-
-      <Section title="標籤" subtitle="Badges — 狀態與分類標記">
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          <Badge variant="teal">環境</Badge>
-          <Badge variant="gold">社會</Badge>
-          <Badge variant="blue">治理</Badge>
-          <Badge variant="success">合規</Badge>
-          <Badge variant="warning">待改善</Badge>
-          <Badge variant="error">高風險</Badge>
-          <Badge variant="muted">一般</Badge>
-        </div>
-      </Section>
-
-      <Divider />
-
-      <Section title="按鈕" subtitle="Buttons — 操作觸發器">
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
-          <Button variant="primary">主要按鈕</Button>
-          <Button variant="secondary">次要按鈕</Button>
-          <Button variant="ghost">幽靈按鈕</Button>
-          <Button variant="danger">危險按鈕</Button>
-          <Button variant="primary" disabled>禁用狀態</Button>
-        </div>
-        <div style={{ display: 'flex', gap: '12px', marginTop: '12px', alignItems: 'center' }}>
-          <Button variant="primary" size="sm">小按鈕</Button>
-          <Button variant="primary" size="md">中按鈕</Button>
-          <Button variant="primary" size="lg">大按鈕</Button>
-        </div>
-      </Section>
-
-      <Divider />
-
-      <Section title="進度條" subtitle="Progress Bars — 完成度可視化">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>GRI 指標覆蓋率</span>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-teal)' }}>78%</span>
-            </div>
-            <ProgressBar value={78} />
+    <div className="space-y-10">
+      
+      {/* Cards */}
+      <section>
+        <h2 className="text-xl font-bold text-slate-200 mb-4 flex items-center gap-2">
+          <Layers className="w-5 h-5 text-cyan-400" /> Liquid Glass Cards
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-slate-900/40 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-md relative overflow-hidden group">
+             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                  style={{ background: 'radial-gradient(circle at top right, rgba(6,182,212,0.1), transparent 60%)' }} />
+             <h3 className="text-sm font-semibold text-cyan-400 mb-2">Standard Card</h3>
+             <p className="text-xs text-slate-400 leading-relaxed">預設的液態玻璃卡片，帶有模糊背景、邊框與微弱的環境反射。</p>
           </div>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>SBTi 目標進度</span>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-gold)' }}>45%</span>
-            </div>
-            <ProgressBar value={45} color="var(--accent-gold)" />
-          </div>
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>CSRD 合規度</span>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--accent-blue)' }}>92%</span>
-            </div>
-            <ProgressBar value={92} color="var(--accent-blue)" />
+          <div className="bg-slate-900/60 border border-emerald-500/30 rounded-2xl p-6 backdrop-blur-md relative overflow-hidden group shadow-[0_0_15px_-3px_rgba(16,185,129,0.1)]">
+             <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                  style={{ background: 'radial-gradient(circle at top right, rgba(16,185,129,0.15), transparent 60%)' }} />
+             <h3 className="text-sm font-semibold text-emerald-400 mb-2">Active / Success Card</h3>
+             <p className="text-xs text-slate-400 leading-relaxed">用於運行中或驗證成功的狀態，帶有光暈與較亮的邊框。</p>
           </div>
         </div>
-      </Section>
-    </>
+      </section>
+
+      {/* Buttons */}
+      <section>
+        <h2 className="text-xl font-bold text-slate-200 mb-4 flex items-center gap-2">
+          <Monitor className="w-5 h-5 text-cyan-400" /> Buttons & Interactions
+        </h2>
+        <div className="bg-slate-900/40 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-md flex flex-wrap gap-4 items-center">
+           <button className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-2 px-6 rounded-xl transition-all shadow-[0_0_15px_-3px_rgba(6,182,212,0.4)]">
+             Primary Action
+           </button>
+           <button className="bg-slate-800 hover:bg-cyan-900/40 text-cyan-400 border border-slate-700 hover:border-cyan-500/50 font-bold py-2 px-6 rounded-xl transition-all">
+             Secondary Outline
+           </button>
+           <button className="bg-transparent hover:bg-slate-800 text-slate-300 hover:text-white font-bold py-2 px-6 rounded-xl transition-all">
+             Ghost Button
+           </button>
+           <button className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 font-bold py-2 px-6 rounded-xl transition-all">
+             Destructive
+           </button>
+        </div>
+      </section>
+      
+      {/* Badges */}
+      <section>
+        <h2 className="text-xl font-bold text-slate-200 mb-4 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-cyan-400" /> Status Badges
+        </h2>
+        <div className="bg-slate-900/40 border border-slate-700/50 rounded-2xl p-6 backdrop-blur-md flex flex-wrap gap-3">
+          <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">System Normal</span>
+          <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" /> Running
+          </span>
+          <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Standby</span>
+          <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20">Alert</span>
+          <span className="px-3 py-1.5 text-xs font-semibold rounded-full bg-slate-800 text-slate-400 border border-slate-700">Offline</span>
+        </div>
+      </section>
+
+    </div>
   );
 }
 
 function ColorsShowcase() {
-  const colors = [
-    { name: 'Teal (Primary)', var: 'var(--accent-teal)', desc: '主色調、標題、重點標記' },
-    { name: 'Gold (Accent)', var: 'var(--accent-gold)', desc: '輔助色、進度、警示' },
-    { name: 'ZKP Blue', var: 'var(--accent-blue)', desc: '資訊、連結、驗證標記' },
-    { name: 'Success', var: 'var(--status-success)', desc: '正面指標、完成狀態' },
-    { name: 'Warning', var: 'var(--status-warning)', desc: '注意、待改善' },
-    { name: 'Error', var: 'var(--status-error)', desc: '錯誤、高風險' },
-    { name: 'Background', var: 'var(--bg)', desc: '頁面背景' },
-    { name: 'Surface', var: 'var(--surface)', desc: '卡片背景' },
-    { name: 'Text Primary', var: 'var(--text-primary)', desc: '主要文字' },
-    { name: 'Text Secondary', var: 'var(--text-secondary)', desc: '次要文字' },
-    { name: 'Border', var: 'var(--border)', desc: '邊框' },
+  const palettes = [
+    { name: 'Cyan (Primary Core)', var: 'cyan', range: [400, 500, 900], hex: ['#22d3ee', '#06b6d4', '#164e63'] },
+    { name: 'Emerald (Success/Soul)', var: 'emerald', range: [400, 500, 900], hex: ['#34d399', '#10b981', '#064e3b'] },
+    { name: 'Violet (Factory/Logic)', var: 'violet', range: [400, 500, 900], hex: ['#a78bfa', '#8b5cf6', '#4c1d95'] },
+    { name: 'Amber (Delegation/Warning)', var: 'amber', range: [400, 500, 900], hex: ['#fbbf24', '#f59e0b', '#78350f'] },
+    { name: 'Rose (Parser/Alert)', var: 'rose', range: [400, 500, 900], hex: ['#fb7185', '#f43f5e', '#881337'] },
+    { name: 'Slate (Void/Structure)', var: 'slate', range: [400, 800, 950], hex: ['#94a3b8', '#1e293b', '#020617'] },
   ];
 
   return (
-    <Section title="色彩系統" subtitle="Solid Card Palette — 主題自動切換">
-      <Grid columns={3}>
-        {colors.map((c) => (
-          <SolidCard key={c.var}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '8px', background: c.var, border: '1px solid var(--border)' }} />
-              <div>
-                <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>{c.name}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontFamily: 'monospace' }}>{c.var}</div>
-                <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{c.desc}</div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {palettes.map((p) => (
+        <div key={p.name} className="bg-slate-900/40 border border-slate-700/50 rounded-2xl p-5 backdrop-blur-md">
+          <h3 className="text-sm font-bold text-slate-200 mb-4">{p.name}</h3>
+          <div className="space-y-3">
+            {p.range.map((r, idx) => (
+              <div key={r} className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-lg shadow-inner bg-${p.var}-${r}`} style={{ backgroundColor: p.hex[idx] }} />
+                <div>
+                  <div className="text-xs font-medium text-slate-300">{p.var}-{r}</div>
+                  <div className="text-[10px] text-slate-500 font-mono uppercase">{p.hex[idx]}</div>
+                </div>
               </div>
-            </div>
-          </SolidCard>
-        ))}
-      </Grid>
-    </Section>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
 function TypographyShowcase() {
   return (
-    <Section title="字體系統" subtitle="Typography Scale">
-      <SolidCard>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>H1 / 28px / 800</span>
-            <h1 style={{ margin: '4px 0', fontSize: '28px', fontWeight: 800, color: 'var(--accent-teal)' }}>永續報告書</h1>
-          </div>
-          <div>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>H2 / 20px / 700</span>
-            <h2 style={{ margin: '4px 0', fontSize: '20px', fontWeight: 700, color: 'var(--accent-teal)' }}>氣候策略與轉型計畫</h2>
-          </div>
-          <div>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>H3 / 16px / 600</span>
-            <h3 style={{ margin: '4px 0', fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>範疇一排放盤查</h3>
-          </div>
-          <div>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Body / 14px / 400</span>
-            <p style={{ margin: '4px 0', fontSize: '14px', color: 'var(--text-secondary)' }}>
-              透過科學基礎減量目標（SBTi）框架，本公司承諾在 2030 年前將範疇一與範疇二碳排放減少 50%。
-            </p>
-          </div>
-          <div>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Caption / 12px / 400</span>
-            <p style={{ margin: '4px 0', fontSize: '12px', color: 'var(--text-muted)' }}>
-              資料來源：2024 永續報告書，頁 42。查證機構：SGS Taiwan。
-            </p>
-          </div>
-          <div>
-            <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Code / 13px / monospace</span>
-            <code style={{ display: 'block', margin: '4px 0', padding: '8px', background: 'var(--surface-alt)', borderRadius: '4px', fontSize: '13px', fontFamily: 'monospace', color: 'var(--text-primary)' }}>
-              emissions_reduction = baseline * (1 - target_pct) → 12,450 tCO2e
-            </code>
-          </div>
-        </div>
-      </SolidCard>
-    </Section>
+    <div className="bg-slate-900/40 border border-slate-700/50 rounded-2xl p-8 backdrop-blur-md">
+       <div className="space-y-8">
+         <div>
+           <div className="text-[10px] font-mono text-slate-500 mb-1">text-5xl font-extrabold tracking-tight</div>
+           <h1 className="text-5xl font-extrabold tracking-tight text-white">無作妙德，圓通無礙</h1>
+         </div>
+         <div>
+           <div className="text-[10px] font-mono text-slate-500 mb-1">text-2xl font-bold</div>
+           <h2 className="text-2xl font-bold text-slate-200">ESG 永續數據核心</h2>
+         </div>
+         <div>
+           <div className="text-[10px] font-mono text-slate-500 mb-1">text-base text-slate-300 leading-relaxed</div>
+           <p className="text-base text-slate-300 leading-relaxed">
+             ESG GO 系統透過 5T 守護協議，確保每一筆環境、社會與治理數據皆具備可溯源、透明、可感知、可信任與可追蹤的特質。
+           </p>
+         </div>
+         <div>
+           <div className="text-[10px] font-mono text-slate-500 mb-1">text-xs font-medium text-slate-400 uppercase tracking-widest</div>
+           <p className="text-xs font-medium text-slate-400 uppercase tracking-widest">
+             Traceable · Transparent · Tangible · Trustworthy · Trackable
+           </p>
+         </div>
+       </div>
+    </div>
   );
 }

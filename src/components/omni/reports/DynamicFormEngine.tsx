@@ -101,12 +101,12 @@ export default function DynamicFormEngine({
   const fieldError = (id: string) => feedback.errors?.[id]?._errors[0];
 
   return (
-    <div className="liquid-glass-container p-8 max-w-3xl mx-auto">
-      <div className="mb-8 border-b border-white/10 pb-4">
-        <h2 className="text-3xl font-bold text-slate-900 dark:text-cyan-300">
+    <div className="p-6 md:p-8 max-w-3xl mx-auto rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 shadow-sm dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+      <div className="mb-8 border-b border-slate-100 dark:border-slate-800 pb-4">
+        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-cyan-300">
           {schema.title}
         </h2>
-        <p className="text-cyan-500/80 text-sm mt-1 font-mono tracking-widest">
+        <p className="text-teal-600 dark:text-cyan-500/80 text-sm mt-1 font-mono tracking-widest">
           {schema.uuid}
         </p>
       </div>
@@ -117,13 +117,13 @@ export default function DynamicFormEngine({
             const err = fieldError(field.id);
             return (
               <div key={field.id} className="space-y-2">
-                <label htmlFor={field.id} className="text-sm font-medium text-cyan-50 flex items-center justify-between">
+                <label htmlFor={field.id} className="text-sm font-bold text-slate-700 dark:text-cyan-50 flex items-center justify-between">
                   <span>
                     {field.label}{' '}
-                    {field.required && <span className="text-amber-400">*</span>}
+                    {field.required && <span className="text-amber-500 dark:text-amber-400">*</span>}
                   </span>
                   {field.unit && (
-                    <span className="text-xs text-gray-500 bg-white/5 px-2 py-0.5 rounded">
+                    <span className="text-xs text-slate-500 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded">
                       {field.unit}
                     </span>
                   )}
@@ -137,10 +137,10 @@ export default function DynamicFormEngine({
                     placeholder={field.placeholder}
                     aria-invalid={!!err}
                     aria-describedby={err ? `${field.id}-error` : undefined}
-                    className={`w-full bg-black/40 border rounded-xl p-3 text-white outline-none transition-all font-mono ${
+                    className={`w-full bg-slate-50 dark:bg-black/40 border rounded-xl p-3 text-slate-900 dark:text-white outline-none transition-all font-mono ${
                       err
-                        ? 'border-amber-500/50 focus:ring-1 focus:ring-amber-500'
-                        : 'border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
+                        ? 'border-amber-400 dark:border-amber-500/50 focus:ring-1 focus:ring-amber-500'
+                        : 'border-slate-300 dark:border-white/10 focus:border-teal-500 dark:focus:border-cyan-400 focus:ring-1 focus:ring-teal-500 dark:focus:ring-cyan-400'
                     }`}
                     onChange={(e) =>
                       setFormData({ ...formData, [field.id]: Number(e.target.value) })
@@ -154,10 +154,10 @@ export default function DynamicFormEngine({
                     placeholder={field.placeholder}
                     aria-invalid={!!err}
                     aria-describedby={err ? `${field.id}-error` : undefined}
-                    className={`w-full bg-black/40 border rounded-xl p-3 text-white outline-none transition-all ${
+                    className={`w-full bg-slate-50 dark:bg-black/40 border rounded-xl p-3 text-slate-900 dark:text-white outline-none transition-all ${
                       err
-                        ? 'border-amber-500/50 focus:ring-1 focus:ring-amber-500'
-                        : 'border-white/10 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400'
+                        ? 'border-amber-400 dark:border-amber-500/50 focus:ring-1 focus:ring-amber-500'
+                        : 'border-slate-300 dark:border-white/10 focus:border-teal-500 dark:focus:border-cyan-400 focus:ring-1 focus:ring-teal-500 dark:focus:ring-cyan-400'
                     }`}
                     onChange={(e) =>
                       setFormData({ ...formData, [field.id]: e.target.value })
@@ -166,7 +166,7 @@ export default function DynamicFormEngine({
                 )}
 
                 {err && (
-                  <p id={`${field.id}-error`} role="alert" className="text-amber-400 text-xs mt-1 animate-pulse flex items-center gap-1">
+                  <p id={`${field.id}-error`} role="alert" className="text-amber-500 dark:text-amber-400 text-xs mt-1 animate-pulse flex items-center gap-1">
                     <AlertTriangle size={12} aria-hidden="true" /> {err}
                   </p>
                 )}
@@ -198,7 +198,7 @@ export default function DynamicFormEngine({
           </div>
         )}
 
-        <div className="pt-6 border-t border-white/10 flex justify-end">
+        <div className="pt-6 border-t border-slate-200 dark:border-white/10 flex justify-end">
           <button
             type="button"
             onClick={handleSubmit}

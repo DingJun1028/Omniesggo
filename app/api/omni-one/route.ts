@@ -98,7 +98,7 @@ async function callGemini(
   if (!API_KEY) return null;
 
   try {
-    const { GoogleGenAI } = await import('@google/genai');
+    const { GoogleGenAI } = await import('@/lib/genai');
     const ai = new GoogleGenAI({ apiKey: API_KEY });
     const result = await Promise.race([
       ai.models.generateContent({

@@ -409,16 +409,21 @@ model DailyReportItem {
 // --- Omni-Memory ---
 
 model OmniMemory {
-  id        String   @id @default(cuid())
-  userId    String
-  agentId   String
-  role      String   @default("user")
-  content   String
-  metadata  String?  // JSON string
-  createdAt DateTime @default(now())
+  id            String   @id @default(cuid())
+  userId        String
+  agentId       String
+  type          String   @default("claim") // claim, preference, rule, thought
+  content       String
+  keywords      String   @default("[]") // JSON array for zero-cost FTS
+  confidence    Float    @default(1.0)
+  sourceOrigin  String   @default("omni-memory")
+  metadata      String?  // JSON string
+  lastAccessed  DateTime @default(now())
+  createdAt     DateTime @default(now())
 
   @@index([userId])
   @@index([agentId])
+  @@index([type])
 }
 
 model AvatarContext {

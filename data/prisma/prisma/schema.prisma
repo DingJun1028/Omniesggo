@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"  // Change to "postgresql" for VPS
+  provider = "postgresql"  // Supabase PostgreSQL (production + local)
   url      = env("DATABASE_URL")
 }
 
@@ -404,4 +404,42 @@ model DailyReportItem {
   @@index([reportId])
   @@index([itemType])
   @@index([alertId])
+}
+
+// ═══════════════════════════════════════════════════════════════
+// OmniMemory — 零算力自適應記憶與對齊引擎
+// Phase 1 Schema (Meta Muse 對標實作)
+// ═══════════════════════════════════════════════════════════════
+
+/// OmniAgent 記憶片段：存儲代理推斷、用戶偏好、系統事件
+/// 透過 FTS (keywords/content 字串比對) 實現零算力全文檢索
+model OmniMemory {
+  id           String   @id @default(cuid())
+  uuid         String   @unique @default(cuid()) // 5T: 全域唯一識別
+  version      Int      @default(1)              // 5T: 語意化版本
+  sourceOrigin String   @default("omni-memory-api") // 5T: 來源可驗證
+
+  userId       String   // 歸屬用戶 (Firebase UID 或 system_admin)
+  agentId      String   @default("omni-agent")  // 產生此記憶的代理 ID
+  type         String   @default("claim")        // claim | preference | event | alignment | dream
+
+  content      String   // 記憶內容主體
+  keywords     String   @default("[]")           // JSON array 字串 (FTS 索引鍵)
+  metadata     String   @default("{}")           // JSON 附加元資料
+  confidence   Float    @default(0.8)            // 0.0–1.0 信心度（夢境引擎調整）
+  decayRate    Float    @default(0.01)           // 每日衰減率 (遺忘引擎使用)
+  pinned       Boolean  @default(false)          // 釘選 = 永不遺忘
+  dreamProcessed Boolean @default(false)         // 是否已被夢境引擎處理
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now())
+  lastAccessed DateTime @default(now())          // 存取時間（影響衰減與遺忘）
+  expiresAt    DateTime?                         // 可選：硬性過期時間
+
+  @@index([userId])
+  @@index([agentId])
+  @@index([type])
+  @@index([confidence])
+  @@index([lastAccessed])
+  @@index([createdAt])
 }

@@ -73,8 +73,8 @@ export default function EvidenceUploader({
 
   return (
     <div className="w-full">
-      <label className="text-sm font-medium text-cyan-50 mb-2 block">
-        佐證憑證 (Evidence Vault) <span className="text-amber-400">*</span>
+      <label className="text-sm font-bold text-slate-700 dark:text-cyan-50 mb-2 block">
+        佐證憑證 (Evidence Vault) <span className="text-amber-500 dark:text-amber-400">*</span>
       </label>
       <div
         role="button"
@@ -88,12 +88,12 @@ export default function EvidenceUploader({
         }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={`cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 relative border-2 border-dashed rounded-2xl p-8 transition-all duration-500 flex flex-col items-center justify-center backdrop-blur-xl bg-black/20 ${
+        className={`cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:focus-visible:ring-cyan-500 relative border-2 border-dashed rounded-2xl p-8 transition-all duration-500 flex flex-col items-center justify-center backdrop-blur-xl bg-slate-50 dark:bg-black/20 ${
           isDragging
-            ? 'border-cyan-400 bg-cyan-500/10 scale-[1.02] shadow-neon-cyan'
-            : 'border-white/10 hover:border-white/30 hover:bg-white/5'
-        } ${status === 'error' ? 'border-amber-500/50 shadow-neon-amber' : ''} ${
-          status === 'success' ? 'border-emerald-500/50 shadow-neon-emerald' : ''
+            ? 'border-teal-400 dark:border-cyan-400 bg-teal-50 dark:bg-cyan-500/10 scale-[1.02] shadow-sm dark:shadow-neon-cyan'
+            : 'border-slate-300 dark:border-white/10 hover:border-slate-400 dark:hover:border-white/30 hover:bg-slate-100 dark:hover:bg-white/5'
+        } ${status === 'error' ? 'border-amber-400 dark:border-amber-500/50 dark:shadow-neon-amber' : ''} ${
+          status === 'success' ? 'border-emerald-400 dark:border-emerald-500/50 dark:shadow-neon-emerald' : ''
         }`}
       >
         <input
@@ -106,32 +106,32 @@ export default function EvidenceUploader({
         />
         {status === 'idle' && (
           <>
-            <UploadCloud size={48} className="text-cyan-500/50 mb-4 animate-pulse" />
-            <p className="text-sm text-gray-300">點擊或拖曳發票、水電單或 ISO 證書至此</p>
-            <p className="text-xs text-gray-500 mt-1 font-mono">
+            <UploadCloud size={48} className="text-teal-500/50 dark:text-cyan-500/50 mb-4 animate-pulse" />
+            <p className="text-sm font-bold text-slate-600 dark:text-gray-300">點擊或拖曳發票、水電單或 ISO 證書至此</p>
+            <p className="text-xs text-slate-500 dark:text-gray-500 mt-1 font-mono">
               支援 PDF, JPG, PNG (上限 10MB)
             </p>
           </>
         )}
         {status === 'uploading' && (
           <div className="flex flex-col items-center animate-fade-in-up">
-            <Loader2 size={48} className="text-cyan-400 animate-spin mb-4" />
-            <p className="text-sm text-cyan-200">執行 Hash Lock 與 S3 封裝中...</p>
+            <Loader2 size={48} className="text-teal-500 dark:text-cyan-400 animate-spin mb-4" />
+            <p className="text-sm font-bold text-teal-700 dark:text-cyan-200">執行 Hash Lock 與 S3 封裝中...</p>
           </div>
         )}
         {status === 'success' && (
           <div className="flex flex-col items-center animate-fade-in-up">
-            <FileCheck size={48} className="text-emerald-400 mb-4 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
-            <p className="text-sm text-emerald-200 font-bold">憑證已安全刻印</p>
-            <div className="mt-2 flex items-center gap-2 text-xs text-gray-400 bg-black/40 px-3 py-1 rounded-full border border-white/5">
+            <FileCheck size={48} className="text-emerald-500 dark:text-emerald-400 mb-4 dark:drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
+            <p className="text-sm text-emerald-700 dark:text-emerald-200 font-bold">憑證已安全刻印</p>
+            <div className="mt-2 flex items-center gap-2 text-xs text-slate-600 dark:text-gray-400 bg-slate-200/50 dark:bg-black/40 px-3 py-1 rounded-full border border-slate-300 dark:border-white/5">
               <Link size={12} /> <span className="truncate max-w-[200px]">{evidenceUrl}</span>
             </div>
           </div>
         )}
         {status === 'error' && (
           <div className="flex flex-col items-center animate-fade-in-up">
-            <ShieldAlert size={48} className="text-amber-400 mb-4" />
-            <p className="text-sm text-amber-200">憑證上傳失敗，請檢查檔案格式</p>
+            <ShieldAlert size={48} className="text-amber-500 dark:text-amber-400 mb-4" />
+            <p className="text-sm font-bold text-amber-700 dark:text-amber-200">憑證上傳失敗，請檢查檔案格式</p>
           </div>
         )}
       </div>

@@ -50,7 +50,7 @@ export async function POST(req: Request) {
 
     // 1. Generate embedding for user prompt
     let promptEmbedding: number[] = [];
-    const { GoogleGenAI } = await import('@google/genai');
+    const { GoogleGenAI } = await import('@/lib/genai');
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
     
     try {

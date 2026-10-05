@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       let embedding = null;
       if (USE_REAL_AI) {
         try {
-          const { GoogleGenAI } = await import('@google/genai');
+          const { GoogleGenAI } = await import('@/lib/genai');
           const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
           const embedRes = await ai.models.embedContent({
             model: 'text-embedding-004',
