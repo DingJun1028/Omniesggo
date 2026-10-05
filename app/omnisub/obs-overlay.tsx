@@ -21,6 +21,7 @@ interface ObsOverlayProps {
   maxLines?: number;
   langMode?: LangViewMode;
   showBadge?: boolean;
+  currentTheme?: 'dark' | 'light';
 }
 
 type AnchorPosition = 'bottom' | 'center' | 'top' | 'free';
@@ -32,7 +33,9 @@ export function ObsOverlay({
   maxLines = 2,
   langMode = 'bilingual',
   showBadge = true,
+  currentTheme = 'dark',
 }: ObsOverlayProps) {
+  const isDark = currentTheme === 'dark';
   const [subtitles, setSubtitles] = useState<AkkaduSubtitle[]>([]);
   const [currentRoom, setCurrentRoom] = useState(roomCode);
   const [fontSize, setFontSize] = useState(defaultFontSize);
@@ -249,16 +252,16 @@ export function ObsOverlay({
         <button
           type="button"
           onClick={() => setShowConfig(!showConfig)}
-          className="px-3 py-1.5 bg-black/80 hover:bg-black text-[#c9a24b] text-xs font-mono rounded-lg border border-[#c9a24b]/40 backdrop-blur shadow-lg cursor-pointer flex items-center gap-1.5"
+          className="px-3 py-1.5 bg-black/80 hover:bg-black text-[#5EEAD4] text-xs font-mono rounded-lg border border-[rgba(94,234,212,0.4)] backdrop-blur shadow-lg cursor-pointer flex items-center gap-1.5"
         >
           <Settings className="w-3.5 h-3.5" />
           <span>{showConfig ? '關閉設定' : 'OBS/位置設定'}</span>
         </button>
 
         {showConfig && (
-          <div className="absolute top-10 right-0 p-4 bg-[#0a0f1d]/95 border border-[#c9a24b]/40 rounded-xl text-xs text-white space-y-3 shadow-2xl backdrop-blur-md w-72 z-50">
+          <div className="absolute top-10 right-0 p-4 bg-[#111217]/95 border border-[rgba(94,234,212,0.4)] rounded-xl text-xs text-white space-y-3 shadow-2xl backdrop-blur-md w-72 z-50">
             <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
-              <span className="font-bold text-[#c9a24b]">OBS 懸浮窗設定 (房號: {currentRoom})</span>
+              <span className="font-bold text-[#5EEAD4]">OBS 懸浮窗設定 (房號: {currentRoom})</span>
               <button
                 type="button"
                 onClick={() => setShowConfig(false)}
@@ -403,7 +406,7 @@ export function ObsOverlay({
       {badgeVisible && (
         <div className="fixed top-4 left-4 z-40 flex items-center gap-2 px-3 py-1 bg-black/60 backdrop-blur-md rounded-lg border border-white/10">
           <div className="w-2 h-2 rounded-full bg-[#10b981] animate-ping" />
-          <span className="text-[11px] font-mono text-[#c9a24b] font-bold tracking-wider">
+          <span className="text-[11px] font-mono text-[#5EEAD4] font-bold tracking-wider">
             OMNISUB LIVE • 5T CERTIFIED • ROOM: {currentRoom}
           </span>
         </div>
@@ -427,13 +430,13 @@ export function ObsOverlay({
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
           className={`flex items-center justify-between px-3 py-1.5 mb-2 rounded-lg bg-black/70 hover:bg-black/90 border border-white/15 text-xs text-gray-300 transition-all cursor-grab active:cursor-grabbing backdrop-blur-md select-none ${
-            isDragging ? 'border-[#c9a24b] bg-black/95 text-[#c9a24b]' : ''
+            isDragging ? 'border-[#5EEAD4] bg-black/95 text-[#5EEAD4]' : ''
           }`}
           title="按住此處可自由拖曳字幕至螢幕任意位置"
         >
           <div className="flex items-center gap-2 font-mono text-[11px]">
-            <GripHorizontal className="w-4 h-4 text-[#c9a24b] shrink-0" />
-            <span className="font-bold text-[#c9a24b]">
+            <GripHorizontal className="w-4 h-4 text-[#5EEAD4] shrink-0" />
+            <span className="font-bold text-[#5EEAD4]">
               {isDragging ? '拖曳移動中...' : '⠿ 按住拖曳移動字幕位置'}
             </span>
             <span className="hidden sm:inline text-white/50">
@@ -469,7 +472,7 @@ export function ObsOverlay({
           </div>
         </div>
 
-        {/* 字幕顯示區域 */}
+        {/* 字幕顯示區域 (純色文字，絕無字體漸層) */}
         <div className="space-y-4">
           {subtitles.length === 0 ? (
             <div className="text-white/60 font-mono text-center py-6 text-sm animate-pulse bg-black/40 rounded-xl border border-white/10">
@@ -483,7 +486,7 @@ export function ObsOverlay({
               >
                 {/* 講者標籤 */}
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-mono font-bold text-[#c9a24b] bg-black/80 px-2 py-0.5 rounded border border-[#c9a24b]/40">
+                  <span className="text-xs font-mono font-bold text-[#5EEAD4] bg-black/80 px-2 py-0.5 rounded border border-[rgba(94,234,212,0.4)]">
                     {sub.speaker || '即時講者'}
                   </span>
                   <span className="text-[10px] font-mono text-white/60">
@@ -491,7 +494,7 @@ export function ObsOverlay({
                   </span>
                 </div>
 
-                {/* 中文 / 原文 */}
+                {/* 中文 / 原文 - 純色文字，絕無漸層 */}
                 {(lang === 'bilingual' || lang === 'zh') && (
                   <div
                     className="font-bold text-[#f8fafc] leading-snug tracking-wide"
@@ -501,10 +504,10 @@ export function ObsOverlay({
                   </div>
                 )}
 
-                {/* 英文 / 譯文 */}
+                {/* 英文 / 譯文 - 純色文字，絕無漸層 */}
                 {(lang === 'bilingual' || lang === 'en') && (
                   <div
-                    className="font-medium text-[#fde047] leading-snug tracking-wide mt-1"
+                    className="font-semibold text-[#5EEAD4] leading-snug tracking-wide mt-1"
                     style={{ fontSize: `${Math.round(fontSize * 0.88)}px` }}
                   >
                     {sub.translatedText || sub.originalText}

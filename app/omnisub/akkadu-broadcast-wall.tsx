@@ -39,9 +39,17 @@ export interface AkkaduSubtitle {
 }
 
 export type LangViewMode = 'bilingual' | 'zh' | 'en';
-export type VisualTheme = 'warm-gold' | 'liquid-cyan' | 'high-contrast';
+export type VisualTheme = 'dark' | 'light';
 
-export function AkkaduBroadcastWall() {
+export interface AkkaduBroadcastWallProps {
+  currentTheme?: 'dark' | 'light';
+  onThemeChange?: (theme: 'dark' | 'light') => void;
+}
+
+export function AkkaduBroadcastWall({
+  currentTheme = 'dark',
+  onThemeChange,
+}: AkkaduBroadcastWallProps) {
   const [mounted, setMounted] = useState(false);
   const [roomCode, setRoomCode] = useState('GIHC');
   const [isStreaming, setIsStreaming] = useState(true);
@@ -50,11 +58,24 @@ export function AkkaduBroadcastWall() {
 
   // 1. 字幕樣式調整
   const [fontSize, setFontSize] = useState(24);
-  const [visualTheme, setVisualTheme] = useState<VisualTheme>('warm-gold');
+  const [visualTheme, setVisualTheme] = useState<VisualTheme>(currentTheme);
   const [showTimestamp, setShowTimestamp] = useState(true);
   const [showHashLock, setShowHashLock] = useState(true);
   const [autoScroll, setAutoScroll] = useState(true);
   const [showStylePanel, setShowStylePanel] = useState(false);
+
+  useEffect(() => {
+    if (currentTheme) {
+      setVisualTheme(currentTheme);
+    }
+  }, [currentTheme]);
+
+  const handleThemeChange = (newTheme: VisualTheme) => {
+    setVisualTheme(newTheme);
+    if (onThemeChange) {
+      onThemeChange(newTheme);
+    }
+  };
 
   // 2. 多語系模式切換 (繁體中文 / English)
   const [langMode, setLangMode] = useState<LangViewMode>('bilingual');
@@ -475,37 +496,37 @@ export function AkkaduBroadcastWall() {
     URL.revokeObjectURL(url);
   };
 
-  // 主題樣式配置
+  // 主題樣式配置 (Dark Editorial vs Light Editorial，純色嚴禁字型漸層)
+  const isDark = visualTheme === 'dark';
+
   const themeClasses = {
-    'warm-gold': {
-      card: '!bg-[#10243f] !border-[#c9a24b]/40',
-      headerText: 'text-[#c9a24b]',
-      accentBg: 'bg-[#c9a24b]',
-      accentText: 'text-[#070b12]',
-      subCard: 'bg-[#070b12] border-[#c9a24b]/30 hover:border-[#c9a24b]/70',
-      primaryText: 'text-[#f3ede1]',
-      secondaryText: 'text-[#c9a24b]',
-      badgeBg: 'bg-[#c9a24b]/20 text-[#c9a24b] border-[#c9a24b]/40',
+    dark: {
+      card: '!bg-[#111217] !border-[rgba(67,70,81,0.5)] shadow-2xl',
+      headerText: 'text-[#ebecef]',
+      accentBg: 'bg-[#5EEAD4]',
+      accentText: 'text-[#0a0b0e]',
+      subCard: 'bg-[#171921] border-[rgba(67,70,81,0.5)] hover:border-[#5EEAD4]/60',
+      primaryText: 'text-[#ebecef]',
+      secondaryText: 'text-[#5EEAD4]',
+      badgeBg: 'bg-[#171921] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]',
+      panelBg: 'bg-[#171921] border-[rgba(67,70,81,0.5)]',
+      inputBg: 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)] text-[#ebecef] placeholder:text-[#8d909c]/60',
+      mutedText: 'text-[#8d909c]',
+      borderColor: 'border-[rgba(67,70,81,0.5)]',
     },
-    'liquid-cyan': {
-      card: '!bg-[#031326]/90 !border-[#06b6d4]/40 backdrop-blur-xl',
-      headerText: 'text-[#06b6d4]',
-      accentBg: 'bg-[#06b6d4]',
-      accentText: 'text-[#020617]',
-      subCard: 'bg-[#020b14]/80 border-[#06b6d4]/30 hover:border-[#06b6d4]/70 backdrop-blur-md',
-      primaryText: 'text-[#f8fafc]',
-      secondaryText: 'text-[#10b981]',
-      badgeBg: 'bg-[#06b6d4]/20 text-[#06b6d4] border-[#06b6d4]/40',
-    },
-    'high-contrast': {
-      card: '!bg-[#000000] !border-[#38bdf8]/50',
-      headerText: 'text-[#38bdf8]',
-      accentBg: 'bg-[#38bdf8]',
-      accentText: 'text-[#000000]',
-      subCard: 'bg-[#090d16] border-[#38bdf8]/40 hover:border-[#38bdf8]',
-      primaryText: 'text-[#ffffff]',
-      secondaryText: 'text-[#38bdf8]',
-      badgeBg: 'bg-[#38bdf8]/20 text-[#38bdf8] border-[#38bdf8]/50',
+    light: {
+      card: '!bg-[#ffffff] !border-[rgba(100,116,139,0.25)] shadow-lg',
+      headerText: 'text-[#0f172a]',
+      accentBg: 'bg-[#0d9488]',
+      accentText: 'text-[#ffffff]',
+      subCard: 'bg-[#ffffff] border-[rgba(100,116,139,0.25)] hover:border-[#0d9488]/60 shadow-sm',
+      primaryText: 'text-[#0f172a]',
+      secondaryText: 'text-[#0d9488]',
+      badgeBg: 'bg-[#f1f5f9] text-[#0d9488] border-[rgba(13,148,136,0.3)]',
+      panelBg: 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]',
+      inputBg: 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)] text-[#0f172a] placeholder:text-[#64748b]/60',
+      mutedText: 'text-[#64748b]',
+      borderColor: 'border-[rgba(100,116,139,0.25)]',
     },
   }[visualTheme];
 
@@ -513,32 +534,38 @@ export function AkkaduBroadcastWall() {
     <div
       className={`w-full transition-all ${
         isFullscreen
-          ? 'fixed inset-0 z-50 bg-[#020617] p-4 sm:p-6 overflow-y-auto flex flex-col justify-between'
+          ? `fixed inset-0 z-50 p-4 sm:p-6 overflow-y-auto flex flex-col justify-between ${
+              isDark ? 'bg-[#0a0b0e]' : 'bg-[#f8fafc]'
+            }`
           : ''
       }`}
     >
       {/* Master Integrated Workspace Card */}
       <OmniBaseCard
-        className={`!p-4 sm:!p-6 relative overflow-hidden font-sans transition-all duration-300 shadow-[0_24px_64px_rgba(0,0,0,0.65)] ${themeClasses.card}`}
+        className={`!p-4 sm:!p-6 relative overflow-hidden font-sans transition-all duration-300 ${themeClasses.card}`}
         statusIndicator="trustworthy"
       >
         {/* =========================================================================
             Workspace Header: Room Code, View Mode, STT Mic, Fullscreen
            ========================================================================= */}
-        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 pb-4 border-b border-[#c9a24b]/25 mb-4 relative z-20">
+        <div
+          className={`flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-4 pb-4 border-b mb-4 relative z-20 ${
+            isDark ? 'border-[rgba(67,70,81,0.5)]' : 'border-[rgba(100,116,139,0.25)]'
+          }`}
+        >
           {/* Room Code & Title */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 min-w-0">
             <div className="flex items-center gap-2.5 shrink-0">
               <div
-                className={`w-9 h-9 rounded-xl flex items-center justify-center font-black shadow-[0_0_18px_rgba(201,162,75,0.4)] ${themeClasses.accentBg} ${themeClasses.accentText}`}
+                className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold shadow-sm ${themeClasses.accentBg} ${themeClasses.accentText}`}
               >
                 <Radio className="w-5 h-5 animate-pulse" />
               </div>
               <div>
-                <h2 className={`text-base sm:text-lg font-black whitespace-nowrap ${themeClasses.headerText}`}>
+                <h2 className={`text-base sm:text-lg font-bold whitespace-nowrap ${themeClasses.headerText}`}>
                   OmniSub 雙語字幕轉播牆
                 </h2>
-                <div className="text-[10px] font-mono text-[#f3ede1]/60">
+                <div className={`text-[10px] font-mono ${themeClasses.mutedText}`}>
                   繁中 ⇄ English • 即時 Whisper STT • 5T 存證
                 </div>
               </div>
@@ -549,8 +576,12 @@ export function AkkaduBroadcastWall() {
               </span>
             </div>
 
-            <div className="flex items-center gap-2 bg-[#070b12] px-3 py-1.5 rounded-xl border border-[#c9a24b]/40 w-full sm:w-auto shadow-[inset_0_2px_6px_rgba(0,0,0,0.7)]">
-              <span className={`text-xs font-mono font-bold shrink-0 ${themeClasses.headerText}`}>
+            <div
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border w-full sm:w-auto ${
+                isDark ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)]' : 'bg-[#f1f5f9] border-[rgba(100,116,139,0.25)]'
+              }`}
+            >
+              <span className={`text-xs font-mono font-bold shrink-0 ${themeClasses.secondaryText}`}>
                 房號:
               </span>
               <input
@@ -558,7 +589,9 @@ export function AkkaduBroadcastWall() {
                 value={roomCode}
                 onChange={(e) => handleRoomCodeChange(e.target.value)}
                 placeholder="輸入房號 (GIHC) 或 Akkadu 網址..."
-                className="w-full sm:w-40 bg-transparent text-xs font-mono font-bold text-[#f3ede1] placeholder:text-[#f3ede1]/35 outline-none uppercase tracking-wider"
+                className={`w-full sm:w-40 bg-transparent text-xs font-mono font-bold outline-none uppercase tracking-wider ${
+                  isDark ? 'text-[#ebecef] placeholder:text-[#8d909c]/40' : 'text-[#0f172a] placeholder:text-[#64748b]/40'
+                }`}
               />
             </div>
           </div>
@@ -570,10 +603,12 @@ export function AkkaduBroadcastWall() {
               <button
                 type="button"
                 onClick={toggleListening}
-                className={`px-3 py-1.5 text-xs font-black rounded-xl transition-all cursor-pointer flex items-center gap-1.5 shadow-[0_0_15px_rgba(0,0,0,0.4)] active:scale-95 ${
+                className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center gap-1.5 active:scale-95 ${
                   isListening
                     ? 'bg-[#ef4444] text-[#ffffff] animate-pulse shadow-[0_0_20px_rgba(239,68,68,0.7)]'
-                    : 'bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/50'
+                    : isDark
+                    ? 'bg-[#171921] hover:bg-[#242836] text-[#5EEAD4] border border-[rgba(94,234,212,0.3)]'
+                    : 'bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#0d9488] border border-[rgba(13,148,136,0.3)]'
                 }`}
                 title={isListening ? '點擊停止語音辨識' : '開啟麥克風即時轉寫字幕'}
               >
@@ -586,7 +621,11 @@ export function AkkaduBroadcastWall() {
                 value={sttLang}
                 onChange={(e) => setSttLang(e.target.value as any)}
                 disabled={isListening}
-                className="bg-[#070b12] text-xs font-mono font-bold text-[#c9a24b] px-2 py-1.5 rounded-xl border border-[#c9a24b]/40 outline-none cursor-pointer"
+                className={`text-xs font-mono font-semibold px-2 py-1.5 rounded-xl border outline-none cursor-pointer ${
+                  isDark
+                    ? 'bg-[#171921] text-[#ebecef] border-[rgba(67,70,81,0.5)]'
+                    : 'bg-[#f1f5f9] text-[#0f172a] border-[rgba(100,116,139,0.25)]'
+                }`}
                 title="語音辨識輸入語言"
               >
                 <option value="zh-TW">繁體中文 (zh-TW)</option>
@@ -595,56 +634,42 @@ export function AkkaduBroadcastWall() {
             </div>
 
             {/* View Mode Switcher */}
-            <div className="flex items-center gap-1 bg-[#070b12] p-1 rounded-xl border border-[#c9a24b]/30 shrink-0 flex-wrap">
-              <button
-                onClick={() => setViewMode('wall')}
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${
-                  viewMode === 'wall'
-                    ? `${themeClasses.accentBg} ${themeClasses.accentText} shadow-[0_0_12px_rgba(201,162,75,0.3)]`
-                    : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'
-                }`}
-              >
-                轉播牆
-              </button>
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${
-                  viewMode === 'grid'
-                    ? `${themeClasses.accentBg} ${themeClasses.accentText} shadow-[0_0_12px_rgba(201,162,75,0.3)]`
-                    : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'
-                }`}
-              >
-                網格卡片
-              </button>
-              <button
-                onClick={() => setViewMode('marquee')}
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${
-                  viewMode === 'marquee'
-                    ? `${themeClasses.accentBg} ${themeClasses.accentText} shadow-[0_0_12px_rgba(201,162,75,0.3)]`
-                    : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'
-                }`}
-              >
-                跑馬燈
-              </button>
-              <button
-                onClick={() => setViewMode('live-stream')}
-                className={`px-3 py-1 text-xs font-bold rounded-lg transition-all whitespace-nowrap cursor-pointer ${
-                  viewMode === 'live-stream'
-                    ? `${themeClasses.accentBg} ${themeClasses.accentText} shadow-[0_0_12px_rgba(201,162,75,0.3)]`
-                    : 'text-[#f3ede1]/65 hover:text-[#f3ede1]'
-                }`}
-              >
-                📺 官方同屏
-              </button>
+            <div
+              className={`flex items-center gap-1 p-1 rounded-xl border shrink-0 flex-wrap ${
+                isDark ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]' : 'bg-[#f1f5f9] border-[rgba(100,116,139,0.25)]'
+              }`}
+            >
+              {(['wall', 'grid', 'marquee', 'live-stream'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setViewMode(mode)}
+                  className={`px-3 py-1 text-xs font-medium rounded-lg transition-all whitespace-nowrap cursor-pointer ${
+                    viewMode === mode
+                      ? `${themeClasses.accentBg} ${themeClasses.accentText} font-semibold`
+                      : isDark
+                      ? 'text-[#8d909c] hover:text-[#ebecef]'
+                      : 'text-[#64748b] hover:text-[#0f172a]'
+                  }`}
+                >
+                  {mode === 'wall' && '轉播牆'}
+                  {mode === 'grid' && '網格卡片'}
+                  {mode === 'marquee' && '跑馬燈'}
+                  {mode === 'live-stream' && '📺 官方同屏'}
+                </button>
+              ))}
             </div>
 
             {/* Style & Preferences Drawer Toggle */}
             <button
+              type="button"
               onClick={() => setShowStylePanel(!showStylePanel)}
               className={`p-2 rounded-xl border text-xs font-bold transition-all shrink-0 cursor-pointer ${
                 showStylePanel
-                  ? 'bg-[#c9a24b] text-[#070b12] border-[#c9a24b]'
-                  : 'bg-[#070b12] text-[#c9a24b] border-[#c9a24b]/40 hover:bg-[#10243f]'
+                  ? `${themeClasses.accentBg} ${themeClasses.accentText}`
+                  : isDark
+                  ? 'bg-[#171921] text-[#ebecef] border-[rgba(67,70,81,0.5)] hover:bg-[#242836]'
+                  : 'bg-[#f1f5f9] text-[#0f172a] border-[rgba(100,116,139,0.25)] hover:bg-[#e2e8f0]'
               }`}
               title="自訂字幕外觀與字型樣式"
             >
@@ -653,8 +678,13 @@ export function AkkaduBroadcastWall() {
 
             {/* Fullscreen Button */}
             <button
+              type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="p-2 rounded-xl bg-[#070b12] hover:bg-[#10243f] text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all shrink-0 cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.15)]"
+              className={`p-2 rounded-xl border text-xs font-bold transition-all shrink-0 cursor-pointer ${
+                isDark
+                  ? 'bg-[#171921] text-[#ebecef] border-[rgba(67,70,81,0.5)] hover:bg-[#242836]'
+                  : 'bg-[#f1f5f9] text-[#0f172a] border-[rgba(100,116,139,0.25)] hover:bg-[#e2e8f0]'
+              }`}
               title={isFullscreen ? '退出全螢幕' : '全螢幕轉播'}
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -665,54 +695,47 @@ export function AkkaduBroadcastWall() {
         {/* =========================================================================
             Language Mode Bar (多語系切換: 雙語 / 繁中 / 英文 + 對調)
            ========================================================================= */}
-        <div className="flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl bg-[#070b12]/90 border border-[#c9a24b]/30 mb-3 relative z-20">
+        <div
+          className={`flex flex-wrap items-center justify-between gap-3 p-2.5 rounded-xl border mb-3 relative z-20 ${
+            isDark ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]' : 'bg-[#f1f5f9] border-[rgba(100,116,139,0.25)]'
+          }`}
+        >
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-xs font-mono font-bold text-[#c9a24b] flex items-center gap-1 mr-1">
+            <span className={`text-xs font-mono font-bold flex items-center gap-1 mr-1 ${themeClasses.secondaryText}`}>
               <Globe className="w-3.5 h-3.5" />
               語言視角:
             </span>
-            <button
-              type="button"
-              onClick={() => setLangMode('bilingual')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                langMode === 'bilingual'
-                  ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_10px_rgba(201,162,75,0.4)]'
-                  : 'text-[#f3ede1]/70 hover:text-[#f3ede1] bg-[#10243f]/60'
-              }`}
-            >
-              🌐 雙語對照 (Bilingual)
-            </button>
-            <button
-              type="button"
-              onClick={() => setLangMode('zh')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                langMode === 'zh'
-                  ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_10px_rgba(201,162,75,0.4)]'
-                  : 'text-[#f3ede1]/70 hover:text-[#f3ede1] bg-[#10243f]/60'
-              }`}
-            >
-              🇹🇼 僅繁中 (Traditional Chinese)
-            </button>
-            <button
-              type="button"
-              onClick={() => setLangMode('en')}
-              className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
-                langMode === 'en'
-                  ? 'bg-[#c9a24b] text-[#070b12] shadow-[0_0_10px_rgba(201,162,75,0.4)]'
-                  : 'text-[#f3ede1]/70 hover:text-[#f3ede1] bg-[#10243f]/60'
-              }`}
-            >
-              🇺🇸 僅英文 (English)
-            </button>
+            {(['bilingual', 'zh', 'en'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setLangMode(m)}
+                className={`px-3 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer ${
+                  langMode === m
+                    ? `${themeClasses.accentBg} ${themeClasses.accentText} font-semibold`
+                    : isDark
+                    ? 'text-[#8d909c] hover:text-[#ebecef] bg-[#111217]'
+                    : 'text-[#64748b] hover:text-[#0f172a] bg-[#ffffff]'
+                }`}
+              >
+                {m === 'bilingual' && '🌐 雙語對照 (Bilingual)'}
+                {m === 'zh' && '🇹🇼 僅繁中 (Traditional Chinese)'}
+                {m === 'en' && '🇺🇸 僅英文 (English)'}
+              </button>
+            ))}
 
             {langMode === 'bilingual' && (
               <button
                 type="button"
                 onClick={() => setSwapLangOrder(!swapLangOrder)}
-                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center gap-1 border border-[#c9a24b]/40 ${
+                className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-all cursor-pointer flex items-center gap-1 border ${
                   swapLangOrder
-                    ? 'bg-[#c9a24b]/30 text-[#c9a24b]'
-                    : 'text-[#f3ede1]/70 hover:text-[#f3ede1] bg-[#10243f]'
+                    ? isDark
+                      ? 'bg-[rgba(94,234,212,0.15)] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                      : 'bg-[rgba(13,148,136,0.12)] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+                    : isDark
+                    ? 'text-[#8d909c] hover:text-[#ebecef] bg-[#111217] border-[rgba(67,70,81,0.5)]'
+                    : 'text-[#64748b] hover:text-[#0f172a] bg-[#ffffff] border-[rgba(100,116,139,0.25)]'
                 }`}
                 title="切換首行文字為譯文或原文"
               >
@@ -723,30 +746,32 @@ export function AkkaduBroadcastWall() {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex items-center gap-3 text-xs font-mono text-[#f3ede1]/60">
+          <div className={`flex items-center gap-3 text-xs font-mono ${themeClasses.mutedText}`}>
             <span>
-              已記錄: <strong className="text-[#c9a24b]">{subtitles.length}</strong> 條
+              已記錄: <strong className={themeClasses.secondaryText}>{subtitles.length}</strong> 條
             </span>
             <span className="hidden sm:inline">•</span>
             <span className="hidden sm:inline">
-              模式: <strong className="text-[#f3ede1]">{langMode.toUpperCase()}</strong>
+              模式: <strong className={themeClasses.primaryText}>{langMode.toUpperCase()}</strong>
             </span>
           </div>
         </div>
 
         {/* =========================================================================
-            Style & Preferences Panel (可摺疊的外觀調整面板)
+            Style & Preferences Panel (可摺疊的外觀調整面板 - 深淺色主題)
            ========================================================================= */}
         {showStylePanel && (
-          <div className="p-4 rounded-xl bg-[#070b12] border border-[#c9a24b]/40 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-200">
+          <div
+            className={`p-4 rounded-xl border mb-4 grid grid-cols-1 md:grid-cols-3 gap-4 animate-in fade-in slide-in-from-top-2 duration-200 ${themeClasses.panelBg}`}
+          >
             {/* Font Size Adjuster */}
             <div>
-              <div className="flex items-center justify-between text-xs font-bold text-[#c9a24b] mb-1.5">
+              <div className={`flex items-center justify-between text-xs font-bold mb-1.5 ${themeClasses.secondaryText}`}>
                 <span className="flex items-center gap-1.5">
                   <Type className="w-3.5 h-3.5" />
                   字幕字體大小
                 </span>
-                <span className="font-mono text-[#f3ede1]">{fontSize}px</span>
+                <span className={`font-mono ${themeClasses.primaryText}`}>{fontSize}px</span>
               </div>
               <input
                 type="range"
@@ -754,7 +779,7 @@ export function AkkaduBroadcastWall() {
                 max="48"
                 value={fontSize}
                 onChange={(e) => setFontSize(Number(e.target.value))}
-                className="w-full accent-[#c9a24b] cursor-pointer"
+                className={`w-full cursor-pointer ${isDark ? 'accent-[#5EEAD4]' : 'accent-[#0d9488]'}`}
               />
               <div className="flex items-center gap-1 mt-2">
                 {[20, 26, 34, 42].map((sz) => (
@@ -762,10 +787,12 @@ export function AkkaduBroadcastWall() {
                     key={sz}
                     type="button"
                     onClick={() => setFontSize(sz)}
-                    className={`flex-1 py-1 text-[11px] font-bold rounded-md border ${
+                    className={`flex-1 py-1 text-[11px] font-bold rounded-md border cursor-pointer ${
                       fontSize === sz
-                        ? 'bg-[#c9a24b] text-[#070b12] border-[#c9a24b]'
-                        : 'bg-[#10243f] text-[#f3ede1]/70 border-[#c9a24b]/30 hover:text-[#f3ede1]'
+                        ? `${themeClasses.accentBg} ${themeClasses.accentText} ${themeClasses.borderColor}`
+                        : isDark
+                        ? 'bg-[#111217] text-[#8d909c] border-[rgba(67,70,81,0.5)] hover:text-[#ebecef]'
+                        : 'bg-[#ffffff] text-[#64748b] border-[rgba(100,116,139,0.25)] hover:text-[#0f172a]'
                     }`}
                   >
                     {sz === 20 ? '小' : sz === 26 ? '中' : sz === 34 ? '大' : '特大'}
@@ -774,62 +801,55 @@ export function AkkaduBroadcastWall() {
               </div>
             </div>
 
-            {/* Visual Theme Selector */}
+            {/* Visual Theme Selector (深色手冊 & 清新典雅) */}
             <div>
-              <div className="text-xs font-bold text-[#c9a24b] mb-1.5 flex items-center gap-1.5">
+              <div className={`text-xs font-bold mb-1.5 flex items-center gap-1.5 ${themeClasses.secondaryText}`}>
                 <Palette className="w-3.5 h-3.5" />
-                視覺色彩主題
+                視覺色彩主題 (深淺雙色)
               </div>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => setVisualTheme('warm-gold')}
-                  className={`py-2 px-1 text-[11px] font-bold rounded-lg border text-center transition-all ${
-                    visualTheme === 'warm-gold'
-                      ? 'bg-[#c9a24b] text-[#070b12] border-[#c9a24b] shadow-[0_0_10px_rgba(201,162,75,0.4)]'
-                      : 'bg-[#10243f] text-[#f3ede1]/70 border-[#c9a24b]/30'
+                  onClick={() => handleThemeChange('dark')}
+                  className={`py-2 px-2 text-xs font-semibold rounded-lg border text-center transition-all cursor-pointer ${
+                    visualTheme === 'dark'
+                      ? 'bg-[#5EEAD4] text-[#0a0b0e] border-[#5EEAD4] font-bold shadow-sm'
+                      : isDark
+                      ? 'bg-[#111217] text-[#8d909c] border-[rgba(67,70,81,0.5)] hover:text-[#ebecef]'
+                      : 'bg-[#ffffff] text-[#64748b] border-[rgba(100,116,139,0.25)] hover:text-[#0f172a]'
                   }`}
                 >
-                  黑金尊爵
+                  深色手冊 (Dark)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setVisualTheme('liquid-cyan')}
-                  className={`py-2 px-1 text-[11px] font-bold rounded-lg border text-center transition-all ${
-                    visualTheme === 'liquid-cyan'
-                      ? 'bg-[#06b6d4] text-[#020617] border-[#06b6d4] shadow-[0_0_10px_rgba(6,182,212,0.4)]'
-                      : 'bg-[#031326] text-[#f8fafc]/70 border-[#06b6d4]/30'
+                  onClick={() => handleThemeChange('light')}
+                  className={`py-2 px-2 text-xs font-semibold rounded-lg border text-center transition-all cursor-pointer ${
+                    visualTheme === 'light'
+                      ? 'bg-[#0d9488] text-[#ffffff] border-[#0d9488] font-bold shadow-sm'
+                      : isDark
+                      ? 'bg-[#111217] text-[#8d909c] border-[rgba(67,70,81,0.5)] hover:text-[#ebecef]'
+                      : 'bg-[#ffffff] text-[#64748b] border-[rgba(100,116,139,0.25)] hover:text-[#0f172a]'
                   }`}
                 >
-                  液態玻璃
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setVisualTheme('high-contrast')}
-                  className={`py-2 px-1 text-[11px] font-bold rounded-lg border text-center transition-all ${
-                    visualTheme === 'high-contrast'
-                      ? 'bg-[#38bdf8] text-[#000000] border-[#38bdf8] shadow-[0_0_10px_rgba(56,189,248,0.4)]'
-                      : 'bg-[#090d16] text-[#ffffff]/70 border-[#38bdf8]/40'
-                  }`}
-                >
-                  黑曜對比
+                  清新典雅 (Light)
                 </button>
               </div>
             </div>
 
             {/* Display Toggles */}
             <div>
-              <div className="text-xs font-bold text-[#c9a24b] mb-1.5 flex items-center gap-1.5">
+              <div className={`text-xs font-bold mb-1.5 flex items-center gap-1.5 ${themeClasses.secondaryText}`}>
                 <Sliders className="w-3.5 h-3.5" />
                 版面元素開關
               </div>
-              <div className="flex flex-col gap-2 text-xs text-[#f3ede1]">
+              <div className={`flex flex-col gap-2 text-xs ${themeClasses.primaryText}`}>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={showTimestamp}
                     onChange={(e) => setShowTimestamp(e.target.checked)}
-                    className="accent-[#c9a24b] rounded"
+                    className={`rounded ${isDark ? 'accent-[#5EEAD4]' : 'accent-[#0d9488]'}`}
                   />
                   <span>顯示時間戳記 (Timestamps)</span>
                 </label>
@@ -838,7 +858,7 @@ export function AkkaduBroadcastWall() {
                     type="checkbox"
                     checked={showHashLock}
                     onChange={(e) => setShowHashLock(e.target.checked)}
-                    className="accent-[#c9a24b] rounded"
+                    className={`rounded ${isDark ? 'accent-[#5EEAD4]' : 'accent-[#0d9488]'}`}
                   />
                   <span>顯示 5T 密碼學 HashLock 徽章</span>
                 </label>
@@ -847,7 +867,7 @@ export function AkkaduBroadcastWall() {
                     type="checkbox"
                     checked={autoScroll}
                     onChange={(e) => setAutoScroll(e.target.checked)}
-                    className="accent-[#c9a24b] rounded"
+                    className={`rounded ${isDark ? 'accent-[#5EEAD4]' : 'accent-[#0d9488]'}`}
                   />
                   <span>即時新字幕自動置底捲動</span>
                 </label>
@@ -860,24 +880,24 @@ export function AkkaduBroadcastWall() {
             Active Microphone Live Interim Banner (語音辨識動態波形與暫態文字)
            ========================================================================= */}
         {isListening && (
-          <div className="p-3 mb-4 rounded-xl bg-[#ef4444]/10 border border-[#ef4444]/50 flex items-center justify-between gap-3 animate-pulse">
+          <div className="p-3 mb-4 rounded-xl bg-rose-500/10 border border-rose-500/40 flex items-center justify-between gap-3 animate-pulse">
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex items-center gap-1 shrink-0">
-                <span className="w-1.5 h-4 bg-[#ef4444] rounded-full animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1.5 h-6 bg-[#ef4444] rounded-full animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1.5 h-3 bg-[#ef4444] rounded-full animate-bounce" />
+                <span className="w-1.5 h-4 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.3s]" />
+                <span className="w-1.5 h-6 bg-rose-500 rounded-full animate-bounce [animation-delay:-0.15s]" />
+                <span className="w-1.5 h-3 bg-rose-500 rounded-full animate-bounce" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] font-mono font-bold text-[#ef4444] uppercase tracking-wider">
+                <div className="text-[10px] font-mono font-bold text-rose-500 uppercase tracking-wider">
                   麥克風即時收音中 ({sttLang === 'zh-TW' ? '繁體中文' : 'English'})：
                 </div>
-                <div className="text-sm font-semibold text-[#f3ede1] truncate">
+                <div className={`text-sm font-semibold truncate ${themeClasses.primaryText}`}>
                   {interimText || '請開口說話，系統將自動進行雙向翻譯並推播上牆...'}
                 </div>
               </div>
             </div>
             {isSttTranslating && (
-              <span className="text-[11px] font-mono text-[#c9a24b] shrink-0 animate-pulse">
+              <span className={`text-[11px] font-mono shrink-0 animate-pulse ${themeClasses.secondaryText}`}>
                 ⚡ AI 雙向翻譯中...
               </span>
             )}
@@ -887,17 +907,21 @@ export function AkkaduBroadcastWall() {
         {/* =========================================================================
             Integrated Action Toolbar: Share Link & Export Options (TXT, SRT, VTT, JSON)
            ========================================================================= */}
-        <div className="flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 p-3 rounded-xl bg-[#070b12]/80 border border-[#c9a24b]/30 mb-4 relative z-20">
+        <div
+          className={`flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3 p-3 rounded-xl border mb-4 relative z-20 ${
+            isDark ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]' : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+          }`}
+        >
           {/* Share Link Banner */}
           <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap sm:flex-nowrap">
-            <div className="p-1 rounded-md bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 shrink-0">
+            <div className={`p-1 rounded-md border shrink-0 ${themeClasses.badgeBg}`}>
               <LinkIcon className="w-3.5 h-3.5" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-[9px] font-mono text-[#c9a24b] font-bold uppercase">
+              <div className={`text-[9px] font-mono font-bold uppercase ${themeClasses.secondaryText}`}>
                 Akkadu Stream Share URL:
               </div>
-              <div className="text-xs font-mono text-[#f3ede1]/90 truncate font-semibold">
+              <div className={`text-xs font-mono truncate font-semibold ${themeClasses.primaryText}`}>
                 {mounted
                   ? `${window.location.origin}/omnisub?room=${encodeURIComponent(roomCode)}`
                   : `/omnisub?room=${roomCode}`}
@@ -905,29 +929,44 @@ export function AkkaduBroadcastWall() {
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
               <button
+                type="button"
                 onClick={copyShareLink}
-                className="px-2.5 py-1 rounded-lg bg-[#c9a24b] hover:bg-[#d4af37] text-[#070b12] text-xs font-black transition-all cursor-pointer flex items-center gap-1 shadow-[0_0_10px_rgba(201,162,75,0.3)] whitespace-nowrap"
+                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap shadow-sm ${themeClasses.accentBg} ${themeClasses.accentText}`}
               >
-                {copiedLink ? <Check className="w-3 h-3 text-[#070b12]" /> : <Copy className="w-3 h-3" />}
+                {copiedLink ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                 <span>{copiedLink ? '已複製' : '複製網址'}</span>
               </button>
               <button
+                type="button"
                 onClick={copyEmbedCode}
-                className="px-2.5 py-1 rounded-lg bg-[#10243f] hover:bg-[#10243f]/80 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap"
+                className={`px-2.5 py-1 rounded-lg border text-xs font-semibold transition-all cursor-pointer flex items-center gap-1 whitespace-nowrap ${
+                  isDark
+                    ? 'bg-[#111217] hover:bg-[#242836] text-[#ebecef] border-[rgba(67,70,81,0.5)]'
+                    : 'bg-[#ffffff] hover:bg-[#f1f5f9] text-[#0f172a] border-[rgba(100,116,139,0.25)]'
+                }`}
               >
-                {copiedEmbedCode ? <Check className="w-3 h-3 text-[#3c6e47]" /> : <Code className="w-3 h-3" />}
+                {copiedEmbedCode ? <Check className="w-3 h-3 text-[#10b981]" /> : <Code className="w-3 h-3" />}
                 <span>{copiedEmbedCode ? '已複製' : '複製嵌入碼'}</span>
               </button>
             </div>
           </div>
 
           {/* Export Toolbar: TXT, SRT, VTT, 5T Report */}
-          <div className="flex items-center gap-2 shrink-0 flex-wrap justify-between sm:justify-end pt-2 xl:pt-0 border-t xl:border-t-0 border-[#c9a24b]/20">
-            <span className="text-xs font-mono text-[#f3ede1]/60 mr-1">全文匯出:</span>
+          <div
+            className={`flex items-center gap-2 shrink-0 flex-wrap justify-between sm:justify-end pt-2 xl:pt-0 border-t xl:border-t-0 ${
+              isDark ? 'border-[rgba(67,70,81,0.5)]' : 'border-[rgba(100,116,139,0.25)]'
+            }`}
+          >
+            <span className={`text-xs font-mono mr-1 ${themeClasses.mutedText}`}>全文匯出:</span>
 
             <button
+              type="button"
               onClick={handleDownloadTXT}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                isDark
+                  ? 'bg-[#111217] hover:bg-[#242836] text-[#ebecef] border-[rgba(67,70,81,0.5)]'
+                  : 'bg-[#ffffff] hover:bg-[#f1f5f9] text-[#0f172a] border-[rgba(100,116,139,0.25)]'
+              }`}
               title="匯出純文字會議記錄 (TXT)"
             >
               <Download className="w-3 h-3" />
@@ -935,8 +974,13 @@ export function AkkaduBroadcastWall() {
             </button>
 
             <button
+              type="button"
               onClick={handleDownloadSRT}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                isDark
+                  ? 'bg-[#111217] hover:bg-[#242836] text-[#ebecef] border-[rgba(67,70,81,0.5)]'
+                  : 'bg-[#ffffff] hover:bg-[#f1f5f9] text-[#0f172a] border-[rgba(100,116,139,0.25)]'
+              }`}
               title="匯出標準影片字幕檔 (SRT)"
             >
               <FileText className="w-3 h-3" />
@@ -944,8 +988,13 @@ export function AkkaduBroadcastWall() {
             </button>
 
             <button
+              type="button"
               onClick={handleDownloadVTT}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#10243f] hover:bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40 text-xs font-bold transition-all whitespace-nowrap cursor-pointer"
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all whitespace-nowrap cursor-pointer ${
+                isDark
+                  ? 'bg-[#111217] hover:bg-[#242836] text-[#ebecef] border-[rgba(67,70,81,0.5)]'
+                  : 'bg-[#ffffff] hover:bg-[#f1f5f9] text-[#0f172a] border-[rgba(100,116,139,0.25)]'
+              }`}
               title="匯出 Web 專用字幕檔 (VTT)"
             >
               <FileText className="w-3 h-3" />
@@ -953,8 +1002,9 @@ export function AkkaduBroadcastWall() {
             </button>
 
             <button
+              type="button"
               onClick={handleDownload5TReport}
-              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-black text-xs transition-all whitespace-nowrap cursor-pointer shadow-[0_0_12px_rgba(201,162,75,0.3)] ${themeClasses.accentBg} ${themeClasses.accentText}`}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg font-bold text-xs transition-all whitespace-nowrap cursor-pointer shadow-sm ${themeClasses.accentBg} ${themeClasses.accentText}`}
               title="下載 5T 密碼學誠信驗證報告 (JSON)"
             >
               <ShieldCheck className="w-3 h-3" />
@@ -964,23 +1014,26 @@ export function AkkaduBroadcastWall() {
         </div>
 
         {/* =========================================================================
-            Main Subtitle Display Area (動態字幕展示牆)
+            Main Subtitle Display Area (動態字幕展示牆 - 純色文字，嚴禁漸層)
            ========================================================================= */}
 
         {/* Empty State */}
         {subtitles.length === 0 && (
-          <div className="py-16 px-6 text-center flex flex-col items-center justify-center rounded-2xl bg-[#070b12] border border-[#c9a24b]/25 my-4">
-            <div
-              className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-4 animate-pulse ${themeClasses.badgeBg}`}
-            >
+          <div
+            className={`py-16 px-6 text-center flex flex-col items-center justify-center rounded-2xl border my-4 ${
+              isDark ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]' : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+            }`}
+          >
+            <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-4 ${themeClasses.badgeBg}`}>
               <Radio className="w-7 h-7" />
             </div>
-            <h3 className="text-lg font-black text-[#f3ede1] mb-2">轉播牆目前等待即時字幕連線中</h3>
-            <p className="text-xs text-[#f3ede1]/70 max-w-md mb-6 leading-relaxed">
-              尚未接收到房號 <span className="font-mono font-bold text-[#c9a24b]">{roomCode}</span>{' '}
+            <h3 className={`text-lg font-bold mb-2 ${themeClasses.headerText}`}>轉播牆目前等待即時字幕連線中</h3>
+            <p className={`text-xs max-w-md mb-6 leading-relaxed ${themeClasses.mutedText}`}>
+              尚未接收到房號 <span className={`font-mono font-bold ${themeClasses.secondaryText}`}>{roomCode}</span>{' '}
               的字幕串流。您可以點擊上方「開啟麥克風 (STT)」說話，或透過下方表單手動推播字幕。
             </p>
             <button
+              type="button"
               onClick={() => {
                 fetch('/api/omnisub/akkadu', {
                   method: 'POST',
@@ -994,18 +1047,18 @@ export function AkkaduBroadcastWall() {
                   }),
                 }).then(() => fetchStream());
               }}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black shadow-[0_0_25px_rgba(201,162,75,0.4)] cursor-pointer transition-all flex items-center gap-2 active:scale-95 ${themeClasses.accentBg} ${themeClasses.accentText}`}
+              className={`px-6 py-2.5 rounded-xl text-xs font-bold cursor-pointer transition-all flex items-center gap-2 active:scale-95 shadow-sm ${themeClasses.accentBg} ${themeClasses.accentText}`}
             >
               <span>⚡ 點擊啟動 Akkadu 即時雙語轉播連線</span>
             </button>
           </div>
         )}
 
-        {/* View Mode: Wall (轉播牆) */}
+        {/* View Mode: Wall (轉播牆 - 純色文字，絕無字體漸層) */}
         {viewMode === 'wall' && subtitles.length > 0 && (
           <div
             ref={scrollRef}
-            className="space-y-4 max-h-[550px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-[#c9a24b]/40"
+            className="space-y-4 max-h-[550px] overflow-y-auto pr-2 scrollbar-thin"
           >
             {subtitles.map((sub, idx) => {
               const textTop = swapLangOrder ? sub.translatedText || sub.originalText : sub.originalText;
@@ -1014,7 +1067,7 @@ export function AkkaduBroadcastWall() {
               return (
                 <div
                   key={sub.id || idx}
-                  className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 shadow-[0_8px_30px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-bottom-2 ${themeClasses.subCard}`}
+                  className={`p-4 sm:p-5 rounded-2xl border transition-all duration-200 ${themeClasses.subCard}`}
                 >
                   <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
@@ -1022,23 +1075,29 @@ export function AkkaduBroadcastWall() {
                         🎙️ {sub.speaker}
                       </span>
                       {showTimestamp && (
-                        <span className="text-[10px] font-mono text-[#f3ede1]/50" suppressHydrationWarning>
+                        <span className={`text-[10px] font-mono ${themeClasses.mutedText}`} suppressHydrationWarning>
                           {formatTime(sub.timestamp)}
                         </span>
                       )}
                     </div>
 
                     {showHashLock && (
-                      <span className="font-mono text-[10px] text-[#c9a24b]/80 border border-[#c9a24b]/30 px-2 py-0.5 rounded">
+                      <span
+                        className={`font-mono text-[10px] border px-2 py-0.5 rounded ${
+                          isDark
+                            ? 'text-[#5EEAD4] border-[rgba(94,234,212,0.3)] bg-[#111217]'
+                            : 'text-[#0d9488] border-[rgba(13,148,136,0.3)] bg-[#f1f5f9]'
+                        }`}
+                      >
                         5T HASH: {sub.hashLock ? sub.hashLock.substring(0, 10) + '...' : 'SEALED'}
                       </span>
                     )}
                   </div>
 
-                  {/* 語言模式過濾顯示 */}
+                  {/* 語言模式過濾顯示 - 純色文字，嚴格禁用任何文字漸層 */}
                   {langMode === 'zh' && (
                     <div
-                      className={`font-semibold leading-relaxed tracking-wide break-words ${themeClasses.primaryText}`}
+                      className={`font-medium leading-relaxed tracking-wide break-words ${themeClasses.primaryText}`}
                       style={{ fontSize: `${fontSize}px` }}
                     >
                       {sub.originalText}
@@ -1047,7 +1106,7 @@ export function AkkaduBroadcastWall() {
 
                   {langMode === 'en' && (
                     <div
-                      className={`font-bold leading-relaxed tracking-wide break-words ${themeClasses.secondaryText}`}
+                      className={`font-semibold leading-relaxed tracking-wide break-words ${themeClasses.secondaryText}`}
                       style={{ fontSize: `${fontSize}px` }}
                     >
                       {sub.translatedText || sub.originalText}
@@ -1057,7 +1116,7 @@ export function AkkaduBroadcastWall() {
                   {langMode === 'bilingual' && (
                     <>
                       <div
-                        className={`font-semibold leading-relaxed tracking-wide mb-1.5 break-words ${themeClasses.primaryText}`}
+                        className={`font-medium leading-relaxed tracking-wide mb-1.5 break-words ${themeClasses.primaryText}`}
                         style={{ fontSize: `${fontSize}px` }}
                       >
                         {textTop}
@@ -1065,7 +1124,7 @@ export function AkkaduBroadcastWall() {
 
                       {textBottom && (
                         <div
-                          className={`font-bold leading-relaxed tracking-wide break-words ${themeClasses.secondaryText}`}
+                          className={`font-semibold leading-relaxed tracking-wide break-words ${themeClasses.secondaryText}`}
                           style={{ fontSize: `${Math.round(fontSize * 0.9)}px` }}
                         >
                           {textBottom}
@@ -1079,7 +1138,7 @@ export function AkkaduBroadcastWall() {
           </div>
         )}
 
-        {/* View Mode: Grid (網格卡片) */}
+        {/* View Mode: Grid (網格卡片 - 純色文字，嚴格禁用任何文字漸層) */}
         {viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[550px] overflow-y-auto pr-2 scrollbar-thin">
             {subtitles.map((sub, idx) => (
@@ -1089,9 +1148,9 @@ export function AkkaduBroadcastWall() {
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-[#c9a24b]">{sub.speaker}</span>
+                    <span className={`text-xs font-bold ${themeClasses.secondaryText}`}>{sub.speaker}</span>
                     {showTimestamp && (
-                      <span className="text-[10px] font-mono text-[#f3ede1]/50" suppressHydrationWarning>
+                      <span className={`text-[10px] font-mono ${themeClasses.mutedText}`} suppressHydrationWarning>
                         {formatTime(sub.timestamp)}
                       </span>
                     )}
@@ -1102,13 +1161,19 @@ export function AkkaduBroadcastWall() {
                     </p>
                   )}
                   {langMode !== 'zh' && sub.translatedText && (
-                    <p className={`text-sm font-bold break-words ${themeClasses.secondaryText}`}>
+                    <p className={`text-sm font-semibold break-words ${themeClasses.secondaryText}`}>
                       {sub.translatedText}
                     </p>
                   )}
                 </div>
                 {showHashLock && (
-                  <div className="mt-3 pt-2 border-t border-[#c9a24b]/15 text-[9px] font-mono text-[#f3ede1]/50 truncate">
+                  <div
+                    className={`mt-3 pt-2 border-t text-[9px] font-mono truncate ${
+                      isDark
+                        ? 'border-[rgba(67,70,81,0.5)] text-[#8d909c]'
+                        : 'border-[rgba(100,116,139,0.25)] text-[#64748b]'
+                    }`}
+                  >
                     HashLock: {sub.hashLock}
                   </div>
                 )}
@@ -1117,23 +1182,33 @@ export function AkkaduBroadcastWall() {
           </div>
         )}
 
-        {/* View Mode: Marquee (跑馬燈) */}
+        {/* View Mode: Marquee (跑馬燈 - 純色文字，嚴格禁用任何文字漸層) */}
         {viewMode === 'marquee' && (
-          <div className="py-12 bg-[#070b12] rounded-2xl border border-[#c9a24b]/30 overflow-hidden relative w-full">
+          <div
+            className={`py-12 rounded-2xl border overflow-hidden relative w-full ${
+              isDark ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]' : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+            }`}
+          >
             <div className="animate-marquee whitespace-nowrap flex gap-8 w-max">
               {[...subtitles, ...subtitles].map((sub, idx) => (
                 <div
                   key={`${sub.id}-${idx}`}
-                  className="inline-block px-6 py-4 rounded-xl bg-[#10243f] border border-[#c9a24b]/40 shrink-0 min-w-[280px] max-w-[480px] shadow-[0_8px_25px_rgba(0,0,0,0.5)]"
+                  className={`inline-block px-6 py-4 rounded-xl border shrink-0 min-w-[280px] max-w-[480px] shadow-sm ${
+                    isDark
+                      ? 'bg-[#111217] border-[rgba(67,70,81,0.5)]'
+                      : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)]'
+                  }`}
                 >
-                  <div className="text-xs text-[#f3ede1]/60 font-medium mb-1">🎙️ {sub.speaker}</div>
+                  <div className={`text-xs font-mono font-semibold mb-1 ${themeClasses.secondaryText}`}>
+                    🎙️ {sub.speaker}
+                  </div>
                   {langMode !== 'en' && (
-                    <div className="text-sm text-[#f3ede1] font-semibold mb-1 truncate">
+                    <div className={`text-sm font-medium mb-1 truncate ${themeClasses.primaryText}`}>
                       {sub.originalText}
                     </div>
                   )}
                   {langMode !== 'zh' && sub.translatedText && (
-                    <div className="text-base text-[#c9a24b] font-bold truncate">
+                    <div className={`text-base font-semibold truncate ${themeClasses.secondaryText}`}>
                       {sub.translatedText}
                     </div>
                   )}
@@ -1146,21 +1221,33 @@ export function AkkaduBroadcastWall() {
         {/* View Mode: Live Stream (官方原聲同屏) */}
         {viewMode === 'live-stream' && (
           <div className="flex flex-col gap-4">
-            <div className="flex flex-wrap items-center justify-between bg-[#070b12] px-4 py-3 rounded-2xl border border-[#c9a24b]/40 shadow-[inset_0_2px_8px_rgba(0,0,0,0.7)]">
-              <div className="flex items-center gap-2 text-xs font-mono text-[#c9a24b] font-bold">
-                <Radio className="w-4 h-4 text-[#c9a24b] animate-pulse" />
+            <div
+              className={`flex flex-wrap items-center justify-between px-4 py-3 rounded-2xl border ${
+                isDark ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]' : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+              }`}
+            >
+              <div className={`flex items-center gap-2 text-xs font-mono font-bold ${themeClasses.secondaryText}`}>
+                <Radio className="w-4 h-4 animate-pulse" />
                 <span className="truncate">Akkadu 直播網址: {officialAkkaduUrl}</span>
               </div>
               <a
                 href={officialAkkaduUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs font-bold text-[#c9a24b] hover:underline flex items-center gap-1 bg-[#c9a24b]/15 px-3 py-1 rounded-lg border border-[#c9a24b]/40"
+                className={`text-xs font-bold hover:underline flex items-center gap-1 px-3 py-1 rounded-lg border ${
+                  isDark
+                    ? 'bg-[rgba(94,234,212,0.12)] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                    : 'bg-[rgba(13,148,136,0.1)] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+                }`}
               >
                 <span>原聲直播頁面</span>
               </a>
             </div>
-            <div className="w-full h-[620px] rounded-2xl overflow-hidden border border-[#c9a24b]/40 shadow-[0_20px_56px_rgba(0,0,0,0.6)] relative bg-[#070b12]">
+            <div
+              className={`w-full h-[620px] rounded-2xl overflow-hidden border relative ${
+                isDark ? 'bg-[#111217] border-[rgba(67,70,81,0.5)]' : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)]'
+              }`}
+            >
               <iframe
                 src={officialAkkaduUrl}
                 title="Akkadu Live Stream Relay"
@@ -1172,11 +1259,13 @@ export function AkkaduBroadcastWall() {
         )}
 
         {/* =========================================================================
-            Live Input Simulator Form (手動推播即時字幕)
+            Live Input Simulator Form (手動推播即時字幕 - 深淺色主題適配)
            ========================================================================= */}
         <form
           onSubmit={handlePushSubtitle}
-          className="mt-6 pt-4 border-t border-[#c9a24b]/20 flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full"
+          className={`mt-6 pt-4 border-t flex flex-col lg:flex-row items-stretch lg:items-center gap-3 w-full ${
+            isDark ? 'border-[rgba(67,70,81,0.5)]' : 'border-[rgba(100,116,139,0.25)]'
+          }`}
         >
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1 min-w-0 w-full">
             <input
@@ -1184,19 +1273,19 @@ export function AkkaduBroadcastWall() {
               placeholder="講者名稱 (Speaker Name)"
               value={speakerName}
               onChange={(e) => setSpeakerName(e.target.value)}
-              className="w-full sm:w-48 px-3.5 py-2.5 text-xs font-medium rounded-xl bg-[#070b12] border border-[#c9a24b]/35 text-[#f3ede1] placeholder:text-[#f3ede1]/40 outline-none focus:border-[#c9a24b]/80 transition-all shrink-0"
+              className={`w-full sm:w-48 px-3.5 py-2.5 text-xs font-medium rounded-xl border outline-none transition-all shrink-0 ${themeClasses.inputBg}`}
             />
             <input
               type="text"
               placeholder="輸入即時字幕內容，系統將自動翻譯並推播上轉播牆 (Type subtitle here)..."
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              className="flex-1 w-full min-w-0 px-4 py-2.5 text-xs font-medium rounded-xl bg-[#070b12] border border-[#c9a24b]/35 text-[#f3ede1] placeholder:text-[#f3ede1]/40 outline-none focus:border-[#c9a24b]/80 transition-all"
+              className={`flex-1 w-full min-w-0 px-4 py-2.5 text-xs font-medium rounded-xl border outline-none transition-all ${themeClasses.inputBg}`}
             />
           </div>
           <button
             type="submit"
-            className={`w-full lg:w-auto px-6 py-2.5 text-xs font-black rounded-xl shadow-[0_0_25px_rgba(201,162,75,0.4)] cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-2 ${themeClasses.accentBg} ${themeClasses.accentText}`}
+            className={`w-full lg:w-auto px-6 py-2.5 text-xs font-bold rounded-xl cursor-pointer active:scale-95 transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-2 ${themeClasses.accentBg} ${themeClasses.accentText}`}
           >
             <span>推送即時字幕 🚀</span>
             <Send className="w-3.5 h-3.5" />

@@ -18,9 +18,15 @@ import { OmniBaseCard } from '@/components/omni-base-card';
 interface AudioCapturePanelProps {
   roomCode: string;
   onSubtitlePushed?: () => void;
+  currentTheme?: 'dark' | 'light';
 }
 
-export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePanelProps) {
+export function AudioCapturePanel({
+  roomCode,
+  onSubtitlePushed,
+  currentTheme = 'dark',
+}: AudioCapturePanelProps) {
+  const isDark = currentTheme === 'dark';
   const [isCapturing, setIsCapturing] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [audioLevel, setAudioLevel] = useState(0);
@@ -233,22 +239,54 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
   };
 
   return (
-    <OmniBaseCard className="bg-[#10243f]/90 border border-[#c9a24b]/40 rounded-2xl p-6 shadow-xl space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#c9a24b]/20 pb-4">
+    <OmniBaseCard
+      className={`rounded-2xl p-6 shadow-xl space-y-6 ${
+        isDark
+          ? '!bg-[#111217] !border-[rgba(67,70,81,0.5)]'
+          : '!bg-[#ffffff] !border-[rgba(100,116,139,0.25)]'
+      }`}
+    >
+      <div
+        className={`flex flex-wrap items-center justify-between gap-4 border-b pb-4 ${
+          isDark ? 'border-[rgba(67,70,81,0.5)]' : 'border-[rgba(100,116,139,0.25)]'
+        }`}
+      >
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40">
+          <div
+            className={`p-2.5 rounded-xl border ${
+              isDark
+                ? 'bg-[rgba(94,234,212,0.12)] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                : 'bg-[rgba(13,148,136,0.1)] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+            }`}
+          >
             <Radio className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#c9a24b] flex items-center gap-2">
+            <h2
+              className={`text-lg font-bold flex items-center gap-2 ${
+                isDark ? 'text-[#ebecef]' : 'text-[#0f172a]'
+              }`}
+            >
               Zoom / 系統音訊即時擷取錄音室
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                  isDark
+                    ? 'bg-[#171921] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                    : 'bg-[#f1f5f9] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+                }`}
+              >
                 ACTIVE STUDIO
               </span>
             </h2>
-            <p className="text-xs text-[#f3ede1]/70">
+            <p className={`text-xs ${isDark ? 'text-[#8d909c]' : 'text-[#64748b]'}`}>
               直錄 Zoom 會議、YouTube 或電腦音訊，經雙向翻譯後自動同步發布至房間{' '}
-              <span className="text-[#c9a24b] font-mono font-bold">[{roomCode}]</span>
+              <span
+                className={`font-mono font-bold ${
+                  isDark ? 'text-[#5EEAD4]' : 'text-[#0d9488]'
+                }`}
+              >
+                [{roomCode}]
+              </span>
             </p>
           </div>
         </div>
@@ -259,7 +297,7 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
             <button
               type="button"
               onClick={cleanupAudio}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-rose-600/90 hover:bg-rose-700 text-white font-bold text-xs shadow-lg transition-all cursor-pointer"
+              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
             >
               <VolumeX className="w-4 h-4" />
               停止音訊擷取
@@ -268,7 +306,11 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
             <button
               type="button"
               onClick={startSystemAudioCapture}
-              className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#c9a24b] hover:bg-[#b89139] text-[#070b12] font-black text-xs shadow-[0_0_20px_rgba(201,162,75,0.4)] transition-all cursor-pointer"
+              className={`flex items-center gap-2 px-5 py-2 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer ${
+                isDark
+                  ? 'bg-[#5EEAD4] text-[#0a0b0e] hover:bg-[#8CF5E3]'
+                  : 'bg-[#0d9488] text-white hover:bg-[#0f766e]'
+              }`}
             >
               <Volume2 className="w-4 h-4" />
               擷取 Zoom / 系統音訊
@@ -278,7 +320,7 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
       </div>
 
       {errorMsg && (
-        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-rose-950/60 border border-rose-500/40 text-rose-200 text-xs font-mono">
+        <div className="flex items-start gap-3 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/40 text-rose-300 text-xs font-mono">
           <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
           <div>{errorMsg}</div>
         </div>
@@ -287,35 +329,65 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
       {/* 音量指示 VU Meter 與狀態 */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* 音量柱狀顯示 */}
-        <div className="md:col-span-2 p-4 rounded-xl bg-[#070b12]/80 border border-white/10 space-y-2">
+        <div
+          className={`md:col-span-2 p-4 rounded-xl border space-y-2 ${
+            isDark
+              ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]'
+              : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+          }`}
+        >
           <div className="flex items-center justify-between text-xs font-mono">
-            <span className="text-[#f3ede1]/80 flex items-center gap-2">
-              <Volume2 className="w-4 h-4 text-[#c9a24b]" />
+            <span
+              className={`flex items-center gap-2 ${
+                isDark ? 'text-[#ebecef]' : 'text-[#0f172a]'
+              }`}
+            >
+              <Volume2
+                className={`w-4 h-4 ${
+                  isDark ? 'text-[#5EEAD4]' : 'text-[#0d9488]'
+                }`}
+              />
               音訊輸入動態 (VU Level)
             </span>
             <span
               className={`font-bold ${
-                audioLevel > 10 ? 'text-[#10b981]' : 'text-gray-500'
+                audioLevel > 10
+                  ? isDark
+                    ? 'text-[#5EEAD4]'
+                    : 'text-[#0d9488]'
+                  : isDark
+                  ? 'text-[#8d909c]'
+                  : 'text-[#64748b]'
               }`}
             >
               {audioLevel}% {audioLevel > 5 ? '• 接收音訊中' : '• 無音訊'}
             </span>
           </div>
 
-          <div className="h-3 w-full bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
+          <div
+            className={`h-3 w-full rounded-full overflow-hidden p-0.5 border ${
+              isDark
+                ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)]'
+                : 'bg-[#e2e8f0] border-[rgba(100,116,139,0.25)]'
+            }`}
+          >
             <div
               className={`h-full rounded-full transition-all duration-75 ${
                 audioLevel > 80
                   ? 'bg-rose-500'
-                  : audioLevel > 40
-                  ? 'bg-[#10b981]'
-                  : 'bg-[#c9a24b]'
+                  : isDark
+                  ? 'bg-[#5EEAD4]'
+                  : 'bg-[#0d9488]'
               }`}
               style={{ width: `${audioLevel}%` }}
             />
           </div>
 
-          <div className="text-[11px] text-[#f3ede1]/60 flex justify-between font-mono">
+          <div
+            className={`text-[11px] flex justify-between font-mono ${
+              isDark ? 'text-[#8d909c]' : 'text-[#64748b]'
+            }`}
+          >
             <span>-60 dB</span>
             <span>-20 dB</span>
             <span>0 dB (PEAK)</span>
@@ -323,40 +395,76 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
         </div>
 
         {/* 講者設定與自動翻譯設定 */}
-        <div className="p-4 rounded-xl bg-[#070b12]/80 border border-white/10 space-y-3">
+        <div
+          className={`p-4 rounded-xl border space-y-3 ${
+            isDark
+              ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]'
+              : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+          }`}
+        >
           <div>
-            <label className="block text-[11px] text-[#f3ede1]/70 mb-1 font-mono">
+            <label
+              className={`block text-[11px] mb-1 font-mono ${
+                isDark ? 'text-[#8d909c]' : 'text-[#64748b]'
+              }`}
+            >
               講者識別標籤:
             </label>
             <input
               type="text"
               value={speaker}
               onChange={(e) => setSpeaker(e.target.value)}
-              className="w-full px-3 py-1.5 rounded-lg bg-black/50 border border-white/20 text-xs text-white focus:outline-none focus:border-[#c9a24b]"
+              className={`w-full px-3 py-1.5 rounded-lg border text-xs outline-none ${
+                isDark
+                  ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)] text-[#ebecef] focus:border-[#5EEAD4]'
+                  : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)] text-[#0f172a] focus:border-[#0d9488]'
+              }`}
               placeholder="例如: Zoom Keynote Speaker"
             />
           </div>
           <div className="flex items-center justify-between pt-1">
-            <span className="text-xs text-[#f3ede1]/80">自動雙向翻譯並推送</span>
+            <span
+              className={`text-xs ${
+                isDark ? 'text-[#ebecef]' : 'text-[#0f172a]'
+              }`}
+            >
+              自動雙向翻譯並推送
+            </span>
             <input
               type="checkbox"
               checked={autoTranslate}
               onChange={(e) => setAutoTranslate(e.target.checked)}
-              className="w-4 h-4 accent-[#c9a24b] rounded cursor-pointer"
+              className={`w-4 h-4 rounded cursor-pointer ${
+                isDark ? 'accent-[#5EEAD4]' : 'accent-[#0d9488]'
+              }`}
             />
           </div>
         </div>
       </div>
 
       {/* 手動輸入或最後一筆辨識字幕預覽 */}
-      <div className="p-4 rounded-xl bg-[#070b12]/80 border border-white/10 space-y-3">
+      <div
+        className={`p-4 rounded-xl border space-y-3 ${
+          isDark
+            ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]'
+            : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+        }`}
+      >
         <div className="flex items-center justify-between text-xs font-mono">
-          <span className="text-[#c9a24b] font-bold flex items-center gap-1.5">
+          <span
+            className={`font-bold flex items-center gap-1.5 ${
+              isDark ? 'text-[#5EEAD4]' : 'text-[#0d9488]'
+            }`}
+          >
             <Sparkles className="w-4 h-4" />
             系統音訊辨識字詞 (即時暫存):
           </span>
           {isTranslating && (
-            <span className="text-amber-400 animate-pulse text-[11px]">
+            <span
+              className={`animate-pulse text-[11px] ${
+                isDark ? 'text-[#FB923C]' : 'text-[#ea580c]'
+              }`}
+            >
               5T 密碼學翻譯處理中...
             </span>
           )}
@@ -371,13 +479,21 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
               if (e.key === 'Enter') pushTranslatedSubtitle(sttText);
             }}
             placeholder="若無自動語音，亦可在此手動輸入講者內容按下 Enter 發布..."
-            className="flex-1 px-3.5 py-2 rounded-xl bg-black/60 border border-white/20 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#c9a24b]"
+            className={`flex-1 px-3.5 py-2 rounded-xl border text-sm outline-none ${
+              isDark
+                ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)] text-[#ebecef] placeholder:text-[#8d909c]/50 focus:border-[#5EEAD4]'
+                : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)] text-[#0f172a] placeholder:text-[#64748b]/50 focus:border-[#0d9488]'
+            }`}
           />
           <button
             type="button"
             disabled={!sttText.trim() || isTranslating}
             onClick={() => pushTranslatedSubtitle(sttText)}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#c9a24b] hover:bg-[#b89139] disabled:opacity-40 text-black font-bold text-xs transition-all cursor-pointer"
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl disabled:opacity-40 font-bold text-xs transition-all cursor-pointer ${
+              isDark
+                ? 'bg-[#5EEAD4] text-[#0a0b0e] hover:bg-[#8CF5E3]'
+                : 'bg-[#0d9488] text-white hover:bg-[#0f766e]'
+            }`}
           >
             <Send className="w-3.5 h-3.5" />
             推送
@@ -385,8 +501,14 @@ export function AudioCapturePanel({ roomCode, onSubtitlePushed }: AudioCapturePa
         </div>
 
         {lastPushed && (
-          <div className="flex items-center gap-2 text-xs font-mono text-[#10b981] bg-[#10b981]/10 p-2.5 rounded-lg border border-[#10b981]/30">
-            <CheckCircle2 className="w-4 h-4 shrink-0" />
+          <div
+            className={`flex items-center gap-2 text-xs font-mono p-2.5 rounded-lg border ${
+              isDark
+                ? 'bg-[rgba(94,234,212,0.1)] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                : 'bg-[rgba(13,148,136,0.1)] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+            }`}
+          >
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-[#10b981]" />
             <span className="truncate">已成功發布：{lastPushed}</span>
           </div>
         )}

@@ -7,6 +7,11 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-ui)', 'DM Sans', 'Noto Sans TC', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-serif)', 'Instrument Serif', 'Noto Serif TC', 'serif'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'monospace'],
+      },
       colors: {
         primary: 'var(--bg-primary)',
         secondary: 'var(--bg-secondary)',
@@ -19,6 +24,27 @@ module.exports = {
         accentPurple: 'var(--accent-purple)',
         accentCyan: 'var(--accent-cyan)',
         accentGreen: 'var(--accent-green)',
+        editorial: {
+          bg: 'var(--bg)',
+          bg2: 'var(--bg-2)',
+          surface1: 'var(--surface-1)',
+          surface2: 'var(--surface-2)',
+          surface3: 'var(--surface-3)',
+          surfaceHover: 'var(--surface-hover)',
+          border: 'var(--border)',
+          borderStrong: 'var(--border-strong)',
+          borderAccent: 'var(--border-accent)',
+          text1: 'var(--text-1)',
+          text2: 'var(--text-2)',
+          text3: 'var(--text-3)',
+          text4: 'var(--text-4)',
+          accentCool: 'var(--accent-cool)',
+          accentCoolHover: 'var(--accent-cool-hover)',
+          accentCoolSoft: 'var(--accent-cool-soft)',
+          accentWarm: 'var(--accent-warm)',
+          accentWarmHover: 'var(--accent-warm-hover)',
+          accentWarmSoft: 'var(--accent-warm-soft)',
+        },
         htb: {
           deepSea: 'var(--htb-deep-sea)',
           sprout: 'var(--htb-sprout-green)',

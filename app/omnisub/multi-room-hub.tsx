@@ -40,9 +40,15 @@ const DEFAULT_ROOMS: RoomMeta[] = [
 interface MultiRoomHubProps {
   onSelectRoom: (roomCode: string) => void;
   activeRoom: string;
+  currentTheme?: 'dark' | 'light';
 }
 
-export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
+export function MultiRoomHub({
+  onSelectRoom,
+  activeRoom,
+  currentTheme = 'dark',
+}: MultiRoomHubProps) {
+  const isDark = currentTheme === 'dark';
   const [rooms, setRooms] = useState<RoomMeta[]>(DEFAULT_ROOMS);
   const [loading, setLoading] = useState(false);
   const [broadcastText, setBroadcastText] = useState('');
@@ -172,19 +178,41 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
   return (
     <div className="space-y-6">
       {/* 總控台頂部概覽 */}
-      <div className="flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl bg-[#10243f]/90 border border-[#c9a24b]/40 shadow-xl">
+      <div
+        className={`flex flex-wrap items-center justify-between gap-4 p-5 rounded-2xl border shadow-md ${
+          isDark
+            ? 'bg-[#111217] border-[rgba(67,70,81,0.5)]'
+            : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)]'
+        }`}
+      >
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/40">
+          <div
+            className={`p-2.5 rounded-xl border ${
+              isDark
+                ? 'bg-[rgba(94,234,212,0.12)] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                : 'bg-[rgba(13,148,136,0.1)] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+            }`}
+          >
             <Layers className="w-5 h-5 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#c9a24b] flex items-center gap-2">
+            <h2
+              className={`text-lg font-bold flex items-center gap-2 ${
+                isDark ? 'text-[#ebecef]' : 'text-[#0f172a]'
+              }`}
+            >
               OmniSub 多房間轉播矩陣總控台
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/30">
+              <span
+                className={`text-[10px] font-mono px-2 py-0.5 rounded border ${
+                  isDark
+                    ? 'bg-[#171921] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                    : 'bg-[#f1f5f9] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+                }`}
+              >
                 MASTER HUB
               </span>
             </h2>
-            <p className="text-xs text-[#f3ede1]/70">
+            <p className={`text-xs ${isDark ? 'text-[#8d909c]' : 'text-[#64748b]'}`}>
               即時監控會場各分廳字幕流轉、OBS 串流來源與全域緊急公告推播
             </p>
           </div>
@@ -195,15 +223,27 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
             type="button"
             onClick={refreshRooms}
             disabled={loading}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/40 hover:bg-black/60 border border-white/20 text-xs font-mono text-gray-300 transition-all cursor-pointer"
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-mono transition-all cursor-pointer ${
+              isDark
+                ? 'bg-[#171921] border-[rgba(67,70,81,0.5)] text-[#ebecef] hover:bg-[#242836]'
+                : 'bg-[#f1f5f9] border-[rgba(100,116,139,0.25)] text-[#0f172a] hover:bg-[#e2e8f0]'
+            }`}
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-[#c9a24b]' : ''}`} />
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${
+                loading ? `animate-spin ${isDark ? 'text-[#5EEAD4]' : 'text-[#0d9488]'}` : ''
+              }`}
+            />
             即時整理
           </button>
           <button
             type="button"
             onClick={() => setShowAddRoom(!showAddRoom)}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-[#c9a24b] hover:bg-[#b89139] text-black font-bold text-xs shadow-md transition-all cursor-pointer"
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer ${
+              isDark
+                ? 'bg-[#5EEAD4] text-[#0a0b0e] hover:bg-[#8CF5E3]'
+                : 'bg-[#0d9488] text-white hover:bg-[#0f766e]'
+            }`}
           >
             <Plus className="w-3.5 h-3.5" />
             新增房間
@@ -215,7 +255,11 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
       {showAddRoom && (
         <form
           onSubmit={handleAddRoom}
-          className="p-4 rounded-xl bg-[#0a0f1d] border border-[#c9a24b]/40 flex flex-wrap items-center gap-3 animate-in fade-in"
+          className={`p-4 rounded-xl border flex flex-wrap items-center gap-3 animate-in fade-in ${
+            isDark
+              ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]'
+              : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+          }`}
         >
           <div className="flex-1 min-w-[140px]">
             <input
@@ -224,7 +268,11 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
               value={newRoomCode}
               onChange={(e) => setNewRoomCode(e.target.value)}
               placeholder="房間代碼 (如 STAGE-3)"
-              className="w-full px-3 py-1.5 rounded-lg bg-black/60 border border-white/20 text-xs text-white uppercase focus:border-[#c9a24b] focus:outline-none"
+              className={`w-full px-3 py-1.5 rounded-lg border text-xs uppercase outline-none ${
+                isDark
+                  ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)] text-[#ebecef] focus:border-[#5EEAD4]'
+                  : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)] text-[#0f172a] focus:border-[#0d9488]'
+              }`}
             />
           </div>
           <div className="flex-2 min-w-[200px]">
@@ -233,19 +281,31 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
               value={newRoomTitle}
               onChange={(e) => setNewRoomTitle(e.target.value)}
               placeholder="會場名稱 (如 第三會場：永續供應鏈論壇)"
-              className="w-full px-3 py-1.5 rounded-lg bg-black/60 border border-white/20 text-xs text-white focus:border-[#c9a24b] focus:outline-none"
+              className={`w-full px-3 py-1.5 rounded-lg border text-xs outline-none ${
+                isDark
+                  ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)] text-[#ebecef] focus:border-[#5EEAD4]'
+                  : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)] text-[#0f172a] focus:border-[#0d9488]'
+              }`}
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-1.5 rounded-lg bg-[#c9a24b] hover:bg-[#b89139] text-black text-xs font-bold transition-all cursor-pointer"
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              isDark
+                ? 'bg-[#5EEAD4] text-[#0a0b0e] hover:bg-[#8CF5E3]'
+                : 'bg-[#0d9488] text-white hover:bg-[#0f766e]'
+            }`}
           >
             建立房間
           </button>
           <button
             type="button"
             onClick={() => setShowAddRoom(false)}
-            className="px-3 py-1.5 rounded-lg bg-white/10 text-gray-300 text-xs hover:bg-white/20 cursor-pointer"
+            className={`px-3 py-1.5 rounded-lg text-xs cursor-pointer border ${
+              isDark
+                ? 'bg-[#111217] text-[#8d909c] border-[rgba(67,70,81,0.5)] hover:text-[#ebecef]'
+                : 'bg-[#ffffff] text-[#64748b] border-[rgba(100,116,139,0.25)] hover:text-[#0f172a]'
+            }`}
           >
             取消
           </button>
@@ -253,13 +313,25 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
       )}
 
       {/* 全域同步廣播操作區 */}
-      <div className="p-5 rounded-2xl bg-[#070b12]/90 border border-[#c9a24b]/30 space-y-3">
+      <div
+        className={`p-5 rounded-2xl border space-y-3 ${
+          isDark
+            ? 'bg-[#171921] border-[rgba(67,70,81,0.5)]'
+            : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+        }`}
+      >
         <div className="flex items-center justify-between text-xs font-mono">
-          <span className="text-[#c9a24b] font-bold flex items-center gap-2">
+          <span
+            className={`font-bold flex items-center gap-2 ${
+              isDark ? 'text-[#5EEAD4]' : 'text-[#0d9488]'
+            }`}
+          >
             <Radio className="w-4 h-4 text-rose-500 animate-pulse" />
             跨會場全域同步廣播 (Global Multi-Room Broadcast)
           </span>
-          <span className="text-gray-400">一鍵推送至 {rooms.length} 個會場</span>
+          <span className={isDark ? 'text-[#8d909c]' : 'text-[#64748b]'}>
+            一鍵推送至 {rooms.length} 個會場
+          </span>
         </div>
 
         <div className="flex gap-2">
@@ -271,13 +343,17 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
               if (e.key === 'Enter') handleGlobalBroadcast();
             }}
             placeholder="輸入全域公告（例如：全體大會將於 10 分鐘後開始，請各分廳來賓就座...）"
-            className="flex-1 px-4 py-2 rounded-xl bg-black/70 border border-white/20 text-xs text-white focus:outline-none focus:border-[#c9a24b]"
+            className={`flex-1 px-4 py-2 rounded-xl border text-xs outline-none ${
+              isDark
+                ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)] text-[#ebecef] placeholder:text-[#8d909c]/50 focus:border-[#5EEAD4]'
+                : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)] text-[#0f172a] placeholder:text-[#64748b]/50 focus:border-[#0d9488]'
+            }`}
           />
           <button
             type="button"
             disabled={!broadcastText.trim() || isBroadcasting}
             onClick={handleGlobalBroadcast}
-            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white font-bold text-xs transition-all shadow-lg cursor-pointer shrink-0"
+            className="flex items-center gap-2 px-5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 disabled:opacity-40 text-white font-bold text-xs transition-all shadow-md cursor-pointer shrink-0"
           >
             <Send className="w-3.5 h-3.5" />
             {isBroadcasting ? '全域發送中...' : '發布全域公告'}
@@ -301,26 +377,58 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
               key={room.code}
               className={`p-4 rounded-xl border transition-all flex flex-col justify-between space-y-3 ${
                 isActive
-                  ? 'bg-[#10243f] border-[#c9a24b] shadow-[0_0_20px_rgba(201,162,75,0.2)]'
-                  : 'bg-[#0a0f1d]/90 border-white/10 hover:border-white/30'
+                  ? isDark
+                    ? 'bg-[#171921] border-[#5EEAD4] shadow-[0_0_20px_rgba(94,234,212,0.15)]'
+                    : 'bg-[#ffffff] border-[#0d9488] shadow-md'
+                  : isDark
+                  ? 'bg-[#111217] border-[rgba(67,70,81,0.5)] hover:border-[rgba(94,234,212,0.4)]'
+                  : 'bg-[#ffffff] border-[rgba(100,116,139,0.25)] hover:border-[rgba(13,148,136,0.4)] shadow-sm'
               }`}
             >
               <div>
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div>
-                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#c9a24b]/20 text-[#c9a24b] border border-[#c9a24b]/30">
+                    <span
+                      className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                        isDark
+                          ? 'bg-[#0a0b0e] text-[#5EEAD4] border-[rgba(94,234,212,0.3)]'
+                          : 'bg-[#f1f5f9] text-[#0d9488] border-[rgba(13,148,136,0.3)]'
+                      }`}
+                    >
                       {room.code}
                     </span>
-                    <h3 className="font-bold text-sm text-[#f8fafc] mt-1.5">{room.title}</h3>
+                    <h3
+                      className={`font-bold text-sm mt-1.5 ${
+                        isDark ? 'text-[#ebecef]' : 'text-[#0f172a]'
+                      }`}
+                    >
+                      {room.title}
+                    </h3>
                   </div>
-                  <span className="text-[11px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                  <span
+                    className={`text-[11px] font-mono px-2 py-0.5 rounded border ${
+                      isDark
+                        ? 'text-[#5EEAD4] bg-[#0a0b0e] border-[rgba(94,234,212,0.3)]'
+                        : 'text-[#0d9488] bg-[#f1f5f9] border-[rgba(13,148,136,0.3)]'
+                    }`}
+                  >
                     {room.itemCount} 條字幕
                   </span>
                 </div>
 
                 {/* 最新字幕動態 */}
-                <div className="p-2.5 rounded-lg bg-black/60 border border-white/5 text-xs space-y-1">
-                  <div className="text-[10px] font-mono text-gray-400 flex items-center justify-between">
+                <div
+                  className={`p-2.5 rounded-lg border text-xs space-y-1 ${
+                    isDark
+                      ? 'bg-[#0a0b0e] border-[rgba(67,70,81,0.5)]'
+                      : 'bg-[#f8fafc] border-[rgba(100,116,139,0.25)]'
+                  }`}
+                >
+                  <div
+                    className={`text-[10px] font-mono flex items-center justify-between ${
+                      isDark ? 'text-[#8d909c]' : 'text-[#64748b]'
+                    }`}
+                  >
                     <span>講者: {room.lastSpeaker || '暫無活動'}</span>
                     <span>
                       {room.lastUpdated
@@ -328,11 +436,19 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
                         : '--:--'}
                     </span>
                   </div>
-                  <div className="text-gray-200 truncate font-sans">
+                  <div
+                    className={`truncate font-sans font-medium ${
+                      isDark ? 'text-[#ebecef]' : 'text-[#0f172a]'
+                    }`}
+                  >
                     {room.lastOriginal || '等待講者即時發言...'}
                   </div>
                   {room.lastTranslated && (
-                    <div className="text-[#c9a24b] truncate text-[11px]">
+                    <div
+                      className={`truncate text-[11px] font-semibold ${
+                        isDark ? 'text-[#5EEAD4]' : 'text-[#0d9488]'
+                      }`}
+                    >
                       {room.lastTranslated}
                     </div>
                   )}
@@ -340,14 +456,22 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
               </div>
 
               {/* 底部操作按鈕 */}
-              <div className="flex items-center gap-2 pt-2 border-t border-white/10 text-xs">
+              <div
+                className={`flex items-center gap-2 pt-2 border-t text-xs ${
+                  isDark ? 'border-[rgba(67,70,81,0.5)]' : 'border-[rgba(100,116,139,0.25)]'
+                }`}
+              >
                 <button
                   type="button"
                   onClick={() => onSelectRoom(room.code)}
                   className={`flex-1 py-1.5 rounded-lg font-bold text-center transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#c9a24b] text-black'
-                      : 'bg-white/10 hover:bg-white/20 text-[#f3ede1]'
+                      ? isDark
+                        ? 'bg-[#5EEAD4] text-[#0a0b0e]'
+                        : 'bg-[#0d9488] text-white'
+                      : isDark
+                      ? 'bg-[#171921] hover:bg-[#242836] text-[#ebecef] border border-[rgba(67,70,81,0.5)]'
+                      : 'bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#0f172a] border border-[rgba(100,116,139,0.25)]'
                   }`}
                 >
                   {isActive ? '目前連線中' : '進入轉播牆'}
@@ -357,7 +481,11 @@ export function MultiRoomHub({ onSelectRoom, activeRoom }: MultiRoomHubProps) {
                   type="button"
                   onClick={() => copyObsLink(room.code)}
                   title="複製 OBS 綠幕/透明背景懸浮字幕連結"
-                  className="p-1.5 rounded-lg bg-black/50 hover:bg-black border border-white/20 text-[#c9a24b] transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono"
+                  className={`p-1.5 rounded-lg border transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono ${
+                    isDark
+                      ? 'bg-[#0a0b0e] hover:bg-[#171921] border-[rgba(67,70,81,0.5)] text-[#5EEAD4]'
+                      : 'bg-[#f1f5f9] hover:bg-[#e2e8f0] border-[rgba(100,116,139,0.25)] text-[#0d9488]'
+                  }`}
                 >
                   {copiedCode === room.code ? (
                     <>
