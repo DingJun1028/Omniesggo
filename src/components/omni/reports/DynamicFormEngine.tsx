@@ -35,9 +35,11 @@ export function computeFeedback(
 export default function DynamicFormEngine({
   schema,
   initialData,
+  onSuccess,
 }: {
   schema: DynamicFormSchema;
   initialData?: Partial<Record<string, unknown>>;
+  onSuccess?: (data: unknown) => void;
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackState>({
@@ -76,6 +78,7 @@ export default function DynamicFormEngine({
       setFeedback(fb);
       // 零幻覺驗算通過 → 寫入 NCBDB (Hash Lock 封印；無 NCB_API_KEY 時本地 fallback)
       if (fb.status === 'success' && fb.data) {
+        onSuccess?.(fb.data);
         try {
           await ncbClient.insertDocument('reports', fb.data as Record<string, unknown>);
         } catch (ncbErr) {

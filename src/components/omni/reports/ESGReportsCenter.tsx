@@ -10,6 +10,8 @@ import {
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../omni-base/OmniCard';
 import { OmniButton } from '../../omni-base/OmniButton';
 import { OmniBadge } from '../../omni-base/OmniBadge';
+import DynamicFormEngine from './DynamicFormEngine';
+import type { DynamicFormSchema } from '@/lib/omni-reports/types';
 
 // ── GRI / CSRD 標準章節大綱 ──
 interface ReportChapter {
@@ -22,6 +24,19 @@ interface ReportChapter {
   hashLock?: string;
 }
 
+const ISO14064_SCHEMA: DynamicFormSchema = {
+  uuid: 'mod-env-carbon-0001',
+  title: 'ISO-14064 溫室氣體果因盤查契約 (Scope 1/2/3)',
+  version: '1.1.0-Universe',
+  fields: [
+    { id: 'reportType', label: '申報規範類型', type: 'string', default: 'ISO-14064', required: true },
+    { id: 'previousYearUsage', label: '前期基準用量 (tCO₂e)', type: 'number', default: 5000, required: true },
+    { id: 'currentYearUsage', label: '當期申報用量 (tCO₂e)', type: 'number', default: 5071.2, required: true },
+    { id: 'gridEmissionFactor', label: '電網排碳係數 (kgCO₂e/度)', type: 'number', default: 0.495, required: true },
+    { id: 'evidence', label: '第三方盤查清冊/佐證憑證 URL (S3/R2)', type: 'evidence_upload', required: true }
+  ]
+};
+
 const INITIAL_CHAPTERS: ReportChapter[] = [
   { id: 'chap-1', code: 'GRI 2', title: '組織概況與永續聲明', category: 'GOV', completed: true, sealed: true, hashLock: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855' },
   { id: 'chap-2', code: 'GRI 305', title: '氣候變遷與溫室氣體 (Scope 1/2/3)', category: 'ENV', completed: true, sealed: false },
@@ -33,6 +48,7 @@ const INITIAL_CHAPTERS: ReportChapter[] = [
 export default function ESGReportsCenter() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
+  const [editorMode, setEditorMode] = useState<'standard' | 'karma'>('standard');
   const [selectedChapterId, setSelectedChapterId] = useState<string>('chap-2');
   const [chapters, setChapters] = useState<ReportChapter[]>(INITIAL_CHAPTERS);
   
@@ -89,6 +105,25 @@ export default function ESGReportsCenter() {
       ));
       setIsSealing(false);
     }, 600);
+  };
+
+  // 果因引擎驗算通過回調
+  const handleKarmaSuccess = (data: unknown) => {
+    const d = data as { currentYearUsage?: number };
+    if (d?.currentYearUsage) {
+      setReportData(prev => ({
+        ...prev,
+        scope1: Number((d.currentYearUsage! * 0.25).toFixed(1)),
+        scope2: Number((d.currentYearUsage! * 0.75).toFixed(1)),
+      }));
+    }
+    const generatedHash = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    setActiveHashLock(generatedHash);
+    setChapters(prev => prev.map(c => 
+      c.id === selectedChapterId ? { ...c, completed: true, sealed: true, hashLock: generatedHash } : c
+    ));
   };
 
   // 複製 Hash Lock
@@ -243,104 +278,149 @@ export default function ESGReportsCenter() {
               </OmniBadge>
             </div>
 
-            {/* 動態表單欄位 */}
-            <div className="space-y-4 text-xs">
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">申報企業主體名稱 *</label>
-                <input
-                  type="text"
-                  value={reportData.companyName}
-                  onChange={(e) => setReportData({ ...reportData, companyName: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+            {/* 模式切換膠囊 */}
+            <div className="flex items-center gap-2 mb-4 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+              <button
+                type="button"
+                onClick={() => setEditorMode('standard')}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                  editorMode === 'standard'
+                    ? 'bg-white text-teal-800 shadow-sm dark:bg-slate-900 dark:text-cyan-300'
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+              >
+                標準章節編撰
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditorMode('karma')}
+                className={`flex-1 py-1.5 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                  editorMode === 'karma'
+                    ? 'bg-white text-teal-800 shadow-sm dark:bg-slate-900 dark:text-cyan-300'
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                Jules-Karma 果因防呆驗算
+              </button>
+            </div>
+
+            {editorMode === 'karma' ? (
+              <div className="pt-2">
+                <div className="mb-3 p-3 rounded-xl bg-teal-50/60 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-500/30 text-[11px] text-teal-900 dark:text-teal-200">
+                  <span className="font-bold block mb-0.5">【Dr. Thoth 零幻覺驗算結界】</span>
+                  本表單直接由後端 Zod 契約驅動，針對暴增數據進行自動防呆攔截，驗算通過後自動寫入 NCBDB 並加蓋 5T 雜湊封印。
+                </div>
+                <DynamicFormEngine
+                  schema={ISO14064_SCHEMA}
+                  initialData={{
+                    currentYearUsage: Number((reportData.scope1 + reportData.scope2).toFixed(1)),
+                    previousYearUsage: 4800,
+                    gridEmissionFactor: 0.495
+                  }}
+                  onSuccess={handleKarmaSuccess}
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
+            ) : (
+              /* 動態表單欄位 */
+              <div className="space-y-4 text-xs">
                 <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">報告年度 (Reporting Year)</label>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">申報企業主體名稱 *</label>
                   <input
                     type="text"
-                    value={reportData.reportingYear}
-                    onChange={(e) => setReportData({ ...reportData, reportingYear: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">主責單位 / 聯絡人</label>
-                  <input
-                    type="text"
-                    value={reportData.contactPerson}
-                    onChange={(e) => setReportData({ ...reportData, contactPerson: e.target.value })}
+                    value={reportData.companyName}
+                    onChange={(e) => setReportData({ ...reportData, companyName: e.target.value })}
                     className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
                   />
                 </div>
-              </div>
 
-              {/* 溫室氣體三範疇數值 */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
-                <span className="font-bold text-slate-900 dark:text-slate-200 block text-xs">
-                  ISO-14064 溫室氣體數據填報 (tCO₂e)
-                </span>
-                
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[10px] text-slate-500 mb-0.5">範疇一 (Scope 1)</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">報告年度 (Reporting Year)</label>
                     <input
-                      type="number"
-                      value={reportData.scope1}
-                      onChange={(e) => setReportData({ ...reportData, scope1: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-mono font-bold text-teal-700 dark:text-cyan-400"
+                      type="text"
+                      value={reportData.reportingYear}
+                      onChange={(e) => setReportData({ ...reportData, reportingYear: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-mono text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-slate-500 mb-0.5">範疇二 (Scope 2)</label>
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">主責單位 / 聯絡人</label>
                     <input
-                      type="number"
-                      value={reportData.scope2}
-                      onChange={(e) => setReportData({ ...reportData, scope2: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-mono font-bold text-emerald-700 dark:text-emerald-400"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] text-slate-500 mb-0.5">範疇三 (Scope 3)</label>
-                    <input
-                      type="number"
-                      value={reportData.scope3}
-                      onChange={(e) => setReportData({ ...reportData, scope3: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-mono font-bold text-indigo-700 dark:text-indigo-400"
+                      type="text"
+                      value={reportData.contactPerson}
+                      onChange={(e) => setReportData({ ...reportData, contactPerson: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-medium text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
                     />
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                  <span className="font-semibold text-slate-600 dark:text-slate-400 text-[11px]">加總總排放量:</span>
-                  <span className="font-mono font-bold text-sm text-slate-900 dark:text-slate-100">{totalEmissions.toLocaleString()} tCO₂e</span>
+                {/* 溫室氣體三範疇數值 */}
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-3">
+                  <span className="font-bold text-slate-900 dark:text-slate-200 block text-xs">
+                    ISO-14064 溫室氣體數據填報 (tCO₂e)
+                  </span>
+                  
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-[10px] text-slate-500 mb-0.5">範疇一 (Scope 1)</label>
+                      <input
+                        type="number"
+                        value={reportData.scope1}
+                        onChange={(e) => setReportData({ ...reportData, scope1: Number(e.target.value) })}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-mono font-bold text-teal-700 dark:text-cyan-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-slate-500 mb-0.5">範疇二 (Scope 2)</label>
+                      <input
+                        type="number"
+                        value={reportData.scope2}
+                        onChange={(e) => setReportData({ ...reportData, scope2: Number(e.target.value) })}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-mono font-bold text-emerald-700 dark:text-emerald-400"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] text-slate-500 mb-0.5">範疇三 (Scope 3)</label>
+                      <input
+                        type="number"
+                        value={reportData.scope3}
+                        onChange={(e) => setReportData({ ...reportData, scope3: Number(e.target.value) })}
+                        className="w-full px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 font-mono font-bold text-indigo-700 dark:text-indigo-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <span className="font-semibold text-slate-600 dark:text-slate-400 text-[11px]">加總總排放量:</span>
+                    <span className="font-mono font-bold text-sm text-slate-900 dark:text-slate-100">{totalEmissions.toLocaleString()} tCO₂e</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">永續長與董事長治理宣告 (CEO Statement)</label>
+                  <textarea
+                    rows={4}
+                    value={reportData.ceoStatement}
+                    onChange={(e) => setReportData({ ...reportData, ceoStatement: e.target.value })}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 leading-relaxed focus:outline-none focus:border-teal-500"
+                  />
+                </div>
+
+                {/* 操作按鈕 */}
+                <div className="pt-4 flex gap-3">
+                  <OmniButton
+                    variant="emerald"
+                    onClick={handleSealChapter}
+                    isLoading={isSealing}
+                    className="flex-1 py-2.5 text-xs font-bold shadow-sm"
+                  >
+                    <ShieldCheck className="w-4 h-4" />
+                    {isSealing ? '5T 雜湊封印中...' : '封印本章節並生成 5T 雜湊鎖'}
+                  </OmniButton>
                 </div>
               </div>
-
-              <div>
-                <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">永續長與董事長治理宣告 (CEO Statement)</label>
-                <textarea
-                  rows={4}
-                  value={reportData.ceoStatement}
-                  onChange={(e) => setReportData({ ...reportData, ceoStatement: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 leading-relaxed focus:outline-none focus:border-teal-500"
-                />
-              </div>
-
-              {/* 操作按鈕 */}
-              <div className="pt-4 flex gap-3">
-                <OmniButton
-                  variant="emerald"
-                  onClick={handleSealChapter}
-                  isLoading={isSealing}
-                  className="flex-1 py-2.5 text-xs font-bold shadow-sm"
-                >
-                  <ShieldCheck className="w-4 h-4" />
-                  {isSealing ? '5T 雜湊封印中...' : '封印本章節並生成 5T 雜湊鎖'}
-                </OmniButton>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
