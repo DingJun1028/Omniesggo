@@ -12,6 +12,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      cloud_ready: ${{ steps.cloud_gate.outputs.cloud_ready }}
     # Map the secret into an env var so it can be referenced in `with:` and `if:`.
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
