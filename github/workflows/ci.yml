@@ -1,0 +1,39 @@
+name: 5T OmniCore Hyper-Awakened CI/CD Gatekeeper
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  omnicore-verification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: 100% Encoding Hygiene Check (全真綠)
+        run: node scripts/encoding-check.mjs
+
+      - name: TypeScript Type Safety Verification (0 Errors)
+        run: npx tsc --noEmit
+
+      - name: 5T Core Unit Test Suite
+        run: pnpm run check
+
+      - name: 5T Cryptographic Snapshot Verification
+        run: node scripts/omni-snapshot.mjs --verify

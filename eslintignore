@@ -1,0 +1,20 @@
+# Environment variables - sensitive configuration
+.env
+.env.*
+!.env.example
+
+# Build outputs
+.next/
+dist/
+out/
+
+# Dependencies
+node_modules/
+
+# Test outputs
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+*.log

@@ -1,0 +1,39 @@
+# Force UTF-8 encoding for all text files
+* text=auto eol=lf
+
+# Source code
+*.ts    text diff=ts
+*.tsx   text diff=tsx
+*.js    text
+*.mjs   text
+*.cjs   text
+*.json  text
+*.html  text
+*.css   text
+*.md    text diff=markdown
+*.yaml  text
+*.yml   text
+
+# Shell scripts
+*.sh    text eol=lf
+
+# PowerShell scripts
+*.ps1   text eol=crlf
+
+# Binaries (never touch)
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.svg   text
+*.woff  binary
+*.woff2 binary
+*.db    binary
+*.db-journal binary
+*.xlsx  binary
+*.pdf   binary
+
+# Lock files
+pnpm-lock.yaml text
+package-lock.json text

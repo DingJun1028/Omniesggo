@@ -1,0 +1,34 @@
+# 5T-Canon Auto-Repair Hooks
+# 當 verify-5t-canon.py 失敗時自動觸發
+
+version: 1
+hooks:
+  - name: vault-key-mismatch
+    trigger:
+      check: cfg_match
+      expected: true
+    action: |
+      echo "[AUTO-REPAIR] config.yaml ollama-cloud.api_key 與 vault 不一致"
+      echo "請手動執行: 從 vault 同步到 config.yaml,或重生成 ollama key"
+    severity: warning
+    notify: telegram
+
+  - name: api-unauthorized
+    trigger:
+      check: api_ok
+      expected: true
+    action: |
+      echo "[AUTO-REPAIR] ollama-cloud API 回 401 — OLLAMA_API_KEY 可能過期"
+      echo "請到 https://ollama.com/settings/keys 重生成,更新 vault + config.yaml"
+    severity: critical
+    notify: telegram
+    max_retries: 1
+
+  - name: cron-jobs-degraded
+    trigger:
+      check: cron_state.broken
+      expected: 0
+    action: |
+      echo "[AUTO-REPAIR] 有 cron jobs 缺 model 欄位"
+      echo "建議: 統一指定 gemma4:e4b (ollama-cloud) 或 minimax-m3 (webui)"
+    severity: info

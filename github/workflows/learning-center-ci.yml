@@ -1,0 +1,60 @@
+name: learning-center-ci
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build learning-center
+        run: pnpm -F ./apps/learning-center build
+
+      - name: Test learning-center
+        run: pnpm -F ./apps/learning-center test
+
+  check-types-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Verify sync
+        working-directory: apps/learning-center
+        run: |
+          GENERATED="$(node scripts/check-types-sync.js)"
+          echo "$GENERATED"
+          if [ "$GENERATED" != "TYPES_IN_SYNC" ]; then
+            echo "Type sync check failed"
+            exit 1
+          fi

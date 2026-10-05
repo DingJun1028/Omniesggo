@@ -1,0 +1,17 @@
+{
+  "name": "esggo-omniskill",
+  "version": "1.0.0",
+  "description": "ESG GO Omniskill - Comprehensive best practices enforcement",
+  "main": "lib/validation.js",
+  "scripts": {
+    "type:check": "node scripts/typeCheck.js",
+    "naming:validate": "node scripts/namingCheck.js",
+    "data:quality": "node scripts/bigqueryValidate.js",
+    "sql:validate": "node scripts/sqlValidate.js",
+    "cleanup": "node scripts/codeCleanup.js",
+    "design:audit": "node scripts/designAudit.js"
+  },
+  "keywords": ["esg", "best-practices", "mece", "nextjs", "bigquery"],
+  "author": "ESG GO Team",
+  "license": "MIT"
+}

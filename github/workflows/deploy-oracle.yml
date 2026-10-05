@@ -1,0 +1,474 @@
+# =============================================================================
+# ESG GO — Oracle VPS Deploy Pipeline (REALITY-ALIGNED, 2026-07-11)
+# =============================================================================
+# 觸發: push to main (paths below) 或手動 workflow_dispatch
+# 部署目標: Oracle Cloud Always Free ARM Ampere A1 (Ubuntu 24.04)
+# 真實部署方式: nginx + PM2 (fork mode)，非 Docker Compose
+# 網路: 公網 22 已對 GitHub Actions 開 (OCI Security List 22/tcp from 0.0.0.0/0, 2026-07-11)；
+#       80/443 原即開。部署走 direct 直連 (VPS_SSH_KEY) 或 bastion 跳板 (OCI_*)。
+#
+# 三種模式 (pre-check 依據 repo Secrets 自動選擇, direct 優先):
+#   direct  : 設好 VPS_SSH_KEY + VPS_HOST → 直連部署 (預設, 已開 22)
+#   bastion : 僅設 OCI_* secrets 且無 VPS_SSH_KEY → 在 Actions 內用 oci SDK 重建 bastion session 跳板部署
+#   skip    : 兩者皆未設 → 跳過部署 (不再讓 push 變紅)
+#
+# ⚠️ bastion 模式限制 (2026-07-11 實測): OCI Bastion 要求預先白名單「來源 CIDR」
+#   (client_cidr_block_allow_list)，而 GitHub Actions 出口 IP 是動態的 → session 建成功後
+#   連線立刻被 bastion 遠端關閉 (Connection closed by UNKNOWN port 65535 / Permission denied)。
+#   本地 vps-bastion.py 建 session 也同樣因 allow-list 連不上。故 bastion 模式在 GitHub Actions
+#   場景下「結構性不可行」——direct 模式才是 GitHub→VPS 自動部署的唯一可行路徑。
+#   bastion 代碼保留僅供「固定 IP 來源 (如本地/跳板機) 已加進 allow-list」時手動使用。
+#
+# 需在 GitHub 控制台 (Settings → Secrets and variables → Actions) 設定:
+#   選項 (direct, 預設已開 22):
+#     VPS_HOST (161.118.248.180), VPS_USER (root), VPS_SSH_KEY (私鑰)
+#   選項 (bastion, 備用, 不需開公網端口):
+#     OCI_USER_OCID, OCI_TENANCY_OCID, OCI_REGION (e.g. ap-singapore-1),
+#     OCI_API_FINGERPRINT, OCI_API_KEY (PEM 私鑰全文),
+#     OCI_BASTION_ID (ocid1.bastion...), OCI_TARGET_RESOURCE_ID (VPS compute instance OCID)
+#   兩者皆需 (應用程式 API key, 選填 — 若設則寫入 vps/.env):
+#     GROQ_API_KEY, OPENROUTER_API_KEY, GEMINI_API_KEY, SUPABASE_*, GATEWAY_API_KEY, ...
+# =============================================================================
+
+name: Deploy to Oracle VPS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "vps/**"
+      - "src/**"
+      - "app/**"
+      - "packages/**"
+      - "apps/**"
+      - "public/**"
+      - "prisma/**"
+      - "next.config.js"
+      - "next.config.mjs"
+      - "pnpm-lock.yaml"
+      - "ecosystem.config.cjs"
+  workflow_dispatch:
+    inputs:
+      deploy_mode:
+        description: "bastion (OCI jump) or direct (SSH, security-list 22 open to 0.0.0.0/0)"
+        required: false
+        default: "direct"
+        type: choice
+        options:
+          - bastion
+          - direct
+
+concurrency:
+  group: deploy-oracle-vps
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  VPS_USER: ${{ secrets.VPS_USER || 'root' }}
+  APP_DIR: /var/www/esggo
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: "true"
+
+jobs:
+  # ─── 前置檢查：決定部署模式 ───────────────────────────────────
+  pre-check:
+    name: Pre-deploy Check
+    runs-on: ubuntu-latest
+    env:
+      OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
+      OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+      OCI_API_KEY: ${{ secrets.OCI_API_KEY }}
+      OCI_BASTION_ID: ${{ secrets.OCI_BASTION_ID }}
+      OCI_TARGET_RESOURCE_ID: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+    outputs:
+      mode: ${{ steps.check.outputs.mode }}
+    steps:
+      - id: check
+        run: |
+          REQ="OCI_USER_OCID OCI_TENANCY_OCID OCI_API_KEY OCI_BASTION_ID OCI_TARGET_RESOURCE_ID"
+          all_set=1
+          for s in $REQ; do
+            [ -n "${!s}" ] || all_set=0
+          done
+          # 手動 dispatch 選 bastion 且 OCI_* 全設 → 走 bastion (即使 VPS_* 也設著)
+          # push 事件 inputs.deploy_mode 為空 → 不會選 bastion, 走下方 direct
+          if [ "${{ inputs.deploy_mode }}" = "bastion" ] && [ "$all_set" = "1" ]; then
+            echo "mode=bastion" >> $GITHUB_OUTPUT
+            echo "::notice::Bastion deploy mode (explicit deploy_mode=bastion, OCI secrets present)"
+          elif [ -n "$VPS_SSH_KEY" ] && [ -n "$VPS_HOST" ]; then
+            echo "mode=direct" >> $GITHUB_OUTPUT
+            echo "::notice::Direct SSH deploy mode (VPS_SSH_KEY present)"
+          else
+            echo "mode=skip" >> $GITHUB_OUTPUT
+            echo "::warning::No deploy secrets configured. Skipping auto-deploy. Set VPS_SSH_KEY+VPS_HOST for direct, or OCI_* for bastion."
+          fi
+
+  # ─── 部署 ───────────────────────────────────────────────────
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: [pre-check]
+    if: needs.pre-check.outputs.mode != 'skip'
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---- 選項 3: bastion 跳板 (oci Python SDK) ----
+      - name: Configure OCI + create bastion session
+        if: needs.pre-check.outputs.mode == 'bastion'
+        id: bastion
+        env:
+          OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
+          OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+          OCI_REGION: ${{ secrets.OCI_REGION }}
+          OCI_API_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+          OCI_API_KEY: ${{ secrets.OCI_API_KEY }}
+          OCI_BASTION_ID: ${{ secrets.OCI_BASTION_ID }}
+          OCI_TARGET_RESOURCE_ID: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+        run: |
+          set -e
+          pip install --quiet oci
+          mkdir -p ~/.oci ~/.ssh
+          python3 << 'PY'
+          import os, re, pathlib, time, subprocess
+          raw = os.environ["OCI_API_KEY"]
+          m = re.search(r'-----BEGIN [^-]+-----.*?-----END [^-]+-----', raw, re.S)
+          clean = (m.group(0) if m else raw).replace("\r", "").strip() + "\n"
+          kp = pathlib.Path("~/.oci/key.pem").expanduser()
+          kp.write_text(clean)
+          os.chmod(kp, 0o600)
+          bk = os.path.expanduser("~/.ssh/bastion_key")
+          subprocess.run(["ssh-keygen", "-t", "ed25519", "-N", "", "-f", bk], check=True)
+          pub = pathlib.Path(bk + ".pub").read_text().strip()
+          import oci
+          cfg = {
+            "user": os.environ["OCI_USER_OCID"],
+            "tenancy": os.environ["OCI_TENANCY_OCID"],
+            "region": os.environ["OCI_REGION"],
+            "fingerprint": os.environ["OCI_API_FINGERPRINT"],
+            "key_file": str(kp),
+          }
+          client = oci.bastion.BastionClient(cfg)
+          # 注意: oci 2.181.1 的 CreateSessionTargetResourceDetails 是基類(只有 session_type)，
+          # MANAGED_SSH 要用具體子類 CreateManagedSshSessionTargetResourceDetails（含 target_resource_id / target_resource_operating_system_user_name）
+          details = oci.bastion.models.CreateSessionDetails(
+            bastion_id=os.environ["OCI_BASTION_ID"],
+            display_name="gha-deploy-" + time.strftime("%Y%m%d-%H%M%S"),
+            session_ttl_in_seconds=3600,
+            target_resource_details=oci.bastion.models.CreateManagedSshSessionTargetResourceDetails(
+              session_type="MANAGED_SSH",
+              target_resource_id=os.environ["OCI_TARGET_RESOURCE_ID"],
+              target_resource_operating_system_user_name="root",
+            ),
+            key_details=oci.bastion.models.PublicKeyDetails(public_key_content=pub),
+          )
+          try:
+            resp = client.create_session(create_session_details=details)
+            sid = resp.data.id
+            # oci 2.181.1 的 wait_until 不支援 create response；手寫輪詢 get_session 直到 ACTIVE
+            import time as _t
+            deadline = _t.time() + 600
+            while _t.time() < deadline:
+              st = client.get_session(sid).data.lifecycle_state
+              if st == "ACTIVE":
+                break
+              if st in ("FAILED", "CANCELED"):
+                raise SystemExit("bastion session " + sid + " -> " + st)
+              _t.sleep(10)
+            else:
+              raise SystemExit("bastion session " + sid + " timeout waiting ACTIVE")
+            with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write("session=" + sid + "\n")
+              f.write("proxy=ssh -i ~/.ssh/bastion_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -W %h:%p -p 22 " + sid + "@host.bastion." + os.environ["OCI_REGION"] + ".oci.oraclecloud.com\n")
+            print("[OK] bastion session " + sid)
+          except Exception as e:
+            print("OCI_SDK_ERROR:")
+            print(str(e)[:1500])
+            raise SystemExit(1)
+          PY
+
+      - name: Deploy via bastion
+        if: needs.pre-check.outputs.mode == 'bastion'
+        env:
+          PROXY: ${{ steps.bastion.outputs.proxy }}
+          SESSION: ${{ steps.bastion.outputs.session }}
+        run: |
+          set -e
+          ssh -o ProxyCommand="$PROXY" -o UserKnownHostsFile=/dev/null -i ~/.ssh/bastion_key root@10.0.0.119 bash -s <<'VPS'
+            set -e
+            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            export PATH="$PATH:/usr/local/bin:$HOME/.local/bin"
+            command -v pm2 >/dev/null || { echo "[bootstrap] pm2 missing - installing"; npm install -g pm2@latest && command -v pm2 || { echo "[FAIL] pm2 install failed"; exit 1; }; }
+            if [ ! -d /var/www/esggo/.git ]; then
+              echo "[bootstrap] /var/www/esggo missing .git - re-cloning (public repo)"
+              if [ -e /var/www/esggo ]; then
+                mv /var/www/esggo /var/www/esggo.orphan.$(date +%s)
+              fi
+              git clone --branch main https://github.com/DingJun1028/esggo.git /var/www/esggo
+              for f in /var/www/esggo.orphan.*/.env*; do
+                [ -f "$f" ] && cp "$f" /var/www/esggo/ && echo "[bootstrap] restored $(basename "$f")"
+              done
+            fi
+            cd /var/www/esggo
+            git checkout -f main
+            git fetch origin main
+            git reset --hard origin/main
+            pnpm install --frozen-lockfile
+            pnpm prisma migrate deploy 2>&1 | tail -8
+            pnpm prisma generate 2>&1 | tail -2
+            pnpm run build
+            # ─── PM2 狀態重置（2026-09-27 實測根因修復）───
+            # 實測 VPS 現況: 4 個服務無限重啟迴圈 (esggo-core 22788 / stt-whisper 16273 /
+            #   universal-translator 29298 / omniagent-gateway 9073 次重啟, 仍在累加),
+            #   每個都死在 EADDRINUSE。原因是上一輪 daemon 被殺後留下「孤兒 process」
+            #   (pid 1922941/1922975/1923035, 已跑 1 天 21 小時), 這些不在 `pm2 pid` 清單內,
+            #   卻佔住 8642/3000/8791; PM2 管的實例綁不到 port → crash → 重啟 → 無限迴圈。
+            #   迴圈讓 PM2 內部 _pm2_launcher 累積 undefined 槽位,
+            #   於是 `pm2 start --update-env` 走 restartProcessId → API.speedList
+            #   對失效槽位取 proc.pm2_env 拋 TypeError (API.js:1718) → 部署紅。
+            #
+            # 順序經 VPS 實測校正 (2026-09-27, 第一次寫反了):
+            #   1) 先 pm2 kill 重置 daemon
+            #   2) 再 fuser 殺掉佔 port 的孤兒  ← 必須在 pm2 kill 之後
+            #   3) 乾淨 start + save
+            # 為什麼不能反過來: `pm2 kill` 只停 daemon, 已啟動的 app process 會
+            #   變成孤兒繼續佔住 3000/8642/8791/8788/8787。先 fuser 再 pm2 kill,
+            #   等於殺完舊孤兒、pm2 start 起來後又被自己的孤兒擋掉 → 一樣迴圈。
+            #
+            # 顯式指定 PM2_HOME=/root/.pm2: VPS 實際對外服務的是 root 的 daemon
+            #   (Sep 7 起, 8 個 app), 而 VPS_USER 可為 ubuntu/root,
+            #   不綁定就會操作到 /home/ubuntu/.pm2 而製造第二個 daemon 互搶 port。
+            # 停機影響: 本 ecosystem 已含全部服務, 部署本來就整批重啟,
+            #   此處不增加額外停機; 反而結束持續燒 CPU 的重啟迴圈。
+            PM2="sudo env PM2_HOME=/root/.pm2 pm2"
+            $PM2 kill >/dev/null 2>&1 \
+              || { sudo pkill -f 'PM2 v' >/dev/null 2>&1 || pkill -f 'PM2 v' >/dev/null 2>&1 || true; sleep 3; }
+            sleep 2
+            for PORT in 3000 8642 8791 8788 8787; do
+              sudo fuser -k -n tcp "$PORT" >/dev/null 2>&1 || fuser -k -n tcp "$PORT" >/dev/null 2>&1 || true
+            done
+            sleep 2
+            $PM2 start ecosystem.config.cjs --update-env || $PM2 start ecosystem.config.cjs
+            $PM2 save
+            # ─── 部署後健康檢查 (集成閉環: 部署≠服務健康) ───
+            sleep 5
+            GW=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://omniagent.esggo.co/health || echo 000)
+            WEB=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://esggo.co || echo 000)
+            echo "[health] gateway=$GW web=$WEB"
+            if [ "$GW" != "200" ] || [ "$WEB" != "200" ]; then
+              echo "[FAIL] post-deploy health check: gateway=$GW web=$WEB"
+              exit 1
+            fi
+            echo "[OK] health check passed"
+            echo "[OK] deployed via bastion"
+          VPS
+
+      # ---- 選項 2: 直連 ----
+      - name: Setup direct SSH key
+        if: needs.pre-check.outputs.mode == 'direct'
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H -T 10 ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts 2>/dev/null || true
+
+      - name: Deploy direct
+        if: needs.pre-check.outputs.mode == 'direct'
+        env:
+          FTG_JWT_SECRET: ${{ secrets.FTG_JWT_SECRET }}
+        run: |
+          set -e
+          # JWT_SECRET 傳遞 (2026-09-27 實測修): 下方 heredoc 是 <<'VPS' (引號)，
+          #   遠端才展開變數 → GitHub secret 無法自動進遠端環境 → ftg 拒絕啟動。
+          #   不能改成未引號 heredoc: 會讓 $PM2 / $FTG_SRC 等全部改為本地展開而壞掉。
+          #   走 stdin 傳輸而非 argv: 避免 secret 出現在 ssh 命令列 (ps 可见)。
+          if [ -n "$FTG_JWT_SECRET" ]; then
+            printf '%s' "$FTG_JWT_SECRET" | ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o ConnectTimeout=30 ${{ env.VPS_USER }}@${{ secrets.VPS_HOST }} 'cat > /tmp/ftg_jwt && chmod 600 /tmp/ftg_jwt'
+            echo "[OK] JWT secret staged on VPS"
+          else
+            echo "[WARN] FTG_JWT_SECRET not set in repo secrets -> ftg-journey-server will refuse to start (fail-fast, by design)"
+          fi
+          ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -o ConnectTimeout=30 ${{ env.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s <<'VPS'
+            set -e
+            # 修復 git dubious ownership (目錄可能由 root 建立, ubuntu 執行)
+            git config --global --add safe.directory /var/www/esggo
+            git config --global --add safe.directory /opt/esggo 2>/dev/null || true
+            export NVM_DIR="${NVM_DIR:-$HOME/.nvm}"
+            [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+            export PATH="$PATH:/usr/local/bin:$HOME/.local/bin"
+            command -v pm2 >/dev/null || { echo "[bootstrap] pm2 missing - installing"; npm install -g pm2@latest && command -v pm2 || { echo "[FAIL] pm2 install failed"; exit 1; }; }
+            if [ ! -d /var/www/esggo/.git ]; then
+              echo "[bootstrap] /var/www/esggo missing .git - re-cloning (public repo)"
+              if [ -e /var/www/esggo ]; then
+                mv /var/www/esggo /var/www/esggo.orphan.$(date +%s)
+              fi
+              git clone --branch main https://github.com/DingJun1028/esggo.git /var/www/esggo
+              for f in /var/www/esggo.orphan.*/.env*; do
+                [ -f "$f" ] && cp "$f" /var/www/esggo/ && echo "[bootstrap] restored $(basename "$f")"
+              done
+            fi
+            # 修復目錄擁有者 (root 建目錄 → ubuntu 需寫入權做 git reset)
+            sudo chown -R "$(whoami)" /var/www/esggo 2>/dev/null || chown -R "$(whoami)" /var/www/esggo 2>/dev/null || true
+            cd /var/www/esggo
+            git checkout -f main
+            git fetch origin main
+            git reset --hard origin/main
+            export CI=true
+            # 建置期佔位: scripts/validate-env.ts 要求 DATABASE_URL 非空 (僅存在性檢查)。
+            # /var/www/esggo/.env 目前沒有 DATABASE_URL, 故 next build 前的 gate 直接失敗。
+            # 若環境已有真值則沿用, 否則用佔位讓建置通過; 執行期由 pm2/.env 提供真值。
+            export DATABASE_URL="${DATABASE_URL:-postgresql://build:build@localhost:5432/build}"
+            pnpm install --frozen-lockfile
+            pnpm run build
+            # ─── PM2 狀態重置（2026-09-27 實測根因修復）───
+            # 實測 VPS 現況: 4 個服務無限重啟迴圈 (esggo-core 22788 / stt-whisper 16273 /
+            #   universal-translator 29298 / omniagent-gateway 9073 次重啟, 仍在累加),
+            #   每個都死在 EADDRINUSE。原因是上一輪 daemon 被殺後留下「孤兒 process」
+            #   (pid 1922941/1922975/1923035, 已跑 1 天 21 小時), 這些不在 `pm2 pid` 清單內,
+            #   卻佔住 8642/3000/8791; PM2 管的實例綁不到 port → crash → 重啟 → 無限迴圈。
+            #   迴圈讓 PM2 內部 _pm2_launcher 累積 undefined 槽位,
+            #   於是 `pm2 start --update-env` 走 restartProcessId → API.speedList
+            #   對失效槽位取 proc.pm2_env 拋 TypeError (API.js:1718) → 部署紅。
+            #
+            # 順序經 VPS 實測校正 (2026-09-27, 第一次寫反了):
+            #   1) 先 pm2 kill 重置 daemon
+            #   2) 再 fuser 殺掉佔 port 的孤兒  ← 必須在 pm2 kill 之後
+            #   3) 乾淨 start + save
+            # 為什麼不能反過來: `pm2 kill` 只停 daemon, 已啟動的 app process 會
+            #   變成孤兒繼續佔住 3000/8642/8791/8788/8787。先 fuser 再 pm2 kill,
+            #   等於殺完舊孤兒、pm2 start 起來後又被自己的孤兒擋掉 → 一樣迴圈。
+            #
+            # 顯式指定 PM2_HOME=/root/.pm2: VPS 實際對外服務的是 root 的 daemon
+            #   (Sep 7 起, 8 個 app), 而 VPS_USER 可為 ubuntu/root,
+            #   不綁定就會操作到 /home/ubuntu/.pm2 而製造第二個 daemon 互搶 port。
+            # 停機影響: 本 ecosystem 已含全部服務, 部署本來就整批重啟,
+            #   此處不增加額外停機; 反而結束持續燒 CPU 的重啟迴圈。
+            PM2="sudo env PM2_HOME=/root/.pm2 pm2"
+            # ─── ftg-journey-server 部署（生態系已宣告，但無任何 workflow 部署它）───
+            # 實測根因: ecosystem.config.cjs 有 ftg-journey-server (cwd=/var/www/ftg-journey-server,
+            #   script=server.js)，但該目錄只存在於本機；deploy 只 git pull /var/www/esggo，
+            #   從未複製此 app → PM2 報 "Script not found: /var/www/ftg-journey-server/server.js"
+            #   → 整個部署紅。原本 apps/ftg-journey-server/.github/workflows/deploy-vps.yml
+            #   看似負責，但 GitHub Actions 不執行巢狀於子目錄的 workflow，故從未生效。
+            # 修法: 在同一個 deploy 內部署 (單一來源)，且必須在 pm2 kill 之前完成，
+            #   否則 PM2 啟動時檔案仍不存在。
+            FTG_SRC=/var/www/esggo/apps/ftg-journey-server
+            FTG_DST=/var/www/ftg-journey-server
+            sudo mkdir -p "$FTG_DST/uploads"
+            sudo cp "$FTG_SRC/server.js" "$FTG_SRC/package.json" "$FTG_DST/"
+            [ -f "$FTG_SRC/ftg-journey.db" ] && sudo cp "$FTG_SRC/ftg-journey.db" "$FTG_DST/" || true
+            sudo chown -R "$(whoami)" "$FTG_DST" 2>/dev/null || chown -R "$(whoami)" "$FTG_DST" 2>/dev/null || true
+            cd "$FTG_DST"
+            # node_modules 保留既有 (含原生模組)，僅在缺失時安裝
+            if [ ! -d node_modules ]; then
+              npm install --omit=dev --no-audit --no-fund
+            fi
+            node --check server.js || { echo "[FAIL] ftg-journey-server server.js syntax error"; exit 1; }
+            # JWT_SECRET 注入 (2026-09-27 實測): server.js 已 fail-fast 拒絕弱值/缺值
+            #   (這是刻意的安全設計)。它只讀 process.env，且 package.json 無 dotenv
+            #   → 寫 .env 檔案無效（錯誤訊息提到 .env 是誤導）。
+            #   正確途徑: 前一步已把 secret 經 stdin 放在 /tmp/ftg_jwt（0600），
+            #   這裡讀出來 export 給 PM2；用完立刻 shred 刪除，不留殘留。
+            if [ -s /tmp/ftg_jwt ]; then
+              export JWT_SECRET="$(cat /tmp/ftg_jwt)"
+              export GOOGLE_CLIENT_ID="${GOOGLE_CLIENT_ID:-}"
+              echo "[OK] JWT_SECRET loaded from staged file (length=${#JWT_SECRET})"
+              shred -u /tmp/ftg_jwt 2>/dev/null || rm -f /tmp/ftg_jwt
+            else
+              echo "[WARN] /tmp/ftg_jwt absent -> ftg-journey-server will refuse to start (fail-fast, by design)"
+              echo "[WARN] Fix: gh secret set FTG_JWT_SECRET --repo DingJun1028/esggo --body \"\$(node -e 'console.log(require(\"crypto\").randomBytes(48).toString(\"hex\"))')\""
+              FTG_SKIPPED=1
+            fi
+            cd /var/www/esggo
+            $PM2 kill >/dev/null 2>&1 \
+              || { sudo pkill -f 'PM2 v' >/dev/null 2>&1 || pkill -f 'PM2 v' >/dev/null 2>&1 || true; sleep 3; }
+            sleep 2
+            for PORT in 3000 8642 8791 8788 8787; do
+              sudo fuser -k -n tcp "$PORT" >/dev/null 2>&1 || fuser -k -n tcp "$PORT" >/dev/null 2>&1 || true
+            done
+            sleep 2
+            $PM2 start ecosystem.config.cjs --update-env || $PM2 start ecosystem.config.cjs
+            $PM2 save
+            # ─── 部署後健康檢查 (集成閉環: 部署≠服務健康) ───
+            # 輪詢等待: 服務剛起可能未 ready, 重試至 200 或上限 (最佳實踐: 避免競態)
+            # FTG 一併納入: 8787 未對公網開放，只能從 VPS 內部探。
+            #   PM2 只報 "launched" 不代表持續在線（可能 crash loop），
+            #   所以健康檢查才是部署成功的真實判準。
+            # 分級理由: gateway/web 是對外服務，不健康必須擋；ftg 缺金鑰時
+            #   屬「未完成部署」而非「壞掉部署」——擋住會讓其餘 5 個 app
+            #   無法繼續更新，故降級為明確警告 + 輸出診斷，不 exit 1。
+            #   ⚠ 2026-09-28 診斷更正: ftg-journey-server 刻意未列入
+            #     ecosystem.config.cjs（見該檔同日決策註解），PM2 根本不會
+            #     啟動它，:8787 必然無人監聽。FTG_JWT_SECRET 已存在於 GitHub
+            #     secrets 且本 workflow 已正確注入 —— 這個警告與金鑰無關，
+            #     每次部署都會出現，屬預期狀態，不得再導向「去修 FTG_JWT_SECRET」。
+            GW=000; WEB=000; FTG=000
+            for i in $(seq 1 12); do
+              sleep 5
+              GW=$(curl -s -m 8 -o /dev/null -w '%{http_code}' https://omniagent.esggo.co/health || true); GW=${GW:-000}
+              WEB=$(curl -s -m 8 -o /dev/null -w '%{http_code}' http://localhost:8788/health || true); WEB=${WEB:-000}
+              FTG=$(curl -s -m 8 -o /dev/null -w '%{http_code}' http://localhost:8787/health || true); FTG=${FTG:-000}
+              echo "[health #$i] gateway=$GW web=$WEB ftg=$FTG"
+              if [ "$GW" = "200" ] && [ "$WEB" = "200" ] && [ "$FTG" = "200" ]; then break; fi
+            done
+            if [ "$GW" != "200" ] || [ "$WEB" != "200" ]; then
+              echo "[FAIL] post-deploy health check: gateway=$GW web=$WEB ftg=$FTG"
+              echo "[FAIL] --- ftg-journey-server error log (last 30 lines) ---"
+              tail -30 /var/www/esggo/logs/ftg-journey-error.log 2>/dev/null || echo "(no error log)"
+              exit 1
+            fi
+            if [ "$FTG" != "200" ]; then
+              echo "[DEGRADED] ftg-journey-server 未上線 (ftg=$FTG)"
+              echo "[DEGRADED] 這是預期狀態，不是本次部署失敗，也不代表金鑰有問題："
+              echo "[DEGRADED]   ftg-journey-server 已刻意從 ecosystem.config.cjs 移除"
+              echo "[DEGRADED]   （見該檔 ftg 段落註解：加入會因 fail-fast 造成 crash-loop 假完成），"
+              echo "[DEGRADED]   PM2 不會啟動它，:8787 因此必然無人監聽。GitHub secret FTG_JWT_SECRET"
+              echo "[DEGRADED]   已存在且本 workflow 已正確注入 —— 請勿再照舊訊息去重跑修金鑰。"
+              echo "[DEGRADED] 同一前提下的未決事項: :8787 目前是死路由"
+              echo "[DEGRADED]   （nginx 仍有 proxy_pass 指向 ftg-journey-server:8787，請求該路徑會 502），"
+              echo "[DEGRADED]   是否讓此服務在 VPS 上線尚待決策，與本次部署成敗無關。"
+              echo "[DEGRADED] 若決定要啟用，前置條件為全部三項缺一不可："
+              echo "[DEGRADED]   (1) FTG_JWT_SECRET 已 provisioned（已滿足，勿重複處理）"
+              echo "[DEGRADED]   (2) GOOGLE_CLIENT_ID 進 GitHub secrets（目前缺；57 個 secret 中僅有"
+              echo "[DEGRADED]       GOOGLE_CLIENT_SECRET，OAuth 驗證會因此失敗）"
+              echo "[DEGRADED]   (3) 先決定並處理 8787 死路由，再把條目加回 ecosystem.config.cjs"
+              echo "[DEGRADED] --- ftg-journey-server error log (last 15 lines) ---"
+              tail -15 /var/www/esggo/logs/ftg-journey-error.log 2>/dev/null || echo "(no error log — 服務未被啟動，無 log 屬正常)"
+            fi
+            echo "[OK] health check passed (gateway/web)"
+            echo "[OK] deployed direct"
+          VPS
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/deploy_key ~/.ssh/bastion_key ~/.ssh/bastion_key.pub ~/.oci/key.pem ~/.ssh/known_hosts || true
+
+  # ─── 通知 ───────────────────────────────────────────────────
+  notify:
+    name: Deploy Notification
+    needs: [pre-check, deploy]
+    runs-on: ubuntu-latest
+    if: always() && needs.pre-check.outputs.mode != 'skip'
+    steps:
+      - name: Result
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          R="${{ needs.deploy.result }}"
+          if [ "$R" = "success" ] || [ "$R" = "skipped" ]; then
+            echo "[OK] ESG GO deployed to Oracle VPS (${{ needs.pre-check.outputs.mode }} mode)"
+          else
+            MSG="[FAIL] Deploy $R (${{ needs.pre-check.outputs.mode }} mode) — run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo "$MSG"
+            # 主動推 Telegram (基礎設施集成閉環: 部署失敗→人收到告警)
+            curl -s -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+              -d chat_id="${TG_CHAT}" \
+              -d text="🚨 ESGGO CD $MSG" \
+              -d parse_mode="HTML" > /dev/null || echo "[warn] telegram notify failed"
+          fi

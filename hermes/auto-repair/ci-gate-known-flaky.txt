@@ -1,0 +1,30 @@
+# CI 全綠閘 known-flaky 白名單
+#
+# source_origin: 實測 2026-10-04 — Omniesggo main 分支 commit 歷史調查
+#
+# 用途：某些 GitHub check 由「外部 GitHub App」建立，repo 內沒有對應 workflow，
+#       因此 .github/workflows/auto-repair.yml（只對 conclusion=='failure' 觸發）
+#       **永遠無法修復它們**。列入此檔可讓 ci-gate.sh 將其從 ASK 降級為 WARN，
+#       但必須附上實測證據 —— 不得憑空放行。
+#
+# 規則：每筆需有「證據」欄。gate 會驗證該 check 當前結論確實等於 listed 狀態，
+#       狀態一變（例如 SonarCloud 真的跑起來了）即失效，自動恢復為阻擋。
+#
+# 語法：<check 名稱>|<允許的結論>|<理由與證據>
+
+# SonarCloud Code Analysis|cancelled|
+#   證據（2026-10-05 重新實測，修正上一版「從未成功過」的失實宣稱）：
+#     · main 分支連續 4 個 commit (0bac9850, 41516d73, 3e5cc857, 730c8d06) 皆 cancelled
+#     · 但 commit 2cc5a6bd（分支 verify/ci-green-gate-e2e）結論為 **success**
+#     ⇒ 正確敘述是「在 main 上不穩定」，不是「從未成功」。SonarCloud 具備執行能力。
+#   根因（部分已證、部分仍屬未解）：
+#     · 已證：repo 內無 sonar workflow（.github/workflows/ 無 sonar 檔），
+#       check 由外部 SonarCloud GitHub App (slug sonarqubecloud) 建立，
+#       獨立於 GitHub Actions，auto-repair.yml 的 conclusion=='failure' 無從觸發。
+#     · 已證：sonarcloud.io 回 Component key 'esggo_esggo-monorepo' not found，
+#       但 sonar-project.properties 宣告的正是該 key ⇒ 宣告與實際註冊不一致。
+#     · 未解：2cc5a6bd 為何能 success（可能走 autodetect 或不同 key）—— 未驗證，不臆測。
+#   影響：不阻擋 GitHub merge —— branch protection 不可用（private repo + free
+#     plan，GET /branches/main/protection 回 403 "Upgrade to GitHub Pro"）。
+#   本白名單僅允許 cancelled 結論；一旦 SonarCloud 回傳 success/failure 即自動失效。
+SonarCloud Code Analysis|cancelled|外部 App；main 上不穩定（2cc5a6bd 曾 success），非 required check
