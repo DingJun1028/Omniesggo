@@ -29,15 +29,29 @@ fi
 MODE="gate"
 if [ "${1:-}" = "--list" ]; then MODE="list"; SHA="${2:-HEAD}"; else SHA="${1:-HEAD}"; fi
 
-fetch_checks() {
-  # NOTE: --paginate re-runs the jq filter per page, and the check-runs endpoint
-  # can report the same check on more than one page (SonarCloud appeared 3x).
-  # Sort -u de-duplicates the identical "name|status|conclusion" triples so each
-  # check is counted — and printed — exactly once.
+# `gh api` writes its JSON error body to STDOUT (rc=1) and only the one-line
+# human message to stderr. A bare `2>/dev/null` therefore hides the message but
+# still lets the error JSON flow into the parser below, where it was read as a
+# check named '{"message":"No commit found..."' with status= — i.e. an API
+# failure masquerading as a legitimate red check. Capture the body, and only
+# emit check lines when the call actually succeeded.
+fetch_checks_raw() {
   gh api "repos/$REPO/commits/$SHA/check-runs" \
     --paginate \
-    --jq '.check_runs[] | "\(.name)|\(.status)|\(.conclusion // "")"' 2>/dev/null \
-    | sort -u
+    --jq '.check_runs[] | "\(.name)|\(.status)|\(.conclusion // "")"'
+}
+
+fetch_checks() {
+  local body rc
+  body="$(fetch_checks_raw 2>/dev/null)"; rc=$?
+  if [ "$rc" -ne 0 ]; then
+    # A body that is JSON (starts with { or [) is the API error envelope.
+    case "$body" in
+      \{*|\[*) echo "CIGATE-FETCH-ERROR $(printf '%s' "$body" | tr -d '\n' | cut -c1-300)" ;;
+    esac
+    return "$rc"
+  fi
+  printf '%s' "$body" | sort -u
 }
 
 # --- known-flaky allow-list -------------------------------------------------
@@ -67,9 +81,17 @@ flaky_reason() {
 
 if [ "$MODE" = "list" ]; then
   echo "=== check-runs for $SHA ==="
-  fetch_checks | while IFS='|' read -r name status concl; do
+  list_rc=0
+  list_body="$(fetch_checks)" || list_rc=$?
+  # Same rule as the gate: a failed fetch prints the reason, never a fake row.
+  if [ "$list_rc" -ne 0 ]; then
+    echo "CIGATE: check-runs 取得失敗（gh api rc=$list_rc）"
+    exit 2
+  fi
+  while IFS='|' read -r name status concl; do
+    [ -z "$name" ] && continue
     printf '  %-42s %-12s %s\n' "$name" "$status" "$concl"
-  done
+  done <<< "$list_body"
   exit 0
 fi
 
@@ -82,8 +104,20 @@ declare -a GREEN=()
 declare -a MANUAL=()
 declare -a WARNED=()   # known-flaky 降級項：不算綠也不算紅，但必須被看見
 
+fetch_rc=0            # rc of the last fetch_checks call; non-zero = transport/API failure
+checks_raw=""         # captured check-runs body for this iteration
+
 while :; do
   PENDING=(); RED=(); GREEN=(); MANUAL=(); WARNED=()
+  # ONE fetch per iteration; the loop consumes this captured file rather than
+  # re-invoking fetch_checks, so the rc check above is actually meaningful and we
+  # do not pay for two API round-trips per poll.
+  fetch_rc=0
+  checks_raw="$(fetch_checks)" || fetch_rc=$?
+  if [ "$fetch_rc" -ne 0 ]; then
+    echo "CIGATE: check-runs 取得失敗（gh api rc=$fetch_rc）— 拒絕判定，不輸出任何綠燈結論"
+    exit 2
+  fi
   while IFS='|' read -r name status concl; do
     [ -z "$name" ] && continue
     case "$status" in
@@ -114,7 +148,17 @@ while :; do
         esac ;;
       *) RED+=("$name|status=$status") ;;
     esac
-  done < <(fetch_checks)
+  done <<< "$checks_raw"
+
+  # Fail closed: if the API returned nothing at all we cannot claim green.
+  # Before this guard an authed-but-empty response left every array empty and
+  # the gate printed "真全綠 ✅" — a silent false-green on a total fetch failure.
+  if [ ${#PENDING[@]} -eq 0 ] && [ ${#RED[@]} -eq 0 ] \
+     && [ ${#GREEN[@]} -eq 0 ] && [ ${#MANUAL[@]} -eq 0 ] && [ ${#WARNED[@]} -eq 0 ]; then
+    echo "CIGATE: 無法取得任何 check-runs — 拒絕判定（可能是認證失敗、API 錯誤或 SHA 無 checks）"
+    echo "         請先確認: gh auth status / GH_TOKEN 是否有效 / SHA=$SHA 是否正確"
+    exit 2
+  fi
 
   [ ${#PENDING[@]} -eq 0 ] && break
   [ "$elapsed" -ge "$WAIT_MAX" ] && break
