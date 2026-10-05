@@ -11,17 +11,15 @@ import {
 import { useAuth } from '@/components/AuthProvider';
 
 const NAV_ITEMS = [
-  { href: '/omni-center', label: '指揮中心', icon: LayoutDashboard },
-  { href: '/data-bridge', label: '數據橋接器', icon: Database },
-  { href: '/parser', label: 'PDF 解析器', icon: FileText },
-  { href: '/materiality', label: '重大性矩陣', icon: Sliders },
-  { href: '/roadmap', label: '淨零路徑', icon: TrendingDown },
-  { href: '/supply-chain', label: '供應鏈盡調', icon: Building2 },
-  { href: '/verifier', label: '5T 驗證器', icon: ShieldCheck },
-  { href: '/sustain-write/v5', label: '報告產生器', icon: FileText },
-  { href: '/sustain-center', label: '永續中心', icon: Globe },
+  { href: '/omni-center', label: 'A01 萬能中心', icon: LayoutDashboard },
+  { href: '/sustain-write', label: 'A02 報告中心', icon: FileText },
+  { href: '/parser', label: 'A03 智能解析', icon: FileText },
+  { href: '/materiality', label: 'A04 重大性矩陣', icon: Sliders },
+  { href: '/supply-chain', label: 'A05 供應鏈盡調', icon: Building2 },
+  { href: '/carbon', label: 'A06 碳排淨零', icon: TrendingDown },
+  { href: '/trust', label: 'A07 信任金庫', icon: Database },
+  { href: '/verifier', label: '5T 防偽查驗', icon: ShieldCheck },
   { href: '/village', label: '村莊治理', icon: Users },
-  { href: '/wiki', label: '知識庫', icon: BookOpen },
   { href: '/omni-agent', label: 'AI 控制台', icon: Bot },
   { href: '/resources', label: '資源總覽', icon: Settings },
 ];
