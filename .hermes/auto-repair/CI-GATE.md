@@ -50,9 +50,9 @@ Exit code 是唯一判準：
 - `exit 0` → **全綠** → 可開下一個 PR
 - `exit 1` → **非全綠** → **不得前進**
 
-## 為何 `cancelled` 歸為人工而非自動修復
+### 為何 `cancelled` 歸為人工而非自動修復
 
-**實測證據**（Omniesggo commit `fbfdfd78`）：
+**實測證據**（Omniesggo commit `fbfdfd78` 與 `2cc5a6bd`）：
 
 ```
 FAIL  (無)
@@ -60,7 +60,7 @@ ASK   SonarCloud Code Analysis    cancelled (外部服務，需人工 re-run)
 ```
 
 SonarCloud **在 repo 沒有 workflow 檔**（只有 `sonar-project.properties`），
-由外部 GitHub App 建立，獨立於 GitHub Actions 之外。
+由外部 GitHub App（slug `sonarqubecloud`）建立，獨立於 GitHub Actions 之外。
 
 而既有的 `.github/workflows/auto-repair.yml` 只在
 `github.event.workflow_run.conclusion == 'failure'` 時觸發 ——
@@ -69,6 +69,11 @@ SonarCloud **在 repo 沒有 workflow 檔**（只有 `sonar-project.properties`�
 若把 `cancelled` 當成一般 FAIL 丟給自動修復，
 會進入一個永遠贏不了的迴圈（沒有 workflow 可以觸發它）。
 分類為 ASK 才能誠實反映「自動修復觸及不到，需人工 re-run」。
+
+> **更正（2026-10-05 複驗）**：本節初版斷言 SonarCloud「從未在此 repo 成功過」。
+> **該宣稱已被證偽** —— commit `2cc5a6bd`（分支 `verify/ci-green-gate-e2e`）
+> 的 SonarCloud check 結論為 **`success`**。正確敘述是「**在 main 上不穩定**」，
+> 見下方白名單章節的重新實測證據。
 
 ## 已驗證行為（實測，非推測）
 
@@ -125,6 +130,65 @@ repo 已有 `.github/workflows/auto-repair.yml`，內含：
 
 端到端反向驗證：移除白名單檔後重跑 gate，
 `SonarCloud Code Analysis (cancelled)` 立即回到 ASK 且 `exit 1`。
+
+## fail-closed：API 查詢失敗 ≠ 紅燈 check（實測 2026-10-05）
+
+**這是本 gate 最危險的假綠來源，已修復並實測。**
+
+### 根因
+
+`gh api` 的**錯誤 JSON 主體寫在 stdout（rc=1）**，只有一行人類訊息在 stderr。
+原本的 `2>/dev/null` 只蓋掉訊息，錯誤 JSON 直接流入 parser，被讀成一筆名為
+`{"message":"No commit found...` 的紅燈 check —— **API 查詢失敗被洗成「合法失敗」**。
+
+更隱蔽的一層：poll 迴圈原本寫 `while :; do ... done < <(fetch_checks)`，
+`fetch_checks` 被**二次呼叫**，使得任何加在它上面的 rc 守衛都是死碼。
+
+### 修復
+
+- 拆出 `fetch_checks_raw` / `fetch_checks`；rc≠0 時輸出 `CIGATE-FETCH-ERROR` 並**拒絕判定**
+- 迴圈改為**單次擷取** `checks_raw` + herestring 消費（rc 守衛真正生效，且省一次 round-trip）
+- `--list` 路徑同樣補 rc 檢查
+- 新增 **exit 2** 語意：無法取得資料時用 2 區隔於「確定非全綠」的 1
+
+### 實測（全部真跑）
+
+| 情境 | 期望 | 實測 |
+|---|---|---|
+| bogus SHA（gate 模式） | 拒絕判定 | `rc=2`，印「拒絕判定，不輸出任何綠燈結論」✅ |
+| bogus SHA（`--list`） | 不印 JSON 當 check 列 | `rc=2`，無偽造 check 行 ✅ |
+| 真實 commit | 正常判定 | 19 checks、去重後正常輸出 ✅ |
+| WSL（無 `gh`） | 拒絕判定 | `rc=2` ✅ |
+
+### ⚠️ 使用陷阱：ref 名稱不是任意合法路徑
+
+實測差異：
+
+```bash
+gh api repos/…/commits/main/check-runs        # ✅ 200，15 checks
+gh api repos/…/commits/origin/main/check-runs # ❌ 422 "No commit found for SHA: origin/main"
+```
+
+所以 `ci-gate.sh origin/main` 會 **fail-closed（rc=2）**。
+**要查遠端最新狀態請傳 `main`，不要傳 `origin/main`。**
+（這是 API 路徑限制，非 gate 缺陷；但第一次踩到時會誤以為 gate 壞掉。）
+
+## 強制執行的誠實邊界（實測複驗 2026-10-05）
+
+**此 gate 目前不會真的擋住 GitHub merge。** 複驗結果：
+
+```
+GET /repos/DingJun1028/Omniesggo/branches/main/protection
+→ 403 {"message":"Upgrade to GitHub Pro or make this repository public to enable this feature."}
+```
+
+這是**方案層限制**（private repo + free plan），不是設定錯誤 —— 無法靠重試或改設定解決。
+因此現況為：**紅燈訊號 + 流程紀律**，而非技術強制。不得宣稱它會阻擋合併。
+
+已實證它**確實會在 `pull_request` 事件觸發**並可轉紅（開 PR #4 實測：
+2 個 check 未跑完 → `未完成 ⚠` → exit 1）。但 merge 仍需人手不點。
+
+**升級為真強制的前提**：repo 轉為 public，或升級 GitHub Pro/Team 後才能設 required checks。
 
 ### 目前唯一例外：SonarCloud Code Analysis
 
