@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="OmniVoice.App/OmniVoice.App.csproj" />
+  <Project Path="OmniVoice.Core/OmniVoice.Core.csproj" />
+  <Project Path="OmniVoice.Tests/OmniVoice.Tests.csproj" />
+</Solution>
