@@ -11,7 +11,7 @@ namespace OmniVoice.Core;
 /// </summary>
 public sealed class AudioRecorder : IDisposable
 {
-    private WasapiCapture? _capture;
+    private WaveIn? _capture;
     private MemoryStream? _buffer;
     private bool _isRecording;
     private readonly object _lock = new();
@@ -30,7 +30,7 @@ public sealed class AudioRecorder : IDisposable
         if (IsRecording) return;
 
         _buffer = new MemoryStream();
-        _capture = new WasapiCapture();
+        _capture = new WaveIn();
         _capture.DataAvailable += OnDataAvailable;
         _capture.RecordingStopped += OnRecordingStopped;
         _capture.StartRecording();

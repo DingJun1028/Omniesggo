@@ -9,7 +9,7 @@ namespace OmniVoice.Core;
 /// </summary>
 public sealed class HotkeyManager : IDisposable
 {
-    private readonly Dictionary<string, Hotkey> _hotkeys = new();
+    private readonly Dictionary<string, bool> _hotkeys = new();
     private bool _isDisposed;
 
     /// <summary>
@@ -24,9 +24,9 @@ public sealed class HotkeyManager : IDisposable
         if (_isDisposed) throw new ObjectDisposedException(nameof(HotkeyManager));
         if (_hotkeys.ContainsKey(name)) return;
 
-        var hotkey = new Hotkey(key, modifiers, (_, _) => callback()); // NHotkey.Wpf 4.0.0: Action<object, HotkeyEventArgs>
-        _hotkeys[name] = hotkey;
-        HotkeyManagerWpf.Current.AddOrReplace(name, hotkey);
+        // NHotkey.Wpf 4.0.0: 無 Hotkey 類型，直接使用 HotkeyManager.Current.AddOrReplace()
+        NHotkey.Wpf.HotkeyManager.Current.AddOrReplace(name, key, modifiers, (_, _) => callback());
+        _hotkeys[name] = true;
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public sealed class HotkeyManager : IDisposable
     {
         if (_hotkeys.Remove(name, out var hotkey))
         {
-            HotkeyManagerWpf.Current.Remove(name);
+            NHotkey.Wpf.HotkeyManager.Current.Remove(name);
         }
     }
 
@@ -52,7 +52,7 @@ public sealed class HotkeyManager : IDisposable
 
         foreach (var name in _hotkeys.Keys.ToList())
         {
-            HotkeyManagerWpf.Current.Remove(name);
+            NHotkey.Wpf.HotkeyManager.Current.Remove(name);
         }
         _hotkeys.Clear();
     }
