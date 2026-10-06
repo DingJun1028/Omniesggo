@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    setupFiles: ['tests/setup.ts'],
     // 5T-Trackable: 全域 testTimeout 由 5s（預設）放寬至 30s。
     //
     // 根因（2026-09-28 實測，非本機環境問題）: 多支測試以 top-level import
