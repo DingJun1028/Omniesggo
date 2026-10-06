@@ -109,7 +109,7 @@ export function collection(_db: unknown, name: string): CollectionRef { return n
 export function doc(_db: unknown, collectionName: string, id: string): DocRef { return new DocRef(collectionName, id); }
 
 export function query(ref: QueryBuilder | CollectionRef, ...constraints: Array<(r: QueryBuilder) => QueryBuilder>): QueryBuilder {
-  let builder = ref instanceof CollectionRef ? new QueryBuilder(ref.name) : ref;
+  const builder = ref instanceof CollectionRef ? new QueryBuilder(ref.name) : ref;
   return constraints.reduce((acc, c) => c(acc), builder);
 }
 
