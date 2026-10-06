@@ -45,7 +45,7 @@ export class GoogleGenAI {
   // Interactions API support (used by village/trends route when USE_INTERACTIONS_API=true)
   // Default implementation throws — override with real Gemini Interactions API when needed.
   interactions = {
-    create: async (_params: any) => {
+    create: async (_params: any): Promise<{ steps?: Array<{ type?: string; content?: Array<{ parts?: Array<{ text?: string }> }> }> }> => {
       throw new Error('Interactions API not implemented. Use models.generateContent instead.');
     }
   };
