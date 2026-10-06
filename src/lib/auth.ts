@@ -94,12 +94,18 @@ export function onAuthChange(callback: (user: LocalUser | null) => void): () => 
 // 注意: 此函式為同步存取，為了相容原本的 local storage 版本
 // 在 Supabase 中，較好的做法是用異步獲取 Session
 let _cachedUser: LocalUser | null = null;
-supabase.auth.onAuthStateChange((_event, session) => {
-  _cachedUser = mapSupabaseUser(session?.user);
-});
-supabase.auth.getSession().then(({ data: { session } }) => {
-  _cachedUser = mapSupabaseUser(session?.user);
-});
+
+// 僅在瀏覽器環境初始化：避免在 SSR / `next build` 靜態產出（prerender）時
+// 於模組載入階段觸碰 Supabase（此時 NEXT_PUBLIC_SUPABASE_* 可能不存在，
+// 會導致 build 失敗：'supabaseUrl is required.'）。
+if (typeof window !== 'undefined') {
+  supabase.auth.onAuthStateChange((_event, session) => {
+    _cachedUser = mapSupabaseUser(session?.user);
+  });
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    _cachedUser = mapSupabaseUser(session?.user);
+  });
+}
 
 export function getCurrentUser(): LocalUser | null {
   return _cachedUser;
