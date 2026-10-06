@@ -129,7 +129,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Menu Drawer */}
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-96' : 'max-h-0'}`}>
+      <div className={`md:hidden overflow-hidden transition-all duration-300 ${open ? 'max-h-[600px]' : 'max-h-0'}`}>
         <div className="bg-white border-t border-gray-100 px-4 py-3 space-y-1">
           <NavLink
             to="/"
