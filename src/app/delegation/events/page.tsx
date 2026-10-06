@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import DelegationEventStream from '@/components/delegation/DelegationEventStream';
-import DelegationMetricsOverview from '@/components/delegation/DelegationMetricsOverview';
+import DelegationEventStream from '../../../components/delegation/DelegationEventStream';
+import DelegationMetricsOverview from '../../../components/delegation/DelegationMetricsOverview';
 import { Network, BrainCircuit, Activity, ChevronRight } from 'lucide-react';
 
 /**

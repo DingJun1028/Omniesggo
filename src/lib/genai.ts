@@ -3,6 +3,8 @@ import ollama from 'ollama';
 export class GoogleGenAI {
   constructor(options: any) {}
 
+  [key: string]: any; // Allow arbitrary extensions like interactions
+
   models = {
     generateContent: async ({ model, contents }: any) => {
       let text = '';

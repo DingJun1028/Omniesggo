@@ -168,6 +168,28 @@ const CORE_FACILITIES: FacilitySpecInfo[] = [
       { phase: '終', step: '全球稽核', originCause: '外部監管或稽核調閱', processTrace: '公開防偽雜湊查詢通道', finalEffect: '絕對數位誠信確立' },
     ],
   },
+  {
+    code: 'A08',
+    name: '全通記憶與對齊引擎',
+    enName: 'OmniMemory & Alignment Engine',
+    path: '/omni-memory',
+    standard: 'OmniCore Memory Matrix v1.0',
+    summary: '借鑑 Meta Muse 架構的動態長期記憶系統，具備「記憶節點 (Memory)」、「夢境萃取 (Dreams)」與「遺忘衰減 (Forgetting)」三機制，賦予 OmniAgent Swarm 自我演化與個人化對齊能力。',
+    fiveTSeals: {
+      truth: '所有記憶節點夾帶 sourceOrigin 溯源印記',
+      goodness: 'Confidence 信心度公開演算，JSONB 零黑箱',
+      beauty: 'Editorial 雙主題記憶矩陣儀表板',
+      trust: '核心規則節點 SHA-256 Hash Lock 封印',
+      transferful: '夢境引擎每日合成 OMNI_ALIGNMENT.md',
+    },
+    matrixSteps: [
+      { phase: '起', step: '記憶攝取', originCause: '代理互動或使用者行為觸發', processTrace: 'SyncEngine 離線佇列安全寫入', finalEffect: '新記憶節點建立並索引' },
+      { phase: '承', step: '關鍵字索引', originCause: '記憶節點入庫', processTrace: 'JSONB 零成本全文搜尋標注', finalEffect: '精準低延遲記憶檢索就緒' },
+      { phase: '轉', step: '夢境萃取', originCause: '每日 03:00 PM2 Cron 觸發', processTrace: 'Transcript 關鍵偏好自動提煉', finalEffect: '新 thought 節點注入記憶庫' },
+      { phase: '合', step: '遺忘衰減', originCause: '信心度低於 0.35 閾值', processTrace: '舊記憶歸檔或刪除清理', finalEffect: '記憶庫熵值受控，語境精準' },
+      { phase: '終', step: '對齊合成', originCause: '夢境完成後自動觸發', processTrace: '高信心度記憶萃取寫入 OMNI_ALIGNMENT.md', finalEffect: 'JunAiKey 靈魂文件更新完成' },
+    ],
+  },
 ];
 
 const FIVE_T = [
@@ -199,7 +221,7 @@ export default function HomePage() {
           全通之心 · 無作妙德 · 5T 終始矩陣閉環
         </p>
         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mt-2 leading-relaxed">
-          以 5T 協議驅動的 A01~A07 核心永續治理工作台 — 從碳排計算、重大性矩陣到防偽報告，嚴格零文字漸層、全手冊高對比雙主題。
+          以 5T 協議驅動的 A01~A08 核心永續治理工作台 — 從碳排計算、重大性矩陣到防偽報告，乃至 OmniMemory 自演化記憶引擎，嚴格零文字漸層、全手冊高對比雙主題。
         </p>
 
         {/* 5T Protocol Live Bar */}
@@ -225,14 +247,14 @@ export default function HomePage() {
           <div>
             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
               <Layers className="w-5 h-5 text-teal-600 dark:text-cyan-400" />
-              A01 ~ A07 核心治理設施矩陣 (Core Facilities Matrix)
+              A01 ~ A08 核心治理設施矩陣 (Core Facilities Matrix)
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               各設施皆具備完整「終始矩陣功能說明書」與「5T 密碼學 Hash Lock 封印」
             </p>
           </div>
           <span className="text-xs font-mono font-bold text-teal-700 dark:text-cyan-400 bg-teal-50 dark:bg-cyan-950/40 px-3 py-1 rounded-full border border-teal-200 dark:border-cyan-500/30">
-            7 設施在線運作中
+            8 設施在線運作中
           </span>
         </div>
 
