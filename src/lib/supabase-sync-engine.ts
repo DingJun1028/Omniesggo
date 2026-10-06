@@ -28,7 +28,11 @@ export class SupabaseSyncEngine {
 
   constructor() {
     this.loadQueue();
-    this.initRealtimeListener();
+    try {
+      this.initRealtimeListener();
+    } catch (error) {
+      console.warn('[SyncEngine] Realtime 監聽初始化失敗 (非致命):', error);
+    }
   }
 
   private isServer() {
@@ -218,4 +222,26 @@ export class SupabaseSyncEngine {
   }
 }
 
-export const syncEngine = new SupabaseSyncEngine();
+let syncEngineInstance: SupabaseSyncEngine | null = null;
+
+/**
+ * Lazily obtain the singleton. Constructing the engine touches the Supabase
+ * client (Realtime channel) and the filesystem, so it must not run at module
+ * load during `next build` (page-data collection) where env vars are absent.
+ */
+export function getSyncEngine(): SupabaseSyncEngine {
+  if (!syncEngineInstance) {
+    syncEngineInstance = new SupabaseSyncEngine();
+  }
+  return syncEngineInstance;
+}
+
+export const syncEngine = new Proxy({} as SupabaseSyncEngine, {
+  get(_target, prop) {
+    const engine = getSyncEngine() as unknown as Record<PropertyKey, unknown>;
+    const value = engine[prop];
+    return typeof value === 'function'
+      ? (value as (...args: unknown[]) => unknown).bind(engine)
+      : value;
+  },
+});
