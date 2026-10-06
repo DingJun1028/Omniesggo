@@ -16,6 +16,7 @@ export type ESGTaskType =
   | 'sdg_mapping'           // SDG 目標對應
   | 'materiality_matrix'    // 重大性矩陣
   | 'report_assembly'       // 報告組裝
+  | 'junaikey_sovereign'    // JunAiKey 萬能元鑰超覺醒（語意治理）
   | 'general';              // 通用任務
 
 export interface ModelConfig {
@@ -317,6 +318,13 @@ const ROUTING_TABLE: Record<ESGTaskType, RoutingResult> = {
     taskType: 'report_assembly',
     strategy: 'Gemma4 主力 + 12B 結構化備援',
   },
+  junaikey_sovereign: {
+    primary: MODELS.local_esggo_gemma4,
+    fallback1: MODELS.local_gemma_e2b,
+    fallback2: MODELS.cf_llama8b,
+    taskType: 'junaikey_sovereign',
+    strategy: 'Gemma4 主力 + E2B 語意治理備援（本地零算力對齊）',
+  },
   general: {
     primary: MODELS.local_esggo_gemma4,
     fallback1: MODELS.local_llama31,
@@ -341,6 +349,11 @@ export function routeModel(taskType: string): RoutingResult {
  */
 export function inferTaskType(message: string): ESGTaskType {
   const lowerMsg = message.toLowerCase();
+
+  // JunAiKey 萬能元鑰（語意治理 / 超覺醒奧義）
+  if (lowerMsg.match(/junaikey|萬能元鑰|元鑰|超覺醒|sovereign|觀覺練印|語意治理/)) {
+    return 'junaikey_sovereign';
+  }
 
   // 碳排計算關鍵詞
   if (lowerMsg.match(/碳排|carbon|ghg|排放量|iso.?14064| Scope/)) {
@@ -774,6 +787,7 @@ export function resetProviderHealth(): void {
 // 涉及真實 ESG 資料、需審計可信的敏感任務
 const SENSITIVE_TASKS = new Set<ESGTaskType>([
   'carbon_calculation', 'compliance_review', 'tcfd_analysis', 'materiality_matrix', 'sdg_mapping',
+  'junaikey_sovereign',
 ]);
 // 所有外部公開免費 Provider（相對於自託管/已簽約端點）
 const PUBLIC_FREE_PROVIDERS = new Set<ModelConfig['provider']>([

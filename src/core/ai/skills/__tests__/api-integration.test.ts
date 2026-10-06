@@ -90,6 +90,7 @@ describe('ESG API Business Logic', () => {
       const taskTypes = [
         'carbon_calculation', 'tcfd_analysis', 'sdg_mapping',
         'compliance_review', 'gri_report_draft', 'materiality_matrix',
+        'junaikey_sovereign',
       ];
 
       for (const taskType of taskTypes) {
