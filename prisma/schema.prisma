@@ -5,195 +5,207 @@
 // Uses SQLite for local dev, PostgreSQL for production (free tier on Supabase/Neon)
 
 generator client {
-  binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
-  provider = "prisma-client-js"
+  binaryTargets   = ["native", "linux-musl-arm64-openssl-3.0.x"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  schemas  = ["public", "auth"]
 }
 
 // Crawled regulations & announcements
 model Regulation {
-  id          String   @id @default(cuid())
-  sourceId    String
-  sourceName  String
-  title       String
-  url         String   @unique
-  content     String   @default("")
-  status      String   @default("active") // active, amended, revoked
-  hash        String   // SHA-256 of content
-  oldHash     String?  // Previous hash (for change detection)
-  publishedAt String?
-  crawledAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
-  version     Int      @default(1)
+  id           String          @id @default(cuid())
+  sourceId     String
+  sourceName   String
+  title        String
+  url          String          @unique
+  content      String          @default("")
+  status       String          @default("active") // active, amended, revoked
+  hash         String // SHA-256 of content
+  oldHash      String? // Previous hash (for change detection)
+  publishedAt  String?
+  crawledAt    DateTime        @default(now())
+  updatedAt    DateTime        @default(now())
+  version      Int             @default(1)
   crawlHistory CrawlHistory[]
-  tags        RegulationTag[]
-  
+  tags         RegulationTag[]
+
   @@index([sourceId])
   @@index([crawledAt])
+  @@schema("public")
 }
 
 // Annual/ESG reports from companies
 model CompanyReport {
-  id            String   @id @default(cuid())
-  companyId     String
-  companyName   String
-  reportType    String   // esg_report, annual_report, impact_report
-  year          Int
-  url           String   @unique
-  pdfUrl        String?
-  content       String   @default("")
-  hash          String
-  oldHash       String?
-  version       Int      @default(1)
-  status        String   @default("published")
-  crawledAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
-  crawlHistory  CrawlHistory[]
-  tags          ReportTag[]
-  
+  id           String         @id @default(cuid())
+  companyId    String
+  companyName  String
+  reportType   String // esg_report, annual_report, impact_report
+  year         Int
+  url          String         @unique
+  pdfUrl       String?
+  content      String         @default("")
+  hash         String
+  oldHash      String?
+  version      Int            @default(1)
+  status       String         @default("published")
+  crawledAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now())
+  crawlHistory CrawlHistory[]
+  tags         ReportTag[]
+
   @@index([companyId])
   @@index([reportType])
+  @@schema("public")
 }
 
 // ESG Tags for categorization
 model ESGTag {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  pillar      String   // Environmental / Social / Governance
-  category    String   // e.g. "碳排", "勞動", "董事會"
-  description String   @default("")
+  id          String @id @default(cuid())
+  name        String @unique
+  pillar      String // Environmental / Social / Governance
+  category    String // e.g. "碳排", "勞動", "董事會"
+  description String @default("")
 
   regulations RegulationTag[]
   reports     ReportTag[]
   alerts      AlertTag[]
+
+  @@schema("public")
 }
 
 // Junction table: Regulation <-> ESGTag
 model RegulationTag {
-  id            String   @id @default(cuid())
-  regulationId  String
-  tagId         String
+  id           String @id @default(cuid())
+  regulationId String
+  tagId        String
 
-  regulation    Regulation @relation(fields: [regulationId], references: [id], onDelete: Cascade)
-  tag           ESGTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  regulation Regulation @relation(fields: [regulationId], references: [id], onDelete: Cascade)
+  tag        ESGTag     @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([regulationId, tagId])
   @@index([regulationId])
   @@index([tagId])
+  @@schema("public")
 }
 
 // Junction table: CompanyReport <-> ESGTag
 model ReportTag {
-  id            String   @id @default(cuid())
-  reportId      String
-  tagId         String
+  id       String @id @default(cuid())
+  reportId String
+  tagId    String
 
-  report        CompanyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  tag           ESGTag        @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  report CompanyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  tag    ESGTag        @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([reportId, tagId])
   @@index([reportId])
   @@index([tagId])
+  @@schema("public")
 }
 
 // Junction table: Alert <-> ESGTag
 model AlertTag {
-  id            String   @id @default(cuid())
-  alertId       String
-  tagId         String
+  id      String @id @default(cuid())
+  alertId String
+  tagId   String
 
-  alert         Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
-  tag           ESGTag   @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  alert Alert  @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  tag   ESGTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
 
   @@unique([alertId, tagId])
   @@index([alertId])
   @@index([tagId])
+  @@schema("public")
 }
 
 // ══ Universal Tag — 萬能標籤配對合成層 ══════════════════════
 // 串接 ESGTag (法規分類) + OmniTag (組件信任) 為統一配對層
 model UniversalTag {
-  id            String   @id @default(cuid())
-  uuid          String?                    // 5T: 全域唯一識別 (舊資料可為 NULL)
-  version       Int      @default(1)       // 5T: 版本
-  sourceOrigin  String?                    // 5T: 來源可驗證
-  hashLock      String?                    // 5T: SHA-256 不可篡改封印
-  lifecycleHooks String?                    // 5T: 生命週期鉤子
-  label         String
-  kind          String   // 'esg' | 'omni' | 'custom'
-  esgTagId      String?  // 關聯 ESGTag.id (kind='esg')
-  omniType      String?  // GRI/TCFD/TNFD/SDG/custom (kind='omni')
-  status        String   @default("active") // active/verified/archived
-  metadata      String   @default("{}")     // JSON
-  createdAt     DateTime @default(now())
-  pairsAnchor   TagPair[] @relation("tagPairsAnchor")
-  pairsEvidence TagPair[] @relation("tagPairsEvidence")
+  id             String    @id @default(cuid())
+  uuid           String? // 5T: 全域唯一識別 (舊資料可為 NULL)
+  version        Int       @default(1) // 5T: 版本
+  sourceOrigin   String? // 5T: 來源可驗證
+  hashLock       String? // 5T: SHA-256 不可篡改封印
+  lifecycleHooks String? // 5T: 生命週期鉤子
+  label          String
+  kind           String // 'esg' | 'omni' | 'custom'
+  esgTagId       String? // 關聯 ESGTag.id (kind='esg')
+  omniType       String? // GRI/TCFD/TNFD/SDG/custom (kind='omni')
+  status         String    @default("active") // active/verified/archived
+  metadata       String    @default("{}") // JSON
+  createdAt      DateTime  @default(now())
+  pairsAnchor    TagPair[] @relation("tagPairsAnchor")
+  pairsEvidence  TagPair[] @relation("tagPairsEvidence")
 
   @@unique([label, kind])
   @@index([kind])
   @@index([uuid])
+  @@schema("public")
 }
 
 model TagPair {
-  id            String   @id @default(cuid())
-  uuid          String?                      // 5T: 全域唯一識別
-  sourceOrigin  String?                      // 5T: 來源可驗證
-  hashLock      String?                      // 5T: SHA-256 不可篡改封印
-  lifecycleHooks String?                      // 5T: 生命週期鉤子
-  anchorTagId   String
-  evidenceTagId String?
-  anchor        UniversalTag @relation("tagPairsAnchor", fields: [anchorTagId], references: [id], onDelete: Cascade)
-  evidence      UniversalTag? @relation("tagPairsEvidence", fields: [evidenceTagId], references: [id], onDelete: SetNull)
-  entityType    String   // regulation/report/alert/component
-  entityId      String
-  confidence    Float    @default(1.0)
-  createdAt     DateTime @default(now())
+  id             String        @id @default(cuid())
+  uuid           String? // 5T: 全域唯一識別
+  sourceOrigin   String? // 5T: 來源可驗證
+  hashLock       String? // 5T: SHA-256 不可篡改封印
+  lifecycleHooks String? // 5T: 生命週期鉤子
+  anchorTagId    String
+  evidenceTagId  String?
+  anchor         UniversalTag  @relation("tagPairsAnchor", fields: [anchorTagId], references: [id], onDelete: Cascade)
+  evidence       UniversalTag? @relation("tagPairsEvidence", fields: [evidenceTagId], references: [id], onDelete: SetNull)
+  entityType     String // regulation/report/alert/component
+  entityId       String
+  confidence     Float         @default(1.0)
+  createdAt      DateTime      @default(now())
 
   @@unique([anchorTagId, entityType, entityId])
   @@index([entityType, entityId])
   @@index([anchorTagId])
   @@index([uuid])
+  @@schema("public")
 }
 
 // Crawl history log
 model CrawlHistory {
-  id              String   @id @default(cuid())
+  id              String         @id @default(cuid())
   sourceId        String
   regulationId    String?
-  regulation      Regulation? @relation(fields: [regulationId], references: [id], onDelete: Cascade)
+  regulation      Regulation?    @relation(fields: [regulationId], references: [id], onDelete: Cascade)
   companyReportId String?
   companyReport   CompanyReport? @relation(fields: [companyReportId], references: [id], onDelete: Cascade)
-  itemsFound      Int      @default(0)
-  newItems        Int      @default(0)
-  changedItems    Int      @default(0)
-  errorCount      Int      @default(0)
-  duration        Int      // ms
-  timestamp       DateTime @default(now())
-  
+  itemsFound      Int            @default(0)
+  newItems        Int            @default(0)
+  changedItems    Int            @default(0)
+  errorCount      Int            @default(0)
+  duration        Int // ms
+  timestamp       DateTime       @default(now())
+
   @@index([sourceId])
   @@index([timestamp])
+  @@schema("public")
 }
 
 // Detected changes & alerts
 model Alert {
-  id          String   @id @default(cuid())
-  sourceId    String
-  sourceName  String
-  alertType   String   // new_regulation, amended, policy_change, risk_event
-  severity    String   @default("medium") // low, medium, high, critical
-  title       String
-  summary     String   @default("")
-  url         String
-  hash        String
-  oldContent  String?  @default("")
-  newContent  String?  @default("")
-  esgPillar   String   @default("") // environmental / social / governance
-  acknowledged Boolean @default(false)
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  sourceId     String
+  sourceName   String
+  alertType    String // new_regulation, amended, policy_change, risk_event
+  severity     String   @default("medium") // low, medium, high, critical
+  title        String
+  summary      String   @default("")
+  url          String
+  hash         String
+  oldContent   String?  @default("")
+  newContent   String?  @default("")
+  esgPillar    String   @default("") // environmental / social / governance
+  acknowledged Boolean  @default(false)
+  createdAt    DateTime @default(now())
 
   dailyReportItems DailyReportItem[]
   notifications    NotificationLog[]
@@ -203,43 +215,46 @@ model Alert {
   @@index([severity])
   @@index([acknowledged])
   @@index([createdAt])
+  @@schema("public")
 }
 
 // PDF Report Parse Results
 model PDFParseResult {
-  id              String   @id @default(cuid())
-  fileName        String
-  fileSize        Int
-  title           String
-  pageCount       Int
-  totalWords      Int
+  id                String   @id @default(cuid())
+  fileName          String
+  fileSize          Int
+  title             String
+  pageCount         Int
+  totalWords        Int
   esgKeywordDensity Float
-  companies       String   @default("[]")  // JSON array
-  metrics         String   @default("[]")  // JSON array
-  years           String   @default("[]")  // JSON array
-  sections        String   @default("[]")  // JSON array
-  esgCategories   String   @default("{}")  // JSON object
-  textPreview     String   @default("")
-  rawText         String   @default("")    // Truncated to 100KB
-  parsedAt        DateTime @default(now())
-  
+  companies         String   @default("[]") // JSON array
+  metrics           String   @default("[]") // JSON array
+  years             String   @default("[]") // JSON array
+  sections          String   @default("[]") // JSON array
+  esgCategories     String   @default("{}") // JSON object
+  textPreview       String   @default("")
+  rawText           String   @default("") // Truncated to 100KB
+  parsedAt          DateTime @default(now())
+
   @@index([fileName])
   @@index([parsedAt])
+  @@schema("public")
 }
 
 // Notification log
 model NotificationLog {
-  id          String   @id @default(cuid())
-  alertId     String
-  channel     String   // email, telegram, webhook, in_app
-  status      String   @default("pending") // pending, sent, failed
-  sentAt      DateTime?
-  error       String?
-  createdAt   DateTime @default(now())
+  id        String    @id @default(cuid())
+  alertId   String
+  channel   String // email, telegram, webhook, in_app
+  status    String    @default("pending") // pending, sent, failed
+  sentAt    DateTime?
+  error     String?
+  createdAt DateTime  @default(now())
 
-  alert       Alert    @relation(fields: [alertId], references: [id], onDelete: Cascade)
+  alert Alert @relation(fields: [alertId], references: [id], onDelete: Cascade)
 
   @@index([alertId])
+  @@schema("public")
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -248,19 +263,19 @@ model NotificationLog {
 
 /// 用戶成長帳戶：記錄等級、經驗值、任務進度
 model UserGrowth {
-  id            String   @id @default(cuid())
-  userId        String   @unique  // Firebase Auth UID 或匿名 ID
-  email         String?
-  displayName   String   @default("永續觀察者")
-  tier          String   @default("seed") // seed → sprout → bloom → forest → guardian
-  level         Int      @default(1)      // 1-99
-  xp            Int      @default(0)
-  totalPoints   Int      @default(0)      // 歷史累積（不消耗）
-  streakDays    Int      @default(0)      // 連續登入天數
-  lastActiveAt  DateTime @default(now())
-  avatarUrl     String?
-  joinedAt      DateTime @default(now())
-  updatedAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String   @unique // Firebase Auth UID 或匿名 ID
+  email        String?
+  displayName  String   @default("永續觀察者")
+  tier         String   @default("seed") // seed → sprout → bloom → forest → guardian
+  level        Int      @default(1) // 1-99
+  xp           Int      @default(0)
+  totalPoints  Int      @default(0) // 歷史累積（不消耗）
+  streakDays   Int      @default(0) // 連續登入天數
+  lastActiveAt DateTime @default(now())
+  avatarUrl    String?
+  joinedAt     DateTime @default(now())
+  updatedAt    DateTime @default(now())
 
   achievements  UserAchievement[]
   tasks         UserTask[]
@@ -269,6 +284,7 @@ model UserGrowth {
 
   @@index([tier])
   @@index([totalPoints])
+  @@schema("public")
 }
 
 /// 等級constants映射（代碼名義，data/store 管理）
@@ -276,18 +292,20 @@ model UserGrowth {
 
 /// 成就徽章定義
 model Achievement {
-  id          String   @id @default(cuid())
-  slug        String   @unique  // e.g. "first_report", "streak_7", "esg_master"
-  title       String
-  description String
-  icon        String   // emoji 或 icon URL
-  category    String   // engagement / knowledge / community / milestone
-  tierRequired String  @default("seed") // 最低等級要求
-  xpReward    Int      @default(0)
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id           String   @id @default(cuid())
+  slug         String   @unique // e.g. "first_report", "streak_7", "esg_master"
+  title        String
+  description  String
+  icon         String // emoji 或 icon URL
+  category     String // engagement / knowledge / community / milestone
+  tierRequired String   @default("seed") // 最低等級要求
+  xpReward     Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
 
-  users       UserAchievement[]
+  users UserAchievement[]
+
+  @@schema("public")
 }
 
 /// 用戶已解鎖的成就
@@ -297,11 +315,12 @@ model UserAchievement {
   achievementId String
   unlockedAt    DateTime @default(now())
 
-  user          UserGrowth @relation(fields: [userId], references: [id])
-  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  user        UserGrowth  @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
 
   @@unique([userId, achievementId])
   @@index([userId])
+  @@schema("public")
 }
 
 /// 每日成長任務
@@ -310,48 +329,52 @@ model GrowthTask {
   slug        String   @unique
   title       String
   description String
-  category    String   // daily / weekly / monthly / special
+  category    String // daily / weekly / monthly / special
   xpReward    Int      @default(10)
-  streakBonus Int      @default(5)      // 連續完成 extra
+  streakBonus Int      @default(5) // 連續完成 extra
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
 
-  userTasks   UserTask[]
+  userTasks UserTask[]
+
+  @@schema("public")
 }
 
 /// 用戶任務進度
 model UserTask {
-  id          String   @id @default(cuid())
-  userId        String
+  id          String    @id @default(cuid())
+  userId      String
   taskId      String
-  status      String   @default("pending") // pending / in_progress / completed / claimed
-  progress    Int      @default(0)      // 0-100
+  status      String    @default("pending") // pending / in_progress / completed / claimed
+  progress    Int       @default(0) // 0-100
   completedAt DateTime?
   claimedAt   DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
 
-  user        UserGrowth @relation(fields: [userId], references: [id])
-  task        GrowthTask  @relation(fields: [taskId], references: [id])
+  user UserGrowth @relation(fields: [userId], references: [id])
+  task GrowthTask @relation(fields: [taskId], references: [id])
 
   @@unique([userId, taskId])
   @@index([userId])
   @@index([status])
+  @@schema("public")
 }
 
 /// 用戶訂閱（資訊源的關注）
 model Subscription {
-  id          String   @id @default(cuid())
-  userId      String
-  subType     String   // company / keyword / source / region / industry
-  targetId    String   // e.g. sourceId or companyId or keyword
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  subType   String // company / keyword / source / region / industry
+  targetId  String // e.g. sourceId or companyId or keyword
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 
-  user        UserGrowth @relation(fields: [userId], references: [id])
+  user UserGrowth @relation(fields: [userId], references: [id])
 
   @@unique([userId, subType, targetId])
   @@index([userId])
+  @@schema("public")
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -360,96 +383,120 @@ model Subscription {
 
 /// 每日觀測日報（自動生成或手動編修）
 model DailyReport {
-  id            String   @id @default(cuid())
-  reportDate    DateTime @unique  // 日報日期（只取 date 部分）
-  title         String
-  summary       String   @default("")  // AI/自動生成的摘要
-  highlights    String   @default("[]") // JSON: 3-5 條焦點新聞
-  tagStats      String   @default("{}") // JSON: 各主題標籤統計
-  sourceCount   Int      @default(0)   // 本日資訊源數量
-  alertCount    Int      @default(0)   // 本日快訊數量
-  topSources    String   @default("[]") // JSON: 最多更新的來源
-  status        String   @default("draft") // draft / published / archived
-  publishedAt   DateTime?
-  editorNote    String?  // 主編的話
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now())
-  createdById   String?  // 建立者 UserGrowth ID
+  id          String    @id @default(cuid())
+  reportDate  DateTime  @unique // 日報日期（只取 date 部分）
+  title       String
+  summary     String    @default("") // AI/自動生成的摘要
+  highlights  String    @default("[]") // JSON: 3-5 條焦點新聞
+  tagStats    String    @default("{}") // JSON: 各主題標籤統計
+  sourceCount Int       @default(0) // 本日資訊源數量
+  alertCount  Int       @default(0) // 本日快訊數量
+  topSources  String    @default("[]") // JSON: 最多更新的來源
+  status      String    @default("draft") // draft / published / archived
+  publishedAt DateTime?
+  editorNote  String? // 主編的話
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @default(now())
+  createdById String? // 建立者 UserGrowth ID
 
-  items         DailyReportItem[]
-  createdBy     UserGrowth? @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  items     DailyReportItem[]
+  createdBy UserGrowth?       @relation(fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([reportDate])
   @@index([status])
   @@index([createdById])
+  @@schema("public")
 }
 
 /// 日報內的單條快訊（關聯 Alert）
 model DailyReportItem {
-  id            String   @id @default(cuid())
-  reportId      String
-  alertId       String?
-  itemType      String
-  title         String
-  summary       String   @default("")
-  sourceName    String?
-  sourceUrl     String?
-  severity      String   @default("low")
-  esgPillar     String   @default("")
-  orderIndex    Int      @default(0)
-  createdAt     DateTime @default(now())
+  id         String   @id @default(cuid())
+  reportId   String
+  alertId    String?
+  itemType   String
+  title      String
+  summary    String   @default("")
+  sourceName String?
+  sourceUrl  String?
+  severity   String   @default("low")
+  esgPillar  String   @default("")
+  orderIndex Int      @default(0)
+  createdAt  DateTime @default(now())
 
-  report        DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
-  alert         Alert?      @relation(fields: [alertId], references: [id], onDelete: SetNull)
+  report DailyReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  alert  Alert?      @relation(fields: [alertId], references: [id], onDelete: SetNull)
 
   @@index([reportId])
   @@index([itemType])
   @@index([alertId])
+  @@schema("public")
 }
+
 // --- Omni-Memory ---
 
 model OmniMemory {
-  id            String   @id @default(cuid())
-  userId        String
-  agentId       String
-  type          String   @default("claim") // claim, preference, rule, thought
-  content       String
-  keywords      String   @default("[]") // JSON array for zero-cost FTS
-  confidence    Float    @default(1.0)
-  sourceOrigin  String   @default("omni-memory")
-  metadata      String?  // JSON string
-  lastAccessed  DateTime @default(now())
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  agentId      String
+  type         String   @default("claim") // claim, preference, rule, thought
+  content      String
+  keywords     String   @default("[]") // JSON array for zero-cost FTS
+  confidence   Float    @default(1.0)
+  sourceOrigin String   @default("omni-memory")
+  metadata     String? // JSON string
+  lastAccessed DateTime @default(now())
+  createdAt    DateTime @default(now())
 
   @@index([userId])
   @@index([agentId])
   @@index([type])
+  @@schema("public")
 }
 
 model AvatarContext {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  preferences String?  // JSON string
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  preferences  String? // JSON string
   systemPrompt String?
-  updatedAt   DateTime @updatedAt
+  updatedAt    DateTime @updatedAt
+
+  @@schema("public")
+}
+
+// --- 5T Audit Trail — 萬能追蹤日誌 ---
+model OmniTraceLog {
+  id          String   @id @default(cuid())
+  uuid        String   @unique
+  type        String   @default("seal") // seal, insert, update, delete, verify
+  agent       String   @default("omni-agent")
+  originCause String   @default("")     // 因：觸發事件描述
+  hashLock    String?                   // SHA-256 封印
+  metadata    String?                   // JSON
+  timestamp   DateTime @default(now())
+
+  @@index([type])
+  @@index([agent])
+  @@index([timestamp])
+  @@schema("public")
 }
 
 // --- 5T Materiality Matrix ---
 model MaterialityAssessment {
-  id              String   @id @default(uuid())
-  title           String   @default("Double Materiality Assessment 2026")
-  year            Int      @default(2026)
-  framework       String   @default("GRI_CSRD")
-  topicsJson      String
-  threshold       Float    @default(3.0)
-  hashLock        String   @unique
-  sourceOrigin    String   @default("omni-materiality")
-  createdBy       String   @default("system")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id           String   @id @default(uuid())
+  title        String   @default("Double Materiality Assessment 2026")
+  year         Int      @default(2026)
+  framework    String   @default("GRI_CSRD")
+  topicsJson   String
+  threshold    Float    @default(3.0)
+  hashLock     String   @unique
+  sourceOrigin String   @default("omni-materiality")
+  createdBy    String   @default("system")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([year])
   @@index([hashLock])
+  @@schema("public")
 }
 
 // --- 5T Net-Zero Pathway & MACC ---
@@ -458,8 +505,8 @@ model NetZeroRoadmap {
   title             String   @default("Net-Zero Carbon Abatement Pathway 2050")
   baseYear          Int      @default(2024)
   baseEmissions     Float    @default(50000.0) // tCO2e/year
-  target2030Percent Float    @default(42.0)    // 42% reduction by 2030 (SBTi 1.5C)
-  measuresJson      String   // Array of abatement measures
+  target2030Percent Float    @default(42.0) // 42% reduction by 2030 (SBTi 1.5C)
+  measuresJson      String // Array of abatement measures
   hashLock          String   @unique
   sourceOrigin      String   @default("omni-roadmap")
   createdBy         String   @default("system")
@@ -468,44 +515,46 @@ model NetZeroRoadmap {
 
   @@index([baseYear])
   @@index([hashLock])
+  @@schema("public")
 }
 
 // --- 5T Supply Chain ESG & CSDD ---
 model SupplyChainVendor {
-  id              String   @id @default(uuid())
-  supplierName    String
-  industry        String   @default("Manufacturing")
-  tier            String   @default("Tier 1")
-  rating          String   @default("B") // A, B, C, D
-  riskLevel       String   @default("Medium") // Low, Medium, High, Critical
-  envScore        Float    @default(80.0)
-  socialScore     Float    @default(85.0)
-  govScore        Float    @default(88.0)
-  strengthsJson   String   @default("[]")
-  weaknessesJson  String   @default("[]")
-  recommendation  String   @default("")
-  rawData         String   @default("")
-  hashLock        String   @unique
-  sourceOrigin    String   @default("omni-supply-chain")
-  createdBy       String   @default("system")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(uuid())
+  supplierName   String
+  industry       String   @default("Manufacturing")
+  tier           String   @default("Tier 1")
+  rating         String   @default("B") // A, B, C, D
+  riskLevel      String   @default("Medium") // Low, Medium, High, Critical
+  envScore       Float    @default(80.0)
+  socialScore    Float    @default(85.0)
+  govScore       Float    @default(88.0)
+  strengthsJson  String   @default("[]")
+  weaknessesJson String   @default("[]")
+  recommendation String   @default("")
+  rawData        String   @default("")
+  hashLock       String   @unique
+  sourceOrigin   String   @default("omni-supply-chain")
+  createdBy      String   @default("system")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@index([rating])
   @@index([riskLevel])
   @@index([hashLock])
+  @@schema("public")
 }
 
 // --- 5T Data Bridge Models ---
 model DataBridgeUpload {
   id           String             @id @default(uuid())
-  sourceSystem String             // ERP, HR, IOT, MANUAL
-  dataType     String             // ENERGY, COMMUTE, MATERIALS, GENERAL
+  sourceSystem String // ERP, HR, IOT, MANUAL
+  dataType     String // ENERGY, COMMUTE, MATERIALS, GENERAL
   fileName     String
   fileSize     Int
   recordCount  Int
-  headers      String             // JSON string
-  metrics      String             // JSON string
+  headers      String // JSON string
+  metrics      String // JSON string
   hashLock     String             @unique
   sourceOrigin String             @default("omni-data-bridge")
   createdAt    DateTime           @default(now())
@@ -515,6 +564,7 @@ model DataBridgeUpload {
   @@index([sourceSystem])
   @@index([dataType])
   @@index([hashLock])
+  @@schema("public")
 }
 
 model DataBridgeRecord {
@@ -526,5 +576,5 @@ model DataBridgeRecord {
   createdAt    DateTime         @default(now())
 
   @@index([uploadId])
+  @@schema("public")
 }
-

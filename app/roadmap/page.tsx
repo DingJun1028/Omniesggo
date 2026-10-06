@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   TrendingDown, ShieldCheck, Download, Save, RefreshCw, 
-  Zap, DollarSign, Activity, CheckCircle2, AlertTriangle, Plus, Trash2, ArrowRight, FileText
+  Zap, DollarSign, Activity, CheckCircle2, AlertTriangle, Plus, Trash2, ArrowRight, FileText,
+  Sun, Moon, Layers
 } from 'lucide-react';
 import { AbatementMeasure, DEFAULT_MEASURES } from '../api/roadmap/plan/route';
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
@@ -26,6 +28,22 @@ export default function RoadmapPage() {
     createdAt: string;
   } | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+
+  // 初始化主題
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
+
+  const handleToggleTheme = (newTheme: 'light' | 'dark') => {
+    setTheme(newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   // 載入最新紀錄
   useEffect(() => {
@@ -136,16 +154,20 @@ export default function RoadmapPage() {
   const totalAnnualSavingsOrCost = measures.reduce((acc, m) => acc + m.reductionPotential * m.costPerTon, 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6 md:p-10 font-sans">
+    <div className={`min-h-screen transition-colors duration-300 font-sans ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} p-6 md:p-10`}>
       
       {/* ── Top Navigation Header ── */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-slate-200 dark:border-white/10">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
+              A06 · CARBON ROADMAP WORKBENCH
+            </span>
             <OmniBadge variant="teal">SBTi 1.5°C Near-Term Compliant</OmniBadge>
             <OmniBadge variant="emerald">MACC Carbon Abatement Curve</OmniBadge>
           </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-2 text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
+            <TrendingDown className="w-8 h-8 text-teal-600 dark:text-cyan-400" />
             淨零減碳路徑與 MACC 邊際成本規劃器
           </h1>
           <p className="text-slate-600 dark:text-slate-400 text-sm mt-1 max-w-3xl leading-relaxed">
@@ -153,8 +175,44 @@ export default function RoadmapPage() {
           </p>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons & Theme Capsule */}
         <div className="flex flex-wrap items-center gap-3">
+          {/* 雙主題切換膠囊 */}
+          <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-inner">
+            <button
+              type="button"
+              onClick={() => handleToggleTheme('light')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                theme === 'light' 
+                  ? 'bg-white text-teal-800 shadow-sm font-semibold' 
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+              }`}
+            >
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+              <span>淺色手冊</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleToggleTheme('dark')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                theme === 'dark' 
+                  ? 'bg-slate-900 text-teal-300 shadow-sm font-semibold border border-teal-500/30' 
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+              }`}
+            >
+              <Moon className="w-3.5 h-3.5 text-teal-300" />
+              <span>深色手冊</span>
+            </button>
+          </div>
+
+          <Link
+            href="/carbon"
+            className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+          >
+            <Layers className="w-3.5 h-3.5 text-teal-600 dark:text-cyan-400" />
+            <span>碳盤查計算站 (/carbon)</span>
+          </Link>
+
           <OmniButton
             variant="outline"
             onClick={fetchLatestRoadmap}

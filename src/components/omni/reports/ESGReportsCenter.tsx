@@ -91,20 +91,34 @@ export default function ESGReportsCenter() {
     });
   };
 
-  // 執行 5T 雜湊封印
-  const handleSealChapter = () => {
+  // 執行 5T 雜湊封印 (實接 SupabaseSyncEngine)
+  const handleSealChapter = async () => {
     setIsSealing(true);
-    setTimeout(() => {
-      const generatedHash = Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-      
-      setActiveHashLock(generatedHash);
-      setChapters(prev => prev.map(c => 
-        c.id === selectedChapterId ? { ...c, completed: true, sealed: true, hashLock: generatedHash } : c
-      ));
+    try {
+      const res = await fetch('/api/esg-report/seal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          chapterId: selectedChapterId, 
+          content: reportData, 
+          metadata: { timestamp: Date.now() } 
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setActiveHashLock(data.data.hashLock);
+        setChapters(prev => prev.map(c => 
+          c.id === selectedChapterId ? { ...c, completed: true, sealed: true, hashLock: data.data.hashLock } : c
+        ));
+      } else {
+        alert('封印失敗: ' + data.error);
+      }
+    } catch (error) {
+      console.error('Network error:', error);
+      alert('網路異常，封印失敗');
+    } finally {
       setIsSealing(false);
-    }, 600);
+    }
   };
 
   // 果因引擎驗算通過回調

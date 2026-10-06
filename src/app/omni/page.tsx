@@ -92,32 +92,27 @@ interface TraceEvent {
   agent: string;
 }
 
-const MOCK_EVENTS: TraceEvent[] = [
-  {
-    uuid: 'evt-9b1c',
-    timestamp: '2026-10-05 21:55:23',
-    originCause: 'System Metabolism Trigger',
-    hashLock: 'a8f1...3c9e',
-    type: 'metabolism',
-    agent: 'OmniBrain'
-  },
-  {
-    uuid: 'evt-4f2a',
-    timestamp: '2026-10-05 21:54:12',
-    originCause: 'ISO-14064 數據封印',
-    hashLock: '7d58...d49e',
-    type: 'seal',
-    agent: 'OmniCore'
-  }
-];
+const MOCK_EVENTS: TraceEvent[] = [];
 
 export default function OmniCenterPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [isSyncing, setIsSyncing] = useState(false);
   const [resonance, setResonance] = useState(100);
   const [filter, setFilter] = useState<'all' | 'seal' | 'metabolism' | 'error'>('all');
+  const [events, setEvents] = useState<TraceEvent[]>([]);
 
-  const filteredEvents = MOCK_EVENTS.filter(e => filter === 'all' || e.type === filter);
+  const filteredEvents = events.filter(e => filter === 'all' || e.type === filter);
+
+  useEffect(() => {
+    fetch('/api/omni-trace?limit=50')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setEvents(data.data);
+        }
+      })
+      .catch(err => console.error('Failed to load traces:', err));
+  }, []);
 
   useEffect(() => {
     if (theme === 'dark') {

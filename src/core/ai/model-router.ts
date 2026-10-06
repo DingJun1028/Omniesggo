@@ -39,7 +39,7 @@ export interface RoutingResult {
 // OpenRouter :free: 模型最多 (11個), 200 req/day
 // Gemini: 長上下文, 多模態
 
-const MODELS = {
+export const MODELS = {
   // Groq 模型 (速度王)
   groq_llama70b: {
     provider: 'groq' as const,
@@ -201,10 +201,10 @@ const MODELS = {
   // VPS Ollama 主力模型：Gemma 4（免費、私有的本地首選）
   local_esggo_gemma4: {
     provider: 'local_gemma' as const,
-    model: 'gemma3:4b',
+    model: 'qwen2.5:3b',
     maxTokens: 4096,
     temperature: 0.7,
-    reasoning: 'VPS gemma3:4b (Ollama): 已驗證可正常回覆，優先承擔所有 ESG 任務',
+    reasoning: 'VPS qwen2.5:3b (Ollama): 已驗證可正常回覆，優先承擔所有 ESG 任務',
   },
   // 仍保留本地較重備援與輕量備援
   local_gemma_e2b: {
@@ -500,9 +500,8 @@ async function callLocalOllama(
   messages: ChatMessage[],
   options: { maxTokens?: number; temperature?: number; timeoutMs?: number; endpoint?: string } = {}
 ): Promise<string> {
-  // 預設走生產可達的 Nginx 反向代理（Basic Auth 保護），而非直接綁 localhost 的 11434 埠。
-  // 仍可經 VPS_OLLAMA_URL 環境變數覆寫（PROVIDER_ENDPOINTS 已處理預設值）。
-  const endpoint = options.endpoint || 'https://omniagent.esggo.co/ollama/api/chat';
+  // 更新為使用者要求的本地 Ollama 對接端點
+  const endpoint = options.endpoint || 'http://127.0.0.1:11434/api/chat';
   const controller = new AbortController();
   const timeoutMs = options.timeoutMs ?? 120000;  // 本地模型預設 2 分鐘超時
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -619,7 +618,7 @@ const PROVIDER_ENDPOINTS: Record<ModelConfig['provider'], ProviderEndpoint> = {
   mistral:    { apiUrl: 'https://api.mistral.ai/v1/chat/completions',                                        apiKeyEnv: 'MISTRAL_API_KEY' },
   gemini:     { apiUrl: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',          apiKeyEnv: 'GEMINI_API_KEY' },
   cloudflare: { apiUrl: 'cloudflare',                                                                         apiKeyEnv: 'CLOUDFLARE_API_TOKEN' },
-  local_gemma: { apiUrl: process.env.VPS_OLLAMA_URL || 'https://omniagent.esggo.co/ollama/api/chat', apiKeyEnv: '' },  // VPS Ollama（Nginx Basic Auth 代理），無需 API Key；生產需設 VPS_OLLAMA_USER/VPS_OLLAMA_PASS
+  local_gemma: { apiUrl: process.env.VPS_OLLAMA_URL || 'http://127.0.0.1:11434/api/chat', apiKeyEnv: '' },
 };
 
 /**

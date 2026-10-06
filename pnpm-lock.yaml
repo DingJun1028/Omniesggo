@@ -181,9 +181,6 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^7.1.1
         version: 7.1.1(eslint@9.39.5(jiti@1.21.7))
-      firebase-admin:
-        specifier: ^12.7.0
-        version: 12.7.0(encoding@0.1.13)
       next:
         specifier: ^16.3.8
         version: 16.3.8(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@20.19.43)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)

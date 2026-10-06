@@ -1,91 +1,142 @@
+﻿// ============================================================
+// A08 OmniMemory API — Phase 2: Full CRUD
+// src/app/api/omni-memory/route.ts
+// 5T Protocol: Trackable · Transparent · Tangible · Trustworthy · Transferful
+// ============================================================
+
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { syncEngine } from "@/lib/supabase-sync-engine";
+import crypto from "crypto";
 
-const prisma = new PrismaClient();
+// ── GET — read memories (keyword search + type filter) ──
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const query = searchParams.get("q") ?? "";
+    const type = searchParams.get("type") ?? "";
+    const userId = searchParams.get("userId") ?? "junai-key";
+    const take = parseInt(searchParams.get("limit") ?? "50", 10);
 
-// POST: 新增記憶片段 (萬能結界 寫入)
+    const where: Record<string, unknown> = { userId };
+    if (type && type !== "all") where.type = type;
+
+    const rows = await prisma.omniMemory.findMany({
+      where,
+      orderBy: { lastAccessed: "desc" },
+      take,
+    });
+
+    const filtered = query
+      ? rows.filter((m) => {
+          const kws: string[] = JSON.parse(m.keywords || "[]");
+          return (
+            m.content.toLowerCase().includes(query.toLowerCase()) ||
+            kws.some((k) => k.toLowerCase().includes(query.toLowerCase()))
+          );
+        })
+      : rows;
+
+    const data = filtered.map((m) => ({
+      ...m,
+      keywords: JSON.parse(m.keywords || "[]") as string[],
+    }));
+
+    return NextResponse.json({ success: true, data, total: data.length });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[OmniMemory GET]", msg);
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+  }
+}
+
+// ── POST — create memory node (SyncEngine offline queue) ──
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { userId, agentId, type, content, keywords, sourceOrigin, metadata } = body;
+    const { type, content, keywords, userId, agentId, confidence } = body;
 
-    if (!userId || !agentId || !content) {
+    if (!type || !content) {
       return NextResponse.json(
-        { error: "Missing required fields (userId, agentId, content)" },
+        { success: false, error: "Missing type or content" },
         { status: 400 }
       );
     }
 
-    const memory = await prisma.omniMemory.create({
-      data: {
-        userId,
-        agentId,
-        type: type || "claim",
-        content,
-        keywords: keywords ? JSON.stringify(keywords) : "[]",
-        sourceOrigin: sourceOrigin || "omni-memory-api",
-        metadata: metadata ? JSON.stringify(metadata) : "{}",
-      },
-    });
+    const id = crypto.randomUUID();
+    const now = new Date().toISOString();
 
-    return NextResponse.json({ success: true, memory });
-  } catch (error: any) {
-    console.error("OmniMemory POST Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
-      { status: 500 }
-    );
+    const payload = {
+      id,
+      userId: userId || "junai-key",
+      agentId: agentId || "omni-agent",
+      type,
+      content,
+      keywords: JSON.stringify(Array.isArray(keywords) ? keywords : []),
+      confidence: typeof confidence === "number" ? confidence : 1.0,
+      sourceOrigin: "API_OMNI_MEMORY",
+      createdAt: now,
+      lastAccessed: now,
+    };
+
+    syncEngine.pushTask("OmniMemory", "INSERT", payload);
+
+    return NextResponse.json({
+      success: true,
+      message: "Memory node queued",
+      data: { ...payload, keywords: JSON.parse(payload.keywords) },
+    });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[OmniMemory POST]", msg);
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }
 
-// GET: 檢索記憶片段 (萬能結界 讀取 - 零算力 FTS 取代向量搜尋)
-export async function GET(req: Request) {
+// ── PATCH — update confidence or content ──
+export async function PATCH(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
-    const userId = searchParams.get("userId");
-    const agentId = searchParams.get("agentId");
-    const query = searchParams.get("query"); // 關鍵字檢索
-    const limit = parseInt(searchParams.get("limit") || "10");
+    const { id, confidence, content } = await req.json();
 
-    if (!userId) {
-      return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Missing id" }, { status: 400 });
     }
 
-    // 基礎過濾條件
-    const whereClause: any = { userId };
-    if (agentId) whereClause.agentId = agentId;
-
-    // 零算力文字檢索 (使用 keywords JSONB/String 比對 或 content 的字串包含)
-    if (query) {
-      whereClause.OR = [
-        { content: { contains: query, mode: "insensitive" } },
-        { keywords: { contains: query, mode: "insensitive" } }
-      ];
-    }
-
-    const memories = await prisma.omniMemory.findMany({
-      where: whereClause,
-      orderBy: [
-        { confidence: "desc" },
-        { lastAccessed: "desc" }
-      ],
-      take: limit,
+    const updated = await prisma.omniMemory.update({
+      where: { id },
+      data: {
+        ...(typeof confidence === "number" ? { confidence } : {}),
+        ...(content ? { content } : {}),
+        lastAccessed: new Date(),
+      },
     });
 
-    // 更新 lastAccessed
-    if (memories.length > 0) {
-      await prisma.omniMemory.updateMany({
-        where: { id: { in: memories.map((m) => m.id) } },
-        data: { lastAccessed: new Date() },
-      });
+    return NextResponse.json({
+      success: true,
+      data: { ...updated, keywords: JSON.parse(updated.keywords || "[]") },
+    });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[OmniMemory PATCH]", msg);
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
+  }
+}
+
+// ── DELETE — forget a memory node ──
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: "Missing id" }, { status: 400 });
     }
 
-    return NextResponse.json({ success: true, memories });
-  } catch (error: any) {
-    console.error("OmniMemory GET Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error", details: error.message },
-      { status: 500 }
-    );
+    await prisma.omniMemory.delete({ where: { id } });
+    return NextResponse.json({ success: true, message: `Memory ${id} deleted` });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error("[OmniMemory DELETE]", msg);
+    return NextResponse.json({ success: false, error: msg }, { status: 500 });
   }
 }

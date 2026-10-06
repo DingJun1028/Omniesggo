@@ -80,6 +80,10 @@
     "app/**/*.tsx",
     "app/**",
     "src/**/test-*.ts",
-    "src/**/example-*.ts"
+    "src/**/example-*.ts",
+    "_fix-backup-20260801/**",
+    "_analysis/**",
+    "worker/**",
+    "vendor/**"
   ]
 }

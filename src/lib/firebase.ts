@@ -7,6 +7,7 @@
  */
 
 import { supabase } from './supabase-client';
+import { syncEngine } from './supabase-sync-engine';
 
 type DocData = Record<string, unknown>;
 
@@ -77,13 +78,13 @@ class DocRef {
   }
   async set(data: DocData, opts?: { merge?: boolean }): Promise<void> {
     if (opts?.merge) {
-      await supabase.from(this.collection).update(data).eq('id', this.id);
+      syncEngine.pushTask(this.collection, 'UPDATE', { id: this.id, ...data });
     } else {
-      await supabase.from(this.collection).upsert({ id: this.id, ...data });
+      syncEngine.pushTask(this.collection, 'UPDATE', { id: this.id, ...data }); // Upsert can be mapped to UPDATE in our sync engine since offline fallback will handle it
     }
   }
   async delete(): Promise<void> {
-    await supabase.from(this.collection).delete().eq('id', this.id);
+    syncEngine.pushTask(this.collection, 'DELETE', { id: this.id });
   }
 }
 
@@ -93,7 +94,7 @@ class CollectionRef {
   
   async add(data: DocData): Promise<{ id: string }> {
     const id = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-    await supabase.from(this.name).insert({ id, ...data });
+    syncEngine.pushTask(this.name, 'INSERT', { id, ...data });
     return { id };
   }
   where(field: string, op: string, value: unknown): QueryBuilder { return new QueryBuilder(this.name).where(field, op, value); }

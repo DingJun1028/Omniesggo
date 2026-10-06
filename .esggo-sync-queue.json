@@ -1,0 +1,74 @@
+[
+  {
+    "id": "7202a91b-df2b-4412-9e1d-65b0a58cd6bf",
+    "table": "OmniMemory",
+    "operation": "INSERT",
+    "payload": {
+      "id": "da0c3e6c-c257-4f07-ab78-87f318191dd9",
+      "userId": "junai-key",
+      "agentId": "omni-agent",
+      "type": "rule",
+      "content": "Jules Karma 協議：處理 bug 時必須執行九步驟因果修復，不可只做表面 patch。",
+      "keywords": "[\"Jules\",\"Karma\",\"Bugfix\",\"Rule\"]",
+      "confidence": 1,
+      "sourceOrigin": "TEST_INJECTION",
+      "createdAt": "2026-10-05T15:36:41.608Z",
+      "lastAccessed": "2026-10-05T15:36:41.609Z"
+    },
+    "retryCount": 0
+  },
+  {
+    "id": "71e22c65-7b60-4b55-9b31-712a7ad187c5",
+    "table": "OmniMemory",
+    "operation": "INSERT",
+    "payload": {
+      "id": "77988174-6757-4622-a4c7-bbff233e36c6",
+      "userId": "junai-key",
+      "agentId": "omni-agent",
+      "type": "preference",
+      "content": "所有模組的戰情室 UI 必須符合 Liquid Glass Cyan 規範，維持「美(Tangible)」標準。",
+      "keywords": "[\"UI\",\"Liquid Glass\",\"Preference\",\"Tangible\"]",
+      "confidence": 1,
+      "sourceOrigin": "TEST_INJECTION",
+      "createdAt": "2026-10-05T15:36:41.612Z",
+      "lastAccessed": "2026-10-05T15:36:41.612Z"
+    },
+    "retryCount": 0
+  },
+  {
+    "id": "083036a9-e279-44fc-97c7-8240db2915d4",
+    "table": "OmniMemory",
+    "operation": "INSERT",
+    "payload": {
+      "id": "a99e0e2c-c075-4dde-a96e-78b293bdb7dd",
+      "userId": "junai-key",
+      "agentId": "omni-agent",
+      "type": "claim",
+      "content": "A05 供應鏈盡職調查模組已在 2026-10-05 完成實裝並支援 5T Hash Lock。",
+      "keywords": "[\"A05\",\"Supply Chain\",\"Hash Lock\",\"Claim\"]",
+      "confidence": 1,
+      "sourceOrigin": "TEST_INJECTION",
+      "createdAt": "2026-10-05T15:36:41.613Z",
+      "lastAccessed": "2026-10-05T15:36:41.613Z"
+    },
+    "retryCount": 0
+  },
+  {
+    "id": "aa28bfeb-9d76-43d7-bec1-ceea01a565c0",
+    "table": "OmniMemory",
+    "operation": "INSERT",
+    "payload": {
+      "id": "02824741-1d96-45f5-b3b4-54666c6a0de0",
+      "userId": "junai-key",
+      "agentId": "omni-agent",
+      "type": "thought",
+      "content": "未來或許可以將 A08 的遺忘機制結合更強大的 LLM 來進行摘要，而非單純刪除。",
+      "keywords": "[\"LLM\",\"Dreams\",\"Thought\",\"Future\"]",
+      "confidence": 0.6,
+      "sourceOrigin": "TEST_INJECTION",
+      "createdAt": "2026-10-05T15:36:41.614Z",
+      "lastAccessed": "2026-10-05T15:36:41.614Z"
+    },
+    "retryCount": 0
+  }
+]

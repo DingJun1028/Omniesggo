@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
 import { OmniButton } from '../../src/components/omni-base/OmniButton';
 import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
 import {
   Database, UploadCloud, FileSpreadsheet, Key, ShieldCheck,
-  Activity, Link as LinkIcon, CheckCircle2, AlertCircle, TableProperties, Clock, FileCheck, Download
+  Activity, Link as LinkIcon, CheckCircle2, AlertCircle, TableProperties, Clock, FileCheck, Download,
+  Sun, Moon, ArrowRight
 } from 'lucide-react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -58,6 +60,7 @@ const DATA_TYPES = [
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function DataBridgePage() {
+  const [theme, setTheme]                   = useState<'light' | 'dark'>('light');
   const [isDragging, setIsDragging]         = useState(false);
   const [file, setFile]                     = useState<File | null>(null);
   const [dataType, setDataType]             = useState('hr_attendance');
@@ -66,6 +69,21 @@ export default function DataBridgePage() {
   const [result, setResult]                 = useState<UploadResponse | null>(null);
   const [history, setHistory]               = useState<HistoricalRecord[]>([]);
   const fileInputRef                        = useRef<HTMLInputElement>(null);
+
+  // 初始化主題
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
+
+  const handleToggleTheme = (newTheme: 'light' | 'dark') => {
+    setTheme(newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const fetchHistory = async () => {
     try {
@@ -146,18 +164,68 @@ export default function DataBridgePage() {
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 bg-slate-50 dark:bg-slate-950 min-h-screen">
+    <div className={`transition-colors duration-300 font-sans ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} min-h-screen p-6 md:p-8 space-y-8`}>
 
-      {/* ── Header ── */}
-      <div>
-        <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-cyan-400 flex items-center gap-3">
-          <Database className="w-9 h-9 text-cyan-500 shrink-0" />
-          企業資料橋接 (Data Bridge)
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-2xl">
-          智能橋接人資系統 / ERP 資料，自動映射欄位、計算 ESG 指標，並執行
-          <span className="text-cyan-600 dark:text-cyan-400 font-semibold"> 5T 協議不可篡改刻印</span>。
-        </p>
+      {/* ── Top Header & Theme Capsule ── */}
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-200 dark:border-white/10">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
+              A07 · DATA BRIDGE PIPELINE
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
+              INGESTION PIPELINE ONLINE
+            </span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mt-1 text-slate-900 dark:text-slate-100 flex items-center gap-3">
+            <Database className="w-8 h-8 text-teal-600 dark:text-cyan-400 shrink-0" />
+            企業異質數據橋接與整合管線 (Data Bridge)
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1 max-w-2xl text-xs font-medium">
+            安全介接 HR、ERP、SCADA 與物聯網電表數據，自動映射欄位、計算 ESG 指標，並執行 5T 密碼學存證刻印。
+          </p>
+        </div>
+
+        {/* Right side controls */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* 雙主題切換膠囊 */}
+          <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-inner">
+            <button
+              type="button"
+              onClick={() => handleToggleTheme('light')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                theme === 'light' 
+                  ? 'bg-white text-teal-800 shadow-sm font-semibold' 
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+              }`}
+            >
+              <Sun className="w-3.5 h-3.5 text-amber-500" />
+              <span>淺色手冊</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleToggleTheme('dark')}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                theme === 'dark' 
+                  ? 'bg-slate-900 text-teal-300 shadow-sm font-semibold border border-teal-500/30' 
+                  : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+              }`}
+            >
+              <Moon className="w-3.5 h-3.5 text-teal-300" />
+              <span>深色手冊</span>
+            </button>
+          </div>
+
+          <Link
+            href="/trust"
+            className="px-3.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>信任存證中心 (/trust)</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
