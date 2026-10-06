@@ -18,9 +18,9 @@ import { routeModel } from '@/core/ai/model-router';
 
 describe('ESG API Business Logic', () => {
   describe('Skills List Logic', () => {
-    it('should return 10 skills with correct structure', () => {
+    it('should return 11 skills with correct structure', () => {
       const skills = getAllSkills().map(s => s.getInfo());
-      expect(skills.length).toBe(10);
+      expect(skills.length).toBe(11);
 
       for (const skill of skills) {
         expect(skill.id).toBeDefined();
