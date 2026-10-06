@@ -85,7 +85,7 @@
       "discrepancies": [
         {
           "field": "commit 筆數",
-          "canon_claims": "1817 筆",
+          "canon_claims": "1818 筆",
           "measured": "11 筆 (git log 1405bd432..HEAD | wc -l，第三次複驗)",
           "severity": "low",
           "resolution": "工作區已歸位成立，僅筆數需更正。註：此數字會隨並行 session 提交而變動。"
