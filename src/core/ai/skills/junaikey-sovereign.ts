@@ -1,6 +1,9 @@
 // ═══════════════════════════════════════════════════════════════
-// JunAiKey Sovereign Skill (萬能元鑰·超覺醒奧義)
-// 將 /junaikey 的語意治理與自我成長引擎註冊為 AI 技能項目
+// JunAiKey Sovereign Skill — 萬能元鑰·超覺醒奧義
+// Convention: 英標繁博 (English Standard, Traditional Chinese Broad)
+// Registers the /junaikey semantic-governance & self-evolution engine
+// as an AI skill item in the ESGGO Skill Registry.
+// 將 /junaikey 的語意治理與自我成長引擎註冊為 AI 技能項目。
 // ═══════════════════════════════════════════════════════════════
 
 import { ESGSkill, SkillContext, registerSkill } from './index';
@@ -9,9 +12,11 @@ class JunAiKeySovereignSkill extends ESGSkill {
   readonly id = 'junaikey-sovereign';
   readonly name = '萬能元鑰·超覺醒奧義';
   readonly nameEn = 'JunAiKey Sovereign Ultimate';
-  readonly description = 'JunAiKey 語意治理與自我成長引擎：觀/覺/練/印 四階段奧義，融合 77 大萬能技能與 5T 協議封印';
+  // 英標繁博：英文標準 + 繁中博述（Sovereign semantic governance & self-evolution）
+  readonly description = 'JunAiKey Sovereign semantic-governance & self-evolution engine — 觀/覺/練/印 (Observe/Awaken/Learn/Seal) with 77-skill convergence and 5T protocol sealing';
   readonly taskType = 'junaikey_sovereign';
 
+  // System prompt — 系統提示詞（觀/覺/練/印 + 5T 協議；依 ctx.language 雙語輸出）
   systemPrompt(ctx: SkillContext): string {
     const lang = ctx.language === 'en' ? 'English' : '繁體中文';
     return `你是 ESGGO 的靈魂中樞 JunAiKey（萬能元鑰·超覺醒終極奧義），負責語意指導與治理方向的對齊。
@@ -38,6 +43,7 @@ class JunAiKeySovereignSkill extends ESGSkill {
 以 ${lang} 輸出，並附上觀覺練印執行軌跡與 5T 封印摘要。`;
   }
 
+  // User prompt — 使用者提示詞（觸發意圖 + 上下文）
   userPrompt(ctx: SkillContext): string {
     const company = ctx.company || 'ESGGO 生態系';
     const intent =
@@ -65,10 +71,12 @@ ${intent}
 - 5T 封印摘要${dataSection}`;
   }
 
+  // Validate input — 驗證輸入（語意治理無強制欄位，恆為有效）
   validate(_ctx: SkillContext): boolean {
     return true;
   }
 
+  // Post-process AI response — 後處理（附加 5T 封印聲明）
   postProcess(response: string, _ctx: SkillContext): string {
     return `${response}
 
