@@ -83,6 +83,14 @@ export default defineConfig({
       // 該測試具真實 gate（失敗時 process.exit(1)），已於沙箱注入缺陷實測可失敗，
       // 非永遠綠的假測試，覆蓋率不減。
       'scripts/avatar-metrics.reg.test.mjs',
+      // vendor/ 是第三方 vendored 套件（archify / impeccable / Understand-Anything 等），
+      // 受 .gitignore 第 382 行 `/vendor/` 排除，**不受版控**，CI checkout 後根本不存在。
+      // 每個子套件自帶 vitest.config.ts 與 package.json，須由自身目錄執行。
+      // 被根 vitest 抓取時：Windows 上 EPERM（rmSync 清 temp 目錄失敗）、
+      // 第三方路徑解析失敗、大量 15s timeout —— 實測 533 個測試檔、
+      // 362 failed / 38 failed tests，全在本目錄，使本機 `pnpm run test`
+      // 產生與 CI 不一致的假紅燈（且耗時 2672s）。
+      'vendor/**',
     ],
   },
   resolve: {
