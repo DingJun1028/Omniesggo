@@ -89,7 +89,7 @@ ${topProjects.join('\n')}
       });
       // model 輸出位於 steps 中 type==="model_output" 的 content.parts[].text
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const steps = (interaction.steps ?? []) as InteractionStep[];
+      const steps = ((interaction as any).steps ?? []) as InteractionStep[];
       trendText = steps
         .filter((s) => s.type === 'model_output')
         .flatMap((s) => s.content ?? [])
