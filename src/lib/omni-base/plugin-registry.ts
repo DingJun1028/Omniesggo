@@ -11,6 +11,7 @@
  */
 
 import { createEventBus, EventBus, OmniBaseEvent } from '../omni-base/index';
+import { validateRuneManifest } from './rune-contract';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -135,6 +136,7 @@ class OmniPluginRegistry implements PluginRegistry {
   private _plugins: Map<string, OmniPlugin> = new Map();
   private _eventBus: EventBus;
   private _hookIndex: Map<string, Set<string>> = new Map();
+  private _subscriptions: Map<string, Array<() => void>> = new Map();
 
   constructor(eventBus: EventBus) {
     this._eventBus = eventBus;
@@ -144,8 +146,17 @@ class OmniPluginRegistry implements PluginRegistry {
     return this._plugins;
   }
 
-  /** Register a plugin with the system */
+  /** Register a plugin with the system — 通過符文鑲嵌契約才准入 (F-08) */
   async register(plugin: OmniPlugin): Promise<boolean> {
+    const validation = validateRuneManifest(plugin.manifest);
+    if (!validation.ok) {
+      plugin.lifecycle = 'error';
+      const failure = new Error(`Rune contract violated: ${validation.errors.join('; ')}`);
+      plugin.onError?.(failure);
+      console.error(`[OmniBase:Registry] manifest rejected:`, validation.errors);
+      return false;
+    }
+
     const id = plugin.manifest.id;
 
     if (this._plugins.has(id)) {
@@ -191,6 +202,14 @@ class OmniPluginRegistry implements PluginRegistry {
     return true;
   }
 
+  /** Drop every EventBus subscription a plugin owns — 釋放插件所有訂閱 */
+  private unsubscribeAll(id: string): void {
+    for (const off of this._subscriptions.get(id) ?? []) {
+      off();
+    }
+    this._subscriptions.delete(id);
+  }
+
   /** Enable a plugin */
   async enable(id: string): Promise<void> {
     const plugin = this._plugins.get(id);
@@ -202,17 +221,23 @@ class OmniPluginRegistry implements PluginRegistry {
       await plugin.onEnable?.();
       plugin.lifecycle = 'enabled';
 
-      // Subscribe to EventBus for its hooks
+      // Subscribe to EventBus for its hooks (idempotent — no duplicate delivery)
+      this.unsubscribeAll(id);
+      const offs: Array<() => void> = [];
       for (const hook of plugin.manifest.hooks) {
-        this._eventBus.subscribe(hook, async (event) => {
-          try {
-            await plugin.handleEvent?.(event as unknown as OmniBaseEvent);
-          } catch (e) {
-            console.error(`[OmniBase:Registry] Plugin ${id} error handling ${hook}:`, e);
-            plugin.onError?.(e as Error);
-          }
-        });
+        offs.push(
+          this._eventBus.subscribe(hook, async (event) => {
+            if (plugin.lifecycle !== 'enabled') return;
+            try {
+              await plugin.handleEvent?.(event as unknown as OmniBaseEvent);
+            } catch (e) {
+              console.error(`[OmniBase:Registry] Plugin ${id} error handling ${hook}:`, e);
+              plugin.onError?.(e as Error);
+            }
+          })
+        );
       }
+      this._subscriptions.set(id, offs);
 
       console.log(`[OmniBase:Registry] Plugin ${id} enabled`);
     } catch (e) {
@@ -222,12 +247,13 @@ class OmniPluginRegistry implements PluginRegistry {
     }
   }
 
-  /** Disable a plugin */
+  /** Disable a plugin — 停用即斷線，不再接收任何事件 (F-08) */
   async disable(id: string): Promise<void> {
     const plugin = this._plugins.get(id);
     if (!plugin) throw new Error(`Plugin ${id} not found`);
 
     plugin.lifecycle = 'disabled';
+    this.unsubscribeAll(id);
     await plugin.onDisable?.();
     console.log(`[OmniBase:Registry] Plugin ${id} disabled`);
   }

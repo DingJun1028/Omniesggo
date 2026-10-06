@@ -65,16 +65,22 @@ const incrOk = runGate(
   'npx', ['tsx', 'scripts/verify-incremental.mjs'], root
 );
 
-// 一致性比對: 五套終始矩陣必須共用同一套 5T 守門 (全綠)
-const allPass = gapOk && floatOk && lcOk && oaOk && incrOk;
+// 6. PRD 終始矩陣 (OMN-PRD-001 §4.4: 需求→功能→成果→驗證 追溯閉合 + 證據實存)
+const prdOk = runGate(
+  'PRD 終始矩陣 (OMN-PRD-001 §4.4 追溯閉合)',
+  'node', ['scripts/verify-prd-matrix.mjs'], root
+);
+
+// 一致性比對: 六套終始矩陣必須共用同一套 5T 守門 (全綠)
+const allPass = gapOk && floatOk && lcOk && oaOk && incrOk && prdOk;
 
 console.log('\n══════════════════════════════════════════');
 if (allPass) {
-  console.log(`${GREEN}✅ 終始矩陣統一驗證閘: 缺口補齊(72) + Float(5柱) + Learning-Center(消費端) + OA-Swarm(雙蜂60) + 增量輸出(§12) 全數通過 — 雙向同步拓撲一致, 5T 同一套守門${RESET}`);
+  console.log(`${GREEN}✅ 終始矩陣統一驗證閘: 缺口補齊(72) + Float(5柱) + Learning-Center(消費端) + OA-Swarm(雙蜂60) + 增量輸出(§12) + PRD(OMN-PRD-001) 全數通過 — 雙向同步拓撲一致, 5T 同一套守門${RESET}`);
   console.log('═'.repeat(40));
   process.exit(0);
 } else {
-  console.log(`${RED}❌ 終始矩陣統一驗證閘: 有矩陣未通過 (缺口補齊=${gapOk}, Float=${floatOk}, Learning-Center=${lcOk}, OA-Swarm=${oaOk}, 增量輸出=${incrOk}) — 不得宣稱通過${RESET}`);
+  console.log(`${RED}❌ 終始矩陣統一驗證閘: 有矩陣未通過 (缺口補齊=${gapOk}, Float=${floatOk}, Learning-Center=${lcOk}, OA-Swarm=${oaOk}, 增量輸出=${incrOk}, PRD=${prdOk}) — 不得宣稱通過${RESET}`);
   console.log('═'.repeat(40));
   process.exit(1);
 }

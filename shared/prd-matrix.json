@@ -1,0 +1,444 @@
+{
+  "docId": "OMN-PRD-001",
+  "version": "1.1",
+  "prd": "docs/OMN-PRD-001.md",
+  "matrixDoc": "docs/OMN-PRD-001-TRACEABILITY.md",
+  "generatedBy": "scripts/verify-prd-matrix.mjs",
+  "statusVocabulary": ["implemented", "partial", "planned", "manual"],
+  "features": [
+    {
+      "id": "F-01",
+      "name": "內容管理 Content Management",
+      "pillar": "P1",
+      "layer": "L4",
+      "status": "partial",
+      "supports": ["FR-01"],
+      "evidence": [
+        "app/api/ai-notes/route.ts",
+        "app/api/ai-notes/[id]/route.ts",
+        "app/api/notes/route.ts",
+        "app/api/daily-report/route.ts"
+      ],
+      "gap": "缺版本化 (versioning) 與郵件/會議紀錄內容型別"
+    },
+    {
+      "id": "F-02",
+      "name": "智慧標籤引擎 Smart Tag Engine",
+      "pillar": "P1",
+      "layer": "L4",
+      "status": "partial",
+      "supports": ["FR-03", "FR-04"],
+      "evidence": [
+        "src/core/tags/universal-tag-service.ts",
+        "app/api/tags/pair/route.ts",
+        "app/api/tags/universal/route.ts",
+        "src/agents/twelve-omni/omni-tag.ts"
+      ],
+      "gap": "知識圖譜僅為記憶體 associations Map，未持久化"
+    },
+    {
+      "id": "F-03",
+      "name": "標籤血緣追蹤 Tag Lineage Tracing",
+      "pillar": "P1",
+      "layer": "L4",
+      "status": "partial",
+      "supports": ["FR-05"],
+      "evidence": ["prisma/schema.prisma", "app/api/omni-trace/route.ts"],
+      "gap": "僅通用 trace (OmniTraceLog)，無 tag_lineage 專表與變更原因欄位"
+    },
+    {
+      "id": "F-04",
+      "name": "知識沉澱框架 Sedimentation Framework (L1-L5)",
+      "pillar": "P1",
+      "layer": "L4",
+      "status": "planned",
+      "supports": ["FR-01"],
+      "evidence": [],
+      "gap": "無任何實作；L1-L5 層級定義僅存在於 PRD"
+    },
+    {
+      "id": "F-05",
+      "name": "向量檢索 Vector Retrieval",
+      "pillar": "P1",
+      "layer": "L4",
+      "status": "partial",
+      "supports": ["FR-04"],
+      "evidence": [
+        "src/lib/pgvector.ts",
+        "src/lib/vector-search.ts",
+        "src/lib/embedding-generator.ts",
+        "db/migrations/001_create_omnipotent_schema.sql"
+      ],
+      "gap": "pgvector 語意檢索已建；標籤混合查詢 (hybrid) 未接線"
+    },
+    {
+      "id": "F-06",
+      "name": "社群共創平台 Co-creation Platform",
+      "pillar": "P2",
+      "layer": "L5",
+      "status": "partial",
+      "supports": ["FR-06"],
+      "evidence": [
+        "app/api/village/vote/route.ts",
+        "app/api/village/members/route.ts",
+        "app/api/village/projects/route.ts",
+        "prisma/seed-growth.ts"
+      ],
+      "gap": "僅投票/聲望；無共創撰寫、審核核准、版本演進工作流"
+    },
+    {
+      "id": "F-07",
+      "name": "權能鍛造腳本生成器 Authority Forging Script Generator",
+      "pillar": "P3",
+      "layer": "L4",
+      "status": "implemented",
+      "supports": ["FR-08"],
+      "evidence": [
+        "src/lib/authority-forging/index.ts",
+        "tests/authority-forging.test.ts"
+      ],
+      "gap": ""
+    },
+    {
+      "id": "F-08",
+      "name": "符文鑲嵌插件 API Rune Engrafting Plugin API",
+      "pillar": "P4",
+      "layer": "L1",
+      "status": "implemented",
+      "supports": ["FR-07"],
+      "evidence": [
+        "src/lib/omni-base/plugin-registry.ts",
+        "src/lib/omni-base/rune-contract.ts",
+        "app/api/omni/plugins/route.ts",
+        "tests/rune-engrafting.test.ts"
+      ],
+      "gap": ""
+    },
+    {
+      "id": "F-09",
+      "name": "自動化引擎 Automation Engine",
+      "pillar": "cross",
+      "layer": "L4",
+      "status": "partial",
+      "supports": ["FR-08"],
+      "evidence": ["lib/services/automationService.ts"],
+      "gap": "僅本地自動化；無 Boost.space 整合。F-07 workflow 產物即其輸入"
+    },
+    {
+      "id": "F-10",
+      "name": "即時事件流 Realtime Event Stream",
+      "pillar": "cross",
+      "layer": "L3",
+      "status": "partial",
+      "supports": ["FR-02"],
+      "evidence": [
+        "src/lib/firebase.ts",
+        "src/lib/supabase-sync-engine.ts",
+        "app/api/agent/[id]/thought/stream/route.ts"
+      ],
+      "gap": "表級 postgres_changes 已建；標籤差異專用通道未建"
+    },
+    {
+      "id": "F-11",
+      "name": "權限與治理 Permissions & Governance",
+      "pillar": "cross",
+      "layer": "L3",
+      "status": "partial",
+      "supports": ["FR-09"],
+      "evidence": [
+        "src/lib/unified-auth.ts",
+        "src/lib/auth-claims.ts",
+        "src/middleware.ts",
+        "db/migrations/001_create_omnipotent_schema.sql"
+      ],
+      "gap": "RLS 僅 1 張表；敏感標籤管控 (sensitive tag control) 未實作"
+    },
+    {
+      "id": "F-12",
+      "name": "管理後台 Admin Console",
+      "pillar": "cross",
+      "layer": "L5",
+      "status": "partial",
+      "supports": ["FR-10"],
+      "evidence": [
+        "app/admin/page.tsx",
+        "app/api/admin/surveys/route.ts",
+        "grafana/provisioning",
+        "prometheus/prometheus.yml"
+      ],
+      "gap": "僅 learning-center 管理；無設定/監控/稽核合規報表整合後台"
+    },
+    {
+      "id": "F-13",
+      "name": "原生行動端 Native Mobile (iOS/Android)",
+      "pillar": "cross",
+      "layer": "L5",
+      "status": "planned",
+      "supports": ["FR-02", "FR-09"],
+      "evidence": [],
+      "gap": "無 .swift/.kt 原始碼；M6 未啟動"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "FR-01",
+      "type": "FR",
+      "priority": "P0",
+      "name": "內容事件持久化",
+      "features": ["F-01"],
+      "verification": "單元測試 + 事件日誌",
+      "evidence": ["tests/api-routes.test.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-02",
+      "type": "FR",
+      "priority": "P0",
+      "name": "即時標籤反映",
+      "features": ["F-10"],
+      "verification": "Realtime 訂閱測試",
+      "evidence": ["tests/bus.test.ts", "src/lib/supabase-sync-engine.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-03",
+      "type": "FR",
+      "priority": "P0",
+      "name": "智慧標籤生成",
+      "features": ["F-02"],
+      "verification": "標籤準確率測試 (NFR-03)",
+      "evidence": ["tests/universal-tag-service.test.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-04",
+      "type": "FR",
+      "priority": "P0",
+      "name": "雙向追蹤",
+      "features": ["F-02", "F-05"],
+      "verification": "雙向查詢整合測試",
+      "evidence": ["tests/rag-query-behavior.test.ts", "app/api/tags/pair/route.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-05",
+      "type": "FR",
+      "priority": "P1",
+      "name": "標籤血緣記錄",
+      "features": ["F-03"],
+      "verification": "血緣記錄回溯測試",
+      "evidence": ["app/api/omni-trace/route.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-06",
+      "type": "FR",
+      "priority": "P1",
+      "name": "社群共創",
+      "features": ["F-06"],
+      "verification": "共創流程 E2E 測試",
+      "evidence": ["tests/e2e.test.ts", "app/api/village/projects/route.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-07",
+      "type": "FR",
+      "priority": "P1",
+      "name": "插件擴展",
+      "features": ["F-08"],
+      "verification": "插件 SDK 測試",
+      "evidence": ["tests/rune-engrafting.test.ts", "src/lib/omni-base/rune-contract.ts"],
+      "status": "implemented"
+    },
+    {
+      "id": "FR-08",
+      "type": "FR",
+      "priority": "P1",
+      "name": "自動化工作流",
+      "features": ["F-07", "F-09"],
+      "verification": "工作流整合測試 + 鍛造安全閘測試",
+      "evidence": ["tests/authority-forging.test.ts", "lib/services/automationService.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-09",
+      "type": "FR",
+      "priority": "P0",
+      "name": "權限治理",
+      "features": ["F-11"],
+      "verification": "RLS 政策測試",
+      "evidence": ["db/migrations/001_create_omnipotent_schema.sql", "src/middleware.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "FR-10",
+      "type": "FR",
+      "priority": "P1",
+      "name": "稽核與監控",
+      "features": ["F-12"],
+      "verification": "稽核日誌驗證",
+      "evidence": ["tests/audit-logger.test.ts", "prometheus/prometheus.yml"],
+      "status": "partial"
+    }
+  ],
+  "nfr": [
+    {
+      "id": "NFR-01",
+      "type": "NFR",
+      "priority": "P0",
+      "name": "端到端延遲",
+      "target": "≤ 200ms",
+      "verification": "效能基準測試",
+      "stage": "開發期 + 上線前",
+      "evidence": ["tests/performance-optimizer.test.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "NFR-02",
+      "type": "NFR",
+      "priority": "P0",
+      "name": "吞吐量",
+      "target": "≥ 10⁶ 事件/日",
+      "verification": "負載測試",
+      "stage": "上線前",
+      "evidence": [],
+      "status": "manual"
+    },
+    {
+      "id": "NFR-03",
+      "type": "NFR",
+      "priority": "P0",
+      "name": "標籤準確率",
+      "target": "≥ 90%",
+      "verification": "標籤準確率測試",
+      "stage": "開發期 + 上線前",
+      "evidence": ["tests/universal-tag-service.test.ts"],
+      "status": "partial"
+    },
+    {
+      "id": "NFR-04",
+      "type": "NFR",
+      "priority": "P0",
+      "name": "可用性",
+      "target": "≥ 99.9%",
+      "verification": "可用性監控",
+      "stage": "上線後持續",
+      "evidence": ["prometheus/prometheus.yml", "grafana/provisioning"],
+      "status": "partial"
+    },
+    {
+      "id": "NFR-05",
+      "type": "NFR",
+      "priority": "P0",
+      "name": "安全",
+      "target": "HTTPS / 最小權限 / 環境變數",
+      "verification": "安全掃描 + 滲透測試",
+      "stage": "上線前",
+      "evidence": [
+        "src/middleware.ts",
+        "db/migrations/001_create_omnipotent_schema.sql",
+        "docs/SECURITY-AUDIT-dependencies-2026-09-28.md"
+      ],
+      "status": "partial"
+    },
+    {
+      "id": "NFR-06",
+      "type": "NFR",
+      "priority": "P1",
+      "name": "可擴充",
+      "target": "模組化結構，易於新增 API 整合",
+      "verification": "架構審查",
+      "stage": "開發期",
+      "evidence": [
+        "src/lib/omni-base/rune-contract.ts",
+        "src/core/ai/skills/registry.ts",
+        "tests/rune-engrafting.test.ts"
+      ],
+      "status": "implemented"
+    },
+    {
+      "id": "NFR-07",
+      "type": "NFR",
+      "priority": "P1",
+      "name": "可維護",
+      "target": "日誌可導出至集中化系統",
+      "verification": "日誌整合驗證",
+      "stage": "上線前",
+      "evidence": ["docs/monitoring/alerting.md", "grafana/provisioning"],
+      "status": "partial"
+    }
+  ],
+  "outcomes": [
+    {
+      "id": "OR-01",
+      "type": "OR",
+      "priority": "P1",
+      "name": "知識沉澱率",
+      "requirements": ["FR-01", "FR-02", "FR-03", "FR-04", "FR-05"],
+      "features": ["F-01", "F-02", "F-03", "F-04"],
+      "metric": "沉澱知識量成長率",
+      "target": "≥ 200% / 6 個月",
+      "measurement": "資料庫沉澱層級統計",
+      "frequency": "每月",
+      "instrument": ["data/omni-factory-kpis.json"],
+      "status": "manual"
+    },
+    {
+      "id": "OR-02",
+      "type": "OR",
+      "priority": "P1",
+      "name": "檢索效率",
+      "requirements": ["FR-04", "FR-05", "NFR-01"],
+      "features": ["F-02", "F-03", "F-05"],
+      "metric": "平均檢索時間",
+      "target": "下降 ≥ 50%",
+      "measurement": "檢索日誌分析",
+      "frequency": "每月",
+      "instrument": ["app/api/ai-notes/search/route.ts"],
+      "status": "manual"
+    },
+    {
+      "id": "OR-03",
+      "type": "OR",
+      "priority": "P2",
+      "name": "社群活躍",
+      "requirements": ["FR-06"],
+      "features": ["F-06"],
+      "metric": "月活躍貢獻者",
+      "target": "≥ 1,000",
+      "measurement": "使用者活動統計",
+      "frequency": "每月",
+      "instrument": ["prisma/seed-growth.ts"],
+      "status": "manual"
+    },
+    {
+      "id": "OR-04",
+      "type": "OR",
+      "priority": "P2",
+      "name": "自動化覆蓋",
+      "requirements": ["FR-08"],
+      "features": ["F-07", "F-09"],
+      "metric": "自動化工作流覆蓋率",
+      "target": "≥ 60%",
+      "measurement": "工作流監控",
+      "frequency": "每季",
+      "instrument": ["lib/services/automationService.ts"],
+      "status": "manual"
+    }
+  ],
+  "skillCoverage": [
+    {
+      "skillId": "junaikey-sovereign",
+      "name": "萬能元鑰·超覺醒奧義 JunAiKey Sovereign Ultimate",
+      "taskType": "junaikey_sovereign",
+      "requirements": ["FR-03", "FR-05", "FR-10"],
+      "nfr": ["NFR-03", "NFR-06"],
+      "evidence": [
+        "src/core/ai/skills/junaikey-sovereign.ts",
+        "src/core/ai/skills/__tests__/registry.test.ts",
+        "src/core/ai/skills/__tests__/api-integration.test.ts"
+      ],
+      "role": "語意治理與自我成長引擎：觀/覺/練/印 四階段，以 5T 封印輸出"
+    }
+  ]
+}

@@ -34,6 +34,7 @@
     "oa:audit": "tsx cli/oa-cli/src/index.ts audit --dir \"src/lib,cli/oa-cli/src\"",
     "verify:gap-matrix": "node scripts/export-shared-types.js && npx tsx scripts/verify_gap_matrix.ts",
     "verify:matrix": "node scripts/verify-terminal-origin.mjs",
+    "verify:prd-matrix": "node scripts/verify-prd-matrix.mjs",
     "verify": "pnpm turbo run lint typecheck test build && pnpm -F ./apps/learning-center check:types-sync"
   },
   "dependencies": {

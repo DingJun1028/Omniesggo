@@ -1,7 +1,7 @@
 # Omniesggo 萬能永續平台 — 產品設施功能架構・需求成果・終始矩陣規劃書
 
-> **Doc ID / 文件代號** OMN-PRD-001 · **Version / 版本** v1.0 · **Status / 狀態** 規劃核定 (Planning Approved)
-> **Written / 撰寫日期** 2025 · **Scope / 適用範圍** 平台整體 (Web / iOS / Android / 後端 / AI / 自動化)
+> **Doc ID / 文件代號** OMN-PRD-001 · **Version / 版本** v1.1 · **Status / 狀態** 規劃核定 (Planning Approved)
+> **Written / 撰寫日期** 2025（v1.1 終始閉合回饋 2026-10-07） · **Scope / 適用範圍** 平台整體 (Web / iOS / Android / 後端 / AI / 自動化)
 > **Purpose / 文件目的** 定義產品設施與功能架構、需求與成果對應、終始矩陣（需求↔功能↔成果↔驗證），作為後續建造與驗收之單一來源 (Single Source of Truth)
 >
 > **Convention / 落檔規範** 英標繁博 (English Standard, Traditional Chinese Broad) · 5T Protocol
@@ -166,14 +166,14 @@ Omniesggo 萬能永續平台是一套以「**永續**」為核心價值、以「
 | 需求代號 ID | 對應功能模組 Feature | 支柱 Pillar | 驗證方法 Verification |
 |---|---|---|---|
 | FR-01 | F-01 內容管理 | P1 | 單元測試 + 事件日誌 |
-| FR-02 | F-10 即時事件流 | 跨支柱 | Realtime 訂閱測試 |
+| FR-02 | F-10 即時事件流 / F-13 原生行動端 | 跨支柱 | Realtime 訂閱測試 |
 | FR-03 | F-02 智慧標籤引擎 | P1 | 標籤準確率測試（NFR-03） |
 | FR-04 | F-02 / F-05 | P1 | 雙向查詢整合測試 |
 | FR-05 | F-03 標籤血緣追蹤 | P1 | 血緣記錄回溯測試 |
 | FR-06 | F-06 社群共創平台 | P2 | 共創流程 E2E 測試 |
 | FR-07 | F-08 符文鑲嵌插件 API | P4 | 插件 SDK 測試 |
 | FR-08 | F-09 自動化引擎 | 跨支柱 | 工作流整合測試 |
-| FR-09 | F-11 權限與治理 | 跨支柱 | RLS 政策測試 |
+| FR-09 | F-11 權限與治理 / F-13 原生行動端 | 跨支柱 | RLS 政策測試 |
 | FR-10 | F-12 管理後台 | 跨支柱 | 稽核日誌驗證 |
 
 ### 4.2 非功能需求 ↔ 驗證 對應矩陣 (NFR ↔ Verification)
@@ -266,6 +266,7 @@ Omniesggo 萬能永續平台是一套以「**永續**」為核心價值、以「
 | 版本 Version | 日期 Date | 變更內容 Change |
 |---|---|---|
 | v1.0 | 2025 | 初版核定 Initial approval |
+| v1.1 | 2026-10-07 | 終始閉合檢查（§4.4）回饋：補列 F-13 對應 FR-02/FR-09（原為孤兒功能）；§4 加入可驗證運行版 `docs/OMN-PRD-001-TRACEABILITY.md` 與閘 `pnpm verify:prd-matrix` |
 
 ---
 
