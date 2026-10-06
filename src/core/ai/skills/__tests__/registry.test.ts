@@ -9,9 +9,9 @@ import { getSkill, getAllSkills, SkillContext } from '../index';
 import '../registry';
 
 describe('ESG Skills Registry', () => {
-  it('should have 10 registered skills', () => {
+  it('should have 11 registered skills', () => {
     const skills = getAllSkills();
-    expect(skills.length).toBe(10);
+    expect(skills.length).toBe(11);
   });
 
   it('should register carbon-calculation skill (lookup by taskType)', () => {
@@ -83,6 +83,13 @@ describe('ESG Skills Registry', () => {
     expect(skill).toBeDefined();
     expect(skill?.id).toBe('report-assembly');
     expect(skill?.name).toContain('報告組裝');
+  });
+
+  it('should register junaikey-sovereign skill', () => {
+    const skill = getSkill('junaikey_sovereign');
+    expect(skill).toBeDefined();
+    expect(skill?.id).toBe('junaikey-sovereign');
+    expect(skill?.name).toContain('萬能元鑰');
   });
 
   it('should return undefined for non-existent taskType', () => {

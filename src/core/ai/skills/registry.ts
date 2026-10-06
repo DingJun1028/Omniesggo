@@ -14,6 +14,7 @@ import './stakeholder-analysis';
 import './email-archival';
 import './evidence-ocr';
 import './report-assembly';
+import './junaikey-sovereign';
 
 // 重新匯出基底類別和註冊函數
 export {
