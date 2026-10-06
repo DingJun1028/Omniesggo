@@ -1,0 +1,2 @@
+FROM qwen3:8b-64k
+PARAMETER think true

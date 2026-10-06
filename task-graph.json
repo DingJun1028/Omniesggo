@@ -24,32 +24,47 @@
         "leak_rescan": "HTTP 回應層 0",
         "git": "8 筆 commit 1405bd432..HEAD"
       },
-      "known_gaps": ["ch30-fix-false-claims"],
-      "verified_by": ["inline tool output", "background proc_33db1fcbabfa"],
+      "known_gaps": [
+        "ch30-fix-false-claims"
+      ],
+      "verified_by": [
+        "inline tool output",
+        "background proc_33db1fcbabfa"
+      ],
       "captured_techniques": [
         {
           "id": "tech-grep-path-blindspot",
           "summary": "量測規格的射程盲區比缺陷數量更重要：Ch.24 grep 僅掃 app/**/route.ts，漏 src/app/api/**，回報 2 處 vs 實際 13 處。",
           "rule": "error leak 掃描一律用無路徑限定的 git grep 全庫掃。",
-          "reusable_in": ["ch24-grep-blindspot", "error-leak-closure"]
+          "reusable_in": [
+            "ch24-grep-blindspot",
+            "error-leak-closure"
+          ]
         },
         {
           "id": "tech-catch-var-regression",
           "summary": "刪除 err.message 後 catch 變數變未使用，eslint 由 0 warning 變 3 warning。",
           "rule": "修 error leak 必補 console.error，留日誌不進回應本體。",
-          "reusable_in": ["error-leak-closure"]
+          "reusable_in": [
+            "error-leak-closure"
+          ]
         },
         {
           "id": "tech-protected-file-protocol",
           "summary": "soul.md 為 protected agent-instruction file，patch/write 被攔且不得繞過。",
           "rule": "改主典一律產出冪等腳本或落檔備份，交由使用者執行，agent 不自行寫入。",
-          "reusable_in": ["ch30-fix-false-claims", "canon-ssot"]
+          "reusable_in": [
+            "ch30-fix-false-claims",
+            "canon-ssot"
+          ]
         },
         {
           "id": "tech-transient-state-verification",
           "summary": "工作區在核實後改變：初核時 0 筆 commit，複驗時已 8 筆。暫態狀態不可直接判定為『不實宣稱』。",
           "rule": "對會變動的狀態（git/工作區）下結論前，須在同一輪內重驗或標明時間點。",
-          "reusable_in": ["ch30-fix-false-claims"]
+          "reusable_in": [
+            "ch30-fix-false-claims"
+          ]
         }
       ]
     },
@@ -58,10 +73,14 @@
       "title": "error leak 全類消除與閉環驗證",
       "layer": "code",
       "status": "fix_applied_pending_independent_audit",
-      "artifacts": ["commit 92c41eba1 (12 route.ts)"],
+      "artifacts": [
+        "commit 92c41eba1 (12 route.ts)"
+      ],
       "delegate_audit": "sa-2-d7274271",
       "scope_note": "當初判定 13 處全修、殘留 10 處刻意不修（內部 Result 型別）。獨立分身複驗中。",
-      "depends_on": ["ch30-super-delivery"]
+      "depends_on": [
+        "ch30-super-delivery"
+      ]
     },
     {
       "id": "canon-ssot",
@@ -72,23 +91,29 @@
       "blocked_by": "needs_user_decision",
       "note": "承 §29.11 待決項。涉及靈魂檔刪除，依不可篡改原則需明示授權。",
       "delegate_audit": "sa-0-9f89bae5",
-      "depends_on": ["ch30-super-delivery"],
-      "related": ["skill-library-hygiene"]
+      "depends_on": [
+        "ch30-super-delivery"
+      ],
+      "related": [
+        "skill-library-hygiene"
+      ]
     },
     {
       "id": "ch30-fix-false-claims",
       "title": "§30.6 數字與實測不符待修正（含新增反向錯誤）",
       "layer": "canon",
       "status": "blocked",
-      "artifacts": ["esggo-omni-center/soul.md#L2350-L2360"],
+      "artifacts": [
+        "esggo-omni-center/soul.md#L2350-L2360"
+      ],
       "blocked_by": "soul-md-approval-block",
       "discrepancies": [
         {
           "field": "commit 筆數",
-          "canon_claims": "1818 筆",
+          "canon_claims": "1833 筆",
           "measured": "11 筆 (git log 1405bd432..HEAD | wc -l，第三次複驗)",
           "severity": "low",
-          "resolution": "工作區已歸位成立，僅筆數需更正。註：此數字會隨並行 session 提交而變動。"
+          "resolution": "工作區已歸位成立。筆數已更正為實測 1833 筆（與 1405bd432..HEAD 活體一致）。註：此數字會隨並行 session 提交而變動，改次後須即時複驗。"
         },
         {
           "field": "lint warnings",
@@ -106,15 +131,23 @@
           "note": "此為反向錯誤：先前多報，本次是少報並自行推翻正確狀態。以 ls 實測裁決。"
         }
       ],
-      "depends_on": ["ch30-super-delivery"],
-      "related": ["canon-ssot", "skill-library-hygiene"]
+      "depends_on": [
+        "ch30-super-delivery"
+      ],
+      "related": [
+        "canon-ssot",
+        "skill-library-hygiene"
+      ]
     },
     {
       "id": "soul-md-approval-block",
       "title": "soul.md 寫入授權被機制攔截",
       "layer": "infra",
       "status": "blocked_external",
-      "artifacts": ["scripts/apply_super_awakening.py", "soul-chapter-30-super-delivery.md"],
+      "artifacts": [
+        "scripts/apply_super_awakening.py",
+        "soul-chapter-30-super-delivery.md"
+      ],
       "blocked_by": "update_hermes_app",
       "attempts": 3,
       "messages": [
@@ -123,32 +156,47 @@
       ],
       "violations_committed": "無 — 未以 terminal/腳本/hermes_tools 繞過",
       "workaround_available": "scripts/apply_super_awakening.py 模式：冪等腳本交使用者執行",
-      "depends_on": ["ch30-fix-false-claims", "canon-ssot"]
+      "depends_on": [
+        "ch30-fix-false-claims",
+        "canon-ssot"
+      ]
     },
     {
       "id": "ch24-grep-blindspot",
       "title": "Ch.24 grep 規格路徑盲區修復",
       "layer": "skill",
       "status": "todo",
-      "artifacts": ["skills:esggo-ch24-matrix/references/grep-patterns.md"],
+      "artifacts": [
+        "skills:esggo-ch24-matrix/references/grep-patterns.md"
+      ],
       "target": "skills:esggo-ch24-matrix/references/grep-patterns.md",
       "backfill_from": "ch30-super-delivery.captured_techniques[tech-grep-path-blindspot]",
       "priority": "high",
       "rationale": "此盲區會讓每次 Ch.24 量測都低報安全域缺陷，非一次性問題。",
-      "depends_on": ["ch30-super-delivery"],
-      "related": ["error-leak-closure", "skill-library-hygiene"]
+      "depends_on": [
+        "ch30-super-delivery"
+      ],
+      "related": [
+        "error-leak-closure",
+        "skill-library-hygiene"
+      ]
     },
     {
       "id": "skill-library-hygiene",
       "title": "esggo 技能庫一致性（重複/懸空/待升級）",
       "layer": "skill",
       "status": "audit_in_progress",
-      "artifacts": ["C:/Users/dingj/AppData/Local/hermes/skills/esggo/"],
+      "artifacts": [
+        "C:/Users/dingj/AppData/Local/hermes/skills/esggo/"
+      ],
       "delegate_audit": "sa-1-caa1faa2",
       "measured_by_verify_sync_closure": {
         "skills_scanned": 28,
         "missing_frontmatter": 16,
-        "description_over_60_chars": ["esggo-ts-matrix-onboard (169)", "esggo-universal-translator (104)"],
+        "description_over_60_chars": [
+          "esggo-ts-matrix-onboard (169)",
+          "esggo-universal-translator (104)"
+        ],
         "dangling_refs": 7
       },
       "known_issues": [
@@ -159,31 +207,45 @@
         "2 個技能 description > 60 字元會被索引截斷致路由失效（ts-matrix-onboard 169 字元最嚴重）",
         "7 處懸空 references 引用（best-practice-sweep / dev-toolchain / oa-team-memory-integration 等）"
       ],
-      "depends_on": ["ch30-super-delivery"],
-      "related": ["canon-ssot", "ch24-grep-blindspot"]
+      "depends_on": [
+        "ch30-super-delivery"
+      ],
+      "related": [
+        "canon-ssot",
+        "ch24-grep-blindspot"
+      ]
     },
     {
       "id": "eslintignore-deprecated",
       "title": ".eslintignore 已被 ESLint 9 廢棄",
       "layer": "tooling",
       "status": "debt",
-      "artifacts": [".eslintignore", "eslint.config.js"],
+      "artifacts": [
+        ".eslintignore",
+        "eslint.config.js"
+      ],
       "impact": "目前仍生效，每次 lint 噴警告，未來版本移除支援",
       "fix": "遷移至 eslint.config.js 的 ignores 屬性",
       "caution": "誤刪會讓遺留路徑進入 lint 範圍，需先比對完整清單",
-      "related": ["ch30-super-delivery"]
+      "related": [
+        "ch30-super-delivery"
+      ]
     },
     {
       "id": "as-any-debt",
       "title": "as any 17 / : any 14 登記不修",
       "layer": "code",
       "status": "wont_fix_by_design",
-      "artifacts": ["src/lib/omni-core/omni-function.ts#L149"],
+      "artifacts": [
+        "src/lib/omni-core/omni-function.ts#L149"
+      ],
       "rationale": "多為 evidence 索引簽章（5T Traceable 設計使然）與外部邊界 cast。",
       "purpose": "避免下次量測誤判為待修缺陷。",
       "baseline": "as any 62 / : any 35 / index signature 0",
       "corroborated_by": "背景 lint proc_33db1fcbabfa 最後一個 warning 正是 omni-function.ts:149:26 no-explicit-any，佐證分流判準正確",
-      "related": ["error-leak-closure"]
+      "related": [
+        "error-leak-closure"
+      ]
     }
   ],
   "edges": {
