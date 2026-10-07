@@ -30,10 +30,13 @@ jobs:
     # Bounded runtime — a hung job must not occupy the vercel-prod-deploy
     # concurrency group indefinitely (previous runs stalled for 3h+).
     # 有界執行時間：卡住的 job 不得長期佔用 vercel-prod-deploy 排程鎖。
-    # Measured: install 51s + CLI 23s + upload 7s, then remote build — give the
-    # remote build a realistic window while staying bounded.
-    # 實測：install 51s + CLI 23s + upload 7s，其後為遠端建置，故給予合理但仍有界的窗口。
-    timeout-minutes: 30
+    # Measured: install 51s + CLI 23s + upload 7s, then remote build.
+    # 實測：install 51s + CLI 23s + upload 7s，其後為遠端建置。
+    # 窗口定案（Vercel 官方限制）：Build Step 上限 45 分鐘（Hobby/Pro/Enterprise 皆同、
+    # 不可調高）→ step 給滿 45 分鐘，job 給 50 分鐘（預留 CLI + 端點驗證）。
+    # 此前 step 設 25 分鐘，run 37564468101 於 26m21s 被我方切斷 —— 是窗口不足，
+    # 不是 Vercel 失敗。
+    timeout-minutes: 50
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -56,7 +59,9 @@ jobs:
           echo "[diag] install ok end=$(date -u +%FT%TZ)"
 
       - name: Deploy to Vercel (production)
-        timeout-minutes: 25
+        # Vercel Build Step 硬上限 45 分鐘（官方文件：Limits → Build Time per
+        # Deployment = 45 min，任何方案皆不可調高）——此處給滿，避免我方窗口先斷。
+        timeout-minutes: 45
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
