@@ -36,7 +36,7 @@
 | F-06 社群共創平台 Co-creation Platform | P2 | L5 | partial | FR-06 | `app/api/village/vote/route.ts`, `app/api/village/members/route.ts`, `app/api/village/projects/route.ts`, `prisma/seed-growth.ts` | 無共創撰寫/審核/版本演進 |
 | F-07 權能鍛造腳本生成器 Authority Forging | P3 | L4 | implemented | FR-08 | `src/lib/authority-forging/index.ts`, `tests/authority-forging.test.ts` | — |
 | F-08 符文鑲嵌插件 API Rune Engrafting | P4 | L1 | implemented | FR-07 | `src/lib/omni-base/plugin-registry.ts`, `src/lib/omni-base/rune-contract.ts`, `app/api/omni/plugins/route.ts`, `tests/rune-engrafting.test.ts` | — |
-| F-09 自動化引擎 Automation Engine | cross | L4 | partial | FR-08 | `lib/services/automationService.ts` | 無 Boost.space 整合；輸入來自 F-07 |
+| F-09 自動化引擎 Automation Engine | cross | L4 | partial | FR-08 | `lib/services/automationService.ts`, `src/lib/boost-space/index.ts`, `tests/boost-space.test.ts` | 缺 runtime 接線（route/scheduler 觸發與正式憑證）；本機 automationService 執行仍為 mock |
 | F-10 即時事件流 Realtime Event Stream | cross | L3 | partial | FR-02 | `src/lib/firebase.ts`, `src/lib/supabase-sync-engine.ts`, `app/api/agent/[id]/thought/stream/route.ts` | 無標籤差異專用通道 |
 | F-11 權限與治理 Permissions & Governance | cross | L3 | partial | FR-09 | `src/lib/unified-auth.ts`, `src/lib/auth-claims.ts`, `src/middleware.ts`, `db/migrations/001_create_omnipotent_schema.sql` | RLS 僅 1 表；無敏感標籤管控 |
 | F-12 管理後台 Admin Console | cross | L5 | partial | FR-10 | `app/admin/page.tsx`, `app/api/admin/surveys/route.ts`, `grafana/provisioning`, `prometheus/prometheus.yml` | 無設定/監控/合規報表整合後台 |
@@ -55,7 +55,7 @@
 | FR-05 標籤血緣記錄 | P1 | F-03 | 血緣記錄回溯測試 | `app/api/omni-trace/route.ts` | partial |
 | FR-06 社群共創 | P1 | F-06 | 共創流程 E2E 測試 | `tests/e2e.test.ts`, `app/api/village/projects/route.ts` | partial |
 | FR-07 插件擴展 | P1 | F-08 | 插件 SDK 測試 | `tests/rune-engrafting.test.ts`, `src/lib/omni-base/rune-contract.ts` | implemented |
-| FR-08 自動化工作流 | P1 | F-07, F-09 | 工作流整合測試 + 鍛造安全閘測試 | `tests/authority-forging.test.ts`, `lib/services/automationService.ts` | partial |
+| FR-08 自動化工作流 | P1 | F-07, F-09 | 工作流整合測試 + 鍛造安全閘測試 | `tests/authority-forging.test.ts`, `tests/boost-space.test.ts`, `lib/services/automationService.ts` | partial |
 | FR-09 權限治理 | P0 | F-11 | RLS 政策測試 | `db/migrations/001_create_omnipotent_schema.sql`, `src/middleware.ts` | partial |
 | FR-10 稽核與監控 | P1 | F-12 | 稽核日誌驗證 | `tests/audit-logger.test.ts`, `prometheus/prometheus.yml` | partial |
 

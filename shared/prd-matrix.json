@@ -121,8 +121,12 @@
       "layer": "L4",
       "status": "partial",
       "supports": ["FR-08"],
-      "evidence": ["lib/services/automationService.ts"],
-      "gap": "僅本地自動化；無 Boost.space 整合。F-07 workflow 產物即其輸入"
+      "evidence": [
+        "lib/services/automationService.ts",
+        "src/lib/boost-space/index.ts",
+        "tests/boost-space.test.ts"
+      ],
+      "gap": "Boost.space 客戶端與 F-07→F-09 情境映射已實作並通過整合測試；缺 runtime 接線（route/scheduler 觸發與正式憑證），本機 automationService 執行仍為 mock"
     },
     {
       "id": "F-10",
@@ -257,7 +261,11 @@
       "name": "自動化工作流",
       "features": ["F-07", "F-09"],
       "verification": "工作流整合測試 + 鍛造安全閘測試",
-      "evidence": ["tests/authority-forging.test.ts", "lib/services/automationService.ts"],
+      "evidence": [
+        "tests/authority-forging.test.ts",
+        "tests/boost-space.test.ts",
+        "lib/services/automationService.ts"
+      ],
       "status": "partial"
     },
     {
