@@ -1,0 +1,96 @@
+# .github/workflows/deploy-cloudflare.yml — Cloudflare Workers production deploy
+# 取代 deploy-vercel.yml：Vercel 遠端建置實測 45 分鐘無法完成（run 37578677177
+# 於 05:56 Building… → 06:41 仍無結果，撞上我方 45m step 硬上限），
+# 改走 vinext + @cloudflare/vite-plugin 本機建置 → wrangler 部署（實測 ~2 分鐘）。
+name: Deploy to Cloudflare
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "src/**"
+      - "lib/**"
+      - "packages/**"
+      - "apps/**"
+      - "public/**"
+      - "prisma/**"
+      - "next.config.*"
+      - "vite.config.mjs"
+      - "wrangler.web.jsonc"
+      - "package.json"
+      - "pnpm-lock.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: cloudflare-prod-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-cloudflare:
+    name: Deploy esggo to Cloudflare Workers (production)
+    runs-on: ubuntu-latest
+    environment: production
+    # 有界執行時間：install 實測 51s、build ~10s、upload ~52s —— 20 分鐘已含大幅餘裕，
+    # 卡住的 job 不得長期佔用 cloudflare-prod-deploy 排程鎖。
+    timeout-minutes: 20
+    env:
+      # Cloudflare account（非機密；對應本機 wrangler whoami 登入帳戶）
+      CLOUDFLARE_ACCOUNT_ID: d9d7ecd92cbad6d858fba3e529b9cb7b
+      DEPLOY_WORKER_URL: https://esggo-web.dingjunhong1028.workers.dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '11.5.2'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        timeout-minutes: 8
+        run: |
+          echo "[diag] node=$(node -v) pnpm=$(pnpm -v) start=$(date -u +%FT%TZ)"
+          pnpm install --frozen-lockfile
+          echo "[diag] install ok end=$(date -u +%FT%TZ)"
+
+      - name: Deploy to Cloudflare Workers
+        timeout-minutes: 9
+        env:
+          # 優先用專用 token；未設定時回退到既有的 CF_API_TOKEN（DNS 憑證，
+          # 若權限不含 Workers:Edit 會在 wrangler 上傳階段 403，屆時需另建 token）。
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN not configured in this repo/environment"
+            exit 1
+          fi
+          echo "[diag] deploy start=$(date -u +%FT%TZ)"
+          pnpm run deploy:cloudflare
+          echo "[diag] deploy done end=$(date -u +%FT%TZ)"
+
+      - name: Verify worker endpoint
+        if: success()
+        timeout-minutes: 3
+        run: |
+          # 果因消除：部署宣告成功後必須實測端點，避免「綠燈但站掛」的靜默失敗。
+          for i in $(seq 1 6); do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$DEPLOY_WORKER_URL/" || echo 000)
+            echo "[diag] health attempt $i: $code at $(date -u +%FT%TZ)"
+            case "$code" in
+              2*|3*) echo "✅ worker reachable ($code)"; exit 0 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::worker endpoint not reachable: $DEPLOY_WORKER_URL"
+          exit 1
+
+      - name: Notify
+        if: success()
+        run: echo "✅ Cloudflare Workers deployment successful ($DEPLOY_WORKER_URL)"

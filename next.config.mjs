@@ -1,6 +1,8 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+// 由 next.config.ts 等價轉寫（ESM .mjs）—— vinext module runner 載入 TS 設定檔
+// 於 Windows 上逾時 60s（fetchModule /next.config.ts 掛死），改用 .mjs 繞過。
+// 內容與 next.config.ts 完全一致（僅移除型別標註）。
+const nextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ['googleapis-common', 'googleapis', 'gaxios', '@google/genai', 'ioredis', 'pg'],
   typescript: {
