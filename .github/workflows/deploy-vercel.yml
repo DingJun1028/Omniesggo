@@ -30,7 +30,10 @@ jobs:
     # Bounded runtime — a hung job must not occupy the vercel-prod-deploy
     # concurrency group indefinitely (previous runs stalled for 3h+).
     # 有界執行時間：卡住的 job 不得長期佔用 vercel-prod-deploy 排程鎖。
-    timeout-minutes: 20
+    # Measured: install 51s + CLI 23s + upload 7s, then remote build — give the
+    # remote build a realistic window while staying bounded.
+    # 實測：install 51s + CLI 23s + upload 7s，其後為遠端建置，故給予合理但仍有界的窗口。
+    timeout-minutes: 30
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,7 +56,7 @@ jobs:
           echo "[diag] install ok end=$(date -u +%FT%TZ)"
 
       - name: Deploy to Vercel (production)
-        timeout-minutes: 10
+        timeout-minutes: 25
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -69,6 +72,24 @@ jobs:
           echo "[diag] deploy start=$(date -u +%FT%TZ)"
           vercel deploy --prod --yes --archive=tgz --token "$VERCEL_TOKEN" < /dev/null
           echo "[diag] deploy done end=$(date -u +%FT%TZ)"
+
+      - name: Verify production endpoint
+        if: success()
+        timeout-minutes: 3
+        env:
+          DEPLOY_HEALTH_URL: https://esggo.vercel.app
+        run: |
+          # 果因消除：部署宣告成功後必須實測端點，避免「綠燈但站掛」的靜默失敗。
+          for i in $(seq 1 6); do
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$DEPLOY_HEALTH_URL" || echo 000)
+            echo "[diag] health attempt $i: $code at $(date -u +%FT%TZ)"
+            case "$code" in
+              2*|3*) echo "✅ production reachable ($code)"; exit 0 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::production endpoint not reachable: $DEPLOY_HEALTH_URL"
+          exit 1
 
       - name: Notify
         if: success()
