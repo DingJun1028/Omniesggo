@@ -75,6 +75,9 @@ jobs:
   pre-check:
     name: Pre-deploy Check
     runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-oracle-pre-check
+      cancel-in-progress: true
     env:
       OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
       OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
@@ -113,6 +116,9 @@ jobs:
     needs: [pre-check]
     if: needs.pre-check.outputs.mode != 'skip'
     timeout-minutes: 25
+    concurrency:
+      group: deploy-oracle-vps
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 

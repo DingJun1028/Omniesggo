@@ -1,10 +1,14 @@
 name: 5T OmniCore Hyper-Awakened CI/CD Gatekeeper
 
-on:
+"on":
   push:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+
+concurrency:
+  group: ci-${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: false
 
 jobs:
   omnicore-verification:
@@ -16,24 +20,32 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+        timeout-minutes: 5
 
       - name: Install pnpm
         run: corepack enable && corepack prepare pnpm@latest --activate
+        timeout-minutes: 3
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile --prefer-frozen-lockfile
+        timeout-minutes: 15
 
       - name: Generate Prisma Client
         run: npx prisma generate
+        timeout-minutes: 10
 
       - name: 100% Encoding Hygiene Check (全真綠)
         run: node scripts/encoding-check.mjs
+        timeout-minutes: 5
 
       - name: TypeScript Type Safety Verification (0 Errors)
         run: npx tsc --noEmit
+        timeout-minutes: 15
 
       - name: 5T Core Unit Test Suite
         run: pnpm run check
+        timeout-minutes: 25
 
       - name: 5T Cryptographic Snapshot Verification
         run: node scripts/omni-snapshot.mjs --verify
+        timeout-minutes: 5

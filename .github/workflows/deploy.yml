@@ -182,6 +182,7 @@ jobs:
     concurrency:
       group: deploy-vps
       cancel-in-progress: false
+    timeout-minutes: 90
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
