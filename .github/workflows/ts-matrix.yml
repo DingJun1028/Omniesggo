@@ -37,10 +37,13 @@ jobs:
       - name: Fail on drift
         if: hashFiles('tools/ts-matrix/drift-report.json') != ''
         run: |
-          # Fail if reverse.shadowedCount > 0
-          count=$(node -e "const r = require('./tools/ts-matrix/drift-report.json'); console.log(r.reverse.shadowedCount)")
-          if [ "$count" -gt "0" ]; then
-            echo "::error::TS Matrix 發現 $count 處 type drift"
+          # 棘輪規則：只有「不在基線內的新增 drift」才失敗（既有 75 筆見 baseline.json）
+          read count base total new < <(node -e "
+            const r = require('./tools/ts-matrix/drift-report.json');
+            console.log(r.pass ? '0' : '1', r.reverse.baseline.total, r.reverse.shadowedCount, r.reverse.baseline.newDriftCount);
+          ")
+          if [ "$count" != "0" ] || [ "$new" -gt "0" ]; then
+            echo "::error::TS Matrix 新增 $new 處 type drift（基線 $base 筆 / 現況 $total 筆，只減不增）"
             exit 1
           fi
-          echo "✅ TS Matrix 雙向 PASS"
+          echo "✅ TS Matrix 雙向 PASS（基線棘輪 $base 筆，新增 0）"

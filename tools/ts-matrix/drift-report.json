@@ -1,10 +1,17 @@
 {
-  "timestamp": "2026-09-28T12:11:18.667Z",
-  "version": "1.1.0",
+  "timestamp": "2026-10-07T04:31:42.238Z",
+  "version": "1.3.0",
   "matrix": "esggo-ts-matrix",
   "forward": {
-    "sharedPath": "packages/shared/src/types",
-    "exportCount": 14,
+    "scope": "global",
+    "sharedPaths": [
+      "packages/shared/src/types",
+      "src/types",
+      "shared",
+      "types"
+    ],
+    "canonicalFileCount": 23,
+    "exportCount": 282,
     "exports": [
       {
         "name": "OmniChartProof",
@@ -75,16 +82,1746 @@
         "name": "EXPECTED_KEY_COUNT",
         "from": "./i18n",
         "kind": "const"
+      },
+      {
+        "name": "IBusEvent",
+        "from": "src\\types\\bus-event.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationPermission",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationRestrictionType",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationRestriction",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ICompleteDelegationScope",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DecisionContext",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DecisionOption",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DecisionConstraint",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AutonomousDecision",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationResult",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationReport",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationAnomaly",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationMonitorStatus",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ICompleteDelegationAgent",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IAutonomousDecisionEngine",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ICompleteDelegationManager",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationEventNames",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DelegationTopics",
+        "from": "src\\types\\complete-delegation.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IComponentCore",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "LifecycleStage",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ITaskSpec",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ITaskResult",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniAgent",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniAgentBus",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniAgentGateway",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ITimeTravelRegistry",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IMartialLawEvent",
+        "from": "src\\types\\core-contract.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "NoteType",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "NoteSource",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "RelationType",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EntityType",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "Note",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "CreateNoteInput",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "UpdateNoteInput",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "Tag",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "CreateTagInput",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "Attachment",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "CreateAttachmentInput",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "NoteRelation",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "NoteEmbedding",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ESGEntity",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SearchQuery",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SearchResult",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ClassificationResult",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SummaryOptions",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ActionItem",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ApiResponse",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "PaginatedResponse",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "NCBConfig",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "NoteWithTags",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "NoteWithRelations",
+        "from": "src\\types\\notes.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IFlowSnapshot",
+        "from": "src\\types\\omni-agent.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "KeyTier",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "KeyCapability",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "KeyImprint",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OmniKeyConfig",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "KeyEventType",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "KeyEvent",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "QuantumEntanglementKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TemporalRiftKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ChaosDecryptionKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EternalLockKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EntropyReductionKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OmniConnectivityKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SecretArtKey",
+        "from": "src\\types\\omni-key.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SeedStatus",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SeedCoordinate",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SeedEvolutionStage",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniSeed",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SeedEvolutionEvent",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniSeedController",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OmniSeedConfig",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SeedEventType",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SeedEvent",
+        "from": "src\\types\\omni-seed.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SingularityState",
+        "from": "src\\types\\omni-singularity.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SingularityDimension",
+        "from": "src\\types\\omni-singularity.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SingularityResonance",
+        "from": "src\\types\\omni-singularity.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniSingularity",
+        "from": "src\\types\\omni-singularity.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OmniSingularityConfig",
+        "from": "src\\types\\omni-singularity.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SingularityEventType",
+        "from": "src\\types\\omni-singularity.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SingularityEvent",
+        "from": "src\\types\\omni-singularity.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SoulAwakeningState",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SemanticVector",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "GovernanceAlignment",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SoulDecision",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniSoul",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OmniSoulConfig",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SoulEventType",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SoulEvent",
+        "from": "src\\types\\omni-soul.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "PoolClient",
+        "from": "src\\types\\pg.d.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "Pool",
+        "from": "src\\types\\pg.d.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "Client",
+        "from": "src\\types\\pg.d.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IVerificationResult",
+        "from": "src\\types\\secure-zone.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISecureZoneGateway",
+        "from": "src\\types\\secure-zone.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "Company",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TaskStatus",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TaskProgress",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TaskResult",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvidenceCard",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ReportChapter",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "CVersionReport",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "V5Report",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ErrorResponse",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "HealthCheckResponse",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ReportFormat",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DownloadParams",
+        "from": "src\\types\\sustain-write.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniBase",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OmniConstants",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OmniBaseUtils",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniMemory",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "MemoryId",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "MemoryEntry",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "MemoryMetadata",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniTime",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ScheduleId",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TimeFilter",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ShadowTestResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ScheduledTask",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TimelineSnapshot",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TimeTravelConfig",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TimeTravelSession",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniComponent",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ComponentId",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ComponentInfo",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ComponentType",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ComponentStatus",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "DependencyGraph",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ComponentVersion",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ComponentHealth",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniTag",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TagId",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TagDefinition",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TagFilter",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TagGraph",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TagStatistics",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniEvidence",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvidenceId",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvidenceRecord",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvidenceType",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvidenceVerification",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SealResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvidenceChain",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvidenceBatchResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IntegrityReport",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniAgentV2",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AgentConfig",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "RetryPolicy",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AgentMetrics",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AgentTask",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AgentResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AgentHook",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "BackpressureMetrics",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "FlowMetrics",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniAPI",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "APIEndpoint",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "RateLimitConfig",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "APIRequest",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "APIResponse",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "APIHealth",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EndpointHealth",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "APIMetrics",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "CircuitState",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniBusV2",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SubscriptionId",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "BusHandler",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "BusFilter",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "BusStatistics",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TopicStats",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniGatewayV2",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "LockedEvent",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SecurityPolicy",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniHealing",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ChaosInjectionResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ChaosType",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "HealingResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SystemHealth",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "HealthLevel",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ComponentHealthV2",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SystemIssue",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "RecoveryStrategy",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "RecoveryResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EffectCauseNode",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EffectCauseHealingResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniEvolution",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvolutionEvent",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvolutionType",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvolutionFilter",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "FitnessScore",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "FitnessDimensions",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "OptimizationResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "LearningPattern",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "EvolutionReport",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IChaosHealing",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ChaosHealingResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ITemporalRift",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TemporalRiftSession",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "RiftComparison",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ICellularFission",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "FissionResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IProphetMatrix",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "PredictedIntent",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniscientHive",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "KnowledgeGraph",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IMartialLaw",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "MartialLawStatus",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "RateLimitAction",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IUniversalMemory",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ITaiChiResonance",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ResonanceDecision",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AlignmentResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniConvergence",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SystemSnapshot",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "FullSystemHealth",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SynergyResult",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "TWELVE_OMNI_NAMES",
+        "from": "src\\types\\twelve-omni.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "GAP_UNITS",
+        "from": "shared\\gap-matrix.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "GAP_AGENTS",
+        "from": "shared\\gap-matrix.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "AGENTS_BY_UNIT",
+        "from": "shared\\gap-matrix.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "UNIT_PAIRS",
+        "from": "shared\\gap-matrix.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "GAP_COVERAGE",
+        "from": "shared\\gap-matrix.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IKnowledgeRecord",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IRAGResult",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IARVOPlan",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IAgentProfile",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISkillNode",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IAwakeningResult",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IHITLProposal",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IServiceModule",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IEsgMetric",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IEvidenceRecord",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IMaterialityTopic",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISupplyChainVendor",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IUserProfile",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ICommunityPost",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IVillageMember",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniNote",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IApiResult",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "LanguageCode",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ITranslateRequest",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ITranslateResult",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISpeakPayload",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISseTranslationEvent",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "BilingualPair",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISpeechToSubtitleRequest",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISpeechToSubtitleResult",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOmniTypeMatrix",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "PlayerSourceKind",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IPlayerSource",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IZoomMeeting",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IPlayerState",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISecondBrainNote",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "HiveSide",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ArrayKey",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISoulAgent",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISoulArtifact",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "ISwarmTask",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "SwarmTaskResult",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IOABMessage",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "I5TVerification",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IVideoGenerationTask",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IVideoGenerationResult",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "GapUnitKey",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "GapRole",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "GapHubKind",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IGapAgent",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IGapPairing",
+        "from": "shared\\types.ts",
+        "kind": "decl"
+      },
+      {
+        "name": "IGapMatrixCoverage",
+        "from": "shared\\types.ts",
+        "kind": "decl"
       }
     ]
   },
   "reverse": {
-    "shadowedCount": 0,
-    "shadowed": []
+    "scope": "global",
+    "scannedFileCount": 2147,
+    "shadowedCount": 75,
+    "excluded": {
+      "derivedFiles": 4,
+      "vendorFiles": 1051
+    },
+    "baseline": {
+      "file": "tools/ts-matrix/baseline.json",
+      "total": 75,
+      "newDriftCount": 0,
+      "newDrift": [],
+      "resolvedCount": 0,
+      "resolved": []
+    },
+    "shadowed": [
+      {
+        "type": "Locale",
+        "shadowedIn": "app/i18n/config.ts",
+        "pkg": "app"
+      },
+      {
+        "type": "Dictionary",
+        "shadowedIn": "app/i18n/config.ts",
+        "pkg": "app"
+      },
+      {
+        "type": "TaskStatus",
+        "shadowedIn": "app/omni-center/wuzuo-note-view.tsx",
+        "pkg": "app"
+      },
+      {
+        "type": "TaskStatus",
+        "shadowedIn": "app/sustain-write/v5/types.ts",
+        "pkg": "app"
+      },
+      {
+        "type": "Company",
+        "shadowedIn": "app/sustain-write/v5/types.ts",
+        "pkg": "app"
+      },
+      {
+        "type": "TaskProgress",
+        "shadowedIn": "app/sustain-write/v5/types.ts",
+        "pkg": "app"
+      },
+      {
+        "type": "EvidenceCard",
+        "shadowedIn": "app/sustain-write/v5/types.ts",
+        "pkg": "app"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "apps/omni-blueprint-hub/core-types.ts",
+        "pkg": "apps"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "apps/omni-blueprint-hub/OmniBlueprintHub.ts",
+        "pkg": "apps"
+      },
+      {
+        "type": "MemoryMetadata",
+        "shadowedIn": "apps/omni-factory/lib/memory.ts",
+        "pkg": "apps"
+      },
+      {
+        "type": "SealResult",
+        "shadowedIn": "cli/oa-cli/src/omnitag.ts",
+        "pkg": "cli"
+      },
+      {
+        "type": "AgentConfig",
+        "shadowedIn": "lib/adk/core.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "lib/core/5t-protocol.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "lib/core/omni-kernel.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "TaskStatus",
+        "shadowedIn": "lib/hooks/useTaskSystem.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "TaskStatus",
+        "shadowedIn": "lib/redis/state.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "TaskResult",
+        "shadowedIn": "lib/redis/state.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "EvidenceVerification",
+        "shadowedIn": "lib/schemas/navigation-schema.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "lib/types/esg-core.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "lib/types/oab-types.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "IBusEvent",
+        "shadowedIn": "lib/types/oab-types.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "ITaskSpec",
+        "shadowedIn": "lib/types/oab-types.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "CreateNoteInput",
+        "shadowedIn": "lib/types/omni-note.ts",
+        "pkg": "lib"
+      },
+      {
+        "type": "APIRequest",
+        "shadowedIn": "libs/incremental/src/api-gateway.ts",
+        "pkg": "libs"
+      },
+      {
+        "type": "HiveSide",
+        "shadowedIn": "oa-swarm/src/soul-matrix-60.ts",
+        "pkg": "oa-swarm"
+      },
+      {
+        "type": "ArrayKey",
+        "shadowedIn": "oa-swarm/src/soul-matrix-60.ts",
+        "pkg": "oa-swarm"
+      },
+      {
+        "type": "APIRequest",
+        "shadowedIn": "oa-swarm/src/vendor/incremental/api-gateway.ts",
+        "pkg": "oa-swarm"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "oa-twins/hyper/state.ts",
+        "pkg": "oa-twins"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "omni-blueprint-hub/OmniBlueprintHub.ts",
+        "pkg": "omni-blueprint-hub"
+      },
+      {
+        "type": "ErrorResponse",
+        "shadowedIn": "packages/errors/src/index.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "packages/oa-framework/src/core/types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "TaskResult",
+        "shadowedIn": "packages/omni-agent/src/types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "SystemHealth",
+        "shadowedIn": "packages/omni-agent/src/types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "APIRequest",
+        "shadowedIn": "packages/omni-agent-bus/src/patterns/gateway-types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "APIResponse",
+        "shadowedIn": "packages/omni-agent-bus/src/patterns/gateway-types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "packages/omni-agent-bus/src/types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "BusHandler",
+        "shadowedIn": "packages/omni-agent-bus/src/types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "packages/omni-core/src/index.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "EvolutionReport",
+        "shadowedIn": "packages/omni-db/src/index.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "ComponentHealth",
+        "shadowedIn": "packages/shared/src/health.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "MemoryEntry",
+        "shadowedIn": "packages/shared/src/memory/types.ts",
+        "pkg": "packages"
+      },
+      {
+        "type": "IAwakeningResult",
+        "shadowedIn": "sdks/omni-one/src/types.ts",
+        "pkg": "sdks"
+      },
+      {
+        "type": "HealthLevel",
+        "shadowedIn": "src/agents/complete-delegation/health.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "EffectCauseNode",
+        "shadowedIn": "src/agents/twelve-omni/omni-healing.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "EffectCauseHealingResult",
+        "shadowedIn": "src/agents/twelve-omni/omni-healing.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "ReportChapter",
+        "shadowedIn": "src/core/repositories/types.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "TaskStatus",
+        "shadowedIn": "src/core/services/async-report-engine.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "TaskProgress",
+        "shadowedIn": "src/core/services/async-report-engine.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "TaskStatus",
+        "shadowedIn": "src/core/services/async-task-manager.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "TaskProgress",
+        "shadowedIn": "src/core/services/async-task-manager.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "EvidenceRecord",
+        "shadowedIn": "src/impl/omni-evidence.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "HealingResult",
+        "shadowedIn": "src/impl/omni-helper-modules.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "MemoryEntry",
+        "shadowedIn": "src/impl/omni-memory.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "src/incremental-output/index.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "src/lib/celestial/interfaces.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "EntityType",
+        "shadowedIn": "src/lib/engines/intelligence-modules.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IBusEvent",
+        "shadowedIn": "src/lib/omni-agent-bus.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "ChartDataPoint",
+        "shadowedIn": "src/lib/omni-component/types.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "src/lib/omni-core/contracts.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "LifecycleStage",
+        "shadowedIn": "src/lib/omni-core/contracts.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IBusEvent",
+        "shadowedIn": "src/lib/omni-core/contracts.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IOmniAgent",
+        "shadowedIn": "src/lib/omni-core/contracts.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IOmniAgentBus",
+        "shadowedIn": "src/lib/omni-core/contracts.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IOmniAgentGateway",
+        "shadowedIn": "src/lib/omni-core/contracts.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "src/lib/omni-core/types.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "TaskStatus",
+        "shadowedIn": "src/lib/omni-core/types.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "MemoryEntry",
+        "shadowedIn": "src/lib/omni-core/types.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "src/lib/omni-reports/types.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "SearchResult",
+        "shadowedIn": "src/lib/pgvector.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "ReportChapter",
+        "shadowedIn": "src/lib/sustain-write/omni-tag.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "ChartDataPoint",
+        "shadowedIn": "src/lib/types/esg-charts.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "APIRequest",
+        "shadowedIn": "src/oa-integration/api-gateway.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "APIResponse",
+        "shadowedIn": "src/oa-integration/api-gateway.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "src/oa-integration/types.ts",
+        "pkg": "src"
+      },
+      {
+        "type": "IComponentCore",
+        "shadowedIn": "src/types.ts",
+        "pkg": "src"
+      }
+    ]
   },
   "pass": true,
   "lock": {
-    "sha256": "3702e54fe28e913d4e23d7d6d0a2ce2e823a44a4c326aff7e13d070a173e852a",
+    "sha256": "2047d19baab5c6b46747e62c6ac64d8d014612417f9e18da04e285d2e8502896",
     "algorithm": "sha256",
     "note": "Trustworthy 5T - lock of drift-report.json content"
   }

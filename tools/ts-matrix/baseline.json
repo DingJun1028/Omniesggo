@@ -1,0 +1,383 @@
+{
+  "note": "終始矩陣基線棘輪 — 既有重複定義清單（只減不增）。收斂後執行 `node tools/ts-matrix/verify.mjs --update-baseline` 重寫縮減基線，需人工確認。",
+  "generatedBy": "tools/ts-matrix/verify.mjs",
+  "version": "1.3.0",
+  "total": 75,
+  "entries": [
+    {
+      "type": "AgentConfig",
+      "shadowedIn": "lib/adk/core.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "APIRequest",
+      "shadowedIn": "libs/incremental/src/api-gateway.ts",
+      "pkg": "libs"
+    },
+    {
+      "type": "APIRequest",
+      "shadowedIn": "oa-swarm/src/vendor/incremental/api-gateway.ts",
+      "pkg": "oa-swarm"
+    },
+    {
+      "type": "APIRequest",
+      "shadowedIn": "packages/omni-agent-bus/src/patterns/gateway-types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "APIRequest",
+      "shadowedIn": "src/oa-integration/api-gateway.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "APIResponse",
+      "shadowedIn": "packages/omni-agent-bus/src/patterns/gateway-types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "APIResponse",
+      "shadowedIn": "src/oa-integration/api-gateway.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "ArrayKey",
+      "shadowedIn": "oa-swarm/src/soul-matrix-60.ts",
+      "pkg": "oa-swarm"
+    },
+    {
+      "type": "BusHandler",
+      "shadowedIn": "packages/omni-agent-bus/src/types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "ChartDataPoint",
+      "shadowedIn": "src/lib/omni-component/types.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "ChartDataPoint",
+      "shadowedIn": "src/lib/types/esg-charts.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "Company",
+      "shadowedIn": "app/sustain-write/v5/types.ts",
+      "pkg": "app"
+    },
+    {
+      "type": "ComponentHealth",
+      "shadowedIn": "packages/shared/src/health.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "CreateNoteInput",
+      "shadowedIn": "lib/types/omni-note.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "Dictionary",
+      "shadowedIn": "app/i18n/config.ts",
+      "pkg": "app"
+    },
+    {
+      "type": "EffectCauseHealingResult",
+      "shadowedIn": "src/agents/twelve-omni/omni-healing.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "EffectCauseNode",
+      "shadowedIn": "src/agents/twelve-omni/omni-healing.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "EntityType",
+      "shadowedIn": "src/lib/engines/intelligence-modules.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "ErrorResponse",
+      "shadowedIn": "packages/errors/src/index.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "EvidenceCard",
+      "shadowedIn": "app/sustain-write/v5/types.ts",
+      "pkg": "app"
+    },
+    {
+      "type": "EvidenceRecord",
+      "shadowedIn": "src/impl/omni-evidence.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "EvidenceVerification",
+      "shadowedIn": "lib/schemas/navigation-schema.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "EvolutionReport",
+      "shadowedIn": "packages/omni-db/src/index.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "HealingResult",
+      "shadowedIn": "src/impl/omni-helper-modules.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "HealthLevel",
+      "shadowedIn": "src/agents/complete-delegation/health.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "HiveSide",
+      "shadowedIn": "oa-swarm/src/soul-matrix-60.ts",
+      "pkg": "oa-swarm"
+    },
+    {
+      "type": "IAwakeningResult",
+      "shadowedIn": "sdks/omni-one/src/types.ts",
+      "pkg": "sdks"
+    },
+    {
+      "type": "IBusEvent",
+      "shadowedIn": "lib/types/oab-types.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "IBusEvent",
+      "shadowedIn": "src/lib/omni-agent-bus.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IBusEvent",
+      "shadowedIn": "src/lib/omni-core/contracts.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "apps/omni-blueprint-hub/core-types.ts",
+      "pkg": "apps"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "apps/omni-blueprint-hub/OmniBlueprintHub.ts",
+      "pkg": "apps"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "lib/core/5t-protocol.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "lib/core/omni-kernel.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "lib/types/esg-core.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "lib/types/oab-types.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "oa-twins/hyper/state.ts",
+      "pkg": "oa-twins"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "omni-blueprint-hub/OmniBlueprintHub.ts",
+      "pkg": "omni-blueprint-hub"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "packages/oa-framework/src/core/types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "packages/omni-agent-bus/src/types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "packages/omni-core/src/index.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "src/incremental-output/index.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "src/lib/celestial/interfaces.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "src/lib/omni-core/contracts.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "src/lib/omni-core/types.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "src/lib/omni-reports/types.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "src/oa-integration/types.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IComponentCore",
+      "shadowedIn": "src/types.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IOmniAgent",
+      "shadowedIn": "src/lib/omni-core/contracts.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IOmniAgentBus",
+      "shadowedIn": "src/lib/omni-core/contracts.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "IOmniAgentGateway",
+      "shadowedIn": "src/lib/omni-core/contracts.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "ITaskSpec",
+      "shadowedIn": "lib/types/oab-types.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "LifecycleStage",
+      "shadowedIn": "src/lib/omni-core/contracts.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "Locale",
+      "shadowedIn": "app/i18n/config.ts",
+      "pkg": "app"
+    },
+    {
+      "type": "MemoryEntry",
+      "shadowedIn": "packages/shared/src/memory/types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "MemoryEntry",
+      "shadowedIn": "src/impl/omni-memory.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "MemoryEntry",
+      "shadowedIn": "src/lib/omni-core/types.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "MemoryMetadata",
+      "shadowedIn": "apps/omni-factory/lib/memory.ts",
+      "pkg": "apps"
+    },
+    {
+      "type": "ReportChapter",
+      "shadowedIn": "src/core/repositories/types.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "ReportChapter",
+      "shadowedIn": "src/lib/sustain-write/omni-tag.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "SealResult",
+      "shadowedIn": "cli/oa-cli/src/omnitag.ts",
+      "pkg": "cli"
+    },
+    {
+      "type": "SearchResult",
+      "shadowedIn": "src/lib/pgvector.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "SystemHealth",
+      "shadowedIn": "packages/omni-agent/src/types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "TaskProgress",
+      "shadowedIn": "app/sustain-write/v5/types.ts",
+      "pkg": "app"
+    },
+    {
+      "type": "TaskProgress",
+      "shadowedIn": "src/core/services/async-report-engine.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "TaskProgress",
+      "shadowedIn": "src/core/services/async-task-manager.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "TaskResult",
+      "shadowedIn": "lib/redis/state.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "TaskResult",
+      "shadowedIn": "packages/omni-agent/src/types.ts",
+      "pkg": "packages"
+    },
+    {
+      "type": "TaskStatus",
+      "shadowedIn": "app/omni-center/wuzuo-note-view.tsx",
+      "pkg": "app"
+    },
+    {
+      "type": "TaskStatus",
+      "shadowedIn": "app/sustain-write/v5/types.ts",
+      "pkg": "app"
+    },
+    {
+      "type": "TaskStatus",
+      "shadowedIn": "lib/hooks/useTaskSystem.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "TaskStatus",
+      "shadowedIn": "lib/redis/state.ts",
+      "pkg": "lib"
+    },
+    {
+      "type": "TaskStatus",
+      "shadowedIn": "src/core/services/async-report-engine.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "TaskStatus",
+      "shadowedIn": "src/core/services/async-task-manager.ts",
+      "pkg": "src"
+    },
+    {
+      "type": "TaskStatus",
+      "shadowedIn": "src/lib/omni-core/types.ts",
+      "pkg": "src"
+    }
+  ]
+}
