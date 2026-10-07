@@ -27,6 +27,10 @@ jobs:
     name: Deploy esggo to Vercel (production)
     runs-on: ubuntu-latest
     environment: production
+    # Bounded runtime — a hung job must not occupy the vercel-prod-deploy
+    # concurrency group indefinitely (previous runs stalled for 3h+).
+    # 有界執行時間：卡住的 job 不得長期佔用 vercel-prod-deploy 排程鎖。
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,9 +46,14 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        timeout-minutes: 8
+        run: |
+          echo "[diag] node=$(node -v) pnpm=$(pnpm -v) start=$(date -u +%FT%TZ)"
+          pnpm install --frozen-lockfile
+          echo "[diag] install ok end=$(date -u +%FT%TZ)"
 
       - name: Deploy to Vercel (production)
+        timeout-minutes: 10
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -54,8 +63,12 @@ jobs:
             echo "::warning::VERCEL_TOKEN not configured in this repo/environment; skipping Vercel deploy"
             exit 0
           fi
+          echo "[diag] cli install start=$(date -u +%FT%TZ)"
           npm i -g vercel@latest
-          vercel deploy --prod --yes --archive=tgz --token "$VERCEL_TOKEN"
+          vercel --version
+          echo "[diag] deploy start=$(date -u +%FT%TZ)"
+          vercel deploy --prod --yes --archive=tgz --token "$VERCEL_TOKEN" < /dev/null
+          echo "[diag] deploy done end=$(date -u +%FT%TZ)"
 
       - name: Notify
         if: success()
