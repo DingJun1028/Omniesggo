@@ -11,14 +11,7 @@ export default {
         'ftg-sand': '#f3ede1',
         'ftg-cream': '#f9f7f2',
         'ftg-paper': '#ffffff',
-        'ftg-slate': '#f3ede1',
-        htb: {
-          deepSea: 'var(--htb-deep-sea)',
-          sprout: 'var(--htb-sprout)',
-          charcoal: 'var(--htb-charcoal)',
-          seaweed: 'var(--htb-seaweed)',
-          paper: 'var(--htb-paper)',
-        },
+        'ftg-slate': '#f3ede1'
       },
       fontFamily: {
         sans: ['Noto Sans TC', 'system-ui', 'sans-serif'],
