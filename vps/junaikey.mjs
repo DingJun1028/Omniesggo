@@ -202,6 +202,39 @@ const ncbBackend = {
     return body;
   },
 
+  // NCB (MySQL) 期望 DATETIME 格式 'YYYY-MM-DD HH:MM:SS',非 ISO 8601
+  // 同時遞迴處理巢狀物件/陣列,確保所有 datetime 欄位都轉好
+  _toNCB(obj) {
+    if (obj == null) return obj;
+    if (Array.isArray(obj)) return obj.map(v => this._toNCB(v));
+    if (typeof obj === 'string') {
+      // 看起來像 ISO 8601 的就轉
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(obj)) {
+        return obj.replace('T', ' ').replace(/\.\d+Z?$/, '').replace(/Z$/, '');
+      }
+      return obj;
+    }
+    if (typeof obj === 'object') {
+      const out = {};
+      for (const [k, v] of Object.entries(obj)) out[k] = this._toNCB(v);
+      return out;
+    }
+    return obj;
+  },
+
+  // NCB 把 JSON 欄位回傳成 string (e.g. '["永恆","被動"]'),需 parse
+  _parseJSONField(v) {
+    if (v == null) return v;
+    if (Array.isArray(v) || typeof v === 'object') return v;
+    if (typeof v === 'string') {
+      const s = v.trim();
+      if ((s.startsWith('[') && s.endsWith(']')) || (s.startsWith('{') && s.endsWith('}'))) {
+        try { return JSON.parse(s); } catch { return v; }
+      }
+    }
+    return v;
+  },
+
   async _listAll(table, { page = 1, limit = 500 } = {}) {
     const all = [];
     let p = page;
@@ -217,7 +250,7 @@ const ncbBackend = {
   },
 
   async _insert(table, doc) {
-    const r = await this._req(`/create/${table}`, { method: 'POST', body: JSON.stringify(doc) });
+    const r = await this._req(`/create/${table}`, { method: 'POST', body: JSON.stringify(this._toNCB(doc)) });
     return r.data;
   },
 
@@ -227,7 +260,7 @@ const ncbBackend = {
     const out = [];
     for (let i = 0; i < docs.length; i += 500) {
       const chunk = docs.slice(i, i + 500);
-      const r = await this._req(`/bulk/create/${table}`, { method: 'POST', body: JSON.stringify({ records: chunk }) });
+      const r = await this._req(`/bulk/create/${table}`, { method: 'POST', body: JSON.stringify({ records: this._toNCB(chunk) }) });
       out.push(...(Array.isArray(r.data) ? r.data : [r.data]));
     }
     return out;
@@ -238,7 +271,7 @@ const ncbBackend = {
   },
 
   async _updateById(table, id, fields) {
-    return await this._req(`/update/${table}/${id}`, { method: 'PUT', body: JSON.stringify(fields) });
+    return await this._req(`/update/${table}/${id}`, { method: 'PUT', body: JSON.stringify(this._toNCB(fields)) });
   },
 
   async _deleteAll(table) {
@@ -272,13 +305,16 @@ const ncbBackend = {
     let rows;
     try { rows = await this._listAll(NCB_TABLES.skills); }
     catch (e) { if (e.message.includes("doesn't exist")) return []; throw e; }
-    return rows.map(r => ({
-      name: r.name,
-      body: r.body || '',
-      traits: Array.isArray(r.traits) ? r.traits.filter(t => SKILL_TRAITS.includes(t)) : [],
-      updatedAt: r.updatedAt || r.createdAt,
-      _ncbId: r.id,
-    })).filter(s => s.name);
+    return rows.map(r => {
+      const traits = this._parseJSONField(r.traits);
+      return {
+        name: r.name,
+        body: r.body || '',
+        traits: Array.isArray(traits) ? traits.filter(t => SKILL_TRAITS.includes(t)) : [],
+        updatedAt: r.updatedat || r.updatedAt || r.createdAt,
+        _ncbId: r.id,
+      };
+    }).filter(s => s.name);
   },
 
   async writeSkills(skills) {
@@ -298,6 +334,9 @@ const ncbBackend = {
     catch (e) { if (e.message.includes("doesn't exist")) return []; throw e; }
     const entries = rows.map(r => {
       const { id, createdAt, ...rest } = r;
+      // NCB 回傳的 JSON 欄位是 string,需 parse
+      if (rest.tags) rest.tags = this._parseJSONField(rest.tags);
+      if (rest.grownSkills) rest.grownSkills = this._parseJSONField(rest.grownSkills);
       return { ts: r.ts || createdAt || new Date().toISOString(), ...rest };
     });
     return _filterEntries(entries, filter);
@@ -505,8 +544,11 @@ async function awaken({ silent = false } = {}) {
     progress,
     mantra: MANTRA,
   };
-  await be.appendMemory({ event: 'awaken', skillsCount: skills.length, memories: recent.length, backend: be.name });
-  await _journal({ kind: 'awaken', skills: skills.length, memories: recent.length, backend: be.name });
+  // 寫 audit 事件:失敗僅警告,不拋出 (避免部分 table 缺欄位導致整個 awaken 失敗)
+  try { await be.appendMemory({ event: 'awaken', skillsCount: skills.length, memories: recent.length, backend: be.name, ts: new Date().toISOString() }); }
+  catch (e) { if (!silent) console.warn(`[JunAikey] memory audit write skipped: ${e.message.slice(0, 100)}`); }
+  try { await _journal({ kind: 'awaken', skills: skills.length, memories: recent.length, backend: be.name }); }
+  catch { /* journal best-effort */ }
   _skillsCache = skills;
   if (!silent) {
     console.log(`[JunAikey] awakened @ ${result.awakenedAt}`);
