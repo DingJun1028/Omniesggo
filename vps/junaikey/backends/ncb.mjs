@@ -62,6 +62,16 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
     return all;
   }
 
+  // 帶 retry 讀取 (NCB V2 寫入後讀寫延遲 1-5s)
+  async function _listAllWithRetry(table, opts = {}) {
+    const maxRetries = opts.maxRetries || 4;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const rows = await _listAll(table, opts);
+      if (rows.length > 0 || attempt === maxRetries - 1) return rows;
+      await new Promise(r => setTimeout(r, 500 * (attempt + 1)));
+    }
+  }
+
   async function _bulkCreate(table, docs) {
     if (!docs.length) return [];
     const out = [];
@@ -115,14 +125,15 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
 
     async readSkills() {
       let rows;
-      try { rows = await _listAll(tables.skills); }
+      try { rows = await _listAllWithRetry(tables.skills); }
       catch (e) { if (e.message.includes("doesn't exist")) return []; throw e; }
       return rows.map(r => {
         const traits = parseJSONField(r.traits);
         return {
           name: r.name,
           body: r.body || '',
-          traits: Array.isArray(traits) ? traits.filter(t => SKILL_TRAITS.includes(t)) : [],
+          // 保留所有 traits (含 OmniTag 與 6 大 trait,不再過濾)
+          traits: Array.isArray(traits) ? traits : [],
           updatedAt: r.updatedat || r.updatedAt || r.createdAt,
           _ncbId: r.id,
         };
@@ -188,7 +199,7 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
         const { id, createdAt, ...rest } = r;
         if (rest.tags) rest.tags = parseJSONField(rest.tags);
         if (rest.grownSkills) rest.grownSkills = parseJSONField(rest.grownSkills);
-        return { ts: r.ts || createdAt || new Date().toISOString(), ...rest };
+        return { ts: r.ts || createdAt || new Date().toISOString(), _ncbId: r.id, ...rest };
       });
       return filterEntries(entries, filter);
     },
@@ -200,6 +211,24 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
     async appendMemory(entry) {
       try { return await _req(`/create/${tables.memory}`, { method: 'POST', body: JSON.stringify(toNCBPayload(entry)) }); }
       catch (e) { if (e.message.includes("doesn't exist")) return null; throw e; }
+    },
+
+    async tagMemories(filter, newTags) {
+      // NCB 無 PATCH 端點;用 listAll + update each
+      const all = await this.readMemory({ ...filter, limit: undefined });
+      if (!all.length) return 0;
+      let tagged = 0;
+      for (const e of all) {
+        const existing = Array.isArray(e.tags) ? e.tags : [];
+        const merged = [...new Set([...existing, ...newTags])];
+        if (merged.length > existing.length && e._ncbId) {
+          try {
+            await _req(`/update/${tables.memory}/${e._ncbId}`, { method: 'PUT', body: JSON.stringify({ tags: merged }) });
+            tagged++;
+          } catch {}
+        }
+      }
+      return tagged;
     },
 
     async pruneMemory({ before, maxRecords, keepEvent = null } = {}) {

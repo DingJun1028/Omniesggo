@@ -68,7 +68,7 @@ const JunAikey = {
 };
 
 // Re-export operations 給 import
-const { awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills, remember, recall, searchMemory, pruneMemory, setProgress, getProgress, reflect } = ops;
+const { awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills, remember, recall, searchMemory, pruneMemory, setProgress, getProgress, reflect, tagSkill, untagSkill, tagMemories, listTags, findByTag, validateTag, checkTagConflicts } = ops;
 
 export {
   JunAikey, JUNAKEY_HOME, JUNAKEY_BACKEND, PATHS,
@@ -77,6 +77,7 @@ export {
   awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills,
   remember, recall, searchMemory, pruneMemory,
   setProgress, getProgress, reflect,
+  tagSkill, untagSkill, tagMemories, listTags, findByTag, validateTag, checkTagConflicts,
 };
 export default JunAikey;
 
@@ -96,6 +97,12 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
   node vps/junaikey.mjs get-progress
   node vps/junaikey.mjs reflect "<summary>" [--learn=name1,name2]
   node vps/junaikey.mjs prune [--max=1000] [--before=2026-10-01] [--keep-event=awaken]
+  node vps/junaikey.mjs tag <skill-name> <tag1,tag2,...>      # OmniTag 加到 skill
+  node vps/junaikey.mjs untag <skill-name> <tag>               # 移除 skill tag
+  node vps/junaikey.mjs tag-mem [--event=X] <tag1,tag2,...>    # 批次加 tag 到 memories
+  node vps/junaikey.mjs tags [--type=skills|memory|all] [--query=PATTERN]  # 列出所有 tags
+  node vps/junaikey.mjs find <tag>                             # 找帶此 tag 的 items
+  node vps/junaikey.mjs validate-tag <tag>                     # 驗證 OmniTag 格式
   node vps/junaikey.mjs home
   node vps/junaikey.mjs backend
   node vps/junaikey.mjs doctor`;
@@ -217,6 +224,61 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         out.backends.ncb = (await ncbBackend.health?.()) ? 'healthy' : `unhealthy (${ncbBackend.lastError || 'no token'})`;
         out.activeBackend = (await dispatcher.select()).name;
         console.log(JSON.stringify(out, null, 2));
+        break;
+      }
+      case 'tag': {
+        const name = rest[0];
+        const tags = rest.slice(1).join('').split(',').map(t => t.trim()).filter(Boolean);
+        if (!name || !tags.length) { console.log(usage); process.exit(1); }
+        // 衝突檢查
+        const conflicts = ops.checkTagConflicts(tags);
+        if (conflicts.length > 0) {
+          console.log('⚠️ tag 衝突:');
+          for (const c of conflicts) console.log(`  ${c.tags.join(' + ')} → ${c.reason}`);
+        }
+        const rec = await ops.tagSkill(name, tags);
+        console.log(rec ? `✓ ${name} 標籤: ${rec.traits.join(', ')}` : `✗ skill "${name}" not found`);
+        break;
+      }
+      case 'untag': {
+        const name = rest[0];
+        const tag = rest[1];
+        if (!name || !tag) { console.log(usage); process.exit(1); }
+        const ok = await ops.untagSkill(name, tag);
+        console.log(ok ? `✓ ${name} 移除 ${tag}` : `✗ ${name} 沒有此 tag 或不存在`);
+        break;
+      }
+      case 'tag-mem': {
+        const ti = rest.findIndex(a => a.startsWith('--event='));
+        const event = ti >= 0 ? rest[ti].slice(8) : null;
+        const tags = rest.filter((_, i) => i !== ti).join('').split(',').map(t => t.trim()).filter(Boolean);
+        if (!tags.length) { console.log(usage); process.exit(1); }
+        const filter = event ? { event } : {};
+        const n = await ops.tagMemories(filter, tags);
+        console.log(`✓ tagged ${n} memory(ies) with [${tags.join(', ')}]`);
+        break;
+      }
+      case 'tags': {
+        const opts = {};
+        for (const a of rest) {
+          if (a.startsWith('--type=')) opts.type = a.slice(7);
+          else if (a.startsWith('--query=')) opts.query = a.slice(8);
+        }
+        const list = await ops.listTags(opts);
+        console.log(JSON.stringify(list, null, 2));
+        break;
+      }
+      case 'find': {
+        const tag = rest[0];
+        if (!tag) { console.log(usage); process.exit(1); }
+        const r = await ops.findByTag(tag);
+        console.log(JSON.stringify(r, null, 2));
+        break;
+      }
+      case 'validate-tag': {
+        const tag = rest[0];
+        if (!tag) { console.log(usage); process.exit(1); }
+        console.log(JSON.stringify(ops.validateTag(tag), null, 2));
         break;
       }
       default: console.log(usage); process.exit(cmd ? 1 : 0);

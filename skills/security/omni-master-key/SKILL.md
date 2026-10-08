@@ -494,22 +494,24 @@ node vps/junaikey.mjs backend     # 顯示當前選定的 backend
 node vps/junaikey.mjs doctor      # 環境 + 兩後端健康診斷
 ```
 
-### 模組結構 (v2 重構)
+### 模組結構 (v3 重構 + OmniTag)
 
 ```
 vps/
-├── junaikey.mjs                (227 行)  ← 主入口 + CLI
+├── junaikey.mjs                (240+ 行)  ← 主入口 + CLI
 └── junaikey/
     ├── schema.mjs              (16)   常數、MANTRA、traits、NCB_TABLES
     ├── util.mjs                (74)   isoToMysql、toNCBPayload、parseJSONField、filterEntries、withRetry
+    ├── tags.mjs                (~150) OmniTag: parse/validate/conflict/wildcard/aggregate
     ├── dispatcher.mjs          (31)   後端選擇 (auto/ncb/local)
-    ├── operations.mjs          (174)  公開 API: awaken/grow/recall/reflect/forget/prune/search
+    ├── operations.mjs          (~230) 公開 API: awaken/grow/recall/reflect/forget/prune/search + tag*
     └── backends/
         ├── local.mjs           (126)  filesystem backend
-        └── ncb.mjs             (274)  NCB V2 backend (/create|read|search|update|delete|bulk)
+        └── ncb.mjs             (~290) NCB V2 backend (含 retry 處理 1-5s 寫入延遲)
 tests/
-├── junaikey.test.mjs           (191)  10 個測試 (零依賴)
-└── junaikey.bench.mjs          (72)   效能基準
+├── junaikey.test.mjs           (191)  10 個測試
+├── junaikey.bench.mjs          (72)   效能基準
+└── omnitag.test.mjs            (~200) 19 個 OmniTag 測試
 ```
 
 ### 完整 API 參考 (Public API)
@@ -517,18 +519,25 @@ tests/
 | 函式 | 簽名 | 用途 | 對應 NCB 端點 |
 |---|---|---|---|
 | `awaken({silent})` | `→ {backend, skillsCount, recentMemories, progress}` | 被動載入 + 寫 audit | append + read all |
-| `loadSkills({bypassCache})` | `→ Skill[]` | 讀技能 (cache 預設) | read skills |
+| `loadSkills({bypassCache})` | `→ Skill[]` | 讀技能 (cache 預設) | read skills (with retry) |
 | `growSkill(name, body, traits)` | `→ Skill` | 新增/更新技能 | replace-all + bulk |
 | `recallSkill(name)` | `→ Skill \| null` | 查單一技能 | client filter |
-| `forgetSkill(name)` | `→ boolean` | **刪除技能** | delete by id |
-| `dedupSkills()` | `→ number` | **去除同名重複** | selective delete |
+| `forgetSkill(name)` | `→ boolean` | 刪除技能 | delete by id |
+| `dedupSkills()` | `→ number` | 去除同名重複 | selective delete |
 | `remember(event)` | `→ Entry` | 寫共享記憶 | create memory |
 | `recall(filter)` | `→ Entry[]` | 讀記憶 (server-side filter if event/tag/since/until) | search if filter else read all |
-| `searchMemory(filter)` | `→ Entry[]` | **明確走 NCB /search** | search |
-| `pruneMemory({maxRecords, before, keepEvent})` | `→ number` | **刪除舊記憶** | selective delete |
+| `searchMemory(filter)` | `→ Entry[]` | 明確走 NCB /search | search |
+| `pruneMemory({maxRecords, before, keepEvent})` | `→ number` | 刪除舊記憶 | selective delete |
 | `setProgress(active, notes)` | `→ Progress` | 寫當前進度 (取代式) | replace progress |
 | `getProgress()` | `→ string \| null` | 讀當前進度 (markdown) | read last |
 | `reflect(summary, learnings, tags)` | `→ Entry` | 閉環:grow 技能 + 寫反思 | create + grow |
+| `tagSkill(name, tags[])` | `→ Skill \| null` | **OmniTag:加 tag 到 skill (合併)** | replace-all + bulk |
+| `untagSkill(name, tag)` | `→ boolean` | **OmniTag:移除 skill 的 tag** | replace-all + bulk |
+| `tagMemories(filter, tags[])` | `→ number` | **OmniTag:批次加 tag 到 memory** | listAll + update each |
+| `listTags({type, query})` | `→ [{tag, count, items}]` | **列出所有 tag + 計數** | read all + aggregate |
+| `findByTag(tag)` | `→ {skills[], memory[]}` | **查帶某 tag 的 items (支援 wildcard)** | read all + filter |
+| `validateTag(tag)` | `→ {valid, parsed, reason}` | 驗證 OmniTag 格式 | — |
+| `checkTagConflicts(tags[])` | `→ Conflict[]` | 檢查 tags 衝突 (含預定義規則) | — |
 
 **Filter 選項** (recall/searchMemory): `{event?, tag?, since?, until?, contains?, limit?}`
 - `event`, `tag`, `since`, `until` 走 **server-side** (NCB /search WHERE clause)
@@ -563,6 +572,69 @@ tests/
 4. **swap 8GB**: `fallocate -l 8G /swapfile` + fstab
 5. **sysctl 網路優化**: `somaxconn=65535`, `tcp_tw_reuse=1`, `swappiness=10`
 6. **logrotate 7 天**: nginx/syslog 7 天保留
+
+### OmniTag 整合 (萬能標籤)
+
+整合 `~/.opencode/skills/omnitag/SKILL.md` 6 維標籤系統 (MECE):
+- **security**: public / internal / confidential / restricted
+- **agent**: 01-30
+- **squad**: 智庫聖所 / 符文契約 / 光之羽翼 / 煉金熵減 / 5T驗算
+- **lifecycle**: draft / active / frozen / archived
+- **priority**: p0 / p1 / p2 / p3
+- **platform**: esggo / omni / vps / ncb / hermes / cloudflare
+- **best-practice**: awakened / 結界 / draft
+
+格式: `[key:value]`,例:`security:internal` / `agent:13` / `lifecycle:active`
+
+**OmniTag CLI**:
+```bash
+node vps/junaikey.mjs tag <skill-name> <tag1,tag2,...>      # 加 (合併,去重)
+node vps/junaikey.mjs untag <skill-name> <tag>               # 移除
+node vps/junaikey.mjs tag-mem [--event=X] <tag1,...>         # 批次加到 memories
+node vps/junaikey.mjs tags [--type=skills|memory|all] [--query=PATTERN]  # 列出所有 tags + 計數
+node vps/junaikey.mjs find <tag>                             # 找帶此 tag (支援 wildcard e.g. agent:1*)
+node vps/junaikey.mjs validate-tag <tag>                     # 驗證格式
+```
+
+**OmniTag 模組用法** (ESM):
+```javascript
+import JunAikey from 'C:/Project/esggo/vps/junaikey.mjs';
+
+// 加 tag 到 skill
+await JunAikey.tagSkill('oracle-bv', ['agent:13', 'platform:vps', 'lifecycle:active']);
+
+// 查帶特定 tag 的 items
+const found = await JunAikey.findByTag('agent:1*');
+// → { skills: [{name, matchedTags}], memory: [{ts, event, summary, matchedTags}] }
+
+// 列出所有 tag + 計數
+const tags = await JunAikey.listTags({ type: 'all' });
+// → [{tag: 'agent:13', count: 5, items: [...]}, ...]
+
+// 批次標記 memory
+const n = await JunAikey.tagMemories({ event: 'awaken' }, ['agent:13', 'ncb:audit']);
+
+// 衝突檢查
+const conflicts = JunAikey.checkTagConflicts(['security:public', 'security:restricted']);
+// → [{tags: [...], reason: '...'}]
+```
+
+**OmniTag 路由優先級** (高到低):
+1. security:restricted (最高,加密通道)
+2. best-practice:結界 (覺醒自動繼承)
+3. priority:p0 (緊急)
+4. agent:* (代理歸屬)
+5. squad:* (群組)
+6. platform:* (平台)
+7. lifecycle:* (狀態)
+
+**OmniTag 衝突規則** (自動檢查):
+- `security:public + security:restricted` → 安全矛盾
+- `p0 + p3` → 優先級衝突
+- `lifecycle:frozen + lifecycle:active` → 狀態衝突
+- `best-practice:awakened + lifecycle:draft` → 覺醒不可為草稿
+
+**NCB V2 已知問題**: 寫入後讀寫延遲 1-5 秒。`ncbBackend` 自動 retry 讀取 (預設 4 次,backoff 500/1000/1500/2000ms) 確保資料可見。
 
 
 

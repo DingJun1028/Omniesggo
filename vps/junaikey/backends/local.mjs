@@ -27,8 +27,9 @@ export function createLocalBackend(JUNAKEY_HOME, PATHS) {
         const body = p.slice(nl + 1).replace(/\n+$/g, '').trim();
         const tm = head.match(/\[(.+?)\]\s*$/);
         const name = tm ? head.slice(0, tm.index).trim() : head;
+        // 保留所有 traits (含 OmniTag 與 6 大 trait,不再過濾)
         const traits = tm
-          ? tm[1].split('|').map(t => t.trim()).filter(t => SKILL_TRAITS.includes(t))
+          ? tm[1].split('|').map(t => t.trim()).filter(Boolean)
           : [];
         if (name) skills.push({ name, traits, body, updatedAt: null });
       }
@@ -81,6 +82,30 @@ export function createLocalBackend(JUNAKEY_HOME, PATHS) {
       await this.init();
       await fs.appendFile(PATHS.memory, JSON.stringify(entry) + '\n', 'utf8');
       return entry;
+    },
+
+    async tagMemories(filter, newTags) {
+      const all = await this.readMemory();
+      const tagged = [];
+      const updated = all.map(e => {
+        const match = Object.entries(filter).every(([k, v]) => {
+          if (k === 'tag') return Array.isArray(e.tags) && e.tags.includes(v);
+          if (k === 'contains') return JSON.stringify(e).includes(v);
+          return e[k] === v;
+        });
+        if (!match) return e;
+        const existing = Array.isArray(e.tags) ? e.tags : [];
+        const merged = [...new Set([...existing, ...newTags])];
+        if (merged.length > existing.length) {
+          tagged.push(e);
+          return { ...e, tags: merged };
+        }
+        return e;
+      });
+      if (tagged.length === 0) return 0;
+      await this.init();
+      await fs.writeFile(PATHS.memory, updated.map(e => JSON.stringify(e)).join('\n') + '\n', 'utf8');
+      return tagged.length;
     },
 
     async pruneMemory({ before, maxRecords, keepEvent = null } = {}) {
