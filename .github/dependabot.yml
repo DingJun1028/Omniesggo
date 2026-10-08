@@ -14,6 +14,15 @@ updates:
       - "dependencies"
     commit-message:
       prefix: "deps"
+    # prisma 6→7 為破壞性升級（P1012：schema datasource url 改移入 prisma.config.ts、
+    # PrismaClient 需改傳 adapter/accelerateUrl、@prisma/client 需同步升 7.x）。
+    # 未完成遷移前不自動開 major PR，避免 CI 每週固定紅燈。
+    # source_origin: Cloudflare Workers Builds prisma 7 失敗 build（postinstall P1012）
+    ignore:
+      - dependency-name: "prisma"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@prisma/client"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "docker"
     directory: "/vps"
