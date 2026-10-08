@@ -373,9 +373,10 @@ const ncbBackend = {
   },
 
   async writeProgress(content) {
-    const active = (content.match(/##\s*Active\s*\n+([\s\S]*?)(?=\n##|\Z)/) || [])[1]?.trim() || '';
-    const notes = (content.match(/##\s*Notes\s*\n+([\s\S]*?)(?=\n##|\Z)/) || [])[1]?.trim() || '';
-    const payload = { active, notes, updatedAt: new Date().toISOString() };
+    // 解析 Active / Notes 區塊 (注意: JS regex 沒有 \Z,用 [\s\S]*? 消極 lazy 配 lookahead)
+    const active = (content.match(/##\s*Active\s*\n+([\s\S]*?)(?=\n##\s|\s*$)/) || [])[1]?.trim() || '';
+    const notes = (content.match(/##\s*Notes\s*\n+([\s\S]*?)(?=\n##\s|\s*$)/) || [])[1]?.trim() || '';
+    const payload = { active, notes, updatedat: new Date().toISOString() };
     let rows;
     try { rows = await this._listAll(NCB_TABLES.progress); }
     catch (e) { if (e.message.includes("doesn't exist")) rows = []; else throw e; }
