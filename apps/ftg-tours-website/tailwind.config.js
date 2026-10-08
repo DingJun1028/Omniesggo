@@ -5,10 +5,13 @@ export default {
     extend: {
       colors: {
         'ftg-forest': '#10243f',
+        'ftg-deep-sea': '#3B72B9',
         'ftg-green': '#3c6e47',
         'ftg-orange': '#c9a24b',
         'ftg-sand': '#f3ede1',
         'ftg-cream': '#f9f7f2',
+        'ftg-paper': '#ffffff',
+        'ftg-slate': '#f3ede1',
         htb: {
           deepSea: 'var(--htb-deep-sea)',
           sprout: 'var(--htb-sprout)',

@@ -1,22 +1,24 @@
 import { Link } from 'react-router-dom';
+import FTGIcon from '../components/FTGIcon';
 import ContactSection from '../components/ContactSection';
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-ftg-forest via-ftg-forest/90 to-ftg-green/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ftg-cream via-ftg-sand to-ftg-white" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,36,63,0.06),transparent_60%)]" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <span className="section-label bg-white/10 border-white/20 text-gray-200 mb-4">ESG Outdoor Wellbeing Travel</span>
-          <h1 className="section-title text-white mt-4 mb-6">墾趣旅遊 FTG TOURS</h1>
-          <p className="section-subtitle text-gray-300 max-w-2xl">
+          <span className="section-label bg-ftg-forest text-white px-3 py-1 rounded-full text-xs font-medium tracking-wide uppercase border border-ftg-forest/20 mb-4">ESG Outdoor Wellbeing Travel</span>
+          <h1 className="section-title text-ftg-forest mt-4 mb-6">墾趣旅遊 FTG TOURS</h1>
+          <p className="section-subtitle text-ftg-forest/80 max-w-2xl">
             結合戶外導覽、旅行服務與在地連結，為企業設計兼顧員工身心健康、團隊連結、環境友善與地方價值的旅程。
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <a href="/corporate-travel" className="px-8 py-3 rounded-full font-semibold bg-ftg-orange text-white hover:bg-orange-600 transition-all shadow-lg">
               企業方案 →
             </a>
-            <a href="/wellbeing-retreat" className="px-8 py-3 rounded-full font-semibold bg-white/10 border border-white/30 text-white hover:bg-white/20 transition-all">
+            <a href="/wellbeing-retreat" className="px-8 py-3 rounded-full font-semibold bg-ftg-forest/10 text-ftg-forest border border-ftg-forest/20 hover:bg-ftg-forest/20 transition-all">
               身心平衡
             </a>
           </div>
@@ -32,15 +34,17 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { path: '/corporate-travel', icon: '✈️', title: '企業員工旅遊', desc: '客製化員工旅遊，凝聚團隊與永續行動' },
-              { path: '/family-day', icon: '👨‍👩‍👧', title: '企業家庭日', desc: '親子共融的戶外健康家庭日活動' },
-              { path: '/esg-team-day', icon: '🌱', title: 'ESG Outdoor Team Day', desc: '結合環境與社會共益的戶外團隊日' },
-              { path: '/wellbeing-retreat', icon: '🧘', title: '員工身心平衡', desc: '森林療癒、正念練習、數位排毒' },
-              { path: '/executive-retreat', icon: '🎯', title: '高階主管共識營', desc: '共識建立與策略 retreat' },
-              { path: '/esg-impact-note', icon: '📊', title: 'ESG Impact Note', desc: '活動成果報告與永續揭露' },
+              { path: '/corporate-travel', icon: 'plane', title: '企業員工旅遊', desc: '客製化員工旅遊，凝聚團隊與永續行動' },
+              { path: '/family-day', icon: 'users', title: '企業家庭日', desc: '親子共融的戶外健康家庭日活動' },
+              { path: '/esg-team-day', icon: 'leaf', title: 'ESG Outdoor Team Day', desc: '結合環境與社會共益的戶外團隊日' },
+              { path: '/wellbeing-retreat', icon: 'smile', title: '員工身心平衡', desc: '森林療癒、正念練習、數位排毒' },
+              { path: '/executive-retreat', icon: 'compass', title: '高階主管共識營', desc: '共識建立與策略 retreat' },
+              { path: '/esg-impact-note', icon: 'clipboard', title: 'ESG Impact Note', desc: '活動成果報告與永續揭露' },
             ].map((s, i) => (
               <Link key={i} to={s.path} className="card-elevated group hover:border-ftg-orange/30 transition-all">
-                <div className="text-4xl mb-4">{s.icon}</div>
+                <div className="text-4xl mb-4">
+                  <FTGIcon name={s.icon} size={28} className="text-ftg-forest/70" />
+                </div>
                 <h3 className="text-lg font-bold text-ftg-forest mb-2 group-hover:text-ftg-orange transition-colors">{s.title}</h3>
                 <p className="text-sm text-gray-600">{s.desc}</p>
                 <span className="inline-block mt-4 text-sm text-ftg-orange font-medium">了解更多 →</span>

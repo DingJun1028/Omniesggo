@@ -28,42 +28,38 @@ export default function Navbar() {
   const location = useLocation();
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-ftg-forest text-lg">
-            <span className="inline-block w-8 h-8 rounded-full bg-ftg-forest text-white flex items-center justify-center text-sm font-bold shadow">FTG</span>
-            <span className="hidden sm:inline">FTG TOURS</span>
-          </Link>
+    <nav className="sticky top-0 z-50 bg-ftg-paper border-b border-ftg-sand shadow-sm">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex items-center justify-between h-16">
+        {/* Brand */}
+        <Link to="/" className="flex items-center gap-2 font-bold text-ftg-forest text-lg">
+          <span className="inline-block w-8 h-8 rounded-full bg-ftg-orange text-white flex items-center justify-center text-sm font-bold shadow-sm">FTG</span>
+          <span className="hidden sm:inline">FTG TOURS</span>
+        </Link>
 
-          {/* Desktop links */}
-          <div className="hidden md:flex items-center gap-1">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                `px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive ? 'text-ftg-forest' : 'text-gray-600 hover:text-ftg-forest'
-                }`
-              }
-            >
-              首頁
-            </NavLink>
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-1">
+          <NavLink
+            to="/"
+            end
+            className={({ isActive }) =>
+              `px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive ? 'text-ftg-forest' : 'text-ftg-forest/70 hover:text-ftg-forest'}`
+            }
+          >
+            首頁
+          </NavLink>
 
-            {/* 企業方案 dropdown */}
-            <div
-              className="relative"
-              onMouseEnter={() => setDropdownOpen(true)}
-              onMouseLeave={() => setDropdownOpen(false)}
+          {/* 企業方案 dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setDropdownOpen(true)}
+            onMouseLeave={() => setDropdownOpen(false)}
+          >
+            <button
+              type="button"
+              className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1 transition-colors ${dropdownOpen ? 'text-ftg-forest' : 'text-ftg-forest/70 hover:text-ftg-forest'}`}
+              aria-expanded={dropdownOpen}
             >
-              <button
-                type="button"
-                className={`px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1 transition-colors ${
-                  dropdownOpen ? 'text-ftg-forest' : 'text-gray-600 hover:text-ftg-forest'
-                }`}
-                aria-expanded={dropdownOpen}
-              >
                 企業方案
                 <svg className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -174,7 +170,7 @@ export default function Navbar() {
               href="https://journey.ftgtours.esggo.co"
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-center px-5 py-3 rounded-full text-sm font-semibold bg-ftg-orange text-white hover:bg-orange-600 transition-all shadow"
+              className="block text-center px-5 py-3 rounded-full text-sm font-semibold bg-ftg-orange text-white hover:bg-orange-600 transition-all shadow-sm"
             >
               探索方案 →
             </a>

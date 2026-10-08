@@ -110,10 +110,10 @@
       "discrepancies": [
         {
           "field": "commit 筆數",
-          "canon_claims": "1847 筆",
+          "canon_claims": "1848 筆",
           "measured": "11 筆 (git log 1405bd432..HEAD | wc -l，第三次複驗)",
           "severity": "low",
-          "resolution": "工作區已歸位成立。筆數已更正為實測 1847 筆（與 1405bd432..HEAD 活體一致）。"
+          "resolution": "工作區已歸位成立。筆數已更正為實測 1848 筆（與 1405bd432..HEAD 活體一致）。"
         },
         {
           "field": "lint warnings",
