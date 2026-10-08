@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { IconMenu, IconClose } from './HtbIcons';
 
 const links = [
   { href: '#/', label: '首頁' },
@@ -24,9 +25,9 @@ export default function HtbNavbar() {
         <button
           aria-label="menu"
           onClick={() => setOpen((prev) => !prev)}
-          className="w-[34px] h-[34px] grid place-items-center border border-gray-200 rounded-lg bg-white"
+          className="w-[34px] h-[34px] grid place-items-center border border-gray-200 rounded-lg bg-white text-htb-charcoal"
         >
-          ☰
+          {open ? <IconClose /> : <IconMenu />}
         </button>
       </div>
 

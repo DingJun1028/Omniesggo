@@ -5,6 +5,8 @@ import HtbFooter from '../components/htb/HtbFooter';
 export default function HtbInvestor() {
   return (
     <HtbPageLayout>
+      <section className="bg-white">
+        <div className="mx-auto max-w-[480px] px-4 py-6">
       <HtbSectionHeader
         title="投資人專區"
         description="聚焦可驗證減碳路徑、科研進度與國際鏈結進展。"
@@ -28,6 +30,8 @@ export default function HtbInvestor() {
           聯繫投資人關係
         </a>
       </div>
+        </div>
+      </section>
       <HtbFooter />
     </HtbPageLayout>
   );

@@ -5,6 +5,8 @@ import HtbFooter from '../components/htb/HtbFooter';
 export default function HtbCases() {
   return (
     <HtbPageLayout>
+      <section className="bg-white">
+        <div className="mx-auto max-w-[480px] px-4 py-6">
       <HtbSectionHeader
         title="案例與實績"
         description="從牧場到碳權，從實驗到國際鏈結，紀錄高科生技的可驗證減碳路徑。"
@@ -33,6 +35,8 @@ export default function HtbCases() {
           </div>
         </div>
       </div>
+        </div>
+      </section>
       <HtbFooter />
     </HtbPageLayout>
   );

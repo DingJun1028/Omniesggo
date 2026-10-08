@@ -23,6 +23,8 @@ export default function HtbNews() {
 
   return (
     <HtbPageLayout>
+      <section className="bg-white">
+        <div className="mx-auto max-w-[480px] px-4 py-6">
       <HtbSectionHeader
         title="最新消息"
         description="追蹤高科生技的科研進度、平台更新與合作案進展。"
@@ -38,6 +40,8 @@ export default function HtbNews() {
           </div>
         ))}
       </div>
+        </div>
+      </section>
       <HtbFooter />
     </HtbPageLayout>
   );

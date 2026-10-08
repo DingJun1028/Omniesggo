@@ -11,6 +11,8 @@ export default function HtbPartnership() {
 
   return (
     <HtbPageLayout>
+      <section className="bg-white">
+        <div className="mx-auto max-w-[480px] px-4 py-6">
       <HtbSectionHeader
         title="合作方案"
         description="從牧場到企業，從科研到國際標準，我們提供多層級合作模式。"
@@ -28,6 +30,8 @@ export default function HtbPartnership() {
           洽談合作
         </a>
       </div>
+        </div>
+      </section>
       <HtbFooter />
     </HtbPageLayout>
   );

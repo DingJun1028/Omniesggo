@@ -24,6 +24,8 @@ export default function HtbFaq() {
 
   return (
     <HtbPageLayout>
+      <section className="bg-white">
+        <div className="mx-auto max-w-[480px] px-4 py-6">
       <HtbSectionHeader
         title="常見問題"
         description="快速了解高科生技的科研、品牌信任與平台操作重點。"
@@ -38,6 +40,8 @@ export default function HtbFaq() {
           </details>
         ))}
       </div>
+        </div>
+      </section>
       <HtbFooter />
     </HtbPageLayout>
   );

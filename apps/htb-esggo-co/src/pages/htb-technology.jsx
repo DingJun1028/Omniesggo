@@ -5,6 +5,8 @@ import HtbFooter from '../components/htb/HtbFooter';
 export default function HtbTechnology() {
   return (
     <HtbPageLayout>
+      <section className="bg-white">
+        <div className="mx-auto max-w-[480px] px-4 py-6">
       <HtbSectionHeader
         title="科研與技術"
         description="以海門冬養殖與畜牧碳資產平台為核心，建立可追溯、可驗證的減碳技術鏈。"
@@ -39,6 +41,8 @@ export default function HtbTechnology() {
           </p>
         </div>
       </div>
+        </div>
+      </section>
       <HtbFooter />
     </HtbPageLayout>
   );

@@ -14,7 +14,8 @@
         "esggo-omni-center/soul.md#L2193-L2390",
         "soul-chapter-30-super-delivery.md",
         "TODO-super-delivery-20260930.md",
-        "skills:esggo-omni-super-delivery"
+        "skills:esggo-omni-super-delivery",
+        "remotes/omniesggo/main -> https://github.com/DingJun1028/Omniesggo.git (verified)"
       ],
       "evidence": {
         "typecheck": "exit 0",
@@ -165,7 +166,7 @@
       "id": "ch24-grep-blindspot",
       "title": "Ch.24 grep 規格路徑盲區修復",
       "layer": "skill",
-      "status": "todo",
+      "status": "resolved",
       "artifacts": [
         "skills:esggo-ch24-matrix/references/grep-patterns.md"
       ],
@@ -179,13 +180,17 @@
       "related": [
         "error-leak-closure",
         "skill-library-hygiene"
+      ],
+      "resolution": "已由萬能分身於 2026-10-08 建立技能檔案：skills/esggo-ch24-matrix/references/grep-patterns.md (2843 B)，含 Ch.24 完整量測指令集（含無路徑限定的 git grep 全庫掃）。同時修補 esggo-omni-soul-chapter/SKILL.md 懸空參考，改指向完整路徑。sha256: 91a456b5e0d7ea90e1d4eb169b029607a25f30a04e94d134a8937575ba0b9b3f。",
+      "verified_by": [
+        "inline tool output (ls/read_file/sha256sum)"
       ]
     },
     {
       "id": "skill-library-hygiene",
       "title": "esggo 技能庫一致性（重複/懸空/待升級）",
       "layer": "skill",
-      "status": "audit_in_progress",
+      "status": "in_progress",
       "artifacts": [
         "C:/Users/dingj/AppData/Local/hermes/skills/esggo/"
       ],
@@ -213,7 +218,8 @@
       "related": [
         "canon-ssot",
         "ch24-grep-blindspot"
-      ]
+      ],
+      "resolution": "懸空參考已修復：esggo-omni-soul-chapter/SKILL.md 的 references/grep-patterns.md 懸空引用更正為 esggo-ch24-matrix/references/grep-patterns.md（具體路徑 + §7 依據）。其餘 6 處懸空參考與 16 項缺版號待後續掃清。"
     },
     {
       "id": "eslintignore-deprecated",

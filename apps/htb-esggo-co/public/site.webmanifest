@@ -1,0 +1,25 @@
+{
+  "name": "高科生技 HTB | High-Tech Bio",
+  "short_name": "高科生技 HTB",
+  "description": "台灣本土耐熱海門冬選育與畜牧碳資產平台",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0a2a4a",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

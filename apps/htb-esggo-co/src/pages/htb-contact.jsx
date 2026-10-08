@@ -1,6 +1,7 @@
 import HtbPageLayout from '../components/htb/HtbPageLayout';
 import HtbSectionHeader from '../components/htb/HtbSectionHeader';
 import HtbFooter from '../components/htb/HtbFooter';
+import { IconMail, IconPin, IconPhone } from '../components/htb/HtbIcons';
 
 export default function HtbContact() {
   return (
@@ -12,9 +13,18 @@ export default function HtbContact() {
             description="酪農、企業合作、媒體採訪皆歡迎直接聯繫。"
           />
           <div className="mt-4 rounded-2xl border border-gray-200 bg-white p-4 text-sm text-gray-700 leading-7">
-            <p>📧 Email：info@hsu-kc.com</p>
-            <p className="mt-2">📍 總部：台灣主要育成基地與研發中心</p>
-            <p className="mt-2">📞 合作洽談：請來信並註明「酪農合作」或「企業碳權」</p>
+            <p className="flex items-start gap-2">
+              <IconMail className="w-4 h-4 mt-1.5 shrink-0 text-htb-deepSea" />
+              <span>Email：info@hsu-kc.com</span>
+            </p>
+            <p className="mt-2 flex items-start gap-2">
+              <IconPin className="w-4 h-4 mt-1.5 shrink-0 text-htb-deepSea" />
+              <span>總部：台灣主要育成基地與研發中心</span>
+            </p>
+            <p className="mt-2 flex items-start gap-2">
+              <IconPhone className="w-4 h-4 mt-1.5 shrink-0 text-htb-deepSea" />
+              <span>合作洽談：請來信並註明「酪農合作」或「企業碳權」</span>
+            </p>
           </div>
         </div>
       </section>

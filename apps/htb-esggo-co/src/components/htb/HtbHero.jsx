@@ -1,3 +1,5 @@
+import { IconArrowRight } from './HtbIcons';
+
 export default function HtbHero() {
   return (
     <section className="bg-gradient-to-br from-htb-deepSea to-[#1f5fa3] text-white">
@@ -14,10 +16,11 @@ export default function HtbHero() {
           實證減排：添加 0.15% 即可阻斷 60–67% 甲烷
         </p>
         <a
-          href="#nuber"
+          href="#/nuber"
           className="mt-4 inline-flex items-center gap-2 rounded-xl bg-htb-sprout px-4 py-3 text-sm font-bold text-[#14301a]"
         >
-          立即探索 Nuber 閉環方案 ➔
+          立即探索 Nuber 閉環方案
+          <IconArrowRight className="w-4 h-4" />
         </a>
       </div>
     </section>
