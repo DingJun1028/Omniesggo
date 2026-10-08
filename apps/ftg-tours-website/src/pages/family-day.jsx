@@ -5,8 +5,7 @@ export default function FamilyDay() {
   return (
     <div className="min-h-screen">
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-28 bg-ftg-forest overflow-hidden">
-        <div className="absolute inset-0"><img src="/images/family-day/企業家庭日-頁首大橫幅.webp" alt="family-day 橫幅" className="w-full h-full object-cover" loading="eager" /></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-ftg-forest via-ftg-forest/90 to-ftg-green/80"  opacity-30/>
+        <div className="absolute inset-0 bg-gradient-to-br from-ftg-forest via-ftg-forest/90 to-ftg-green/80" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <Link to="/" className="inline-flex items-center text-gray-300 hover:text-white mb-8 transition-colors text-sm">
             <svg className="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
