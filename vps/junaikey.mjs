@@ -545,8 +545,15 @@ async function awaken({ silent = false } = {}) {
     mantra: MANTRA,
   };
   // 寫 audit 事件:失敗僅警告,不拋出 (避免部分 table 缺欄位導致整個 awaken 失敗)
-  try { await be.appendMemory({ event: 'awaken', skillsCount: skills.length, memories: recent.length, backend: be.name, ts: new Date().toISOString() }); }
-  catch (e) { if (!silent) console.warn(`[JunAikey] memory audit write skipped: ${e.message.slice(0, 100)}`); }
+  // schema-compliant: 只用 junaikey_memory 的真實欄位 (ts/event/summary/grownSkills/tags)
+  try {
+    await be.appendMemory({
+      event: 'awaken',
+      ts: new Date().toISOString(),
+      summary: `skills=${skills.length} memories=${recent.length} backend=${be.name}`,
+      tags: ['audit', be.name],
+    });
+  } catch (e) { if (!silent) console.warn(`[JunAikey] memory audit write skipped: ${(e?.message || String(e)).slice(0, 120)}`); }
   try { await _journal({ kind: 'awaken', skills: skills.length, memories: recent.length, backend: be.name }); }
   catch { /* journal best-effort */ }
   _skillsCache = skills;
@@ -638,6 +645,7 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
   node vps/junaikey.mjs remember '<json-event>'
   node vps/junaikey.mjs query [--tag=X] [--event=X] [--limit=N] [--contains=needle]
   node vps/junaikey.mjs progress "<active-task>" ["<notes>"]
+  node vps/junaikey.mjs get-progress
   node vps/junaikey.mjs reflect "<summary>" [--learn=name1,name2]
   node vps/junaikey.mjs home
   node vps/junaikey.mjs backend
@@ -690,6 +698,11 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         const notes = rest.slice(1).join(' ') || '';
         const r = await setProgress(active, notes);
         console.log(JSON.stringify(r, null, 2));
+        break;
+      }
+      case 'get-progress': {
+        const p = await getProgress();
+        console.log(p || '(no progress set yet)');
         break;
       }
       case 'reflect': {
