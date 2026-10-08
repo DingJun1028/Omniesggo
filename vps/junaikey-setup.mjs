@@ -98,6 +98,36 @@ async function checkTable(name) {
   }
 }
 
+async function checkColumns(name, requiredCols) {
+  // 嘗試以每個 column 為 key 做空 insert,看哪個回 "Unknown column"
+  const existing = [];
+  const missing = [];
+  for (const col of requiredCols) {
+    try {
+      const r = await fetch(`${NCB_BASE}/create/${name}?instance=${encodeURIComponent(NCB_PROJECT)}`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${NCB_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [col.name]: '_probe_' }),
+      });
+      const j = await r.json();
+      if (j.status === 'success') {
+        existing.push(col.name);
+        if (j.data?.id) {
+          await fetch(`${NCB_BASE}/delete/${name}/${j.data.id}?instance=${encodeURIComponent(NCB_PROJECT)}`, {
+            method: 'DELETE', headers: { 'Authorization': `Bearer ${NCB_TOKEN}` },
+          });
+        }
+      } else if (j.error?.includes('Unknown column')) {
+        missing.push(col.name);
+      } else {
+        // 可能是類型錯誤,視為存在(但 type 不符)
+        existing.push(col.name + '(type?)');
+      }
+    } catch { missing.push(col.name); }
+  }
+  return { existing, missing };
+}
+
 function specMarkdown() {
   const lines = [
     '# JunAikey 萬能元鑰 — NCB Dashboard 設定指南',
@@ -144,21 +174,32 @@ if (cmd === 'check') {
   console.log(`Checking project: ${NCB_PROJECT}`);
   console.log(`Base: ${NCB_BASE}\n`);
   let allOk = true;
-  for (const tname of Object.keys(TABLES)) {
+  for (const [tname, tdef] of Object.entries(TABLES)) {
     const r = await checkTable(tname);
-    if (r.exists) {
-      console.log(`  ✅ ${tname.padEnd(20)} exists (${r.body} record${r.body === 1 ? '' : 's'})`);
+    if (!r.exists) {
+      allOk = false;
+      console.log(`  ❌ ${tname.padEnd(20)} TABLE MISSING (${r.status || r.error})`);
+      continue;
+    }
+    // Table exists; check columns
+    const c = await checkColumns(tname, tdef.columns);
+    if (c.missing.length === 0) {
+      console.log(`  ✅ ${tname.padEnd(20)} ${c.existing.length}/${tdef.columns.length} columns ✓`);
     } else {
       allOk = false;
-      console.log(`  ❌ ${tname.padEnd(20)} MISSING (${r.status || r.error})`);
+      console.log(`  ⚠️  ${tname.padEnd(20)} TABLE OK, but missing columns: [${c.missing.join(', ')}]`);
+      console.log(`     has: [${c.existing.join(', ')}]`);
     }
   }
   console.log();
   if (allOk) {
-    console.log('🎉 All 4 JunAikey tables exist. junaikey.mjs NCB backend ready.');
+    console.log('🎉 All 4 tables + columns ready. junaikey.mjs NCB backend fully operational.');
   } else {
-    console.log('⚠️  Missing tables. 請在 NCB Dashboard 建立,或執行:');
-    console.log('   node vps/junaikey-setup.mjs spec-md > junaikey-ncb-spec.md');
+    console.log('⚠️  Setup incomplete. NCB API 不支援 add-column 操作,需在 Dashboard 手動加欄位。');
+    console.log('   1. 開 NCB Dashboard 對 project ' + NCB_PROJECT);
+    console.log('   2. 對每個缺失的 column 點 "+ Add column" 依規格加入');
+    console.log('   3. 完整規格:');
+    console.log('      node vps/junaikey-setup.mjs spec-md');
   }
   process.exit(allOk ? 0 : 1);
 } else if (cmd === 'spec') {

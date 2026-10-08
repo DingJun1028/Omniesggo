@@ -223,11 +223,11 @@ const ncbBackend = {
 
   async _bulkCreate(table, docs) {
     if (!docs.length) return [];
-    // bulk in chunks of 500
+    // bulk in chunks of 500; NCB 期望 body 為 { records: [...] }
     const out = [];
     for (let i = 0; i < docs.length; i += 500) {
       const chunk = docs.slice(i, i + 500);
-      const r = await this._req(`/bulk/create/${table}`, { method: 'POST', body: JSON.stringify(chunk) });
+      const r = await this._req(`/bulk/create/${table}`, { method: 'POST', body: JSON.stringify({ records: chunk }) });
       out.push(...(Array.isArray(r.data) ? r.data : [r.data]));
     }
     return out;
