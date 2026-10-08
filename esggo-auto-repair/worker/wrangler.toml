@@ -20,4 +20,10 @@ dead_letter_queue = "esggo-repair-dlq"
 # （npm 的 install），pnpm 專屬選項 --no-frozen-lockfile 觸發
 # 「install: unknown option -- no-frozen-lockfile」→ CF Workers Builds 必失敗。
 # 與根 wrangler.toml 的寫法一致：單一 npx --yes 包 pnpm。
-command = "cd esggo-auto-repair/worker && npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && npx tsc -p tsconfig.json"
+# source_origin: PR #8 esggo-auto-repair build. [build].command runs in the
+# directory containing wrangler.toml (= esggo-auto-repair/worker). The old
+# `cd esggo-auto-repair/worker` resolved relative to that dir, i.e.
+# esggo-auto-repair/worker/esggo-auto-repair/worker, which does not exist,
+# causing "The system cannot find the path specified." (esggo-auto-repair#build
+# failure). We are already in the worker dir, so drop the cd.
+command = "npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && npx tsc -p tsconfig.json"
