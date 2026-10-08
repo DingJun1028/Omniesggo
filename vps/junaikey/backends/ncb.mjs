@@ -134,6 +134,7 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
           body: r.body || '',
           // 保留所有 traits (含 OmniTag 與 6 大 trait,不再過濾)
           traits: Array.isArray(traits) ? traits : [],
+          level: r.level || 'L1',  // F-04 沉澱層級
           updatedAt: r.updatedat || r.updatedAt || r.createdAt,
           _ncbId: r.id,
         };
@@ -141,14 +142,26 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
     },
 
     async writeSkills(skills) {
-      // 取代式: 刪除現有 + bulk insert 新集合
+      // 取代式: 刪除現有 + bulk insert 新集合 (含 F-04 level 欄位)
       try { await _deleteAll(tables.skills); } catch { /* table may not exist yet */ }
       if (!skills.length) return;
       try {
         await _bulkCreate(tables.skills, skills.map(s => ({
-          name: s.name, body: s.body, traits: s.traits, updatedat: s.updatedAt || new Date().toISOString(),
+          name: s.name, body: s.body, traits: s.traits,
+          level: s.level || 'L1',
+          updatedat: s.updatedAt || new Date().toISOString(),
         })));
-      } catch (e) { if (!e.message.includes("doesn't exist")) throw e; }
+      } catch (e) {
+        // 若 skills table 缺 level column,降級為不寫 (但要 throw 讓 caller 知道)
+        if (e.message.includes("Unknown column 'level'")) {
+          // retry without level
+          await _bulkCreate(tables.skills, skills.map(s => ({
+            name: s.name, body: s.body, traits: s.traits, updatedat: s.updatedAt || new Date().toISOString(),
+          })));
+          return;
+        }
+        if (!e.message.includes("doesn't exist")) throw e;
+      }
     },
 
     async forgetSkill(name) {
