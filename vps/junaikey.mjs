@@ -352,13 +352,13 @@ const ncbBackend = {
     try { rows = await this._listAll(NCB_TABLES.progress); }
     catch (e) { if (e.message.includes("doesn't exist")) return null; throw e; }
     if (!rows.length) return null;
-    // 依 updatedAt 取最新一筆
-    const sorted = [...rows].sort((a, b) => (a.updatedAt || '').localeCompare(b.updatedAt || ''));
+    // 依 updatedat (NCB 小寫化) 取最新一筆
+    const sorted = [...rows].sort((a, b) => (a.updatedat || a.updatedAt || '').localeCompare(b.updatedat || b.updatedAt || ''));
     const r = sorted[sorted.length - 1];
     return [
       `# JunAikey 萬能元鑰 — Current Progress (NCB)`,
       '',
-      `> Last updated: ${r.updatedAt}`,
+      `> Last updated: ${r.updatedat || r.updatedAt}`,
       `> MANTRA: ${MANTRA}`,
       '',
       '## Active',
