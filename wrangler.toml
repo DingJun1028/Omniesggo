@@ -26,3 +26,30 @@ enabled = true
 
 [build]
 command = "npx --yes pnpm install --no-frozen-lockfile --ignore-scripts && cd worker && npx tsc -p tsconfig.json"
+
+# [previews] — Worker Previews（npx wrangler preview）必需區塊。
+# source_origin: Cloudflare Workers Builds deploy 期錯誤
+#   "Your Wrangler configuration is missing a `previews` block"
+#   （wrangler-deploy project，deploy_command=npx wrangler preview）
+# source_origin: https://developers.cloudflare.com/workers/previews/configuration/
+[previews.vars]
+ENVIRONMENT = "production"
+SMART_ROUTER_VERSION = "2.0.0-beta.1"
+
+[previews.observability]
+enabled = true
+head_sampling_rate = 1
+
+[previews.observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
+
+[previews.observability.traces]
+enabled = true
+head_sampling_rate = 1
+persist = true
+
+[previews.placement]
+mode = "smart"
