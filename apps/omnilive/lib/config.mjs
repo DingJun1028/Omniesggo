@@ -65,7 +65,7 @@ export function loadConfig() {
     geminiApiKey: (process.env.GEMINI_API_KEY || '').trim(),
     geminiModel: (process.env.GEMINI_MODEL || 'gemini-2.5-flash').trim(),
     autoStartStt: (process.env.OMNILIVE_AUTOSTART_STT || 'true').toLowerCase() !== 'false',
-    sttModel: (process.env.WHISPER_MODEL || 'tiny').trim(),
+    sttModel: (process.env.WHISPER_MODEL || 'base').trim(),
     sttDevice: (process.env.WHISPER_DEVICE || 'cpu').trim(),
     sttCompute: (process.env.WHISPER_COMPUTE || 'int8').trim(),
     roomPasswordEnabled: (process.env.OMNILIVE_ROOM_PASSWORD || '').trim().length > 0,
