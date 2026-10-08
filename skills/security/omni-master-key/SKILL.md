@@ -480,14 +480,91 @@ await JunAikey.reflect('成功遷移；下次預留 100GB',  // 閉環反思
 node vps/junaikey.mjs awaken
 node vps/junaikey.mjs grow <name> <body...> [--traits=trait1,trait2]
 node vps/junaikey.mjs recall <name>
+node vps/junaikey.mjs forget <name>                # 刪除技能
+node vps/junaikey.mjs dedup                        # 去除重複
 node vps/junaikey.mjs remember '<json-event>'
 node vps/junaikey.mjs query [--tag=X] [--event=X] [--limit=N] [--contains=needle]
+node vps/junaikey.mjs search [--tag=X] [--event=X] [--limit=N]  # NCB /search 端點
 node vps/junaikey.mjs progress "<active-task>" ["<notes>"]
+node vps/junaikey.mjs get-progress
 node vps/junaikey.mjs reflect "<summary>" [--learn=name1,name2]
+node vps/junaikey.mjs prune [--max=1000] [--before=...] [--keep-event=...]  # 限制大小
 node vps/junaikey.mjs home
 node vps/junaikey.mjs backend     # 顯示當前選定的 backend
 node vps/junaikey.mjs doctor      # 環境 + 兩後端健康診斷
 ```
+
+### 模組結構 (v2 重構)
+
+```
+vps/
+├── junaikey.mjs                (227 行)  ← 主入口 + CLI
+└── junaikey/
+    ├── schema.mjs              (16)   常數、MANTRA、traits、NCB_TABLES
+    ├── util.mjs                (74)   isoToMysql、toNCBPayload、parseJSONField、filterEntries、withRetry
+    ├── dispatcher.mjs          (31)   後端選擇 (auto/ncb/local)
+    ├── operations.mjs          (174)  公開 API: awaken/grow/recall/reflect/forget/prune/search
+    └── backends/
+        ├── local.mjs           (126)  filesystem backend
+        └── ncb.mjs             (274)  NCB V2 backend (/create|read|search|update|delete|bulk)
+tests/
+├── junaikey.test.mjs           (191)  10 個測試 (零依賴)
+└── junaikey.bench.mjs          (72)   效能基準
+```
+
+### 完整 API 參考 (Public API)
+
+| 函式 | 簽名 | 用途 | 對應 NCB 端點 |
+|---|---|---|---|
+| `awaken({silent})` | `→ {backend, skillsCount, recentMemories, progress}` | 被動載入 + 寫 audit | append + read all |
+| `loadSkills({bypassCache})` | `→ Skill[]` | 讀技能 (cache 預設) | read skills |
+| `growSkill(name, body, traits)` | `→ Skill` | 新增/更新技能 | replace-all + bulk |
+| `recallSkill(name)` | `→ Skill \| null` | 查單一技能 | client filter |
+| `forgetSkill(name)` | `→ boolean` | **刪除技能** | delete by id |
+| `dedupSkills()` | `→ number` | **去除同名重複** | selective delete |
+| `remember(event)` | `→ Entry` | 寫共享記憶 | create memory |
+| `recall(filter)` | `→ Entry[]` | 讀記憶 (server-side filter if event/tag/since/until) | search if filter else read all |
+| `searchMemory(filter)` | `→ Entry[]` | **明確走 NCB /search** | search |
+| `pruneMemory({maxRecords, before, keepEvent})` | `→ number` | **刪除舊記憶** | selective delete |
+| `setProgress(active, notes)` | `→ Progress` | 寫當前進度 (取代式) | replace progress |
+| `getProgress()` | `→ string \| null` | 讀當前進度 (markdown) | read last |
+| `reflect(summary, learnings, tags)` | `→ Entry` | 閉環:grow 技能 + 寫反思 | create + grow |
+
+**Filter 選項** (recall/searchMemory): `{event?, tag?, since?, until?, contains?, limit?}`
+- `event`, `tag`, `since`, `until` 走 **server-side** (NCB /search WHERE clause)
+- `contains` 走 **client-side** (JSON string 包含)
+- `limit` 走 **client-side** (NCB /search 不收 limit param)
+
+**Trait 過濾** (growSkill): 自動過濾為 `SKILL_TRAITS = ['永恆','被動','自主','共享','閉環','圓通']`
+
+### 效能基準 (local backend, 2026-10-08)
+
+| 操作 | 資料量 | 耗時 |
+|---|---|---|
+| readSkills | 100 筆 | 12.86ms |
+| readMemory (全部) | 500 筆 | 5.17ms |
+| readMemory {limit:10} | 500 筆 | 1.92ms |
+| readMemory {event:awaken} | 500 筆 | 3.41ms |
+| writeSkills 100 | 100 筆 | 1.98ms |
+| appendMemory 1 | — | 2.17ms |
+| forgetSkill 1 | — | 4.77ms |
+| pruneMemory (max=50) | 451 removed | 5.51ms |
+| filterEntries 100 | — | 0.20ms |
+| toNCBPayload 500 | — | 1.66ms |
+
+測試: `node tests/junaikey.test.mjs` (10/10 通過) | 基準: `node tests/junaikey.bench.mjs`
+
+### VPS 優化 (vps/junaikey-optimize.mjs)
+
+新 VPS 一鍵安裝（`sudo node vps/junaikey-optimize.mjs`）:
+1. **Docker log rotation**: `/etc/docker/daemon.json` → `max-size: 10m, max-file: 3`
+2. **Daily prune**: `0 4 * * *` → `docker system prune -a -f --volumes`
+3. **Weekly cleanup**: `0 3 * * 0` → /tmp 7d+、journalctl 7d、docker weekly prune
+4. **swap 8GB**: `fallocate -l 8G /swapfile` + fstab
+5. **sysctl 網路優化**: `somaxconn=65535`, `tcp_tw_reuse=1`, `swappiness=10`
+6. **logrotate 7 天**: nginx/syslog 7 天保留
+
+
 
 ### Hermes 與其他代理接入 (Cross-agent compatible)
 
