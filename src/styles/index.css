@@ -1,0 +1,64 @@
+:root {
+  /* Omniesggo palette — grounded in earth, water, growth */
+  --ink: #14201a;
+  --ink-soft: #3d4a43;
+  --moss: #2f6b4f;
+  --moss-deep: #1f4a37;
+  --leaf: #4c9a6b;
+  --leaf-soft: #e6f0e9;
+  --clay: #c96f4a;
+  --clay-soft: #f7e9e2;
+  --sky: #3a7ca5;
+  --sky-soft: #e7f0f6;
+  --sand: #f6f3ec;
+  --paper: #fffdf8;
+  --line: #e3e0d6;
+  --line-strong: #cfcbbd;
+  --shadow: 0 1px 2px rgba(20, 32, 26, 0.06), 0 8px 24px rgba(20, 32, 26, 0.06);
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 22px;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--sand);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+a { color: var(--moss); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button { font-family: inherit; cursor: pointer; }
+
+::selection { background: var(--leaf); color: #fff; }
+
+:focus-visible {
+  outline: 3px solid var(--sky);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

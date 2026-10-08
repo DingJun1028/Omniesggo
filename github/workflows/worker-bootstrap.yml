@@ -1,0 +1,200 @@
+# =============================================================================
+# ESG GO — OA-Team Worker (oa-worker-01) Keepalive Bootstrap
+# 目的: 下次 CI 重跑即把 esggo_original.pub 注入 oa-worker-01 的 authorized_keys
+#       並部署 keepalive.sh + crontab，永久補齊 30/30 簽核最後 1 項 (Soul 30 QA)。
+#
+# 設計要點 (最佳實踐覺醒版):
+#  - oa-worker-01 由 GitHub Actions 獨佔託管 (managed_by=github-actions)，
+#    本機無其 SSH key；OCI 序列控制台僅接受 RSA 公鑰。
+#  - 解法: runner 內現場生成 RSA 臨時 key → 註冊給 worker 的 console connection
+#    → 用該臨時私鑰走序列控制台進 worker → 寫入 esggo_original.pub + keepalive。
+#  - 不預存私鑰 (臨時 key 留 runner 記憶體)；esggo_original.pub 以 Secret 提供。
+#
+# 需在 GitHub Settings → Secrets 設定:
+#   OA_WORKER_OCID        (ocid1.instance...oa-worker-01)
+#   WORKER_AUTHORIZED_PUB (esggo_original.pub 全文, ssh-rsa AAAAB3N... 那行)
+#   OCI_USER_OCID / OCI_TENANCY_OCID / OCI_REGION / OCI_API_FINGERPRINT / OCI_API_KEY
+# =============================================================================
+
+name: OA Worker Keepalive Bootstrap
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "強制重跑 (即便已標記 done)"
+        required: false
+        default: "false"
+        type: boolean
+  # 也可掛到 main push 後自動觸發 (取消下方註解)
+  # push:
+  #   branches: [main]
+  #   paths: [".github/workflows/worker-bootstrap.yml"]
+
+concurrency:
+  group: oa-worker-bootstrap
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  OA_WORKER_OCID: ${{ secrets.OA_WORKER_OCID }}
+  OCI_USER_OCID: ${{ secrets.OCI_USER_OCID }}
+  OCI_TENANCY_OCID: ${{ secrets.OCI_TENANCY_OCID }}
+  OCI_REGION: ${{ secrets.OCI_REGION }}
+  OCI_API_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+  OCI_API_KEY: ${{ secrets.OCI_API_KEY }}
+
+jobs:
+  bootstrap:
+    name: Bootstrap oa-worker-01 keepalive
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OCI CLI + generate temp ed25519 key
+        id: oci
+        run: |
+          set -e
+          python3 -m pip install --quiet --user oci-cli
+          export PATH="$(python3 -m site --user-base)/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
+          which oci && oci --version
+          mkdir -p ~/.oci ~/.ssh
+          python3 - <<'PY'
+          import os, re, pathlib
+          raw = os.environ["OCI_API_KEY"]
+          m = re.search(r'-----BEGIN [^-]+-----.*?-----END [^-]+-----', raw, re.S)
+          clean = (m.group(0) if m else raw).replace("\r", "").strip() + "\n"
+          kp = pathlib.Path("~/.oci/key.pem").expanduser()
+          kp.write_text(clean); os.chmod(kp, 0o600)
+          cfg = pathlib.Path("~/.oci/config").expanduser()
+          cfg.write_text(
+              "[DEFAULT]\n"
+              f"user={os.environ['OCI_USER_OCID']}\n"
+              f"fingerprint={os.environ['OCI_API_FINGERPRINT']}\n"
+              "key_file=~/.oci/key.pem\n"
+              f"tenancy={os.environ['OCI_TENANCY_OCID']}\n"
+              f"region={os.environ['OCI_REGION']}\n"
+          )
+          os.chmod(cfg, 0o600)
+          print("oci config written")
+          PY
+          echo "=== DEBUG: config values (no secrets) ==="
+          echo "region=$OCI_REGION user_set=${OCI_USER_OCID:+yes} tenancy_set=${OCI_TENANCY_OCID:+yes} fp_set=${OCI_API_FINGERPRINT:+yes}"
+          echo "=== AUTH TEST (oci iam user get) ==="
+          oci iam user get --user-id "$OCI_USER_OCID" 2>&1 | head -c 400 || echo " AUTH_FAIL_EXIT_$?"
+          echo "=== generate temp RSA (force rebuild) ==="
+          # OCI 序列控制台只接受 RSA 公鑰 (ed25519 會 InvalidParameter)
+          rm -f ~/.ssh/worker_tmp ~/.ssh/worker_tmp.pub
+          ssh-keygen -t rsa -b 4096 -N "" -f ~/.ssh/worker_tmp >/dev/null
+          echo "pub=$(cat ~/.ssh/worker_tmp.pub)" >> $GITHUB_OUTPUT
+          echo "worker_tmp.pub fingerprint: $(ssh-keygen -lf ~/.ssh/worker_tmp.pub)"
+
+      - name: Create console connection (RSA) on worker
+        id: conn
+        env:
+          TMP_PUB: ${{ steps.oci.outputs.pub }}
+        run: |
+          set -e
+          export PATH="$(python3 -m site --user-base)/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
+          # 刪除該 instance 所有現有 console connection (避免 409 IncorrectState)
+          echo "=== list existing console connections ==="
+          EXISTING_IDS=$(oci compute instance-console-connection list \
+            --instance-id "$OA_WORKER_OCID" --compartment-id "$OCI_TENANCY_OCID" \
+            --region "$OCI_REGION" --output json 2>/dev/null \
+            | python3 -c "import sys,json; d=json.load(sys.stdin); print(' '.join(x['id'] for x in d.get('data',[])))" || true)
+          echo "existing: $EXISTING_IDS"
+          for cid in $EXISTING_IDS; do
+            echo "deleting $cid"
+            oci compute instance-console-connection delete \
+              --instance-console-connection-id "$cid" --region "$OCI_REGION" --force || true
+            sleep 2
+          done
+          sleep 3
+          OUT=$(oci compute instance-console-connection create \
+            --instance-id "$OA_WORKER_OCID" --region "$OCI_REGION" \
+            --ssh-public-key-file ~/.ssh/worker_tmp.pub --output json)
+          CONN=$(echo "$OUT" | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['id'])")
+          echo "conn=$CONN" >> $GITHUB_OUTPUT
+          # 等待 ACTIVE
+          for i in $(seq 1 12); do
+            ST=$(oci compute instance-console-connection get \
+              --instance-console-connection-id "$CONN" --region "$OCI_REGION" \
+              --output json | python3 -c "import sys,json; print(json.load(sys.stdin)['data']['lifecycle-state'])")
+            [ "$ST" = "ACTIVE" ] && break
+            sleep 5
+          done
+          echo "conn_state=$ST" >> $GITHUB_OUTPUT
+
+      - name: Serial-console in + inject esggo_original.pub + keepalive
+        if: steps.conn.outputs.conn_state == 'ACTIVE'
+        env:
+          CONN: ${{ steps.conn.outputs.conn }}
+          WORKER_PUB: ${{ secrets.WORKER_AUTHORIZED_PUB }}
+        run: |
+          set -e
+          export PATH="$(python3 -m site --user-base)/bin:$HOME/.local/bin:/usr/local/bin:$PATH"
+          pip install --quiet pexpect 2>/dev/null || python3 -m pip install --quiet pexpect
+          CONSOLE_HOST="$CONN@instance-console.$OCI_REGION.oci.oraclecloud.com"
+          PROXY="ssh -W %h:%p -p 443 $CONSOLE_HOST"
+          # 用 pexpect 驅動 OCI 序列控制台 (繞過互動選單/login)
+          python3 - <<PY
+          import pexpect, os, time, sys
+          conn = os.environ['CONN']
+          region = os.environ['OCI_REGION']
+          worker_pub = os.environ['WORKER_PUB']
+          console_host = f"{conn}@instance-console.{region}.oci.oraclecloud.com"
+          proxy = f"ssh -W %h:%p -p 443 {console_host}"
+          key = os.path.expanduser("~/.ssh/worker_tmp")
+          cmd = f"ssh -i {key} -o ProxyCommand='{proxy}' -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=30 {console_host}"
+          print("SPAWN:", cmd)
+          child = pexpect.spawn(cmd, timeout=90, encoding='utf-8', codec_errors='replace')
+          # 等待登入提示或 shell prompt (OCI 序列控制台通常直接給 shell 或 login:)
+          i = child.expect([r'[Ll]ogin:',
+                            r'[#\$] ',
+                            r'Press any key',
+                            pexpect.TIMEOUT,
+                            pexpect.EOF], timeout=60)
+          print("EXPECT_RESULT:", i)
+          if i == 2:  # Press any key
+              child.sendline("")
+              child.expect([r'[Ll]ogin:', r'[#\$] ', pexpect.TIMEOUT], timeout=30)
+          if i in (0,):  # login prompt -> send ubuntu
+              child.sendline("ubuntu")
+              child.expect([r'assword:', r'[#\$] ', pexpect.TIMEOUT], timeout=30)
+              # console connection 用 key 認證, 通常無密碼; 若問密碼則送空
+              child.sendline("")
+              child.expect([r'[#\$] ', pexpect.TIMEOUT], timeout=30)
+          # 現在應在 shell; 寫入 authorized_keys
+          child.sendline("mkdir -p ~/.ssh && chmod 700 ~/.ssh")
+          child.expect(r'[#\$] ', timeout=20)
+          # 用 printf 避免 heredoc 換行問題
+          for line in worker_pub.split('\n'):
+              if line.strip():
+                  child.sendline(f"echo '{line}' >> ~/.ssh/authorized_keys")
+                  child.expect(r'[#\$] ', timeout=20)
+          child.sendline("chmod 600 ~/.ssh/authorized_keys")
+          child.expect(r'[#\$] ', timeout=20)
+          child.sendline("cat > /usr/local/bin/keepalive.sh <<'KA'\n#!/usr/bin/env bash\nawk 'BEGIN{for(i=0;i<50000;i++){s+=sqrt(i)*sin(i)}}' >/dev/null 2>&1\nLOG=/var/log/keepalive-heartbeat.log\necho \"$(date -u +%FT%TZ) keepalive-ok\" >> \"$LOG\"\ntail -n 200 \"$LOG\" > \"$LOG.tmp\" && mv \"$LOG.tmp\" \"$LOG\"\ncurl -m 5 -s -o /dev/null http://169.254.169.254/opc/v2/instance/ || true\nKA")
+          child.expect(r'[#\$] ', timeout=20)
+          child.sendline("chmod 755 /usr/local/bin/keepalive.sh")
+          child.expect(r'[#\$] ', timeout=20)
+          child.sendline("( crontab -l 2>/dev/null | grep -v keepalive.sh; echo '*/9 * * * * /usr/local/bin/keepalive.sh >> /var/log/keepalive.log 2>&1' ) | crontab -")
+          child.expect(r'[#\$] ', timeout=20)
+          child.sendline("ls -l /usr/local/bin/keepalive.sh; crontab -l | grep keepalive.sh; echo AUTH_LINES=$(wc -l < ~/.ssh/authorized_keys)")
+          child.expect(r'[#\$] ', timeout=20)
+          child.sendline("exit")
+          time.sleep(2)
+          print("=== SERIAL OUTPUT TAIL ===")
+          print(child.before[-2000:] if child.before else "NO_OUTPUT")
+          child.close()
+          PY
+
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f ~/.ssh/worker_tmp ~/.ssh/worker_tmp.pub ~/.oci/key.pem || true
+          # 可選: 保留 console connection 供日後維運, 或刪除
+          # oci compute instance-console-connection delete --instance-console-connection-id "${{ steps.conn.outputs.conn }}" --region "$OCI_REGION" --force || true

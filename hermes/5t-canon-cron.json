@@ -1,0 +1,14 @@
+{
+  "name": "5t-canon-autoheal",
+  "schedule": "*/5 * * * *",
+  "command": "python C:\\Project\\esggo\\.hermes\\heal-5t-canon.py",
+  "description": "Self-healing daemon for 5T-Canon gate \u2014 auto-repairs Node.js deprecation failures",
+  "enabled": true,
+  "tags": [
+    "5t",
+    "canon",
+    "auto-repair",
+    "ci"
+  ],
+  "5t_compliant": true
+}

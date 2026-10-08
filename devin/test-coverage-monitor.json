@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-13T06:07:07.391Z",
+  "targets": {
+    "overall": {
+      "current": 0,
+      "target": 80,
+      "priority": "P0",
+      "deadline": "2026-09-13"
+    },
+    "modules": {
+      "src/lib/zkp-service.ts": {
+        "current": 0,
+        "target": 95,
+        "priority": "P0",
+        "estimatedEffort": "medium"
+      },
+      "src/lib/five-t-protocol.ts": {
+        "current": 0,
+        "target": 90,
+        "priority": "P0",
+        "estimatedEffort": "medium"
+      },
+      "src/lib/omni-tag.ts": {
+        "current": 0,
+        "target": 90,
+        "priority": "P0",
+        "estimatedEffort": "medium"
+      },
+      "app/api/**/*.ts": {
+        "current": 0,
+        "target": 85,
+        "priority": "P1",
+        "estimatedEffort": "high"
+      },
+      "src/core/services/*.ts": {
+        "current": 0,
+        "target": 80,
+        "priority": "P1",
+        "estimatedEffort": "high"
+      },
+      "src/components/**/*.tsx": {
+        "current": 0,
+        "target": 70,
+        "priority": "P2",
+        "estimatedEffort": "medium"
+      }
+    }
+  },
+  "excluded": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/__tests__/**",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/dist/**"
+  ],
+  "thresholds": {
+    "critical": 60,
+    "warning": 40,
+    "minimum": 20
+  },
+  "alerts": {
+    "coverageDrop": {
+      "enabled": true,
+      "threshold": 5,
+      "action": "block_pr"
+    },
+    "belowTarget": {
+      "enabled": true,
+      "action": "warning"
+    }
+  }
+}

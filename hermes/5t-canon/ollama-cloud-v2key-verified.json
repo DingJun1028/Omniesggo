@@ -1,0 +1,39 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "inclusionai/ling-3.0-flash-fin:free",
+  "provider": "ollama-cloud",
+  "base_url": "https://ollama.com/v1",
+  "timestamp": "2026-09-05T02:57:00.273156Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "782dca10-3dfa-4bec-81e2-dfe888a85f37",
+  "actions": {
+    "vault_updated": true,
+    "config_updated": true,
+    "backup": "config.yaml.bak.20260905_105657",
+    "key_format": "v2 (32hex.base64url)"
+  },
+  "api_test_results": {
+    "inclusionai/ling-3.0-flash-fin:free": {
+      "status": "fail",
+      "response": "model \"inclusionai/ling-3.0-flash-fin:free\" not found"
+    },
+    "gemma4:31b": {
+      "status": "ok",
+      "response": "嗨！你好！很高兴见到你。有什么我可以帮你的吗？😊"
+    }
+  },
+  "five_t_verification": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "content": "5T-Canon 證明書 — ollama-cloud 新 v2 key 驗證\n\n時間: 2026-09-05T02:57:00.273156Z\n新 key: 25beadb6...rze2pxsd (v2 標準格式, len=57)\n\n=== 結果 ===\n- vault: ✓ OLLAMA_API_KEY 已更新\n- config.yaml: ✓ 已更新, 備份 config.yaml.bak.20260905_105657\n- ling-flash-fin:free: ✗ model \"inclusionai/ling-3.0-flash-fin:free\" not found\n- gemma4:31b: ✓ PASS\n\n=== 5T ===\nTraceable ✓ | Trackable ✓ | Tangible: True | Transparent ✓ | Trustworthy ✓\n\n— Queen Bee & OA-Team 30 Swarm\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "f04fdadd9375f2e474720b77fd6589cef79eacef23d373f27c0f286a0246a46f",
+    "frozen": true
+  }
+}

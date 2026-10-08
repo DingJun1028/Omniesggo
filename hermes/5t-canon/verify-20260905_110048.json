@@ -1,0 +1,25 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "gemma4:31b",
+  "provider": "ollama-cloud",
+  "timestamp": "2026-09-05T03:00:47.672585Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "cf6f00ce-6b67-4719-ad8f-24ffceb1a8e1",
+  "five_t_verification": {
+    "vault_key": true,
+    "cfg_match": true,
+    "api_ok": true
+  },
+  "cron_state": {
+    "total": 32,
+    "on_ollama": 30,
+    "issues": []
+  },
+  "content": "5T-Canon 自檢守護報告\n\n時間: 2026-09-05T03:00:47.672585Z\n整體: PASS\n\n=== 5T 驗證 ===\nTraceable: ✓ (vault key 57 chars)\nTrackable: ✓ (vault == config.yaml)\nTangible:  ✓ (Pong! 🏓)\nTransparent: ✓ (本 JSON 即證據)\nTrustworthy: ✓ (SHA-256 鎖定)\n\n— verify-5t-canon.py v1.0\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "06ff96bfc858bd3e85ba893d332a712472cb3cca1268436136faa63f13cbcf8d",
+    "frozen": true
+  }
+}

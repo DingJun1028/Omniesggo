@@ -1,0 +1,91 @@
+feat(omni): v1.0 落地 4 個 omni-* packages (MECE 4/7 維度)
+
+# MECE 4/7 維度落地 (Stage 5 GREEN 30/30 PASS)
+
+1. **@esggo/omni-core** v1.0.0 (6/6 tests)
+   - IComponentCore 心核介面 (uuid/version/timestamp/source_origin/evidence)
+   - sealComponentCore() Hash Lock + Object.freeze (Trust)
+   - verifySeal() 驗證完整性
+   - createComponentCore() 預設值工廠
+   - 5T: Traceable(source_origin) / Trustworthy(SHA256 + freeze)
+
+2. **@esggo/omni-tag** v1.0.0 (10/10 tests)
+   - 6 維度標籤系統 (team / 5t / priority / stage / agent / task)
+   - parseOmniTag / formatOmniTag 雙向轉換
+   - routeOmniTag 路由規則 (30 蜂群 agent ranges)
+   - validateOmniTagRules 互斥檢查
+   - validateRequired 必填檢查 (team + 5t)
+   - 5T: Truth(source_origin 標記)
+
+3. **@esggo/omni-bridge** v1.0.0 (7/7 tests)
+   - OmniBridge class (events + runes)
+   - publishEvent 自動 seal + 廣播
+   - subscribe 訂閱事件流 (回傳 unsub)
+   - registerRune / listRune / invokeRune 符文 API 網關
+   - getEventLog Trackable 歷史
+   - 5T: Trackable(lifecycle hook) / Trustworthy(seal)
+
+4. **@esggo/omni-forge** v1.0.0 (7/7 tests)
+   - OmniForge class (entropy + seal + lint + evolve)
+   - measureEntropy 熵值測量 (severity 加權)
+   - forgeEntropy 自動清理 (dryRun 模式)
+   - seal + verify 不可篡改 (複用 omni-core)
+   - lintContract source_origin 必填檢查
+   - evolve 每週演進循環
+   - 5T: Trust(Object.freeze)
+
+# 測試結果 (Stage 5 GREEN)
+
+```
+@esggo/omni-core   → 6/6 PASS
+@esggo/omni-tag    → 10/10 PASS
+@esggo/omni-bridge → 7/7 PASS
+@esggo/omni-forge  → 7/7 PASS
+─────────────────────────────────
+Total              → 30/30 PASS ✓
+```
+
+# 5T Gate
+
+- Traceable: 每個 component 有 source_origin, 4 packages 各有 package.json + 源碼
+- Trackable: vitest 輸出 + getEventLog + 30/30 PASS
+- Tangible: 4 個 working packages, real npm/pnpm install + vitest run
+- Transparent: source code + tests 公開, 無暗箱
+- Trustworthy: SHA256 seal + Object.freeze + verifySeal
+
+# MECE 維度狀態
+
+| 維度 | 狀態 | Package |
+|---|---|---|
+| OmniMemory | 待落地 (TencentDB 既有 skill) | - |
+| **OmniBridge** | ✅ 已落地 | @esggo/omni-bridge |
+| **OmniTag** | ✅ 已落地 | @esggo/omni-tag |
+| OmniDB | 待落地 (Knowledge Reasoning 既有 skill) | - |
+| OmniAgent | 既有 (5T Gate Engine v5.1.0) | @esggo/omni-agent |
+| OmniUI | 待落地 | - |
+| **OmniForge** | ✅ 已落地 | @esggo/omni-forge |
+| **OmniCore** | ✅ 心核落地 (其他 3 個的依賴) | @esggo/omni-core |
+
+4/7 + 1 心核 = **5/8 落地**.
+
+# 互依關係
+
+```
+@esggo/omni-core (心核, 無依賴)
+    ↓
+@esggo/omni-bridge (依 core) + @esggo/omni-forge (依 core)
+    ↓
+@esggo/omni-tag (獨立)
+```
+
+# Stage 6 Review 待補
+
+- subagent 兩階段 review 仍 fail (modal sandbox delegate_task JSON parse fail ×5)
+- 自我 audit 已揭露於 commit `03236bf3e`
+- 待下次環境恢復重試
+
+Refs:
+- MECE 7 維度完整規格 (chat 內產出)
+- OmniBridge OpenAPI 規格 (chat 內產出)
+- OmniForge OpenAPI 規格 (chat 內產出)
+- esggo-ts-matrix-onboard skill (156 lines)

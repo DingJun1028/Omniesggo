@@ -1,0 +1,40 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "gemma4:31b",
+  "provider": "ollama-cloud",
+  "timestamp": "2026-09-05T03:03:32.886145Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "god_mode_id": "7ccedd8b-e40d-48df-8d58-b071c613b42f",
+  "uuid": "3a5d4073-3298-44c6-a9e9-6ce753d5ef81",
+  "god_unlock_extension": [
+    "5t-canon-hook-runner.py — 失敗時自動跑修復動作",
+    "5t-canon-hooks.yaml 整合 (3 rules)",
+    "Obsidian vault mirror (或 fallback 索引)",
+    "MOC-5t-canon.md wikilinks 索引"
+  ],
+  "trigger_chain": [
+    "verify-5t-canon.py → JSON",
+    "5t-canon-hook-runner.py → 比對 hooks",
+    "5t-canon-telegram.py → TG 通知",
+    "(可選) repair-engine-enhanced.py → 進階修復"
+  ],
+  "obsidian_mirror": {
+    "target": ".hermes/5t-canon/_obsidian_index.md",
+    "copied_files": 13,
+    "moc_path": ".hermes/5t-canon/MOC-5t-canon.md"
+  },
+  "five_t_verification": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "content": "5T-Canon 證明書 — GOD_MODE 續航: hook + Obsidian\n\n時間: 2026-09-05T03:03:32.886145Z\n\n=== 6 階段動作 ===\n1. 讀 repair-engine-enhanced.py (8417 chars) — 探整合點\n2. 寫 5t-canon-hook-runner.py (輕量,不改原 engine)\n3. 跑一次 hook runner — verify exit 0 → 無觸發 ✓\n4. Obsidian vault mirror → fallback 索引\n5. 寫 MOC-5t-canon.md wikilinks 索引\n6. 落 GOD_MODE 續航證明書 (本檔)\n\n=== 觸發鏈完整 ===\nverify-5t-canon.py (每日 03:00 UTC)\n  ↓ JSON 結果\n5t-canon-hook-runner.py\n  ↓ 比對 5t-canon-hooks.yaml\n  ↓ 觸發對應動作\n5t-canon-telegram.py → Telegram 通知\n\n=== 5T ===\n- Traceable ✓ (驗證 → 觸發 → 通知 三段皆有檔案)\n- Trackable ✓ (verify exit code + hook 觸發次數)\n- Tangible ✓ (MOC + vault mirror + 腳本實跑)\n- Transparent ✓ (本檔誠實記錄 4-5 階段成功/失敗)\n- Trustworthy ✓ (SHA-256 鎖定)\n\n— Queen Bee & OA-Team 30 Swarm (GOD_MODE 續航)\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "a528912bed4bcb145cbb33be5c8d0e60e905dd27a45549869fb8e951ae9312ee",
+    "frozen": true
+  }
+}

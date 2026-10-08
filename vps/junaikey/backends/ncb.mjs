@@ -112,8 +112,8 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
 
     async health() {
       try {
-        // 用 NCB 內建的 name_1 探活(任何 project 都有)
-        await withRetry(() => _req('/read/name_1?page=1&limit=1'));
+        // 用專案實際的 table 探活 (用戶可能沒建 name_1)
+        await withRetry(() => _req(`/read/${tables.skills}?page=1&limit=1`));
         return true;
       } catch (e) {
         _state.lastError = e.message;

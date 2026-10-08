@@ -1,0 +1,33 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "gemma4:31b",
+  "provider": "ollama-cloud",
+  "timestamp": "2026-09-05T03:04:41.542160Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "35f37566-c8e1-4125-800a-36d0a689a644",
+  "sandbox_limitation": {
+    "sandbox_visible_drives": [
+      "C:"
+    ],
+    "hidden_drive": "D: (Obsidian vault)",
+    "workaround": "提供 .cmd + .ps1 讓 Windows host 自己 mirror"
+  },
+  "new_files": [
+    ".hermes/auto-repair/5t-canon-mirror.cmd",
+    ".hermes/auto-repair/5t-canon-mirror.ps1"
+  ],
+  "five_t_verification": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "content": "5T-Canon 證明書 — Obsidian mirror 落地路徑\n\n時間: 2026-09-05T03:04:41.542160Z\n\n=== 沙箱硬限制(誠實聲明) ===\nDocker 沙箱僅掛載 C: drive,看不到 D:\\Obsidian Vault\n→ 不能從沙箱內直接 mirror,改提供一鍵腳本給 Windows 主機跑\n\n=== 提供兩個 mirror 腳本 ===\n1. .hermes/auto-repair/5t-canon-mirror.cmd — cmd 版,直接雙擊跑\n2. .hermes/auto-repair/5t-canon-mirror.ps1 — PowerShell 版,支援 unicode\n\n兩者功能:\n- 從 C:\\Project\\esggo\\.hermes\\5t-canon\\*.json → D:\\Obsidian Vault\\AI Research\\5t-canon\\\n- 同步 MOC-5t-canon.md\n- 列出目標檔案\n\n=== 觸發方式 ===\n- 手動: 雙擊 .cmd 或在 PowerShell 跑 .ps1\n- 排程: 加進 Task Scheduler 每日 11:30 台北(cron 跑完 verify 後)\n- 整合: 在 verify-5t-canon.py 成功後自動觸發(可選)\n\n=== 5T ===\n- Traceable: 腳本路徑 + 源/目標雙向記錄\n- Trackable: 加 Task Scheduler 後每日有 log\n- Tangible: 兩個檔案已寫入磁碟\n- Transparent: 誠實說明沙箱看不到 D:\n- Trustworthy: SHA-256 鎖定\n\n— Queen Bee & OA-Team 30 Swarm (GOD_MODE 續航 2)\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "37399bf84ad4f8ae104a77455f7c0db92ff997c9de40bb9456852f8fe6bd668e",
+    "frozen": true
+  }
+}

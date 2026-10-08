@@ -1,0 +1,35 @@
+{
+  "uuid": "6723024a-34f5-4bab-b11c-206823921701",
+  "artifact_type": "PurifiedArtifact",
+  "protocol_version": "5T-Canon v1.0",
+  "source_origin": "skill-library-review 2026-09-05 session: aistation verify.md + esggo-5t-canon-daily-cron patched",
+  "issued_at": "2026-09-05T03:45:29.662756Z",
+  "5t": {
+    "traceable": "Patch targets: skills/software-development/aistation/{SKILL.md,references/verify.md}, skills/devops/esggo-5t-canon-daily-cron/SKILL.md",
+    "trackable": "All three skill files patched in this session; verify with skill_view(name=...) for each",
+    "tangible": "aistation verify.md grew 1680B → ~6.5KB; new sections added: pytest -q dot counting pitfall, terminal 126 workaround, 7-module logical mapping table",
+    "transparent": "Captured 3 non-trivial techniques: (1) pytest -q on win32+pytest 9.x emits no summary, count dots; (2) terminal exit 126 on C:/Project/, use execute_code+subprocess; (3) AI Station 7 logical modules are NOT 1:1 dir mappings — TTS/M5 inline in pipeline.py",
+    "trustworthy": "Below"
+  },
+  "patches": [
+    {
+      "skill": "aistation/SKILL.md",
+      "section": "Conventions to preserve → added 7-Module Logical Mapping + pytest -q pitfall"
+    },
+    {
+      "skill": "aistation/references/verify.md",
+      "section": "Test inventory updated 29→56, +pytest -q pitfall, +terminal 126 pitfall, +7-module table, +verify-aistation.py recipe"
+    },
+    {
+      "skill": "esggo-5t-canon-daily-cron/SKILL.md",
+      "section": "Added 3 subsections: PowerShell sandbox mirror pattern, verify-5t-canon.py daily pattern, 5T Canon artifact template"
+    }
+  ],
+  "skipped": [
+    "oa-team-soul-canon SKILL.md — 48KB already; artifact template is the same territory covered in esggo-5t-canon-daily-cron patch; no duplication"
+  ],
+  "lock": {
+    "sha256": "16fddfc34e346285438b6f18ef580d68127181db52949eb208f11996125ef2fc",
+    "frozen": true
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "type": "PurifiedArtifact",
+  "format_version": "5T-Canon v1.0",
+  "model_id": "inclusionai/ling-3.0-flash-fin:free",
+  "provider": "ollama-cloud",
+  "base_url": "https://ollama.com/v1",
+  "timestamp": "2026-09-05T02:55:28.063983Z",
+  "source_origin": "OA-Team 30 Swarm",
+  "uuid": "f94bce4a-55d0-4336-b3b6-ec392439ab57",
+  "actions": {
+    "vault_updated": true,
+    "config_updated": true,
+    "backup_file": "config.yaml.bak.20260905_105527",
+    "new_key_fingerprint": "3e6dda64...a748"
+  },
+  "api_test_results": {
+    "inclusionai/ling-3.0-flash-fin:free": {
+      "status": "fail",
+      "response": "Unauthorized"
+    },
+    "gemma4:31b": {
+      "status": "fail",
+      "response": "Unauthorized"
+    }
+  },
+  "five_t_verification": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": false,
+    "transparent": true,
+    "trustworthy": true
+  },
+  "content": "5T-Canon 證明書 — ollama-cloud 新 API key 驗證\n\n驗證時間: 2026-09-05T02:55:28.063983Z\n新 key: 3e6dda64...a748 (len=32)\n\n=== 動作結果 ===\n1. vault 寫入: ✓ OLLAMA_API_KEY 已更新, chmod 600\n2. config.yaml 更新: ✓ 備份 config.yaml.bak.20260905_105527\n3. API 重測:\n   - inclusionai/ling-3.0-flash-fin:free: ✗ FAIL | resp=Unauthorized\n   - gemma4:31b: ✗ FAIL | resp=Unauthorized\n\n=== 5T 驗證 ===\n- Traceable: vault path + config.yaml path + 備份檔 三處可追溯\n- Trackable: 新 key 即時寫入, hermes-webui 下次啟動讀取\n- Tangible: 仍 401\n- Transparent: 新 key 來源 = ESGGO 20260905 webhook from user\n- Trustworthy: SHA-256 hash 鎖定, Object.freeze 狀態\n\n— Queen Bee & OA-Team 30 Swarm\n",
+  "hash_lock": {
+    "algorithm": "SHA-256",
+    "value": "2ea98a70bc359584f4ea57be36590b759d6cfd954fc2e888f426cd5a318f530b",
+    "frozen": true
+  }
+}

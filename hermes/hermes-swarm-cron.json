@@ -1,0 +1,36 @@
+{
+  "name": "hermes-30-agent-swarm-cron",
+  "version": "1.0.0",
+  "updatedAt": "2026-10-04T08:30:00Z",
+  "description": "Hermes 30-Agent Bee Swarm Autonomous Patrol & Cron Scheduler",
+  "5t_compliant": true,
+  "jobs": [
+    {
+      "id": "esggo-monitor-vps-health",
+      "agent_id": 13,
+      "agent_name": "VPS Health Monitor Agent",
+      "schedule": "*/30 * * * *",
+      "target": "http://localhost:3000/api/cron/run",
+      "action": "vps-health-check",
+      "enabled": true
+    },
+    {
+      "id": "esggo-monitor-docker-status",
+      "agent_id": 14,
+      "agent_name": "Docker & Service Status Agent",
+      "schedule": "0 */2 * * *",
+      "target": "http://localhost:3000/api/cron/run",
+      "action": "docker-status-check",
+      "enabled": true
+    },
+    {
+      "id": "esggo-daily-report",
+      "agent_id": 28,
+      "agent_name": "Swarm Daily Reporter Agent",
+      "schedule": "0 18 * * *",
+      "target": "http://localhost:3000/api/cron/run",
+      "action": "swarm-daily-report",
+      "enabled": true
+    }
+  ]
+}

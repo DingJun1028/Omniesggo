@@ -1,0 +1,151 @@
+#!/usr/bin/env node
+// pre-commit hook — Encoding + lockfile sync + lint-staged
+// Git will run this via the system Node.js (cross-platform compatible)
+
+const { execSync, execFileSync } = require('child_process');
+
+// 1. Check encoding issues (U+FFFD, non-UTF-8)
+try {
+  execSync('node scripts/encoding-check.mjs --staged', { stdio: 'inherit', encoding: 'utf-8' });
+} catch {
+  process.exit(1);
+}
+
+// 2. Check lockfile sync — prevent CI --frozen-lockfile failures
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+const pkgPath = path.resolve(__dirname, '..', 'package.json');
+const lockPath = path.resolve(__dirname, '..', 'pnpm-lock.yaml');
+
+// package.json 變更時必須驗 lockfile, 但「lockfile 存在與否」要看 **index**
+// 而非磁碟: 刪除 pnpm-lock.yaml 這個提交本身就是最高風險的繞過路徑 ——
+// 若守衛條件是 fs.existsSync(lockPath), 該提交會讓整項檢查直接消失。
+let lockStaged = true;
+let pkgStaged = false;
+try {
+  const changed = execSync('git diff --cached --name-only --diff-filter=ACMR', { encoding: 'utf-8' })
+    .split('\n').map((f) => f.trim()).filter(Boolean);
+  pkgStaged = changed.includes('package.json');
+  if (pkgStaged) {
+    try {
+      execFileSync('git', ['cat-file', '-e', ':pnpm-lock.yaml'], { stdio: 'ignore' });
+    } catch {
+      lockStaged = false;
+    }
+  }
+} catch {
+  // git 不可用 (例如非 git 目錄) → 不擋, 交由 CI 驗證
+  pkgStaged = false;
+}
+
+if (pkgStaged && !lockStaged) {
+  console.error('[pre-commit] pnpm-lock.yaml 在本次提交中消失，但 package.json 仍被修改。');
+  console.error('  這會讓本項同步檢查連同 CI 的 --frozen-lockfile 保護一起失效。');
+  console.error('  若確實要移除 lockfile，請一併移除 package.json 的相依宣告。');
+  process.exit(1);
+}
+
+if (pkgStaged && lockStaged && fs.existsSync(pkgPath) && fs.existsSync(lockPath)) {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+    const lock = fs.readFileSync(lockPath, 'utf-8');
+    
+    const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+    let lockfileStale = false;
+    
+    for (const [name, version] of Object.entries(deps)) {
+      if (typeof version !== 'string') continue;
+      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const pattern = new RegExp(`['"]?${escaped}['"]?:\\s|${escaped}@`, 'm');
+      if (!pattern.test(lock)) {
+        console.error(`[pre-commit] lockfile stale: ${name}@${version} not found in pnpm-lock.yaml`);
+        lockfileStale = true;
+      }
+    }
+    
+    if (lockfileStale) {
+      console.error('[pre-commit] Run "pnpm install" to update pnpm-lock.yaml before committing.');
+      process.exit(1);
+    }
+  } catch (e) {
+    console.warn('[pre-commit] Could not verify lockfile sync:', e.message);
+  }
+}
+
+// 3. Verify agents.yaml (OA-Team 30-Swarm) when it changes
+try {
+  const staged = execSync('git diff --cached --name-only --diff-filter=ACMR', { encoding: 'utf-8' })
+    .split('\n')
+    .map((f) => f.trim())
+    .filter(Boolean);
+  const agentsYaml = staged.find((f) => f === 'agents.yaml');
+  if (agentsYaml) {
+    try {
+      // 必須驗證 **staged (index)** 的內容, 不是工作區的。
+      // 這是閘#1 vault 洞的鏡像: 先 stage 壞版再把工作區改好, 若驗工作區
+      // 就會放行壞版進 commit。verifier 本身支援路徑參數, 直接餵給它。
+      const tmp = path.join(os.tmpdir(), `agents-staged-${process.pid}.yaml`);
+      try {
+        fs.writeFileSync(tmp, execFileSync('git', ['show', ':agents.yaml'], { encoding: 'utf-8' }));
+        execSync(`python3 scripts/verify-agents-yaml.py "${tmp}"`, { stdio: 'inherit', encoding: 'utf-8' });
+        console.log('[pre-commit] agents.yaml verification passed (staged content).');
+      } finally {
+        fs.unlinkSync(tmp);
+      }
+    } catch {
+      console.error('[pre-commit] agents.yaml verification FAILED — fix the framework before committing.');
+      process.exit(1);
+    }
+  }
+} catch (e) {
+  // git/python may not be available in some environments — warn but don't block
+  console.warn('[pre-commit] Could not run agents.yaml verification (skipping):', e.message);
+}
+
+// 4. 30號質控蜂 — vault 筆記 frontmatter 校驗 (Trustworthy 禁區)
+// 所有 vault/ 下 .md 變更必含 source_origin + co_authors (5T Traceable / Trustworthy)
+//
+// 內容必須從 **index** (`git show :<file>`) 讀, 不能讀工作區:
+//   (a) 校驗的對象是「即將被提交的內容」, 不是「磁碟上現在的內容」—— 工作區可能
+//       有未 staged 的改動, 讀工作區會驗到從未打算提交的東西;
+//   (b) 舊版讀工作區 + catch-all 讓「staged 但工作區已被刪除」變成
+//       ENOENT → 被 catch 成 console.warn → exit 0, 整項檢查靜默失效 (實測假綠)。
+// 讀取失敗一律硬失敗: 一個「讀不到就當沒問題」的閘不是閘。
+try {
+  const staged = execSync('git diff --cached --name-only --diff-filter=ACMR', { encoding: 'utf-8' })
+    .split('\n')
+    .map((f) => f.trim())
+    .filter(Boolean)
+    .filter((f) => f.startsWith('vault/') && f.endsWith('.md'));
+  let failed = false;
+  for (const f of staged) {
+    let raw;
+    try {
+      // execFileSync 直接傳 argv, 不經 shell —— 路徑含空格/引號也安全
+      // maxBuffer: Node 預設 1 MiB, 超出即 ENOBUFS 拋錯 → 合法的大型 vault
+      // 檔會被誤判為壞檔而擋下提交。放寬到 16 MiB 覆蓋 vault 規格,
+      // 同時仍保留上限, 避免無限吃記憶體。
+      raw = execFileSync('git', ['show', `:${f}`], { encoding: 'utf-8', maxBuffer: 16 * 1024 * 1024 });
+    } catch (e) {
+      console.error(`[質控蜂] ${f}: 無法從 index 讀取 staged 內容 — ${e.message}`);
+      failed = true;
+      continue;
+    }
+    // 行尾無關：Windows cron 產出的 vault 筆記是 CRLF，只認 \n 的 regex 會把
+    // 合規的 frontmatter 誤判為「缺 frontmatter」而擋下整個 commit。
+    const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (!fmMatch) { console.error(`[質控蜂] ${f}: 缺 frontmatter`); failed = true; continue; }
+    const fm = fmMatch[1];
+    const hasSource = /^\s*source_origin\s*:/m.test(fm);
+    const hasCoAuthors = /^\s*co_authors\s*:/m.test(fm);
+    if (!hasSource) { console.error(`[質控蜂] ${f}: 缺 source_origin (Traceable)`); failed = true; }
+    if (!hasCoAuthors) { console.error(`[質控蜂] ${f}: 缺 co_authors 欄位`); failed = true; }
+  }
+  if (failed) { console.error('[質控蜂] vault 筆記未過 30 號質控蜂校驗 — 補 source_origin/co_authors'); process.exit(1); }
+  else if (staged.length > 0) console.log(`[質控蜂] ${staged.length} vault 筆記通過 5T 校驗 ✓`);
+} catch (e) {
+  console.error(`[質控蜂] vault 校驗無法執行 — 視為不通過: ${e.message}`);
+  process.exit(1);
+}

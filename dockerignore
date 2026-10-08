@@ -1,0 +1,72 @@
+# .dockerignore — Exclude sensitive and unnecessary files from Docker context
+# Created by wing-ops (esggo-swarm) security review
+
+# Git
+.git
+.gitignore
+.github
+
+# Environment files (secrets)
+.env
+.env.local
+.env.*.local
+.env.production
+.env.example
+.env.test
+.env.omni*
+**/.env
+**/.env.*
+*.pem
+*.key
+*.crt
+
+# Node.js
+node_modules
+.next
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Documentation
+*.md
+LICENSE
+CHANGELOG.md
+CONTRIBUTING.md
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+__tests__
+*.test.*
+*.spec.*
+
+# Build artifacts
+dist
+build
+out
+
+# VPS specific — keep vps/ in build context (vps/Dockerfile.gateway + Dockerfile.arm64
+# COPY files from it); only exclude runtime/mount-only subdirs and env secrets.
+oracle-deploy/
+certbot/
+monitoring/
+vps/certbot/
+vps/.env*
+*.conf

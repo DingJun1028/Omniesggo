@@ -1,15 +1,16 @@
 // vps/junaikey/schema.mjs
 // ============================================================
 // 共享常數、MANTRA、traits 定義
+// NCB table 名稱可由 env 覆寫 (e.g. NCBDB_TABLE_SKILLS=skills)
 // ============================================================
 export const MANTRA = '無作妙德。圓通無礙';
 export const SKILL_TRAITS = ['永恆', '被動', '自主', '共享', '閉環', '圓通'];
 export const NCB_TABLES = {
-  skills: 'junaikey_skills',
-  memory: 'junaikey_memory',
-  progress: 'junaikey_progress',
-  journal: 'junaikey_journal',
-  lineage: 'junaikey_lineage',  // FR-05 標籤血緣追蹤
+  skills:   process.env.NCBDB_TABLE_SKILLS   || 'junaikey_skills',
+  memory:   process.env.NCBDB_TABLE_MEMORY   || 'junaikey_memory',
+  progress: process.env.NCBDB_TABLE_PROGRESS || 'junaikey_progress',
+  journal:  process.env.NCBDB_TABLE_JOURNAL  || 'junaikey_journal',
+  lineage:  process.env.NCBDB_TABLE_LINEAGE  || 'junaikey_lineage',
 };
 export const DEFAULT_MEMORY_RETENTION = 1000;
 export const DEFAULT_NCB_LIST_LIMIT = 500;

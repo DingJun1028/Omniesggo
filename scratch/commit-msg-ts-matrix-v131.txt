@@ -1,0 +1,41 @@
+feat(ts-matrix): v1.3.1 Stage 5 GREEN — in-process TDD tests + pure function refactor
+
+# v1.3.1 Changes
+
+1. **verify.mjs pure-function refactor**
+   - scanSharedExports(root = ROOT) — 接受 root 參數
+   - scanShadowedTypes(sharedExports, root = ROOT) — 接受 root 參數
+   - walkTs(dir) — 已接受 dir, 加 export
+   - CLI guard: process.argv[1] === fileURLToPath(import.meta.url)
+     Only run side effects (writeFile, console.log, process.exitCode) in CLI mode
+   - When imported as module, side effects skipped (TDD-friendly)
+
+2. **test-verify.mjs in-process import (Stage 5 GREEN)**
+   - Removed execFileSync/subprocess (Windows + modal sandbox issues)
+   - Direct call: import { scanSharedExports, scanShadowedTypes, sha256 } from './verify.mjs'
+   - T1-T4 tests run synchronously, no spawn overhead
+   - Drift-report.json still written with SHA256 lock (Trustworthy)
+
+3. **Result: 11 passed, 0 failed**
+   - T1 .d.ts shadowed MUST be detected ✓ (was v1.1.0 bug, fixed v1.2.0)
+   - T2 .ts re-export ignored ✓
+   - T3 .tsx shadowed MUST be detected ✓
+   - T4 clean tree no drift ✓ (forward 14 exports, reverse 0 shadowed)
+
+4. **CLI still works** (REFACTOR 沒破壞現有功能)
+   - node tools/ts-matrix/verify.mjs → Forward 14 ✓ Reverse 0 ✓ exit 0
+
+# 5T Gate
+
+- Traceable: tools/ts-matrix/{verify,test-verify}.mjs + drift-report.json
+- Trackable: 11 passed in test output + CLI exit 0
+- Tangible: real node tools/ts-matrix/test-verify.mjs run
+- Transparent: RED→GREEN process documented
+- Trustworthy: SHA256 lock on drift-report.json (Trustworthy 5T)
+
+# Stage 6 Status
+
+TDD RED → GREEN complete. Remaining audit:
+- subagent 兩階段 review (待派)
+- .d.ts pitfall skill 補強 (待寫)
+- feat/omni-integration-center → main merge (待定)

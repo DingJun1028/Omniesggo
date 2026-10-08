@@ -1,0 +1,142 @@
+# 為什麼需要這個 workflow：舊的 CF_API_TOKEN 已綁定 GitHub Actions runner 的
+# IP 來源，但 DNS 編輯需要 #dns_records:edit 權限，而該 token 沒有此權限
+# （2026-09-29 實測：zone 回 403 / 9109 Cannot use the access token from
+# location）。因此改用獨立的 CF_DNS_EDIT_TOKEN（esggo-dns-edit，
+# #dns_records:edit，無 IP 綁定），並保留 CF_API_TOKEN 作為 fallback。
+#
+# 冪等：重跑會先刪除同名記錄再建立，不會產生重複。
+
+name: OmniLive DNS
+
+# 為 omnilivetranslation.esggo.co 建立 Cloudflare Tunnel 的 CNAME 記錄。
+
+on:
+  workflow_dispatch:
+    inputs:
+      hostname:
+        description: '要設定的 FQDN'
+        required: false
+        default: 'omnilivetranslation.esggo.co'
+      tunnel_target:
+        description: 'Cloudflare Tunnel 目標 (<uuid>.cfargotunnel.com)'
+        required: false
+        default: 'd821f09e-91ec-4c38-85da-89451a5a8983.cfargotunnel.com'
+      proxied:
+        description: '是否走 Cloudflare 代理 (true/false)'
+        required: false
+        default: 'true'
+
+permissions:
+  contents: read
+
+jobs:
+  upsert-cname:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    # token 放在 job 層 env；run: 內只引用 shell 變數 $CF_TOKEN。
+    # 只認 CF_DNS_EDIT_TOKEN（#dns_records:edit）。刻意不做 || CF_API_TOKEN fallback：
+    # CF_API_TOKEN 綁 runner IP，在 Actions 內會被 Cloudflare 拒絕（code 9109），
+    # fallback 只會掩蓋「secret 配錯」這個真因，應直接 fast-fail。
+    env:
+      CF_TOKEN: ${{ secrets.CF_DNS_EDIT_TOKEN }}
+      CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
+      HOSTNAME: ${{ inputs.hostname }}
+      TARGET: ${{ inputs.tunnel_target }}
+      PROXIED: ${{ inputs.proxied }}
+    steps:
+      - name: 檢查 token 並解析 zone
+        id: zone
+        run: |
+          set -euo pipefail
+          if [ -z "${CF_TOKEN:-}" ]; then
+            echo "::error::CF_DNS_EDIT_TOKEN 與 CF_API_TOKEN 皆未設定"
+            exit 1
+          fi
+          auth=(-H "Authorization: Bearer ${CF_TOKEN}")
+
+          resp=$(curl -sS --max-time 30 "${auth[@]}" \
+            https://api.cloudflare.com/client/v4/user/tokens/verify)
+          status=$(jq -r '.result.status // "unknown"' <<<"${resp}")
+          echo "token status: ${status}"
+          if [ "${status}" != "active" ]; then
+            echo "::error::token 狀態為 ${status}（預期 active）"
+            exit 1
+          fi
+
+          zid="${CF_ZONE_ID:-}"
+          if [ -z "${zid}" ]; then
+            zresp=$(curl -sS --max-time 30 "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones?name=esggo.co")
+            zid=$(jq -r '.result[0].id // empty' <<<"${zresp}")
+          fi
+          if [ -z "${zid}" ]; then
+            echo "::error::無法取得 zone id"
+            exit 1
+          fi
+          echo "id=${zid}" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### 環境"
+            echo "- token status: ${status}"
+            echo "- zone id: \`${zid}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: 刪除既有同名記錄
+        env:
+          ZONE_ID: ${{ steps.zone.outputs.id }}
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer ${CF_TOKEN}")
+
+          # HOSTNAME 僅允許 esggo.co 及其子網域：此步驟會刪除記錄，
+          # 未經約束的輸入可改寫 zone 內任意名稱（含 www.esggo.co）。
+          case "${HOSTNAME}" in
+            *.esggo.co|esggo.co) ;;
+            *) echo "::error::HOSTNAME 必須落在 esggo.co 內，收到：${HOSTNAME}"; exit 1 ;;
+          esac
+
+          # URL 編碼後才拼進 query string，避免 & # ? 等字元注入額外參數。
+          HOSTNAME_ENC=$(jq -rn --arg v "${HOSTNAME}" '$v|@uri')
+
+          existing=$(curl -sS --max-time 30 "${auth[@]}" \
+            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records?type=CNAME&name=${HOSTNAME_ENC}" \
+            | jq -r '.result[]?.id')
+          if [ -z "${existing}" ]; then
+            echo "無既有記錄"
+          fi
+          for rid in $existing; do
+            echo "刪除既有記錄 ${rid} (${HOSTNAME})"
+            resp=$(curl -sS --max-time 30 -X DELETE "${auth[@]}" \
+              "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records/${rid}")
+            # 刪除失敗必須讓 job 紅燈：靜默失敗會使後續建立重複而全盤告錯。
+            if [ "$(jq -r '.success' <<<"${resp}")" != "true" ]; then
+              echo "::error::刪除記錄 ${rid} 失敗: $(jq -c '.errors' <<<"${resp}")"
+              exit 1
+            fi
+            echo "  刪除結果 success=true"
+          done
+
+      - name: 建立 CNAME
+        env:
+          ZONE_ID: ${{ steps.zone.outputs.id }}
+        run: |
+          set -euo pipefail
+          auth=(-H "Authorization: Bearer ${CF_TOKEN}" -H "Content-Type: application/json")
+
+          body=$(jq -nc --arg n "${HOSTNAME}" --arg t "${TARGET}" --argjson p "${PROXIED}" \
+            '{type:"CNAME",name:$n,content:$t,proxied:$p,ttl:1}')
+          resp=$(curl -sS --max-time 30 -X POST "${auth[@]}" -d "${body}" \
+            "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/dns_records")
+          if [ "$(jq -r '.success' <<<"${resp}")" != "true" ]; then
+            echo "::error::建立失敗: $(jq -c '.errors' <<<"${resp}")"
+            exit 1
+          fi
+          jq -r '"已建立 \(.result.name) → \(.result.content) (proxied=\(.result.proxied))"' <<<"${resp}"
+
+          {
+            echo ""
+            echo "### 結果"
+            echo "| 主機 | 目標 | 代理 |"
+            echo "|---|---|---|"
+            echo "| \`${HOSTNAME}\` | \`${TARGET}\` | ${PROXIED} |"
+          } >> "$GITHUB_STEP_SUMMARY"

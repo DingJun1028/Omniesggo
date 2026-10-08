@@ -45,8 +45,10 @@ const NCB_BASE = (process.env.NCBDB_BASE_URL
   || 'https://api.nocodebackend.com'
   ).replace(/\/+$/, '');
 
+// Table 名稱可由 env 覆寫 (NCBDB_TABLE_SKILLS=skills 等)
+const T = (k, d) => process.env['NCBDB_TABLE_' + k] || d;
 const TABLES = {
-  junaikey_skills: {
+  [T('SKILLS', 'junaikey_skills')]: {
     desc: '永恆習得的技能 (主線 A)',
     columns: [
       { name: 'name',       type: 'VARCHAR(255)', required: true,  desc: '技能名稱 (唯一識別)' },
@@ -55,7 +57,7 @@ const TABLES = {
       { name: 'updatedAt',  type: 'DATETIME',     required: true,  desc: '最後更新時間 (ISO 8601)' },
     ],
   },
-  junaikey_memory: {
+  [T('MEMORY', 'junaikey_memory')]: {
     desc: '共享記憶 (主線 B, append-only)',
     columns: [
       { name: 'ts',           type: 'DATETIME', required: true,  desc: '事件時間 (ISO 8601)' },
@@ -65,7 +67,7 @@ const TABLES = {
       { name: 'tags',         type: 'JSON',      required: false, desc: '標籤陣列,用於 query --tag=' },
     ],
   },
-  junaikey_progress: {
+  [T('PROGRESS', 'junaikey_progress')]: {
     desc: '當前進度 (主線 C, single-doc 取代式)',
     columns: [
       { name: 'active',     type: 'TEXT',     required: true,  desc: '當前進行中的任務' },
@@ -73,7 +75,7 @@ const TABLES = {
       { name: 'updatedAt',  type: 'DATETIME', required: true,  desc: '最後更新時間' },
     ],
   },
-  junaikey_journal: {
+  [T('JOURNAL', 'junaikey_journal')]: {
     desc: '審計日誌 (best-effort, awakened/reflect 觸發記錄)',
     columns: [
       { name: 'ts',       type: 'DATETIME',    required: true,  desc: '事件時間' },

@@ -1,0 +1,25 @@
+### Execution Trace (OmniCore Matrix):
+- 🔍 Viewed:
+  - `C:\Users\dingj\.local\bin\omh.exe setup`: Checked setup options, dry-run previews, and model provider integrations.
+- ⚡ Ran:
+  - `omh setup --dry-run`: Validated planned operations, skill directories, and profile links.
+  - `omh setup --yes --language zh`: Executed official setup wizard, registered 130 OMH skills (`~/.omh/skills`), connected Hermes configuration, and refreshed `default` & `oa-team` bot profiles.
+  - `omh hud`: Verified HUD output `[omh] v2.0.5 | plugin:ready | target:single | coding-agent:not-selected`.
+- 🛠️ Modified:
+  - `~/.omh/skills`: Synchronized and enabled 130 OMH native skill definitions.
+  - `C:\Users\dingj\AppData\Local\hermes\config.yaml`: Linked OMH settings and plugin status helpers.
+
+### Synthesis & Outcome:
+- Oh My Hermes (`omh`) 2.0.5 全域安裝與 Setup 流程已 100% 圓滿完成！
+- 狀態指示器回傳 `plugin:ready`，130 項工作流已完整連結至 Hermes 核心與蜂群設定檔。
+[2026-10-04T20:56:00+08:00] [5T-TRACE] [OH-MY-HERMES & HERMES-WORKFLOW]
+- Project: ESG GO
+- Task: Oh My Hermes (OMH) Setup & Practical Workflow Verification
+- Status: SUCCESS (58/58 Doctor checks passed, HUD ready, Gateway PID 33724 healthy, OpenCode free model space-bunny-free aligned)
+- Modules Verified:
+  * OMH CLI v2.0.5 (C:\Users\dingj\.local\bin\omh.exe)
+  * Hermes Native Plugin Bridge (omh v2.0.5 enabled)
+  * Model Chains Routing Configuration (Clean Token Schema)
+  * G1-G10 Case Catalog & Playbook Recommender
+
+[2026-10-04T21:18:00+08:00] [5T-TRACE] [OBSIDIAN-ANTIGRAVITY + MOBILE SYNC] Installed VSIX, configured light appearance, bound mobile iCloud vault DingJun, initialized Antigravity Hub.
