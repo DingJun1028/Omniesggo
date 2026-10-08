@@ -156,3 +156,44 @@ export function aggregateTags(records) {
     .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(([tag, count]) => ({ tag, count }));
 }
+
+// 結界 inheritance: 帶 best-practice:結界 的 skills 自動擴散到所有同 agent/squad 的 skills
+// 規則: 若任一 skill 有 best-practice:結界, 則同 agent:* 或 squad:* 的 skills 自動獲得
+//       結界可被顯式移除 (若 skills 沒帶結界)
+// 回傳: 需自動加結界的 skills 列表 (name + 原因)
+export function calculateBoundaryInheritance(allSkills) {
+  const awakened = allSkills.filter(s => Array.isArray(s.traits) && s.traits.includes('best-practice:结界'));
+  if (!awakened.length) return [];
+  // 收集所有 awakened 的 agent/squad
+  const inheritedAgents = new Set();
+  const inheritedSquads = new Set();
+  for (const s of awakened) {
+    for (const t of (s.traits || [])) {
+      const p = parseTag(t);
+      if (p && p.key === 'agent') inheritedAgents.add(p.value);
+      if (p && p.key === 'squad') inheritedSquads.add(p.value);
+    }
+  }
+  // 找出需要繼承的 skills (同 agent/squad 但沒有 best-practice:结界)
+  const needsInherit = [];
+  for (const s of allSkills) {
+    if (Array.isArray(s.traits) && s.traits.includes('best-practice:结界')) continue;  // 已有
+    const hasMatchAgent = (s.traits || []).some(t => {
+      const p = parseTag(t);
+      return p && p.key === 'agent' && inheritedAgents.has(p.value);
+    });
+    const hasMatchSquad = (s.traits || []).some(t => {
+      const p = parseTag(t);
+      return p && p.key === 'squad' && inheritedSquads.has(p.value);
+    });
+    if (hasMatchAgent || hasMatchSquad) {
+      needsInherit.push({
+        name: s.name,
+        reason: hasMatchAgent
+          ? `inherits 結界 from agent:* with best-practice:结界`
+          : `inherits 結界 from squad:* with best-practice:结界`,
+      });
+    }
+  }
+  return needsInherit;
+}

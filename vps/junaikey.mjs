@@ -68,7 +68,7 @@ const JunAikey = {
 };
 
 // Re-export operations 給 import
-const { awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills, remember, recall, searchMemory, pruneMemory, setProgress, getProgress, reflect, tagSkill, untagSkill, tagMemories, listTags, findByTag, validateTag, checkTagConflicts } = ops;
+const { awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills, remember, recall, searchMemory, pruneMemory, setProgress, getProgress, reflect, tagSkill, untagSkill, tagMemories, listTags, findByTag, validateTag, checkTagConflicts, applyBoundaryInheritance, pruneSkills, mergeSkills, getLineage, promoteSkill, getSedimentationStats, autoTagFromLLM } = ops;
 
 export {
   JunAikey, JUNAKEY_HOME, JUNAKEY_BACKEND, PATHS,
@@ -78,6 +78,8 @@ export {
   remember, recall, searchMemory, pruneMemory,
   setProgress, getProgress, reflect,
   tagSkill, untagSkill, tagMemories, listTags, findByTag, validateTag, checkTagConflicts,
+  applyBoundaryInheritance, pruneSkills, mergeSkills,
+  getLineage, promoteSkill, getSedimentationStats, autoTagFromLLM,
 };
 export default JunAikey;
 
@@ -103,6 +105,13 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
   node vps/junaikey.mjs tags [--type=skills|memory|all] [--query=PATTERN]  # 列出所有 tags
   node vps/junaikey.mjs find <tag>                             # 找帶此 tag 的 items
   node vps/junaikey.mjs validate-tag <tag>                     # 驗證 OmniTag 格式
+  node vps/junaikey.mjs inherit [--dry-run]                    # 結界 inheritance
+  node vps/junaikey.mjs prune-skills [--max=200] [--keep=name1,name2]
+  node vps/junaikey.mjs merge-skills <src> <dst> [--new-name=N]  # 合併
+  node vps/junaikey.mjs lineage [--target=NAME] [--tag=TAG]      # 查血緣 (FR-05)
+  node vps/junaikey.mjs promote <skill-name> <L2|L3|L4|L5>       # 提升沉澱層級 (F-04)
+  node vps/junaikey.mjs sed-stats                                # L1-L5 統計 (OR-01)
+  node vps/junaikey.mjs auto-tag <text-or-file>                  # LLM 自動標籤 (FR-03)
   node vps/junaikey.mjs home
   node vps/junaikey.mjs backend
   node vps/junaikey.mjs doctor`;
@@ -279,6 +288,71 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         const tag = rest[0];
         if (!tag) { console.log(usage); process.exit(1); }
         console.log(JSON.stringify(ops.validateTag(tag), null, 2));
+        break;
+      }
+      case 'inherit': {
+        const dryRun = rest.includes('--dry-run');
+        const r = await ops.applyBoundaryInheritance({ dryRun });
+        console.log(JSON.stringify(r, null, 2));
+        break;
+      }
+      case 'prune-skills': {
+        const opts = { maxSkills: 200 };
+        for (const a of rest) {
+          if (a.startsWith('--max=')) opts.maxSkills = parseInt(a.slice(6), 10);
+          else if (a.startsWith('--keep=')) opts.keepName = a.slice(7).split(',');
+        }
+        const r = await ops.pruneSkills(opts);
+        console.log(JSON.stringify(r, null, 2));
+        break;
+      }
+      case 'merge-skills': {
+        const src = rest[0];
+        const dst = rest[1];
+        if (!src || !dst) { console.log(usage); process.exit(1); }
+        const opts = {};
+        for (const a of rest.slice(2)) {
+          if (a.startsWith('--new-name=')) opts.newName = a.slice(11);
+          else if (a.startsWith('--new-body=')) opts.newBody = a.slice(11);
+        }
+        const r = await ops.mergeSkills(src, dst, opts);
+        console.log(r ? JSON.stringify(r, null, 2) : '✗ src 或 dst 不存在');
+        break;
+      }
+      case 'lineage': {
+        const opts = { limit: 100 };
+        for (const a of rest) {
+          if (a.startsWith('--target=')) opts.target = a.slice(9);
+          else if (a.startsWith('--tag=')) opts.tag = a.slice(6);
+          else if (a.startsWith('--op=')) opts.op = a.slice(5);
+          else if (a.startsWith('--since=')) opts.since = a.slice(8);
+        }
+        const r = await ops.getLineage(opts);
+        console.log(JSON.stringify(r.slice(0, 50), null, 2));
+        console.log(`(${r.length} 筆,顯示前 50)`);
+        break;
+      }
+      case 'promote': {
+        const name = rest[0];
+        const level = rest[1];
+        if (!name || !level) { console.log(usage); process.exit(1); }
+        const r = await ops.promoteSkill(name, level);
+        console.log(r ? JSON.stringify(r, null, 2) : '✗ skill 不存在');
+        break;
+      }
+      case 'sed-stats': {
+        const r = await ops.getSedimentationStats();
+        console.log(JSON.stringify(r, null, 2));
+        break;
+      }
+      case 'auto-tag': {
+        const input = rest[0];
+        if (!input) { console.log(usage); process.exit(1); }
+        const fs = await import('node:fs/promises');
+        let text = input;
+        try { text = await fs.readFile(input, 'utf8'); } catch {}  // 若是檔案路徑就讀
+        const r = await ops.autoTagFromLLM(text, { maxTags: 5 });
+        console.log(JSON.stringify(r, null, 2));
         break;
       }
       default: console.log(usage); process.exit(cmd ? 1 : 0);

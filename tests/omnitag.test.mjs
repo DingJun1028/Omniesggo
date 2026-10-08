@@ -214,3 +214,115 @@ const g2 = group('operations + OmniTag (local)', [
   console.log(`${'='.repeat(50)}`);
   process.exit(fail === 0 ? 0 : 1);
 })();
+
+const g3 = group('operations v2: inheritance / prune / merge', [
+  test('applyBoundaryInheritance: 結界自動擴散到同 agent', async () => {
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'inherit-'));
+    const PATHS = { home: tmp, skills: path.join(tmp, 's.md'), memory: path.join(tmp, 'm.jsonl'), progress: path.join(tmp, 'p.md'), journal: path.join(tmp, 'j.jsonl') };
+    const lb = createLocalBackend(tmp, PATHS);
+    const nb = createNcbBackend({ base: '', token: '', project: '' });
+    const d = createDispatcher({ localBackend: lb, ncbBackend: nb, NCB_TOKEN: '', NCB_PROJECT: '', JUNAKEY_BACKEND: 'local' });
+    d.select = async () => lb;
+    const ops = createOperations({ dispatcher: d, NCB_BASE: '', NCB_PROJECT: '', JUNAKEY_HOME: tmp });
+    await ops.growSkill('oracle-master', 'oracle 主操作', []);
+    await ops.tagSkill('oracle-master', ['agent:13', 'best-practice:结界']);
+    await ops.growSkill('oci-bv-attach', 'oci boot volume attach', []);
+    await ops.tagSkill('oci-bv-attach', ['agent:13']);  // 同 agent,沒結界
+    await ops.growSkill('ssh-fix', 'ssh fix', []);
+    await ops.tagSkill('ssh-fix', ['agent:14']);  // 不同 agent
+    // dry-run
+    const dry = await ops.applyBoundaryInheritance({ dryRun: true });
+    assert.equal(dry.wouldInherit.length, 1);
+    assert.equal(dry.wouldInherit[0].name, 'oci-bv-attach');
+    // 實際執行
+    const r = await ops.applyBoundaryInheritance();
+    assert.equal(r.inherited, 1);
+    const oci = await ops.recallSkill('oci-bv-attach');
+    assert.ok(oci.traits.includes('best-practice:结界'));
+    const ssh = await ops.recallSkill('ssh-fix');
+    assert.ok(!ssh.traits.includes('best-practice:结界'));  // 不同 agent 不繼承
+    await fs.rm(tmp, { recursive: true });
+  }),
+  test('pruneSkills: 限制最多 2 個,保留最新', async () => {
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'prune-'));
+    const PATHS = { home: tmp, skills: path.join(tmp, 's.md'), memory: path.join(tmp, 'm.jsonl'), progress: path.join(tmp, 'p.md'), journal: path.join(tmp, 'j.jsonl') };
+    const lb = createLocalBackend(tmp, PATHS);
+    const nb = createNcbBackend({ base: '', token: '', project: '' });
+    const d = createDispatcher({ localBackend: lb, ncbBackend: nb, NCB_TOKEN: '', NCB_PROJECT: '', JUNAKEY_BACKEND: 'local' });
+    d.select = async () => lb;
+    const ops = createOperations({ dispatcher: d, NCB_BASE: '', NCB_PROJECT: '', JUNAKEY_HOME: tmp });
+    await ops.growSkill('s1', 'first', []);
+    await new Promise(r => setTimeout(r, 10));
+    await ops.growSkill('s2', 'second', []);
+    await new Promise(r => setTimeout(r, 10));
+    await ops.growSkill('s3', 'third', []);
+    await new Promise(r => setTimeout(r, 10));
+    await ops.growSkill('s4', 'fourth', []);
+    const r = await ops.pruneSkills({ maxSkills: 2 });
+    assert.equal(r.removed, 2);
+    assert.equal(r.total, 2);
+    // 保留最新的 s4, s3
+    assert.ok(r.removedNames.includes('s1'));
+    assert.ok(r.removedNames.includes('s2'));
+    await fs.rm(tmp, { recursive: true });
+  }),
+  test('pruneSkills: keep 特定名稱', async () => {
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'prune-'));
+    const PATHS = { home: tmp, skills: path.join(tmp, 's.md'), memory: path.join(tmp, 'm.jsonl'), progress: path.join(tmp, 'p.md'), journal: path.join(tmp, 'j.jsonl') };
+    const lb = createLocalBackend(tmp, PATHS);
+    const nb = createNcbBackend({ base: '', token: '', project: '' });
+    const d = createDispatcher({ localBackend: lb, ncbBackend: nb, NCB_TOKEN: '', NCB_PROJECT: '', JUNAKEY_BACKEND: 'local' });
+    d.select = async () => lb;
+    const ops = createOperations({ dispatcher: d, NCB_BASE: '', NCB_PROJECT: '', JUNAKEY_HOME: tmp });
+    await ops.growSkill('old-but-keep', 'x', []);
+    await new Promise(r => setTimeout(r, 10));
+    await ops.growSkill('new-1', 'a', []);
+    await new Promise(r => setTimeout(r, 10));
+    await ops.growSkill('new-2', 'b', []);
+    const r = await ops.pruneSkills({ maxSkills: 1, keepName: ['old-but-keep'] });
+    assert.equal(r.total, 2);  // old-but-keep + 1 newest
+    assert.ok((await ops.recallSkill('old-but-keep')));
+    await fs.rm(tmp, { recursive: true });
+  }),
+  test('mergeSkills: 合併 traits + body', async () => {
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'merge-'));
+    const PATHS = { home: tmp, skills: path.join(tmp, 's.md'), memory: path.join(tmp, 'm.jsonl'), progress: path.join(tmp, 'p.md'), journal: path.join(tmp, 'j.jsonl') };
+    const lb = createLocalBackend(tmp, PATHS);
+    const nb = createNcbBackend({ base: '', token: '', project: '' });
+    const d = createDispatcher({ localBackend: lb, ncbBackend: nb, NCB_TOKEN: '', NCB_PROJECT: '', JUNAKEY_BACKEND: 'local' });
+    d.select = async () => lb;
+    const ops = createOperations({ dispatcher: d, NCB_BASE: '', NCB_PROJECT: '', JUNAKEY_HOME: tmp });
+    await ops.growSkill('oracle-bv', 'Oracle boot volume', ['永恆']);
+    await ops.growSkill('oci-attach', 'attach 操作', ['p1', 'agent:13']);
+    const r = await ops.mergeSkills('oci-attach', 'oracle-bv');
+    assert.equal(r.merged, true);
+    assert.equal(r.from, 'oci-attach');
+    assert.equal(r.to, 'oracle-bv');
+    const merged = await ops.recallSkill('oracle-bv');
+    assert.ok(merged.traits.includes('永恆'));
+    assert.ok(merged.traits.includes('p1'));
+    assert.ok(merged.traits.includes('agent:13'));
+    assert.match(merged.body, /合併自 `oci-attach`/);
+    assert.equal(await ops.recallSkill('oci-attach'), null);  // src 刪除
+    await fs.rm(tmp, { recursive: true });
+  }),
+  test('mergeSkills: 重新命名', async () => {
+    const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'merge-'));
+    const PATHS = { home: tmp, skills: path.join(tmp, 's.md'), memory: path.join(tmp, 'm.jsonl'), progress: path.join(tmp, 'p.md'), journal: path.join(tmp, 'j.jsonl') };
+    const lb = createLocalBackend(tmp, PATHS);
+    const nb = createNcbBackend({ base: '', token: '', project: '' });
+    const d = createDispatcher({ localBackend: lb, ncbBackend: nb, NCB_TOKEN: '', NCB_PROJECT: '', JUNAKEY_BACKEND: 'local' });
+    d.select = async () => lb;
+    const ops = createOperations({ dispatcher: d, NCB_BASE: '', NCB_PROJECT: '', JUNAKEY_HOME: tmp });
+    await ops.growSkill('old-name', 'x', []);
+    await ops.growSkill('new-target', 'y', ['p1']);
+    const r = await ops.mergeSkills('old-name', 'new-target', { newName: 'merged-name' });
+    assert.equal(r.to, 'merged-name');
+    assert.equal(await ops.recallSkill('old-name'), null);
+    assert.equal(await ops.recallSkill('new-target'), null);
+    const m = await ops.recallSkill('merged-name');
+    assert.ok(m);
+    assert.ok(m.traits.includes('p1'));
+    await fs.rm(tmp, { recursive: true });
+  }),
+]);

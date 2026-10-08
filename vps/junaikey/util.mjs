@@ -39,10 +39,19 @@ export function parseJSONField(v) {
 // 統一的後端 filter 邏輯
 export function filterEntries(entries, filter = {}) {
   let out = entries;
-  if (filter.tag) out = out.filter(e => Array.isArray(e.tags) && e.tags.includes(filter.tag));
+  if (filter.tag) {
+    const want = String(filter.tag);
+    out = out.filter(e => {
+      if (Array.isArray(e.tags) && e.tags.includes(want)) return true;
+      if (typeof e.tag === 'string' && e.tag === want) return true;  // 血緣記錄用單數 tag
+      return false;
+    });
+  }
   if (filter.event) out = out.filter(e => e.event === filter.event);
   if (filter.since) out = out.filter(e => e.ts >= filter.since);
   if (filter.until) out = out.filter(e => e.ts <= filter.until);
+  if (filter.target) out = out.filter(e => e.target === filter.target);
+  if (filter.op) out = out.filter(e => e.op === filter.op);
   if (filter.contains) {
     const needle = String(filter.contains);
     out = out.filter(e => JSON.stringify(e).includes(needle));

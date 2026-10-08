@@ -26,12 +26,17 @@ export function createLocalBackend(JUNAKEY_HOME, PATHS) {
         const head = p.slice(0, nl).trim();
         const body = p.slice(nl + 1).replace(/\n+$/g, '').trim();
         const tm = head.match(/\[(.+?)\]\s*$/);
-        const name = tm ? head.slice(0, tm.index).trim() : head;
-        // 保留所有 traits (含 OmniTag 與 6 大 trait,不再過濾)
+        const lm = head.match(/\((L[1-5])\)\s*$/);
+        // 從 head 中依序移除 [traits] 和 (Lx),剩下的就是 name
+        let name = head
+          .replace(/\s*\[.*?\]\s*$/, '')   // 移除 [traits]
+          .replace(/\s*\(L[1-5]\)\s*$/, '')  // 移除 (Lx)
+          .trim();
         const traits = tm
           ? tm[1].split('|').map(t => t.trim()).filter(Boolean)
           : [];
-        if (name) skills.push({ name, traits, body, updatedAt: null });
+        const level = lm ? lm[1] : 'L1';
+        if (name) skills.push({ name, traits, level, body, updatedAt: null });
       }
       return skills;
     },
@@ -47,7 +52,8 @@ export function createLocalBackend(JUNAKEY_HOME, PATHS) {
       ].join('\n');
       const body = skills.map(s => {
         const t = s.traits && s.traits.length ? ` [${s.traits.join('|')}]` : '';
-        return `## ${s.name}${t}\n\n${s.body}\n`;
+        const lv = s.level ? ` (${s.level})` : '';
+        return `## ${s.name}${lv}${t}\n\n${s.body}\n`;
       }).join('\n');
       await this.init();
       await fs.writeFile(PATHS.skills, header + body, 'utf8');
@@ -146,6 +152,26 @@ export function createLocalBackend(JUNAKEY_HOME, PATHS) {
     async appendJournal(entry) {
       await this.init();
       await fs.appendFile(PATHS.journal, JSON.stringify(entry) + '\n', 'utf8');
+    },
+
+    // FR-05 標籤血緣追蹤
+    async appendLineage(entry) {
+      await this.init();
+      const lineagePath = path.join(PATHS.home, 'lineage.jsonl');
+      await fs.appendFile(lineagePath, JSON.stringify(entry) + '\n', 'utf8');
+    },
+
+    async readLineage(filter = {}) {
+      const lineagePath = path.join(PATHS.home, 'lineage.jsonl');
+      let text = '';
+      try { text = await fs.readFile(lineagePath, 'utf8'); }
+      catch (e) { if (e.code === 'ENOENT') return []; throw e; }
+      const entries = [];
+      for (const line of text.split('\n')) {
+        if (!line.trim()) continue;
+        try { entries.push(JSON.parse(line)); } catch { /* skip */ }
+      }
+      return filterEntries(entries, filter);
     },
   };
 }

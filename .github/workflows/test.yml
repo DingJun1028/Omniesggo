@@ -1,0 +1,27 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Run junaikey unit tests
+        run: node tests/junaikey.test.mjs
+      - name: Run omnitag unit tests
+        run: node tests/omnitag.test.mjs
+      - name: Run junaikey benchmark
+        run: node tests/junaikey.bench.mjs

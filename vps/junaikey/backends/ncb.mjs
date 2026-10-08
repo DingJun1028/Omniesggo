@@ -288,6 +288,19 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
       try { await _req(`/create/${tables.journal}`, { method: 'POST', body: JSON.stringify(toNCBPayload(entry)) }); }
       catch { /* journal is best-effort */ }
     },
+
+    // FR-05 標籤血緣追蹤: 記錄每次 tag 變更 (who/when/what/why)
+    async appendLineage(entry) {
+      try { await _req(`/create/${tables.lineage}`, { method: 'POST', body: JSON.stringify(toNCBPayload(entry)) }); }
+      catch { /* lineage is best-effort, but try */ }
+    },
+
+    async readLineage(filter = {}) {
+      let rows;
+      try { rows = await _listAllWithRetry(tables.lineage); }
+      catch (e) { if (e.message.includes("doesn't exist")) return []; throw e; }
+      return filterEntries(rows, filter);
+    },
   };
 }
 
