@@ -84,6 +84,13 @@ export default defineConfig({
       // 該測試具真實 gate（失敗時 process.exit(1)），已於沙箱注入缺陷實測可失敗，
       // 非永遠綠的假測試，覆蓋率不減。
       'scripts/avatar-metrics.reg.test.mjs',
+      // 以下 tests/*.test.mjs 為 Node 內建腳本式驗證（頂層 assert + process.exit），
+      // 非 vitest 套件：被根 vitest 抓取時報 "No test suite found in file"
+      // （canon / omnitag）或 process.exit 被攔截（junaikey，實質 exit 0 = 通過）。
+      // 由 `node tests/<檔名>.test.mjs` 在對應工作目錄執行，覆蓋率不減。
+      'tests/canon.test.mjs',
+      'tests/omnitag.test.mjs',
+      'tests/junaikey.test.mjs',
       // vendor/ 是第三方 vendored 套件（archify / impeccable / Understand-Anything 等），
       // 受 .gitignore 第 382 行 `/vendor/` 排除，**不受版控**，CI checkout 後根本不存在。
       // 每個子套件自帶 vitest.config.ts 與 package.json，須由自身目錄執行。
@@ -92,6 +99,13 @@ export default defineConfig({
       // 362 failed / 38 failed tests，全在本目錄，使本機 `pnpm run test`
       // 產生與 CI 不一致的假紅燈（且耗時 2672s）。
       'vendor/**',
+      // ftg-tours-website 的 UI 測試是 happy-dom 套件（自帶 vite.config.js test 區段，
+      // 已在 vitest.workspace.ts 掛成獨立 project）。根 project 是 node env、CWD 是倉庫根，
+      // 若在此執行：React DOM 測試報 window/document undefined，且 tap-targets.test.js
+      // 用 CWD 相對路徑 'src' 會掃到倉庫根的舊 Dashboard 源碼而非 app 的 src。
+      // 由該套件自己的 project（cwd = apps/ftg-tours-website、happy-dom + vitest.setup.js）
+      // 執行，覆蓋率不減。
+      'apps/ftg-tours-website/src/tests/**',
     ],
   },
   resolve: {
