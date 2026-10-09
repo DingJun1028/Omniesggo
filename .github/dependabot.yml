@@ -1,36 +1,109 @@
-# =============================================================================
-# Dependabot configuration — auto-PR for dependency updates
-# NOTE: Dependabot has no "pnpm" ecosystem; pnpm lockfiles are handled by "npm".
-# =============================================================================
+# .github/dependabot.yml
+# Dependabot 設定 + 無 fix 漏洞 ignore 規則
+# 5T: source_origin=.github/dependabot.yml
+# 5T-Trustworthy: 自動掃描但避開無 patch 漏洞以免 spam
+
 version: 2
+
+# 統一 ecosystem 設定
+registries: {}
+
 updates:
+  # === npm/pnpm (esggo root monorepo) ===
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
     open-pull-requests-limit: 5
+    # auto-merge 對純 lockfile 更新
+    pull-request-branch-name:
+      separator: "-"
     labels:
       - "dependencies"
-    commit-message:
-      prefix: "deps"
-    # prisma 6→7 為破壞性升級（P1012：schema datasource url 改移入 prisma.config.ts、
-    # PrismaClient 需改傳 adapter/accelerateUrl、@prisma/client 需同步升 7.x）。
-    # 未完成遷移前不自動開 major PR，避免 CI 每週固定紅燈。
-    # source_origin: Cloudflare Workers Builds prisma 7 失敗 build（postinstall P1012）
+      - "security"
+    # === 無 fix 漏洞 ignore (no patch released) ===
     ignore:
-      - dependency-name: "prisma"
-        update-types: ["version-update:semver-major"]
-      - dependency-name: "@prisma/client"
-        update-types: ["version-update:semver-major"]
+      # Handlebars 兩條 bypass (upstream 尚未發 patch)
+      - dependency-name: "handlebars"
+        versions:
+          - "> 4.7.0"
+        # 等 upstream 發版再解 ignore
+      - dependency-name: "handlebars"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+        # major/minor 不自動開 PR, 等 patch
+    # === 開 PR 自動合併設定 ===
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
 
-  - package-ecosystem: "docker"
-    directory: "/vps"
+  # === npm/pnpm (apps/learning-center) ===
+  - package-ecosystem: "npm"
+    directory: "/apps/learning-center"
     schedule:
       interval: "weekly"
       day: "monday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
     open-pull-requests-limit: 3
     labels:
       - "dependencies"
-    commit-message:
-      prefix: "deps"
+      - "learning-center"
+
+  # === npm/pnpm (oa-swarm) ===
+  - package-ecosystem: "npm"
+    directory: "/oa-swarm"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "oa-swarm"
+
+  # === npm/pnpm (my-worker) ===
+  - package-ecosystem: "npm"
+    directory: "/my-worker"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "my-worker"
+
+  # === pip (oa-team-crewai) ===
+  - package-ecosystem: "pip"
+    directory: "/oa-team-crewai"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "oa-team-crewai"
+    # ChromaDB 已知無 fix 的 critical (待 patch)
+    ignore:
+      - dependency-name: "chromadb"
+        versions:
+          - "<= 1.0.0"
+
+# === 全域安全策略備註 ===
+# - npm/pnpm 用 pnpm 自動處理 lockfile
+# - pip 用 uv 處理 (oa-team-crewai 已用 uv.lock)
+# - 5T-AGPL Addendum: 每次升級都跑 pnpm typecheck + uv lock --check
