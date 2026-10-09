@@ -17,21 +17,24 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Prepare SSH key and config
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v1
+        with:
+          ssh-private-key: ${{ env.SSH_PRIVATE_KEY }}
+      - name: Probe SSH
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
-          printf '%s' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
           cat > ~/.ssh/config <<EOF
           Host vps
             HostName ${VPS_HOST}
             User ${VPS_SSH_USER}
             Port ${SSH_PORT}
-            IdentityFile ~/.ssh/id_ed25519
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
+            IdentitiesOnly yes
           EOF
-          ssh -o BatchMode=yes -o IdentitiesOnly=yes vps 'echo VPS_SSH_OK; hostname; whoami'
+          ssh -o BatchMode=yes vps 'echo VPS_SSH_OK; hostname; whoami'
 
       - name: Upload deployment package
         run: |

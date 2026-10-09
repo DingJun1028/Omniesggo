@@ -12,20 +12,22 @@ jobs:
       VPS_USER: ${{ secrets.VPS_USER }}
       VPS_HOST: ${{ secrets.VPS_HOST }}
     steps:
-      - name: Prepare SSH key config
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@v1
+        with:
+          ssh-private-key: ${{ env.SSH_PRIVATE_KEY || env.VPS_SSH_KEY }}
+      - name: Prepare SSH config
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
-          printf '%s' "${SSH_PRIVATE_KEY:-$VPS_SSH_KEY}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
           cat > ~/.ssh/config <<EOF
           Host vps
             HostName ${VPS_HOST}
             User ${VPS_USER}
             Port 22
-            IdentityFile ~/.ssh/id_ed25519
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
+            IdentitiesOnly yes
           EOF
           echo 'SSH_CONFIG:'
           cat ~/.ssh/config
