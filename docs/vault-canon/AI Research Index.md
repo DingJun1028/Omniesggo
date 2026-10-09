@@ -8,7 +8,7 @@ canonical: null
 
 # OMN-000 · AI Research Index
 
-> **本檔為 Vault 總索引**：列出 `AI Research/` 全部 note，附一句話摘要與 `[[wikilinks]]` 互連。  
+> **本檔為 Vault 總索引**：列出 `AI Research/` 全部 note，附一句話摘要與 wikilinks 雙鏈互連。  
 > 對齊 [[12大萬能 OMNI-CANON]] / [[Best Practice Awakening]] / [[5T Protocol]] / [[ESG-GO 核心]]。
 
 ---
@@ -34,6 +34,7 @@ canonical: null
 | `OMN-LOG-002` | [[ESG GO Sacred Pipeline CI-CD]] | 實錄 |
 | `OMN-LOG-003` | [[Dependabot Security Sweep 2026-10]] | 實錄 |
 | `OMN-LOG-004` | [[FTG Contact Form Pipeline]] | 實錄 |
+| `OMN-LOG-005` | [[Hermes × Obsidian 生態掃描 2026-10]] | 實錄 |
 
 ---
 
@@ -63,6 +64,12 @@ canonical: null
 ## 創世實錄（萬能開發奧義）
 
 - [[創世實錄 — 萬能開發 奧義 v2026-10]] — 2026-10-09 一天一波的活化紀錄（聖典九原則 + 5 大交付 + 以無定為有定演示 + 14 步因果鏈）
+
+---
+
+## 生態掃描（外部資源稽核 2026-10）
+
+- [[Hermes × Obsidian 生態掃描 2026-10]] — 4 份外部教學（清涼遊俠 / NxCode / Fahd Mirza LiveSync / B 站 BV13ZLw6TEon）對照本機實際環境的稽核與收斂（❌不適用細節 + ◐ 選配同步方案）
 
 ---
 
@@ -128,6 +135,7 @@ canonical: null
 | 終始矩陣 PRD | [[OMN-PRD-001 終始矩陣]] |
 | OmniESGgo 系統總設計 | [[OmniESGgo 系統架構 功能設定 成果交付 終始矩陣 設計規劃書]] |
 | 創世實錄 / 萬能開發紀錄 | [[創世實錄 — 萬能開發 奧義 v2026-10]] |
+| Hermes×Obsidian 生態掃描 / 外部教學稽核 | [[Hermes × Obsidian 生態掃描 2026-10]] |
 
 ---
 
