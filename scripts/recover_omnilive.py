@@ -8,11 +8,13 @@ def call_ollama(prompt):
     data = {
         "model": "qwen2.5:3b-64k",
         "prompt": prompt,
-        "stream": False
+        "stream": False,
+        "keep_alive": "30m",
+        "options": {"num_ctx": 8192, "num_predict": 512, "temperature": 0.2, "repeat_penalty": 1.1}
     }
     req = urllib.request.Request(url, data=json.dumps(data).encode("utf-8"), headers={"Content-Type": "application/json"})
     try:
-        with urllib.request.urlopen(req) as response:
+        with urllib.request.urlopen(req, timeout=90) as response:
             result = json.loads(response.read().decode("utf-8"))
             return result["response"]
     except Exception as e:

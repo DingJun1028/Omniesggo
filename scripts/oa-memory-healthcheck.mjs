@@ -64,7 +64,7 @@ let KEY_SWITCHED = false;
 const SVC = process.env.TDAI_SERVICE_ID ?? 'oa-team-swarm';
 const USER = 'admin';
 const QUIET = process.env.HEALTHCHECK_QUIET === '1';
-const TIMEOUT_MS = Number(process.env.OA_MEMORY_TEST_TIMEOUT_MS ?? 30000);
+const TIMEOUT_MS = Number(process.env.OA_MEMORY_TEST_TIMEOUT_MS ?? 120000);  // 120s: /capture runs LLM scene-name extraction
 // /health 的 budget 必須 >= 實際 RTT。本機 TDAI 在忙碌時單次 /v3/conversation/search
 // 實測要 10~17s，固定 5s 的 AbortController 會讓 ping 誤報 "This operation was aborted"
 // → 假告警。預設拉高到 30s（與 TIMEOUT_MS 同級），可用 env 覆寫。
@@ -102,31 +102,33 @@ async function ping() {
 }
 
 async function capture(sid, agent, content) {
-  const res = await fetch(`${CORE}/v3/conversation/add`, {
+  const res = await fetch(`${CORE}/capture`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify({
-      service_id: SVC,
-      user_id: USER,
+      session_key: sid,
       session_id: sid,
-      messages: [{ role: 'user', content: `[${agent}] ${content}` }],
+      user_id: USER,
+      team_id: SVC,
+      agent_id: agent,
+      user_content: `[${agent}] ${content}`,
+      assistant_content: 'healthcheck ok',
     }),
   });
   const d = await res.json().catch(() => ({}));
-  return { ok: res.ok, code: d.code, ids: d.data?.accepted_ids };
+  return { ok: res.ok, code: d.status, l0_ids: (d.l0_ids ?? []).map(String) };
 }
 
 async function recall(sid, query) {
-  const res = await fetch(`${CORE}/v3/conversation/search`, {
+  const res = await fetch(`${CORE}/search/conversations`, {
     method: 'POST',
     headers: authHeaders(),
-    // limit 是必要的：/v3/conversation/search 預設只回 top-1。兩隻蜂都寫了含
-    // "healthcheck" 的訊息時，語意較近的那則永遠贏，單靠 query 區分不出兩隻蜂，
-    // 跨代理召回會恆為 false → 假告警。實測 limit=10 才拿得到兩隻蜂各自的訊息。
-    body: JSON.stringify({ service_id: SVC, user_id: USER, session_id: sid, query, limit: 10 }),
+    // Gateway 實際路由是 POST /search/conversations：query + session_key 做 FTS 搜尋。
+    // 寫入時已固定 session_key → 相同 session_key 才能跨代理召回回兩隻蜂。
+    body: JSON.stringify({ service_id: SVC, user_id: USER, session_key: sid, query, limit: 10 }),
   });
   const d = await res.json().catch(() => ({}));
-  return d.data?.messages ?? [];
+  return (d.results ?? []).map((r)=>({ session_key:r.session_key, message_text:r.message_text, agent_id:r.agent_id ?? '', role:r.role }));
 }
 
 function finish(checks, alert) {
@@ -176,8 +178,8 @@ async function main() {
 
   const w2 = await withTimeout(capture(sid, 'Bee-03 分析蜂', 'healthcheck recall probe'), TIMEOUT_MS, 'w2').catch((e) => ({ ok: false, code: e.message }));
 
-  const w1Ok = !!w1.ok && (Array.isArray(w1.ids) ? w1.ids.length > 0 : false);
-  const w2Ok = !!w2.ok && (Array.isArray(w2.ids) ? w2.ids.length > 0 : false);
+  const w1Ok = !!w1.ok && (Array.isArray(w1.l0_ids) ? w1.l0_ids.length > 0 : false);
+  const w2Ok = !!w2.ok && (Array.isArray(w2.results) ? w2.results.length > 0 : false);
   const writesOk = (w1Ok ? 1 : 0) + (w2Ok ? 1 : 0);
 
   checks.push(['Bee-07 寫入', w1Ok, JSON.stringify(w1)]);
@@ -186,7 +188,7 @@ async function main() {
 
   const r1 = await withTimeout(recall(sid, 'healthcheck'), TIMEOUT_MS, 'r1').catch(() => []);
   const r2 = await withTimeout(recall(sid, 'healthcheck recall'), TIMEOUT_MS, 'r2').catch(() => []);
-  const cross = r1.some((m) => m.content?.includes('Bee-07')) && r2.some((m) => m.content?.includes('Bee-03'));
+  const cross = r1.some((m) => (m.message_text ?? '').includes('Bee-07')) && r2.some((m) => (m.message_text ?? '').includes('Bee-03'));
   const recallOk = (r1.length > 0 ? 1 : 0) + (r2.length > 0 ? 1 : 0);
 
   checks.push(['跨代理召回', cross, `r1=${r1.length} r2=${r2.length}`]);

@@ -9,7 +9,13 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["omni-ui", "esggo", "liquid-glass", "floating-core", "beauty-visual"],
+  "keywords": [
+    "omni-ui",
+    "esggo",
+    "liquid-glass",
+    "floating-core",
+    "beauty-visual"
+  ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
   "description": "OmniUI v1.0 — Liquid Glass Renderer + Floating Core + Metric Visualizer (Beauty)",
@@ -19,7 +25,7 @@
     "@esggo/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

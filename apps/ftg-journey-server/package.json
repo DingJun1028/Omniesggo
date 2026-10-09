@@ -8,9 +8,9 @@
     "dev": "node --watch server.js"
   },
   "dependencies": {
-    "express": "^4.21.0",
-    "google-auth-library": "^9.14.0",
-    "cors": "^2.8.5",
-    "express-rate-limit": "^7.4.0"
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "google-auth-library": "^11.2.0"
   }
 }

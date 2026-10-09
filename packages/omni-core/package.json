@@ -9,7 +9,13 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["omni-core", "esggo", "5t-protocol", "trustworthy", "hash-lock"],
+  "keywords": [
+    "omni-core",
+    "esggo",
+    "5t-protocol",
+    "trustworthy",
+    "hash-lock"
+  ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
   "description": "IComponentCore 心核介面 + sealComponentCore Hash Lock 刻印",
@@ -17,7 +23,7 @@
     "@esggo/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

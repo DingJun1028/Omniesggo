@@ -22,6 +22,8 @@ Respond ONLY with a JSON object in this format:
   "summary": "Brief 1-sentence summary"
 }`;
 
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 90000);
     const response = await fetch(OLLAMA_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -29,12 +31,16 @@ Respond ONLY with a JSON object in this format:
         model: OLLAMA_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Document filename: ${filename}\n\nContent:\n${documentText.substring(0, 4000)}` }
+          { role: 'user', content: `Document filename: ${filename}\n\nContent:\n${documentText.substring(0, 3000)}` }
         ],
         stream: false,
-        format: 'json'
-      })
+        format: 'json',
+        keep_alive: '30m',
+        options: { num_ctx: 8192, num_predict: 512, temperature: 0.2, repeat_penalty: 1.1 }
+      }),
+      signal: ac.signal
     });
+    clearTimeout(t);
 
     if (!response.ok) {
       throw new Error('Ollama connection failed');

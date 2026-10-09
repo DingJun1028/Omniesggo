@@ -9,7 +9,13 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["omni-tag", "esggo", "routing", "syntax-contract", "truth-source-origin"],
+  "keywords": [
+    "omni-tag",
+    "esggo",
+    "routing",
+    "syntax-contract",
+    "truth-source-origin"
+  ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
   "description": "OmniTag v1.0 — 6 維度標籤系統 + routing rules (Truth source_origin)",
@@ -17,7 +23,7 @@
     "@esggo/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

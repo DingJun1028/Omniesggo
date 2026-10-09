@@ -24,6 +24,8 @@ Scope 3 Emissions: ${scope3} tCO2e
 
 Please provide a structured emission reduction strategy based on these metrics.`;
 
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 90000);
     const response = await fetch(OLLAMA_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -34,9 +36,13 @@ Please provide a structured emission reduction strategy based on these metrics.`
           { role: 'user', content: userPrompt }
         ],
         stream: false,
-        format: 'json'
-      })
+        format: 'json',
+        keep_alive: '30m',
+        options: { num_ctx: 8192, num_predict: 512, temperature: 0.2, repeat_penalty: 1.1 }
+      }),
+      signal: ac.signal
     });
+    clearTimeout(t);
 
     if (!response.ok) {
       throw new Error(`Ollama API error: ${response.statusText}`);

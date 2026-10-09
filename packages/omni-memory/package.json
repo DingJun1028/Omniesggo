@@ -9,7 +9,14 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["omni-memory", "esggo", "tencentdb", "gbrain", "obsidian-vault", "trust-hash-lock"],
+  "keywords": [
+    "omni-memory",
+    "esggo",
+    "tencentdb",
+    "gbrain",
+    "obsidian-vault",
+    "trust-hash-lock"
+  ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
   "description": "OmniMemory v1.0 — L0-L3 4 層記憶 + 3 軸持久化 (TencentDB / GBrain / Obsidian Vault)",
@@ -19,7 +26,7 @@
     "@esggo/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

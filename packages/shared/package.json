@@ -17,7 +17,7 @@
     "./i18n-runtime": "./src/i18n-runtime.ts"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "test": "echo 'no tests defined'"

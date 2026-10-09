@@ -8,10 +8,10 @@
     "esggo": "./src/omni.mjs"
   },
   "dependencies": {
-    "commander": "^12.1.0"
+    "commander": "^15.0.0"
   },
   "devDependencies": {
-    "typescript": "^5.9.3"
+    "typescript": "^7.0.2"
   },
   "scripts": {
     "test": "echo 'no tests defined'"
