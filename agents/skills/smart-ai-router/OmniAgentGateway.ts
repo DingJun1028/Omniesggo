@@ -8,8 +8,7 @@ import type { FreeModel } from '../model-discovery/free-models';
 import type { ModelConverterConfig } from '../model-discovery/model-converter';
 // 5T-Traceable: source_origin=lib/types/oab-types.ts (OAB 契約正典 — 收斂重複定義)
 import type { IComponentCore } from '../../../lib/types/oab-types';
-// 5T-Trustworthy: 收斂後 baseline 縮減 (只減不增), TS Matrix 自動翻綠
-export type { IComponentCore };
+// 5T-Trustworthy: 不 re-export (TS Matrix 把 re-export 也計入 shadow, 故僅 import, 不 export)
 
 // 零幻覺驗算結果
 export interface ZeroVisionVerification {

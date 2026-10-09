@@ -9,10 +9,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "cloudflare": "^7.0.0"
+    "cloudflare": "^7.3.0"
   },
   "devDependencies": {
-    "tsx": "^4.23.8",
-    "typescript": "^5.9.3"
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }

@@ -25,12 +25,12 @@ export function createLocalBackend(JUNAKEY_HOME, PATHS) {
         if (nl < 0) continue;
         const head = p.slice(0, nl).trim();
         const body = p.slice(nl + 1).replace(/\n+$/g, '').trim();
+        // head 格式: "name (Lx) [trait1|trait2]" — (Lx) 在中段, [traits] 在尾
         const tm = head.match(/\[(.+?)\]\s*$/);
-        const lm = head.match(/\((L[1-5])\)\s*$/);
-        // 從 head 中依序移除 [traits] 和 (Lx),剩下的就是 name
+        const lm = head.match(/\((L[1-5])\)/);
         let name = head
-          .replace(/\s*\[.*?\]\s*$/, '')   // 移除 [traits]
-          .replace(/\s*\(L[1-5]\)\s*$/, '')  // 移除 (Lx)
+          .replace(/\s*\(L[1-5]\)/, '')    // 移除 (Lx) (中段)
+          .replace(/\s*\[.*?\]\s*$/, '')   // 移除 [traits] (尾)
           .trim();
         const traits = tm
           ? tm[1].split('|').map(t => t.trim()).filter(Boolean)

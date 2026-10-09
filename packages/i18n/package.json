@@ -20,9 +20,9 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "tsx": "^4.7.0",
-    "typescript": "^5.4.0",
-    "@types/node": "^20.0.0",
-    "vitest": "^4.1.11"
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

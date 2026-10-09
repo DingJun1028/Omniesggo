@@ -10,6 +10,6 @@
     "chat": "node index.mjs"
   },
   "dependencies": {
-    "@everworker/oneringai": "^1.0.1"
+    "@everworker/oneringai": "^1.2.0"
   }
 }

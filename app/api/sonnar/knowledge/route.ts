@@ -23,6 +23,8 @@ Provide a concise, structured JSON response with the following keys:
     const userPrompt = `URL: ${url}\nTitle: ${title}\nContent:\n${content}\n\nPlease analyze this document for ESG risks.`;
 
     // 呼叫本地 100% 免費 Ollama 算力
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 90000);
     const response = await fetch(OLLAMA_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -33,9 +35,13 @@ Provide a concise, structured JSON response with the following keys:
           { role: 'user', content: userPrompt }
         ],
         stream: false,
-        format: 'json' // 要求 JSON 輸出
-      })
+        format: 'json',
+        keep_alive: '30m',
+        options: { num_ctx: 8192, num_predict: 512, temperature: 0.2, repeat_penalty: 1.1 }
+      }),
+      signal: ac.signal
     });
+    clearTimeout(t);
 
     if (!response.ok) {
       throw new Error(`Ollama API error: ${response.statusText}`);

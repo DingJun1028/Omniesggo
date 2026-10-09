@@ -9,7 +9,13 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["omni-db", "esggo", "knowledge-pyramid", "self-iteration", "truth-evidence-chain"],
+  "keywords": [
+    "omni-db",
+    "esggo",
+    "knowledge-pyramid",
+    "self-iteration",
+    "truth-evidence-chain"
+  ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
   "description": "OmniDB v1.0 — Knowledge Pyramid L1-L4 + 5 algorithms + Provenance Chain",
@@ -19,7 +25,7 @@
     "@esggo/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

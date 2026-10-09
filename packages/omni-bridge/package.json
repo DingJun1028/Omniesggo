@@ -9,7 +9,13 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["omni-bridge", "esggo", "event-bus", "rune-api", "trackable-lifecycle"],
+  "keywords": [
+    "omni-bridge",
+    "esggo",
+    "event-bus",
+    "rune-api",
+    "trackable-lifecycle"
+  ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
   "description": "OmniBridge v1.0 — 跨平台符文 API + 事件匯流排 (Trackable lifecycle)",
@@ -19,7 +25,7 @@
     "@esggo/shared": "workspace:*"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

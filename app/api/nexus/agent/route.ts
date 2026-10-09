@@ -67,23 +67,28 @@ Ensure the response is formatted as "[L-Hub <TaskType>] <Result>".`;
 }
 
 async function fetchOllama(prompt: string, system: string): Promise<string> {
-  const response = await fetch(OLLAMA_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: OLLAMA_MODEL,
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: prompt }
-      ],
-      stream: false
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error(`Ollama API error: ${response.statusText}`);
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 90000);
+  try {
+    const response = await fetch(OLLAMA_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: OLLAMA_MODEL,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: prompt }
+        ],
+        stream: false,
+        keep_alive: '30m',
+        options: { num_ctx: 8192, num_predict: 512, temperature: 0.2, repeat_penalty: 1.1 }
+      }),
+      signal: ac.signal
+    });
+    if (!response.ok) throw new Error(`Ollama API error: ${response.statusText}`);
+    const data = await response.json();
+    return data.message?.content || '(No response)';
+  } finally {
+    clearTimeout(t);
   }
-
-  const data = await response.json();
-  return data.message?.content || '(No response)';
 }

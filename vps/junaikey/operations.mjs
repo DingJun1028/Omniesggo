@@ -360,24 +360,34 @@ agent:13
 lifecycle:active
 platform:vps
 不要其他說明文字。`;
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 60000);
     try {
       const r = await fetch(`${ollamaUrl}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model, prompt, stream: false, options: { temperature: 0.1 } }),
+        body: JSON.stringify({
+          model,
+          prompt,
+          stream: false,
+          keep_alive: '30m',
+          options: { temperature: 0.1, num_ctx: 8192, num_predict: 256, repeat_penalty: 1.1 },
+        }),
+        signal: ac.signal,
       });
+      clearTimeout(t);
       if (!r.ok) return { tags: [], reason: `ollama HTTP ${r.status}` };
       const j = await r.json();
       const text = (j.response || '').trim();
       const tags = text.split('\n').map(s => s.trim()).filter(s => /^[a-z\-]+:[a-z0-9一-龥]+$/i.test(s));
-      // 驗證
       const valid = tags.filter(t => {
         const v = validateOmniTag(t);
         return v.valid;
       });
       return { tags: valid, raw: text, model };
     } catch (e) {
-      return { tags: [], reason: e.message };
+      clearTimeout(t);
+      return { tags: [], reason: e.name === 'AbortError' ? 'timeout 60s' : e.message };
     }
   }
 
