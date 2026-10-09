@@ -9,9 +9,12 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+<<<<<<< HEAD
     strictPort: true,
     proxy: {
       '/api': 'http://127.0.0.1:8790',
     },
+=======
+>>>>>>> origin/feature/aistation-core-modules
   },
 });

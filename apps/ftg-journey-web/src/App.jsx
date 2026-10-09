@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Dashboard } from './pages/Dashboard';
 import { JourneyDetail } from './pages/JourneyDetail';
+<<<<<<< HEAD
 import { ImpactNotePage } from './pages/ImpactNotePage';
 import { LoginPage } from './pages/LoginPage';
 import { FamilyDayFeature as FamilyDay } from './features/FamilyDay';
@@ -14,10 +15,19 @@ import { useParams } from 'react-router-dom';
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="flex items-center justify-center h-screen">載入中...</div>;
+=======
+import { LoginPage } from './pages/LoginPage';
+import { Layout } from './components/Layout';
+
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>載入中...</div>;
+>>>>>>> origin/feature/aistation-core-modules
   if (!user) return <Navigate to="/login" replace />;
   return children;
 }
 
+<<<<<<< HEAD
 function ExecutiveRoute() {
   const { id } = useParams();
   return (
@@ -51,11 +61,14 @@ function FamilyDayRoute() {
   );
 }
 
+=======
+>>>>>>> origin/feature/aistation-core-modules
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+<<<<<<< HEAD
       <Route path="/philosophy" element={<ProtectedRoute><Layout><Philosophy /></Layout></ProtectedRoute>} />
       <Route path="/journey/:id" element={<ProtectedRoute><Layout><JourneyDetail /></Layout></ProtectedRoute>} />
       <Route path="/journey/:id/impact-note" element={<ProtectedRoute><Layout><ImpactNotePage /></Layout></ProtectedRoute>} />
@@ -64,6 +77,9 @@ function AppRoutes() {
       <Route path="/wellbeing" element={<ProtectedRoute><Layout><Wellbeing /></Layout></ProtectedRoute>} />
       <Route path="/journey/:id/wellbeing" element={<WellbeingRoute />} />
       <Route path="/journey/:id/executive" element={<ExecutiveRoute />} />
+=======
+      <Route path="/journey/:id" element={<ProtectedRoute><Layout><JourneyDetail /></Layout></ProtectedRoute>} />
+>>>>>>> origin/feature/aistation-core-modules
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

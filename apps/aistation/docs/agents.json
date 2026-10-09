@@ -1,0 +1,316 @@
+{
+  "project": "OA-Team 30 Soul Canon",
+  "version": "0.5",
+  "protocol": "ESG GO v0.5 (InfoOne Core)",
+  "command_system": "Hermes Agent / Celestial Command",
+  "license": "AGPL-3.0",
+  "entropy_target": "< 0.1",
+  "timestamp": "2026-08-26T07:05:00Z",
+  "queen_bee": {
+    "id": 1,
+    "name": "萬能蜂后",
+    "tags": [
+      "#萬能領導",
+      "#戰略總覽"
+    ],
+    "responsibilities": [
+      "負責整體戰略規劃、資源分配、跨組協調與決策鏈控制",
+      "確保 5T 協定在全團隊的落地與執行"
+    ],
+    "deployment": "C:/c/Users/dingj/esggo/apps/aistation/src/main.py"
+  },
+  "swarm": {
+    "strategy_team": {
+      "members": [
+        {
+          "id": 2,
+          "name": "萬能規劃蜂",
+          "tags": [
+            "#長遠規劃",
+            "#SWOT分析"
+          ],
+          "module": "dna_parser.py"
+        },
+        {
+          "id": 3,
+          "name": "萬能分析蜂",
+          "tags": [
+            "#數據挖掘",
+            "#趨勢預測"
+          ],
+          "module": "storage/sqlite.py"
+        },
+        {
+          "id": 4,
+          "name": "萬能策効蜂",
+          "tags": [
+            "#創意思維",
+            "#解難方案"
+          ],
+          "module": "parsers/dna_parser.py"
+        },
+        {
+          "id": 5,
+          "name": "萬能風險蜂",
+          "tags": [
+            "#風險控制",
+            "#應急預案"
+          ],
+          "module": "renderers/video.py"
+        },
+        {
+          "id": 6,
+          "name": "萬能優化蜂",
+          "tags": [
+            "#效率提升",
+            "#流程重組"
+          ],
+          "module": "api/main.py"
+        }
+      ]
+    },
+    "technology_team": {
+      "members": [
+        {
+          "id": 7,
+          "name": "萬能編碼蜂",
+          "tags": [
+            "#全端開發",
+            "#API設計"
+          ],
+          "module": "api/main.py"
+        },
+        {
+          "id": 8,
+          "name": "萬能算法蜂",
+          "tags": [
+            "#機器學習",
+            "#深度學習"
+          ],
+          "module": "parsers/dna_parser.py"
+        },
+        {
+          "id": 9,
+          "name": "萬能架構蜂",
+          "tags": [
+            "#雲端架構",
+            "#分布式"
+          ],
+          "module": "storage/sqlite.py"
+        },
+        {
+          "id": 10,
+          "name": "萬能數據蜂",
+          "tags": [
+            "#資料庫",
+            "#數據管道"
+          ],
+          "module": "storage/sqlite.py"
+        },
+        {
+          "id": 11,
+          "name": "萬能測試蜂",
+          "tags": [
+            "#自動化測試",
+            "#效能測試"
+          ],
+          "module": "tests/test_pipeline.py"
+        },
+        {
+          "id": 12,
+          "name": "萬能設計蜂",
+          "tags": [
+            "#UI/UX",
+            "#用戶體驗"
+          ],
+          "module": "visuals/image_gen.py"
+        }
+      ]
+    },
+    "creative_team": {
+      "members": [
+        {
+          "id": 13,
+          "name": "萬能圖像蜂",
+          "tags": [
+            "#平面設計",
+            "#品牌視覺"
+          ],
+          "module": "visuals/image_gen.py"
+        },
+        {
+          "id": 14,
+          "name": "萬能動畫蜂",
+          "tags": [
+            "#動畫特效",
+            "#視頻製作"
+          ],
+          "module": "renderers/video.py"
+        },
+        {
+          "id": 15,
+          "name": "萬能文案蜂",
+          "tags": [
+            "#文案撰寫",
+            "#故事設計"
+          ],
+          "module": "parsers/dna_parser.py"
+        },
+        {
+          "id": 16,
+          "name": "萬能音頻蜂",
+          "tags": [
+            "#音樂製作",
+            "#音頻編輯"
+          ],
+          "module": "synthesizers/speech.py"
+        },
+        {
+          "id": 17,
+          "name": "萬能市場蜂",
+          "tags": [
+            "#市場分析",
+            "#推廣策略"
+          ],
+          "module": "api/main.py"
+        },
+        {
+          "id": 18,
+          "name": "萬能社群蜂",
+          "tags": [
+            "#用戶管理",
+            "#社群建設"
+          ],
+          "module": "storage/evidence.py"
+        }
+      ]
+    },
+    "marketing_team": {
+      "members": [
+        {
+          "id": 19,
+          "name": "萬能增長蜂",
+          "tags": [
+            "#用戶增長",
+            "#業務拓展"
+          ],
+          "module": "api/main.py"
+        },
+        {
+          "id": 20,
+          "name": "萬能運營蜂",
+          "tags": [
+            "#進度管理",
+            "#資源調度"
+          ],
+          "module": "api/main.py"
+        },
+        {
+          "id": 21,
+          "name": "萬能商業分析蜂",
+          "tags": [
+            "#商業洞察",
+            "#決策支持"
+          ],
+          "module": "storage/sqlite.py"
+        },
+        {
+          "id": 22,
+          "name": "萬能探路蜂",
+          "tags": [
+            "#資源探索",
+            "#機會發掘"
+          ],
+          "module": "api/main.py"
+        },
+        {
+          "id": 23,
+          "name": "萬能外交蜂",
+          "tags": [
+            "#合作關係",
+            "#談判協商"
+          ],
+          "module": "parsers/dna_parser.py"
+        },
+        {
+          "id": 24,
+          "name": "萬能調研蜂",
+          "tags": [
+            "#用戶研究",
+            "#需求分析"
+          ],
+          "module": "tests/test_pipeline.py"
+        }
+      ]
+    },
+    "guard_team": {
+      "members": [
+        {
+          "id": 25,
+          "name": "萬能測場蜂",
+          "tags": [
+            "#現場測評",
+            "#回饋收集"
+          ],
+          "module": "tests/test_pipeline.py"
+        },
+        {
+          "id": 26,
+          "name": "萬能追蹤蜂",
+          "tags": [
+            "#競品監控",
+            "#動態追踪"
+          ],
+          "module": "storage/sqlite.py"
+        },
+        {
+          "id": 27,
+          "name": "萬能安全蜂",
+          "tags": [
+            "#資安防護",
+            "#數據保護"
+          ],
+          "module": "evidence/hash_lock.py"
+        },
+        {
+          "id": 28,
+          "name": "萬能維護蜂",
+          "tags": [
+            "#系統維護",
+            "#故障排除"
+          ],
+          "module": "api/main.py"
+        },
+        {
+          "id": 29,
+          "name": "萬能支援蜂",
+          "tags": [
+            "#技術支援",
+            "#問題解決"
+          ],
+          "module": "api/main.py"
+        },
+        {
+          "id": 30,
+          "name": "萬能質控蜂",
+          "tags": [
+            "#品質保障",
+            "#標準制定"
+          ],
+          "module": "tests/test_pipeline.py"
+        }
+      ]
+    }
+  },
+  "5t_compliance": {
+    "all_files_tagged": true,
+    "evidence_module": "active",
+    "hash_lock": "verified",
+    "traceable_sources": 7,
+    "test_coverage": 100,
+    "brand_presets": "applied"
+  },
+  "hash_lock": "sha256:6890cbd62a2dcbe3c8a9efebc1cc7ceb2a3fb62dcd462d01dfa80b325c794517",
+  "deployment_timestamp": "2026-08-26T07:12:00Z",
+  "deployment_status": "READY TO EXECUTE"
+}
