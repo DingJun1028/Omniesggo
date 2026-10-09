@@ -4,6 +4,9 @@ import { translations } from './translations';
 const LanguageContext = createContext(null);
 
 const STORAGE_KEY = 'ftg_lang';
+// 預設為 繁體中文版（官方預設語系；English 為切換選項）
+const DEFAULT_LANG = 'zh';
+const HTML_LANG_MAP = { zh: 'zh-Hant', en: 'en' };
 
 export function LanguageProvider({ children }) {
   const [lang, setLang] = useState(() => {
@@ -11,13 +14,13 @@ export function LanguageProvider({ children }) {
       const saved = window.localStorage.getItem(STORAGE_KEY);
       if (saved === 'zh' || saved === 'en') return saved;
     }
-    return 'zh'; // 預設繁體中文
+    return DEFAULT_LANG;
   });
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(STORAGE_KEY, lang);
-      document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+      document.documentElement.lang = HTML_LANG_MAP[lang] || HTML_LANG_MAP[DEFAULT_LANG];
     }
   }, [lang]);
 

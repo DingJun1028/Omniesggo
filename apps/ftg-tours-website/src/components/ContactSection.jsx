@@ -214,7 +214,7 @@ export default function ContactSection({ ctaTitle, ctaSub, features }) {
               <option value="other">{t('contact.otherOption')}</option>
             </select>
           </div>
-          <div>
+          <div className="min-w-0">
             <label className="block text-sm font-semibold text-ftg-forest mb-2">
               {t('contact.formDate')}
             </label>
@@ -223,7 +223,7 @@ export default function ContactSection({ ctaTitle, ctaSub, features }) {
               type="date"
               value={form.preferred_date}
               onChange={handleChange}
-              className={FIELD_CLASS}
+              className={`${FIELD_CLASS} min-w-0`}
             />
           </div>
           <div>
