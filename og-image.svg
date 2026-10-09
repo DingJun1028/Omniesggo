@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#10243f"/>
+      <stop offset="0.55" stop-color="#1b3a5c"/>
+      <stop offset="1" stop-color="#3c6e47"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#g)"/>
+  <circle cx="240" cy="200" r="120" fill="#3c6e47" opacity="0.35"/>
+  <circle cx="980" cy="460" r="160" fill="#c9a24b" opacity="0.18"/>
+  <text x="80" y="250" font-family="'Noto Sans TC',sans-serif" font-size="26" fill="#c9a24b" font-weight="700">FTG TOURS 墾趣旅遊</text>
+  <text x="80" y="330" font-family="'Noto Sans TC',sans-serif" font-size="58" fill="#ffffff" font-weight="900">永續旅程</text>
+  <text x="80" y="410" font-family="'Noto Sans TC',sans-serif" font-size="34" fill="#dbe7f0">戶外導覽 · 旅行服務 · 在地連結</text>
+  <text x="80" y="470" font-family="'Noto Sans TC',sans-serif" font-size="24" fill="#aebfd0">為企業設計兼顧員工身心健康、團隊連結、</text>
+  <text x="80" y="510" font-family="'Noto Sans TC',sans-serif" font-size="24" fill="#aebfd0">環境友善與地方價值的旅程。</text>
+  <text x="80" y="580" font-family="'Noto Sans TC',sans-serif" font-size="20" fill="#7e90a3">ftgtours.esggo.co</text>
+</svg>
