@@ -6,26 +6,10 @@
 import { createHash } from 'crypto';
 import type { FreeModel } from '../model-discovery/free-models';
 import type { ModelConverterConfig } from '../model-discovery/model-converter';
-
-// IComponentCore 核心介面 (來自 SKILL.md)
-/**
- * 萬能元件心核 - 觀因循果修復版
- * 確保數據從因到果的完整性與不可篡改性
- */
-export interface IComponentCore {
-  // 萬能永憶主體唯一識別碼 (Immutable)
-  readonly uuid: string;
-  // 語義化版本控制
-  readonly version: string;
-  // 刻印時間戳 (溯源起點)
-  readonly timestamp: number;
-  // 證據左證庫 (儲存觀因循果的執行軌跡)
-  evidence: {
-    originCause: string;    // 因：原始觸發條件
-    processTrace: string[]; // 循：InfoOne 流轉路徑
-    finalEffect: string;    // 果：最終執行結果與狀態
-  };
-}
+// 5T-Traceable: source_origin=lib/types/oab-types.ts (OAB 契約正典 — 收斂重複定義)
+import type { IComponentCore } from '../../../lib/types/oab-types';
+// 5T-Trustworthy: 收斂後 baseline 縮減 (只減不增), TS Matrix 自動翻綠
+export type { IComponentCore };
 
 // 零幻覺驗算結果
 export interface ZeroVisionVerification {

@@ -16,7 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare SSH key and config
       - name: Setup SSH agent
         uses: webfactory/ssh-agent@v1
         with:
