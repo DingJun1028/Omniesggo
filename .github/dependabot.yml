@@ -36,6 +36,20 @@ updates:
           - "version-update:semver-major"
           - "version-update:semver-minor"
         # major/minor 不自動開 PR, 等 patch
+      # === toolchain 不得跨界直升 major（曾升壞 TS7/prisma8dev/eslint10）===
+      # 見 skill: toolchain-sweep-repair-5t — 需 migration plan 才升級
+      - dependency-name: "typescript"
+        versions:
+          - ">=6.0.0"
+      - dependency-name: "prisma"
+        versions:
+          - ">=7.0.0"
+      - dependency-name: "@prisma/client"
+        versions:
+          - ">=7.0.0"
+      - dependency-name: "eslint"
+        versions:
+          - ">=10.0.0"
     # === 開 PR 自動合併設定 ===
     groups:
       minor-and-patch:
