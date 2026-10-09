@@ -13,6 +13,14 @@
   body {
     @apply text-gray-800 bg-white antialiased;
   }
+  /* 5T-Traceable: Tailwind preflight 沒給 svg 預設 width/height，導致
+     裸 <svg viewBox="0 0 24 24"> 在某些 flex/button 容器裡塌成 0×0（手機板
+     「缺圖示」根因）。統一 1.5em (24px @ 16px-base)，FTGIcon/Icon 已有
+     width="1.5em" 不受影響；其他帶 h-X w-X class 的 svg 因 specificity 勝出。 */
+  svg:not([width]):not([class*="h-"]):not([class*="w-"]) {
+    width: 1.5em;
+    height: 1.5em;
+  }
 }
 
 @layer components {
