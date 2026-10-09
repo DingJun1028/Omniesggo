@@ -1,0 +1,45 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "react",
+    "oxc"
+  ],
+  "env": {
+    "browser": true
+  },
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/only-export-components": [
+      "warn",
+      {
+        "allowConstantExport": true
+      }
+    ],
+    "no-undef": "error"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**"],
+      "env": {
+        "node": true
+      }
+    },
+    {
+      "files": [
+        "src/pages/AboutPage.jsx",
+        "src/pages/ContactPage.jsx",
+        "src/pages/CorporateTravelPage.jsx",
+        "src/pages/ExecutivePage.jsx",
+        "src/pages/FamilyDayPage.jsx",
+        "src/pages/ImpactNotePage.jsx",
+        "src/pages/PrivacyPage.jsx",
+        "src/pages/TeamDayPage.jsx",
+        "src/pages/TermsPage.jsx",
+        "src/pages/WellbeingPage.jsx"
+      ],
+      "rules": {
+        "no-undef": "off"
+      }
+    }
+  ]
+}

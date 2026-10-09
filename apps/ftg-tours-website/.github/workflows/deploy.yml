@@ -1,0 +1,204 @@
+name: Deploy FTG Tours Website
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'vite.config.*'
+      - 'tailwind.config.*'
+      # postcss.config.js 決定 Tailwind/PostCSS 這條處理鏈 —— 實測把它改壞
+      # (`pnpm run build` 直接 exit 1) 且改動會改變產出的 CSS 內容 (30,433B)，
+      # 但它先前不在 paths 內：改它不會部署，設定靜默停在線上舊版。
+      - 'postcss.config.js'
+      # 依賴樹本身就是部署產物的一部分：lockfile 換版本等於換掉線上跑的程式。
+      # 注意 cache-dependency-path 那行不算，它只影響 cache 命中不影響觸發。
+      - 'pnpm-lock.yaml'
+      # 部署腳本自身的變更必須能觸發部署，否則改了 deploy.yml 只會靜默不生效
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          # Pin the exact version: a bare major can fail version resolution.
+          version: '11.15.1'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # pnpm 11 requires Node >= 22.13 (it imports node:sqlite).
+          # Node 20 on the runner is both too old for pnpm and deprecated
+          # by GitHub Actions, so pin 22 here.
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Audit encoding damage
+        run: pnpm run audit:encoding
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Prepare SSH
+        run: |
+          mkdir -p ~/.ssh
+          # Heredoc, not printf '%s': printf strips the trailing newline and
+          # yields a 418-byte key that OpenSSL rejects with "error in libcrypto".
+          # Reproduced locally against this exact key before patching.
+          cat > ~/.ssh/id_ed25519 <<'KEYEOF'
+          ${{ secrets.SSH_PRIVATE_KEY }}
+          KEYEOF
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keygen -y -f ~/.ssh/id_ed25519 > /dev/null
+          cat > ~/.ssh/config <<EOF
+          Host vps
+            HostName ${{ secrets.VPS_HOST }}
+            User ${{ secrets.VPS_USER }}
+            Port 22
+            IdentityFile ~/.ssh/id_ed25519
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+          EOF
+
+      - name: Deploy to VPS
+        run: |
+          cd dist
+          tar czf /tmp/ftgtours-dist.tar.gz .
+          scp /tmp/ftgtours-dist.tar.gz vps:/tmp/
+          # 5T-Trustworthy: 不再就地解壓覆蓋。原流程 `tar xzf` 只寫入不刪除，
+          # 被刪除的檔案（例：71 張 PNG，167.6MB）會永久留在磁碟並逐次累積。
+          #
+          # 曾嘗試「發布目錄 + 原子 symlink 切換」（/var/www/releases/<ts>），
+          # 但部署帳號對 /var/www/ 沒有建目錄權限：
+          #   mkdir: cannot create directory '/var/www/releases': Permission denied
+          # 該帳號只能寫 /var/www/ftgtours/ 內部，故改為在原地重建。
+          #
+          # 安全設計：先解壓到 /tmp 並驗證完整性，確認無誤後才清空目標目錄。
+          # 若解壓或驗證失敗，舊站完全未被動到 —— 不會出現空站。
+          ssh vps 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          STAGE=$(mktemp -d)
+          trap 'rm -rf "$STAGE"' EXIT
+
+          tar xzf /tmp/ftgtours-dist.tar.gz -C "$STAGE"
+          [ -f "$STAGE/index.html" ] || { echo "::error::解壓後缺少 index.html"; exit 1; }
+          [ -d "$STAGE/assets" ]     || { echo "::error::解壓後缺少 assets/"; exit 1; }
+
+          BEFORE=$(du -sh /var/www/ftgtours 2>/dev/null | cut -f1)
+          cd /var/www/ftgtours
+          # 保留 .well-known（憑證驗證路徑），其餘全部清空 —— 這就是根治舊檔累積的關鍵
+          find . -mindepth 1 -maxdepth 1 ! -name '.well-known' -exec rm -rf {} +
+          cp -a "$STAGE"/. .
+
+          AFTER=$(du -sh . | cut -f1)
+          echo "--- 部署結果 ---"
+          echo "before=${BEFORE}  after=${AFTER}"
+          echo "index.html: $([ -f index.html ] && echo present || echo MISSING)"
+          echo "assets/: $(ls assets 2>/dev/null | wc -l) 個檔"
+          echo "殘留 .png: $(find . -name '*.png' | wc -l) 個"
+          echo "webp: $(find . -name '*.webp' | wc -l) 個"
+          REMOTE
+
+      - name: Verify
+        run: |
+          set -uo pipefail
+          # 5T-Trackable: 判準應為「部署是否成功」，故以 VPS 本機實測 nginx 實際
+          # 供應的內容。公開網域不可作為失敗判準 —— GitHub Actions runner 位於
+          # Azure 資料中心機房段 IP，實測被 Cloudflare 回 403（5258B 錯誤頁），
+          # 連續 5 次重試共 60 秒完全一致，非瞬時問題。
+          # 已排除 UA 因素：同一台機器以 curl 預設 UA 請求同一 URL 為 200/4394B
+          # （即站點自身的 index.html），403 頁面 title 與之不同。
+          # 故 403 屬 Cloudflare 對 datacenter IP 的封鎖，與站點健康無關。
+          echo "--- 來源端（VPS 本機，繞過 Cloudflare）---"
+          ssh vps 'bash -s' <<'REMOTE2'
+          set -uo pipefail
+          fail=0
+          check() {  # $1=path $2=min_bytes $3=label
+            local size code
+            size=$(curl -sk -H "Host: ftgtours.esggo.co" "https://127.0.0.1$1" 2>/dev/null | wc -c)
+            code=$(curl -sk -o /dev/null -w '%{http_code}' -H "Host: ftgtours.esggo.co" \
+                   "https://127.0.0.1$1" 2>/dev/null || echo 000)
+            echo "  [$3] $1 -> HTTP ${code}, ${size}B"
+            if ! { [ "$code" = "200" ] && [ "$size" -ge "$2" ]; }; then fail=1; fi
+          }
+          check / 500 首頁
+          check /images/logo.webp 1000 logo.webp
+          # SPA fallback：確認 HTML 內引用的 bundle 確實存在
+          bundle=$(curl -sk -H "Host: ftgtours.esggo.co" https://127.0.0.1/ 2>/dev/null \
+                   | grep -oE '/assets/index-[A-Za-z0-9_-]+\.js' | head -1)
+          echo "  [bundle] ${bundle:-未找到}"
+          if [ -n "$bundle" ]; then
+            check "$bundle" 1000 bundle
+          else
+            fail=1
+          fi
+          exit $fail
+          REMOTE2
+          origin_rc=$?
+
+          echo "--- 公開網域（資訊性，不作為失敗判準）---"
+          for u in https://ftgtours.esggo.co/ https://journey.ftgtours.esggo.co/; do
+            c=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 "$u" 2>/dev/null || echo 000)
+            echo "  $u -> HTTP ${c}  （403 代表 Cloudflare 阻擋 datacenter IP，非站點故障）"
+          done
+
+          [ "$origin_rc" = "0" ] || { echo "::error::來源端驗證失敗，站點未正確部署"; exit 1; }
+          echo "來源端驗證通過（公開網域 403 不影響判定）"
+
+      - name: Live render gate (browser)
+        run: |
+          # 5T-Trackable: HTTP 200 + 檔案大小 + bundle 存在，都不能證明 React
+          # 真的渲染出來。本案是 HashRouter + nginx SPA fallback，任何字串路徑
+          # 都回 200（含不存在的路徑）。故以真實 Chromium 對來源端逐條路由
+          # × desktop/mobile 渲染實測。
+          #
+          # 為何對 127.0.0.1 而非公開網域：GitHub Actions runner 位於 datacenter
+          # IP，Cloudflare 一律回 403（見上方 Verify 步驟的實測記錄）。對來源端
+          # 渲染判的是「部署的東西能不能用」，這正是部署該驗的；公開網域可達性
+          # 另由獨立的 ping 監控負責，兩者不混為一談。
+          set -uo pipefail
+          # 注意：runner 端不需裝 Chromium —— 渲染發生在 VPS 上。
+          # 在這裡裝只會浪費數分鐘 CI 時間，且掩蓋真正的失敗點。
+          scp -q scripts/verify_live_render.py vps:/tmp/verify_live_render.py
+          ssh vps 'bash -s' <<'REMOTE3'
+          set -uo pipefail
+          # PEP 668：系統 Python 為 externally-managed，直接 pip install 會被拒
+          # （externally-managed-environment）。必須用獨立 venv，不能 --break-system-packages。
+          VENV=/tmp/ftg-verify-venv
+          [ -x "$VENV/bin/python" ] || python3 -m venv "$VENV" 2>/dev/null || {
+            echo "::error::來源端無法建立 venv（需 python3-venv）"; exit 1; }
+          "$VENV/bin/pip" install --quiet --upgrade pip >/dev/null 2>&1 || true
+          "$VENV/bin/pip" install --quiet playwright || {
+            echo "::error::來源端無法安裝 playwright"; exit 1; }
+          "$VENV/bin/playwright" install --with-deps chromium >/dev/null 2>&1 || \
+            "$VENV/bin/playwright" install chromium
+          # 部署帳號未必能讀到 dist/，此時比對會自動跳過（腳本已處理）。
+          # 走 8899 專用 vhost（/etc/nginx/conf.d/ftg-verify.conf，僅綁
+          # 127.0.0.1，不對外開放）。不能用 http://127.0.0.1:80 —— 該 port
+          # 的預設 vhost 是 AI Station，實測會渲染到錯的站。
+          # 也刻意不用 --host-header：Chromium 禁止腳本覆寫 Host header。
+          "$VENV/bin/python" /tmp/verify_live_render.py \
+            --base http://127.0.0.1:8899
+          rc=$?
+          rm -f /tmp/verify_live_render.py
+          exit $rc
+          REMOTE3
+          [ "$?" = "0" ] || { echo "::error::線上渲染實測失敗，部署判定不通過"; exit 1; }
+          echo "線上渲染實測通過"

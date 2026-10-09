@@ -1,0 +1,80 @@
+name: FTG Journey CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Install pnpm FIRST, before setup-node. Two hard constraints, both learned
+      #    the hard way here:
+      #    (a) pnpm 11.x declares engines.node >=22.13 (its store/index imports
+      #        node:sqlite, absent in Node 20). Without an explicit setup-node this
+      #        job inherits whatever the runner image ships and dies with
+      #        ERR_UNKNOWN_BUILTIN_MODULE — the same class of failure ci-cd.yml hit
+      #        in a22f699.
+      #    (b) setup-node's `cache: pnpm` resolves the store dir by invoking pnpm,
+      #        so pnpm must already be on PATH or setup-node itself aborts with
+      #        "Unable to locate executable file: pnpm". corepack enable in a
+      #        *later* step is too late. Hence pnpm/action-setup goes first, the
+      #        same ordering deploy.yml and ci-cd.yml already use successfully.
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          # Pin the exact version to match packageManager: pnpm@11.15.1. A bare
+          # major can resolve to a version whose lockfileVersion mismatches
+          # pnpm-lock.yaml, which breaks `pnpm install --frozen-lockfile`.
+          version: 11.15.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          # pnpm 11 requires Node >= 22.13 (it imports node:sqlite).
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
+
+      # 4. Install dependencies
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5. Run lint
+      - name: Run lint
+        run: pnpm run lint
+
+      # 5b. Design token gate: Tailwind silently drops classes that are not
+      # defined in tailwind.config.js, so this failure is invisible to lint and
+      # build. Audit exits non-zero on any undefined ftg-*/font-* class.
+      - name: Audit design tokens
+        run: pnpm run audit:tokens
+
+      # 5c. Encoding damage gate: U+FFFD means bytes were already lost, so a
+      # build stays "green" while shipping corrupted text (the exact failure
+      # this repo already hit). Placed BEFORE build on purpose — corrupted
+      # source must never reach the bundler, let alone production.
+      - name: Audit encoding damage
+        run: pnpm run audit:encoding
+
+      # 6. Run build
+      - name: Run build
+        run: pnpm run build
+
+      # 6. Run tests
+      # NOTE: no `|| echo` fallback — a real test failure must fail CI.
+      - name: Run tests
+        run: pnpm run test
+
+      # 7. Report result
+      - name: Report CI status
+        if: always()
+        run: echo "CI completed for ${{ github.sha }}"

@@ -1,0 +1,35 @@
+/* 5T-Traceable: 自架字型子集，取代原先的 Google Fonts 遠端 @import。
+ *
+ * 為什麼自架：原本的 @import url('https://fonts.googleapis.com/...') 造成三個實測問題
+ *   1. CSS @import 是序列阻塞：瀏覽器必須先下載並解析 CSS，才知道要抓字型，白屏期間拖長。
+ *   2. 台港地區連 fonts.googleapis.com / fonts.gstatic.com 不穩，woff2 抓不到就是無襯線備援，
+ *      品牌襯線字整個消失。
+ *   3. Google 以 unicode-range 切出 366 個子集檔、合計 17.6 MB，站台無法掌控內容與版本。
+ *
+ * 現在：兩個同源 woff2，共 734 KB。無額外 DNS/TLS 往返，無第三方可用性風險。
+ *   noto-serif-tc.woff2  662 KB  883 個漢字碼位  可變 wght 200-900（本站用 400/600/700）
+ *   inter-latin.woff2     72 KB  103 個拉丁碼位  可變 wght 100-900
+ *
+ * 兩者皆為 SIL Open Font License 1.1，允許自架與再散布。
+ *
+ * 子集涵蓋度由 src/tests/release-guard.test.js 自動驗證：站台新增任何漢字而未重跑
+ * `npm run build:fonts` 時，測試會失敗並列出缺字，不會靜默掉回系統字型。
+ * 碼位存檔見 public/fonts/subset-manifest.json（由 woff2 實際 cmap 產生，非手寫）。
+ */
+
+@font-face {
+  font-family: 'Noto Serif TC';
+  src: url('/fonts/noto-serif-tc.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  /* swap 而非 optional：同源預載後到貨很快，optional 會讓首次訪客整頁看不到品牌襯線字。 */
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/inter-latin.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

@@ -1,0 +1,24 @@
+設計 token 稽核報告 — FTG Tours
+====================================
+SSOT 來源：tailwind.config.js
+掃描檔案數：30
+
+【色彩 token】
+  ftg-green    #2d4a3e   88 次  ✅
+  ftg-forest   #1a3c34   82 次  ✅
+  ftg-leaf     #4a7c59    1 次  ✅
+  ftg-sand     #f5f0e8   22 次  ✅
+  ftg-cream    #faf7f2   29 次  ✅
+  ftg-orange   #e07a3d   13 次  ✅
+  ftg-sunlight #f5f0e8    3 次  ✅
+  ftg-deepgreen #1a3c34    1 次  ✅
+
+【字型 token】
+  font-sans   Inter, system-ui, sans-serif    1 次  ✅
+  font-serif  Noto Serif TC, serif    3 次  ✅
+
+【未定義類別（Tailwind 會靜默失效）】
+  無 — 所有用到的 token 皆有定義 ✅
+
+【稽核結論】
+  ✅ 所有 token 皆有定義且皆被使用，設計系統閉環完整

@@ -1,7 +1,76 @@
-node_modules/
-dist/
-*.local
-.DS_Store
-ftg-dist.tar
-nul
+# 5T-Trustworthy: 專案統一使用 pnpm（package.json 宣告 packageManager: pnpm@11.15.1）。
+# 殘留的 package-lock.json 會讓依賴樹分岔（實測 209 vs 268 個套件），造成
+# CI 驗證的樹與實際部署的樹不同，且讓 Dependabot 警報重複計數，故明確忽略。
+package-lock.json
+yarn.lock
 
+node_modules
+dist
+worker/.wrangler
+
+# Build / packaging artifacts
+dist.tar.gz
+*.tar.gz
+build
+out
+.vite
+
+# Test & coverage output
+coverage
+.nyc_output
+playwright-report
+test-results
+
+# Local env & editor noise
+.env
+.env.*
+!.env.example
+.DS_Store
+*.local
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# 5T-Trustworthy: 私鑰與憑證檔案。專案內沒有任何流程需要把金鑰
+# 放進版控，過去 .gitignore 只擋 .env，等於「金鑰放進 repo 也不會被擋」。
+# 一旦進 Git 歷史，刪檔不等於憑證失效，仍須 rotation。
+id_rsa
+id_rsa*
+id_ed25519*
+id_ecdsa*
+*.pem
+*.key
+*.pfx
+*.p12
+*.keystore
+
+# 本機專屬的維運腳本：內含環境綁定的 IP / 路徑，且需要私鑰才能跑。
+# 通用腳本仍照常版控（scripts/ 下的 design-token 稽核檔已在追蹤中）。
+scripts/verify_streams.local.py
+scripts/*.local.py
+
+# 5T-Trustworthy: scripts/build-fonts.py 下載的字型「源檔」快取。
+# Noto Serif CJK TC 變數字型單檔 54MB，Inter 1MB；public/fonts/ 裡的成品
+# （約 734KB）才是要進版控的。放進版控會讓 repo 憑空多 55MB。
+.font-cache/
+.fontenv/
+
+
+# 部署暫存目錄（不進版控）
+.deploy-stage/
+
+# 本地備份/暫存（不進版控）
+.src-backup-*/
+.src-pregradient-*/
+.img-backup-*/
+__pycache__/
+*.pyc
+scripts/.*-audit.json
+scripts/.*-diff.json
+ux_*.png
+ux*.txt
+ex.txt
+i404.txt
+r404.txt
+lighthouse-report.json
+reports-png-webp-coverage.txt

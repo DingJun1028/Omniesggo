@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ftgtours.esggo.co/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/corporate-travel</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/family-day</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/esg-team-day</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/wellbeing-retreat</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/executive-retreat</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/esg-impact-note</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/contact</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <!-- 5T-Traceable: 這兩條路由存在於 App.jsx:35,36 但先前未收錄於 sitemap。
+       加入時刻意放在最後：index.html 內 /streams 的內容屬「方法論」層級，
+       優先級低於六個產品頁（0.6）。 -->
+  <url>
+    <loc>https://ftgtours.esggo.co/#/journey-design</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://ftgtours.esggo.co/#/streams</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>

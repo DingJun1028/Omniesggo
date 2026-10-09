@@ -1,0 +1,13 @@
+name = "ftgtours-api"
+main = "index.js"
+compatibility_date = "2024-09-23"
+compatibility_flags = ["nodejs_compat"]
+
+routes = [
+  { pattern = "ftgtours.esggo.co/api/*", zone_name = "esggo.co" }
+]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ftgtours_contact"
+database_id = "c08a4c55-13b9-4654-aeb2-ddb3218054c7"
