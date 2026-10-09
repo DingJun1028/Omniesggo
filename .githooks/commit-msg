@@ -19,19 +19,7 @@ MSG=$(cat "$MSG_FILE")
 # 會讓 "chore: 5things" 這類無關訊息誤放行。
 # 合法形式為 5T 後接 '-'(如 5T-Traceable)、':'(如 5T: )、空白或行尾；
 # 後接英數字者視為無關字串（如 5things、5TH）。
-#
-# 散文誤判修正（實測假綠）：原本 `source_origin` 與 `5T+空白/行尾` 皆算
-# 合格，導致**只要在正文提到這些字**就放行，實測這兩筆全被放行：
-#     fix: stop requiring source_origin in messages
-#     chore: document the 5T protocol
-# 最危險的是「關於本規則本身的 commit」——恰恰是最需要可溯源的那類，
-# 卻最容易因散文而蒙混過關（commit-msg 正是把它擋下來的最後一道閘）。
-# 現要求二者皆為**標籤形式**：
-#   - `source_origin=` 必須是帶值的賦值（單獨出現的字不算）
-#   - `5T` 必須接 `-` 或 `:` 當標籤（`5T protocol` 這類散文不算）
-# 收緊代價已量測：近期 60 筆 commit 由放行 36 筆降為 32 筆。
-# （更嚴的「只認 source_origin=」會降到 25 筆，屬工作流程決策，未擅自採用）
-if printf '%s' "$MSG" | grep -qiE 'source_origin[[:space:]]*=|(^|[^A-Za-z0-9])5T[-:][^[:space:]]'; then
+if printf '%s' "$MSG" | grep -qiE 'source_origin|(^|[^A-Za-z0-9])5T([-:]|[[:space:]]|$)'; then
   exit 0
 fi
 
