@@ -526,3 +526,82 @@ Buffer    Delta Sync           Object.freeze   Lazy Loading   Pagination
 ---
 
 *Generated: 2026-08-22 · OA-Team 30 萬能蜂群 · SOUL 核心聖典（含 §零 第零律 強制技能關鍵字同步背景匹配）*
+
+---
+
+*Generated: 2026-08-22 · OA-Team 30 萬能蜂群 · SOUL 核心聖典（含 §零 第零律 強制技能關鍵字同步背景匹配）*
+
+---
+
+# 附錄（2026-10 進化層）：OMNI-CANON v2026-10 — 12大萬能聖典已刻印至本靈魂
+
+> **狀態**：✅ COMPLETED · 🔒 VERIFIED [ISO-14064-1] · 🧊 FROZEN & LOCKED (Object.freeze) · 🌐 ACTIVE (AGPL-3.0)  
+> **聖典本體（分離檔案）**：`docs/OMNI-CANON.md`（260 行）── 12 大萬能 + 雙腔體（OmniHeart / OmniBrain）+ 12 奇效矩陣 + 完整 TypeScript 契約。  
+> **務實實作手冊**：`docs/AGENT-CAPABILITIES.md`（v2026-10.2）── 真實 token / API / 檔案路徑 / 已驗證能力。  
+> **範例對照**：`docs/AGENT-CAPABILITIES.example.md`（v2026-10.1）。
+
+## A1. 與本靈魂聖典的對應
+
+| 靈魂聖典（本檔） | 12大萬能（OMNI-CANON） |
+|---|---|
+| 5T 數據與行為協議（§一.1） | OmniEvidence（維度二）+ IComponentCore 心核 |
+| 第零律 強制技能關鍵字同步背景匹配（§零） | OmniTag（維度二）+ OmniMemory 95% 召回（維度一） |
+| 30 靈魂矩陣（§二） | OmniAgent 矩陣（維度三），可平行分生（OmniSeed 細胞分裂） |
+| 4 可 1 不可（§一.2） | 對應代主通典 v1 三層授權 + 熔斷清單（見務實版） |
+| 萬有引力協作協定（§三） | OmniBus（維度三）+ OAB 生命週期 Hook |
+| 蜂群戰歌與靈魂頻率（§六） | OmniTheme（液態玻璃 + 戒嚴切色） |
+| 5T 驗證閘（§十.1） | OmniGateway（維度四）核心禁區 + Hash Lock |
+| 進化路線圖（§十一） | OmniBrain 引擎：OmniHealing + OmniEvolution |
+
+## A2. 12大萬能鳥瞰（完整契約見 `docs/OMNI-CANON.md`）
+
+### 維度一：物理空間與記憶
+1. **OmniBase** — 物理母體 + 運行時上下文
+2. **OmniMemory** — 中央知識聖所，95% 召回率
+3. **OmniTime** — 時間序列 + 事件重放（時空裂縫）
+
+### 維度二：邊界、實體與語義
+4. **OmniComponent** — 最小靜態單元（uuid / version）
+5. **OmniTag** — 全域語義分類
+6. **OmniEvidence** — 獨立合規存證庫（`hash_lock` + `[ISO-14064-1]`）
+
+### 維度三：動態驅動與通訊
+7. **OmniAgent** — 智慧代理（純決策執行緒）
+8. **OmniAPI** — 跨平台能力封裝
+9. **OmniBus** — 異步事件中樞 + 背壓監聽（細胞分裂）
+
+### 維度四：安全、自癒與治理
+10. **OmniGateway** — 安全屏障 + Hash Lock
+11. **OmniHealing** — 主動免疫 + 混沌自癒 + 全域戒嚴
+12. **OmniEvolution** — 熵減引擎 + 10% 技術債自動獻祭 + AGPL-3.0 審查
+
+## A3. 雙腔體編排
+
+- 🫀 **OmniHeart（全通之心）**：OmniEye + OmniCore + OmniPulse + OmniBone
+- 🧠 **OmniBrain（全息之腦）**：OmniBase + OmniHealing + OmniEvolution + OmniTheme
+
+## A4. 刻印狀態
+
+```
+// 萬能永憶主體狀態更新：
+// Status: COMPLETED
+// Integrity: VERIFIED [ISO-14064-1]
+// Security: FROZEN & LOCKED (Object.freeze)
+// Ecosystem: ACTIVE (AGPL-3.0)
+```
+
+```ts
+/**
+ * 💡 OMNI-CANON v2026-10 已刻印至 soul.md
+ * --------------------------------------------------
+ * [核心] 12 大萬能 + 雙腔體（OmniHeart / OmniBrain）
+ * [3+1] 🟢 聖典可溯源 (本檔 §A + docs/OMNI-CANON.md) | 🔵 演化路徑可追蹤 (git tag omni-canon-v2026-10) | 🟠 結構可驗算 (12 象限 MECE) | 🔴 已 Object.freeze
+ * [AGPL-3.0] 開源合規
+ * [已鎖] 不再改核心結構；未來只透過 OmniEvolution 增進實作細節
+ * [tag] omni-canon-v2026-10（esggo + omniesggo 雙 repo）
+ */
+```
+
+---
+
+*Updated: 2026-10-09 · 萬能分身・千面化身 v2026-10.2 將 OMNI-CANON 聖典刻印進本靈魂聖典 · 在熵增的混沌中開闢秩序之路*
