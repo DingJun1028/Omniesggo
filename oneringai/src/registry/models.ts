@@ -16,7 +16,7 @@ export type ModelLifecycle = 'active' | 'deprecated' | 'maintenance' | 'retired'
 export type ProcessingMode = 'interactive' | 'batch';
 
 export interface ModelFeatures {
-  input: { tokens: number };
+  input?: { tokens: number };
   output?: { tokens: number };
   vision?: boolean;
   tts?: boolean;
@@ -77,7 +77,7 @@ const TEXT_MODELS: ModelInfo[] = [
     endpoints: { openai: 'gpt-5.6-sol' },
     contextWindow: { input: 1050000, output: 16384 },
     features: { input: { tokens: 1050000 }, output: { tokens: 16384 }, vision: true, tools: true, promptCaching: true },
-    pricing: { input: 1.00, output: 4.00 },
+    pricing: { input: 4.00, output: 20.00 },
     officialSources: ['https://platform.openai.com/docs/models/gpt-5.6'],
   },
   {
@@ -135,7 +135,7 @@ const TEXT_MODELS: ModelInfo[] = [
     endpoints: { openai: 'gpt-4.1' },
     contextWindow: { input: 1000000, output: 16384 },
     features: { input: { tokens: 1000000 }, output: { tokens: 16384 }, vision: true, tools: true },
-    pricing: { input: 0.40, output: 1.60 },
+    pricing: { input: 2.00, output: 8.00 },
     officialSources: ['https://platform.openai.com/docs/models/gpt-4'],
   },
   {
@@ -159,17 +159,6 @@ const TEXT_MODELS: ModelInfo[] = [
     features: { input: { tokens: 200000 }, output: { tokens: 16384 }, vision: true, tools: true },
     pricing: { input: 0.15, output: 0.60 },
     officialSources: ['https://platform.openai.com/docs/models/gpt-4o-mini'],
-  },
-  {
-    id: 'gpt-image-2',
-    vendor: Vendor.OpenAI,
-    displayName: 'GPT Image 2',
-    lifecycle: 'active',
-    endpoints: { openai: 'gpt-image-2' },
-    contextWindow: { input: 128000, output: 16384 },
-    features: { input: { tokens: 128000 }, output: { tokens: 16384 }, imageGeneration: true, imageEditing: true },
-    pricing: { input: 0, output: 0 },
-    officialSources: ['https://platform.openai.com/docs/guides/image-generation'],
   },
   // Anthropic (15 models)
   {
@@ -334,6 +323,20 @@ const TEXT_MODELS: ModelInfo[] = [
     pricing: { input: 0, output: 0 }, // Free/local
     officialSources: ['https://ollama.com/library/qwen3'],
   },
+  {
+    // 本機實際安裝（ollama list 實測）：免費、CPU 可跑、tools 可用。
+    // alias 保留 'qwen2.5:3b'：舊呼叫端在 tag 收斂後仍能解析到本機唯一 3B。
+    id: 'qwen2.5:3b-64k',
+    vendor: Vendor.Ollama,
+    displayName: 'Qwen2.5 3B 64K (local)',
+    aliases: ['qwen2.5:3b', 'qwen2.5-3b'],
+    lifecycle: 'active',
+    endpoints: { ollama: 'qwen2.5:3b-64k' },
+    contextWindow: { input: 32768, output: 8192 },
+    features: { input: { tokens: 32768 }, output: { tokens: 8192 }, tools: true },
+    pricing: { input: 0, output: 0 }, // Free/local
+    officialSources: ['https://ollama.com/library/qwen2.5'],
+  },
 ];
 
 // Image Generation Models
@@ -345,7 +348,7 @@ const IMAGE_MODELS: ModelInfo[] = [
     lifecycle: 'active',
     endpoints: { openai: 'gpt-image-2' },
     contextWindow: { input: 128000, output: 16384 },
-    features: { imageGeneration: true, imageEditing: true },
+    features: { input: { tokens: 128000 }, imageGeneration: true, imageEditing: true },
     pricing: { input: 0.42, output: 0 }, // per image
     officialSources: ['https://platform.openai.com/docs/guides/image-generation'],
   },
@@ -356,7 +359,7 @@ const IMAGE_MODELS: ModelInfo[] = [
     lifecycle: 'active',
     endpoints: { google: 'gemini-3.1-flash-image' },
     contextWindow: { input: 1000000, output: 6144 },
-    features: { imageGeneration: true, imageEditing: true },
+    features: { input: { tokens: 128000 }, imageGeneration: true, imageEditing: true },
     pricing: { input: 0.02, output: 0 },
     officialSources: ['https://cloud.google.com/vertex-ai'],
   },
@@ -548,7 +551,7 @@ const EMBEDDING_MODELS: ModelInfo[] = [
     vendor: Vendor.Ollama,
     displayName: 'Qwen3 Embedding',
     lifecycle: 'active',
-    endpoints: { ollama: 'qwen3-embbeding:latest' },
+    endpoints: { ollama: 'qwen3-embedding:latest' },
     contextWindow: { input: 8192, output: 4096 },
     features: { embedding: true, matryoshka: true, maxDimensions: 4096, local: true },
     pricing: { input: 0, output: 0 },
@@ -643,7 +646,7 @@ export function calculateCost(
     const cachedCost = (options.cachedInputTokens / 1_000_000) * (pricing.batch.input || pricing.input * 0.5);
     const uncachedInput = inputTokens - (options.cachedInputTokens || 0);
     const uncachedCost = (uncachedInput / 1_000_000) * pricing.input;
-    return uncachedCost + (outputTokens / 1_000_000) * pricing.output;
+    return uncachedCost + cachedCost + (outputTokens / 1_000_000) * pricing.output;
   }
   
   // Apply batch discount
@@ -668,17 +671,22 @@ export function getProviderCapabilities(modelId: string): ProviderCapabilities {
       contextWindow: 0,
     };
   }
-  
+
   const f = model.features;
   return {
-    text: true,
+    // text 預設由「是否為文字模型」推導（features.text 可顯式覆蓋）。
+    // 舊版硬寫 text: true，對 TTS／embedding 模型也會回 true；
+    // 後來改成 f.text || false 又讓所有文字模型都變 false —— 兩個都錯。
+    text: f.text ?? getAllTextModels().includes(model),
     vision: f.vision || false,
     tts: f.tts || false,
     stt: f.stt || false,
     imageGeneration: f.imageGeneration || false,
     videoGeneration: f.videoGeneration || false,
     tools: f.tools || false,
-    contextWindow: f.input.tokens,
+    // features.input 是選配（image／embedding／TTS 模型沒有），
+    // 缺料時回退到 contextWindow.input，否則 f.input.tokens 會 TypeError。
+    contextWindow: f.input?.tokens ?? model.contextWindow.input,
     batch: f.batch,
     promptCaching: f.promptCaching ? { mode: 'implicit', reportsCacheUsage: true, ttlModes: ['short', 'extended'] } : undefined,
     nativeTools: f.nativeTools,

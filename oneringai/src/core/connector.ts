@@ -390,3 +390,31 @@ export interface IScopedRegistry {
 export function scopedRegistry(context: ConnectorAccessContext): ScopedConnectorRegistry {
   return new ScopedConnectorRegistry(context);
 }
+
+// ============================================================================
+// 免費算立硬規則：本機 Ollama 預設連接器
+// ============================================================================
+
+/**
+ * 確保一個名為 'ollama' 的免費本地連接器存在（冪等）。
+ *
+ * 為什麼需要：SwarmFactory 原本預設 connector 'openai'，而 ConnectorRegistry
+ * 不會自動註冊任何東西 —— 任何未先呼叫 Connector.create() 的程式碼都會
+ * `Connector "openai" not found` 直接拋錯。更要緊的是那會把系統預設
+ * 綁在付費 API 上，違反「免費算立」硬規則（見 soul.md L1）。
+ *
+ * 本機 Ollama 無需金鑰（auth: none），模組載入即就緒，讓 swarm / agent
+ * 預設就走零成本、私有的本地算力。
+ */
+export function ensureFreeLocalConnector(): void {
+  if (ConnectorRegistry.getSafe('ollama')) return;
+  Connector.create({
+    name: 'ollama',
+    vendor: Vendor.Ollama,
+    baseURL: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
+    auth: { type: 'none' },
+    tags: ['free', 'local', 'ollama'],
+  });
+}
+
+ensureFreeLocalConnector();

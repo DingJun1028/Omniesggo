@@ -103,9 +103,11 @@ describe('Model Registry', () => {
   describe('calculateCost', () => {
     it('should calculate basic cost', () => {
       const cost = calculateCost('gpt-5.6-sol', 1_000_000, 500_000);
-      expect(cost).toBeCloseTo(2000, 1); // 1.00 * 1 + 4.00 * 0.5 = 3.0... wait
-      // input: 1M * $1 = $1, output: 500K * $4 = $2, total = $3
-      expect(cost).toBeCloseTo(3.0, 2);
+      // gpt-5.6-sol 定價（每 1M tokens）：input $4 / output $20
+      // → 1M×$4 + 0.5M×$20 = $4 + $10 = $14
+      // （舊版此處有第二行 expect(cost).toBeCloseTo(2000, 1) —— 與下方 3.0
+      //   的註解互相矛盾、任何定價下都不可能成立，已刪。）
+      expect(cost).toBeCloseTo(14, 2);
     });
 
     it('should apply batch discount', () => {

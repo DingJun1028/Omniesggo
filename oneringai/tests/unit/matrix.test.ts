@@ -104,22 +104,23 @@ describe('30-Agent Matrix', () => {
 
   describe('SwarmFactory', () => {
     it('should create agents from specs', () => {
-      const factory = new SwarmFactory('openai');
+      const factory = new SwarmFactory('ollama');
       const spec = SWARM_SPEC.find(a => a.id === 'queen-bee')!;
       const agent = factory.createAgent(spec);
-      
+
       expect(agent).toBeDefined();
-      expect(agent.model).toBe('gpt-4.1');
+      // 免費算立硬規則：預設模型為本機 Ollama 免費模型
+      expect(agent.model).toBe('qwen2.5:3b-64k');
     });
 
     it('should create all 30 agents', () => {
-      const factory = new SwarmFactory('openai');
+      const factory = new SwarmFactory('ollama');
       factory.createAll();
       expect(factory.getAllAgents().size).toBe(30);
     });
 
     it('should filter agents by squad', () => {
-      const factory = new SwarmFactory('openai');
+      const factory = new SwarmFactory('ollama');
       factory.createAll();
       const techAgents = factory.getAgentsBySquad('tech');
       expect(techAgents.size).toBe(6);

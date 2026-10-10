@@ -71,17 +71,26 @@ export const SWARM_SPEC: SoulAgentSpec[] = [
 ];
 
 // ============================================================================
+// 免費算立預設（本機 Ollama，零成本）
+// ============================================================================
+
+/** 預設連接器：本機 Ollama（connector.ts 的 ensureFreeLocalConnector 會確保它存在） */
+const DEFAULT_CONNECTOR = 'ollama';
+/** 預設模型：本機已安裝的免費模型（registry 內登記、ollama list 實測存在） */
+const DEFAULT_MODEL = 'qwen2.5:3b-64k';
+
+// ============================================================================
 // Swarm Factory
 // ============================================================================
 
 export class SwarmFactory {
   private agents: Map<string, Agent> = new Map();
-  
-  constructor(private defaultConnector: string = 'openai') {}
-  
+
+  constructor(private defaultConnector: string = DEFAULT_CONNECTOR) {}
+
   createAgent(spec: SoulAgentSpec, options?: Partial<AgentCreateOptions>): Agent {
     const connector = options?.connector || this.defaultConnector;
-    const model = options?.model || 'gpt-4.1';
+    const model = options?.model || DEFAULT_MODEL;
     
     const instructions = this._buildAgentInstructions(spec);
     const tools = this._buildAgentTools(spec);
