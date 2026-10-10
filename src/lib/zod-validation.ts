@@ -108,7 +108,7 @@ export const DelegationRequestSchema = z.object({
   task: z.string().min(1, 'Task description is required').max(2000),
   agentId: z.string().optional(),
   priority: z.enum(['low', 'normal', 'high', 'critical']).default('normal'),
-  context: z.record(z.unknown()).optional(),
+  context: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type DelegationRequestInput = z.infer<typeof DelegationRequestSchema>;
