@@ -19,6 +19,7 @@ import { Connector } from '../core/connector.js';
 import { fiveTGate, apply5TToResponse, type GateResult } from '../core/fiveT-gate.js';
 import { getModelInfo, getAdvancedCapabilities, calculateCost } from '../registry/models.js';
 import { EventEmitter } from 'events';
+import path from 'node:path';
 
 // ============================================================================
 // Tool Manager
@@ -293,11 +294,27 @@ export class PermissionManager {
 
 export class FileContextStorage {
   private basePath: string;
-  
+
   constructor(basePath: string) {
-    this.basePath = basePath;
+    this.basePath = path.resolve(basePath);
   }
-  
+
+  private _validateId(id: string): void {
+    if (!/^[A-Za-z0-9_-]+$/.test(id)) {
+      throw new Error('Invalid identifier: ' + id);
+    }
+  }
+
+  private _resolveSafePath(agentId: string, sessionId: string): string {
+    this._validateId(agentId);
+    this._validateId(sessionId);
+    const filePath = path.resolve(this.basePath, agentId, 'sessions', sessionId + '.json');
+    if (!filePath.startsWith(this.basePath + path.sep)) {
+      throw new Error('Path traversal detected: ' + agentId + '/' + sessionId);
+    }
+    return filePath;
+  }
+
   async load(agentId: string, sessionId: string): Promise<unknown | null> {
     const filePath = `${this.basePath}/${agentId}/sessions/${sessionId}.json`;
     try {
@@ -530,7 +547,8 @@ export class Agent {
     // Initialize context
     this.context = AgentContextNextGen.create({
       model: options.model,
-      systemPrompt: options.systemPrompt || options.instructions,
+      systemPrompt: options.systemPrompt
+        ?? (Array.isArray(options.instructions) ? options.instructions.join('\n') : options.instructions),
       features: options.context?.features as Record<string, boolean> || { workingMemory: true },
       agentId: options.context?.agentId,
       storage: options.context?.storage as any,
@@ -618,7 +636,8 @@ export class Agent {
   
   // Direct LLM call (no context management)
   async runDirect(input: string | Message | (string | Message)[], options?: RunOptions): Promise<AgentResponse> {
-    const response = await this._executeDirectLLMCall(input, options);
+    // 先正規化再傳：_executeDirectLLMCall 吃 Message[]，不吃 (string|Message)[]
+    const response = await this._executeDirectLLMCall(this._normalizeInput(input), options);
     return response;
   }
   
@@ -635,7 +654,7 @@ export class Agent {
   }
   
   async *streamDirect(input: string | Message | (string | Message)[], options?: RunOptions): AsyncIterable<any> {
-    yield* this._executeDirectStreamingCall(input, options);
+    yield* this._executeDirectStreamingCall(this._normalizeInput(input), options);
   }
   
   // Advanced capabilities
@@ -782,4 +801,4 @@ export type {
   PromptCacheOptions,
   DataHandlingOptions,
   ContextStorage,
-};
+} from '../types/index.js';

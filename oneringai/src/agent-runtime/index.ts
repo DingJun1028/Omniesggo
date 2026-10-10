@@ -291,7 +291,7 @@ export class AgentRuntime {
       }
     }
     
-    const driver = this.backend.getDriver(spec.driver);
+    let driver = this.backend.getDriver(spec.driver);
     if (!driver) {
       // Try exact match first, then prefix match
       const prefix = spec.driver.split('.')[0];
@@ -299,10 +299,12 @@ export class AgentRuntime {
       if (!altDriver) {
         throw new Error(`Driver "${spec.driver}" not found in backend`);
       }
-      Object.assign(driver, { driver: altDriver });
+      // 回退到前綴匹配的驅動（原為 Object.assign(driver, …) 的改壞殘句：
+      // 在 if (!driver) 分支內 driver 必為 undefined，Object.assign 會 TypeError）
+      driver = altDriver;
     }
     
-    const session = await driver!.createSession(spec);
+    const session = await driver.createSession(spec);
     session.metadata = options?.metadata || {};
     
     this.sessions.set(session.id, session);
@@ -409,7 +411,7 @@ export class AgentRuntime {
       throw new Error(`Driver "${spec.driver}" not found`);
     }
     
-    return driver.inspect(spec);
+    return { spec, ...(await driver.inspect(spec)) };
   }
   
   /**

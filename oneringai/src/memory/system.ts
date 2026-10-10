@@ -12,7 +12,10 @@ import * as crypto from 'crypto';
 // Entity & Fact Types
 // ============================================================================
 
-export type EntityType = 'person' | 'organization' | 'project' | 'document' | 'task' | 'note' | 'concept' | 'event' | 'tool' | string;
+// 命名為 MemoryEntityType：避免與根的正典 src/types/notes.ts 的 MemoryEntityType
+// 同名（ts-matrix reverse 驗證會判 shadowed drift）。本套件為獨立 package，
+// 不引用根 src，故以本地前綴名收斂重複定義。
+export type MemoryEntityType = 'person' | 'organization' | 'project' | 'document' | 'task' | 'note' | 'concept' | 'event' | 'tool' | string;
 
 export type Principal = `user:${string}` | `entity:${string}` | `group:${string}` | `service:${string}` | 'world';
 
@@ -25,7 +28,7 @@ export interface Identifier {
 
 export interface Entity {
   id: string;
-  type: EntityType;
+  type: MemoryEntityType;
   displayName: string;
   identifiers: Identifier[];
   aliases: string[];
@@ -72,7 +75,7 @@ export interface PredicateDef {
   description: string;
   category: string;
   payloadKind: 'none' | 'attribute' | 'relation';
-  subjectTypes: EntityType[];
+  subjectTypes: MemoryEntityType[];
   lifecycle: FactLifecycle;
   weight?: number;
 }
@@ -141,7 +144,7 @@ export interface IMemoryStore {
   findEntityByIdentifier(identifier: Identifier): Promise<Entity | null>;
   findEntitiesByIdentifiers(identifiers: Identifier[]): Promise<Entity[]>;
   mergeEntities(targetId: string, sourceIds: string[]): Promise<Entity>;
-  listEntities(type?: EntityType, visibility?: { owner: Principal }): Promise<Entity[]>;
+  listEntities(type?: MemoryEntityType, visibility?: { owner: Principal }): Promise<Entity[]>;
   deleteEntity(id: string): Promise<boolean>;
   searchEntities(query: string, visibility: { owner: Principal }): Promise<Entity[]>;
   
@@ -721,7 +724,7 @@ export class InMemoryAdapter implements IMemoryStore {
     return target;
   }
   
-  async listEntities(_type?: EntityType, _visibility?: { owner: Principal }): Promise<Entity[]> {
+  async listEntities(_type?: MemoryEntityType, _visibility?: { owner: Principal }): Promise<Entity[]> {
     return Array.from(this.entities.values());
   }
   
