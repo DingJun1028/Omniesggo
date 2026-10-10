@@ -11,11 +11,11 @@ export const dynamic = 'force-dynamic';
  * 免費算立架構：
  * - 預設：本地啟發式 (AgenticTwin.autonomousAnalyze)，零外部依賴。
  * - 設 AGENTIC_TWIN_OLLAMA_URL（如 http://localhost:11434）+ 模型存在時：
- *   呼叫本機 Ollama（qwen2.5:3b / gemma4）產生真 LLM 洞察，啟發式作降級。
+ *   呼叫本機 Ollama（qwen2.5:3b-64k）產生真 LLM 洞察，啟發式作降級。
  * - 未來接雲端 LLM 亦同此模式（改 env 指向即可，前端不需改）。
  */
 const OLLAMA_URL = process.env.AGENTIC_TWIN_OLLAMA_URL ?? '';
-const OLLAMA_MODEL = process.env.AGENTIC_TWIN_OLLAMA_MODEL ?? 'qwen2.5:3b';
+const OLLAMA_MODEL = process.env.AGENTIC_TWIN_OLLAMA_MODEL ?? 'qwen2.5:3b-64k';
 
 interface OllamaMsg {
   role: 'system' | 'user';

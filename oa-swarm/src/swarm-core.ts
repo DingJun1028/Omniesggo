@@ -85,7 +85,7 @@ export class SwarmCore {
     let llm;
     try {
       llm = await callLLM(`${brief}\n協作名單:\n${summary}\n請以蜂后口吻回應 50 字內。`, {
-        model: process.env.OLLAMA_MODEL || 'qwen2.5:3b',
+        model: process.env.OLLAMA_MODEL || 'qwen2.5:3b-64k',
         baseUrl: process.env.OLLAMA_BASE || 'http://localhost:11434',
       });
     } catch (e) {
