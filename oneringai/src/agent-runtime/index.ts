@@ -6,11 +6,7 @@
  * or OpenAI Codex SDK agents without flattening either system into a text-model
  * provider.
  */
-<<<<<<< HEAD
 import type { Vendor, ToolFunction, AgentResponse } from '../types/index.js';
-=======
-import type { AgentResponse } from '../types/index.js';
->>>>>>> origin/feature/aistation-core-modules
 import { EventEmitter } from 'events';
 
 // ============================================================================
@@ -109,7 +105,6 @@ export interface AgentDriver {
   readonly name: string;
   readonly supportedDrivers: string[];
   readonly capabilities: AgentCapability[];
-<<<<<<< HEAD
   
   /**
    * Validate that this driver can handle the given spec
@@ -152,18 +147,6 @@ export interface AgentDriver {
   /**
    * Get all events for a run (for replay)
    */
-=======
-  validate(spec: AgentSpec): Promise<boolean>;
-  inspect(spec: AgentSpec): Promise<{
-    capabilities: AgentCapability[];
-    limitations: string[];
-    modelInfo: { maxTokens?: number; contextWindow?: number; modality?: string[] };
-  }>;
-  createSession(spec: AgentSpec): Promise<AgentSession>;
-  startRun(session: AgentSession, input: string, options?: RunOptions): Promise<AgentRun>;
-  cancelRun(sessionId: string, runId: string, reason?: string): Promise<boolean>;
-  subscribeToRun(session: AgentSession, runId: string): EventSubscription;
->>>>>>> origin/feature/aistation-core-modules
   getRunEvents(session: AgentSession, runId: string, limit?: number): Promise<AgentEvent[]>;
 }
 
@@ -180,7 +163,6 @@ export interface RunOptions {
 // ============================================================================
 
 export interface AgentRuntimePolicy {
-<<<<<<< HEAD
   /**
    * Allowed drivers (fail-closed)
    */
@@ -209,13 +191,6 @@ export interface AgentRuntimePolicy {
   /**
    * Workspace restrictions
    */
-=======
-  allowedDrivers?: string[];
-  allowedConnectors?: Record<string, string[]>;
-  maxSessionsPerAgent?: number;
-  maxConcurrentRuns?: number;
-  defaultTimeoutMs?: number;
->>>>>>> origin/feature/aistation-core-modules
   workspace?: {
     allowedPaths?: string[];
     readOnly?: boolean;
@@ -276,7 +251,6 @@ export class AgentRuntime {
   private policy: AgentRuntimePolicy;
   private agentSpecs: Map<string, AgentSpec> = new Map();
   
-<<<<<<< HEAD
   constructor(options: {
     backend: ExecutionBackend;
     policy?: AgentRuntimePolicy;
@@ -367,50 +341,10 @@ export class AgentRuntime {
       timeout: Math.min(options?.timeout || timeout, timeout),
     });
     
-=======
-  constructor(options: { backend: ExecutionBackend; policy?: AgentRuntimePolicy }) {
-    this.backend = options.backend;
-    this.policy = options.policy || {};
-  }
-  
-  agent(spec: AgentSpec): RegisteredAgent {
-    this.agentSpecs.set(spec.id, spec);
-    return new RegisteredAgent(spec, this);
-  }
-  
-  async createSession(agentId: string, options?: { metadata?: Record<string, unknown> }): Promise<AgentSession> {
-    const spec = this.agentSpecs.get(agentId);
-    if (!spec) throw new Error(`Agent spec "${agentId}" not found`);
-    
-    let driver = this.backend.getDriver(spec.driver);
-    if (!driver) {
-      const prefix = spec.driver.split('.')[0];
-      const altDriver = this.backend.getDriver(prefix);
-      if (!altDriver) throw new Error('Driver not found in backend');
-      driver = altDriver;
-    }
-    
-    const session = await driver.createSession(spec);
-    session.metadata = options?.metadata || {};
-    this.sessions.set(session.id, session);
-    this.events.emit('session:created', session);
-    return session;
-  }
-  
-  async startRun(sessionId: string, input: string, options?: RunOptions): Promise<{ runId: string; events: AsyncIterable<AgentEvent> }> {
-    const session = this.sessions.get(sessionId);
-    if (!session) throw new Error(`Session "${sessionId}" not found`);
-    
-    const driver = this.backend.getDriver(session.spec.driver);
-    if (!driver) throw new Error(`Driver not found for session`);
-    
-    const run = await driver.startRun(session, input, options);
->>>>>>> origin/feature/aistation-core-modules
     this.runs.set(run.id, run);
     session.status = 'running';
     this.events.emit('run:started', { sessionId, runId: run.id });
     
-<<<<<<< HEAD
     // Return events stream
     const events = this._eventStream(session, run, options?.onEvent);
     
@@ -424,22 +358,12 @@ export class AgentRuntime {
     const session = this.sessions.get(sessionId);
     if (!session) return false;
     
-=======
-    const events = this._eventStream(session, run, options?.onEvent);
-    return { runId: run.id, events };
-  }
-  
-  async cancelRun(sessionId: string, runId: string, reason?: string): Promise<boolean> {
-    const session = this.sessions.get(sessionId);
-    if (!session) return false;
->>>>>>> origin/feature/aistation-core-modules
     const driver = this.backend.getDriver(session.spec.driver);
     if (!driver) return false;
     
     const cancelled = await driver.cancelRun(sessionId, runId, reason);
     if (cancelled) {
       const run = this.runs.get(runId);
-<<<<<<< HEAD
       if (run) {
         run.status = 'cancelled';
         run.completedAt = Date.now();
@@ -471,28 +395,11 @@ export class AgentRuntime {
    */
   async inspect(agentId: string): Promise<{
     spec: AgentSpec;
-=======
-      if (run) { run.status = 'cancelled'; run.completedAt = Date.now(); }
-    }
-    return cancelled;
-  }
-  
-  async getRunEvents(sessionId: string, runId: string, options?: { limit?: number }): Promise<AgentEvent[]> {
-    const session = this.sessions.get(sessionId);
-    if (!session) throw new Error(`Session "${sessionId}" not found`);
-    const driver = this.backend.getDriver(session.spec.driver);
-    if (!driver) throw new Error(`Driver not found`);
-    return driver.getRunEvents(session, runId, options?.limit);
-  }
-  
-  async inspect(agentId: string): Promise<{
->>>>>>> origin/feature/aistation-core-modules
     capabilities: AgentCapability[];
     limitations: string[];
     modelInfo: unknown;
   }> {
     const spec = this.agentSpecs.get(agentId);
-<<<<<<< HEAD
     if (!spec) {
       throw new Error(`Agent "${agentId}" not found`);
     }
@@ -553,30 +460,10 @@ export class AgentRuntime {
     const subscription = driver.subscribeToRun(session, run.id);
     
     // Re-emit events from the run's event log
-=======
-    if (!spec) throw new Error(`Agent "${agentId}" not found`);
-    const driver = this.backend.getDriver(spec.driver);
-    if (!driver) throw new Error(`Driver "${spec.driver}" not found`);
-    return driver.inspect(spec);
-  }
-  
-  listAgents(): AgentSpec[] { return Array.from(this.agentSpecs.values()); }
-  listSessions(): AgentSession[] { return Array.from(this.sessions.values()); }
-  getSession(sessionId: string): AgentSession | undefined { return this.sessions.get(sessionId); }
-  
-  on(event: string, listener: (...args: any[]) => void): this { this.events.on(event, listener); return this; }
-  off(event: string, listener: (...args: any[]) => void): this { this.events.off(event, listener); return this; }
-  
-  private async *_eventStream(session: AgentSession, run: AgentRun, onEvent?: (event: AgentEvent) => void): AsyncIterable<AgentEvent> {
-    const driver = this.backend.getDriver(session.spec.driver);
-    if (!driver) return;
-    const subscription = driver.subscribeToRun(session, run.id);
->>>>>>> origin/feature/aistation-core-modules
     for (const event of run.events) {
       if (onEvent) onEvent(event);
       yield event;
     }
-<<<<<<< HEAD
     
     // Subscribe to new events
     const cleanup = (event: AgentEvent) => {
@@ -585,8 +472,6 @@ export class AgentRuntime {
     
     // The actual event streaming would be connected to the driver's event source
     // For now, we yield existing events and complete
-=======
->>>>>>> origin/feature/aistation-core-modules
   }
 }
 
@@ -595,14 +480,10 @@ export class AgentRuntime {
 // ============================================================================
 
 export class RegisteredAgent {
-<<<<<<< HEAD
   constructor(
     private spec: AgentSpec,
     private runtime: AgentRuntime
   ) {}
-=======
-  constructor(private spec: AgentSpec, private runtime: AgentRuntime) {}
->>>>>>> origin/feature/aistation-core-modules
   
   get id(): string { return this.spec.id; }
   get driver(): string { return this.spec.driver; }
@@ -615,7 +496,6 @@ export class RegisteredAgent {
   async run(input: string, options?: RunOptions): Promise<AgentResponse> {
     const session = await this.createSession();
     const { runId, events } = await this.runtime.startRun(session.id, input, options);
-<<<<<<< HEAD
     
     // Consume events until run completes
     let result: AgentResponse | undefined;
@@ -661,72 +541,6 @@ export class RegisteredAgent {
 
 // ============================================================================
 // Codex SDK Driver (Optional)
-=======
-    let result: AgentResponse | undefined;
-    for await (const event of events) {
-      if (event.type === 'run:completed') {
-        result = (event.data as any).result;
-      }
-    }
-    if (!result) throw new Error('Run did not complete with a result');
-    return result;
-  }
-  
-  async runStreaming(input: string, options?: RunOptions): Promise<{ runId: string; sessionId: string; events: AsyncIterable<AgentEvent> }> {
-    const session = await this.createSession();
-    return { runId: '', sessionId: session.id, events: (await this.runtime.startRun(session.id, input, options)).events };
-  }
-  
-  async inspect(): Promise<{ capabilities: AgentCapability[]; limitations: string[]; modelInfo: unknown }> {
-    return this.runtime.inspect(this.spec.id);
-  }
-  
-  getSpec(): AgentSpec { return this.spec; }
-}
-
-// ============================================================================
-// OneRingAI Native Driver
-// ============================================================================
-
-export class OneRingAIDriver implements AgentDriver {
-  readonly name = 'oneringai';
-  readonly supportedDrivers = ['oneringai'];
-  readonly capabilities: AgentCapability[] = [
-    { id: 'reasoning', name: 'Reasoning', description: 'Step-by-step reasoning', type: 'tool' },
-    { id: 'memory', name: 'Memory', description: 'Persistent context', type: 'resource' },
-    { id: 'tools', name: 'Custom Tools', description: 'Agent-defined tool execution', type: 'tool' },
-  ];
-  
-  async validate(_spec: AgentSpec): Promise<boolean> { return true; }
-  async inspect(_spec: AgentSpec): Promise<any> {
-    return { capabilities: this.capabilities, limitations: [], modelInfo: { maxTokens: 16384, contextWindow: 1000000, modality: ['text', 'image'] } };
-  }
-  
-  async createSession(spec: AgentSpec): Promise<AgentSession> {
-    _sequence++;
-    return { id: `sess_${Date.now()}_${_sequence}`, agentId: spec.id, spec, createdAt: Date.now(), status: 'idle', metadata: {} };
-  }
-  
-  async startRun(session: AgentSession, input: string, _options?: RunOptions): Promise<AgentRun> {
-    _sequence++;
-    const run: AgentRun = {
-      id: `run_${Date.now()}_${_sequence}`, sessionId: session.id, agentId: session.agentId,
-      input, createdAt: Date.now(), status: 'running', events: [],
-    };
-    run.status = 'completed';
-    run.completedAt = Date.now();
-    run.result = { output_text: `Processed: ${input}`, usage: { input_tokens: 10, output_tokens: 10 }, status: 'completed' as const };
-    return run;
-  }
-  
-  async cancelRun(_sessionId: string, _runId: string, _reason?: string): Promise<boolean> { return true; }
-  subscribeToRun(_session: AgentSession, _runId: string): EventSubscription { return { unsubscribe: () => {} }; }
-  async getRunEvents(_session: AgentSession, _runId: string, _limit?: number): Promise<AgentEvent[]> { return []; }
-}
-
-// ============================================================================
-// Codex SDK Driver (Optional - requires @openai/codex-sdk peer dep)
->>>>>>> origin/feature/aistation-core-modules
 // ============================================================================
 
 export class CodexSdkDriver implements AgentDriver {
@@ -739,7 +553,6 @@ export class CodexSdkDriver implements AgentDriver {
     { id: 'git', name: 'Git', description: 'Git operations', type: 'tool' },
   ];
   
-<<<<<<< HEAD
   async validate(spec: AgentSpec): Promise<boolean> {
     // Check that required environment variables are set
     return true;
@@ -755,16 +568,10 @@ export class CodexSdkDriver implements AgentDriver {
       limitations: ['Server container execution not yet implemented'],
       modelInfo: { maxTokens: 16384, contextWindow: 200000, modality: ['text', 'image'] },
     };
-=======
-  async validate(_spec: AgentSpec): Promise<boolean> { return true; }
-  async inspect(_spec: AgentSpec): Promise<any> {
-    return { capabilities: this.capabilities, limitations: ['Server container execution not yet implemented'], modelInfo: { maxTokens: 16384, contextWindow: 200000, modality: ['text', 'image'] } };
->>>>>>> origin/feature/aistation-core-modules
   }
   
   async createSession(spec: AgentSpec): Promise<AgentSession> {
     _sequence++;
-<<<<<<< HEAD
     return {
       id: `sess_${Date.now()}_${_sequence}`,
       agentId: spec.id,
@@ -884,26 +691,6 @@ export class OneRingAIDriver implements AgentDriver {
 
 // ============================================================================
 // Convenience: Create runtime with default drivers
-=======
-    return { id: `sess_${Date.now()}_${_sequence}`, agentId: spec.id, spec, createdAt: Date.now(), status: 'idle', metadata: {} };
-  }
-  
-  async startRun(session: AgentSession, input: string, _options?: RunOptions): Promise<AgentRun> {
-    _sequence++;
-    return {
-      id: `run_${Date.now()}_${_sequence}`, sessionId: session.id, agentId: session.agentId,
-      input, createdAt: Date.now(), status: 'running', events: [],
-    };
-  }
-  
-  async cancelRun(_sessionId: string, _runId: string, _reason?: string): Promise<boolean> { return true; }
-  subscribeToRun(_session: AgentSession, _runId: string): EventSubscription { return { unsubscribe: () => {} }; }
-  async getRunEvents(_session: AgentSession, _runId: string, _limit?: number): Promise<AgentEvent[]> { return []; }
-}
-
-// ============================================================================
-// Convenience Factory
->>>>>>> origin/feature/aistation-core-modules
 // ============================================================================
 
 export function createAgentRuntime(options?: {
@@ -913,9 +700,6 @@ export function createAgentRuntime(options?: {
   const backend = new LocalExecutionBackend({
     drivers: options?.drivers || [new OneRingAIDriver()],
   });
-<<<<<<< HEAD
   
-=======
->>>>>>> origin/feature/aistation-core-modules
   return new AgentRuntime({ backend, policy: options?.policy });
 }
