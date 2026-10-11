@@ -70,8 +70,10 @@
   2. `b90211c2d` deploy-oracle job 層 concurrency 自我死鎖刪除（runner:none 根因）
   3. `062333f02` tailwind 釘 3.4.19＋postcss.mjs 對齊 v3＋login 頁 Github icon 內嵌 SVG（Docker 根因2/3＋vinext 根因）
   4. `0d9dbca61` webfactory/ssh-agent 釘 v0.9.0（v1 從不存在！6 workflow 哑彈全拆）＋ssh-keyscan known_hosts 預置
-- **deploy-oracle 實測中**：workflow_dispatch run 38127152087（direct 模式，10-25min）
-- **ESG-GO CI/CD Pipeline Docker Build Test**：062333f02 批實測中（38126848422）
+- **deploy-oracle 實測**：workflow_dispatch run 38127152087 ✅ **4m40s 全綠**（Pre-check/Deploy/Notify）——史上首次跑通 CI→VPS 部署（ssh-agent v0.9.0 釘版+keyscan 生效）
+- **ESG-GO CI/CD Pipeline**（38126848422）✅ **全綠**：Docker Build Test ARM64 完整建置 14m1s（pdf-parse v2+tailwind 驗證）＋ pipeline 內 Deploy to VPS SSH 部署 ✅
+- **AI Station image**（38127102029）✅ build 10m52s
+- **Vercel preview**（feature c375b85）✅ Ready，smoke 200；log 中 `../.. prepare` 報錯為無害雜訊（`.vercelignore` 排除 `scripts/` → setup-hooks.mjs 缺檔 → `|| true` 吞掉）
 
 ### 剩餘（僅使用者）
 | # | 項目 |
@@ -79,7 +81,6 @@
 | 1 | OmniLive r5 實機驗收（重載→`UI v2026.10.11-r5`→🎙/🛟/⧉） |
 | 2 | OpenAI credit 加值 |
 | 3 | Resend esgsunshine.com Verify |
-| 4 | deploy-oracle run 38127152087 結果追蹤（我持續盯） |
 
 ---
 <sub>代辦清單 v2026-10-11r3 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
