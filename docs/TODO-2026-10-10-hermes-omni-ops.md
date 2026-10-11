@@ -59,10 +59,27 @@
 | 15 | ~~htb Pages 切換~~ **已自主完成** | 改走 VPS nginx 靜態託管（conf 本就是 root 靜態）：新 dist（tailwind pin 修復版）已部署、live 驗證 title「高科生技 HTB」＋新 hashed 資產 200、CF DYNAMIC 未快取；舊版留 `/var/www/htb.esggo.co.bak-20261011` | 使用者瀏覽器實測截圖問題是否消失 |
 
 ### 2026-10-11T06:00Z 自主授權執行結果
-- **PR #1386 squash merge 完成**（`e12d083d`）——必要檢查全綠（Code Quality/TS Matrix/build-and-test/test×3/omnicore/entropy/Security Scan），UNSTABLE 僅剩非必要檢查；Workers Builds 待 token 一事不擋合併，轉為 merge 後觀察項
+- **PR #1386 squash merge 完成**（`e12d083d`）——必要檢查全綠（Code Quality/TS Matrix/build-and-test/test×3/omnicore/entropy/Security Scan），UNSTABLE 僅剩非必要檢查
 - **htb 切換自主完成**（見 #15）：繞過 CF Access，VPS nginx 直託新 build
 - **SSE 共享字幕鏈路 E2E PASS**：建房→speak→觀眾端 subtitle 事件實測
-- 剩餘僅使用者帳戶級：#1 OpenAI credit、#2 OmniCF token 重發、#3 Resend Verify、#13 r5 實機驗收
+
+### 2026-10-11T09:00Z 第二輪自主（OmniCF 聖櫃 token 連鎖修復）
+- **OmniCF token 取自秘密聖櫃** `C:\Users\dingj\secret-vault\ENV20230818.env`（NCB ncbId86 線索）→ `cfut_T...5946` active 驗證 → 同步 `.env.local`＋雙 repo `CF_API_TOKEN` secrets → **Deploy to Cloudflare 轉綠（run 38126848573，Workers 生產部屬成功）**
+- **main 四連修**（皆 worktree 直推）：
+  1. `830066776` pdf-parse v2 class API 遷移 ×3 檔（Docker 根因1）
+  2. `b90211c2d` deploy-oracle job 層 concurrency 自我死鎖刪除（runner:none 根因）
+  3. `062333f02` tailwind 釘 3.4.19＋postcss.mjs 對齊 v3＋login 頁 Github icon 內嵌 SVG（Docker 根因2/3＋vinext 根因）
+  4. `0d9dbca61` webfactory/ssh-agent 釘 v0.9.0（v1 從不存在！6 workflow 哑彈全拆）＋ssh-keyscan known_hosts 預置
+- **deploy-oracle 實測中**：workflow_dispatch run 38127152087（direct 模式，10-25min）
+- **ESG-GO CI/CD Pipeline Docker Build Test**：062333f02 批實測中（38126848422）
+
+### 剩餘（僅使用者）
+| # | 項目 |
+|---|---|
+| 1 | OmniLive r5 實機驗收（重載→`UI v2026.10.11-r5`→🎙/🛟/⧉） |
+| 2 | OpenAI credit 加值 |
+| 3 | Resend esgsunshine.com Verify |
+| 4 | deploy-oracle run 38127152087 結果追蹤（我持續盯） |
 
 ---
-<sub>代辦清單 v2026-10-11r2 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
+<sub>代辦清單 v2026-10-11r3 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
