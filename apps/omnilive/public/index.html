@@ -352,6 +352,7 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
 
   <!-- 底列 -->
   <div id="panelFoot">
+    <span class="hint" id="verBadge">v—</span>
     <span class="hint">音量</span>
     <div class="meter"><div id="meter"></div></div>
     <span class="badge rescue hidden" id="rescueBadge">🛟 救援中</span>
@@ -394,6 +395,9 @@ const fromSel=$('from'),toSel=$('to'),fontSize=$('fontSize');
 const orderChk=$('orderSrcFirst'),bgChk=$('bgToggle'),showChk=$('showToggle'),wordChk=$('wordToggle');
 const srcRows=$('srcRows'),tgtRows=$('tgtRows'),captionInput=$('captionInput');
 const panelEl=$('panel');
+const UI_VERSION='2026.10.11-r3';
+$('verBadge').textContent='UI v'+UI_VERSION;
+log('UI v'+UI_VERSION+' 載入（底列可核對版本）');
 
 srcSel.onchange=()=>{deviceRow.style.display=srcSel.value==='device'?'flex':'none';};
 function log(m){const t=new Date().toLocaleTimeString();logEl.textContent=(t+' '+m+'\n')+logEl.textContent;}
