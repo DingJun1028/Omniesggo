@@ -321,6 +321,15 @@ jobs:
             git checkout -f main
             git fetch origin main
             git reset --hard origin/main
+            # ─── 磁碟衛生 (2026-10-11 根因修復: 磁碟 100% 滿 → 全服務滅) ───
+            # 實測: /var/lib/containerd 膨脹 50G (builder cache 10.87G + 未回收
+            #   snapshot), 101G 盤打滿 0 可用 → `cat: write error: No space left
+            #   on device` 部署紅 + PM2 daemon 被殺 → 6 服務全滅。
+            # 每次部署清 build cache (安全: 可全數重建) + journal (留 200M),
+            # 磁碟永不觸頂。`|| true` 保證清磁失敗不擋部署。
+            sudo docker builder prune -af >/dev/null 2>&1 || true
+            sudo journalctl --vacuum-size=200M >/dev/null 2>&1 || true
+            df -h / | tail -1 | sed 's/^/[disk] /'
             export CI=true
             # 建置期佔位: scripts/validate-env.ts 要求 DATABASE_URL 非空 (僅存在性檢查)。
             # /var/www/esggo/.env 目前沒有 DATABASE_URL, 故 next build 前的 gate 直接失敗。
