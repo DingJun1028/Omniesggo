@@ -34,18 +34,21 @@ body{display:flex;flex-direction:column;user-select:none}
 .sub{display:flex;flex-direction:column;gap:2px;animation:fade .18s ease-out both}
 @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .sub .src{
-  font-size:.9rem;font-weight:500;color:var(--txt-soft);
+  font-size:1.15rem;font-weight:500;color:var(--txt-soft);
   text-shadow:0 1px 3px rgba(0,0,0,.85);padding:2px 10px;border-radius:4px;
   background:rgba(10,20,36,.62);border-left:2px solid var(--line);width:fit-content;max-width:100%;
   word-break:break-word;overflow-wrap:anywhere;
 }
 .sub .tgt{
-  font-size:1.4rem;font-weight:700;color:var(--txt);
+  font-size:1.15rem;font-weight:700;color:var(--txt);
   text-shadow:0 2px 6px rgba(0,0,0,.9);padding:2px 10px;border-radius:4px;
   background:rgba(10,20,36,.75);border-left:2px solid var(--gold);width:fit-content;max-width:100%;
   word-break:break-word;overflow-wrap:anywhere;
 }
-/* 緊急救援: TEAL 字色 */
+/* r6 雙語染色: 繁中=金黃 / 英文=白 (等字級) */
+.sub .lz{color:#ffd98a}
+.sub .le{color:#ffffff}
+/* 緊急救援: TEAL 字色 (置於 lz/le 後, 同特異度優先生效) */
 .sub.rescue .src{color:#7fe9db;border-left-color:var(--teal)}
 .sub.rescue .tgt{color:var(--teal);border-left-color:var(--teal);text-shadow:0 2px 6px rgba(0,0,0,.9),0 0 8px rgba(45,212,191,.35)}
 #ph{color:var(--muted);font-size:.85rem;text-align:center;margin:auto;letter-spacing:.02em}
@@ -69,14 +72,24 @@ const subs=document.getElementById('subs'); const ph=document.getElementById('ph
 const bar=document.getElementById('bar');
 document.getElementById('close').onclick=()=>window.close();
 const bigFirst = params.get('order')!=='src';
+/* r6 語言染色: 繁中=金黃 / 英文=白 (CJK>15% 閾值, 與主面板同邏輯) */
+const CJK_RE=/[㐀-䶿一-鿿-鿿豈-﫿]/;
+function langClassOf(t){
+  if(!t||!t.trim())return'le';
+  let cjk=0,total=0;
+  for(const ch of t){ if(/\s/.test(ch))continue; total++; if(CJK_RE.test(ch))cjk++; }
+  return total&&cjk/total>0.15?'lz':'le';
+}
 function addSub(d,rescue){
   if(ph){ph.remove();}
   const wrap=document.createElement('div'); wrap.className='sub'+(rescue?' rescue':'');
   if(rescue) bar.classList.add('rescue'); else bar.classList.remove('rescue');
-  const a=document.createElement('div'); a.className='src';
-  const b=document.createElement('div'); b.className='tgt';
-  if(bigFirst){ a.textContent=d.source||''; b.textContent=d.target||''; }
-  else { a.textContent=d.target||''; b.textContent=d.source||''; }
+  const a=document.createElement('div'); const b=document.createElement('div');
+  let at,bt;
+  if(bigFirst){ at=d.source||''; bt=d.target||''; }
+  else { at=d.target||''; bt=d.source||''; }
+  a.textContent=at; b.textContent=bt;
+  a.className='src '+langClassOf(at); b.className='tgt '+langClassOf(bt);
   wrap.appendChild(a); wrap.appendChild(b);
   subs.appendChild(wrap);
   while(subs.children.length>3) subs.removeChild(subs.firstChild); // 上堆疊消散: 最多 3 組
