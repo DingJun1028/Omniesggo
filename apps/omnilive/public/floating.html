@@ -9,7 +9,7 @@
   --bg:#0a1424;--line:#2a3e5e;--line-soft:#1f3352;
   --txt:#f3ede1;--txt-soft:#c8c1b3;--muted:#8a8275;
   --gold:#c9a24b;--teal:#2dd4bf;
-  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",sans-serif;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Segoe UI Variable Text","Microsoft JhengHei UI","Microsoft JhengHei","PingFang TC","Noto Sans TC","Noto Sans CJK TC","Heiti TC",sans-serif;
   --mono:ui-monospace,"Cascadia Code",monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
@@ -37,11 +37,13 @@ body{display:flex;flex-direction:column;user-select:none}
   font-size:.9rem;font-weight:500;color:var(--txt-soft);
   text-shadow:0 1px 3px rgba(0,0,0,.85);padding:2px 10px;border-radius:4px;
   background:rgba(10,20,36,.62);border-left:2px solid var(--line);width:fit-content;max-width:100%;
+  word-break:break-word;overflow-wrap:anywhere;
 }
 .sub .tgt{
   font-size:1.4rem;font-weight:700;color:var(--txt);
   text-shadow:0 2px 6px rgba(0,0,0,.9);padding:2px 10px;border-radius:4px;
   background:rgba(10,20,36,.75);border-left:2px solid var(--gold);width:fit-content;max-width:100%;
+  word-break:break-word;overflow-wrap:anywhere;
 }
 /* 緊急救援: TEAL 字色 */
 .sub.rescue .src{color:#7fe9db;border-left-color:var(--teal)}
