@@ -222,6 +222,7 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
     <span class="badge" id="roleBadge">—</span>
     <span class="badge live hidden" id="roomBadge"></span>
     <div class="head-btns">
+      <button class="icon-btn danger" id="btnMic" title="開始/停止收音">🎙</button>
       <button class="icon-btn" id="btnMini" title="縮小成迷你漂浮器（可蓋在 Zoom 上）">▣</button>
       <button class="icon-btn" id="btnFloat" title="開啟獨立字幕小窗（跨視窗蓋在 Zoom/Chrome 上）">◫</button>
       <button class="icon-btn rescue" id="btnRescue" title="緊急救援：改用 Chrome/本機辨識＋即時翻譯（TEAL 字色=救援中）">🛟</button>
@@ -713,6 +714,8 @@ $('startBtn').onclick=async()=>{
     $('startBtn').disabled=true;$('stopBtn').disabled=false;
     connEl.textContent='收音中 ('+src+')';connDot.className='dot';
     log('開始收音: '+src+' — 每 '+(WINDOW_MS/1000)+' 秒送出一段');
+    $('btnMic').classList.add('active');
+    sheetEl.classList.remove('open'); $('btnSheet').classList.remove('active'); // 開始後收合面板, 直視字幕
     armSubWatchdog(); // 緊急救援守望: 12 秒無字幕自動切本機辨識
   }catch(e){showErr('無法取得音訊: '+e.message);log('收音失敗: '+e.message);}
 };
@@ -725,6 +728,7 @@ $('stopBtn').onclick=()=>{
   stopRescue();
   analyser=null;recorder=null;captureBuf=null;gotAudio=false;
   $('startBtn').disabled=false;$('stopBtn').disabled=true;$('dlAudioBtn').disabled=true;$('pauseBtn').disabled=true;paused=false;
+  $('btnMic').classList.remove('active');
   connEl.textContent='已停止';connDot.className='dot bad';log('停止收音');
 };
 $('btnMic').onclick=()=>{ if($('startBtn').disabled){ $('stopBtn').click(); $('btnMic').classList.remove('active'); } else { $('startBtn').click(); $('btnMic').classList.add('active'); } };
