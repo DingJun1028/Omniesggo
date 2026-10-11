@@ -42,7 +42,7 @@ iCloud vault（OMN canon，20 檔 / 252 連結 / 0 斷鏈）/ 免費同步。
 - ❌ vault 路徑錯：`hermes-wiki` ≠ 實際 `iCloud~md~obsidian/DingJun`；無 raw/entities/concepts/comparisons 結構。
 
 ### 2.2 NxCode〈Obsidian AI 第二大腦〉
-- ✅ 本機相符：Copilot / Templater / Dataview / Calendar 皆已安裝；Ollama 本地模型（qwen2.5:3b + nomic-embed-text）。
+- ✅ 本機相符：Copilot / Templater / Dataview / Calendar 皆已安裝；Ollama 本地模型（qwen2.5:3b-64k + nomic-embed-text 兩個，2026-10-10 收斂：qwen2.5:3b tag 已併入 3b-64k）。
 - ❌ 未安裝：Smart Connections / Nova / Smart Second Brain；`obsidian-mcp-server` / `~/.claude/settings.json`。
 - ◐ 本機對應物更強：`hermes-agent` Obsidian 插件 + opencode 的 Hermes local MCP ＋ `omnisearch`，取代「Claude Code + MCP」；`github-sync` / `obsidian-git` / `remotely-save` **免費**取代 $5 Sync。
 - ✅ 上下文工程五原則（原子筆記 / frontmatter / wikilinks / 標籤 / 命名）：本機 OMN canon 已內化並超標。

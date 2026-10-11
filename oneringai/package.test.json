@@ -1,0 +1,1 @@
+{"name": "test", "version": "1.0.0", "private": true, "type": "module", "scripts": {"test": "tsx tests/index.test.ts", "test:compile": "tsc --noEmit -p tsconfig.json", "test:watch": "tsx watch tests/index.test.ts", "dev": "tsx src/index.ts"}, "dependencies": {}, "devDependencies": {"typescript": "^5.x", "tsx": "^4.x", "@types/node": "^22.x", "@types/crypto": "^1.x"}}

@@ -1,20 +1,24 @@
 {
-  "name": "omnilive",
-  "version": "1.0.0",
-  "description": "OA-Team OmniLive 萬能即時轉譯雙語字幕播放器 — Zoom 線上會議場景最小可用設定流程 (STT → 雙語翻譯 → SSE 字幕播放器)",
-  "type": "module",
-  "main": "server.mjs",
-  "scripts": {
-    "start": "node start.mjs",
-    "health": "curl -sf http://localhost:8795/health",
-    "test": "node --test --test-concurrency=1 test/*.test.mjs",
-    "verify": "node verify.mjs",
-    "e2e:voice": "node scripts/e2e-voice.mjs",
-    "omnistation": "node omnistation.mjs"
-  },
-  "engines": {
-    "node": ">=18"
-  },
-  "dependencies": {},
-  "devDependencies": {}
+    "name":  "omnilive",
+    "version":  "1.0.0",
+    "description":  "OA-Team OmniLive 萬能即時轉譯雙語字幕播放器 — Zoom 線上會議場景最小可用設定流程 (STT → 雙語翻譯 → SSE 字幕播放器)",
+    "type":  "module",
+    "main":  "server.mjs",
+    "scripts":  {
+                    "start":  "node start.mjs",
+                    "health":  "curl -sf http://localhost:8795/health",
+                    "verify":  "node verify.mjs",
+                    "e2e:voice":  "node scripts/e2e-voice.mjs",
+                    "omnistation":  "node omnistation.mjs",
+                    "test":  "node --test \"test/**/*.test.mjs\""
+                },
+    "engines":  {
+                    "node":  "\u003e=18"
+                },
+    "dependencies":  {
+
+                     },
+    "devDependencies":  {
+
+                        }
 }

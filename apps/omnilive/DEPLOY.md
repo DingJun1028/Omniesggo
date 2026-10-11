@@ -8,6 +8,32 @@
 - **STT**（port 8791，獨立 pm2 `stt-whisper`）：faster-whisper，`/var/www/esggo/apps/stt/server.py`。
 - **Cloudflare Tunnel**：`omnilive.esggo.co` → `127.0.0.1:8795`。
 
+## 2026-10-10 主機名重整紀錄（omnihermes.esggo.co）
+
+現況（`ssh ubuntu@161.118.248.180` + tunnel `d821f09e-91ec-…` 實測）：
+
+| 主機名 | tunnel ingress | 實際服務 |
+|---|---|---|
+| `omnilive.esggo.co` | `127.0.0.1:8797` | OmniLive 雙語字幕（QR 配對頁） |
+| `hermex.esggo.co` | `127.0.0.1:8795` | **Hermes Agent Dashboard**（PWA） |
+| **`omnihermes.esggo.co`（新）** | `127.0.0.1:8795` | **Hermes Agent Dashboard**（PWA） |
+
+> 歷史誤解：docs/ARCH-SPEC 曾記「omnilive.esggo.co 服務 Hermes Dashboard」——
+> 實測 8795 是 Hermes Dashboard、8797 才是 OmniLive；本表以 tunnel config 為準。
+
+本次變更（使用者要求：Hermes 網頁改到 `omnihermes.esggo.co` 並確保手機可用）：
+
+1. `/etc/cloudflared/config.yml` ingress 尾端（catch-all 前）新增
+   `- hostname: omnihermes.esggo.co / service: http://127.0.0.1:8795`，
+   `tunnel validate` 通過後 `systemctl restart cloudflared`。
+2. Cloudflare DNS 新增 CNAME `omnihermes.esggo.co` →
+   `d821f09e-91ec-4c38-85da-89451a5a8983.cfargotunnel.com`（proxied）。
+3. 手機可用性實測：desktop/iPhone/Android UA 皆 200、SSL 驗證通過（網頁為
+   PWA：manifest.webmanifest + apple-mobile-web-app meta + viewport-fit=cover）、
+   `/manifest.webmanifest`、`/icon-512.png`、`/health` 全 200、HTTP→HTTPS 301。
+
+`omnilive.esggo.co` 維持原狀（它是 OmniLive、非 Hermes），未刪除。
+
 ## VPS 部署流程（改完前端/後端後）
 
 ```bash

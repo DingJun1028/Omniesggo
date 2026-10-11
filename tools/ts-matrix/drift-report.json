@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-07T04:31:42.238Z",
+  "timestamp": "2026-10-10T14:49:29.760Z",
   "version": "1.3.0",
   "matrix": "esggo-ts-matrix",
   "forward": {
@@ -1427,7 +1427,7 @@
   },
   "reverse": {
     "scope": "global",
-    "scannedFileCount": 2147,
+    "scannedFileCount": 2198,
     "shadowedCount": 75,
     "excluded": {
       "derivedFiles": 4,
@@ -1821,7 +1821,7 @@
   },
   "pass": true,
   "lock": {
-    "sha256": "2047d19baab5c6b46747e62c6ac64d8d014612417f9e18da04e285d2e8502896",
+    "sha256": "cd6bb5754780dbec65ca85a6aa683930a57e0a6285b2afb49b0c18468e8eb718",
     "algorithm": "sha256",
     "note": "Trustworthy 5T - lock of drift-report.json content"
   }

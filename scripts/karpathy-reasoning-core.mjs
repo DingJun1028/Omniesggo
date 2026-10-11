@@ -19,7 +19,7 @@ import { join, relative, resolve } from 'path';
 const ARGS = process.argv.slice(2);
 const MODE = ARGS.find(a => a.startsWith('--mode='))?.split('=')[1] || 'daily';
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || 'qwen2.5:3b-64k';
 const VAULT_PATH = process.env.VAULT_PATH || 'C:/Project/esggo/vault';
 const MAX_NOTES = parseInt(process.env.MAX_NOTES || '20');
 const MAX_CHARS_PER_NOTE = parseInt(process.env.MAX_CHARS_PER_NOTE || '1000');

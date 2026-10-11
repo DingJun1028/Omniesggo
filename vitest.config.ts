@@ -91,6 +91,12 @@ export default defineConfig({
       'tests/canon.test.mjs',
       'tests/omnitag.test.mjs',
       'tests/junaikey.test.mjs',
+      // oneringai/tests/index.test.ts 為自製測試 harness（自建 TestResult
+      // 介面、逐項呼叫，非 vitest suite）：被根 vitest 抓取時報
+      // "No test suite found in file"。其 vitest 套件在 tests/unit/，
+      // 由根或 oneringai 自己的 vitest.config.ts（include: tests/unit/**）執行；
+      // 此 harness 需另以 node/tsx 驅動，覆蓋範圍不減。
+      'oneringai/tests/index.test.ts',
       // vendor/ 是第三方 vendored 套件（archify / impeccable / Understand-Anything 等），
       // 受 .gitignore 第 382 行 `/vendor/` 排除，**不受版控**，CI checkout 後根本不存在。
       // 每個子套件自帶 vitest.config.ts 與 package.json，須由自身目錄執行。

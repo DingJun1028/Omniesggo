@@ -15,7 +15,7 @@ const mockBus = (topic: string, source: string, payload: unknown) => {
 };
 
 async function main() {
-  const oa = createOAFrame({ llmModel: 'qwen2.5:3b', llmBaseUrl: 'http://localhost:11434/v1', llmApiKey: '***' });
+  const oa = createOAFrame({ llmModel: 'qwen2.5:3b-64k', llmBaseUrl: 'http://localhost:11434/v1', llmApiKey: '***' });
   oa.attachBus(mockBus); // 廣通: 注入總線
 
   console.log('=== 深貫廣通啟動 ===');

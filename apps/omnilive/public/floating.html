@@ -5,151 +5,58 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>OmniLive 漂浮字幕窗</title>
 <style>
-/* === esggo brand tokens === */
 :root{
-  --bg:#0a1424;
-  --bg-soft:#10243f;
-  --panel:#142a47;
-  --panel-hover:#1a3358;
-  --line:#2a3e5e;
-  --line-soft:#1f3352;
-  --txt:#f3ede1;
-  --txt-soft:#c8c1b3;
-  --muted:#8a8275;
-  --gold:#c9a24b;
-  --gold-soft:#b8941f;
-  --green:#3c6e47;
-  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC",sans-serif;
-  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",monospace;
-  --s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:24px;--s6:32px;--s8:48px;
-  --r-sm:4px;--r-md:6px;
-  --ease:cubic-bezier(0.4,0,0.2,1);
+  --bg:#0a1424;--line:#2a3e5e;--line-soft:#1f3352;
+  --txt:#f3ede1;--txt-soft:#c8c1b3;--muted:#8a8275;
+  --gold:#c9a24b;--teal:#2dd4bf;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Segoe UI Variable Text","Microsoft JhengHei UI","Microsoft JhengHei","PingFang TC","Noto Sans TC","Noto Sans CJK TC","Heiti TC",sans-serif;
+  --mono:ui-monospace,"Cascadia Code",monospace;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{
-  height:100%;
-  background:transparent;
-  font-family:var(--font);
-  overflow:hidden;
-  letter-spacing:.01em;
-}
+html,body{height:100%;background:transparent;font-family:var(--font);overflow:hidden;letter-spacing:.01em}
 body{display:flex;flex-direction:column;user-select:none}
-/* Title bar — 深藍 + 暖金 brand */
 #bar{
-  height:26px;
-  background:rgba(10,20,36,.92);
-  border-bottom:1px solid var(--line-soft);
-  display:flex;
-  align-items:center;
-  gap:var(--s2);
-  padding:0 var(--s3);
-  cursor:move;
-  flex:none;
-  backdrop-filter:blur(8px);
+  height:28px;background:rgba(10,20,36,.9);border-bottom:1px solid var(--line-soft);
+  display:flex;align-items:center;gap:8px;padding:0 10px;cursor:move;flex:none;backdrop-filter:blur(8px);
 }
 #bar .brand-mark{
-  width:18px;height:18px;
-  border:1px solid var(--gold);
-  border-radius:var(--r-sm);
+  width:18px;height:18px;border:1px solid var(--gold);border-radius:4px;
   display:flex;align-items:center;justify-content:center;
-  color:var(--gold);
-  font-family:var(--mono);
-  font-size:10px;font-weight:600;letter-spacing:.05em;
-  flex:none;
+  color:var(--gold);font-family:var(--mono);font-size:10px;font-weight:600;flex:none;
 }
-#bar .t{
-  font-size:.68rem;
-  color:var(--txt-soft);
-  font-weight:500;
-  letter-spacing:.02em;
-}
-#bar .t em{
-  font-style:normal;
-  color:var(--gold);
-}
-#bar .x{
-  margin-left:auto;
-  cursor:pointer;
-  color:var(--muted);
-  font-size:.85rem;
-  padding:0 var(--s2);
-  line-height:1;
-  transition:color .15s var(--ease);
-}
+#bar .t{font-size:.68rem;color:var(--txt-soft);font-weight:500;white-space:nowrap}
+#bar .t em{font-style:normal;color:var(--gold)}
+#bar .rescue-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);display:none}
+#bar.rescue .rescue-dot{display:block}
+#bar .x{margin-left:auto;cursor:pointer;color:var(--muted);font-size:.72rem;padding:0 8px;line-height:1}
 #bar .x:hover{color:var(--gold)}
-
-#subs{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:flex-end;
-  gap:var(--s2);
-  padding:var(--s3) var(--s4);
-  overflow:hidden;
-}
-.sub{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  animation:fade .18s var(--ease) both;
-}
-@keyframes fade{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:translateY(0)}
-}
+#subs{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:8px 12px;overflow:hidden}
+.sub{display:flex;flex-direction:column;gap:2px;animation:fade .18s ease-out both}
+@keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 .sub .src{
-  font-size:.95rem;
-  font-weight:500;
-  color:var(--txt-soft);
-  text-shadow:0 1px 3px rgba(0,0,0,.85);
-  padding:var(--s1) var(--s3);
-  border-radius:var(--r-sm);
-  background:rgba(10,20,36,.62);
-  border-left:2px solid var(--line);
-  width:fit-content;
-  max-width:100%;
-  letter-spacing:.01em;
+  font-size:.9rem;font-weight:500;color:var(--txt-soft);
+  text-shadow:0 1px 3px rgba(0,0,0,.85);padding:2px 10px;border-radius:4px;
+  background:rgba(10,20,36,.62);border-left:2px solid var(--line);width:fit-content;max-width:100%;
+  word-break:break-word;overflow-wrap:anywhere;
 }
 .sub .tgt{
-  font-size:1.55rem;
-  font-weight:600;
-  color:var(--txt);
-  text-shadow:0 2px 6px rgba(0,0,0,.9);
-  padding:var(--s1) var(--s3);
-  border-radius:var(--r-sm);
-  background:rgba(10,20,36,.75);
-  border-left:2px solid var(--gold);
-  width:fit-content;
-  max-width:100%;
-  letter-spacing:.01em;
+  font-size:1.4rem;font-weight:700;color:var(--txt);
+  text-shadow:0 2px 6px rgba(0,0,0,.9);padding:2px 10px;border-radius:4px;
+  background:rgba(10,20,36,.75);border-left:2px solid var(--gold);width:fit-content;max-width:100%;
+  word-break:break-word;overflow-wrap:anywhere;
 }
-#ph{
-  color:var(--muted);
-  font-size:.95rem;
-  text-align:center;
-  margin:auto;
-  letter-spacing:.02em;
-}
-.hint{
-  position:absolute;
-  bottom:3px;
-  right:var(--s3);
-  font-size:.58rem;
-  color:var(--muted);
-  font-family:var(--mono);
-  letter-spacing:.05em;
-}
-@media (prefers-reduced-motion: reduce){
-  *,*::before,*::after{
-    animation-duration:.01ms!important;
-    transition-duration:.01ms!important;
-  }
-}
+/* 緊急救援: TEAL 字色 */
+.sub.rescue .src{color:#7fe9db;border-left-color:var(--teal)}
+.sub.rescue .tgt{color:var(--teal);border-left-color:var(--teal);text-shadow:0 2px 6px rgba(0,0,0,.9),0 0 8px rgba(45,212,191,.35)}
+#ph{color:var(--muted);font-size:.85rem;text-align:center;margin:auto;letter-spacing:.02em}
+.hint{position:absolute;bottom:2px;right:10px;font-size:.54rem;color:var(--muted);font-family:var(--mono);letter-spacing:.05em}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <div id="bar">
   <div class="brand-mark">OA</div>
+  <span class="rescue-dot"></span>
   <span class="t"><em>OmniLive</em> 漂浮字幕</span>
   <span class="x" id="close">關閉</span>
 </div>
@@ -159,23 +66,28 @@ body{display:flex;flex-direction:column;user-select:none}
 const params=new URLSearchParams(location.search);
 const room=params.get('room')||''; const pwd=params.get('pwd')||'';
 const subs=document.getElementById('subs'); const ph=document.getElementById('ph');
+const bar=document.getElementById('bar');
 document.getElementById('close').onclick=()=>window.close();
-const bigFirst = params.get('order')!=='src'; // 預設大中文小英文
-function addSub(d){
+const bigFirst = params.get('order')!=='src';
+function addSub(d,rescue){
   if(ph){ph.remove();}
-  const wrap=document.createElement('div'); wrap.className='sub';
+  const wrap=document.createElement('div'); wrap.className='sub'+(rescue?' rescue':'');
+  if(rescue) bar.classList.add('rescue'); else bar.classList.remove('rescue');
   const a=document.createElement('div'); a.className='src';
   const b=document.createElement('div'); b.className='tgt';
-  if(bigFirst){ a.textContent=d.source||''; b.textContent=d.target||''; } // 大字=翻譯(中文) 在上
+  if(bigFirst){ a.textContent=d.source||''; b.textContent=d.target||''; }
   else { a.textContent=d.target||''; b.textContent=d.source||''; }
   wrap.appendChild(a); wrap.appendChild(b);
   subs.appendChild(wrap);
-  while(subs.children.length>8) subs.removeChild(subs.firstChild);
+  while(subs.children.length>3) subs.removeChild(subs.firstChild); // 上堆疊消散: 最多 3 組
 }
 const es=new EventSource('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''));
-es.addEventListener('subtitle',ev=>{try{const p=JSON.parse(ev.data);const d=p.data;if(!d)return;addSub(d);}catch(e){}});
+es.addEventListener('subtitle',ev=>{
+  try{const p=JSON.parse(ev.data);const d=p.data;if(!d)return;
+    const rescue=String(d.engine||'').includes('rescue');
+    addSub(d,rescue);}catch(e){}
+});
 es.onerror=()=>{ if(es.readyState===EventSource.CLOSED){ const e2=new EventSource('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):'')); } };
-const bar=document.getElementById('bar');
 bar.addEventListener('pointerdown',e=>{ if(e.target.id==='close')return;
   bar.setPointerCapture(e.pointerId);
   const sx=e.screenX,sy=e.screenY, wx=window.screenX,wy=window.screenY;

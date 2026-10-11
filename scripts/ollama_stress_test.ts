@@ -2,7 +2,7 @@ import { performance } from 'perf_hooks';
 
 const OLLAMA_URL = 'http://127.0.0.1:11434/api/chat';
 // Use the model defined in the model router
-const MODEL = 'qwen2.5:3b'; 
+const MODEL = 'qwen2.5:3b-64k';
 
 const CONCURRENT_REQUESTS = 5;
 const TOTAL_REQUESTS = 20;
