@@ -38,5 +38,25 @@
 - NCB 登入態確認（doctor：ncb healthy、58 skills 載入）；技法沉澱 skill `omniops-fullstack-repair-5t`
 - OMN-LOG-005 生態掃描入庫（vault b918e120 + docs mirror）
 
+## 2026-10-11 追記（本日戰果）
+
+### 已完成
+- **omnisub.esggo.co 無畫面根治**：nginx 誤 proxy 到 :3000 ESGGO app → 改靜態託管＋no-store header（`26607d272`）；使用者 purge CF 快取後 live 正常
+- **OmniLive UI 大進化全量上線**（五連發）：
+  - `f9a0460af` 一體式雙區面板（上=擷取字幕/下=翻譯字幕 各 max3）＋迷你漂浮器＋獨立小窗＋救援 TEAL＋分享 QR＋擷取 2.5s 提速
+  - `8f52c21c7` 修 btnMic null 崩潰（救援/暫停/匯出/清除全復活＋🎙主控鈕回歸）
+  - `ba5a520a5` UI 版本徽章（底列核對，根治舊分頁誤判）
+  - `c436da4de` r4 斷線偵測（offline/online 即時反應＋1.5s 重連）
+  - `4aebd567a` r5 繁中字族補齊（微軟正黑體等）＋字級固定 px（不再忽大忽小）
+- **E2E 實測**：speak en→zh「語音辨識測試」✓、SSE hello ✓、room 建立 ✓、零亂碼
+- 查明：live 尾部注入 script = Cloudflare bot 偵測（良性）；`/stream` QUIC 錯誤=使用者網路 UDP 波動（已給 chrome://flags 根治法）
+
+### 新增待辦
+| # | 項目 | 現況 | 下一步 |
+|---|---|---|---|
+| 13 | **OmniLive r5 使用者驗收** | 已部署 UI v2026.10.11-r5；QUIC 斷線問題已給建議 | 使用者重載驗收三動作（🎙雙區字幕/🛠救援TEAL/⧉分享QR）；如再斷線關 Chrome QUIC flag |
+| 14 | **Code scanning 紅=配額** | GitHub Autofind 月配額用盡（402 quota），非代碼問題、不擋合併 | 下月配額重置自癒；或使用者升方案 |
+| 15 | **htb Pages 切換** | 建置綠、Pages 專案就緒、DNS 已回 VPS | 使用者二選一：Worker Make-public（一顆開關）或 Access token |
+
 ---
-<sub>代辦清單 v2026-10-10 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
+<sub>代辦清單 v2026-10-11 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
