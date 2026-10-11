@@ -116,9 +116,6 @@ jobs:
     needs: [pre-check]
     if: needs.pre-check.outputs.mode != 'skip'
     timeout-minutes: 25
-    concurrency:
-      group: deploy-oracle-vps
-      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 
