@@ -38,7 +38,7 @@ try {
   process.exit(1);
 }
 
-const APP_VERSION = '1.1.0';
+const APP_VERSION = '1.1.1';
 const PORT = CFG.port;
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const store = new SubtitleStore({ maxLines: CFG.subtitleMaxLines, ttlMs: CFG.subtitleTtlMs });

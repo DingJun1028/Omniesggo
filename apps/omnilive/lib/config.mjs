@@ -43,7 +43,9 @@ export function loadConfig() {
     );
   }
   const from = (process.env.OMNILIVE_FROM || 'auto').trim();
-  const to = (process.env.OMNILIVE_TO || 'en').trim();
+  // r6.1: 預設 to=auto — 與 from=auto 配對成「自動↔自動」:
+  // 聽見繁中自動對應英文, 聽見英文自動對應繁中 (translate.detectLang 負責翻向)
+  const to = (process.env.OMNILIVE_TO || 'auto').trim();
   if (!from || !to) {
     throw new Error('CONFIG_MISSING: OMNILIVE_FROM 與 OMNILIVE_TO 皆不可為空');
   }

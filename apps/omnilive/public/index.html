@@ -349,7 +349,7 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
       <div class="sub-zone" id="srcRows"><div class="sub-ph" id="srcPh">等待字幕…</div></div>
     </div>
     <div class="zone" id="tgtZone">
-      <div class="zone-label"><span class="zdot"></span>文字翻譯字幕</div>
+      <div class="zone-label"><span class="zdot"></span>語音翻譯字幕</div>
       <div class="sub-zone" id="tgtRows"><div class="sub-ph" id="tgtPh">等待翻譯…</div></div>
     </div>
   </div>
@@ -398,7 +398,7 @@ const fromSel=$('from'),toSel=$('to'),fontSize=$('fontSize');
 const orderChk=$('orderSrcFirst'),bgChk=$('bgToggle'),showChk=$('showToggle'),wordChk=$('wordToggle');
 const srcRows=$('srcRows'),tgtRows=$('tgtRows'),captionInput=$('captionInput');
 const panelEl=$('panel');
-const UI_VERSION='2026.10.11-r6';
+const UI_VERSION='2026.10.11-r6.1';
 $('verBadge').textContent='UI v'+UI_VERSION;
 log('UI v'+UI_VERSION+' 載入（底列可核對版本）');
 
@@ -939,8 +939,9 @@ function startRescue(auto){
 async function speakRescue(text){
   const room=new URLSearchParams(location.search).get('room')||'';
   try{
+    // r6.1: auto 直通伺服器 (聽中文→自動英譯, 聽英文→自動中譯, 不再預設 zh→en)
     const r=await fetch('/api/speak',{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({text,room,from:fromSel.value==='auto'?'zh-TW':fromSel.value,to:toSel.value==='auto'?'en':toSel.value})});
+      body:JSON.stringify({text,room,from:fromSel.value||'auto',to:toSel.value||'auto'})});
     const d=await r.json();
     if(d.source!==undefined){
       // 直接以 TEAL 呈現（engine 加 rescue 標記 → SSE 也會帶到觀眾端）
