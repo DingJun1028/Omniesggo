@@ -75,12 +75,27 @@
 - **AI Station image**（38127102029）✅ build 10m52s
 - **Vercel preview**（feature c375b85）✅ Ready，smoke 200；log 中 `../.. prepare` 報錯為無害雜訊（`.vercelignore` 排除 `scripts/` → setup-hooks.mjs 缺檔 → `|| true` 吞掉）
 
+### 2026-10-11T13:00Z 第三輪自主（r6.1 雙向配對＋磁碟事故＋VoxSpica 整合）
+- **OmniLive r6.1**（feature `fd463a6c2`，雙 remote）：config 預設 `to=auto`（與 `from=auto` 自動配對，聽中譯英/聽英譯中雙向）；speakRescue 直通 raw 語言碼；B 欄標籤改「語音翻譯字幕」；server 1.1.1／UI r6.1；43/43 測試綠；VPS 實測 `from:auto,to:auto`
+- **⚠ 生產事故：VPS 磁碟 100% 滿** → `cat: write error` 部署紅＋PM2 daemon 被殺→**6 服務全滅**
+  - 根因：`/var/lib/containerd` 膨胀 50G（builder cache 10.87G＋未回收 snapshot），101G 盤 0 可用
+  - 搶救：builder prune 10.87G＋docker prune＋user caches → 12G free；CI 乾淨重啟全服務；重放 r6.1 三檔後全項驗收回綠
+  - 根因消除（main `18037d10e`）：deploy-oracle direct 段新增每次部署 `docker builder prune -af`＋journal vacuum 200M＋`[disk]` 顯示行——永不觸頂
+- **main `4f11e7dd1`**：ecosystem `OMNILIVE_TO:'en'→'auto'`（覆蓋 config 預設的真兇，經 CI 部署驗證）
+- **VoxSpica × OmniLive 整合**（feature `c523a89be`，雙 remote）：
+  - 完全克隆＋SHA256 校驗安裝 portable 0.1.8 至 `C:\opt\voxspica\app`，cn/en-us 小模型就位
+  - **繁體中文補丁**：逆刻 PyInstaller CArchive → 注入 `dictophone/locales/zhtw.json`（`i18n.available()` 動態收錄為第 10 介面語系）；真 app 碼函數級載入證明（`app.title=語音辨識`）；config `ui_lang=zhtw`（無 BOM）
+  - **橋接** `voxspica-bridge.ps1`：VOSK 離線辨識 → cn 簡體強制 s2t 轉繁 → `POST /api/speak` → r6.1 自動配對雙語；E2E 實測 中⇒Test Universal…、英⇒大家好…全方位直播…
+  - 工具鏈入庫 `apps/omnialive/prototype/scripts/voxspica/`（zhtw.json/make_zhtw.py/pyxinject.py/README.md），回滾＝覆蓋 `VoxSpica.orig.exe`
+- **技能三庫同步登錄**：`voxspica-omnilive-integration` SKILL.md 入 opencode＋hermes 雙技能庫；junaikey grow＋6 tag＋promote L3（L3:4→5、total 151）
+
 ### 剩餘（僅使用者）
 | # | 項目 |
 |---|---|
-| 1 | OmniLive r5 實機驗收（重載→`UI v2026.10.11-r5`→🎙/🛟/⧉） |
+| 1 | OmniLive r6.1＋VoxSpica 實機驗收（含繁體 GUI 開窗目視＋橋接 mic 模式） |
 | 2 | OpenAI credit 加值 |
 | 3 | Resend esgsunshine.com Verify |
+| 4 | 自訂項目：`apps/omnialive/public/i18n/` 未追蹤目錄歸屬確認（非本次產物） |
 
 ---
-<sub>代辦清單 v2026-10-11r3 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
+<sub>代辦清單 v2026-10-11r4 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
