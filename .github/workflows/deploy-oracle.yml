@@ -273,7 +273,7 @@ jobs:
       # ---- 選項 2: 直連 ----
       - name: Setup direct SSH key
         if: needs.pre-check.outputs.mode == 'direct'
-        uses: webfactory/ssh-agent@v1
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
@@ -283,6 +283,9 @@ jobs:
           FTG_JWT_SECRET: ${{ secrets.FTG_JWT_SECRET }}
         run: |
           set -e
+          # known_hosts 預置: 非互動 ssh 首連若無 host key 會直接失敗
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
           # JWT_SECRET 傳遞 (2026-09-27 實測修): 下方 heredoc 是 <<'VPS' (引號)，
           #   遠端才展開變數 → GitHub secret 無法自動進遠端環境 → ftg 拒絕啟動。
           #   不能改成未引號 heredoc: 會讓 $PM2 / $FTG_SRC 等全部改為本地展開而壞掉。
