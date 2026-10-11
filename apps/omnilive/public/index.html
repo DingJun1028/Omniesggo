@@ -395,7 +395,7 @@ const fromSel=$('from'),toSel=$('to'),fontSize=$('fontSize');
 const orderChk=$('orderSrcFirst'),bgChk=$('bgToggle'),showChk=$('showToggle'),wordChk=$('wordToggle');
 const srcRows=$('srcRows'),tgtRows=$('tgtRows'),captionInput=$('captionInput');
 const panelEl=$('panel');
-const UI_VERSION='2026.10.11-r3';
+const UI_VERSION='2026.10.11-r4';
 $('verBadge').textContent='UI v'+UI_VERSION;
 log('UI v'+UI_VERSION+' 載入（底列可核對版本）');
 
@@ -433,12 +433,17 @@ function connectSSE(){
       renderSub(d.source,d.target,d.from+'→'+d.to+' · '+d.engine+' · #'+d.id,d.speaker,d.id,d.ts,d.words,rescue);}catch(e){}
   });
   es.onopen=()=>{connEl.textContent='SSE 已連線';connDot.className='dot';hideErr();};
-  es.onerror=()=>{connEl.textContent='SSE 重連中…';connDot.className='dot bad';
+  es.onerror=()=>{ connDot.className='dot bad';
+    if(navigator.onLine===false){ connEl.textContent='離線'; showErr('偵測到網路斷線——恢復後自動重連；網路不穩時字幕會暫停，屬正常'); }
+    else { connEl.textContent='SSE 重連中…'; showErr('SSE 連線中斷（QUIC/網路波動），正在自動重連'); }
     fetch('/stream?room='+encodeURIComponent(room)+(pwd?'&pwd='+encodeURIComponent(pwd):''),{method:'GET'}).then(r=>{
       if(r.status===401 && !isCaster) promptRoomPassword(room);
     }).catch(()=>{});
-    showErr('SSE 連線中斷，正在自動重連');setTimeout(connectSSE,3000);};
+    setTimeout(connectSSE,1500);};
 }
+// 網路斷線/恢復即時反應
+window.addEventListener('offline',()=>{connEl.textContent='離線';connDot.className='dot bad';showErr('網路已斷線——恢復後自動重連');log('⚠ 偵測到網路斷線');});
+window.addEventListener('online',()=>{hideErr();connectSSE();log('✓ 網路恢復，SSE 已重連');});
 function promptRoomPassword(room){
   const input=prompt('此房間需要密碼：');
   if(!input)return;
