@@ -1,23 +1,13 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
-/* eslint-disable @typescript-eslint/no-var-requires */
 // ============================================================
 // ESG PDF Report Parser
 // src/core/pdf/pdf-parser.ts
 //
 // Parses ESG/sustainability report PDFs into structured data
-// Uses pdf-parse (already in deps) - pure JS, no native bindings
+// Uses pdf-parse v2 (PDFParse class API) - pure JS, no native bindings
 // Free-tier compatible
 // ============================================================
 
-interface PDFParseOutput {
-  text: string;
-  numpages: number;
-  numrender: number;
-  info: Record<string, unknown>;
-  metadata: unknown;
-  version: string;
-}
-const pdfParse: (dataBuffer: Buffer) => Promise<PDFParseOutput> = require('pdf-parse');
+import { PDFParse } from 'pdf-parse';
 
 export type ESGCategory = 'environmental' | 'social' | 'governance' | 'general';
 
@@ -107,19 +97,31 @@ export class PDFReportParser {
   private pages: string[] = [];
 
   async parse(buffer: Buffer): Promise<PDFParseResult> {
+    const parser = new PDFParse({ data: buffer });
     try {
-      const pdfData = await pdfParse(buffer);
-      const rawText = pdfData.text || '';
-      this.pages = this.splitPages(rawText);
+      const textResult = await parser.getText();
+      const rawText = textResult.text || '';
+      this.pages = textResult.pages
+        .map((p) => (p.text || '').trim())
+        .filter((p) => p.length > 0);
+      if (this.pages.length === 0) this.pages = [rawText];
 
       const esg = this.extractESG(rawText);
       const stats = this.computeStats(rawText);
       const sections = this.extractSections(rawText);
 
+      let title = this.guessTitle(rawText);
+      try {
+        const infoResult = await parser.getInfo();
+        if (infoResult.info?.Title) title = String(infoResult.info.Title);
+      } catch {
+        // keep guessed title when metadata unavailable
+      }
+
       return {
         success: true,
-        title: String(pdfData.info?.Title || this.guessTitle(rawText)),
-        pageCount: pdfData.numpages || this.pages.length,
+        title,
+        pageCount: textResult.total || this.pages.length,
         text: rawText.slice(0, 50000),
         sections,
         esg,
@@ -128,6 +130,8 @@ export class PDFReportParser {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       return this.emptyResult(msg || 'parse failed');
+    } finally {
+      await parser.destroy().catch(() => {});
     }
   }
 
@@ -138,11 +142,6 @@ export class PDFReportParser {
   }
 
   // --- Private ------------------------------------------------------
-
-  private splitPages(rawText: string): string[] {
-    const pages = rawText.split('---PAGE_BREAK---').map(p => p.trim()).filter(p => p.length > 10);
-    return pages.length > 0 ? pages : [rawText];
-  }
 
   private guessTitle(rawText: string): string {
     const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 3);
