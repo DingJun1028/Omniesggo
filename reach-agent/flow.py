@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OLLAMA_BASE = os.getenv("OLLAMA_BASE", "http://localhost:11434")
-OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:3b-64k")
 # 結構化抽取用較強模型 (可選, 預設同 OLLAMA_MODEL)
 OLLAMA_MODEL_ANALYZE = os.getenv("OLLAMA_MODEL_ANALYZE", OLLAMA_MODEL)
 

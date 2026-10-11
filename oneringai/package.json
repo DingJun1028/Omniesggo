@@ -1,0 +1,42 @@
+{
+  "name": "@everworker/oneringai",
+  "version": "1.1.0",
+  "description": "A unified AI agent library with multi-provider support for text generation, image/video generation, audio (TTS/STT), and agentic workflows.",
+  "license": "MIT",
+  "author": "EverWorker",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./agent-runtime": {
+      "types": "./dist/agent-runtime/index.d.ts",
+      "import": "./dist/agent-runtime/index.js",
+      "require": "./dist/agent-runtime/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.0.0",
+    "tsx": "^4.0.0"
+  }
+}
