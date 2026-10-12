@@ -1,4 +1,4 @@
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 import { agnesApi } from '@lib/agnes-api';
 import { db } from '@lib/firebase';
 import { collection, addDoc } from '@lib/firebase';
@@ -35,9 +35,17 @@ export async function POST(req: Request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-    // 1. 解析 PDF
-    const pdfData = await pdfParse(buffer);
-    const rawText = pdfData.text.replace(/\n+/g, '\n').trim();
+    // 1. 解析 PDF (pdf-parse v2: PDFParse class API)
+    const parser = new PDFParse({ data: buffer });
+    let rawText = '';
+    let pageCount = 0;
+    try {
+      const textResult = await parser.getText();
+      rawText = textResult.text.replace(/\n+/g, '\n').trim();
+      pageCount = textResult.total;
+    } finally {
+      await parser.destroy();
+    }
 
     // 1.5 AGNES 預處理 (擷取前 2000 字元進行摘要分析)
     let summaryContext = '';
@@ -92,7 +100,7 @@ export async function POST(req: Request) {
       success: true,
       message: 'PDF 解析與 Chunking 寫入成功',
       totalChunks: chunks.length,
-      pageCount: pdfData.numpages,
+      pageCount,
       provider: USE_REAL_AI ? 'gemini' : 'mock'
     });
 

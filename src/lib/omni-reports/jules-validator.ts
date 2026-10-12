@@ -141,7 +141,7 @@ export function validateESGData(payload: unknown): ActionResponse<unknown> {
       ? String((payload as Record<string, unknown>).uuid)
       : '';
 
-  let result: z.SafeParseReturnType<unknown, unknown>;
+  let result: z.ZodSafeParseResult<unknown>;
   if (uuid.includes('soc-dei')) {
     result = DeiDataSchema.safeParse(payload);
   } else if (uuid.includes('gov-board')) {

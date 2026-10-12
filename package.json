@@ -100,7 +100,7 @@
     "pino-pretty": "^13.2.0",
     "postcss": "^8.5.29",
     "prettier": "^3.9.9",
-    "tailwindcss": "^4.3.3",
+    "tailwindcss": "3.4.19",
     "ts-node": "^10.9.2",
     "turbo": "^2.11.7",
     "typescript": "^5.9.3",

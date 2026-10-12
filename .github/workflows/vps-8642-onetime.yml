@@ -13,7 +13,7 @@ jobs:
       SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
     steps:
       - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v1
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ env.SSH_PRIVATE_KEY }}
       - name: Prepare SSH config

@@ -120,7 +120,8 @@ module.exports = {
         STT_PORT: 8791,
         OMNILIVE_AUDIO_SOURCE: 'system-display',
         OMNILIVE_FROM: 'auto',
-        OMNILIVE_TO: 'en',
+        // r6.1: to=auto — 與 from=auto 自動配對 (聽中譯英/聽英譯中雙向)
+        OMNILIVE_TO: 'auto',
       },
       instances: 1,
       exec_mode: 'fork',

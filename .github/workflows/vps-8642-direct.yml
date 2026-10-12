@@ -13,7 +13,7 @@ jobs:
       VPS_HOST: ${{ secrets.VPS_HOST }}
     steps:
       - name: Setup SSH agent
-        uses: webfactory/ssh-agent@v1
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ env.SSH_PRIVATE_KEY || env.VPS_SSH_KEY }}
       - name: Prepare SSH config
