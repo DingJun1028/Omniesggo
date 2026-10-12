@@ -8,6 +8,7 @@ overrides:
   sharp: '>=0.35.5 <0.36'
   undici: '>=7.29.1 <8'
   '@grpc/grpc-js': '>=1.13.6 <2'
+  hono: '>=4.13.5 <5'
 
 importers:
 
@@ -72,8 +73,8 @@ importers:
         specifier: ^26.1.2
         version: 26.1.2
       hono:
-        specifier: ^4.12.32
-        version: 4.12.32
+        specifier: '>=4.13.5 <5'
+        version: 4.13.13
       typescript:
         specifier: ^7.0.2
         version: 7.0.2
@@ -1791,8 +1792,8 @@ packages:
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
 
-  hono@4.12.32:
-    resolution: {integrity: sha512-XcuyW9qE2kJn07PkecMOBd5Vq/hMy7mmGw+idz1yblbg9N17ijJODrvPkn7/dwL3Kulj8LcRJ69DLOWf91dRUg==}
+  hono@4.13.13:
+    resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
     engines: {node: '>=16.9.0'}
 
   hookified@1.15.1:
@@ -4569,7 +4570,7 @@ snapshots:
     dependencies:
       hermes-estree: 0.25.1
 
-  hono@4.12.32: {}
+  hono@4.13.13: {}
 
   hookified@1.15.1: {}
 
