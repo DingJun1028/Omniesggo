@@ -104,7 +104,7 @@
   - @grpc/grpc-js ≥1.13.6＜2（learning-center 鎖，1.9.16→1.14.6；CVE-2026-101916）
   - source-map-js ≥1.2.2（oa-swarm 鎖；CVE-2026-93749，dev-only）
 - **接受風險 3 項（上游無修補版 first_patched=NONE）**：
-  - xlsx 0.18.5（CVE-2024-22363/2023-30533）——仍服務 `app/api/data-bridge/upload/route.ts` 上傳端；建議擇期遷移 exceljs
+  - ~~xlsx 0.18.5~~ **已遷移（`307c5aea2`）**——上傳端改走 exceljs 4.4.0（CVE-2024-22363/2023-30533 關閉）；`.xls` 舊式明確拒絕
   - braces 3.0.3（CVE-2026-93687）、http-cache-semantics 4.2.0（CVE-2026-93748）——advisory 無修補版，持續觀察
 - 驗證：tpx 3/3＋oneringai 55/55；四鎖版本實查到位
 
