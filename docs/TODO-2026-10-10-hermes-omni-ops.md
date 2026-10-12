@@ -89,6 +89,14 @@
   - 工具鏈入庫 `apps/omnialive/prototype/scripts/voxspica/`（zhtw.json/make_zhtw.py/pyxinject.py/README.md），回滾＝覆蓋 `VoxSpica.orig.exe`
 - **技能三庫同步登錄**：`voxspica-omnilive-integration` SKILL.md 入 opencode＋hermes 雙技能庫；junaikey grow＋6 tag＋promote L3（L3:4→5、total 151）
 
+### 2026-10-12T01:10Z 安全賬（Dependabot criticals 盤點）
+- open alerts 29：**4 critical / 11 high / 10 medium / 4 low**（page1；推送警示稱共 41）
+- **vitest CVE-2026-47429**（tpx/package.json `^2.1.5`＋oneringai/package.json `^2.0.0`，修版 3.2.6）
+  - 決策：**暫緩**——修版跨大版（2→3），且 CVE 性質為「僅當 Vitest UI server 監聽時」的 dev-only 檔案讀取，VPS/生產零暴露；大版升級排入測試工具鏈專案，勿與 Hermes 並行編輯相撞
+- **handlebars CVE-2026-106445/446**（pnpm-lock.yaml 傳遞依賴釘 4.7.9，修版 4.7.10）
+  - 決策：**暫緩**——修法為 root `pnpm.overrides: {"handlebars":"4.7.10"}` 須重算 lock；排入下次觸及 lockfile 的批次一併處理
+- VPS 複檢 01:07：OmniLive 1.1.1 綠、PM2 6 線上、磁碟衛生步驟穩住（無回漲）
+
 ### 剩餘（僅使用者）
 | # | 項目 |
 |---|---|
