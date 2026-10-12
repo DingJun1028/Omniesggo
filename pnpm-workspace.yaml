@@ -102,6 +102,10 @@ overrides:
   #          knex@3.2.10 → mysql2@3.20.0
   # 修補：升級至 >=3.23.1 (patched version)
   "mysql2": ">=3.23.1"
+  # ── 2026-10-12 Dependabot critical 修補: handlebars CVE-2026-106445/446
+  # (JS injection / own property check bypass) — 傳遞依賴釘 4.7.9 → 4.7.10
+  # 傳入鏈路：經 pnpm-lock.yaml 解析（manifest 無直依），走 workspace overrides 統一提升
+  "handlebars": ">=4.7.10"
 
 allowBuilds:
   '@firebase/util': false
