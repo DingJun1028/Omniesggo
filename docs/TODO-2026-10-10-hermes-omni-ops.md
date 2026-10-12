@@ -107,6 +107,14 @@
   - xlsx 0.18.5（CVE-2024-22363/2023-30533）——仍服務 `app/api/data-bridge/upload/route.ts` 上傳端；建議擇期遷移 exceljs
   - braces 3.0.3（CVE-2026-93687）、http-cache-semantics 4.2.0（CVE-2026-93748）——advisory 無修補版，持續觀察
 - 驗證：tpx 3/3＋oneringai 55/55；四鎖版本實查到位
+
+### 2026-10-12T02:40Z 安全賬（medium/low 收尾）
+- **新修 1 項（`948c4fda3`）**：learning-center hono 4.12.32→4.13.13（CVE-2026-93981）
+- **自動關閉 8 筆**（前兩輪修補已覆蓋，等 Dependabot 下次重掃）：handlebars(106444→4.7.10)、undici×6＋grpc(101915→1.13.6)、vitest(84373→override 4.1.11 誤報類)
+- **接受 2 項**：
+  - postcss-selector-parser 6.x→需 **7.1.6（跨 major）**——違「不跨 major」原則，排入 postcss 工具鏈專項評估（@tailwind/postcss 生態適配套）
+  - sprintf-js 1.1.3（CVE-2026-97058 first_patched=NONE）——傳遞依賴無修，持續觀察
+- **Dependabot 全批收官**：crit 4/4＋high 全數處理＋medium/low 收尾；剩餘僅待掃描自動關閉
 - VPS 複檢 01:07：OmniLive 1.1.1 綠、PM2 6 線上、磁碟衛生步驟穩住（無回漲）
 
 ### 剩餘（僅使用者）
