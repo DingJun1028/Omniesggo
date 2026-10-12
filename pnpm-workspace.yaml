@@ -85,14 +85,16 @@ overrides:
 
   "hono": ">=4.13.5 <5"
   # sharp 修補升級（0.35.0 已修 CVE-2026-33327/33328/35590/35591）。
-  # 原註解引用的「AGENTS.md #7」經實查並無出處（root AGENTS.md 無編號條文），
+  # 原註解引用的「AGENTS.md #7」並無出處（root AGENTS.md 無編號條文），
   # 故改以 CVE 編號作為依據。
   # 2026-09-28 複審提升至 0.35.4：實測 apps/learning-center（獨立 lockfile）
   # 仍鎖在 0.35.2，帶入 libheif GHSA-g89c-p67h-r4。經 pnpm why 確認其路徑為
   # esggo-auto-repair/worker → wrangler → miniflare → sharp，屬 dev 工具鏈，
   # 且 AGENTS.md「勿用 overrides 強升傳遞依賴」明文只針對 undici/jsdom，
   # sharp 為 minor 修補故適用此處。
-  "sharp": ">=0.35.4"
+  # 2026-10-12 複審提升至 0.35.5：Dependabot high GHSA-wq5f-xc86-pv6w
+  # (my-worker/pnpm-lock.yaml, fix>=0.35.5)。
+  "sharp": ">=0.35.5"
   # ── 2026-08-21 Dependabot 修補 (pnpm audit --prod 剩 1 high) ──
   "deepmerge-ts": ">=8.0.0 <9"
   # 2026-08-31 安全修補：mariadb GHSA-cqhc-2h57-wpxf (MitM password leak)

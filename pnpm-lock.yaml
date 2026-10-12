@@ -39,7 +39,7 @@ overrides:
   express: '>=4.21.2 <5'
   cookie: '>=0.7.2 <1'
   hono: '>=4.13.5 <5'
-  sharp: '>=0.35.4'
+  sharp: '>=0.35.5'
   deepmerge-ts: '>=8.0.0 <9'
   mariadb: '>=3.4.6'
   mysql2: '>=3.23.1'
