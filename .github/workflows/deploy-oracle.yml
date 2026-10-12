@@ -116,9 +116,6 @@ jobs:
     needs: [pre-check]
     if: needs.pre-check.outputs.mode != 'skip'
     timeout-minutes: 25
-    concurrency:
-      group: deploy-oracle-vps
-      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
 
@@ -276,7 +273,7 @@ jobs:
       # ---- 選項 2: 直連 ----
       - name: Setup direct SSH key
         if: needs.pre-check.outputs.mode == 'direct'
-        uses: webfactory/ssh-agent@v1
+        uses: webfactory/ssh-agent@v0.9.0
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
@@ -286,6 +283,9 @@ jobs:
           FTG_JWT_SECRET: ${{ secrets.FTG_JWT_SECRET }}
         run: |
           set -e
+          # known_hosts 預置: 非互動 ssh 首連若無 host key 會直接失敗
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
           # JWT_SECRET 傳遞 (2026-09-27 實測修): 下方 heredoc 是 <<'VPS' (引號)，
           #   遠端才展開變數 → GitHub secret 無法自動進遠端環境 → ftg 拒絕啟動。
           #   不能改成未引號 heredoc: 會讓 $PM2 / $FTG_SRC 等全部改為本地展開而壞掉。
@@ -321,6 +321,15 @@ jobs:
             git checkout -f main
             git fetch origin main
             git reset --hard origin/main
+            # ─── 磁碟衛生 (2026-10-11 根因修復: 磁碟 100% 滿 → 全服務滅) ───
+            # 實測: /var/lib/containerd 膨脹 50G (builder cache 10.87G + 未回收
+            #   snapshot), 101G 盤打滿 0 可用 → `cat: write error: No space left
+            #   on device` 部署紅 + PM2 daemon 被殺 → 6 服務全滅。
+            # 每次部署清 build cache (安全: 可全數重建) + journal (留 200M),
+            # 磁碟永不觸頂。`|| true` 保證清磁失敗不擋部署。
+            sudo docker builder prune -af >/dev/null 2>&1 || true
+            sudo journalctl --vacuum-size=200M >/dev/null 2>&1 || true
+            df -h / | tail -1 | sed 's/^/[disk] /'
             export CI=true
             # 建置期佔位: scripts/validate-env.ts 要求 DATABASE_URL 非空 (僅存在性檢查)。
             # /var/www/esggo/.env 目前沒有 DATABASE_URL, 故 next build 前的 gate 直接失敗。

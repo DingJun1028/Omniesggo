@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import pdfParse from 'pdf-parse';
+import { PDFParse } from 'pdf-parse';
 import crypto from 'crypto';
 
 const prisma = new PrismaClient();
@@ -17,9 +17,17 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // 100% Local De-Google PDF Text Extraction
-    const pdfData = await pdfParse(buffer);
-    const text = pdfData.text || '';
+    // 100% Local De-Google PDF Text Extraction (pdf-parse v2: PDFParse class API)
+    const parser = new PDFParse({ data: buffer });
+    let text = '';
+    let pageCount = 0;
+    try {
+      const textResult = await parser.getText();
+      text = textResult.text || '';
+      pageCount = textResult.total;
+    } finally {
+      await parser.destroy();
+    }
 
     // De-Google Rule-based ESG Metrics Extraction Algorithm
     const scope1Match = text.match(/(?:Scope\s*1|範疇一|直接排放)[^\d]*([\d,]+(?:\.\d+)?)\s*(?:tCO2e|公噸)/i);
@@ -39,7 +47,7 @@ export async function POST(req: Request) {
     const hashLock = crypto.createHash('sha256').update(hashPayload).digest('hex');
 
     const metrics = {
-      pdfPages: pdfData.numpages,
+      pdfPages: pageCount,
       textLength: text.length,
       scope1Tco2e: scope1,
       scope2Tco2e: scope2,
@@ -58,7 +66,7 @@ export async function POST(req: Request) {
           dataType: 'ESG_PDF_REPORT',
           fileName: file.name,
           fileSize: file.size,
-          recordCount: pdfData.numpages,
+          recordCount: pageCount,
           headers: JSON.stringify(['Scope1', 'Scope2', 'Scope3', 'TotalEmissions']),
           hashLock: hashLock,
           metrics: JSON.stringify(metrics),
@@ -67,7 +75,7 @@ export async function POST(req: Request) {
               {
                 rawJson: JSON.stringify({
                   fileName: file.name,
-                  pageCount: pdfData.numpages,
+                  pageCount,
                   scope1,
                   scope2,
                   scope3,
@@ -87,7 +95,7 @@ export async function POST(req: Request) {
       data: {
         id: uuid,
         fileName: file.name,
-        pageCount: pdfData.numpages,
+        pageCount,
         metrics,
         hashLock,
         sourceOrigin: '100% De-Google Local PDF Parser Engine',
