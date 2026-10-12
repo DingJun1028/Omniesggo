@@ -117,6 +117,13 @@
 - **Dependabot 全批收官**：crit 4/4＋high 全數處理＋medium/low 收尾；剩餘僅待掃描自動關閉
 - VPS 複檢 01:07：OmniLive 1.1.1 綠、PM2 6 線上、磁碟衛生步驟穩住（無回漲）
 
+### 2026-10-12T03:05Z OmniLive STT 引擎切換為 VoxSpica 模型（`af841b844`）
+- **需求落地**：OmniLiveTranslation STT 由 faster-whisper 換為 **VoxSpica 模型（VOSK）**——`cn`（繁中呈現）＋`en-us`，與 VoxSpica 0.1.8 同權重
+- **架構**：`apps/stt/server.py` 引擎調度（`STT_ENGINE` 預設 `vosk`，env 可回退 whisper，VOSK 失敗自動 fallback）；`lang=auto` 走雙模型**置信仲裁**；ffmpeg 轉 16kHz mono PCM；cn 模型簡體輸出經 **zhconv s2t → 繁體**（字級各自轉，字幕染色對齊）
+- **VPS 部署**：模型 scp 自本地 VoxSpica 安裝（`/var/www/esggo/apps/stt/models/`）；vosk 0.3.45＋zhconv 1.4.3 入 venv；PM2 stt-whisper 重啟（服務名沿用）
+- **實測 4/4 PASS**：zh wav+auto→zh-TW「…**繁體** 中文…」（s2t 實證）；en wav+auto→en；顯式 zh-TW/en 各 PASS；`engine=stt:vosk:voxspica`
+- 備註：「辨識→便是」為 VOSK small 模型辨識誤差（本地 VoxSpica 同款），屬模型精度非管線缺陷；日後可換 `vosk-model-cn-0.22` 大模型（需 8GB RAM）
+
 ### 剩餘（僅使用者）
 | # | 項目 |
 |---|---|
