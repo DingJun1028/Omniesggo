@@ -24,3 +24,6 @@ overrides:
   # 2026-10-12 Dependabot high CVE-2026-101916 (@grpc/grpc-js, fix>=1.13.6):
   # 本鎖卡 1.9.16 (officeparser 鏈), 對齊根 workspace override 值。
   "@grpc/grpc-js": ">=1.13.6 <2"
+  # 2026-10-12 Dependabot medium CVE-2026-93981 (hono, fix>=4.13.7):
+  # 本鎖卡 4.12.32 (esggo-auto-repair/worker 鏈), 對齊根 override。
+  hono: ">=4.13.5 <5"
