@@ -96,6 +96,17 @@
 - **handlebars CVE-2026-106445/446**（pnpm-lock.yaml 傳遞依賴釘 4.7.9，修版 4.7.10）
   - **狀態：已修（`ead28a998`）**——`pnpm-workspace.yaml overrides` 增 `"handlebars": ">=4.7.10"`；lock 4.7.10 x2、雙套件複測綠
   - 教訓（刻入 commit）：overrides 正主層是 **pnpm-workspace.yaml**，不是 root package.json 的 `pnpm.overrides` 鍵
+
+### 2026-10-12T02:10Z 安全賬（high 批次）
+- **已修 4 項（`13047c692`，皆走各安裝根 overrides、不跨 major）**：
+  - sharp ≥0.35.5（root＋learning-center＋my-worker 三鎖；GHSA-wq5f-xc86-pv6w）
+  - undici ≥7.29.1＜8（learning-center 鎖，7.28.0→7.30.0；CVE-2026-19534/84961，wrangler→miniflare dev 鏈）
+  - @grpc/grpc-js ≥1.13.6＜2（learning-center 鎖，1.9.16→1.14.6；CVE-2026-101916）
+  - source-map-js ≥1.2.2（oa-swarm 鎖；CVE-2026-93749，dev-only）
+- **接受風險 3 項（上游無修補版 first_patched=NONE）**：
+  - xlsx 0.18.5（CVE-2024-22363/2023-30533）——仍服務 `app/api/data-bridge/upload/route.ts` 上傳端；建議擇期遷移 exceljs
+  - braces 3.0.3（CVE-2026-93687）、http-cache-semantics 4.2.0（CVE-2026-93748）——advisory 無修補版，持續觀察
+- 驗證：tpx 3/3＋oneringai 55/55；四鎖版本實查到位
 - VPS 複檢 01:07：OmniLive 1.1.1 綠、PM2 6 線上、磁碟衛生步驟穩住（無回漲）
 
 ### 剩餘（僅使用者）
