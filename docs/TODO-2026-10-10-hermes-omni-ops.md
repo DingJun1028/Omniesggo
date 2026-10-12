@@ -92,9 +92,10 @@
 ### 2026-10-12T01:10Z 安全賬（Dependabot criticals 盤點）
 - open alerts 29：**4 critical / 11 high / 10 medium / 4 low**（page1；推送警示稱共 41）
 - **vitest CVE-2026-47429**（tpx/package.json `^2.1.5`＋oneringai/package.json `^2.0.0`，修版 3.2.6）
-  - 決策：**暫緩**——修版跨大版（2→3），且 CVE 性質為「僅當 Vitest UI server 監聽時」的 dev-only 檔案讀取，VPS/生產零暴露；大版升級排入測試工具鏈專案，勿與 Hermes 並行編輯相撞
+  - **狀態：實質已修（誤報型）**——`pnpm-workspace.yaml overrides` 既有 `"vitest": ">=4.1.11 <5"` 全樹釘死 4.1.11（>3.2.6 修版），spec ^2.x 純 manifest 宣告，Dependabot 屬「宣告 vs 實裝」誤報（同 GHSA-5xrq-8626-4rwp 前例）；**spec 不動**（改 spec 反而製造 drift，tests 實跑 4.1.11 綠：tpx 3/3、oneringai 55/55）
 - **handlebars CVE-2026-106445/446**（pnpm-lock.yaml 傳遞依賴釘 4.7.9，修版 4.7.10）
-  - 決策：**暫緩**——修法為 root `pnpm.overrides: {"handlebars":"4.7.10"}` 須重算 lock；排入下次觸及 lockfile 的批次一併處理
+  - **狀態：已修（`ead28a998`）**——`pnpm-workspace.yaml overrides` 增 `"handlebars": ">=4.7.10"`；lock 4.7.10 x2、雙套件複測綠
+  - 教訓（刻入 commit）：overrides 正主層是 **pnpm-workspace.yaml**，不是 root package.json 的 `pnpm.overrides` 鍵
 - VPS 複檢 01:07：OmniLive 1.1.1 綠、PM2 6 線上、磁碟衛生步驟穩住（無回漲）
 
 ### 剩餘（僅使用者）
