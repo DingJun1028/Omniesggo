@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
 
@@ -54,19 +54,41 @@ function parseCsvText(text: string): { headers: string[]; rows: Record<string, s
   return { headers, rows };
 }
 
-function parseXlsx(buffer: ArrayBuffer): { headers: string[]; rows: Record<string, string>[] } {
-  const workbook = XLSX.read(buffer, { type: 'array' });
-  const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const raw = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: '' });
-  if (raw.length === 0) return { headers: [], rows: [] };
-  const rawHeaders = Object.keys(raw[0]);
+// xlsx 改走 exceljs (2026-10-12: 原 xlsx@0.18.5 CVE-2024-22363/2023-30533
+// 上游無修補版, 屬上傳端攻擊面; exceljs 維護中且無已知 open CVE)
+async function parseXlsx(buffer: ArrayBuffer): Promise<{ headers: string[]; rows: Record<string, string>[] }> {
+  const workbook = new ExcelJS.Workbook();
+  // @types/node 新版 Buffer 帶泛型, 與 exceljs 簽名不相容 — runtime 皆為 Buffer, 僅型別層 cast
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await workbook.xlsx.load(Buffer.from(buffer) as any);
+  const sheet = workbook.worksheets[0];
+  if (!sheet) return { headers: [], rows: [] };
+
+  const rawHeaders: string[] = [];
+  sheet.getRow(1).eachCell({ includeEmpty: true }, (cell, colNumber) => {
+    rawHeaders[colNumber - 1] = String(cell.text ?? '').trim();
+  });
+  if (rawHeaders.filter(h => h).length === 0) return { headers: [], rows: [] };
   const headers = rawHeaders.map(normalizeColumnName);
-  const rows = raw.map((r: any) => {
+
+  const rows: Record<string, string>[] = [];
+  sheet.eachRow((row, rowNumber) => {
+    if (rowNumber === 1) return;
+    const rec: Record<string, string> = {};
+    rawHeaders.forEach((h, i) => {
+      const v = row.getCell(i + 1).text;
+      if (v != null && String(v).trim()) rec[rawHeaders[i]] = String(v);
+    });
+    // 全空列略過 (尾列空白)
+    if (Object.keys(rec).length > 0) rows.push(rec);
+  });
+
+  const out: Record<string, string>[] = rows.map((r: Record<string, string>) => {
     const row: Record<string, string> = {};
-    rawHeaders.forEach((h, i) => { row[headers[i]] = String(r[h] ?? ''); });
+    rawHeaders.forEach((h, i) => { row[headers[i]] = r[h] ?? ''; });
     return row;
   });
-  return { headers, rows };
+  return { headers, rows: out };
 }
 
 // ─── 5T Compute per Data Type ─────────────────────────────────────────────────
@@ -162,10 +184,11 @@ export async function POST(req: Request) {
     if (fileName.endsWith('.csv')) {
       const text = new TextDecoder('utf-8').decode(bytes);
       parsed = parseCsvText(text);
-    } else if (fileName.endsWith('.xlsx') || fileName.endsWith('.xls')) {
-      parsed = parseXlsx(bytes);
+    } else if (fileName.endsWith('.xlsx')) {
+      // exceljs 不讀舊 .xls 二進位格式 — 明確拒絕 (2026-10-12)
+      parsed = await parseXlsx(bytes);
     } else {
-      return NextResponse.json({ success: false, error: '不支援的檔案格式' }, { status: 400 });
+      return NextResponse.json({ success: false, error: '不支援的檔案格式 (僅 .csv/.xlsx; 舊版 .xls 請另存為 .xlsx)' }, { status: 400 });
     }
 
     if (parsed.rows.length === 0) {
