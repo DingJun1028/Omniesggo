@@ -12,3 +12,8 @@ tqdm              # huggingface-hub 進度條
 pydantic          # FastAPI 型別系統
 python-multipart  # FastAPI 表單/檔案上傳
 aiohttp           # edge_tts (scripts/e2e-voice.mjs 語音合成)
+
+# 2026-10-12: STT 引擎切換為 VoxSpica 模型 (VOSK, Apache-2.0)
+# cn 模型 + en-us 模型 (與 VoxSpica 0.1.8 同權重, alphacephei 註冊表)
+vosk==0.3.45      # VOSK Python binding (Kaldi 桌面版)
+zhconv            # VOSK cn 模型吐簡體 → 繁體轉換 (繁中介面必要)
