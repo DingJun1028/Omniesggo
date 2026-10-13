@@ -1,5 +1,5 @@
 {
-    "name":  "omnilive",
+    "name":  "omnlive-legacy",
     "version":  "1.0.0",
     "description":  "OA-Team OmniLive 萬能即時轉譯雙語字幕播放器 — Zoom 線上會議場景最小可用設定流程 (STT → 雙語翻譯 → SSE 字幕播放器)",
     "type":  "module",

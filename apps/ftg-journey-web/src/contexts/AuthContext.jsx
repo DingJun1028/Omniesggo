@@ -38,21 +38,31 @@ export function AuthProvider({ children }) {
     }
   }, [token]);
 
-  const login = useCallback(async (credential) => {
-    const res = await fetch(`${API_BASE}/api/auth/google`, {
+  const requestCode = useCallback(async (email) => {
+    const res = await fetch(`${API_BASE}/api/auth/request-code`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential }),
+      body: JSON.stringify({ email }),
     });
-    const data = await res.json();
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `API Error: ${res.status}`);
+    return data;
+  }, []);
+
+  const verifyCode = useCallback(async (email, code) => {
+    const res = await fetch(`${API_BASE}/api/auth/verify-code`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, code }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `API Error: ${res.status}`);
     if (data.token) {
       setToken(data.token);
       localStorage.setItem('ftg_token', data.token);
-      // 立即設置 user 狀態，避免 ProtectedRoute 跳回登入頁
       if (data.user) {
         setUser(data.user);
       } else {
-        // 若後端未回傳 user，主動取得
         try {
           const me = await apiFetch('/api/me', data.token);
           setUser(me);
@@ -61,6 +71,7 @@ export function AuthProvider({ children }) {
         }
       }
     }
+    return data;
   }, []);
 
   const logout = useCallback(() => {
@@ -73,7 +84,8 @@ export function AuthProvider({ children }) {
     user,
     token,
     loading,
-    login,
+    requestCode,
+    verifyCode,
     logout,
     api: {
       get: (p) => apiFetch(p, token),
