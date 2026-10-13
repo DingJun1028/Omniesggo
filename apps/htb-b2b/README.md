@@ -7,7 +7,7 @@
 - **框架**: Vue 3 + Vite
 - **語言**: TypeScript + CSS
 - **風格**: 深藍 + 暖金 簡約設計
-- **部署**: Vercel (預設) + 本地預覽
+- **部署**: Cloudflare Pages（`htb-b2b.esggo.co`，正式）＋ 本地預覽
 - **5T 合規**: Traceable / Trackable / Tangible / Transparent / Trustworthy
 
 ## 開發環境
@@ -28,11 +28,14 @@ pnpm preview
 
 ## 部署
 
-### Vercel 部署
+### Cloudflare Pages 部署（正式）
 
-1. 前往 Vercel  dashboard 新增專案
-2. 選擇本倉庫
-3. 點擊部署
+```bash
+pnpm build
+npx wrangler pages deploy dist --project-name htb-b2b --branch main
+```
+
+正式網域：`https://htb-b2b.esggo.co`（表單 `/api/contact` 由 Worker `ftgtours-api` 同 zone route 承接）
 
 ### 本地 Docker 部署
 

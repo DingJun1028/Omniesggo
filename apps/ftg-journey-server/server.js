@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { DatabaseSync } from 'node:sqlite';
-import { OAuth2Client } from 'google-auth-library';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -57,7 +56,6 @@ function loadDotEnv(file) {
 loadDotEnv(path.join(__dirname, '.env'));
 
 const PORT = process.env.PORT || 8787;
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || '';
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'ftg-journey.db');
 // JWT 簽章金鑰：只從環境變數讀取，並強制最低強度。
 // 舊實作是 `process.env.JWT_SECRET || 'ftg-journey-secret-key-change-in-production'`，
@@ -136,6 +134,9 @@ const db = new DatabaseSync(DB_PATH);
 db.exec(`
   CREATE TABLE IF NOT EXISTS users (
     email TEXT PRIMARY KEY, name TEXT, picture TEXT, role TEXT, created_at INTEGER
+  );
+  CREATE TABLE IF NOT EXISTS auth_codes (
+    email TEXT, code_hash TEXT, expires_at INTEGER, used INTEGER DEFAULT 0, created_at INTEGER
   );
   CREATE TABLE IF NOT EXISTS journeys (
     id TEXT PRIMARY KEY, owner_email TEXT, title TEXT, service_type TEXT,
@@ -239,8 +240,32 @@ function requireAccess(journeyId, email, res) {
   return true;
 }
 
-// ===== Google 驗證 =====
-const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+// ===== Email OTP 登入（不依賴 Google/Firebase；驗證碼經 Resend 寄送）=====
+const OTP_TTL_MS = 10 * 60 * 1000;
+const RESEND_API_KEY = process.env.RESEND_API_KEY || '';
+const JOURNEY_MAIL_FROM = process.env.JOURNEY_MAIL_FROM || 'journey@ftgtours.esggo.co';
+
+const hashOtp = (code) => crypto.createHash('sha256').update(String(code)).digest('hex');
+
+function otpsRemaining(email) {
+  const now = Date.now();
+  const row = get('SELECT COUNT(*) AS n FROM auth_codes WHERE email=? AND created_at>?', email, now - 3600_000);
+  return 5 - (row ? row.n : 0);
+}
+
+async function sendOtpEmail(to, code) {
+  const resp = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from: JOURNEY_MAIL_FROM,
+      to: [to],
+      subject: 'FTG Journey 登入驗證碼',
+      html: `<p>您的登入驗證碼：</p><p style="font-size:32px;font-weight:800;letter-spacing:8px">${code}</p><p>10 分鐘內有效。若非本人請忽略此信。</p>`,
+    }),
+  });
+  return resp.ok;
+}
 
 // Simple JWT (HMAC SHA-256)
 function simpleSign(payload) {
@@ -292,22 +317,50 @@ app.get('/health', (req, res) => {
 
 const uid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
 
-// ===== Google Auth Token Exchange =====
-app.post('/api/auth/google', async (req, res) => {
-  const { credential } = req.body;
-  if (!credential) return res.status(400).json({ error: 'no credential' });
-  try {
-    const ticket = await client.verifyIdToken({ idToken: credential, audience: GOOGLE_CLIENT_ID });
-    const payload = ticket.getPayload();
-    const email = payload.email;
-    const role = resolveRole(email);
-    const token = simpleSign({ email, name: payload.name, picture: payload.picture, role });
-    run('INSERT INTO users (email,name,picture,role,created_at) VALUES (?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET name=excluded.name, picture=excluded.picture',
-      email, payload.name, payload.picture, role, Date.now());
-    res.json({ token, user: { email, name: payload.name, picture: payload.picture, role } });
-  } catch (e) {
-    return res.status(401).json({ error: 'invalid token' });
+// ===== Email OTP：索取驗證碼 =====
+app.post('/api/auth/request-code', rateLimit({ windowMs: 60_000, max: 5 }), async (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'invalid_email' });
+  if (otpsRemaining(email) <= 0) return res.status(429).json({ error: 'too_many_requests' });
+
+  const code = String(crypto.randomInt(0, 1_000_000)).padStart(6, '0');
+  run('INSERT INTO auth_codes (email, code_hash, expires_at, used, created_at) VALUES (?,?,?,?,?)',
+    email, hashOtp(code), Date.now() + OTP_TTL_MS, 0, Date.now());
+
+  if (RESEND_API_KEY) {
+    const ok = await sendOtpEmail(email, code);
+    if (!ok) return res.status(502).json({ error: 'mail_failed' });
+  } else if (process.env.NODE_ENV !== 'production') {
+    console.log(`[otp-dev] ${email} => ${code}`);
+  } else {
+    return res.status(503).json({ error: 'mail_not_configured' });
   }
+  res.json({ ok: true });
+});
+
+// ===== Email OTP：驗證并簽發 token =====
+app.post('/api/auth/verify-code', rateLimit({ windowMs: 60_000, max: 10 }), (req, res) => {
+  const email = String(req.body.email || '').trim().toLowerCase();
+  const code = String(req.body.code || '').trim();
+  if (!email || !code) return res.status(400).json({ error: 'missing_fields' });
+
+  const row = get('SELECT rowid AS rid, code_hash, expires_at FROM auth_codes WHERE email=? AND used=0 AND expires_at>? ORDER BY rowid DESC LIMIT 1',
+    email, Date.now());
+  if (!row) return res.status(401).json({ error: 'invalid_code' });
+
+  const given = Buffer.from(hashOtp(code), 'hex');
+  const stored = Buffer.from(row.code_hash, 'hex');
+  if (given.length !== stored.length || !crypto.timingSafeEqual(given, stored)) {
+    return res.status(401).json({ error: 'invalid_code' });
+  }
+  run('UPDATE auth_codes SET used=1 WHERE rowid=?', row.rid);
+
+  const name = email.split('@')[0];
+  const role = resolveRole(email);
+  const token = simpleSign({ email, name, picture: '', role });
+  run('INSERT INTO users (email,name,picture,role,created_at) VALUES (?,?,?,?,?) ON CONFLICT(email) DO UPDATE SET role=excluded.role',
+    email, name, '', role, Date.now());
+  res.json({ token, user: { email, name, picture: '', role } });
 });
 
 // ===== API Routes =====
