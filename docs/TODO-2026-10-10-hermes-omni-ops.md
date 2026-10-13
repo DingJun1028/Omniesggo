@@ -195,3 +195,15 @@
 **狀態掃描**: Dependabot 5 open（達預期）| CI main 全綠 | Access 牆仍 302 待拆 | postcss-selector-parser 跨 major 留待（Tailwind v4 生產鏈風險）
 
 [best-practice:awakened]
+
+---
+
+## 2026-10-13 Omniesggo mirror 漏洞清掃 11→5（與 esggo 對齊）
+
+**已結案**:
+- 根因: Dependabot 告警狀態 per-repo——兩倉 main 同 SHA（`06a8afd3f`）、dependabot.yml 同檔，但 esggo 的撤銷記錄不會同步到 mirror
+- 撤銷 6 筆（PATCH dismissed/tolerable_risk＋mirror 同步註記）: chromadb×4（`oa-team-crewai/uv.lock`, 同步 esggo 2026-08 決策）+ fflate（root lock, 同步 esggo auto_dismiss）+ braces（`apps/learning-center/pnpm-lock.yaml`, 同步 esggo auto_dismiss）
+- 結果: Omniesggo open 11→**5**、esggo 5，兩倉告警面完全對齊（braces/http-cache-semantics/postcss-selector-parser×2/sprintf-js 為已接受風險）
+- API 教訓: Update Dependabot alert = **PATCH**（PUT 404）+ 欄位 `dismissed_reason`/`dismissed_comment`（非 dismissal_*）+ `state=all` 回空陣列（要用 open/closed 分查）；PS 引號地雷: gh --jq 內嵌引號走 cmd /c 重導向＋node 解析
+
+[best-practice:awakened]
