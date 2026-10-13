@@ -207,3 +207,17 @@
 - API 教訓: Update Dependabot alert = **PATCH**（PUT 404）+ 欄位 `dismissed_reason`/`dismissed_comment`（非 dismissal_*）+ `state=all` 回空陣列（要用 open/closed 分查）；PS 引號地雷: gh --jq 內嵌引號走 cmd /c 重導向＋node 解析
 
 [best-practice:awakened]
+
+---
+
+## 2026-10-13 最佳實踐覺 Checklist ＋ 亂碼根果消除 ＋ vitest 五檔紅燈根因修復
+
+**已結案**:
+- **亂碼根果消除**（encoding-forensics 第八奧義）: `curl|node`/`gh|node` JSON.parse 炸 `Unexpected token '﻿'` → 三分法取證（cmd 位元組重導向/spawn/PS 字串擷取全淨）證明 BOM 由 **PS 5.1 native pipe 寫入層注入**（`EF BB BF`，執行期設無 BOM 無效、cmd more 中轉救不了）；repo 掃描無 UTF-16 BOM 檔、無 U+FFFD 未受污染；第八奧義入正本技能檔＋三 user 級 symlink（.hermes/.omh/.agents）自動共享
+- **技能共享**: repo `.agents/skills/encoding-forensics/SKILL.md` 實體入倉 `0c3c164b6`（git 分發全體 repo 代理；user 級 `.agents\skills` 補建 symlink）
+- **vitest 5 檔紅燈根因**: `pnpm vitest run` 掃到 `apps/omnlive/test/*.test.mjs`（node:test 撰寫）→ `No test suite found` ×5。根因＝exclude 只擋 `apps/omnilive` 漏擋 legacy 副本 `apps/omnlive`（包名 omnlive-legacy，兩目錄 test 內容 diff 為空、f9e7199f6 樹還原後並存 HEAD）。修復＝補 `'apps/omnlive/test/**'`＋根因註解
+- **Checklist 全綠**: lint(celestial-gate 通過/0 error) + typecheck + vitest(95 passed/4 skipped, 1059 tests) + 反查覆蓋不減（omnilive 43/0、omnlive-legacy 43/0，node:test 各 1 skipped）+ entropy 門檻過 → `[best-practice:awakened]`
+- **共享拓撲事實**: encoding-forensics 正本在 `.opencode\skills`，.hermes/.omh 為 symlink；repo `.agents\skills` 為實體檔（git 不放 symlink，Windows clone 會壞）→ 正本再改需同步 repo 版
+- 另: workdir 事實＝`C:\opt\esggo` 無 package.json，真倉 `C:\Project\esggo`
+
+[best-practice:awakened]
