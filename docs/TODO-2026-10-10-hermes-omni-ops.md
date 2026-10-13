@@ -163,3 +163,21 @@
 **Dependabot 全線戰果**: 29（起點）→ 28（合併前）→ 8（main 重掃自動關 20）→ 預期 5（vitest 3 筆待重掃關閉）
 
 [best-practice:awakened]
+
+---
+
+## 2026-10-13 Sprint A「HTB 止血三件套」（open→已結案，`b507805b0` 雙 remote）
+
+**已結案**:
+- A1 HTB: 表單 alert() 丟線索→POST /api/contact（蜜罐/載入/成功/錯誤+role 預選 from query）；router 5→24 路由+NotFound catch-all+Privacy 新頁+Footer/Head 錨點修
+- A2 Worker v2 上線: 雙 route（ftgtours+htb-b2b 同源）、Origin 白名單、蜜罐、reCAPTCHA 服務端、Resend 通知、每 IP 配額；D1 無 site 欄位自動降級（線上 insert id:12 驗證）；mock+線上 smoke 9/9
+- A3 Journey: 拔 google-auth-library→Email OTP（Resend, hash+單次+10min）；systemd ftg-journey.service 改指 /var/www/ftg-journey-server（根因=systemd 舊碼 /opt/ftg-journey 佔 8787 導 EADDRINUSE 迴圈）；線上 request-code {"ok":true}；前端去 Google 按鈕+舊 SW 卸載 sw.js 已上 VPS
+- Cloudflare 取代 Vercel: htb-b2b 繼承上 Pages（htb-b2b.esggo.co active, DNS CNAME+domain attach）；vercel.json 刪
+- 根治: Tailwind v4 未接通（postcss 缺 plugin→CSS 2.17KB 補 @tailwindcss/vite→32KB）；apps/omnlive 包名重複改 omnlive-legacy（npx EDUPLICATEWORKSPACE 炸源）；PS 重導向規則已入 encoding-forensics 第七奧義
+
+**遺留（user 行動項）**:
+- Zero Trust Access 牆蓋 htb-b2b.esggo.co（omniesggo org，token 無 Access 權限看不到 app）→ 後台刪除該 app 或給 Access:Edit token
+- D1 migration `worker/migrations/0001_add_site.sql` 待有 D1 權限 token 執行（現行降級可運作）
+- Resend: ftgtours.esggo.co/ftg.com.tw 未驗證；journey from 已用 journey@esggo.co
+
+[best-practice:awakened]
