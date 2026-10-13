@@ -56,6 +56,9 @@ jobs:
           # 提供 token，否則 gh 會認證失敗（actions/checkout 不會自動設定）。
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GREEN_GATE_REPO: ${{ github.repository }}
+          # gate 自身的 check-run 名稱 — 腳本輪詢時排除自己，否則會
+          # 把自己的 in_progress 狀態計入「未跑完」→ 永遠等到逾時（死鎖）。
+          GREEN_GATE_SELF: 'CI Green Gate'
           # pull_request 事件下，同 commit 的其他 checks 可能仍在跑；
           # 給它們時間完成，避免過早判定。
           GREEN_GATE_WAIT: '600'
