@@ -120,6 +120,9 @@ while :; do
   fi
   while IFS='|' read -r name status concl; do
     [ -z "$name" ] && continue
+    # 自我排除：gate 自己的 check-run 在整個輪詢期間都是 in_progress，
+    # 不排除就會「永遠等 1 個＝自己」直到 600s 逾時（自我輪詢死鎖）。
+    [ -n "${GREEN_GATE_SELF:-}" ] && [ "$name" = "$GREEN_GATE_SELF" ] && continue
     case "$status" in
       in_progress|queued|pending|waiting)
         PENDING+=("$name") ;;
