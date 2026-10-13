@@ -64,6 +64,12 @@ export default defineConfig({
       // 兩者皆 import { test } from 'node:test'，由 apps/omnilive 自身的
       // `pnpm test` (= node --test test/*.test.mjs) 執行，覆蓋率不減。
       'apps/omnilive/test/**',
+      // apps/omnlive 為 OmniLive legacy 副本（包名 omnlive-legacy，與現役 omnilive
+      // 並存於 HEAD），test/ 內容與 omnilive 完全相同（git diff --no-index 為空）、
+      // 同為 node:test 撰寫；被根 vitest 抓取時報 "No test suite found in file"
+      // （2026-10-13 本分支 vitest 5 檔紅燈根因：exclude 只擋了 omnilive 沒擋 omnlive）。
+      // 由 `pnpm --filter omnlive-legacy test` (= node --test) 執行，覆蓋率不減。
+      'apps/omnlive/test/**',
       // Self-Healing Engine 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
       //   - server.test.mjs → import { test } from 'node:test'，根 vitest 抓取時報
       //                       "No test suite found in file"
