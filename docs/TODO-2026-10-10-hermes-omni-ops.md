@@ -150,3 +150,16 @@
 - Dependabot 28 open: 合併後等待 default branch 重掃自動關閉（vitest×2=override 誤報、handlebars 舊 lock 條目待重掃）
 
 [best-practice:awakened]
+
+## 2026-10-13 01:40 — vitest manifest 誤報根治（Dependabot 8→預期5）
+
+**已結案**:
+- vitest spec 對齊 override 實值 ^4.1.11（tpx/oneringai package.json, `93c4e8ce3`→main `06a8afd3f` 雙 remote）
+- 根因: spec ^2.x 與 workspace override (>=4.1.11 <5) 不一致 → Dependabot 掃 manifest 誤報 CVE-2026-47429(critical×2)/84373(medium)
+- 實裝/實跑皆 4.1.11: tpx 3/3 + oneringai 55/55 全綠
+- 剩餘 open 5 筆全為已接受風險: braces/http-cache-semantics(high, 上游未修) + postcss-selector-parser×2(medium, 需跨 major 專項) + sprintf-js(medium, 上游未修)
+- pnpm-lock.yaml 無 diff（tpx/oneringai 非 workspace 成員, 不進根 lockfile）
+
+**Dependabot 全線戰果**: 29（起點）→ 28（合併前）→ 8（main 重掃自動關 20）→ 預期 5（vitest 3 筆待重掃關閉）
+
+[best-practice:awakened]
