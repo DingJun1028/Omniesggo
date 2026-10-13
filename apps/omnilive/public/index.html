@@ -18,7 +18,7 @@
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Segoe UI Variable Text","Microsoft JhengHei UI","Microsoft JhengHei","PingFang TC","Noto Sans TC","Noto Sans CJK TC","Heiti TC",sans-serif;
   --mono:ui-monospace,"Cascadia Code",monospace;
   --sub-txt:#ffffff; --sub-scale:1;
-  --src-size:18px;--tgt-size:30px; /* 字級=固定px(滑桿控制), 不隨視窗vw跳動 */
+  --src-size:28px;--tgt-size:28px; /* 2026-10-11 r6: 兩語字級一致(滑桿同控), 不隨視窗vw跳動 */
 }
 *{-webkit-text-size-adjust:100%;text-size-adjust:100%;box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
@@ -95,7 +95,10 @@ body{
 }
 .sub-line.src{font-size:var(--src-size);border-left:2px solid var(--gold)}
 .sub-line.tgt{font-size:var(--tgt-size);border-left:2px solid var(--teal);font-weight:800}
-/* 緊急救援成功: TEAL 色字體 */
+/* r6 雙語染色: 繁中=金黃色 / 英文=白色 (等字級), 依內容語言自動判定 */
+.sub-line.lz{color:#ffd98a;text-shadow:0 2px 6px rgba(0,0,0,.95),0 0 6px rgba(255,217,138,.22)}
+.sub-line.le{color:#ffffff}
+/* 緊急救援成功: TEAL 色字體 (規則置於 lz/le 之後, 同特異度時優先生效) */
 .sub-line.rescue{color:var(--teal)}
 .sub-line.tgt.rescue{color:var(--teal);text-shadow:0 2px 6px rgba(0,0,0,.95),0 0 8px rgba(45,212,191,.35)}
 .sub-line.src.rescue{color:#7fe9db}
@@ -225,7 +228,7 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
       <button class="icon-btn danger" id="btnMic" title="開始/停止收音">🎙</button>
       <button class="icon-btn" id="btnMini" title="縮小成迷你漂浮器（可蓋在 Zoom 上）">▣</button>
       <button class="icon-btn" id="btnFloat" title="開啟獨立字幕小窗（跨視窗蓋在 Zoom/Chrome 上）">◫</button>
-      <button class="icon-btn rescue" id="btnRescue" title="緊急救援：改用 Chrome/本機辨識＋即時翻譯（TEAL 字色=救援中）">🛟</button>
+      <button class="icon-btn rescue" id="btnRescue" title="緊急救援：Chrome 本機辨識＋即時翻譯（TEAL）；另可用 scripts/win-live-captions-grab.ps1 抓 Windows 輔助字幕無縫併入">🛟</button>
       <button class="icon-btn" id="btnLink" title="分享連結 / QR Code">⧉</button>
       <button class="icon-btn" id="btnSheet" title="設定面板">⚙</button>
     </div>
@@ -312,6 +315,7 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
       <div class="row" style="margin-top:6px">
         <label>擷取速度
           <select id="speedSel" style="flex:0;min-width:130px">
+            <option value="1500">極速（1.5 秒一段）</option>
             <option value="2500" selected>快（2.5 秒一段）</option>
             <option value="6000">標準（6 秒一段）</option>
           </select>
@@ -345,7 +349,7 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
       <div class="sub-zone" id="srcRows"><div class="sub-ph" id="srcPh">等待字幕…</div></div>
     </div>
     <div class="zone" id="tgtZone">
-      <div class="zone-label"><span class="zdot"></span>文字翻譯字幕</div>
+      <div class="zone-label"><span class="zdot"></span>語音翻譯字幕</div>
       <div class="sub-zone" id="tgtRows"><div class="sub-ph" id="tgtPh">等待翻譯…</div></div>
     </div>
   </div>
@@ -362,15 +366,14 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
   <div id="grip" title="拖曳縮放面板"></div>
 </div>
 
-<!-- 課程即時解說浮窗 -->
+<!-- 段落重點摘要浮窗 (r6: 原「課程即時解說/課程重點」→ 段落自動抓取摘要) -->
 <div id="courseWin">
   <header>
-    <b>課程 課程即時解說</b>
+    <b>段落重點摘要</b>
     <button class="icon-btn" id="courseClose" title="收合">關閉</button>
   </header>
   <div id="courseBody">
-    <div class="csec"><h3>章節概要</h3><div class="summary" id="cSummary">—</div></div>
-    <div class="csec"><h3>重點項目</h3><div id="cKeypoints"></div></div>
+    <div class="csec"><h3>段落重點摘要（自動抓取）</h3><div class="summary" id="cSummary">—</div><div id="cKeypoints"></div></div>
     <div class="csec"><h3>重要名詞</h3><div id="cTerms"></div></div>
     <div class="csec"><h3>類似案例</h3><div id="cCases"></div></div>
     <div class="hint" id="cUpdated"></div>
@@ -395,7 +398,7 @@ const fromSel=$('from'),toSel=$('to'),fontSize=$('fontSize');
 const orderChk=$('orderSrcFirst'),bgChk=$('bgToggle'),showChk=$('showToggle'),wordChk=$('wordToggle');
 const srcRows=$('srcRows'),tgtRows=$('tgtRows'),captionInput=$('captionInput');
 const panelEl=$('panel');
-const UI_VERSION='2026.10.11-r5';
+const UI_VERSION='2026.10.11-r6.1';
 $('verBadge').textContent='UI v'+UI_VERSION;
 log('UI v'+UI_VERSION+' 載入（底列可核對版本）');
 
@@ -458,6 +461,14 @@ function promptRoomPassword(room){
 const MAX_ROWS=3;
 const pairLog=[]; // {srcEl,tgtEl,srcFull,tgtFull,rescue}
 let lastSubWall=0;
+/* r6 語言染色: 繁中=金黃 / 英文=白 (與伺服器 detectLang 同閾值 CJK>15%) */
+const CJK_RE=/[㐀-䶿一-鿿豈-﫿]/;
+function langClassOf(t){
+  if(!t||!t.trim())return'le';
+  let cjk=0,total=0;
+  for(const ch of t){ if(/\s/.test(ch))continue; total++; if(CJK_RE.test(ch))cjk++; }
+  return total&&cjk/total>0.15?'lz':'le';
+}
 function renderSub(src,tgt,meta,speaker,id,ts,words,rescue){
   try{subLog.push({id:id||Date.now(),ts:ts||Date.now(),src:src||"",tgt:tgt||"",meta:meta||"",speaker:speaker||"",rescue:!!rescue});}catch(e){}
   lastSubWall=Date.now();
@@ -472,8 +483,8 @@ function renderSub(src,tgt,meta,speaker,id,ts,words,rescue){
     return;
   }
   const phs=[$('srcPh'),$('tgtPh')]; phs.forEach(p=>{if(p)p.remove();});
-  const srcEl=document.createElement('div');srcEl.className='sub-line src'+(rescue?' rescue':'');
-  const tgtEl=document.createElement('div');tgtEl.className='sub-line tgt'+(rescue?' rescue':'');
+  const srcEl=document.createElement('div');srcEl.className='sub-line src '+langClassOf(src)+(rescue?' rescue':'');
+  const tgtEl=document.createElement('div');tgtEl.className='sub-line tgt '+langClassOf(tgt)+(rescue?' rescue':'');
   srcEl.textContent=src||''; tgtEl.textContent=tgt||'';
   if(wordChk&&wordChk.checked&&Array.isArray(words)&&words.length>1) playWords(srcEl,words);
   if(Array.isArray(words)&&words.length){
@@ -518,7 +529,7 @@ function playWords(el, words){
 // ── 套用顯示設定 ──
 function applyStyles(){
   const s=+fontSize.value;
-  document.documentElement.style.setProperty('--src-size',Math.round(s*0.6)+'px');
+  document.documentElement.style.setProperty('--src-size',Math.round(s)+'px');
   document.documentElement.style.setProperty('--tgt-size',Math.round(s)+'px');
   localStorage.setItem('omnilive_size',s);
   document.querySelectorAll('.sub-line').forEach(e=>{
@@ -800,13 +811,13 @@ $('sendCaption').onclick=async()=>{
   }catch(e){showErr('送出失敗: '+e.message);}
 };
 
-// ── 課程即時解說 ──
-let courseTimer=null, courseAcc='';
-function courseText(){ return subLog.slice(-30).map(s=>s.src+' '+s.tgt).join('\n'); }
+// ── 段落重點摘要 (r6: 段落視窗自動抓取, 每25秒刷新) ──
+let courseTimer=null;
+function courseText(){ return subLog.slice(-12).map(s=>s.src+' '+s.tgt).join('\n'); } // 段落視窗=最近12句
 async function fetchCourse(){
   const room=new URLSearchParams(location.search).get('room')||'';
   try{
-    const r=await fetch('/api/course',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({room,text:courseAcc.slice(-6000)})});
+    const r=await fetch('/api/course',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({room,text:courseText().slice(-4000)})});
     if(!r.ok)return;
     const d=await r.json();
     if(!d.summary && !d.keypoints.length) return;
@@ -817,7 +828,7 @@ async function fetchCourse(){
     $('cUpdated').textContent='更新: '+new Date().toLocaleTimeString();
   }catch(e){}
 }
-function startCoursePolling(){ if(courseTimer)return; courseTimer=setInterval(()=>{ courseAcc=courseText()+'\n'+courseAcc; fetchCourse(); }, 45000); fetchCourse(); }
+function startCoursePolling(){ if(courseTimer)return; courseTimer=setInterval(fetchCourse, 25000); fetchCourse(); }
 function stopCoursePolling(){ if(courseTimer){clearInterval(courseTimer);courseTimer=null;} }
 function escapeHtml(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
@@ -928,8 +939,9 @@ function startRescue(auto){
 async function speakRescue(text){
   const room=new URLSearchParams(location.search).get('room')||'';
   try{
+    // r6.1: auto 直通伺服器 (聽中文→自動英譯, 聽英文→自動中譯, 不再預設 zh→en)
     const r=await fetch('/api/speak',{method:'POST',headers:{'content-type':'application/json'},
-      body:JSON.stringify({text,room,from:fromSel.value==='auto'?'zh-TW':fromSel.value,to:toSel.value==='auto'?'en':toSel.value})});
+      body:JSON.stringify({text,room,from:fromSel.value||'auto',to:toSel.value||'auto'})});
     const d=await r.json();
     if(d.source!==undefined){
       // 直接以 TEAL 呈現（engine 加 rescue 標記 → SSE 也會帶到觀眾端）

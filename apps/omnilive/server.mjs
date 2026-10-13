@@ -38,7 +38,7 @@ try {
   process.exit(1);
 }
 
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.1.1';
 const PORT = CFG.port;
 const PUBLIC_DIR = path.join(process.cwd(), 'public');
 const store = new SubtitleStore({ maxLines: CFG.subtitleMaxLines, ttlMs: CFG.subtitleTtlMs });
@@ -143,7 +143,7 @@ function writeJson(res, obj, extra = {}) {
   res.end(JSON.stringify(obj));
 }
 
-// ── 課程即時解說: 本地免費 LLM (Ollama) 產生章節概要/重點/名詞解釋/類似案例 ──
+// ── 段落重點摘要: 本地免費 LLM (Ollama) 產生段落摘要/要點/名詞解釋/類似案例 ──
 // 實測 (VPS 161.118.248.180, 純 CPU): qwen2.5:3b 產出此結構化 JSON 需 >400s,
 // 原 120000ms 逾時恆失敗。改為可調, 並預設換用更快的 1.5b。
 const OLLAMA_URL_DEFAULT = process.env.OLLAMA_URL || 'http://127.0.0.1:11434';
@@ -218,10 +218,10 @@ export async function generateCourse(text, opts = {}) {
   "similar_cases": ["相關案例1"]
 }`
     : `{
-  "summary": "本節內容一句話概要",
-  "keypoints": ["重點1", "重點2"]
+  "summary": "本段內容一句話摘要",
+  "keypoints": ["段落要點1", "段落要點2"]
 }`;
-  const prompt = `你是一個專業的課程助教。以下是即時會議/課堂的雙語字幕逐字稿（含原文與翻譯）。請整理成結構化課堂重點，嚴格只輸出 JSON，不要任何額外說明文字。
+  const prompt = `你是專業的段落整理助手。以下是最近一段即時會議/課堂的雙語字幕逐字稿（含原文與翻譯）。請針對「當前段落」產生重點摘要，嚴格只輸出 JSON，不要任何額外說明文字。
 所有文字必須使用繁體中文（台灣用語），不得使用簡體中文。
 
 格式：
@@ -385,16 +385,15 @@ const server = http.createServer(/** @param {import('node:http').IncomingMessage
       const stt = await transcribe(audioBuf, { sttPort: CFG.sttPort, sttTimeoutMs: 120000, sttLang: reqLang, vad });
       sttInflight = false; clearTimeout(inflightTimer);
       if (!stt.text) { console.error('[omnilive] STT returned empty:', JSON.stringify(stt)); return writeJson(res, { source: '', target: '', engine: stt.engine, trace: '', note: 'no speech detected' }); }
-      // VAD 語者分段: 每個語音段各自成一筆雙語字幕 (帶 speaker 標籤)
+      // VAD 語者分段: 各段平行 pipeline (r6 提速: 原逐段 await, 多語者時延遲疊加)
       if (stt.segments && stt.segments.length) {
-        const out = [];
-        for (const seg of stt.segments) {
-          if (!seg.text) continue; // 輪替段無文字則跳過 (靜音標記)
-          const sub = await pipeline({ ...stt, text: seg.text }, room);
-          sub.speaker = seg.speaker;
-          out.push(sub);
+        const segs = stt.segments.filter(s => s.text);
+        if (segs.length) {
+          const subs = await Promise.all(segs.map(seg => pipeline({ ...stt, text: seg.text }, room)));
+          subs.forEach((sub, i) => { sub.speaker = segs[i].speaker; });
+          return writeJson(res, subs, { 'X-OA-Trace': subs[0]?.trace || '' });
         }
-        return writeJson(res, out.length ? out : await pipeline(stt, room), { 'X-OA-Trace': out[0]?.trace || '' });
+        return writeJson(res, await pipeline(stt, room), { 'X-OA-Trace': '' });
       }
       const sub = await pipeline(stt, room);
       return writeJson(res, sub, { 'X-OA-Trace': sub.trace });

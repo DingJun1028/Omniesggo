@@ -25,3 +25,6 @@ overrides:
   # GHSA-5xrq-8626-4rwp（critical, DoS）。上游修補點為 4.1.0
   # （GitHub API first_patched_version = "4.1.0" 實測確認）。
   vitest: '>=4.1.11 <5'
+  # 2026-10-12 Dependabot high CVE-2026-93749 (source-map-js, fix>=1.2.2):
+  # 本鎖 1.2.1 → 提升 (dev-only, minor 修補)。
+  "source-map-js": ">=1.2.2"
