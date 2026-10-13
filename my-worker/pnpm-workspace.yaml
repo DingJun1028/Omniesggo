@@ -24,3 +24,6 @@ overrides:
   # GHSA 高危 SSRF + host confusion。root pnpm-workspace.yaml:26 已有同一約束，
   # 此處為獨立複本 —— my-worker 有自己的 lockfile（git 追蹤中），故需獨立設定。
   "fast-uri": ">=3.1.6 <4"
+  # 2026-10-12 Dependabot high GHSA-wq5f-xc86-pv6w (sharp, fix>=0.35.5):
+  # 本鎖 0.35.4 → 提升 (wrangler → miniflare → sharp, dev 工具鏈, minor 修補)。
+  sharp: ">=0.35.5 <0.36"

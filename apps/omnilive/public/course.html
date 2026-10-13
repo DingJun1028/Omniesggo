@@ -223,7 +223,7 @@ body{
 </head>
 <body>
 <div class="topbar">
-  <h1><span class="brand-mark">OA</span>OmniLive 課程即時解說</h1>
+  <h1><span class="brand-mark">OA</span>OmniLive 段落重點摘要</h1>
   <div class="status"><span class="dot bad" id="connDot"></span><span id="conn">未連線</span><span class="badge" id="roomBadge">—</span></div>
 </div>
 <div class="grid">
@@ -232,9 +232,9 @@ body{
     <div id="subs"><div class="sg"><span class="tgt" style="opacity:.6">等待字幕…</span></div></div>
   </div>
   <div class="col">
-    <h2>課程解說 <span class="badge" id="genStatus">待生成</span></h2>
+    <h2>段落重點摘要 <span class="badge" id="genStatus">待生成</span></h2>
     <div class="course" id="course">
-      <div class="loading">字幕累積中，約每 45 秒自動生成一次課程重點…</div>
+      <div class="loading">字幕流動中，約每 25 秒自動抓取一次段落重點摘要…</div>
     </div>
     <div class="meta" id="meta">房間: —</div>
   </div>
@@ -268,7 +268,7 @@ function addSub(d){
 let lastGen=0;
 async function genCourse(){
   const now=Date.now();
-  if(now-lastGen<40000)return; // 節流 40s
+  if(now-lastGen<22000)return; // 節流 22s (段落摘要 25s 週期)
   lastGen=now;
   $('genStatus').textContent='生成中…';
   try{
@@ -282,10 +282,14 @@ async function genCourse(){
 function renderCourse(c){
   const el=$('course');el.innerHTML='';
   if((!c.summary)&&(!c.keypoints||!c.keypoints.length)&&(!c.terms||!c.terms.length)&&(!c.similar_cases||!c.similar_cases.length)){
-    el.innerHTML='<div class="loading">尚無足夠字幕內容生成課程解說。</div>';return;
+    el.innerHTML='<div class="loading">尚無足夠字幕內容生成段落重點摘要。</div>';return;
   }
-  if(c.summary){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>本節概要</h3>';const p=document.createElement('div');p.className='summary';p.textContent=c.summary;s.appendChild(p);el.appendChild(s);}
-  if(c.keypoints&&c.keypoints.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>重點項目</h3>';const u=document.createElement('ul');c.keypoints.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
+  if(c.summary|| (c.keypoints&&c.keypoints.length)){
+    const s=document.createElement('div');s.className='section';s.innerHTML='<h3>段落重點摘要</h3>';
+    if(c.summary){const p=document.createElement('div');p.className='summary';p.textContent=c.summary;s.appendChild(p);}
+    if(c.keypoints&&c.keypoints.length){const u=document.createElement('ul');c.keypoints.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);}
+    el.appendChild(s);
+  }
   if(c.terms&&c.terms.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>重要名詞</h3>';c.terms.forEach(t=>{const d=document.createElement('div');d.className='term';const wiki=t.wiki?`<a href="${t.wiki}" target="_blank" rel="noopener">維基</a>`:'';d.innerHTML=`<b>${t.term||''}</b><span class="en">${t.en||''}</span>${wiki}<span class="ex">${t.explain||''}</span>`;s.appendChild(d);});el.appendChild(s);}
   if(c.similar_cases&&c.similar_cases.length){const s=document.createElement('div');s.className='section';s.innerHTML='<h3>類似案例 / 變體整理</h3>';const u=document.createElement('ul');c.similar_cases.forEach(k=>{const li=document.createElement('li');li.textContent=k;u.appendChild(li);});s.appendChild(u);el.appendChild(s);}
 }

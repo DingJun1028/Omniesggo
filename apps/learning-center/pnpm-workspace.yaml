@@ -16,4 +16,14 @@ allowBuilds:
 # 例外依據：AGENTS.md「勿用 overrides 強升傳遞依賴」僅針對 undici/jsdom，
 # sharp 為 minor 修補（0.35.2 → 0.35.4），不屬該禁令範圍。
 overrides:
-  sharp: ">=0.35.4 <0.36"
+  sharp: ">=0.35.5 <0.36"
+  # 2026-10-12 Dependabot high CVE-2026-19534/84961 (undici, fix>=7.29.1):
+  # 本鎖 undici@7.28.0 源自 esggo-auto-repair/worker → wrangler → miniflare
+  # (dev 工具鏈), minor 修補同上列 sharp 例外依據。
+  undici: ">=7.29.1 <8"
+  # 2026-10-12 Dependabot high CVE-2026-101916 (@grpc/grpc-js, fix>=1.13.6):
+  # 本鎖卡 1.9.16 (officeparser 鏈), 對齊根 workspace override 值。
+  "@grpc/grpc-js": ">=1.13.6 <2"
+  # 2026-10-12 Dependabot medium CVE-2026-93981 (hono, fix>=4.13.7):
+  # 本鎖卡 4.12.32 (esggo-auto-repair/worker 鏈), 對齊根 override。
+  hono: ">=4.13.5 <5"
