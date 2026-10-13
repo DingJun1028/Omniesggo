@@ -134,3 +134,19 @@
 
 ---
 <sub>代辦清單 v2026-10-11r4 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
+
+## 2026-10-13 01:20 — PR #1398 合併 feature→main + CI Green Gate 自我死鎖根因消除
+
+**已結案**:
+- PR #1398 squash 合併 main `4fcff9ba9`（52 commits: OmniLive r6.1+VoxSpica+安全橫掃+STT 切換+xlsx 遷移）, 雙 remote 同步
+- 合併前解 4 衝突全取 feature 側（omnilive index/floating r5→r6.1、TODO 賬簿 add/add、vault 5T-Canon-Daily）
+- **CI Green Gate 自我輪询死鎖根因消除**（`074e3870f`）:
+  - 症狀: gate 每輪判定「1 check 未跑完」等到 600s 逾時紅燈, 其餘 25 筆全 completed
+  - 根因: ci-gate.sh 輪询 check-runs 未排除自己 — 自身 in_progress check-run 永遠計入 PENDING
+  - 修復: GREEN_GATE_SELF 環變數排除同名 check-run（ci-gate.sh+ci-green-gate.yml, 6 行）
+  - 驗證: 自我排除後 gate 只等真 pending（Docker Build Test）; 收斂後重跑 gate **真全綠 ✅**
+  - 教訓: 排隊型 check（Docker Build ARM64 ~11min）可超 600s 上限 → 二次重跑即綠
+- 亂碼根因（同步根除）: PS5.1 native 重導向轉 UTF-16LE → 落檔一律 cmd /c 內側重導向; 已寫入 encoding-forensics 技能第七奧義
+- Dependabot 28 open: 合併後等待 default branch 重掃自動關閉（vitest×2=override 誤報、handlebars 舊 lock 條目待重掃）
+
+[best-practice:awakened]
