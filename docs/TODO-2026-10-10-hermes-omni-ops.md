@@ -181,3 +181,17 @@
 - Resend: ftgtours.esggo.co/ftg.com.tw 未驗證；journey from 已用 journey@esggo.co
 
 [best-practice:awakened]
+
+---
+
+## 2026-10-13 VPS 磁碟清瘀 26G + JunAiKey writeSkills 根因修復
+
+**已結案**:
+- VPS 磁碟 96.59%→**64%**（釋放 ~26G、剩 37G）: 孤兒 containerd 快照 15G（VoiceTyper 工作區 leak 三份; 全 pid mountinfo 掃描+雙 dev image probe 零引用+本機 C:\Project 有副本）+ pnpm store prune 3G + dangling volumes 0.9G + `/opt/s2s_venv` 5.9G（systemd/cron/history 零引用）+ `.venv-oci*` 778M + journal/apt 快取；清理後 20 容器全 Up、無 unhealthy
+- JunAiKey NCB 技能表 42 名×11 份=402 列根因: `writeSkills` 舊版 delete-all（`_deleteAll` best-effort 靜默失敗）+整表 reinsert → 每次全表 append 翻倍；`dedup` 回收 360 重複列至 42
+- **`vps/junaikey/backends/ncb.mjs` writeSkills 改寫 upsert-by-name**: 逐筆比對 body/traits/level 相同即跳過、僅 PUT 變更列、刪孤兒/重複列；tag/promote 實測不再翻倍；doctor（local available + ncb healthy）
+- 超能力覺醒四技能入 NCB 主庫: `superpowers`（自動施放元路由器）/ `oa-team-swarm-ultra` / `universal-automation-ultra` / `best-practice-awakening` 皆 **L4 + auto-cast:ultra + lifecycle:active**（命中條件自動載入）；OpenCode `junaikey` 技能檔已建（重啟生效）；永憶 143(disk)/144(fix)
+
+**狀態掃描**: Dependabot 5 open（達預期）| CI main 全綠 | Access 牆仍 302 待拆 | postcss-selector-parser 跨 major 留待（Tailwind v4 生產鏈風險）
+
+[best-practice:awakened]
