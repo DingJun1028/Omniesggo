@@ -142,25 +142,59 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
     },
 
     async writeSkills(skills) {
-      // 取代式: 刪除現有 + bulk insert 新集合 (含 F-04 level 欄位)
-      try { await _deleteAll(tables.skills); } catch { /* table may not exist yet */ }
-      if (!skills.length) return;
-      try {
-        await _bulkCreate(tables.skills, skills.map(s => ({
+      // upsert 式取代: 逐筆比對更新 + 刪除孤兒/重複列
+      // (舊版 delete-all+reinsert 在 _deleteAll 靜默失敗時會整表翻倍,已根治)
+      let rows = [];
+      try { rows = await _listAll(tables.skills); }
+      catch (e) { if (e.message.includes("doesn't exist")) return; throw e; }
+      const byName = new Map();
+      for (const r of rows) {
+        const ex = byName.get(r.name);
+        if (!ex || String(r.updatedat || '') > String(ex.updatedat || '')) byName.set(r.name, r);
+      }
+      const newNames = new Set();
+      for (const s of skills) {
+        if (!s?.name || newNames.has(s.name)) continue;
+        newNames.add(s.name);
+        const cur = byName.get(s.name);
+        const traitsSame = JSON.stringify(parseJSONField(cur?.traits) || []) === JSON.stringify(s.traits || []);
+        const levelSame = (cur?.level || 'L1') === (s.level || 'L1');
+        const bodySame = (cur?.body || '') === (s.body || '');
+        if (cur && traitsSame && levelSame && bodySame) continue;
+        const doc = {
           name: s.name, body: s.body, traits: s.traits,
           level: s.level || 'L1',
           updatedat: s.updatedAt || new Date().toISOString(),
-        })));
-      } catch (e) {
-        // 若 skills table 缺 level column,降級為不寫 (但要 throw 讓 caller 知道)
-        if (e.message.includes("Unknown column 'level'")) {
-          // retry without level
-          await _bulkCreate(tables.skills, skills.map(s => ({
-            name: s.name, body: s.body, traits: s.traits, updatedat: s.updatedAt || new Date().toISOString(),
-          })));
-          return;
+        };
+        if (cur?.id) {
+          try {
+            await _req(`/update/${tables.skills}/${cur.id}`, { method: 'PUT', body: JSON.stringify(toNCBPayload(doc)) });
+          } catch (e) {
+            if (e.message.includes("Unknown column 'level'")) {
+              const { level, ...rest } = doc;
+              await _req(`/update/${tables.skills}/${cur.id}`, { method: 'PUT', body: JSON.stringify(toNCBPayload(rest)) });
+            } else throw e;
+          }
+        } else {
+          try {
+            await _bulkCreate(tables.skills, [doc]);
+          } catch (e) {
+            if (e.message.includes("Unknown column 'level'")) {
+              const { level, ...rest } = doc;
+              await _bulkCreate(tables.skills, [rest]);
+            } else throw e;
+          }
         }
-        if (!e.message.includes("doesn't exist")) throw e;
+      }
+      // 刪除: 名稱不在新集合的孤兒列 + 同名非保留的重複列
+      for (const r of rows) {
+        if (!r.id) continue;
+        const keep = byName.get(r.name);
+        const isOrphan = !newNames.has(r.name);
+        const isDup = keep?.id !== undefined && r.id !== keep.id;
+        if (isOrphan || isDup) {
+          try { await _deleteById(tables.skills, r.id); } catch { /* best-effort */ }
+        }
       }
     },
 
