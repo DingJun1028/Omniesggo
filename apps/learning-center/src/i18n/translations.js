@@ -9,7 +9,7 @@ export const translations = {
     roleStudent: '🧑‍🎓 學員視角', roleTA: '👩‍🏫 TA 助教視角', roleAdmin: '🛡️ 管理員視角',
     back: '返回首頁', submit: '送出提交', saving: '儲存中...', success: '提交成功！',
     footer: '2026 Berkeley柏克萊國際永續策略人才培育課程學習中心 | 柏克萊國際策略與創新 ESG 人才培育課程',
-    storageMode: 'Firestore 雲端永久儲存（已連線）', localMode: '本機暫存模式（未連接 Firebase）',
+    storageMode: 'Supabase 雲端永久儲存（已連線）', localMode: '本機暫存模式（未連接雲端）',
     common: {
       randomIdHint: '影片待上傳（請管理員在 Drive 資料夾上傳影片，系統會自動抓出 ID）',
       loading: '正在載入…', noVideos: '尚無可觀看影片', uploadedOn: '上傳於',
@@ -199,8 +199,8 @@ export const translations = {
       search: '搜尋（學員ID / 內容關鍵字）', all: '全部類型', type: '類型', from: '起', to: '迄',
       filters: '篩選', reset: '重設', export: '匯出 CSV', delete: '刪除',
       noResults: '沒有符合條件的紀錄', count: '共 {n} 筆', confirmDelete: '確定要刪除這筆紀錄嗎？',
-      idLabel: 'ID: {id} · {userId}', storageMode: 'Firestore 雲端永久儲存（已連線）',
-      localMode: '本機暫存模式（未連接 Firebase）',
+      idLabel: 'ID: {id} · {userId}', storageMode: 'Supabase 雲端永久儲存（已連線）',
+      localMode: '本機暫存模式（未連接雲端）',
     },
     detail: {
       note: '備註', files: '附件', noFiles: '（無附件）', supplements: '補充檔案',
@@ -242,7 +242,7 @@ export const translations = {
     roleStudent: '🧑‍🎓 学员视角', roleTA: '👩‍🏫 TA 助教视角', roleAdmin: '🛡️ 管理员视角',
     back: '返回首页', submit: '送出提交', saving: '储存中...', success: '提交成功！',
     footer: '2026 Berkeley柏克萊國際永續策略人才培育課程學習中心 | 柏克萊國際策略與創新 ESG 人才培育課程',
-    storageMode: 'Firestore 云端永久储存（已连线）', localMode: '本机暂存模式（未连接 Firebase）',
+    storageMode: 'Supabase 云端永久储存（已连线）', localMode: '本机暂存模式（未连接云端）',
     common: {
       randomIdHint: '影片待上传（请管理员在 Drive 资料夹上传影片，系统会自动抓出 ID）',
       loading: '正在载入…', noVideos: '尚无可观看影片', uploadedOn: '上传于',
@@ -430,8 +430,8 @@ export const translations = {
       search: '搜寻（学员ID / 内容关键字）', all: '全部类型', type: '类型', from: '起', to: '迄',
       filters: '筛选', reset: '重设', export: '汇出 CSV', delete: '删除',
       noResults: '没有符合条件的纪录', count: '共 {n} 笔', confirmDelete: '确定要删除这笔纪录吗？',
-      idLabel: 'ID: {id} · {userId}', storageMode: 'Firestore 云端永久储存（已连线）',
-      localMode: '本机暂存模式（未连接 Firebase）',
+      idLabel: 'ID: {id} · {userId}', storageMode: 'Supabase 云端永久储存（已连线）',
+      localMode: '本机暂存模式（未连接云端）',
     },
     detail: {
       note: '备注', files: '附件', noFiles: '（无附件）', supplements: '补充档案',
@@ -471,7 +471,7 @@ export const translations = {
     roleStudent: 'Student View', roleTA: 'TA View', roleAdmin: 'Admin View',
     back: 'Home', submit: 'Submit', saving: 'Saving...', success: 'Submitted!',
     footer: '2026 Berkeley ESG Learning Center',
-    storageMode: 'Firestore cloud storage (online)', localMode: 'Local mode (Firebase not connected)',
+    storageMode: 'Supabase cloud storage (online)', localMode: 'Local mode (not connected)',
     common: {
       randomIdHint: 'Video pending upload.',
       loading: 'Loading...', noVideos: 'No videos available', uploadedOn: 'Uploaded on',
@@ -571,7 +571,7 @@ export const translations = {
       search: 'Search', all: 'All', type: 'Type', from: 'From', to: 'To',
       filters: 'Filters', reset: 'Reset', export: 'Export CSV', delete: 'Delete',
       noResults: 'No records', count: '{n} items', confirmDelete: 'Delete this record?',
-      idLabel: 'ID: {id} · {userId}', storageMode: 'Firestore online', localMode: 'Local mode',
+      idLabel: 'ID: {id} · {userId}', storageMode: 'Supabase online', localMode: 'Local mode',
     },
     detail: {
       note: 'Note', files: 'Attachments', noFiles: 'No files', supplements: 'Files',

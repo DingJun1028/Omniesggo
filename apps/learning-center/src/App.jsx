@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  useFirebase, initAuth, subscribeSubmissions, addSubmission, deleteSubmission,
-  uploadFiles, signInWithGoogle, signOut
+  useSupabase, initAuth, subscribeSubmissions, addSubmission, deleteSubmission,
+  uploadFiles, signOut
 } from './db';
 import { refreshRoleFromClaims, setupProfileIfMissing } from './repositories/auth.repository';
-import { getUserProfile, upsertUserProfile } from './repositories/profile.repository';
+import { upsertUserProfile } from './repositories/profile.repository';
 import {
   BookOpen, Upload, PlayCircle,
   Smile, Database, ShieldCheck, ArrowLeft, Send, ChevronDown, FileText,
-  Search, Trash2, Filter, Users, LogIn, LogOut,
+  Search, Trash2, Filter, Users, LogOut,
   User, Download
 } from 'lucide-react';
 import translations from './i18n/translations';
@@ -186,7 +186,7 @@ const RecordsView = ({ data, isAdmin, t, lang }) => {
   );
 };
 
-const LayoutShell = ({ children, view, setView, t, lang, setLang, profileMenuRef, user, setProfileMenuOpen, profileMenuOpen, handleGoogleSignIn, role, handleSignOut }) => (
+const LayoutShell = ({ children, view, setView, t, lang, setLang, profileMenuRef, user, setProfileMenuOpen, profileMenuOpen, role, handleSignOut }) => (
   <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
     <nav className="bg-white border-b border-slate-200 px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap justify-between items-center gap-2 sm:gap-4 sticky top-0 z-50 shadow-sm">
       <div className="flex items-center gap-4">
@@ -204,15 +204,11 @@ const LayoutShell = ({ children, view, setView, t, lang, setLang, profileMenuRef
           <option value="en">English</option>
         </select>
         <div className="relative" ref={profileMenuRef}>
-          {user && !user.isLocal && !user.isAnonymous ? (
+          {user && !user.isLocal && !user.isAnonymous && (
             <button onClick={() => setProfileMenuOpen(!profileMenuOpen)} className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-[#003262] px-3 py-2 rounded-lg text-sm font-semibold transition-colors" title={user.email || user.displayName || ''}>
               {user.photoURL ? (<img src={user.photoURL} alt="" className="w-6 h-6 rounded-full" referrerPolicy="no-referrer" />) : (<User size={16} />)}
               <span className="hidden sm:inline max-w-[100px] truncate">{user.displayName || user.email?.split('@')[0] || ''}</span>
               <ChevronDown size={14} />
-            </button>
-          ) : (
-            <button onClick={handleGoogleSignIn} className="inline-flex items-center gap-2 bg-[#003262] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#002244] transition-colors shadow-sm">
-              <LogIn size={16} /> <span className="hidden sm:inline">{t.auth?.signInGoogle || 'Google 登入'}</span>
             </button>
           )}
           {profileMenuOpen && user && !user.isLocal && !user.isAnonymous && (
@@ -305,26 +301,6 @@ export default function App() {
 
   const handleReplaySelect = (video) => { setSelectedVideo(video); setReplayView('player'); };
 
-  const handleGoogleSignIn = async () => {
-    try {
-      await signInWithGoogle();
-      setAuthMessage(t.auth.signInSuccess || '登入成功');
-      const auth = await import('firebase/auth').then((m) => m.getAuth());
-      const currentUser = auth.currentUser;
-      if (currentUser) {
-        const existing = await getUserProfile(currentUser.uid);
-        if (!existing) {
-          setProfileForm({ displayName: currentUser.displayName || '', email: currentUser.email || '', org: '' });
-          setProfileSetup(true);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-      const msg = String(err?.message || err);
-      setAuthMessage(msg || (t.auth.signInFailed || '登入失敗，請稍後再試。'));
-    }
-  };
-
   const handleSignOut = async () => {
     await signOut();
     setRole('student'); setProfileMenuOpen(false); setAuthMessage('');
@@ -359,13 +335,13 @@ export default function App() {
     <LayoutShell
       view={view} setView={setView} t={t} lang={lang} setLang={setLang}
       profileMenuRef={profileMenuRef} user={user} setProfileMenuOpen={setProfileMenuOpen}
-      profileMenuOpen={profileMenuOpen} handleGoogleSignIn={handleGoogleSignIn}
+      profileMenuOpen={profileMenuOpen}
       role={role} handleSignOut={handleSignOut}
     >
       {authMessage && (<div className="max-w-5xl mx-auto mb-4"><div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl p-4">{authMessage}</div></div>)}
       {error && (<div className="max-w-5xl mx-auto mb-6"><div className="bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl p-4 whitespace-pre-wrap font-mono">{error?.message}{'\n'}{error?.stack}</div></div>)}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 mt-1">
-        <div className="text-[10px] text-slate-400">{useFirebase ? t.list.storageMode : t.list.localMode}</div>
+        <div className="text-[10px] text-slate-400">{useSupabase ? t.list.storageMode : t.list.localMode}</div>
       </div>
 
       {view === 'home' && (
