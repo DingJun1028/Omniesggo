@@ -139,7 +139,8 @@ jobs:
 
           headers = {
               "Authorization": f"Bearer {api_key}",
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              "User-Agent": "Omniesggo-Hermes-Agent/1.0"
           }
           if "openrouter.ai" in api_base:
               headers["HTTP-Referer"] = f"https://github.com/{repo}"
