@@ -18,7 +18,7 @@ export const DEFAULT_NCB_BULK_LIMIT = 500;
 // ── Superpowers 7 階段融合 ──
 // 把上游 Superpowers 的 7 階段編碼方法論，注入 junaikey 成長層。
 // 每個階段以 'superpowers:stage:<id>' 標籤writers + journal 記錄，形成 closed-loop。
-export const SUPERPOWERS_VERSION = '1.0.0';
+export const SUPERPOWERS_VERSION = '1.1.0';
 export const SUPERPOWERS_STAGES = [
   { id: 'brainstorming', label: '腦力激盪', order: 1, desc: '寫碼前釐清真要做什麼;分段設計供簽核' },
   { id: 'worktrees', label: '工作樹隔離', order: 2, desc: '隔離 workspace;驗證乾淨測試基線' },
