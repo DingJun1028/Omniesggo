@@ -232,5 +232,6 @@
 - NCB 全鏈路實測: awaken 去重（`already bootstrapped (stage=brainstorming)`）／track 單 JSON 無 fall-through／list 由 summary 還原 stage/status/stageOrder（_ncbId:153）／node --check 三檔過
 - 技能檔 `~/.opencode/skills/junaikey/SKILL.md` v1.1 同步（中午版被另一邊覆寫流失後重補）＋補建 `.hermes`/`.omh`/`.agents` 三 symlink（此前 junaikey 無任何跨代理共享）
 - API 教訓: NCB create 全欄位透傳（toNCBPayload 無白名單）→ 未知欄位 400；appendJournal 在 NCB 端 best-effort 靜默吞錯
+- 追加: `SUPERPOWERS_VERSION` 1.0.0→**1.1.0**（備份 `_backup-20261013/schema.mjs.bak`→原地改→較差 1 行 diff，node --check 過）；技能檔 v1.1 磁碟/repo 皆完好，另一邊貼文為舊快照已附 4 點差量
 
 [best-practice:awakened]
