@@ -221,3 +221,16 @@
 - 另: workdir 事實＝`C:\opt\esggo` 無 package.json，真倉 `C:\Project\esggo`
 
 [best-practice:awakened]
+
+---
+
+## 2026-10-13 JunAiKey Superpowers 7 階段融合（代另一邊完稿＋修 5 bug）
+
+**已結案**:
+- 另一邊 WIP 五件套（schema SUPERPOWERS_STAGES/TAGS＋tags.mjs superpowers 維度＋operations bootstrap/track/list/reset＋CLI 3 指令）接手完稿
+- **修 5 bug**: ①skipped 早退缺 stage 欄（另一邊被 old_string 多重匹配卡住的編輯）②CLI trackSuperPowersStage 漏 break（fall-through）③bootstrap 去重壞（r.stage 永 undefined→每次 awaken 重寫）④**NCB schema 限欄位**：直寫 stage/status 欄→400 Unknown column→統一 summary 前綴 `<stage>:<status>` 編碼＋`stageStatusOf()` 讀端還原（兩 backend 相容）⑤schema 註解 13→12
+- NCB 全鏈路實測: awaken 去重（`already bootstrapped (stage=brainstorming)`）／track 單 JSON 無 fall-through／list 由 summary 還原 stage/status/stageOrder（_ncbId:153）／node --check 三檔過
+- 技能檔 `~/.opencode/skills/junaikey/SKILL.md` v1.1 同步（中午版被另一邊覆寫流失後重補）＋補建 `.hermes`/`.omh`/`.agents` 三 symlink（此前 junaikey 無任何跨代理共享）
+- API 教訓: NCB create 全欄位透傳（toNCBPayload 無白名單）→ 未知欄位 400；appendJournal 在 NCB 端 best-effort 靜默吞錯
+
+[best-practice:awakened]
