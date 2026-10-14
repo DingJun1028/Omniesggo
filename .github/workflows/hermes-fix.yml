@@ -86,13 +86,35 @@ jobs:
           fi
 
           python3 - << 'EOF'
-          import os, sys, json, urllib.request, subprocess
+          import os, sys, json, urllib.request, urllib.error, subprocess
 
           issue_num = os.environ['ISSUE_NUM']
-          api_key = os.environ['HERMES_API_KEY']
-          api_base = os.environ['HERMES_API_BASE'].rstrip('/')
-          model = os.environ['HERMES_MODEL']
+          api_key = os.environ['HERMES_API_KEY'].strip()
+          raw_base = os.environ.get('HERMES_API_BASE', '').strip().rstrip('/')
+          model = os.environ.get('HERMES_MODEL', '').strip()
           repo = os.environ['GITHUB_REPOSITORY']
+
+          # Groq auto-detection & endpoint/model sanitization
+          if api_key.startswith("gsk_"):
+              if not raw_base or "openrouter" in raw_base:
+                  raw_base = "https://api.groq.com/openai/v1"
+              elif "api.groq.com" in raw_base and not "/openai/v1" in raw_base:
+                  raw_base = f"{raw_base}/openai/v1"
+              if not model or "nousresearch" in model or "openrouter" in model:
+                  model = "llama-3.3-70b-versatile"
+          else:
+              if not raw_base:
+                  raw_base = "https://openrouter.ai/api/v1"
+              if not model:
+                  model = "nousresearch/hermes-3-llama-3.1-405b"
+
+          if raw_base.endswith("/chat/completions"):
+              target_url = raw_base
+          else:
+              target_url = f"{raw_base}/chat/completions"
+
+          print(f"Target API URL: {target_url}")
+          print(f"Target Model: {model}")
 
           cmd = ["gh", "issue", "view", str(issue_num), "--repo", repo, "--json", "title,body"]
           res = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -142,11 +164,11 @@ jobs:
               "Content-Type": "application/json",
               "User-Agent": "Omniesggo-Hermes-Agent/1.0"
           }
-          if "openrouter.ai" in api_base:
+          if "openrouter.ai" in target_url:
               headers["HTTP-Referer"] = f"https://github.com/{repo}"
               headers["X-Title"] = "Omniesggo Hermes CI Agent"
 
-          req = urllib.request.Request(f"{api_base}/chat/completions", data=req_body, headers=headers)
+          req = urllib.request.Request(target_url, data=req_body, headers=headers)
           try:
               with urllib.request.urlopen(req, timeout=180) as response:
                   resp_data = json.loads(response.read().decode('utf-8'))
@@ -169,6 +191,11 @@ jobs:
                           out.write(content)
                       print(f"Wrote update to: {path}")
 
+          except urllib.error.HTTPError as e:
+              err_body = e.read().decode('utf-8', errors='replace')
+              print(f"HTTPError {e.code}: {e.reason}")
+              print(f"Response body: {err_body}")
+              sys.exit(1)
           except Exception as e:
               print(f"Error calling Hermes API or parsing response: {e}")
               sys.exit(1)
