@@ -76,3 +76,75 @@ def test_produce_route_returns_produced_and_hash_locked():
     # 5T: Hash Lock 刻印が返ることを検証
     assert body["hash_lock"]
     assert len(body["hash_lock"]) == 64
+
+
+def test_produce_pipeline_markerless_script_yields_zero_beats():
+    # 完全沒有任何 DNA marker 的純文字，應被視為 0 拍
+    out = produce_pipeline(
+        "中文字，完全沒有任何 DNA marker 標記",
+        voice="zh-TW-YunJheNeural",
+        brand="sushi-doctor",
+        video_id="v4",
+    )
+    assert out["beat_count"] == 0
+    assert out["dna"] == []
+    assert out["subtitles"] == ""
+    assert out["visuals_count"] == 0
+    assert {"module1", "module2", "module3", "module4", "module5", "module6", "module7"} <= set(out)
+
+
+def test_produce_route_defaults_apply_when_voice_brand_omitted():
+    # 缺少 voice/brand 時走預設值，不應 422
+    from fastapi.testclient import TestClient
+
+    from src.main import app
+
+    with TestClient(app) as client:
+        response = client.post("/produce", json={"script": "【場景】x。"})
+    assert response.status_code == 200
+    assert response.json()["status"] == "produced"
+
+
+def test_produce_pipeline_subtitles_empty_for_zero_beats():
+    # 零拍時 subtitles 為空字串（generate_subtitles 的邊界）
+    out = produce_pipeline(
+        "",
+        voice="zh-TW-YunJheNeural",
+        brand="sushi-doctor",
+        video_id="v5",
+    )
+    assert out["subtitles"] == ""
+    assert out["beat_count"] == 0
+
+
+def test_produce_route_hash_lock_hex_and_exact_64():
+    # 5T: hash_lock 為 64 位十六進制（sha256 hexdigest）
+    from fastapi.testclient import TestClient
+
+    from src.main import app
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/produce",
+            json={"script": "【場景】x。", "voice": "zh-TW", "brand": "sushi-doctor"},
+        )
+    assert response.status_code == 200
+    lock = response.json()["hash_lock"]
+    assert len(lock) == 64
+    assert all(c in "0123456789abcdef" for c in lock)
+
+
+def test_produce_route_json_returns_produced_status():
+    # 明確以 json= 送出，回應 status 為 produced
+    from fastapi.testclient import TestClient
+
+    from src.main import app
+
+    with TestClient(app) as client:
+        response = client.post(
+            "/produce",
+            json={"script": "【場景】【衝突】x。", "voice": "zh-TW", "brand": "sushi-doctor"},
+        )
+    assert response.status_code == 200
+    assert response.json()["status"] == "produced"
+    assert response.json()["hash_lock"]
