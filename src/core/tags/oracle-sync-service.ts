@@ -4,14 +4,14 @@
 // src/core/tags/oracle-sync-service.ts
 // ============================================================
 // 呼叫 scripts/oracle-sync.py (oci-cli venv 的 oracledb thin mode)
-// 將 TagPair 雙向同步進 OMNI_TRUST_LEDGER (hash-chain) + 終始矩陣 sync_matrix。
+// 將 TagPair 雙向同步進 OMNI_TRUST_LEDGER (hash-chain) + 終始永續矩陣 sync_matrix。
 //
-// 雙向同步模型 (全域 / 全端 / 全量 / 終始矩陣)：
+// 雙向同步模型 (全域 / 全端 / 全量 / 終始永續矩陣)：
 //   - 全域 (global):      涵蓋所有實體 (universalTag / tagPair / regulation / profile)
 //   - 全端 (every-end):   所有 entry point (API / cron / 啟動 / agent) 都走同一合約
 //   - 全量 (full-volume): 整表級對帳, 非單筆 per-request
 //   - 雙向 (bidirectional): app->oracle 寫入 + oracle->app 回拉 (hydration)
-//   - 終始矩陣 (origin-terminal matrix): 每實體追蹤 origin_seq / terminal_seq / status
+//   - 終始永續矩陣 (origin-terminal matrix): 每實體追蹤 origin_seq / terminal_seq / status
 //
 // 前置（VPS 需具備，否則 graceful skip）：
 //   - OMNI_DB_PWD 設於 gateway/app .env
@@ -39,7 +39,7 @@ export interface OracleSyncResult {
   reason?: string;
 }
 
-// 終始矩陣單筆狀態 — 雙向對帳的核心資料結構
+// 終始永續矩陣單筆狀態 — 雙向對帳的核心資料結構
 export type SyncStatus =
   | 'synced'        // 一致
   | 'behind_app'    // Oracle 有新增, app 落後 -> 應 pull oracle->app
@@ -80,7 +80,7 @@ export async function initOracleSchema(): Promise<OracleSyncResult> {
   }
 }
 
-// 確保終始矩陣表存在 (冪等)
+// 確保終始永續矩陣表存在 (冪等)
 export async function ensureSyncMatrix(): Promise<OracleSyncResult> {
   if (!hasOracleCreds()) {
     return { ok: false, reason: 'OMNI_DB_PWD not set — skipping matrix init' };
@@ -200,7 +200,7 @@ export async function reconcileBidirectional(
   }
 }
 
-// 寫入單筆終始矩陣狀態 (對帳後固化)
+// 寫入單筆終始永續矩陣狀態 (對帳後固化)
 export async function upsertSyncMatrix(row: SyncMatrixRow): Promise<OracleSyncResult> {
   if (!hasOracleCreds()) {
     return { ok: false, reason: 'OMNI_DB_PWD not set — skipping matrix upsert' };

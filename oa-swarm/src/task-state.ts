@@ -69,7 +69,7 @@ export class TaskStateManager {
       entropy: this.entropy,
       tasksDone: this.tasksDone,
       agents: [...this.states.values()].map(s => Object.freeze(s)) as Readonly<AgentTaskState>[],
-      helpRequests: this.helpRequests,
+      helpRequests: this.getHelpRequests(),
       oab: { ...this.oab },
       updatedAt: this.updatedAt,
     };
@@ -232,8 +232,7 @@ export class TaskStateManager {
 
   /** 增量輸出: 僅返回變更前的請求 */
   getHelpRequests(): Readonly<AgentTaskState[]>[] {
-    return this.states
-      .values()
+    return [...this.states.values()]
       .filter(s => s.helpNeeded)
       .map(s => Object.freeze(s) as AgentTaskState)
       .sort((a, b) => b.lastUpdated - a.lastUpdated)

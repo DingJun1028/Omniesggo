@@ -58,6 +58,36 @@ export class SwarmCore {
       oab: { connected: this.oabSynced > 0, synced: this.oabSynced },
     };
   }
+  /** 共享任務狀態 (代理 A 即時看到代理 B 的狀態) */
+  getTaskState(): import('./task-state.js').SwarmTaskState {
+    return this.taskState.getState();
+  }
+
+  /** 代理上報自己正在處理的任務 */
+  async reportTask(agentId: number, task: string, source = 'api'): Promise<import('./task-state.js').AgentTaskState | null> {
+    return this.taskState.reportTask(agentId, task, source);
+  }
+
+  /** 代理上報幫助請求 */
+  async requestHelp(agentId: number, helpNeeded: string, reason: string, source = 'api'): Promise<import('./task-state.js').AgentTaskState | null> {
+    return this.taskState.requestHelp(agentId, helpNeeded, reason, source);
+  }
+
+  /** 代理確認任務完成 */
+  async completeTask(agentId: number, result: string, source = 'api'): Promise<import('./task-state.js').AgentTaskState | null> {
+    return this.taskState.completeTask(agentId, result, source);
+  }
+
+  /** 代理確認問題已解決 */
+  async resolveHelp(agentId: number, source = 'api'): Promise<import('./task-state.js').AgentTaskState | null> {
+    return this.taskState.resolveHelp(agentId, source);
+  }
+
+  /** 代理自聲明 IDLE */
+  async setIdle(agentId: number, source = 'api'): Promise<import('./task-state.js').AgentTaskState | null> {
+    return this.taskState.setIdle(agentId, source);
+  }
+
 
   subscribe(fn: (s: SwarmState) => void): () => void {
     this.listeners.add(fn);

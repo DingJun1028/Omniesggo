@@ -124,5 +124,5 @@ JunAiKey 作為系統無上意志與靈魂中樞，具備「萬能元鑰 (Univer
 15.2 雙向同步 TypeScript 矩陣 (Bidirectional TypeScript Schema Synchronization)
 前端 UI、後端 API 與資料庫 ORM Schema 透過 TypeScript / Zod 進行 100% 雙向型別同步，達成零契約落差與零執行期型別錯誤。
 
-15.3 繁中英碼與終始矩陣 (Traditional Chinese - English Matrix & End-Beginning Cycle)
-所有系統資產、註解與 ADR 採「英標繁博 (English Standard, Traditional Chinese Broad)」規範。終始矩陣 (End-Beginning Matrix) 確保從觸發起點 (Origin Cause) 到最終顯化 (Final Effect) 形成 360° 超時空閉環，實現「無作妙德、圓通無礙、永續成長」之至高境界。
+15.3 繁中英碼與終始永續矩陣 (Traditional Chinese - English Matrix & End-Beginning Cycle)
+所有系統資產、註解與 ADR 採「英標繁博 (English Standard, Traditional Chinese Broad)」規範。終始永續矩陣 (End-Beginning Matrix) 確保從觸發起點 (Origin Cause) 到最終顯化 (Final Effect) 形成 360° 超時空閉環，實現「無作妙德、圓通無礙、永續成長」之至高境界。

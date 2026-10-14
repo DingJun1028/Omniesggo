@@ -11,7 +11,7 @@
  *
  * 設計原則（遵循 global-healing 準則）：
  *   - 全端雙向 TypeScript：嚴格型別，不使用 any。
- *   - 終始矩陣：統一的請求/結果契約 (OmniRequest → OmniResult)。
+ *   - 終始永續矩陣：統一的請求/結果契約 (OmniRequest → OmniResult)。
  *   - 不可變：產出皆經 Object.freeze。
  */
 
@@ -38,7 +38,7 @@ import {
 import { omniKernel, OMNI_TOPICS } from './omni-kernel';
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 1: Request / Result Contracts (終始矩陣)
+// SECTION 1: Request / Result Contracts (終始永續矩陣)
 // ═══════════════════════════════════════════════════════════════
 
 export type OmniKind = 'component' | 'note' | 'task' | 'fn' | 'case';
@@ -316,7 +316,7 @@ export interface FunctionMeta {
 /**
  * 動態函數庫的儲存簽章。參數使用 any[] 是刻意的邊界：
  * 函數庫本質上是動態的，對外的型別安全由 omniFn.call 的回傳 unknown
- * 與各功能頁面自身的型別斷言來保證（終始矩陣）。
+ * 與各功能頁面自身的型別斷言來保證（終始永續矩陣）。
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FnImpl = (...args: any[]) => unknown;
