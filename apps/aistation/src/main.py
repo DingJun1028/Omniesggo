@@ -3,14 +3,14 @@
 # Powered by OA-Team 30 Soul Canon v0.5
 
 import asyncio
-import datetime
+from datetime import datetime
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
-from parsers.dna_parser import parse_script_dna
+from parsers.dna_parser import parse_script_dna, generate_subtitles
 from synthesizers.speech import synthesize_speech
 from visuals.image_gen import generate_visuals
 from renderers.video import render_video
