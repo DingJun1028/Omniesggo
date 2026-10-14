@@ -269,7 +269,8 @@ render.yaml
 Projectesggo.gcp-sa-key-b64.txt
 
 # Supabase (local)
-supabase/
+supabase/*
+!apps/learning-center/supabase/schema.sql
 
 # GitHub workflows
 

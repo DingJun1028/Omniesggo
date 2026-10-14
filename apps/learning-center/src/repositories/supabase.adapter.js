@@ -5,7 +5,7 @@
  * 1) 健康檢查
  * 2) 可選的远端讀取摘要
  *
- * 本檔案刻意不碰 Firebase/Firestore 主流程，也不直接寫入，
+ * 本檔案刻意不碰主要資料流程，也不直接寫入，
  * 避免與現有 pairing/submission/profile 行為互相干擾。
  */
 
