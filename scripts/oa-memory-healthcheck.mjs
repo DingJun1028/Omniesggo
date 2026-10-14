@@ -178,8 +178,10 @@ async function main() {
 
   const w2 = await withTimeout(capture(sid, 'Bee-03 分析蜂', 'healthcheck recall probe'), TIMEOUT_MS, 'w2').catch((e) => ({ ok: false, code: e.message }));
 
+  // /capture 回傳格式: { status:'captured', l0_ids:[...] }。
+  // 過去把 w2 判成要 .results[]（那是 /search 的回應格式）→ 永遠 FAIL → 假告警。
   const w1Ok = !!w1.ok && (Array.isArray(w1.l0_ids) ? w1.l0_ids.length > 0 : false);
-  const w2Ok = !!w2.ok && (Array.isArray(w2.results) ? w2.results.length > 0 : false);
+  const w2Ok = !!w2.ok && (Array.isArray(w2.l0_ids) ? w2.l0_ids.length > 0 : false);
   const writesOk = (w1Ok ? 1 : 0) + (w2Ok ? 1 : 0);
 
   checks.push(['Bee-07 寫入', w1Ok, JSON.stringify(w1)]);
