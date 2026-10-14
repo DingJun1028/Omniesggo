@@ -1,6 +1,6 @@
 ---
 name: global-healing
-description: 全域痊癒 (Global Healing) - Enforces the ESG GO project standards: English Standard (英標繁博), End-to-End Matrix (終始矩陣), Full-stack Bidirectional TypeScript, Next.js, and Global UIUX with Google Stitch. Apply globally to ensure "Global Healing" (consistency and quality) across all workspaces.
+description: 全域痊癒 (Global Healing) - Enforces the ESG GO project standards: English Standard (英標繁博), End-to-End Matrix (終始永續矩陣), Full-stack Bidirectional TypeScript, Next.js, and Global UIUX with Google Stitch. Apply globally to ensure "Global Healing" (consistency and quality) across all workspaces.
 uuid: "de51276f-bfc5-4c3e-86ae-3cf86a8d29dc"
 version: "1.0.0"
 timestamp: 1780748189000
@@ -22,7 +22,7 @@ project.
   - Standard documentation and code naming in English.
   - User-facing content in Traditional Chinese with high-quality, professional
     phrasing.
-- **終始矩陣 (End-to-End Matrix)**:
+- **終始永續矩陣 (End-to-End Matrix)**:
   - Architecture should follow a matrix structure from data source to
     client-side rendering.
   - Consistent data flow patterns.
