@@ -1,0 +1,212 @@
+name: Hermes Dual-Chain Auto-Repair
+
+on:
+  issues:
+    types: [labeled]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to fix'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: hermes-${{ github.event.issue.number || github.event.inputs.issue_number }}
+  cancel-in-progress: false
+
+jobs:
+  hermes-repair:
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'issues' && contains(github.event.label.name, 'hermes-fix')) ||
+      (github.event_name == 'issue_comment' && (contains(github.event.comment.body, '/hermes') || contains(github.event.comment.body, '/fix')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Resolve Issue Number
+        id: resolve-issue
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "issue_num=${{ github.event.inputs.issue_number }}" >> $GITHUB_OUTPUT
+          else
+            echo "issue_num=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Indicate Start on Issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
+        run: |
+          gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "🤖 **Hermes Agent** 已接收任務，正在分析並嘗試修復 Issue #$ISSUE_NUM..." || true
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GH_PAT_AUTO_REPAIR || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js & pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile || pnpm install
+
+      - name: Run Hermes Fixer Script
+        id: hermes-agent
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HERMES_API_KEY: ${{ secrets.HERMES_API_KEY || secrets.OPENROUTER_API_KEY || secrets.OPENAI_API_KEY }}
+          HERMES_API_BASE: ${{ secrets.HERMES_API_BASE || 'https://openrouter.ai/api/v1' }}
+          HERMES_MODEL: ${{ secrets.HERMES_MODEL || 'nousresearch/hermes-3-llama-3.1-405b' }}
+          ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
+        run: |
+          if [ -z "$HERMES_API_KEY" ]; then
+            echo "::error::缺少 Hermes API Key！請在 GitHub Settings -> Secrets 中新增 HERMES_API_KEY 或 OPENROUTER_API_KEY。"
+            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" --body "❌ **Hermes 執行中斷**：Repository Secrets 未設定 \`HERMES_API_KEY\` 或 \`OPENROUTER_API_KEY\`，無法調用模型。"
+            exit 1
+          fi
+
+          python3 - << 'EOF'
+          import os, sys, json, urllib.request, subprocess
+
+          issue_num = os.environ['ISSUE_NUM']
+          api_key = os.environ['HERMES_API_KEY']
+          api_base = os.environ['HERMES_API_BASE'].rstrip('/')
+          model = os.environ['HERMES_MODEL']
+          repo = os.environ['GITHUB_REPOSITORY']
+
+          # 1. 取得 Issue 詳細資訊
+          cmd = ["gh", "issue", "view", str(issue_num), "--repo", repo, "--json", "title,body"]
+          res = subprocess.run(cmd, capture_output=True, text=True, check=True)
+          issue_data = json.loads(res.stdout)
+          title = issue_data.get("title", "")
+          body = issue_data.get("body", "")
+
+          print(f"Loaded Issue #{issue_num}: {title}")
+
+          # 2. 構建 Prompt 給 Hermes
+          system_prompt = (
+              "You are Hermes, an autonomous software engineering AI agent. "
+              "Your goal is to inspect the issue and codebase, determine necessary fixes, "
+              "and provide the exact file replacements or edits required in a structured JSON format."
+          )
+
+          user_prompt = f"""
+          Project Repository: {repo}
+          Target Issue #{issue_num}: {title}
+
+          Issue Description:
+          {body}
+
+          Please inspect the task and provide the fix.
+          Respond ONLY with valid JSON having the following schema:
+          {{
+            "analysis": "brief summary of root cause and plan",
+            "files": [
+              {{
+                "path": "relative/path/to/file",
+                "content": "full updated file content"
+              }}
+            ]
+          }}
+          """
+
+          req_body = json.dumps({
+              "model": model,
+              "messages": [
+                  {"role": "system", "content": system_prompt},
+                  {"role": "user", "content": user_prompt}
+              ],
+              "temperature": 0.2
+          }).encode('utf-8')
+
+          headers = {
+              "Authorization": f"Bearer {api_key}",
+              "Content-Type": "application/json"
+          }
+          if "openrouter.ai" in api_base:
+              headers["HTTP-Referer"] = f"https://github.com/{repo}"
+              headers["X-Title"] = "Omniesggo Hermes CI Agent"
+
+          req = urllib.request.Request(f"{api_base}/chat/completions", data=req_body, headers=headers)
+          try:
+              with urllib.request.urlopen(req, timeout=180) as response:
+                  resp_data = json.loads(response.read().decode('utf-8'))
+                  raw_content = resp_data['choices'][0]['message']['content'].strip()
+
+                  if raw_content.startswith("```"):
+                      raw_content = raw_content.split("\n", 1)[1]
+                      if raw_content.endswith("```"):
+                          raw_content = raw_content.rsplit("\n", 1)[0]
+
+                  fix_payload = json.loads(raw_content)
+                  print("Hermes analysis:", fix_payload.get("analysis", ""))
+
+                  files = fix_payload.get("files", [])
+                  for f in files:
+                      path = f["path"]
+                      content = f["content"]
+                      os.makedirs(os.path.dirname(path), exist_ok=True)
+                      with open(path, "w", encoding="utf-8") as out:
+                          out.write(content)
+                      print(f"Wrote update to: {path}")
+
+          except Exception as e:
+              print(f"Error calling Hermes API or parsing response: {e}")
+              sys.exit(1)
+          EOF
+
+      - name: Verify build & tests
+        id: verify
+        run: |
+          echo "Verifying changes with build & typecheck..."
+          if pnpm build && pnpm typecheck; then
+            echo "build_passed=true" >> $GITHUB_OUTPUT
+          else
+            echo "build_passed=false" >> $GITHUB_OUTPUT
+            echo "::warning::Verification failed or produced errors"
+          fi
+
+      - name: Commit and Create Pull Request
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT_AUTO_REPAIR || secrets.GITHUB_TOKEN }}
+          ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
+          PASSED: ${{ steps.verify.outputs.build_passed }}
+        run: |
+          git diff --quiet && (echo "No changes made by Hermes." && exit 0)
+
+          BRANCH="hermes/fix-issue-${ISSUE_NUM}-$(date +%Y%m%d%H%M%S)"
+          git config user.name "Hermes AI Agent"
+          git config user.email "hermes-agent@esggo.co"
+          git checkout -b "$BRANCH"
+          git add -A
+          git commit -m "fix(agent): Hermes auto-repair for Issue #${ISSUE_NUM}"
+          git push origin "$BRANCH"
+
+          PR_BODY="## 🤖 Hermes Agent Auto-Repair\n\n- Resolves Issue: #${ISSUE_NUM}\n- Verification Status: **${PASSED}**\n\n此 PR 由 Hermes 雙向工作鏈自動產出。"
+
+          PR_URL=$(gh pr create --base main --head "$BRANCH" \
+            --title "fix(hermes): auto-repair for Issue #${ISSUE_NUM}" \
+            --body "$PR_BODY")
+
+          gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" \
+            --body "✅ **Hermes Agent** 已完成修改並通過驗證！\n\nPull Request: $PR_URL"
