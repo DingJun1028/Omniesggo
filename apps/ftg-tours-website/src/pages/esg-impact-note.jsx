@@ -23,8 +23,8 @@ export default function EsgImpactNote() {
           <h2 className="text-3xl font-bold text-ftg-forest mb-12 text-center">報告內容</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: '📊', title: '數據分析', desc: '參與人次、碳足跡、廢棄物量化' },
-              { icon: '🌱', title: '環境貢獻', desc: '生態復育、碳抵銷、水資源' },
+              { icon: '<FTGIcon name="chart" size=20 />', title: '數據分析', desc: '參與人次、碳足跡、廢棄物量化' },
+              { icon: '<FTGIcon name="leaf" size=20 />', title: '環境貢獻', desc: '生態復育、碳抵銷、水資源' },
               { icon: '💬', title: '參與者回饋', desc: '滿意度、心得、行為改變' },
               { icon: '📋', title: 'GRI/SASB 對應', desc: '國際框架指標揭露' },
               { icon: '📄', title: 'PDF/PPT 匯出', desc: '一键產出專業報告' },

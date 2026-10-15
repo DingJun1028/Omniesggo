@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import ContactSection from '../components/ContactSection';
+import { FTGIcon } from '../components';
+
 
 export default function JourneyApp() {
   return (
@@ -34,10 +36,10 @@ export default function JourneyApp() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { icon: '📋', title: '安全檢查清單', desc: '裝備、健康、天氣、安全須知，出團前全方位確認' },
-              { icon: '🌱', title: 'ESG 任務追蹤', desc: 'Clean-up Walk、碳足跡、生態觀察、地方支持、水資源、廢棄物減量' },
-              { icon: '📊', title: 'Impact Note 報告', desc: '自動產出 ESG 報告，支援 GRI/SASB 框架、PDF 匯出' },
-              { icon: '👨‍👩‍👧', title: '親子任務卡', desc: '自然賓果、拍照挑戰、尋寶遊戲、手作體驗、在地美食' },
-              { icon: '🧘', title: '身心健康追蹤', desc: '正念練習、運動負荷分級、數位排毒、30-day follow-up' },
+              { icon: '<FTGIcon name="leaf" size=20 />', title: 'ESG 任務追蹤', desc: 'Clean-up Walk、碳足跡、生態觀察、地方支持、水資源、廢棄物減量' },
+              { icon: '<FTGIcon name="chart" size=20 />', title: 'Impact Note 報告', desc: '自動產出 ESG 報告，支援 GRI/SASB 框架、PDF 匯出' },
+              { icon: '<FTGIcon name="users" size=20 />', title: '親子任務卡', desc: '自然賓果、拍照挑戰、尋寶遊戲、手作體驗、在地美食' },
+              { icon: '<FTGIcon name="meditation" size=20 />', title: '身心健康追蹤', desc: '正念練習、運動負荷分級、數位排毒、30-day follow-up' },
               { icon: '🗺️', title: '共識營工具', desc: 'Opportunity Map 畫布、3 年 Roadmap、共識記錄' },
             ].map((f, i) => (
               <div key={i} className="card-elevated">

@@ -28,7 +28,7 @@ export default function FamilyDay() {
               { icon: '🎨', title: '手作工作坊', desc: '在地素材手作、環保藝術創作' },
               { icon: '🏃', title: '健康活動', desc: '親子運動、趣味競賽、大地遊戲' },
               { icon: '🍽️', title: '在地餐食', desc: '支持在地小農、低碳飲食體驗' },
-              { icon: '📸', title: '回憶紀錄', desc: '專業攝影、家庭合照、紀念品' },
+              { icon: '<FTGIcon name="camera" size=20 />', title: '回憶紀錄', desc: '專業攝影、家庭合照、紀念品' },
               { icon: '🎪', title: '客製化設計', desc: '依據年齡層與需求量身規劃' },
             ].map((f, i) => (
               <div key={i} className="card-elevated">

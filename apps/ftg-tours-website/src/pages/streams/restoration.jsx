@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 const STREAM = {
-  icon: '🌲',
+  icon: '<FTGIcon name="tree" size=20 />',
   name: '復元流',
   en: 'Restoration',
   tagline: '身心在高壓後恢復',
