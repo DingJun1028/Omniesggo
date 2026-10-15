@@ -15,13 +15,15 @@ def render_video(audio_path: str, visuals: list, subtitles: str) -> str:
     video_id = Path(audio_path).stem
     output_path = Path(f"storage/output/{video_id}.mp4")
     
-    # FFmpeg command (simplified placeholder)
-    # Full implementation would combine audio + visuals + subtitles
+    # FFmpeg command: explicit codec selection so subtitle filter + x264
+    # always produce a valid mp4 (plus AAC audio, shortest trim).
     ffmpeg_cmd = [
         "ffmpeg", "-y",
         "-f", "lavfi", "-i", "color=c=blue:s=1280x720:d=5",
         "-i", audio_path,
         "-vf", f"subtitles={subtitle_file}",
+        "-c:v", "libx264", "-preset", "fast", "-crf", "23",
+        "-c:a", "aac", "-shortest",
         str(output_path)
     ]
     

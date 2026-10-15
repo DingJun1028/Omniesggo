@@ -1,6 +1,8 @@
 # source_origin: AI Station §9 - Module 3 Audio Layer
+
 """Speech Synthesizer with free/local default (edge-tts) + ImportError fallback."""
 import asyncio
+import subprocess
 import uuid
 from pathlib import Path
 
@@ -18,9 +20,18 @@ async def synthesize_tts_async(text: str, voice: str = DEFAULT_VOICE) -> str:
     try:
         import edge_tts
     except ImportError:
-        # Free fallback: edge-tts unavailable -> placeholder .mp3 so the
-        # .mp3 contract still holds (no external dependency required).
-        out_file.write_text(f"[TTS PLACEHOLDER] voice={voice}\n{text}")
+        # Free fallback: edge-tts unavailable -> silent 1s mp3 so the
+        # .mp3 contract holds and ffmpeg can render real output.
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+                "-f", "lavfi", "-i", "anullsrc=cl=stereo:r=22050",
+                "-t", "1", "-ac", "1", "-ar", "22050",
+                str(out_file),
+            ],
+            check=True,
+            capture_output=True,
+        )
         return str(out_file.absolute())
 
     try:
@@ -28,7 +39,16 @@ async def synthesize_tts_async(text: str, voice: str = DEFAULT_VOICE) -> str:
         await communicate.save(str(out_file))
     except Exception:
         # Network/synthesis failure -> still honor the .mp3 contract.
-        out_file.write_text(f"[TTS PLACEHOLDER] voice={voice}\n{text}")
+        subprocess.run(
+            [
+                "ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
+                "-f", "lavfi", "-i", "anullsrc=cl=stereo:r=22050",
+                "-t", "1", "-ac", "1", "-ar", "22050",
+                str(out_file),
+            ],
+            check=True,
+            capture_output=True,
+        )
 
     return str(out_file.absolute())
 
