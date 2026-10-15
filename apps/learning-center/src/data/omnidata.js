@@ -2,8 +2,8 @@
 // src/data/omnidata.js — User RAG 知識庫（OmniData）
 // ============================================================
 // 用途：
-//   以 Firestore 當作知識庫索引，前端可依使用者/角色檢索相關條目。
-//   若未連線 Firebase，則退回本機靜態種子資料，保證可用。
+//   以雲端知識庫索引（Supabase），前端可依使用者/角色檢索相關條目。
+//   若未連線雲端，則退回本機靜態種子資料，保證可用。
 
 /** @typedef {{ id: string, title: string, body: string, tags: string[], roles: string[], updatedAt: string }} OmniEntry */
 

@@ -13,6 +13,11 @@ export const OMNITAG_DIMENSIONS = {
   priority: ['p0', 'p1', 'p2', 'p3'],
   platform: ['esggo', 'omni', 'vps', 'firebase', 'vercel', 'github', 'cloudflare', 'ncb', 'hermes', 'ncndb'],
   'best-practice': ['awakened', '结界', 'draft'],
+  // Superpowers 7 階段融合的 tag 維度 (key=id, value=superpowers:<id>)
+  superpowers: [
+    'brainstorming', 'worktrees', 'plans', 'subagent', 'tdd', 'codereview', 'finish5t',
+    'version', 'closedloop', 'formulation', 'branch', 'daemon',
+  ],
 };
 
 // 路由優先級 (從高到低)

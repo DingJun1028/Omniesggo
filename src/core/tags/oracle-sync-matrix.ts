@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // ============================================================
-// Oracle 雙向同步協調器 — 終始矩陣 / hydration / 定時對帳
+// Oracle 雙向同步協調器 — 終始永續矩陣 / hydration / 定時對帳
 // src/core/tags/oracle-sync-matrix.ts
 // ============================================================
 // 全域全端全量雙向同步的協調層：

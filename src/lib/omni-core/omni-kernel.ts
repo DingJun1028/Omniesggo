@@ -50,6 +50,11 @@ export const OMNI_TOPICS = {
   OMNI_ONE_CASE_ROUTED:  'omni:one:case_routed',
   OMNI_ONE_RESULT:       'omni:one:result',
   OMNI_ONE_LEARNED:      'omni:one:learned',
+  // Knowledge Base
+  KB_REGISTERED:           'omni:kb:registered',
+  KB_SYNCED:               'omni:kb:synced',
+  KB_SEALED:               'omni:kb:sealed',
+  KB_VERIFIED:             'omni:kb:verified',
   // System
   FIVE_T_GATE_PASSED:    'omni:fiveT:gate_passed',
   ENTROPY_REDUCED:       'omni:entropy:reduced',

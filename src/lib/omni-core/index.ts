@@ -7,3 +7,4 @@ export * from './types';
 export * from './omni-kernel';
 export * from './omni-note';
 export * from './omni-function';
+export * from './knowledge-base-registry';

@@ -134,3 +134,104 @@
 
 ---
 <sub>代辦清單 v2026-10-11r4 | 無作妙德・圓通無礙 [best-practice:awakened]</sub>
+
+## 2026-10-13 01:20 — PR #1398 合併 feature→main + CI Green Gate 自我死鎖根因消除
+
+**已結案**:
+- PR #1398 squash 合併 main `4fcff9ba9`（52 commits: OmniLive r6.1+VoxSpica+安全橫掃+STT 切換+xlsx 遷移）, 雙 remote 同步
+- 合併前解 4 衝突全取 feature 側（omnilive index/floating r5→r6.1、TODO 賬簿 add/add、vault 5T-Canon-Daily）
+- **CI Green Gate 自我輪询死鎖根因消除**（`074e3870f`）:
+  - 症狀: gate 每輪判定「1 check 未跑完」等到 600s 逾時紅燈, 其餘 25 筆全 completed
+  - 根因: ci-gate.sh 輪询 check-runs 未排除自己 — 自身 in_progress check-run 永遠計入 PENDING
+  - 修復: GREEN_GATE_SELF 環變數排除同名 check-run（ci-gate.sh+ci-green-gate.yml, 6 行）
+  - 驗證: 自我排除後 gate 只等真 pending（Docker Build Test）; 收斂後重跑 gate **真全綠 ✅**
+  - 教訓: 排隊型 check（Docker Build ARM64 ~11min）可超 600s 上限 → 二次重跑即綠
+- 亂碼根因（同步根除）: PS5.1 native 重導向轉 UTF-16LE → 落檔一律 cmd /c 內側重導向; 已寫入 encoding-forensics 技能第七奧義
+- Dependabot 28 open: 合併後等待 default branch 重掃自動關閉（vitest×2=override 誤報、handlebars 舊 lock 條目待重掃）
+
+[best-practice:awakened]
+
+## 2026-10-13 01:40 — vitest manifest 誤報根治（Dependabot 8→預期5）
+
+**已結案**:
+- vitest spec 對齊 override 實值 ^4.1.11（tpx/oneringai package.json, `93c4e8ce3`→main `06a8afd3f` 雙 remote）
+- 根因: spec ^2.x 與 workspace override (>=4.1.11 <5) 不一致 → Dependabot 掃 manifest 誤報 CVE-2026-47429(critical×2)/84373(medium)
+- 實裝/實跑皆 4.1.11: tpx 3/3 + oneringai 55/55 全綠
+- 剩餘 open 5 筆全為已接受風險: braces/http-cache-semantics(high, 上游未修) + postcss-selector-parser×2(medium, 需跨 major 專項) + sprintf-js(medium, 上游未修)
+- pnpm-lock.yaml 無 diff（tpx/oneringai 非 workspace 成員, 不進根 lockfile）
+
+**Dependabot 全線戰果**: 29（起點）→ 28（合併前）→ 8（main 重掃自動關 20）→ 預期 5（vitest 3 筆待重掃關閉）
+
+[best-practice:awakened]
+
+---
+
+## 2026-10-13 Sprint A「HTB 止血三件套」（open→已結案，`b507805b0` 雙 remote）
+
+**已結案**:
+- A1 HTB: 表單 alert() 丟線索→POST /api/contact（蜜罐/載入/成功/錯誤+role 預選 from query）；router 5→24 路由+NotFound catch-all+Privacy 新頁+Footer/Head 錨點修
+- A2 Worker v2 上線: 雙 route（ftgtours+htb-b2b 同源）、Origin 白名單、蜜罐、reCAPTCHA 服務端、Resend 通知、每 IP 配額；D1 無 site 欄位自動降級（線上 insert id:12 驗證）；mock+線上 smoke 9/9
+- A3 Journey: 拔 google-auth-library→Email OTP（Resend, hash+單次+10min）；systemd ftg-journey.service 改指 /var/www/ftg-journey-server（根因=systemd 舊碼 /opt/ftg-journey 佔 8787 導 EADDRINUSE 迴圈）；線上 request-code {"ok":true}；前端去 Google 按鈕+舊 SW 卸載 sw.js 已上 VPS
+- Cloudflare 取代 Vercel: htb-b2b 繼承上 Pages（htb-b2b.esggo.co active, DNS CNAME+domain attach）；vercel.json 刪
+- 根治: Tailwind v4 未接通（postcss 缺 plugin→CSS 2.17KB 補 @tailwindcss/vite→32KB）；apps/omnlive 包名重複改 omnlive-legacy（npx EDUPLICATEWORKSPACE 炸源）；PS 重導向規則已入 encoding-forensics 第七奧義
+
+**遺留（user 行動項）**:
+- Zero Trust Access 牆蓋 htb-b2b.esggo.co（omniesggo org，token 無 Access 權限看不到 app）→ 後台刪除該 app 或給 Access:Edit token
+- D1 migration `worker/migrations/0001_add_site.sql` 待有 D1 權限 token 執行（現行降級可運作）
+- Resend: ftgtours.esggo.co/ftg.com.tw 未驗證；journey from 已用 journey@esggo.co
+
+[best-practice:awakened]
+
+---
+
+## 2026-10-13 VPS 磁碟清瘀 26G + JunAiKey writeSkills 根因修復
+
+**已結案**:
+- VPS 磁碟 96.59%→**64%**（釋放 ~26G、剩 37G）: 孤兒 containerd 快照 15G（VoiceTyper 工作區 leak 三份; 全 pid mountinfo 掃描+雙 dev image probe 零引用+本機 C:\Project 有副本）+ pnpm store prune 3G + dangling volumes 0.9G + `/opt/s2s_venv` 5.9G（systemd/cron/history 零引用）+ `.venv-oci*` 778M + journal/apt 快取；清理後 20 容器全 Up、無 unhealthy
+- JunAiKey NCB 技能表 42 名×11 份=402 列根因: `writeSkills` 舊版 delete-all（`_deleteAll` best-effort 靜默失敗）+整表 reinsert → 每次全表 append 翻倍；`dedup` 回收 360 重複列至 42
+- **`vps/junaikey/backends/ncb.mjs` writeSkills 改寫 upsert-by-name**: 逐筆比對 body/traits/level 相同即跳過、僅 PUT 變更列、刪孤兒/重複列；tag/promote 實測不再翻倍；doctor（local available + ncb healthy）
+- 超能力覺醒四技能入 NCB 主庫: `superpowers`（自動施放元路由器）/ `oa-team-swarm-ultra` / `universal-automation-ultra` / `best-practice-awakening` 皆 **L4 + auto-cast:ultra + lifecycle:active**（命中條件自動載入）；OpenCode `junaikey` 技能檔已建（重啟生效）；永憶 143(disk)/144(fix)
+
+**狀態掃描**: Dependabot 5 open（達預期）| CI main 全綠 | Access 牆仍 302 待拆 | postcss-selector-parser 跨 major 留待（Tailwind v4 生產鏈風險）
+
+[best-practice:awakened]
+
+---
+
+## 2026-10-13 Omniesggo mirror 漏洞清掃 11→5（與 esggo 對齊）
+
+**已結案**:
+- 根因: Dependabot 告警狀態 per-repo——兩倉 main 同 SHA（`06a8afd3f`）、dependabot.yml 同檔，但 esggo 的撤銷記錄不會同步到 mirror
+- 撤銷 6 筆（PATCH dismissed/tolerable_risk＋mirror 同步註記）: chromadb×4（`oa-team-crewai/uv.lock`, 同步 esggo 2026-08 決策）+ fflate（root lock, 同步 esggo auto_dismiss）+ braces（`apps/learning-center/pnpm-lock.yaml`, 同步 esggo auto_dismiss）
+- 結果: Omniesggo open 11→**5**、esggo 5，兩倉告警面完全對齊（braces/http-cache-semantics/postcss-selector-parser×2/sprintf-js 為已接受風險）
+- API 教訓: Update Dependabot alert = **PATCH**（PUT 404）+ 欄位 `dismissed_reason`/`dismissed_comment`（非 dismissal_*）+ `state=all` 回空陣列（要用 open/closed 分查）；PS 引號地雷: gh --jq 內嵌引號走 cmd /c 重導向＋node 解析
+
+[best-practice:awakened]
+
+---
+
+## 2026-10-13 最佳實踐覺 Checklist ＋ 亂碼根果消除 ＋ vitest 五檔紅燈根因修復
+
+**已結案**:
+- **亂碼根果消除**（encoding-forensics 第八奧義）: `curl|node`/`gh|node` JSON.parse 炸 `Unexpected token '﻿'` → 三分法取證（cmd 位元組重導向/spawn/PS 字串擷取全淨）證明 BOM 由 **PS 5.1 native pipe 寫入層注入**（`EF BB BF`，執行期設無 BOM 無效、cmd more 中轉救不了）；repo 掃描無 UTF-16 BOM 檔、無 U+FFFD 未受污染；第八奧義入正本技能檔＋三 user 級 symlink（.hermes/.omh/.agents）自動共享
+- **技能共享**: repo `.agents/skills/encoding-forensics/SKILL.md` 實體入倉 `0c3c164b6`（git 分發全體 repo 代理；user 級 `.agents\skills` 補建 symlink）
+- **vitest 5 檔紅燈根因**: `pnpm vitest run` 掃到 `apps/omnlive/test/*.test.mjs`（node:test 撰寫）→ `No test suite found` ×5。根因＝exclude 只擋 `apps/omnilive` 漏擋 legacy 副本 `apps/omnlive`（包名 omnlive-legacy，兩目錄 test 內容 diff 為空、f9e7199f6 樹還原後並存 HEAD）。修復＝補 `'apps/omnlive/test/**'`＋根因註解
+- **Checklist 全綠**: lint(celestial-gate 通過/0 error) + typecheck + vitest(95 passed/4 skipped, 1059 tests) + 反查覆蓋不減（omnilive 43/0、omnlive-legacy 43/0，node:test 各 1 skipped）+ entropy 門檻過 → `[best-practice:awakened]`
+- **共享拓撲事實**: encoding-forensics 正本在 `.opencode\skills`，.hermes/.omh 為 symlink；repo `.agents\skills` 為實體檔（git 不放 symlink，Windows clone 會壞）→ 正本再改需同步 repo 版
+- 另: workdir 事實＝`C:\opt\esggo` 無 package.json，真倉 `C:\Project\esggo`
+
+[best-practice:awakened]
+
+---
+
+## 2026-10-13 JunAiKey Superpowers 7 階段融合（代另一邊完稿＋修 5 bug）
+
+**已結案**:
+- 另一邊 WIP 五件套（schema SUPERPOWERS_STAGES/TAGS＋tags.mjs superpowers 維度＋operations bootstrap/track/list/reset＋CLI 3 指令）接手完稿
+- **修 5 bug**: ①skipped 早退缺 stage 欄（另一邊被 old_string 多重匹配卡住的編輯）②CLI trackSuperPowersStage 漏 break（fall-through）③bootstrap 去重壞（r.stage 永 undefined→每次 awaken 重寫）④**NCB schema 限欄位**：直寫 stage/status 欄→400 Unknown column→統一 summary 前綴 `<stage>:<status>` 編碼＋`stageStatusOf()` 讀端還原（兩 backend 相容）⑤schema 註解 13→12
+- NCB 全鏈路實測: awaken 去重（`already bootstrapped (stage=brainstorming)`）／track 單 JSON 無 fall-through／list 由 summary 還原 stage/status/stageOrder（_ncbId:153）／node --check 三檔過
+- 技能檔 `~/.opencode/skills/junaikey/SKILL.md` v1.1 同步（中午版被另一邊覆寫流失後重補）＋補建 `.hermes`/`.omh`/`.agents` 三 symlink（此前 junaikey 無任何跨代理共享）
+- API 教訓: NCB create 全欄位透傳（toNCBPayload 無白名單）→ 未知欄位 400；appendJournal 在 NCB 端 best-effort 靜默吞錯
+- 追加: `SUPERPOWERS_VERSION` 1.0.0→**1.1.0**（備份 `_backup-20261013/schema.mjs.bak`→原地改→較差 1 行 diff，node --check 過）；技能檔 v1.1 磁碟/repo 皆完好，另一邊貼文為舊快照已附 4 點差量
+
+[best-practice:awakened]
