@@ -146,7 +146,8 @@ jobs:
             "files": [
               {{
                 "path": "relative/path/to/file",
-                "content": "full updated file content"
+                "content": "full updated file content or null if deleting",
+                "delete": false
               }}
             ]
           }}
@@ -185,9 +186,18 @@ jobs:
 
                   files = fix_payload.get("files", [])
                   for f in files:
-                      path = f["path"]
-                      content = f["content"]
-                      os.makedirs(os.path.dirname(path), exist_ok=True)
+                      path = f.get("path", "").strip()
+                      if not path:
+                          continue
+                      content = f.get("content")
+                      if content is None or f.get("delete"):
+                          if os.path.exists(path):
+                              os.remove(path)
+                              print(f"Deleted file: {path}")
+                          continue
+                      dirname = os.path.dirname(path)
+                      if dirname:
+                          os.makedirs(dirname, exist_ok=True)
                       with open(path, "w", encoding="utf-8") as out:
                           out.write(content)
                       print(f"Wrote update to: {path}")
