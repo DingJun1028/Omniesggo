@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "C:\Project\esggo\apps\aistation\samples_make_samples.py", line 68, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "C:\Project\esggo\apps\aistation\samples_make_samples.py", line 36, in main
+    result = produce_pipeline(
+        script=script,
+    ...<2 lines>...
+        video_id=f"aistation_3sample_{index}",
+    )
+  File "C:\Project\esggo\apps\aistation\src\main.py", line 82, in produce_pipeline
+    video_path = render_video(audio_path, visuals, subtitles)
+  File "C:\Project\esggo\apps\aistation\src\renderers\video.py", line 21, in render_video
+    output_path = str(output_path).as_posix()
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'as_posix'

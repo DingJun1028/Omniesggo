@@ -14,7 +14,12 @@ def render_video(audio_path: str, visuals: list, subtitles: str) -> str:
     # Generate video path
     video_id = Path(audio_path).stem
     output_path = Path(f"storage/output/{video_id}.mp4")
-    
+
+    # Normalize paths to forward slashes for ffmpeg filter/pipeline compatibility
+    audio_path = str(Path(audio_path).as_posix())
+    subtitle_file = Path(subtitle_file).as_posix()
+    output_path = output_path.as_posix()
+
     # FFmpeg command: explicit codec selection so subtitle filter + x264
     # always produce a valid mp4 (plus AAC audio, shortest trim).
     ffmpeg_cmd = [
@@ -24,7 +29,7 @@ def render_video(audio_path: str, visuals: list, subtitles: str) -> str:
         "-vf", f"subtitles={subtitle_file}",
         "-c:v", "libx264", "-preset", "fast", "-crf", "23",
         "-c:a", "aac", "-shortest",
-        str(output_path)
+        output_path
     ]
     
     try:
