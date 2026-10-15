@@ -27,6 +27,17 @@ const JUNAKEY_HOME = process.env.JUNAKEY_HOME
   || path.join(os.homedir(), '.junaikey');
 const JUNAKEY_BACKEND = (process.env.JUNAKEY_BACKEND || 'auto').toLowerCase();
 
+// Load .env.local (same as junaikey-setup.mjs) so NCB env is visible to doctor/backend/awaken
+// and satisfies the 'doctor/backend/awaken must use the same env-file' rule.
+const envFile = process.env.JUNAKEY_ENV_FILE || path.join(process.cwd(), '.env.local');
+try {
+  const envText = await fs.readFile(envFile, 'utf8');
+  for (const line of envText.split('\n')) {
+    const m = line.match(/^\s*([A-Z][A-Z0-9_]*)\s*=\s*"?([^"\r]*)"?\s*$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2];
+  }
+} catch { /* .env.local optional */ }
+
 const PATHS = {
   home: JUNAKEY_HOME,
   skills: path.join(JUNAKEY_HOME, 'skills.md'),
@@ -38,10 +49,13 @@ const PATHS = {
 const NCB_TOKEN = process.env.NCBDB_API_TOKEN
   || process.env.NCB_API_KEY
   || process.env.NEXT_PUBLIC_NCB_API_KEY
+  || process.env.NCB_DB_TOKEN
+  || process.env.NCB_TOKEN
   || '';
 const NCB_PROJECT = process.env.NCBDB_PROJECT_ID
   || process.env.NCB_PROJECT_ID
   || process.env.NCB_DB_INSTANCE
+  || process.env.NCB_DB_PROJECT
   || '';
 const NCB_BASE = (process.env.NCBDB_BASE_URL
   || process.env.NCB_API_URL
@@ -111,7 +125,9 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
   node vps/junaikey.mjs lineage [--target=NAME] [--tag=TAG]      # 查血緣 (FR-05)
   node vps/junaikey.mjs promote <skill-name> <L2|L3|L4|L5>       # 提升沉澱層級 (F-04)
   node vps/junaikey.mjs sed-stats                                # L1-L5 統計 (OR-01)
-  node vps/junaikey.mjs auto-tag <text-or-file>                  # LLM 自動標籤 (FR-03)
+  node vps/junaikey.mjs auto-tag <text-or-file> [--model=X]       # LLM 自動標籤 (FR-03, 眾鑰之首自動接續)
+  node vps/junaikey.mjs model [--prefer=backend|model]            # 🔑 眾鑰之首: 權威模型解析
+  node vps/junaikey.mjs service [tts|visual|storage|llm] [--prefer=provider]  # 🔑 眾鑰之首: 服務權威解析
   node vps/junaikey.mjs home
   node vps/junaikey.mjs backend
   node vps/junaikey.mjs doctor`;
@@ -346,12 +362,16 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         break;
       }
       case 'auto-tag': {
-        const input = rest[0];
+        const input = rest.find(a => !a.startsWith('--'));
         if (!input) { console.log(usage); process.exit(1); }
+        let model = null;
+        for (const a of rest) {
+          if (a.startsWith('--model=')) model = a.slice(8);
+        }
         const fs = await import('node:fs/promises');
         let text = input;
         try { text = await fs.readFile(input, 'utf8'); } catch {}  // 若是檔案路徑就讀
-        const r = await ops.autoTagFromLLM(text, { maxTags: 5 });
+        const r = await ops.autoTagFromLLM(text, model ? { model } : { maxTags: 5 });
         console.log(JSON.stringify(r, null, 2));
         break;
       }
@@ -385,6 +405,38 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
       case 'resetSuperPowersStages': {
         const entry = await ops.resetSuperPowersStages();
         console.log(JSON.stringify(entry, null, 2));
+        break;
+      }
+      // ── 🔑 眾鑰之首 — 模型存取權威 (L3) ─────────────────────
+      // 當前模型不可用時,自動降級到免費備援鏈並顯示選定的權威模型。
+      case 'model': {
+        let preferred = null;
+        for (const a of rest) {
+          if (a.startsWith('--prefer=')) preferred = a.slice(9);
+        }
+        const r = await ops.resolveModel({ preferred });
+        console.log(JSON.stringify(r, null, 2));
+        break;
+      }
+      // ── 🔑 眾鑰之首 — 外部服務存取權威 (L3 泛化) ─────────────
+      // tts/visual/storage/llm 雲端金鑰不可用時自動接續免費模組。
+      case 'service': {
+        let preferred = null;
+        for (const a of rest) {
+          if (a.startsWith('--prefer=')) preferred = a.slice(9);
+        }
+        const name = rest.find(a => !a.startsWith('--'));
+        if (name) {
+          const r = await ops.resolveService(name, { preferred });
+          console.log(JSON.stringify(r, null, 2));
+        } else {
+          // 無名稱: 全服務總覽 (不寫記憶, 僅檢視)
+          const out = {};
+          for (const svc of ['tts', 'visual', 'storage', 'llm']) {
+            out[svc] = await ops.resolveService(svc, { preferred, remember: false });
+          }
+          console.log(JSON.stringify(out, null, 2));
+        }
         break;
       }
       default: console.log(usage); process.exit(cmd ? 1 : 0);

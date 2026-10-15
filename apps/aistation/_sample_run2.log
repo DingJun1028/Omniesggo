@@ -1,0 +1,94 @@
+Traceback (most recent call last):
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\edge_tts\communicate.py", line 566, in stream
+    async for message in self.__stream():
+        yield message
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\edge_tts\communicate.py", line 435, in __stream
+    ) as session, session.ws_connect(
+                  ~~~~~~~~~~~~~~~~~~^
+        f"{WSS_URL}&ConnectionId={connect_id()}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        ssl=ssl_ctx,
+        ^^^^^^^^^^^^
+    ) as websocket:
+    ^
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\aiohttp\client.py", line 1693, in __aenter__
+    self._resp: _RetType_co = await self._coro
+                              ^^^^^^^^^^^^^^^^
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\aiohttp\client.py", line 1266, in _ws_connect
+    raise WSServerHandshakeError(
+    ...<5 lines>...
+    )
+aiohttp.client_exceptions.WSServerHandshakeError: 403, message='Invalid response status', url='wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4&ConnectionId=2c5759876e4b4f23a1575f632e814f5c&Sec-MS-GEC=623BB581E7CC0671E0D782E061C6390F207B025F46ECED6D7F1322373F59C57F&Sec-MS-GEC-Version=1-143.0.3650.75'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Project\esggo\apps\aistation\src\synthesizers\speech.py", line 39, in synthesize_tts_async
+    await communicate.save(str(out_file))
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\edge_tts\communicate.py", line 590, in save
+    async for message in self.stream():
+    ...<7 lines>...
+            metadata.write("\n")
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\edge_tts\communicate.py", line 573, in stream
+    async for message in self.__stream():
+        yield message
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\edge_tts\communicate.py", line 435, in __stream
+    ) as session, session.ws_connect(
+                  ~~~~~~~~~~~~~~~~~~^
+        f"{WSS_URL}&ConnectionId={connect_id()}"
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        ssl=ssl_ctx,
+        ^^^^^^^^^^^^
+    ) as websocket:
+    ^
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\aiohttp\client.py", line 1693, in __aenter__
+    self._resp: _RetType_co = await self._coro
+                              ^^^^^^^^^^^^^^^^
+  File "C:\Users\dingj\AppData\Local\hermes\installs\93fbaa5b78fa38f7\environments\8559efc843fd4e088881846ad0f9c83d\venv\Lib\site-packages\aiohttp\client.py", line 1266, in _ws_connect
+    raise WSServerHandshakeError(
+    ...<5 lines>...
+    )
+aiohttp.client_exceptions.WSServerHandshakeError: 403, message='Invalid response status', url='wss://speech.platform.bing.com/consumer/speech/synthesize/readaloud/edge/v1?TrustedClientToken=6A5AA1D4EAFF4E9FB37E23D68491D6F4&ConnectionId=2e01390e69ab4050abeeed5ead620adb&Sec-MS-GEC=623BB581E7CC0671E0D782E061C6390F207B025F46ECED6D7F1322373F59C57F&Sec-MS-GEC-Version=1-143.0.3650.75'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Project\esggo\apps\aistation\samples_make_samples.py", line 68, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "C:\Project\esggo\apps\aistation\samples_make_samples.py", line 36, in main
+    result = produce_pipeline(
+        script=script,
+    ...<2 lines>...
+        video_id=f"aistation_3sample_{index}",
+    )
+  File "C:\Project\esggo\apps\aistation\src\main.py", line 75, in produce_pipeline
+    audio_path = synthesize_speech(script_content, voice)
+  File "C:\Project\esggo\apps\aistation\src\synthesizers\speech.py", line 58, in synthesize_tts
+    return asyncio.run(synthesize_tts_async(text, voice))
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dingj\AppData\Roaming\uv\python\cpython-3.14-windows-x86_64-none\Lib\asyncio\runners.py", line 205, in run
+    return runner.run(main)
+           ~~~~~~~~~~^^^^^^
+  File "C:\Users\dingj\AppData\Roaming\uv\python\cpython-3.14-windows-x86_64-none\Lib\asyncio\runners.py", line 128, in run
+    return self._loop.run_until_complete(task)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\Users\dingj\AppData\Roaming\uv\python\cpython-3.14-windows-x86_64-none\Lib\asyncio\base_events.py", line 720, in run_until_complete
+    return future.result()
+           ~~~~~~~~~~~~~^^
+  File "C:\Project\esggo\apps\aistation\src\synthesizers\speech.py", line 42, in synthesize_tts_async
+    subprocess.run(
+    ~~~~~~~~~~~~~~^
+        [
+        ^
+    ...<6 lines>...
+        capture_output=True,
+        ^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\dingj\AppData\Roaming\uv\python\cpython-3.14-windows-x86_64-none\Lib\subprocess.py", line 578, in run
+    raise CalledProcessError(retcode, process.args,
+                             output=stdout, stderr=stderr)
+subprocess.CalledProcessError: Command '['ffmpeg', '-y', '-hide_banner', '-loglevel', 'error', '-f', 'lavfi', '-i', 'anullsrc=cl=stereo:rate=22050', '-t', '1', '-ac', '1', '-ar', '22050', 'storage\\audio_e6237cf9.mp3']' returned non-zero exit status 2880417800.

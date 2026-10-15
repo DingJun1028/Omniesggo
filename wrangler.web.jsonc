@@ -10,4 +10,6 @@
       "id": "2f376dbffa554d3680c04cc936ace80c"
     }
   ]
+  // 公開域名 web.esggo.co 以 DNS CNAME → esggo-web...workers.dev（proxied）掛載，
+  // 不經 Cloudflare Access「All Workers」保護層（該層僅匹配 workers.dev hostname）。
 }

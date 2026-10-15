@@ -19,6 +19,12 @@
 //   1. 本地 ollama (qwen2.5:3b-64k)         — 預設, 零成本
 //   2. nous 免費雲端 (upstage/solar-mini4)  — config fallback_providers 已列
 //   3. stepfun 免費雲端 (step-5-preview)    — config fallback_providers 已列
+//   4. openrouter 免費模型 (nemotron-3-super)  — vault JUNAKEY_OPENROUTER_API_KEY (真實)
+// 金鑰名以 secret-vault 真實變數名為準 (2026-10-15 核實): vault 無 HERMES_NOUS/STEPFUN/OPENAI key,
+// 有 JUNAKEY_OPENROUTER_API_KEY — 無 key 的 backend 自動降級, 不猜。
+// ⚠ 2026-10-15 實測: openrouter key 有效 (GET /models 200, 462 模型) 但帳戶 ZDR 隱私政策
+//   擋下全部 :free 端點 (chat completion 13/13 404 ZDR) — key 存在 ≠ 模型可用
+//   (modelkey-cloud-key-presence-gap 教訓)。待帳戶開放 ZDR 端點或加付費額度後自動生效。
 // ============================================================
 import { withRetry } from './util.mjs';
 
@@ -33,10 +39,23 @@ export const DEFAULT_MODEL_CHAIN = [
   { backend: 'ollama', model: DEFAULT_FALLBACK_MODEL, kind: 'local', url: DEFAULT_OLLAMA_URL, num_ctx: 2048 },
   { backend: 'nous', model: 'upstage/solar-mini4:free', kind: 'cloud-free' },
   { backend: 'stepfun', model: 'stepfun/step-5-preview:free', kind: 'cloud-free' },
+  { backend: 'openrouter', model: 'nvidia/nemotron-3-super-120b-a12b:free', kind: 'cloud-key' }, // JUNAKEY_OPENROUTER_API_KEY (ZDR 擋下 :free 端點, 見檔頭註記)
 ];
 
+/** 已知 backend 名 — preferred 字串據此判斷是 backend 還是模型名 */
+const KNOWN_BACKENDS = new Set(['ollama', 'nous', 'stepfun', 'openai', 'openrouter']);
+
+/** 雲端 backend 預設模型名 — preferred 僅帶 backend 名 (無 model) 時的權威回填
+ *  模型 ID 一律來自 GET /v1/models 實測清單 (2026-10-15): 推測的 llama-3.3-70b:free 不存在 */
+const BACKEND_DEFAULT_MODELS = {
+  nous: 'upstage/solar-mini4:free',
+  stepfun: 'stepfun/step-5-preview:free',
+  openai: 'gpt-4o',
+  openrouter: 'nvidia/nemotron-3-super-120b-a12b:free',
+};
+
 /** 建眾鑰之首 model resolver。opts: { chain, ollamaUrl, timeoutMs, log } */
-export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = DEFAULT_OLLAMA_URL, timeoutMs = 5000, log = console.error } = {}) {
+export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = DEFAULT_OLLAMA_URL, timeoutMs = 30000, log = console.error } = {}) {
   if (!Array.isArray(chain) || chain.length === 0) {
     throw new Error('model-resolver: chain 不可為空');
   }
@@ -74,13 +93,17 @@ export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = D
       if (!gen || typeof gen.response !== 'string') throw new Error('ollama 回傳異常');
       return { ok: true, resolvedModel: hit, latencyMs: Date.now() - started };
     }
-    if (backend === 'nous' || backend === 'stepfun') {
-      // 雲端免費模組: 需 API key 才可驗證, 無 key 視為不可用 (不猜)
-      const keyEnv = backend === 'nous' ? 'HERMES_NOUS_API_KEY' : 'STEPFUN_API_KEY';
+    if (backend === 'nous' || backend === 'stepfun' || backend === 'openai' || backend === 'openrouter') {
+      // 雲端模組: 需 API key 才可驗證, 無 key 視為不可用 (不猜)
+      // keyEnv 以 secret-vault 真實變數名為準: openrouter → JUNAKEY_OPENROUTER_API_KEY (vault 有, 2026-10-15 核實)
+      const keyEnv = backend === 'nous' ? 'HERMES_NOUS_API_KEY'
+        : backend === 'stepfun' ? 'STEPFUN_API_KEY'
+        : backend === 'openrouter' ? 'JUNAKEY_OPENROUTER_API_KEY'
+        : 'OPENAI_API_KEY';
       const key = process.env[keyEnv];
       if (!key) throw new Error(`${backend} 無 API key (${keyEnv} 未設)`);
       // 不實際呼叫雲端 (避免費用/速率), 僅確認 key 存在
-      return { ok: true, resolvedModel: model, latencyMs: Date.now() - started, keyPresent: true };
+      return { ok: true, resolvedModel: model || BACKEND_DEFAULT_MODELS[backend] || backend, latencyMs: Date.now() - started, keyPresent: true };
     }
     throw new Error(`未知 backend: ${backend}`);
   }
@@ -90,7 +113,13 @@ export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = D
   async function resolve(preferred = null) {
     const candidates = [];
     if (preferred) {
-      const p = typeof preferred === 'string' ? { backend: preferred } : preferred;
+      // preferred 可為 backend 名 (ollama/nous/stepfun/openrouter) 或模型名 (qwen2.5:3b-64k)
+      // backend 名時繼承鏈上規格 (model/kind/url) — 否則 selectedModel 會是 undefined
+      const p = typeof preferred === 'string'
+        ? (KNOWN_BACKENDS.has(preferred)
+            ? { ...(chain.find(c => c.backend === preferred) || {}), backend: preferred }
+            : { backend: 'ollama', model: preferred })
+        : preferred;
       candidates.push({ ...p, url: p.url || ollamaUrl, kind: p.kind || 'preferred' });
     }
     for (const c of chain) {

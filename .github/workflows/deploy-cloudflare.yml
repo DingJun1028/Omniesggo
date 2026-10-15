@@ -37,7 +37,9 @@ jobs:
     env:
       # Cloudflare account（非機密；對應本機 wrangler whoami 登入帳戶）
       CLOUDFLARE_ACCOUNT_ID: d9d7ecd92cbad6d858fba3e529b9cb7b
-      DEPLOY_WORKER_URL: https://esggo-web.dingjunhong1028.workers.dev
+      # 公開網站域名（CF 取代 Vercel）：CNAME → esggo-web workers.dev（proxied），
+      # 不經 Cloudflare Access「All Workers」層（該層僅匹配 workers.dev hostname）。
+      DEPLOY_WORKER_URL: https://web.esggo.co
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,6 +62,38 @@ jobs:
           pnpm install --frozen-lockfile
           echo "[diag] install ok end=$(date -u +%FT%TZ)"
 
+      - name: Ensure public DNS + DATABASE_URL secret
+        timeout-minutes: 3
+        env:
+          CF_TOKEN: ${{ secrets.CF_DNS_EDIT_TOKEN }}
+          CF_ZONE: ${{ secrets.CF_ZONE_ID }}
+          WORKER_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          # 1) 確保 web.esggo.co CNAME 存在（冪等）
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ZONE" ]; then
+            existing=$(curl -sS -H "Authorization: Bearer $CF_TOKEN" \
+              "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records?name=web.esggo.co&type=CNAME")
+            if echo "$existing" | grep -q '"count":0\|"count": 0'; then
+              curl -sS -X POST -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+                --data '{"type":"CNAME","name":"web.esggo.co","content":"esggo-web.dingjunhong1028.workers.dev","proxied":true,"ttl":1}' \
+                "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records" | grep -q '"success":true\|"success": true' \
+                && echo "[diag] dns record created" || echo "::warning::dns record create failed (may already exist)"
+            else
+              echo "[diag] dns record already exists"
+            fi
+          else
+            echo "::warning::CF_DNS_EDIT_TOKEN/CF_ZONE_ID missing, skip dns ensure"
+          fi
+          # 2) 掛 worker secret DATABASE_URL（Prisma@Workers 用；冪等覆寫）
+          if [ -n "$SUPABASE_DATABASE_URL" ] && [ -n "$WORKER_TOKEN" ]; then
+            echo "$SUPABASE_DATABASE_URL" | npx wrangler secret put DATABASE_URL
+            echo "[diag] DATABASE_URL secret set"
+          else
+            echo "::error::SUPABASE_DATABASE_URL or worker token missing"
+            exit 1
+          fi
+
       - name: Deploy to Cloudflare Workers
         timeout-minutes: 9
         env:
@@ -80,15 +114,23 @@ jobs:
         timeout-minutes: 3
         run: |
           # 果因消除：部署宣告成功後必須實測端點，避免「綠燈但站掛」的靜默失敗。
+          # 嚴格化：Access 登入跳轉（cloudflareaccess.com）視同失敗——公開站不得被 Access 擋。
           for i in $(seq 1 6); do
-            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$DEPLOY_WORKER_URL/" || echo 000)
+            headers=$(curl -sSI --max-time 20 "$DEPLOY_WORKER_URL/" || true)
+            code=$(echo "$headers" | head -n1 | awk '{print $2}')
             echo "[diag] health attempt $i: $code at $(date -u +%FT%TZ)"
+            if echo "$headers" | grep -qi "cloudflareaccess.com"; then
+              echo "[diag] blocked by Cloudflare Access, retrying..."
+              sleep 10
+              continue
+            fi
             case "$code" in
-              2*|3*) echo "✅ worker reachable ($code)"; exit 0 ;;
+              2*) echo "✅ worker reachable ($code)"; exit 0 ;;
+              3*) echo "✅ worker reachable ($code)"; exit 0 ;;
             esac
             sleep 10
           done
-          echo "::error::worker endpoint not reachable: $DEPLOY_WORKER_URL"
+          echo "::error::worker endpoint not reachable (or Access-blocked): $DEPLOY_WORKER_URL"
           exit 1
 
       - name: Notify
