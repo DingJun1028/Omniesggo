@@ -9,9 +9,16 @@ name: OA-TWINS Auto-Repair
 
 on:
   workflow_run:
-    workflows: ["OmniCore CI", "ESG-GO CI/CD Pipeline", "Build & publish AI Station image"]
+    workflows:
+      - "5T OmniCore Hyper-Awakened CI/CD Gatekeeper"
+      - "🌌 ESG GO Sacred Pipeline (CI/CD)"
+      - "Build & publish AI Station image"
+      - "test"
+      - "TS Matrix 雙向驗證閘"
+      - "learning-center-ci"
     types: [completed]
     branches: [main, develop]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -29,7 +36,7 @@ jobs:
   # -- Error analysis with real CI logs
   analyze:
     name: Analyze CI Failure
-    if: github.event.workflow_run.conclusion == 'failure'
+    if: github.event.workflow_run.conclusion == 'failure' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     outputs:
@@ -49,7 +56,11 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const runId = ${{ github.event.workflow_run.id }};
+            const runId = github.event.workflow_run ? github.event.workflow_run.id : 0;
+            if (!runId) {
+              core.setOutput('failed_jobs', '[]');
+              return;
+            }
             const jobs = await github.rest.actions.listJobsForWorkflowRun({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -76,55 +87,48 @@ jobs:
           FAILED_JOBS='${{ steps.logs.outputs.failed_jobs }}'
           echo "Failed jobs: $FAILED_JOBS"
 
-          # Download log archives
-          mkdir -p /tmp/ci-logs
-          gh api "/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/logs" \
-            --output /tmp/ci-logs/run.zip 2>/dev/null || true
-          cd /tmp/ci-logs && unzip -o run.zip 2>/dev/null || true
+          RUN_ID="${{ github.event.workflow_run.id }}"
+          if [ -n "$RUN_ID" ] && [ "$RUN_ID" != "0" ]; then
+            mkdir -p /tmp/ci-logs
+            gh api "/repos/${{ github.repository }}/actions/runs/${RUN_ID}/logs" \
+              --output /tmp/ci-logs/run.zip 2>/dev/null || true
+            cd /tmp/ci-logs && unzip -o run.zip 2>/dev/null || true
+          fi
 
-          # Search for error patterns across all downloaded logs
           ALL_LOGS=$(find /tmp/ci-logs -name '*.txt' -o -name '*.log' 2>/dev/null | xargs cat 2>/dev/null || echo "")
 
           ERROR_TYPE="unknown"
           REPAIRABLE="false"
           DETAIL=""
 
-          # 1. TypeScript type errors
           if echo "$ALL_LOGS" | grep -qiE "TS[0-9]{4}|error TS|cannot find name|property .* does not exist|type .* is not assignable"; then
             ERROR_TYPE="typescript"
             REPAIRABLE="true"
             DETAIL=$(echo "$ALL_LOGS" | grep -iE "TS[0-9]{4}|error TS" | head -3)
-          # 2. ESLint errors
           elif echo "$ALL_LOGS" | grep -qiE "eslint|lint|parsing error|' is defined but never used"; then
             ERROR_TYPE="eslint"
             REPAIRABLE="true"
             DETAIL=$(echo "$ALL_LOGS" | grep -iE "eslint|error|warning" | head -3)
-          # 3. Test failures
           elif echo "$ALL_LOGS" | grep -qiE "FAIL|expect.*received|assertion|test.*failed|vitest"; then
             ERROR_TYPE="test"
             REPAIRABLE="false"
             DETAIL=$(echo "$ALL_LOGS" | grep -iE "FAIL|expect|assert" | head -3)
-          # 4. Build errors
           elif echo "$ALL_LOGS" | grep -qiE "Module not found|Cannot resolve|import.*cannot|next.*build.*error"; then
             ERROR_TYPE="build"
             REPAIRABLE="true"
             DETAIL=$(echo "$ALL_LOGS" | grep -iE "Module not found|Cannot resolve|build" | head -3)
-          # 5. Dependency errors
           elif echo "$ALL_LOGS" | grep -qiE "ERR_PNPM|dep.*not found|module.*not found.*node_modules|lockfile"; then
             ERROR_TYPE="dependency"
             REPAIRABLE="true"
             DETAIL=$(echo "$ALL_LOGS" | grep -iE "ERR_PNPM|not found" | head -3)
-          # 6. Secret scan failure
           elif echo "$ALL_LOGS" | grep -qiE "secret|credential|AKIA|ghp_"; then
             ERROR_TYPE="secret"
             REPAIRABLE="false"
             DETAIL="Secret detected in source"
-          # 7. Docker errors
           elif echo "$ALL_LOGS" | grep -qiE "docker|image.*fail|buildx"; then
             ERROR_TYPE="docker"
             REPAIRABLE="true"
             DETAIL=$(echo "$ALL_LOGS" | grep -iE "docker|image" | head -3)
-          # 8. Prisma / DB errors
           elif echo "$ALL_LOGS" | grep -qiE "prisma|database|migration"; then
             ERROR_TYPE="prisma"
             REPAIRABLE="true"
@@ -133,12 +137,10 @@ jobs:
 
           echo "error_type=$ERROR_TYPE" >> $GITHUB_OUTPUT
           echo "repairable=$REPAIRABLE" >> $GITHUB_OUTPUT
-          # Sanitize detail for GITHUB_OUTPUT (single line, no special chars)
           SAFE_DETAIL=$(echo "$DETAIL" | tr '\n' ' ' | tr '"' "'" | head -c 500)
           echo "error_detail=$SAFE_DETAIL" >> $GITHUB_OUTPUT
           echo "Error Type: $ERROR_TYPE, Repairable: $REPAIRABLE"
 
-  # -- Auto-fix: TypeScript (typecheck + missing imports)
   repair-typescript:
     name: Repair TypeScript Errors
     needs: analyze
@@ -166,30 +168,18 @@ jobs:
       - name: Run tsc to get errors
         id: tsc
         run: |
-          # Capture tsc output for analysis
           pnpm typecheck 2>&1 | tee /tmp/tsc-output.txt || true
           ERROR_COUNT=$(grep -c "error TS" /tmp/tsc-output.txt 2>/dev/null || echo "0")
           echo "error_count=$ERROR_COUNT" >> $GITHUB_OUTPUT
 
       - name: Auto-fix common TS patterns
         run: |
-          echo "Fixing common TypeScript patterns..."
-
-          # Fix 1: Remove unused imports (if safe)
-          # Fix 2: Add missing type annotations where obvious
-          # Fix 3: Fix explicit any -> unknown
           find src app packages -name '*.ts' -o -name '*.tsx' 2>/dev/null | while read f; do
-            # Replace `: any` with `: unknown` in production code
             sed -i 's/: any\b/: unknown/g' "$f" 2>/dev/null || true
-            # Replace `as any` with `as unknown` (safer)
             sed -i 's/as any\b/as unknown/g' "$f" 2>/dev/null || true
-            # Remove @ts-ignore comments
             sed -i '/@ts-ignore/d' "$f" 2>/dev/null || true
-            # Remove @ts-nocheck
             sed -i '/@ts-nocheck/d' "$f" 2>/dev/null || true
           done
-
-          # Fix 4: ESLint auto-fix (often fixes related issues)
           pnpm lint --fix 2>/dev/null || true
 
       - name: Verify fix
@@ -216,7 +206,6 @@ jobs:
             --title "Auto-Repair: TypeScript [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- TS Errors Fixed"
 
-  # -- Auto-fix: ESLint
   repair-eslint:
     name: Repair ESLint Errors
     needs: analyze
@@ -248,7 +237,6 @@ jobs:
           if pnpm lint 2>/dev/null; then
             echo "repair_success=true" >> $GITHUB_OUTPUT
           else
-            # Second pass: try with --fix again on remaining
             pnpm lint --fix 2>/dev/null || true
             if pnpm lint 2>/dev/null; then
               echo "repair_success=true" >> $GITHUB_OUTPUT
@@ -272,7 +260,6 @@ jobs:
             --title "Auto-Repair: ESLint [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- ESLint Fixed"
 
-  # -- Auto-fix: Build (missing imports, prisma generate)
   repair-build:
     name: Repair Build Errors
     needs: analyze
@@ -299,9 +286,7 @@ jobs:
 
       - name: Fix build issues
         run: |
-          # Regenerate Prisma client
           npx prisma generate 2>/dev/null || true
-          # Try full build
           pnpm build 2>/dev/null || true
 
       - name: Verify build
@@ -328,7 +313,6 @@ jobs:
             --title "Auto-Repair: Build [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- Build Fixed"
 
-  # -- Auto-fix: Dependencies
   repair-dependency:
     name: Repair Dependency Errors
     needs: analyze
@@ -355,7 +339,6 @@ jobs:
           pnpm store prune
           rm -rf node_modules
           pnpm install
-          # Check if build works after deps fix
           pnpm typecheck 2>/dev/null || true
           BRANCH="${{ env.REPAIR_BRANCH_PREFIX }}deps-$(date +%Y%m%d-%H%M%S)"
           git config user.name "OA-TWINS Auto-Repair"
@@ -368,7 +351,6 @@ jobs:
             --title "Auto-Repair: Deps [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- Deps Fixed"
 
-  # -- Auto-fix: Docker
   repair-docker:
     name: Repair Docker Errors
     needs: analyze
@@ -385,12 +367,9 @@ jobs:
       - name: Fix Dockerfile issues
         id: fix
         run: |
-          # Common Docker fixes
           if [ -f Dockerfile ]; then
-            # Ensure node version consistency
             sed -i 's/FROM node:[^ ]*/FROM node:22-alpine/' Dockerfile 2>/dev/null || true
           fi
-          # Try rebuild
           docker build --target runner -t esggo:test . 2>/dev/null && echo "repair_success=true" >> $GITHUB_OUTPUT || echo "repair_success=false" >> $GITHUB_OUTPUT
 
       - name: Create repair PR
@@ -408,7 +387,6 @@ jobs:
             --title "Auto-Repair: Docker [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- Docker Fixed"
 
-  # -- Auto-fix: Prisma
   repair-prisma:
     name: Repair Prisma Errors
     needs: analyze
@@ -450,7 +428,6 @@ jobs:
             --title "Auto-Repair: Prisma [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- Prisma Fixed"
 
-  # -- Tracker Notification (always runs)
   tracker-notify:
     name: OA-TWINS Tracker Notification
     needs: [analyze, repair-typescript, repair-eslint, repair-build, repair-dependency, repair-docker, repair-prisma]
@@ -464,8 +441,8 @@ jobs:
         with:
           script: |
             const trackerId = '${{ env.TRACKER_ID }}';
-            const runId = ${{ github.event.workflow_run.id }};
-            const conclusion = '${{ github.event.workflow_run.conclusion }}';
+            const runId = github.event.workflow_run ? github.event.workflow_run.id : 0;
+            const conclusion = github.event.workflow_run ? github.event.workflow_run.conclusion : 'dispatch';
             const errorType = '${{ needs.analyze.outputs.error_type }}';
             const detail = '${{ needs.analyze.outputs.error_detail }}';
             const repairable = '${{ needs.analyze.outputs.repairable }}';
@@ -481,7 +458,6 @@ jobs:
 
             const fixed = Object.values(results).some(r => r === 'success');
 
-            // Build GitHub Issue body
             let ghBody = '## OA-TWINS Auto-Repair Tracker\n\n';
             ghBody += '- Tracker: ' + trackerId + '\n';
             ghBody += '- CI Run: #' + runId + '\n';
@@ -497,7 +473,6 @@ jobs:
             if (detail) ghBody += '\n### Error Detail\n' + detail + '\n';
             ghBody += '\n*Tracker v2.1*\n';
 
-            // Build Telegram message (plain text)
             let statusEmoji = fixed ? '✅ Auto-Repaired' : '❌ Manual Fix Needed';
             let tgMsg = '🐝 OA-TWINS Auto-Repair\n' +
               'CI Run: #' + runId + '\n' +
@@ -507,7 +482,6 @@ jobs:
               'Tracker: OA-TWINS-AUTO-REPAIR';
 
             if (conclusion === 'failure') {
-              // 1. Create GitHub Issue
               const labels = ['auto-repair', 'tracker', 'swarm'];
               if (fixed) labels.push('auto-fixed');
               await github.rest.issues.create({
@@ -519,7 +493,6 @@ jobs:
               });
               console.log('GitHub Issue created');
 
-              // 2. Send Telegram notification
               const botToken = process.env.TELEGRAM_BOT_TOKEN;
               const chatId = process.env.TELEGRAM_CHAT_ID;
               if (botToken && chatId) {
@@ -544,8 +517,6 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
-      # -- Email notification (GitHub 報錯通知信)
-      # 收到 CI 失敗即發報錯通知信; SMTP_* secrets 未設則自動跳過 (不阻塞)
       - name: Send repair notification email
         if: github.event.workflow_run.conclusion == 'failure'
         uses: dawidd6/action-send-mail@v3
@@ -572,8 +543,6 @@ jobs:
 
             -- ESG-GO OA Framework 自動修復管線 v2.2
 
-  # -- OA 萬能分身元框架自驗 (本地閉環穩定態 CI 門禁)
-  # 每次 CI 失敗修復後, 確認 OA 10 子框架 + OAB 5T 管線仍綠
   oa-selfcheck:
     name: OA Framework Self-Check
     needs: [tracker-notify]
@@ -602,7 +571,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const runId = ${{ github.event.workflow_run.id }};
+            const runId = github.event.workflow_run ? github.event.workflow_run.id : 0;
             await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
