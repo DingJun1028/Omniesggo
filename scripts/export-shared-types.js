@@ -11,11 +11,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT = path.resolve(__dirname, '..');
 const SRC = path.join(ROOT, 'shared', 'types.ts');
-const DEST = path.join(process.cwd(), 'types', 'generated', 'esggo-shared.d.ts');
-
-const SRC_REL = path.relative(path.join(process.cwd(), 'types', 'generated'), SRC).replace(/\\/g, '/');
-
-const LIC = `/* Auto-generated from \`esggo/shared/types.ts\` — do not edit. */\n`;
+const DEST_ROOT = path.join(ROOT, 'types', 'generated', 'esggo-shared.d.ts');
+const DEST_LC = path.join(ROOT, 'apps', 'learning-center', 'types', 'generated', 'esggo-shared.d.ts');
+const DEST_TARGETS = [DEST_ROOT, DEST_LC];
 
 const map = [
   ['ESGKnowledgeBase', 'enum'],
@@ -120,6 +118,8 @@ for (const [name, kind] of map) {
   if (block) out.push(block, '');
 }
 
-fs.mkdirSync(path.dirname(DEST), { recursive: true });
-fs.writeFileSync(DEST, out.join('\n').trim() + '\n', 'utf-8');
-console.log(`OK ${path.relative(process.cwd(), DEST)}`);
+for (const target of DEST_TARGETS) {
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, out.join('\n').trim() + '\n', 'utf-8');
+  console.log(`OK ${path.relative(ROOT, target).replace(/\\/g, '/')}`);
+}

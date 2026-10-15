@@ -146,7 +146,8 @@ jobs:
             "files": [
               {{
                 "path": "relative/path/to/file",
-                "content": "full updated file content"
+                "content": "full updated file content or null if deleting",
+                "delete": false
               }}
             ]
           }}
@@ -185,9 +186,18 @@ jobs:
 
                   files = fix_payload.get("files", [])
                   for f in files:
-                      path = f["path"]
-                      content = f["content"]
-                      os.makedirs(os.path.dirname(path), exist_ok=True)
+                      path = f.get("path", "").strip()
+                      if not path:
+                          continue
+                      content = f.get("content")
+                      if content is None or f.get("delete"):
+                          if os.path.exists(path):
+                              os.remove(path)
+                              print(f"Deleted file: {path}")
+                          continue
+                      dirname = os.path.dirname(path)
+                      if dirname:
+                          os.makedirs(dirname, exist_ok=True)
                       with open(path, "w", encoding="utf-8") as out:
                           out.write(content)
                       print(f"Wrote update to: {path}")
@@ -208,18 +218,39 @@ jobs:
           echo "Verifying changes with build & typecheck..."
           if pnpm build && pnpm typecheck; then
             echo "build_passed=true" >> $GITHUB_OUTPUT
+            echo "✅ 本地建置與型別檢查驗證通過！"
           else
             echo "build_passed=false" >> $GITHUB_OUTPUT
-            echo "::warning::Verification failed or produced errors"
+            echo "::error::Verification failed or produced errors"
+            exit 1
           fi
 
+      - name: Report Failure on Issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
+        run: |
+          gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" \
+            --body "❌ **Hermes Agent** 自動修復未通過本地驗證（pnpm build / typecheck 失敗），已中斷流程避免建立異常 PR。" || true
+
       - name: Commit and Create Pull Request
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_AUTO_REPAIR || secrets.GITHUB_TOKEN }}
           ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
           PASSED: ${{ steps.verify.outputs.build_passed }}
         run: |
-          git diff --quiet && (echo "No changes made by Hermes." && exit 0)
+          if [ "$PASSED" != "true" ]; then
+            echo "Verification did not pass. Skipping PR creation."
+            exit 1
+          fi
+          if git diff --quiet; then
+            echo "No changes made by Hermes."
+            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" \
+              --body "ℹ️ **Hermes Agent** 檢查完畢：目前程式碼已通過驗證或無需進一步修改，未產生程式碼變更。" || true
+            exit 0
+          fi
 
           BRANCH="hermes/fix-issue-${ISSUE_NUM}-$(date +%Y%m%d%H%M%S)"
           git config user.name "Hermes AI Agent"

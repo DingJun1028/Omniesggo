@@ -6,7 +6,9 @@
     "src/types/**/*.ts",
     "src/core/**/*.ts",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    ".next/dev/types/**/*.ts",
+    "apps/learning-center/src/**/*.ts",
+    "apps/learning-center/src/**/*.tsx"
   ],
   "exclude": [
     "node_modules",
