@@ -76,7 +76,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HERMES_API_KEY: ${{ secrets.HERMES_API_KEY || secrets.OPENROUTER_API_KEY || secrets.OPENAI_API_KEY }}
           HERMES_API_BASE: ${{ secrets.HERMES_API_BASE || 'https://openrouter.ai/api/v1' }}
-          HERMES_MODEL: ${{ secrets.HERMES_MODEL || 'nousresearch/hermes-3-llama-3.1-405b' }}
+          HERMES_MODEL: ${{ secrets.HERMES_MODEL || 'qwen/qwen3.6-27b' }}
           ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
         run: |
           if [ -z "$HERMES_API_KEY" ]; then
@@ -100,8 +100,10 @@ jobs:
                   raw_base = "https://api.groq.com/openai/v1"
               elif "api.groq.com" in raw_base and not "/openai/v1" in raw_base:
                   raw_base = f"{raw_base}/openai/v1"
-              if not model or "nousresearch" in model or "openrouter" in model:
-                  model = "llama-3.3-70b-versatile"
+              if not model or "nousresearch" in model or "openrouter" in model or "llama" in model:
+                  model = "qwen/qwen3.6-27b"
+              elif model.lower() in ["qwen3.6-27b", "qwen-3.6-27b", "qwen3.6"]:
+                  model = "qwen/qwen3.6-27b"
           else:
               if not raw_base:
                   raw_base = "https://openrouter.ai/api/v1"
@@ -153,8 +155,7 @@ jobs:
           req_body = json.dumps({
               "model": model,
               "messages": [
-                  {"role": "system", "content": system_prompt},
-                  {"role": "user", "content": user_prompt}
+                  {"role": "user", "content": f"{system_prompt}\n\n{user_prompt}"}
               ],
               "temperature": 0.2
           }).encode('utf-8')
