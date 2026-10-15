@@ -108,6 +108,11 @@ overrides:
   # (JS injection / own property check bypass) — 傳遞依賴釘 4.7.9 → 4.7.10
   # 傳入鏈路：經 pnpm-lock.yaml 解析（manifest 無直依），走 workspace overrides 統一提升
   "handlebars": ">=4.7.10"
+  # ── 2026-10-14 Dependabot 修補 (open alerts 2 high/1 medium) ──
+  # http-cache-semantics GHSA: max-stale 跨用戶快取洩漏；鏈路 make-fetch-happen→node-gyp→sqlite3
+  # postcss-selector-parser GHSA: flat selector 解析 CPU 耗盡；鏈路 postcss 生態
+  "http-cache-semantics": ">=4.3.0 <5"
+  "postcss-selector-parser": ">=7.1.6 <8"
 
 allowBuilds:
   '@firebase/util': false

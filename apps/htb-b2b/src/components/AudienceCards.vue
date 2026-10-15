@@ -10,7 +10,7 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div v-for="item in audiences" :key="item.role" class="bg-white rounded-xl p-6 border border-slate-200 flex flex-col justify-between hover:shadow-lg hover:border-[#4280BD] transition duration-300">
+        <div v-for="item in audiences" :id="item.anchor" :key="item.role" class="bg-white rounded-xl p-6 border border-slate-200 flex flex-col justify-between hover:shadow-lg hover:border-[#4280BD] transition duration-300">
           <div>
             <div class="text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-600 inline-block mb-3">
               {{ item.tag }}
@@ -38,6 +38,7 @@
 <script setup>
 const audiences = [
   {
+    anchor: 'farms',
     role: '牧場與酪農',
     tag: '現場導入',
     painPoint: '擔心增加作業負擔、飼料適口性與動物採食表現。',
@@ -46,6 +47,7 @@ const audiences = [
     ctaLink: '/contact?role=farm'
   },
   {
+    anchor: 'brands',
     role: '乳肉食品品牌',
     tag: '產品差異化',
     painPoint: '面臨減碳目標壓力，擔憂原料不穩與漂綠信任風險。',
@@ -54,6 +56,7 @@ const audiences = [
     ctaLink: '/contact?role=brand'
   },
   {
+    anchor: 'scope3',
     role: '企業 Scope 3',
     tag: '永續供應鏈',
     painPoint: '範疇三碳排盤查數據缺乏第三方查證與防重複計算。',
@@ -62,6 +65,7 @@ const audiences = [
     ctaLink: '/contact?role=scope3'
   },
   {
+    anchor: 'gov',
     role: '政府與研究機構',
     tag: '示範與方法學',
     painPoint: '缺乏在地化可複製場域與符合標準的減量方法學。',

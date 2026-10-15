@@ -60,12 +60,16 @@ apps/htb-b2b/
 
 ## 🚀 部署指南
 
-### Vercel 自動化部署
-1. 前往 https://vercel.com/dashboard
-2. 點擊「New Project」→ 匯入 `DingJun1028/esggo`
-3. 設定根目錄為 `apps/htb-b2b`
-4. 框架選擇 `Vite`
-5. 點擊「Deploy」
+### Cloudflare Pages 自動化部署（正式，已取代 Vercel）
+1. 專案：`htb-b2b`（Pages），網域 `htb-b2b.esggo.co`（已掛）
+2. 手動部署：
+   ```bash
+   cd apps/htb-b2b
+   pnpm build
+   npx wrangler pages deploy dist --project-name htb-b2b --branch main
+   ```
+3. 表單 API：`/api/contact` 由 Worker `ftgtours-api`（同 zone route
+   `htb-b2b.esggo.co/api/*`）承接，寫入 D1 `ftgtours_contact`（site=htb）。
 
 ### 本地開發
 ```bash
@@ -124,7 +128,7 @@ server: {
 ## 📞 聯絡資訊
 - 專案維護: Jun Hong
 - 倉庫: https://github.com/DingJun1028/esggo
-- 部署目標: Vercel / Cloudflare Pages
+- 部署目標: Cloudflare Pages（`htb-b2b`，正式）
 
 ---
 

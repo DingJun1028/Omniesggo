@@ -5,6 +5,7 @@ const en: Dictionary = {
   'brand.name': 'ESGGO',
   'brand.tagline': 'Deep Integration, Seamless Connection',
   'brand.full': 'ESGGO — Infinite ESG Evolution',
+  'brand.short': 'ESGGO',
   'brand.omniautovideo': 'OmniAutoVideo 萬能自動影音',
   'brand.omniautovideo.tagline': 'AI Automated Video Generation, Zero Cloud Cost',
 

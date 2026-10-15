@@ -2,12 +2,21 @@
 // ============================================================
 // 公開 API operations: awaken, grow, remember, reflect, forget, prune, search, tag
 // ============================================================
-import { MANTRA, SKILL_TRAITS, DEFAULT_MEMORY_RETENTION } from './schema.mjs';
+import { MANTRA, SKILL_TRAITS, DEFAULT_MEMORY_RETENTION, SUPERPOWERS_STAGES } from './schema.mjs';
 import {
   parseTag, validateOmniTag, detectConflicts, normalizeTag,
   filterTags, getValuesByKey, aggregateTags, calculateBoundaryInheritance,
   OMNITAG_DIMENSIONS, ROUTING_PRIORITY,
 } from './tags.mjs';
+
+// NCB memory schema 限欄位 (ts/event/summary/tags/sourceOrigin/task),
+// stage/status 不可直寫 (400 Unknown column);兩 backend 統一以 summary
+// 前綴 `<stage>:<status>` 編碼存取,讀取時由此 helper 解析還原。
+function stageStatusOf(e) {
+  if (e && e.stage) return { stage: e.stage, status: e.status };
+  const m = /^([a-z0-9]+):(start|done|blocked|skipped)/.exec(String(e?.summary || ''));
+  return m ? { stage: m[1], status: m[2] } : { stage: undefined, status: undefined };
+}
 
 export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HOME }) {
   let _skillsCache = null;
@@ -28,6 +37,7 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
 
   async function awaken({ silent = false } = {}) {
     _invalidateSkillsCache();
+    const bootstrap = await superpowersBootstrap({ silent });
     const be = await dispatcher.select();
     const skills = await be.readSkills();
     const recent = await be.readMemory({ limit: 20 });
@@ -42,12 +52,14 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
       recentMemories: recent,
       progress,
       mantra: MANTRA,
+      // superpowers 啟動引導
+      superpowers: bootstrap,
     };
     try {
       await be.appendMemory({
         event: 'awaken', ts: new Date().toISOString(),
         summary: `skills=${skills.length} memories=${recent.length} backend=${be.name}`,
-        tags: ['audit', be.name],
+        tags: ['audit', be.name, 'superpowers:bootstrap'],
       });
     } catch (e) { if (!silent) console.warn(`[JunAikey] memory audit skipped: ${(e?.message || e).toString().slice(0, 120)}`); }
     try { await be.appendJournal({ kind: 'awaken', skills: skills.length, memories: recent.length, backend: be.name }); } catch {}
@@ -58,8 +70,52 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
       console.log(`  skills loaded: ${skills.length}`);
       console.log(`  recent mems  : ${recent.length}`);
       console.log(`  mantra       : ${MANTRA}`);
+      if (!bootstrap.skipped) {
+        console.log(`  superpowers  : bootstrapping ${bootstrap.stageLabel}`);
+      } else {
+        console.log(`  superpowers  : already bootstrapped (stage=${bootstrap.stage})`);
+      }
     }
     return result;
+  }
+
+  // ── Superpowers 啟動引導 (Bootstrap) ────────────────────
+  // 每次 session 透過 `awaken` 進入時,先在超能力 7 階段中點亮「腦力激盪」旗標,
+  // 形成被動恆久覺醒 (passive-habitual awakening) 的超能力記載。
+  async function superpowersBootstrap({ silent = false } = {}) {
+    const be = await dispatcher.select();
+    // 取最近 3 筆 superpowers 階段記錄,看是否已有 brainstorming 記錄
+    const recent = await be.readMemory({ event: 'superpowers_stage', limit: 3 });
+    const stagesSeen = recent.map(r => stageStatusOf(r).stage);
+    if (stagesSeen.includes('brainstorming')) {
+      return { bootstrappedAt: new Date().toISOString(), backend: be.name, skipped: true, stage: 'brainstorming', stageLabel: '腦力激盪' };
+    }
+    const now = new Date().toISOString();
+    const entry = {
+      ts: now,
+      kind: 'superpowers_bootstrap',
+      stage: 'brainstorming',
+      stageLabel: '腦力激盪',
+      status: 'start',
+      source: 'session_awaken',
+      backend: be.name,
+    };
+    try {
+      await be.appendJournal(entry);
+    } catch {
+      /* 最佳努力 */
+    }
+    try {
+      await be.appendMemory({
+        event: 'superpowers_stage',
+        ts: now,
+        summary: 'brainstorming:start (session_awaken)',
+        tags: ['superpowers', 'superpowers:brainstorming', be.name],
+      });
+    } catch (e) {
+      if (!silent) console.warn(`[JunAikey] superpowers bootstrap skipped: ${(e?.message || e).toString().slice(0, 120)}`);
+    }
+    return { bootstrappedAt: now, backend: be.name, skipped: false, stage: 'brainstorming', stageLabel: '腦力激盪' };
   }
 
   async function loadSkills({ bypassCache = false } = {}) {
@@ -432,6 +488,88 @@ platform:vps
     return entry;
   }
 
+  // ── Superpowers 7 階段追蹤 ───────────────────────────────
+  // 把上游 Superpowers 的 7 階段編碼方法論注入 junaikey 成長層：
+  // 每個階段以 'superpowers:stage:<id>' 標籤 + journal 記錄，形成 closed-loop。
+  // 可透過 `listSuperPowersStages()` 串流每階段的進度與證據，驅動進化。
+  async function trackSuperPowersStage(stageId, status, { source = 'cli', sourceOrigin = '', notes = '' } = {}) {
+    const validIds = SUPERPOWERS_STAGES.map(s => s.id);
+    if (!validIds.includes(stageId)) {
+      throw new Error(
+        `trackSuperPowersStage: 未知階段 "${stageId}"。合法值: ${validIds.join(', ')}`
+      );
+    }
+    const be = await dispatcher.select();
+    const entry = {
+      ts: new Date().toISOString(),
+      kind: 'superpowers_stage',
+      stage: stageId,
+      stageLabel: SUPERPOWERS_STAGES.find(s => s.id === stageId)?.label || stageId,
+      status, // 'start' | 'done' | 'blocked' | 'skipped'
+      source,
+      sourceOrigin,
+      notes,
+      backend: be.name,
+    };
+    // 1) 寫入 journal（審計軌跡，Traceable/Trackable）
+    await be.appendJournal(entry);
+    // 2) 同步寫入 memory（可被 searchMemory 找回，Trustworthy）
+    const summary = [
+      `${stageId}:${status}`,
+      source ? `source=${source}` : '',
+      sourceOrigin ? `origin=${sourceOrigin}` : '',
+      notes ? `notes=${notes}` : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    await be.appendMemory({
+      event: 'superpowers_stage',
+      ts: entry.ts,
+      summary,
+      tags: ['superpowers', `superpowers:${stageId}`, be.name],
+    });
+    return entry;
+  }
+
+  async function listSuperPowersStages({ stage, status, limit = 50 } = {}) {
+    const be = await dispatcher.select();
+    const all = await be.readMemory({ event: 'superpowers_stage', limit });
+    let filtered = all;
+    if (stage) filtered = filtered.filter(e => stageStatusOf(e).stage === stage);
+    if (status) filtered = filtered.filter(e => stageStatusOf(e).status === status);
+    return filtered
+      .map(e => {
+        const { stage: st, status: stt } = stageStatusOf(e);
+        return {
+          ...e,
+          stage: st,
+          status: stt,
+          stageLabel: SUPERPOWERS_STAGES.find(s => s.id === st)?.label || st,
+          stageOrder: SUPERPOWERS_STAGES.find(s => s.id === st)?.order || 0,
+        };
+      })
+      .sort((a, b) => (a.stageOrder || 0) - (b.stageOrder || 0));
+  }
+
+  async function resetSuperPowersStages() {
+    const be = await dispatcher.select();
+    const now = new Date().toISOString();
+    const resetEntry = {
+      ts: now,
+      kind: 'superpowers_reset',
+      summary: 'all superpowers stages reset to not_started',
+      backend: be.name,
+    };
+    await be.appendJournal(resetEntry);
+    await be.appendMemory({
+      event: 'superpowers_reset',
+      ts: now,
+      summary: 'all superpowers stages reset',
+      tags: ['superpowers', 'superpowers:reset', be.name],
+    });
+    return resetEntry;
+  }
+
   return {
     awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills,
     remember, recall, searchMemory, pruneMemory,
@@ -441,5 +579,9 @@ platform:vps
     applyBoundaryInheritance, pruneSkills, mergeSkills,
     getLineage, promoteSkill, getSedimentationStats, autoTagFromLLM,
     _invalidateSkillsCache,
+    // ── Superpowers 7 階段追蹤（融合入口）─────────────────────────
+    trackSuperPowersStage,
+    listSuperPowersStages,
+    resetSuperPowersStages,
   };
 }

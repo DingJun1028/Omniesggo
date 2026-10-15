@@ -7,10 +7,14 @@
  */
 import { SwarmCore } from './swarm-core.js';
 import { createServerApp } from './server.js';
+import { RuneEngine } from './runes.js';
+import { fileURLToPath } from 'node:url';
+import { join, dirname } from 'node:path';
 
 const core = new SwarmCore();
 const port = Number(process.env.PORT ?? 8788);
-const { server } = createServerApp(core, port);
+const runes = new RuneEngine({ statePath: join(dirname(fileURLToPath(import.meta.url)), '..', 'data', 'rune-state.json') });
+const { server } = createServerApp(core, port, runes);
 
 server.listen(port, () => {
   console.log(`🐝 OA-Team 30 萬能蜂群守護啟動: http://localhost:${port}`);

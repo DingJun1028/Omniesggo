@@ -355,6 +355,38 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         console.log(JSON.stringify(r, null, 2));
         break;
       }
+      // ── Superpowers 7 階段追蹤 ─────────────────────────────
+      case 'trackSuperPowersStage': {
+        if (rest.length < 2) { console.log(usage); process.exit(1); }
+        const stage = rest[0];
+        const status = rest[1];
+        const opts = {};
+        for (const a of rest.slice(2)) {
+          if (a.startsWith('--source=')) opts.source = a.slice(9);
+          else if (a.startsWith('--sourceOrigin=')) opts.sourceOrigin = a.slice(15);
+          else if (a.startsWith('--notes=')) opts.notes = a.slice(8);
+          else { console.log(`[junaikey] ✗ 未知參數: ${a}`); process.exit(1); }
+        }
+        const entry = await ops.trackSuperPowersStage(stage, status, opts);
+        console.log(JSON.stringify(entry, null, 2));
+        break;
+      }
+      case 'listSuperPowersStages': {
+        const opts = {};
+        for (const a of rest) {
+          if (a.startsWith('--stage=')) opts.stage = a.slice(8);
+          else if (a.startsWith('--status=')) opts.status = a.slice(9);
+          else if (a.startsWith('--limit=')) opts.limit = a.slice(8);
+        }
+        const list = await ops.listSuperPowersStages(opts);
+        console.log(JSON.stringify(list, null, 2));
+        break;
+      }
+      case 'resetSuperPowersStages': {
+        const entry = await ops.resetSuperPowersStages();
+        console.log(JSON.stringify(entry, null, 2));
+        break;
+      }
       default: console.log(usage); process.exit(cmd ? 1 : 0);
     }
   };

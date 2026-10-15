@@ -4,8 +4,20 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 routes = [
-  { pattern = "ftgtours.esggo.co/api/*", zone_name = "esggo.co" }
+  { pattern = "ftgtours.esggo.co/api/*", zone_name = "esggo.co" },
+  { pattern = "htb-b2b.esggo.co/api/*", zone_name = "esggo.co" }
 ]
+
+[vars]
+# 跨源白名單（逗號分隔）。htb-b2b.esggo.co 同 zone 走上方 route 為同源，
+# 列入白名單是為 pages.dev 預覽等跨源情境保險。
+ALLOWED_ORIGINS = "https://ftgtours.esggo.co,https://htb-b2b.esggo.co,https://htb-b2b.pages.dev"
+# 以下 secrets 用 `wrangler secret put <NAME>` 設定，勿寫入本檔：
+#   RECAPTCHA_SECRET_KEY  設定後強制驗證 recaptchaToken
+#   RESEND_API_KEY        啟用郵件通知
+#   LEAD_NOTIFY_TO        通知收件人（owner）
+#   LEAD_FROM             寄件者（需在 Resend 驗證過的網域）
+# 可選 vars：IP_HOURLY_CAP（預設 5）
 
 [[d1_databases]]
 binding = "DB"

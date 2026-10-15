@@ -20,10 +20,10 @@
         <div>
           <div class="text-sm font-semibold text-white uppercase tracking-wider mb-4">解決方案</div>
           <ul class="text-sm space-y-2.5">
-            <li><a href="/solutions#farms" class="hover:text-white transition">牧場與酪農試點</a></li>
-            <li><a href="/solutions#brands" class="hover:text-white transition">乳肉品牌聯名</a></li>
-            <li><a href="/solutions#scope3" class="hover:text-white transition">企業 Scope 3 減量</a></li>
-            <li><a href="/solutions#gov" class="hover:text-white transition">政府與學研合作</a></li>
+            <li><a href="/#farms" class="hover:text-white transition">牧場與酪農試點</a></li>
+            <li><a href="/#brands" class="hover:text-white transition">乳肉品牌聯名</a></li>
+            <li><a href="/#scope3" class="hover:text-white transition">企業 Scope 3 減量</a></li>
+            <li><a href="/#gov" class="hover:text-white transition">政府與學研合作</a></li>
           </ul>
         </div>
 
