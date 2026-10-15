@@ -22,7 +22,9 @@ export default function ContactSection() {
     return (
       <section id="contact" className="py-24 bg-ftg-sand">
         <div className="max-w-3xl mx-auto text-center px-4">
-          <div className="text-5xl mb-4">✅</div>
+          <div className="w-16 h-16 rounded-full bg-ftg-green/10 flex items-center justify-center mx-auto mb-4">
+            <FTGIcon name="check" size={28} className="text-ftg-green" />
+          </div>
           <h2 className="text-2xl font-bold text-ftg-forest mb-4">感謝您的洽詢</h2>
           <p className="text-gray-600">我們將在 1-2 個工作日內回覆您</p>
         </div>
