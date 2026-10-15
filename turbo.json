@@ -18,6 +18,18 @@
         ".env*"
       ]
     },
+    "berkeley-esg-learning-center#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ]
+    },
     "lint": {
       "dependsOn": [
         "^lint"
