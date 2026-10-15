@@ -16,6 +16,7 @@ permissions:
   contents: write
   pull-requests: write
   issues: write
+  workflows: write
 
 concurrency:
   group: hermes-${{ github.event.issue.number || github.event.inputs.issue_number }}
