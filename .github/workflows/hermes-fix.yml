@@ -218,17 +218,33 @@ jobs:
           echo "Verifying changes with build & typecheck..."
           if pnpm build && pnpm typecheck; then
             echo "build_passed=true" >> $GITHUB_OUTPUT
+            echo "✅ 本地建置與型別檢查驗證通過！"
           else
             echo "build_passed=false" >> $GITHUB_OUTPUT
-            echo "::warning::Verification failed or produced errors"
+            echo "::error::Verification failed or produced errors"
+            exit 1
           fi
 
+      - name: Report Failure on Issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
+        run: |
+          gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" \
+            --body "❌ **Hermes Agent** 自動修復未通過本地驗證（pnpm build / typecheck 失敗），已中斷流程避免建立異常 PR。" || true
+
       - name: Commit and Create Pull Request
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GH_PAT_AUTO_REPAIR || secrets.GITHUB_TOKEN }}
           ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
           PASSED: ${{ steps.verify.outputs.build_passed }}
         run: |
+          if [ "$PASSED" != "true" ]; then
+            echo "Verification did not pass. Skipping PR creation."
+            exit 1
+          fi
           if git diff --quiet; then
             echo "No changes made by Hermes."
             gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" \
