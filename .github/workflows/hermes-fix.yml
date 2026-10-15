@@ -219,7 +219,12 @@ jobs:
           ISSUE_NUM: ${{ steps.resolve-issue.outputs.issue_num }}
           PASSED: ${{ steps.verify.outputs.build_passed }}
         run: |
-          git diff --quiet && (echo "No changes made by Hermes." && exit 0)
+          if git diff --quiet; then
+            echo "No changes made by Hermes."
+            gh issue comment "$ISSUE_NUM" --repo "${{ github.repository }}" \
+              --body "ℹ️ **Hermes Agent** 檢查完畢：目前程式碼已通過驗證或無需進一步修改，未產生程式碼變更。" || true
+            exit 0
+          fi
 
           BRANCH="hermes/fix-issue-${ISSUE_NUM}-$(date +%Y%m%d%H%M%S)"
           git config user.name "Hermes AI Agent"
