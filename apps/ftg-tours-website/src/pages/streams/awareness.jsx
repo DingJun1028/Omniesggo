@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 const STREAM = {
-  icon: '🌱',
+  icon: '<FTGIcon name="leaf" size=20 />',
   name: '覺曉流',
   en: 'Awareness',
   tagline: '讓 ESG 從抽象變具體',

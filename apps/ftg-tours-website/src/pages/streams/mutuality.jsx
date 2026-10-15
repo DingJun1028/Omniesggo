@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 const STREAM = {
-  icon: '👨‍👩‍👧',
+  icon: '<FTGIcon name="users" size=20 />',
   name: '共好流',
   en: 'Mutuality',
   tagline: '企業關懷延伸至家庭',

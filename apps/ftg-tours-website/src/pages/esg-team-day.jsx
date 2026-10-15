@@ -27,11 +27,11 @@ export default function EsgTeamDay() {
           <h2 className="text-3xl font-bold text-ftg-forest mb-12 text-center">活動設計</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
-              { icon: '🚶', title: 'Clean-up Walk', desc: '沿路清理環境，量化廢棄物數據' },
-              { icon: '🌱', title: '生態教育', desc: '專業講師引導，認識在地生態' },
-              { icon: '🤝', title: '團隊共創', desc: '協作完成永續挑戰任務' },
+              { icon: '<FTGIcon name="walking" size=20 />', title: 'Clean-up Walk', desc: '沿路清理環境，量化廢棄物數據' },
+              { icon: '<FTGIcon name="leaf" size=20 />', title: '生態教育', desc: '專業講師引導，認識在地生態' },
+              { icon: '<FTGIcon name="users" size=20 />', title: '團隊共創', desc: '協作完成永續挑戰任務' },
               { icon: '♻️', title: '友善環境行動', desc: '净灘、淨山、生態復育' },
-              { icon: '📊', title: '碳足跡估算', desc: '計算並抵銷活動碳排' },
+              { icon: '<FTGIcon name="chart" size=20 />', title: '碳足跡估算', desc: '計算並抵銷活動碳排' },
               { icon: '🏆', title: '永續授勳', desc: 'ESG 成果認證與分享' },
             ].map((f, i) => (
               <div key={i} className="card-elevated">

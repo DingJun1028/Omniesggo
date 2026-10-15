@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 
 const STREAM = {
-  icon: '📊',
+  icon: '<FTGIcon name="chart" size=20 />',
   name: '留念流',
   en: 'Memorial',
   tagline: '活動成果化為影響素材',

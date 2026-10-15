@@ -28,10 +28,10 @@ export default function ExecutiveRetreat() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { icon: '🧭', title: '系統思考', desc: '全局視角分析組織挑戰與機會' },
-              { icon: '🤝', title: '跨部門協作', desc: '打破本位主義，建立協作機制' },
+              { icon: '<FTGIcon name="users" size=20 />', title: '跨部門協作', desc: '打破本位主義，建立協作機制' },
               { icon: '🎯', title: '3年策略願景', desc: '共創中長期發展方向與目標' },
               { icon: '🌉', title: '信任重建', desc: '深度對話修復關係與信任' },
-              { icon: '🏔️', title: '自然場域', desc: '遠離辦公環境，打開新視角' },
+              { icon: '<FTGIcon name="mountain" size=20 />', title: '自然場域', desc: '遠離辦公環境，打開新視角' },
               { icon: '📜', title: '共識記錄', desc: '具體結論與行動方案追蹤' },
             ].map((f, i) => (
               <div key={i} className="card-elevated">

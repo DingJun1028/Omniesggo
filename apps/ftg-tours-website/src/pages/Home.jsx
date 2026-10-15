@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import ContactSection from '../components/ContactSection';
+import { FTGIcon } from '../components';
+
 
 export default function Home() {
   return (
@@ -33,11 +35,11 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { path: '/corporate-travel', icon: '✈️', title: '企業員工旅遊', desc: '客製化員工旅遊，凝聚團隊與永續行動' },
-              { path: '/family-day', icon: '👨‍👩‍👧', title: '企業家庭日', desc: '親子共融的戶外健康家庭日活動' },
-              { path: '/esg-team-day', icon: '🌱', title: 'ESG Outdoor Team Day', desc: '結合環境與社會共益的戶外團隊日' },
-              { path: '/wellbeing-retreat', icon: '🧘', title: '員工身心平衡', desc: '森林療癒、正念練習、數位排毒' },
+              { path: '/family-day', icon: '<FTGIcon name="users" size=20 />', title: '企業家庭日', desc: '親子共融的戶外健康家庭日活動' },
+              { path: '/esg-team-day', icon: '<FTGIcon name="leaf" size=20 />', title: 'ESG Outdoor Team Day', desc: '結合環境與社會共益的戶外團隊日' },
+              { path: '/wellbeing-retreat', icon: '<FTGIcon name="meditation" size=20 />', title: '員工身心平衡', desc: '森林療癒、正念練習、數位排毒' },
               { path: '/executive-retreat', icon: '🎯', title: '高階主管共識營', desc: '共識建立與策略 retreat' },
-              { path: '/esg-impact-note', icon: '📊', title: 'ESG Impact Note', desc: '活動成果報告與永續揭露' },
+              { path: '/esg-impact-note', icon: '<FTGIcon name="chart" size=20 />', title: 'ESG Impact Note', desc: '活動成果報告與永續揭露' },
             ].map((s, i) => (
               <Link key={i} to={s.path} className="card-elevated group hover:border-ftg-orange/30 transition-all">
                 <div className="text-4xl mb-4">{s.icon}</div>
