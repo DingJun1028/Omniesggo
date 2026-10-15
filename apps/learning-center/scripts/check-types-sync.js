@@ -1,8 +1,18 @@
-﻿import fs from 'fs';
+import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const SRC = path.resolve(process.cwd(), '..', '..', 'shared', 'types.ts');
-const DEST = path.resolve(process.cwd(), 'types', 'generated', 'esggo-shared.d.ts');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const LC_ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(LC_ROOT, '..', '..');
+
+const SRC = fs.existsSync(path.resolve(ROOT, 'shared', 'types.ts'))
+  ? path.resolve(ROOT, 'shared', 'types.ts')
+  : path.resolve(process.cwd(), '..', '..', 'shared', 'types.ts');
+const DEST = fs.existsSync(path.resolve(LC_ROOT, 'types', 'generated', 'esggo-shared.d.ts'))
+  ? path.resolve(LC_ROOT, 'types', 'generated', 'esggo-shared.d.ts')
+  : path.resolve(process.cwd(), 'types', 'generated', 'esggo-shared.d.ts');
 
 if (!fs.existsSync(SRC)) {
   console.error(`SRC missing: ${SRC}`);
