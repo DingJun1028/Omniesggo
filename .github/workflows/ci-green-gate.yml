@@ -61,7 +61,7 @@ jobs:
           GREEN_GATE_SELF: 'CI Green Gate'
           # pull_request 事件下，同 commit 的其他 checks 可能仍在跑；
           # 給它們時間完成，避免過早判定。
-          GREEN_GATE_WAIT: '600'
+          GREEN_GATE_WAIT: '3600'
         run: bash .hermes/auto-repair/ci-gate.sh "${{ github.event.pull_request.head.sha }}"
 
       - name: Summary
