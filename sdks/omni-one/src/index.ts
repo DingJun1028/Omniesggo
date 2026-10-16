@@ -339,3 +339,26 @@ export const omniOne = new OmniOne();
 // SECTION 6: 10-Layer Concentric OmniSystem Architecture Export
 // ═══════════════════════════════════════════════════════════════
 export * from './architecture-facilities';
+export {
+  FacilityLayer,
+  OMNI_FACILITIES_CATALOG,
+  OmniFacility,
+  IntentCoreFacility,
+  PerceptionRadarFacility,
+  MemoryHubFacility,
+  InferenceBrainFacility,
+  GovernanceGateFacility,
+  OrchestrationHubFacility,
+  ExecutionWorkshopFacility,
+  IntegrationNetworkFacility,
+  ExperiencePortalFacility,
+  EvolutionRingFacility,
+  OmniSystemConcentricDispatcher,
+  createDefaultOmniDispatcher,
+  getFacilityTelemetryDefaults,
+} from './architecture-facilities';
+export type {
+  FacilityMetadata,
+  IFacilityNode,
+  LayerTelemetrySnapshot,
+} from './architecture-facilities';
