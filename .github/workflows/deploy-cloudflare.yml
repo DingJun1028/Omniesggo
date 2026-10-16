@@ -106,6 +106,10 @@ jobs:
             if echo "$list" | grep -q 'esggo-web public bypass'; then
               echo "[diag] bypass app already exists (via $tok_name)"; exit 0
             fi
+            # Dashboard 手動建的 bypass app 名稱可能不同 — 偵測任一 worker 級 destination
+            if echo "$list" | grep -q '"type"[: ]*"worker"' && echo "$list" | grep -q 'esggo-web'; then
+              echo "[diag] worker-level bypass app detected via $tok_name"; exit 0
+            fi
             res=$(curl -sS -X POST -H "Authorization: Bearer $tok" -H "Content-Type: application/json" \
               --data "$body" \
               "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/access/apps")
@@ -114,8 +118,10 @@ jobs:
               echo "[diag] bypass app created"; exit 0
             fi
           done
-          echo "::error::could not create esggo-web bypass app with any token (needs Zero Trust Access Apps+Policies edit)"
-          exit 1
+          # 沒有 Access 寫權（auth.forbidden 1010）時不擋部署——最終閘交給
+          # Verify worker endpoint（Access 302 會被判定失敗）。
+          echo "::warning::cannot ensure bypass via API (no Access Apps+Policies edit) — rely on dashboard bypass + verify gate"
+          exit 0
 
       - name: Deploy to Cloudflare Workers
         timeout-minutes: 9
