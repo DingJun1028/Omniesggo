@@ -93,7 +93,7 @@ chcp 65001
 ### Native 指令輸出落檔（PowerShell 5.1 重災區）
 
 根因：PS5.1 的 `>` 與管道對 native 指令（gh/git/node…）輸出**轉碼成 UTF-16LE**，
-下游 node `JSON.parse` 吃到 FF FE 開頭即炸 `Unexpected token '�'`。
+下游 node `JSON.parse` 吃到 FF FE 開頭即炸 `Unexpected token '[U+FFFD]'`。
 （跡象：檔案 20KB 內容正常卻 parse 失敗；`[Text.Encoding]::UTF8.GetString` 讀出全空格交錯＝UTF-16LE 特徵。）
 
 根果消除（一次修復不復發）：
