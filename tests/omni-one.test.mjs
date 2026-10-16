@@ -1,7 +1,7 @@
 // tests/omni-one.test.mjs
 // ============================================================
-// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G15)
-// 主題：ESGGO 善向永續、淨零實踐、MECE 邊界隔離與 5T 存證回溯驗證
+// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G16)
+// 主題：ESGGO 善向永續、淨零實踐、MECE 邊界隔離、5T 存證回溯與 Docker 容器化契約
 // ============================================================
 
 import { strict as assert } from 'node:assert';
@@ -581,7 +581,7 @@ const g12 = group('G12: ESGGO 善向永續端到端真實用戶旅程與雙向�
         process: async (prev) => {
           trace.push(9);
           const telemetry = {
-              cycleSuccess: true,
+            cycleSuccess: true,
             totalProcessedLayers: 10,
             avgConfidence: 0.97,
             suggestedCalibration: {
@@ -836,9 +836,42 @@ const g15 = group('G15: 5T 案例庫 (cases.jsonl) 存證、歷史回溯與雷�
   }),
 ]);
 
+// ── G16: Next.js Production Build 與 Docker 容器化構建契約驗證 ──
+const g16 = group('G16: Next.js Production Build 與 Docker 容器化構建契約驗證', [
+  test('驗證 Dockerfile 多階段構建 (deps, builder, runner) 結構與 0.0.0.0 網路綁定', async () => {
+    const dockerfilePath = path.resolve(process.cwd(), 'Dockerfile');
+    const content = await fs.readFile(dockerfilePath, 'utf-8');
+    assert.ok(content.includes('AS deps'), '必須包含 deps 階段');
+    assert.ok(content.includes('AS builder'), '必須包含 builder 階段');
+    assert.ok(content.includes('AS runner'), '必須包含 runner 階段');
+    assert.ok(content.includes('ENV HOSTNAME="0.0.0.0"') || content.includes('-H 0.0.0.0') || content.includes('"-H", "0.0.0.0"'), 'runner 必須監聽 0.0.0.0 避免容器外部連線被拒');
+    assert.ok(content.includes('HEALTHCHECK'), '必須具備容器健康探活機制');
+  }),
+  test('驗證 Dockerfile runner 階段完整拷貝 packages、sdks 與 Omni-Sanctuary 存證目錄', async () => {
+    const dockerfilePath = path.resolve(process.cwd(), 'Dockerfile');
+    const content = await fs.readFile(dockerfilePath, 'utf-8');
+    assert.ok(content.includes('COPY --from=builder /app/packages ./packages'), '必須拷貝 packages 目錄');
+    assert.ok(content.includes('COPY --from=builder /app/sdks ./sdks'), '必須拷貝 sdks 目錄');
+    assert.ok(content.includes('COPY --from=builder /app/Omni-Sanctuary ./Omni-Sanctuary'), '必須拷貝 Omni-Sanctuary 目錄');
+    assert.ok(content.includes('/app/Omni-Sanctuary/omni-one-萬能筆記/memories'), '必須預建 5T 存證資料目錄');
+  }),
+  test('驗證 package.json 包含 next build 與 production start 腳本指令，且 start 綁定 0.0.0.0', async () => {
+    const pkgPath = path.resolve(process.cwd(), 'package.json');
+    const content = await fs.readFile(pkgPath, 'utf-8');
+    const pkg = JSON.parse(content);
+    assert.ok(pkg.scripts.build && pkg.scripts.build.includes('next build'), 'build 腳本必須包含 next build');
+    assert.ok(pkg.scripts.start && pkg.scripts.start.includes('0.0.0.0'), 'start 腳本必須綁定 0.0.0.0');
+  }),
+  test('驗證 next.config.mjs 或 build 配置支援生產環境 standalone / 靜態打包相容性', async () => {
+    const nextConfigPath = path.resolve(process.cwd(), 'next.config.mjs');
+    const content = await fs.readFile(nextConfigPath, 'utf-8');
+    assert.ok(content.includes('output') || content.includes('standalone') || content.includes('nextConfig'), 'next.config.mjs 必須具備正確的 Next.js 配置契約');
+  }),
+]);
+
 // ── 執行所有測試群組 ──
 (async () => {
-  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G15)\n');
+  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G16)\n');
   await g1();
   await g2();
   await g3();
@@ -854,6 +887,7 @@ const g15 = group('G15: 5T 案例庫 (cases.jsonl) 存證、歷史回溯與雷�
   await g13();
   await g14();
   await g15();
+  await g16();
   console.log(`\n${'='.repeat(50)}`);
   console.log(`結果: ${pass} 通過 / ${fail} 失敗`);
   console.log(`${'='.repeat(50)}`);
