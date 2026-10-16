@@ -17,12 +17,13 @@ import { OmniCalendarView } from './omni-calendar-view';
 import { UniversalOmniConsole } from './universal-omni-console';
 import LearningCenter from './learning-center';
 import { HermesCronStatus } from './hermes-cron-status';
+import { ConcentricRadar } from './concentric-radar';
 import { useAgnesApi } from '../../src/components/AgnesProvider';
 import { OmniBaseCard } from '@/components/omni-base-card';
 import { db } from '@lib/firebase';
 import { collection, onSnapshot, query, orderBy } from '@lib/firebase';
 
-type Tab = 'overview' | 'learning' | 'notes' | 'tasks' | 'calendar' | 'chat' | 'fiveT' | 'rag' | 'zkp' | 'omniFn' | 'hermesCron';
+type Tab = 'overview' | 'concentricRadar' | 'learning' | 'notes' | 'tasks' | 'calendar' | 'chat' | 'fiveT' | 'rag' | 'zkp' | 'omniFn' | 'hermesCron';
 
 interface TraceEvent {
   uuid: string;
@@ -308,6 +309,7 @@ export default function OmniCenterPage() {
           <div role="tablist" className="inline-flex gap-1.5 p-1.5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 shadow-sm min-w-max">
             {[
               { id: 'overview', label: '六器官戰情總攬', icon: Activity },
+              { id: 'concentricRadar', label: '10層同心圓雷達', icon: Radar },
               { id: 'learning', label: '學習中心', icon: GraduationCap },
               { id: 'notes', label: '萬能筆記', icon: BookOpen },
               { id: 'tasks', label: '萬能任務', icon: CheckCircle2 },
@@ -349,6 +351,9 @@ export default function OmniCenterPage() {
         {tab === 'overview' && (
           <div className="space-y-6">
             
+            {/* 10 層 MECE 同心圓萬能設施雷達 (ESGGO 善向永續) */}
+            <ConcentricRadar />
+
             {/* 六器官狀態矩陣 (Hexa-Core Matrix Grid) */}
             <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
@@ -592,7 +597,14 @@ export default function OmniCenterPage() {
           </div>
         )}
 
-        {/* ── 3.2 各子視圖（完全相容既有功能） ── */}
+        {/* ── 3.2 10 層同心圓雷達視圖 ── */}
+        {tab === 'concentricRadar' && (
+          <div className="max-w-5xl mx-auto">
+            <ConcentricRadar />
+          </div>
+        )}
+
+        {/* ── 3.3 各子視圖（完全相容既有功能） ── */}
         {tab === 'learning' && (
           <OmniBaseCard className="!p-4">
             <LearningCenter />
