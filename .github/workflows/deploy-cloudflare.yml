@@ -67,7 +67,7 @@ jobs:
         env:
           CF_TOKEN: ${{ secrets.CF_DNS_EDIT_TOKEN }}
           CF_ZONE: ${{ secrets.CF_ZONE_ID }}
-          WORKER_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
           SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
         run: |
           # 1) 確保 web.esggo.co CNAME 存在（冪等）
@@ -86,7 +86,7 @@ jobs:
             echo "::warning::CF_DNS_EDIT_TOKEN/CF_ZONE_ID missing, skip dns ensure"
           fi
           # 2) 掛 worker secret DATABASE_URL（Prisma@Workers 用；冪等覆寫）
-          if [ -n "$SUPABASE_DATABASE_URL" ] && [ -n "$WORKER_TOKEN" ]; then
+          if [ -n "$SUPABASE_DATABASE_URL" ] && [ -n "$CLOUDFLARE_API_TOKEN" ]; then
             echo "$SUPABASE_DATABASE_URL" | npx wrangler secret put DATABASE_URL
             echo "[diag] DATABASE_URL secret set"
           else
