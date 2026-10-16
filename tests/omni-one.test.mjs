@@ -1,7 +1,7 @@
 // tests/omni-one.test.mjs
 // ============================================================
-// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G13)
-// 主題：ESGGO 善向永續、淨零實踐與 MECE 邊界隔離驗證
+// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G15)
+// 主題：ESGGO 善向永續、淨零實踐、MECE 邊界隔離與 5T 存證回溯驗證
 // ============================================================
 
 import { strict as assert } from 'node:assert';
@@ -267,14 +267,17 @@ const g8 = group('G8: architecture-facilities.ts 設施定義與 Catalog 完整�
     assert.ok(code.includes('OMNI_FACILITIES_CATALOG'), '必須導出 OMNI_FACILITIES_CATALOG');
     assert.ok(code.includes('OmniSystemConcentricDispatcher'), '必須導出 ConcentricDispatcher');
     assert.ok(code.includes('export interface IFacilityNode'), '必須定義 IFacilityNode 介面');
+    assert.ok(code.includes('export abstract class OmniFacility'), '必須定義 OmniFacility 抽象基底類別');
   }),
-  test('sdks/omni-one/src/index.ts 必須統一導出架構模組', async () => {
+  test('sdks/omni-one/src/index.ts 必須統一導出架構模組與設施類別', async () => {
     const indexPath = path.resolve(process.cwd(), 'sdks/omni-one/src/index.ts');
     const indexCode = await fs.readFile(indexPath, 'utf-8');
     assert.ok(
       indexCode.includes("export * from './architecture-facilities'"),
       'index.ts 必須 re-export architecture-facilities'
     );
+    assert.ok(indexCode.includes('OmniFacility'), 'index.ts 必須導出 OmniFacility');
+    assert.ok(indexCode.includes('IntentCoreFacility'), 'index.ts 必須導出 IntentCoreFacility');
   }),
 ]);
 
@@ -578,7 +581,7 @@ const g12 = group('G12: ESGGO 善向永續端到端真實用戶旅程與雙向�
         process: async (prev) => {
           trace.push(9);
           const telemetry = {
-            cycleSuccess: true,
+              cycleSuccess: true,
             totalProcessedLayers: 10,
             avgConfidence: 0.97,
             suggestedCalibration: {
@@ -773,9 +776,69 @@ const g13 = group('G13: OmniSystem 10 層同心圓雷達前端聯調與 API 遙�
   }),
 ]);
 
+// ── G14: OmniSystem 10 層設施 SDK 導出完整性與 OmniFacility 介面測試 ──
+const g14 = group('G14: OmniSystem 10 層設施 SDK 導出完整性與 OmniFacility 介面測試', [
+  test('sdks/omni-one/src/index.ts 必須具名導出 10 層設施實作類別與 OmniFacility', async () => {
+    const indexPath = path.resolve(process.cwd(), 'sdks/omni-one/src/index.ts');
+    const indexCode = await fs.readFile(indexPath, 'utf-8');
+    const expectedExports = [
+      'OmniFacility',
+      'IntentCoreFacility',
+      'PerceptionRadarFacility',
+      'MemoryHubFacility',
+      'InferenceBrainFacility',
+      'GovernanceGateFacility',
+      'OrchestrationHubFacility',
+      'ExecutionWorkshopFacility',
+      'IntegrationNetworkFacility',
+      'ExperiencePortalFacility',
+      'EvolutionRingFacility',
+      'createDefaultOmniDispatcher',
+    ];
+    for (const exp of expectedExports) {
+      assert.ok(indexCode.includes(exp), `index.ts 必須導出 ${exp}`);
+    }
+  }),
+  test('10 層設施實作類別均繼承 OmniFacility 並具備正確層級與詮釋資料', async () => {
+    const archPath = path.resolve(process.cwd(), 'sdks/omni-one/src/architecture-facilities.ts');
+    const archCode = await fs.readFile(archPath, 'utf-8');
+    assert.ok(archCode.includes('export abstract class OmniFacility'), '必須包含 OmniFacility 抽象類別');
+    for (let l = 0; l <= 9; l++) {
+      assert.ok(archCode.includes(`FacilityLayer`), '必須使用 FacilityLayer 列舉');
+    }
+  }),
+]);
+
+// ── G15: 5T 案例庫 (cases.jsonl) 存證、歷史回溯與雷達 API 串接驗證 ──
+const g15 = group('G15: 5T 案例庫 (cases.jsonl) 存證、歷史回溯與雷達 API 串接驗證', [
+  test('Omni-Sanctuary cases.jsonl 實體檔案存在且每筆記錄符合 5T 規範', async () => {
+    const casesPath = path.resolve(process.cwd(), 'Omni-Sanctuary/omni-one-萬能筆記/memories/cases.jsonl');
+    const raw = await fs.readFile(casesPath, 'utf-8');
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    assert.ok(lines.length >= 10, '案例存證庫至少應包含 10 筆以上最佳實踐紀錄');
+    for (const line of lines) {
+      const record = JSON.parse(line);
+      assert.ok(record.caseId, '每筆記錄必須有 caseId');
+      assert.ok(record.timestamp, '每筆記錄必須有 timestamp');
+      assert.equal(record.hashLock.length, 64, '5T Hash Lock 必須為 64 位元十六進位字串');
+      assert.equal(record.fiveTGrade, '5T-A+', '評級必須為 5T-A+');
+      assert.ok(record.telemetry, '必須包含遙測結構');
+    }
+  }),
+  test('雷達 API 路由 (app/api/omni-center/radar/route.ts) 完整整合 5T 案例庫與歷史回溯', async () => {
+    const routePath = path.resolve(process.cwd(), 'app/api/omni-center/radar/route.ts');
+    const routeCode = await fs.readFile(routePath, 'utf-8');
+    assert.ok(routeCode.includes('CASES_JSONL_PATH'), 'API 必須定義 cases.jsonl 路徑');
+    assert.ok(routeCode.includes('readPersistedCases'), 'API 必須具備 5T 案例讀取與歷史回溯函式');
+    assert.ok(routeCode.includes('appendPersistedCase'), 'API 必須具備 5T 存證寫入能力');
+    assert.ok(routeCode.includes('best_practice_journey'), 'POST 介面必須支援最佳實踐用戶旅程存證');
+    assert.ok(routeCode.includes('history:'), 'GET/POST 回應必須提供歷史回溯資料結構');
+  }),
+]);
+
 // ── 執行所有測試群組 ──
 (async () => {
-  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G13)\n');
+  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G15)\n');
   await g1();
   await g2();
   await g3();
@@ -789,6 +852,8 @@ const g13 = group('G13: OmniSystem 10 層同心圓雷達前端聯調與 API 遙�
   await g11();
   await g12();
   await g13();
+  await g14();
+  await g15();
   console.log(`\n${'='.repeat(50)}`);
   console.log(`結果: ${pass} 通過 / ${fail} 失敗`);
   console.log(`${'='.repeat(50)}`);
