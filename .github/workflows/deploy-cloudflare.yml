@@ -62,15 +62,13 @@ jobs:
           pnpm install --frozen-lockfile
           echo "[diag] install ok end=$(date -u +%FT%TZ)"
 
-      - name: Ensure public DNS + DATABASE_URL secret
+      - name: Ensure public DNS
         timeout-minutes: 3
         env:
           CF_TOKEN: ${{ secrets.CF_DNS_EDIT_TOKEN }}
           CF_ZONE: ${{ secrets.CF_ZONE_ID }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
-          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
         run: |
-          # 1) 確保 web.esggo.co CNAME 存在（冪等）
+          # 確保 web.esggo.co CNAME 存在（冪等）
           if [ -n "$CF_TOKEN" ] && [ -n "$CF_ZONE" ]; then
             existing=$(curl -sS -H "Authorization: Bearer $CF_TOKEN" \
               "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records?name=web.esggo.co&type=CNAME")
@@ -84,14 +82,6 @@ jobs:
             fi
           else
             echo "::warning::CF_DNS_EDIT_TOKEN/CF_ZONE_ID missing, skip dns ensure"
-          fi
-          # 2) 掛 worker secret DATABASE_URL（Prisma@Workers 用；冪等覆寫）
-          if [ -n "$SUPABASE_DATABASE_URL" ] && [ -n "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "$SUPABASE_DATABASE_URL" | npx wrangler secret put DATABASE_URL
-            echo "[diag] DATABASE_URL secret set"
-          else
-            echo "::error::SUPABASE_DATABASE_URL or worker token missing"
-            exit 1
           fi
 
       - name: Deploy to Cloudflare Workers
@@ -108,6 +98,21 @@ jobs:
           echo "[diag] deploy start=$(date -u +%FT%TZ)"
           pnpm run deploy:cloudflare
           echo "[diag] deploy done end=$(date -u +%FT%TZ)"
+
+      - name: Set DATABASE_URL secret (esggo-web)
+        timeout-minutes: 3
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          # 必須在 deploy 之後：versions 工作流要求「最新版本已部署」才能改 secret；
+          # 且顯式 --config 指向 esggo-web（預設會誤抓 wrangler.toml 的 esggo worker）。
+          if [ -z "$SUPABASE_DATABASE_URL" ]; then
+            echo "::error::SUPABASE_DATABASE_URL secret missing"
+            exit 1
+          fi
+          echo "$SUPABASE_DATABASE_URL" | npx wrangler secret put DATABASE_URL --config wrangler.web.jsonc
+          echo "[diag] DATABASE_URL secret set on esggo-web"
 
       - name: Verify worker endpoint
         if: success()
