@@ -9,7 +9,15 @@
       "binding": "VINEXT_KV_CACHE",
       "id": "2f376dbffa554d3680c04cc936ace80c"
     }
+  ],
+  // 522 根因：無 routes/custom_domains 時 CF 只把 proxied CNAME 當一般 origin 拉
+  // workers.dev → 連線逾時。route 綁定讓 esggo-web 直接接管 web.esggo.co 請求。
+  // DNS CNAME（web.esggo.co → esggo-web...workers.dev，proxied）仍由 CI 步驟冪等確保，
+  // 公開站不經 Cloudflare Access「All Workers」保護層（該層僅匹配 workers.dev hostname）。
+  "routes": [
+    {
+      "pattern": "web.esggo.co",
+      "zone_name": "esggo.co"
+    }
   ]
-  // 公開域名 web.esggo.co 以 DNS CNAME → esggo-web...workers.dev（proxied）掛載，
-  // 不經 Cloudflare Access「All Workers」保護層（該層僅匹配 workers.dev hostname）。
 }
