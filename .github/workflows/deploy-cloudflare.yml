@@ -89,7 +89,7 @@ jobs:
         env:
           TOKEN_A: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
           TOKEN_B: ${{ secrets.CF_DNS_EDIT_TOKEN }}
-          CF_ACCOUNT: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_ACCOUNT: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           # account 級 all_workers Access 會擋 web.esggo.co（實測 302 CF_AppSession）。
           # 官方解法：worker 級 bypass app 覆蓋 account 級 fallback（Access hierarchy）。
