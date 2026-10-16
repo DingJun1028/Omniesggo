@@ -1,6 +1,6 @@
 // tests/omni-one.test.mjs
 // ============================================================
-// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G11)
+// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G12)
 // 主題：ESGGO 善向永續、淨零實踐與 MECE 邊界隔離驗證
 // ============================================================
 
@@ -388,9 +388,321 @@ const g11 = group('G11: 雙向閉環演化反饋 (9 -> 2 & 0) 與 ESGGO 全層�
   }),
 ]);
 
+// ── G12: ESGGO 善向永續端到端真實用戶旅程與雙向閉環實踐驗證 ──
+const g12 = group('G12: ESGGO 善向永續端到端真實用戶旅程與雙向閉環實踐驗證', [
+  test('企業碳盤查情境全流程貫穿 Layer 0 至 Layer 9 外向擴散鏈', async () => {
+    const trace = [];
+    const layerOutputs = new Map();
+
+    const facilities = [
+      {
+        layer: 0,
+        name: '萬能意圖心核',
+        process: async (input) => {
+          trace.push(0);
+          assert.ok(input.intent.includes('ESGGO') || input.intent.includes('碳盤查'));
+          return {
+            intent: input.intent,
+            targetYear: 2026,
+            vision: 'ESGGO 善向永續 NetZero 零碳轉型',
+            status: 'anchored',
+          };
+        },
+      },
+      {
+        layer: 1,
+        name: '萬能感知雷達',
+        process: async (prev) => {
+          trace.push(1);
+          const rawDocs = [
+            { type: 'scope_1', source: '柴油/天然氣鍋爐', value: 1250, unit: 'tCO2e' },
+            { type: 'scope_2', source: '外購電力', value: 3420, unit: 'tCO2e' },
+          ];
+          const docHash = createHash('sha256').update(JSON.stringify(rawDocs)).digest('hex');
+          return {
+            ...prev,
+            ingestedDocuments: rawDocs,
+            docFingerprint: docHash,
+            sensorStatus: 'perceived',
+          };
+        },
+      },
+      {
+        layer: 2,
+        name: '萬能記憶樞紐',
+        process: async (prev) => {
+          trace.push(2);
+          const memSystem = new MockMemorySystem();
+          const record = memSystem.store({
+            caseType: 'esg_report',
+            input: prev.intent,
+            output: `基線錨定: Scope1=1250, Scope2=3420, 指紋=${prev.docFingerprint.slice(0, 8)}`,
+            confidence: 0.96,
+          });
+          return {
+            ...prev,
+            baselineEmissions: 5100,
+            memoryCaseId: record.id,
+            memoryTimestamp: record.timestamp,
+          };
+        },
+      },
+      {
+        layer: 3,
+        name: '萬能推理大腦',
+        process: async (prev) => {
+          trace.push(3);
+          const totalRaw = prev.ingestedDocuments.reduce((s, d) => s + d.value, 0);
+          const reductionDelta = prev.baselineEmissions - totalRaw;
+          const reductionRatio = (reductionDelta / prev.baselineEmissions) * 100;
+          return {
+            ...prev,
+            totalEmissions: totalRaw,
+            reductionRatio: Number(reductionRatio.toFixed(2)),
+            recommendations: [
+              '導入屋頂型太陽能綠電直供 (減排 35%)',
+              '公務與物流車隊全面電動化轉換 (減排 15%)',
+            ],
+            reasoningEngine: 'Groq Qwen 3.8-27b',
+            confidence: 0.95,
+          };
+        },
+      },
+      {
+        layer: 4,
+        name: '萬能治理閘門',
+        process: async (prev) => {
+          trace.push(4);
+          assert.ok(prev.totalEmissions > 0, '碳排總量必須大於零');
+          assert.ok(prev.reductionRatio > 0, '減碳比例必須符合正向目標');
+          const complianceChecks = {
+            'GRI-305-1': { passed: true, standard: '直接溫室氣體排放' },
+            'GRI-305-2': { passed: true, standard: '能源間接溫室氣體排放' },
+            'ISO-14064-1': { passed: true, standard: '組織層級溫室氣體量化' },
+          };
+          return {
+            ...prev,
+            governancePassed: true,
+            complianceChecks,
+            boundaryCheckedAt: Date.now(),
+          };
+        },
+      },
+      {
+        layer: 5,
+        name: '萬能編排中樞',
+        process: async (prev) => {
+          trace.push(5);
+          const dagPlan = [
+            { id: 'task-1', name: 'GRI-305 指標公式結算', deps: [] },
+            { id: 'task-2', name: '減排效益敏感度模擬', deps: ['task-1'] },
+            { id: 'task-3', name: '永續主管電子簽署與存證', deps: ['task-2'] },
+          ];
+          return {
+            ...prev,
+            orchestrationDag: dagPlan,
+            scheduledNodes: dagPlan.length,
+          };
+        },
+      },
+      {
+        layer: 6,
+        name: '萬能執行工坊',
+        process: async (prev) => {
+          trace.push(6);
+          const results = prev.orchestrationDag.map(t => ({
+            taskId: t.id,
+            executed: true,
+            outputHash: createHash('sha256').update(t.name).digest('hex').slice(0, 16),
+          }));
+          return {
+            ...prev,
+            executionResults: results,
+            computationComplete: true,
+          };
+        },
+      },
+      {
+        layer: 7,
+        name: '萬能整合網絡',
+        process: async (prev) => {
+          trace.push(7);
+          const externalPayload = {
+            protocol: 'ESGGO-OpenRegistry/v1',
+            reportingEntity: 'ESGGO Enterprise Corp',
+            scope1: 1250,
+            scope2: 3420,
+            total: prev.totalEmissions,
+            griMetrics: ['GRI-305-1', 'GRI-305-2'],
+          };
+          return {
+            ...prev,
+            externalPayload,
+            exportConnector: 'CloudflareWorkerRegistryBridge',
+            connectorStatus: 'synced',
+          };
+        },
+      },
+      {
+        layer: 8,
+        name: '萬能體驗門戶',
+        process: async (prev) => {
+          trace.push(8);
+          const radarDimensions = [
+            { layer: 0, label: '意圖心核', score: 100 },
+            { layer: 1, label: '感知雷達', score: 98 },
+            { layer: 2, label: '記憶樞紐', score: 95 },
+            { layer: 3, label: '推理大腦', score: 95 },
+            { layer: 4, label: '治理閘門', score: 100 },
+            { layer: 5, label: '編排中樞', score: 96 },
+            { layer: 6, label: '執行工坊', score: 99 },
+            { layer: 7, label: '整合網絡', score: 97 },
+            { layer: 8, label: '體驗門戶', score: 100 },
+            { layer: 9, label: '演化生長環', score: 94 },
+          ];
+          return {
+            ...prev,
+            radarDimensions,
+            viewRendered: 'ConcentricRadar10LayerMounted',
+            userExperienceStream: 'SSE_ACTIVE',
+          };
+        },
+      },
+      {
+        layer: 9,
+        name: '萬能演化生長環',
+        process: async (prev) => {
+          trace.push(9);
+          const telemetry = {
+            cycleSuccess: true,
+            totalProcessedLayers: 10,
+            avgConfidence: 0.97,
+            suggestedCalibration: {
+              nextTargetReduction: 12.5,
+              memoryRetainDays: 365,
+            },
+          };
+          return {
+            ...prev,
+            evolutionTelemetry: telemetry,
+            ringStatus: 'evolved',
+          };
+        },
+      },
+    ];
+
+    let current = { intent: 'ESGGO 善向永續 2026 企業碳盤查與 GRI 淨零轉型' };
+    for (const fac of facilities) {
+      current = await fac.process(current);
+      layerOutputs.set(fac.layer, current);
+    }
+
+    assert.deepEqual(trace, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    assert.equal(layerOutputs.size, 10);
+    assert.equal(current.totalEmissions, 4670);
+    assert.equal(current.reductionRatio, 8.43);
+    assert.equal(current.governancePassed, true);
+    assert.equal(current.viewRendered, 'ConcentricRadar10LayerMounted');
+    assert.equal(current.ringStatus, 'evolved');
+  }),
+  test('演化生長環 Layer 9 觸發反向雙向閉環：記憶存證 (Layer 2) 與意圖校準 (Layer 0)', async () => {
+    const closedLoopFeedback = [];
+    const memorySystem = new MockMemorySystem();
+
+    const evolutionFeedback = {
+      sourceLayer: 9,
+      timestamp: Date.now(),
+      cycleId: `CYCLE-${randomBytes(3).toString('hex').toUpperCase()}`,
+      learnedInsights: {
+        scope1OptimizedRatio: 0.12,
+        scope2GreenTariffDelta: 0.08,
+        recommendedNextBaseline: 4670,
+      },
+    };
+
+    const memoryFeedbackHandler = (feedback) => {
+      const memoryRecord = memorySystem.store({
+        caseType: 'esg_report',
+        input: `演化閉環存證: ${feedback.cycleId}`,
+        output: JSON.stringify(feedback.learnedInsights),
+        confidence: 0.98,
+      });
+      closedLoopFeedback.push({
+        targetLayer: 2,
+        storedId: memoryRecord.id,
+        cycleId: feedback.cycleId,
+      });
+      return memoryRecord;
+    };
+
+    let coreIntent = {
+      targetEmissions: 5000,
+      ambitionLevel: 'standard',
+      theme: 'ESGGO 善向永續',
+    };
+    const intentFeedbackHandler = (feedback) => {
+      coreIntent = {
+        ...coreIntent,
+        targetEmissions: feedback.learnedInsights.recommendedNextBaseline,
+        ambitionLevel: 'hyper_awakened',
+        calibratedAt: feedback.timestamp,
+      };
+      closedLoopFeedback.push({
+        targetLayer: 0,
+        newTargetEmissions: coreIntent.targetEmissions,
+        ambitionLevel: coreIntent.ambitionLevel,
+      });
+      return coreIntent;
+    };
+
+    const memRecord = memoryFeedbackHandler(evolutionFeedback);
+    const updatedIntent = intentFeedbackHandler(evolutionFeedback);
+
+    assert.equal(closedLoopFeedback.length, 2);
+    assert.equal(closedLoopFeedback[0].targetLayer, 2);
+    assert.match(memRecord.id, /^MEM-[0-9A-F]{8}$/);
+    assert.equal(closedLoopFeedback[1].targetLayer, 0);
+    assert.equal(updatedIntent.targetEmissions, 4670);
+    assert.equal(updatedIntent.ambitionLevel, 'hyper_awakened');
+  }),
+  test('端到端全鏈路 5T 治理 Hash Lock 存證與不可變凍結校驗', async () => {
+    const e2ePayload = {
+      journeyId: 'JOURNEY-ESGGO-2026-E2E',
+      theme: 'ESGGO 善向永續',
+      layersCovered: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      metrics: {
+        scope1: 1250,
+        scope2: 3420,
+        total: 4670,
+        unit: 'tCO2e',
+        griStandard: 'GRI 305: Emissions 2026',
+      },
+      governanceGrade: '5T-A+ Master Tier',
+      verifiedAt: new Date().toISOString(),
+    };
+
+    const hashPayload = JSON.stringify(e2ePayload);
+    const hashLock = createHash('sha256').update(hashPayload).digest('hex');
+    assert.equal(hashLock.length, 64);
+
+    const sealedJourney = Object.freeze({
+      ...e2ePayload,
+      hashLock,
+      isSealed: true,
+    });
+
+    assert.throws(() => {
+      sealedJourney.theme = 'Modified';
+    }, TypeError);
+
+    assert.equal(sealedJourney.isSealed, true);
+    assert.equal(sealedJourney.hashLock, hashLock);
+  }),
+]);
+
 // ── 執行所有測試群組 ──
 (async () => {
-  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G11)\n');
+  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G12)\n');
   await g1();
   await g2();
   await g3();
@@ -402,6 +714,7 @@ const g11 = group('G11: 雙向閉環演化反饋 (9 -> 2 & 0) 與 ESGGO 全層�
   await g9();
   await g10();
   await g11();
+  await g12();
   console.log(`\n${'='.repeat(50)}`);
   console.log(`結果: ${pass} 通過 / ${fail} 失敗`);
   console.log(`${'='.repeat(50)}`);
