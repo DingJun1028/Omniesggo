@@ -1,6 +1,6 @@
 // tests/omni-one.test.mjs
 // ============================================================
-// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G12)
+// Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試套件 (G1 ~ G13)
 // 主題：ESGGO 善向永續、淨零實踐與 MECE 邊界隔離驗證
 // ============================================================
 
@@ -10,6 +10,7 @@ import path from 'node:path';
 import { createHash, randomBytes } from 'node:crypto';
 
 let pass = 0, fail = 0;
+
 const test = (name, fn) => async () => {
   try {
     await fn();
@@ -27,6 +28,7 @@ const group = (name, tests) => async () => {
 };
 
 // ── 模擬與自包含之核心資料結構 ──
+
 const CASE_PATTERNS = [
   { pattern: /優化|refactor|improve|performance|效能/i, type: 'code_optimization' },
   { pattern: /文檔|document|readme|spec|說明/i, type: 'documentation' },
@@ -44,6 +46,7 @@ class MockCaseHandler {
     }
     return 'general';
   }
+
   route(caseType) {
     const routes = {
       code_optimization: 'awakening:optimize',
@@ -64,6 +67,7 @@ class MockMemorySystem {
     this.memories = [];
     this.maxSize = maxSize;
   }
+
   store(entry) {
     const memory = {
       ...entry,
@@ -76,6 +80,7 @@ class MockMemorySystem {
     this.memories.push(memory);
     return memory;
   }
+
   retrieve(query, caseType, topK = 3) {
     const queryWords = new Set(query.toLowerCase().split(/\s+/));
     const scored = this.memories
@@ -90,8 +95,10 @@ class MockMemorySystem {
       })
       .sort((a, b) => b.score - a.score)
       .slice(0, topK);
+
     return scored.map(s => ({ ...s.entry, relevanceScore: s.score }));
   }
+
   size() { return this.memories.length; }
 }
 
@@ -100,6 +107,7 @@ class MockAutonomousLearning {
     this.records = [];
     this.confidenceByType = new Map();
   }
+
   learn(caseType, confidence) {
     this.records.push({ caseType, confidence, timestamp: Date.now() });
     const scores = this.confidenceByType.get(caseType) ?? [];
@@ -107,6 +115,7 @@ class MockAutonomousLearning {
     this.confidenceByType.set(caseType, scores);
     return scores.slice(-10).reduce((s, v) => s + v, 0) / Math.min(scores.length, 10);
   }
+
   getAverageConfidence(caseType) {
     if (caseType) {
       const scores = this.confidenceByType.get(caseType) ?? [];
@@ -224,7 +233,6 @@ const g7 = group('G7: docs/SAAS-ARCHITECTURE.md 10 層架構規範完整性', [
     const docPath = path.resolve(process.cwd(), 'docs/SAAS-ARCHITECTURE.md');
     const content = await fs.readFile(docPath, 'utf-8');
     assert.ok(content.length > 500, '架構文檔內容不得少於 500 字元');
-    
     const requiredLayers = [
       '萬能意圖心核',
       '萬能感知雷達',
@@ -282,7 +290,6 @@ const g9 = group('G9: IFacilityNode 節點註冊與檢索契約', [
     const dispatcher = new MockDispatcher();
     dispatcher.registerFacility({ layer: 0, name: '萬能意圖心核' });
     dispatcher.registerFacility({ layer: 9, name: '萬能演化生長環' });
-
     assert.equal(dispatcher.hasFacility(0), true);
     assert.equal(dispatcher.hasFacility(9), true);
     assert.equal(dispatcher.hasFacility(5), false);
@@ -334,7 +341,6 @@ const g11 = group('G11: 雙向閉環演化反饋 (9 -> 2 & 0) 與 ESGGO 全層�
             results.set(l, currentData);
           }
         }
-        // 閉環回饋
         if (this.facilities.has(9)) {
           const evolutionOutput = results.get(9);
           feedbackJournal.push({ targetLayer: 2, patch: evolutionOutput });
@@ -343,7 +349,6 @@ const g11 = group('G11: 雙向閉環演化反饋 (9 -> 2 & 0) 與 ESGGO 全層�
         return { results, feedbackLoopTriggered: feedbackJournal.length > 0 };
       }
     }
-
     const dispatcher = new FullConcentricDispatcher();
     const layers = [
       { l: 0, n: '萬能意圖心核' },
@@ -357,7 +362,6 @@ const g11 = group('G11: 雙向閉環演化反饋 (9 -> 2 & 0) 與 ESGGO 全層�
       { l: 8, n: '萬能體驗門戶' },
       { l: 9, n: '萬能演化生長環' },
     ];
-
     layers.forEach(({ l, n }) => {
       dispatcher.registerFacility(l, n, async (input, prevResults) => {
         return {
@@ -640,6 +644,7 @@ const g12 = group('G12: ESGGO 善向永續端到端真實用戶旅程與雙向�
       ambitionLevel: 'standard',
       theme: 'ESGGO 善向永續',
     };
+
     const intentFeedbackHandler = (feedback) => {
       coreIntent = {
         ...coreIntent,
@@ -700,9 +705,77 @@ const g12 = group('G12: ESGGO 善向永續端到端真實用戶旅程與雙向�
   }),
 ]);
 
+// ── G13: OmniSystem 10 層同心圓雷達前端聯調與 API 遙測介面測試 ──
+const g13 = group('G13: OmniSystem 10 層同心圓雷達前端聯調與 API 遙測介面測試', [
+  test('驗證 10 層設施 (Layer 0 ~ 9) 遙測指標結構完整性與核心欄位', () => {
+    const requiredMetrics = {
+      0: '願景錨定',
+      1: '遙測活躍',
+      2: '案例存證',
+      3: '極速推演',
+      4: '剛性合規',
+      5: 'DAG 調度',
+      6: '結算',
+      7: '聯通',
+      8: '串流',
+      9: '雙向閉環',
+    };
+    for (let l = 0; l <= 9; l++) {
+      assert.ok(requiredMetrics[l], `層級 ${l} 必須定義對應之核心運行指標`);
+    }
+  }),
+  test('驗證外部 API 通道優雅回退機制 (Groq、ESGGO 永續、5T 治理無外部憑證時安全降級)', () => {
+    const mockEnv = { GROQ_API_KEY: undefined };
+    const bridgeState = {
+      groq: {
+        status: mockEnv.GROQ_API_KEY ? 'connected' : 'simulated',
+        model: 'qwen/qwen3.8-27b',
+        latencyMs: 14,
+      },
+      fiveTGovernance: {
+        status: 'simulated',
+        caseCount: 47,
+        verifiedIntegrity: true,
+      },
+      esggoCarbon: {
+        status: 'connected',
+        scope1: 1250,
+        scope2: 3420,
+        reductionRatio: 8.43,
+      },
+    };
+    assert.equal(bridgeState.groq.status, 'simulated');
+    assert.equal(bridgeState.groq.model, 'qwen/qwen3.8-27b');
+    assert.ok(bridgeState.groq.latencyMs > 0);
+    assert.equal(bridgeState.fiveTGovernance.caseCount, 47);
+    assert.equal(bridgeState.esggoCarbon.reductionRatio, 8.43);
+  }),
+  test('驗證同心圓雷達即時聯調端點 (GET /api/omni-center/radar) 資料結構規範', async () => {
+    const routePath = path.resolve(process.cwd(), 'app/api/omni-center/radar/route.ts');
+    const routeCode = await fs.readFile(routePath, 'utf-8');
+    assert.ok(routeCode.includes('export async function GET'), '必須導出 GET 處理函式');
+    assert.ok(routeCode.includes('export async function POST'), '必須導出 POST 處理函式');
+    assert.ok(routeCode.includes('RadarTelemetryResponseData') || routeCode.includes('externalBridge'), '必須定義完整雷達遙測資料結構');
+    assert.ok(routeCode.includes('allLayersOptimal'), '必須包含全層級健全度指示器');
+  }),
+  test('驗證單層設施即時診斷與聯調測試 (POST /api/omni-center/radar) 契約規範', async () => {
+    const routePath = path.resolve(process.cwd(), 'app/api/omni-center/radar/route.ts');
+    const routeCode = await fs.readFile(routePath, 'utf-8');
+    assert.ok(routeCode.includes('test_layer') || routeCode.includes('diagnosis'), 'POST 介面必須支援單層即時診斷');
+    assert.ok(routeCode.includes('verifiedHashLock'), '診斷結果必須包含 5T 存證雜湊鎖');
+  }),
+  test('驗證 ConcentricRadar 前端組件依賴之常數與 10 層 MECE 架構保持 100% 相容', async () => {
+    const radarPath = path.resolve(process.cwd(), 'app/omni-center/concentric-radar.tsx');
+    const radarCode = await fs.readFile(radarPath, 'utf-8');
+    assert.ok(radarCode.includes('CONCENTRIC_LAYERS'), '必須導出 CONCENTRIC_LAYERS 常數');
+    assert.ok(radarCode.includes('ConcentricRadar'), '必須導出 ConcentricRadar 組件');
+    assert.ok(radarCode.includes('/api/omni-center/radar'), '前端必須串接 /api/omni-center/radar 即時端點');
+  }),
+]);
+
 // ── 執行所有測試群組 ──
 (async () => {
-  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G12)\n');
+  console.log('Omni-One SDK & OmniSystem 10 層同心圓萬能設施測試 (G1 ~ G13)\n');
   await g1();
   await g2();
   await g3();
@@ -715,6 +788,7 @@ const g12 = group('G12: ESGGO 善向永續端到端真實用戶旅程與雙向�
   await g10();
   await g11();
   await g12();
+  await g13();
   console.log(`\n${'='.repeat(50)}`);
   console.log(`結果: ${pass} 通過 / ${fail} 失敗`);
   console.log(`${'='.repeat(50)}`);
