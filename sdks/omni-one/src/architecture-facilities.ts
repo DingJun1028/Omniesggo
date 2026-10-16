@@ -170,3 +170,142 @@ export function createDefaultOmniDispatcher(): OmniSystemConcentricDispatcher {
   }
   return dispatcher;
 }
+
+export interface LayerTelemetrySnapshot {
+  layer: FacilityLayer;
+  name: string;
+  representative: string;
+  theme: string;
+  status: 'optimal' | 'active' | 'warning' | 'standby';
+  load: number;
+  metric: string;
+  latencyMs: number;
+  details: Record<string, string | number | boolean>;
+  lastUpdated: string;
+}
+
+export function getFacilityTelemetryDefaults(): LayerTelemetrySnapshot[] {
+  const now = new Date().toISOString();
+  return [
+    {
+      layer: FacilityLayer.IntentCore,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.IntentCore].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.IntentCore].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.IntentCore].theme,
+      status: 'optimal',
+      load: 35,
+      metric: '100% 願景錨定',
+      latencyMs: 4,
+      details: { intentSpec: 'ESGGO NetZero 2026', alignedPolaris: true, activePillars: 3 },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.PerceptionRadar,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.PerceptionRadar].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.PerceptionRadar].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.PerceptionRadar].theme,
+      status: 'optimal',
+      load: 58,
+      metric: '1.4k msg/s 遙測活躍',
+      latencyMs: 9,
+      details: { streamThroughput: '1.4k msg/s', docFingerprint: 'sha256-verified', sensorIngestion: 'realtime' },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.MemoryHub,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.MemoryHub].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.MemoryHub].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.MemoryHub].theme,
+      status: 'optimal',
+      load: 42,
+      metric: '47 案例存證',
+      latencyMs: 6,
+      details: { totalCases: 47, fiveTCompliant: true, retrievalConfidence: 0.96 },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.InferenceBrain,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.InferenceBrain].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.InferenceBrain].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.InferenceBrain].theme,
+      status: 'optimal',
+      load: 64,
+      metric: '12ms 極速推演',
+      latencyMs: 12,
+      details: { engine: 'Groq Qwen 3.8-27b', bridgeStatus: 'connected', confidenceScore: 0.95 },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.GovernanceGate,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.GovernanceGate].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.GovernanceGate].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.GovernanceGate].theme,
+      status: 'optimal',
+      load: 22,
+      metric: '100% 剛性合規',
+      latencyMs: 5,
+      details: { gri305Passed: true, iso14064Passed: true, securityBoundary: 'rigid', violations: 0 },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.OrchestrationHub,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.OrchestrationHub].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.OrchestrationHub].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.OrchestrationHub].theme,
+      status: 'optimal',
+      load: 48,
+      metric: '0 衝突 DAG 調度',
+      latencyMs: 11,
+      details: { dagNodes: 3, conflictRate: '0%', pipelineState: 'synchronized' },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.ExecutionWorkshop,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.ExecutionWorkshop].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.ExecutionWorkshop].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.ExecutionWorkshop].theme,
+      status: 'optimal',
+      load: 76,
+      metric: '4,670 tCO2e 結算',
+      latencyMs: 18,
+      details: { computationComplete: true, totalCarbonSettled: 4670, repairSwarmStatus: 'idle' },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.IntegrationNetwork,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.IntegrationNetwork].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.IntegrationNetwork].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.IntegrationNetwork].theme,
+      status: 'optimal',
+      load: 32,
+      metric: 'GitHub & 邊緣雲聯通',
+      latencyMs: 15,
+      details: { githubActionBridge: 'online', cloudflareTunnel: 'active', externalProtocols: 4 },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.ExperiencePortal,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.ExperiencePortal].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.ExperiencePortal].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.ExperiencePortal].theme,
+      status: 'optimal',
+      load: 28,
+      metric: 'SSE 雙向串流連通',
+      latencyMs: 8,
+      details: { streamStatus: 'SSE_ACTIVE', radarMounted: true, refreshCadence: '10s' },
+      lastUpdated: now,
+    },
+    {
+      layer: FacilityLayer.EvolutionRing,
+      name: OMNI_FACILITIES_CATALOG[FacilityLayer.EvolutionRing].name,
+      representative: OMNI_FACILITIES_CATALOG[FacilityLayer.EvolutionRing].representative,
+      theme: OMNI_FACILITIES_CATALOG[FacilityLayer.EvolutionRing].theme,
+      status: 'optimal',
+      load: 52,
+      metric: '雙向閉環已就緒 (9→2&0)',
+      latencyMs: 13,
+      details: { feedbackLoopTriggered: true, targetReductionPercent: '8.43%', nextTargetBaseline: 4670 },
+      lastUpdated: now,
+    },
+  ];
+}
