@@ -19,7 +19,6 @@ on:
       - "prisma/**"
       - "next.config.*"
       - "package.json"
-      - "vercel.json"
       - "pnpm-lock.yaml"
       - "Dockerfile*"
       - ".github/workflows/deploy.yml"
