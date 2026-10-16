@@ -26,3 +26,5 @@ jobs:
         run: node tests/omnitag.test.mjs
       - name: Run junaikey benchmark
         run: node tests/junaikey.bench.mjs
+      - name: Run omni-one 10-layer concentric facilities unit tests
+        run: node tests/omni-one.test.mjs
