@@ -7,7 +7,7 @@ import {
   Layers, FileText, CheckCircle2, Sparkles, HelpCircle,
   Sun, Moon, Copy, Check, ArrowRight, ExternalLink, Activity
 } from 'lucide-react';
-import { MaterialityTopic, DEFAULT_TOPICS } from '../api/materiality/assess/route';
+import { MaterialityTopic, DEFAULT_TOPICS } from '../../src/lib/materiality-topics';
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
 import { OmniButton } from '../../src/components/omni-base/OmniButton';
 import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
