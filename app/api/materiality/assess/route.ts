@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@lib/prisma';
+import { prisma } from '../../../src/lib/prisma';
 import crypto from 'crypto';
-import { MaterialityTopic, DEFAULT_TOPICS } from '@types/materiality';
+import { MaterialityTopic, DEFAULT_TOPICS } from '../../../src/types/materiality';
 
 export type { MaterialityTopic };
 export { DEFAULT_TOPICS };
 
 export async function GET() {
   try {
-    const latest = await prisma.materialityAssessment.findFirst(
+    const latest = await prisma.materialityAssessment.findFirst({
       orderBy: { createdAt: 'desc' },
     });
 
@@ -17,7 +17,7 @@ export async function GET() {
         success: true,
         data: {
           id: 'draft',
-          title: '双重重大窅教穗樣巪 2026',
+          title: '雙重重大性策略評估矩陣 2026',
           year: 2026,
           framework: 'GRI_CSRD',
           threshold: 3.5,
@@ -27,7 +27,6 @@ export async function GET() {
         },
       });
     }
-
 
     return NextResponse.json({
       success: true,
@@ -39,7 +38,7 @@ export async function GET() {
   } catch (error: any) {
     console.error('Failed to fetch materiality assessment:', error);
     return NextResponse.json(
-      { success: false, error: error.message || '查詢雙重重大癩繩失敗	' },
+      { success: false, error: error.message || '讀取重大性分析失敗' },
       { status: 500 }
     );
   }
@@ -48,12 +47,17 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { title = '双重重大窅教穗樣巪 2026', year = 2026, framework = 'GRI_CSRD', threshold = 3.5, topics } = body;
-
+    const { 
+      title = '雙重重大性策略評估矩陣 2026', 
+      year = 2026, 
+      framework = 'GRI_CSRD', 
+      threshold = 3.5, 
+      topics 
+    } = body;
 
     if (!topics || !Array.isArray(topics)) {
       return NextResponse.json(
-        { success: false, error: '讫提供�j����的重大窅議顈列表' },
+        { success: false, error: '請提供有效的重大性議題列表' },
         { status: 400 }
       );
     }
@@ -76,8 +80,9 @@ export async function POST(req: Request) {
       },
     });
 
-    return NextResponse.json(
-      { success: true, data: {
+    return NextResponse.json({
+      success: true,
+      data: {
         id: created.id,
         title: created.title,
         year: created.year,
@@ -86,13 +91,13 @@ export async function POST(req: Request) {
         topics,
         hashLock: created.hashLock,
         createdAt: created.createdAt,
-        message: '5T 雙重重大性評估樣址已成功密碼學刻印並落地！',
-      } }
-    );
+        message: '5T 重大性矩陣已成功存檔並鎖定',
+      },
+    });
   } catch (error: any) {
     console.error('Failed to save materiality assessment:', error);
     return NextResponse.json(
-      { success: false, error: error.message || '儲存雙重重大性樣址失敗	' },
+      { success: false, error: error.message || '儲存重大性分析失敗' },
       { status: 500 }
     );
   }
