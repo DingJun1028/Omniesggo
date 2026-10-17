@@ -145,6 +145,20 @@ export interface LayerTelemetry {
   lastUpdated: string;
 }
 
+export interface JunaikeySecretPresence {
+  id: string;
+  purpose: string;
+  present: boolean;
+}
+
+// Junaikey 授權與密鑰層：只含是否設定的狀態，不含任何密鑰值
+export interface JunaikeyBridgeState {
+  status: 'ready' | 'degraded';
+  ready: number;
+  total: number;
+  secrets: JunaikeySecretPresence[];
+}
+
 export interface ExternalBridgeState {
   groq: {
     status: 'connected' | 'simulated';
@@ -166,6 +180,7 @@ export interface ExternalBridgeState {
     reductionRatio: number;
     griStandard: string;
   };
+  junaikey?: JunaikeyBridgeState;
 }
 
 const CX = 160;
@@ -286,6 +301,18 @@ export function ConcentricRadar() {
           <span className="px-2.5 py-1 rounded-lg bg-slate-800/90 border border-slate-700 text-slate-300 font-mono flex items-center gap-1.5">
             <Lock className="w-3 h-3 text-emerald-400" />
             5T: {externalBridge?.fiveTGovernance?.caseCount ?? 47} 案例
+          </span>
+
+          {/* Junaikey 授權與密鑰層狀態（只顯示設定數量，不顯示值） */}
+          <span
+            className={`px-2.5 py-1 rounded-lg border font-mono flex items-center gap-1.5 ${
+              externalBridge?.junaikey?.status === 'ready'
+                ? 'bg-emerald-950/80 border-emerald-700 text-emerald-300'
+                : 'bg-slate-800/90 border-slate-700 text-slate-300'
+            }`}
+          >
+            <Lock className="w-3 h-3 text-emerald-400" />
+            Junaikey: {externalBridge?.junaikey ? `${externalBridge.junaikey.ready}/${externalBridge.junaikey.total} 已設定` : '讀取中'}
           </span>
 
           {/* 輪詢開關 */}
@@ -520,6 +547,32 @@ export function ConcentricRadar() {
               </button>
             ))}
           </div>
+
+          {/* Junaikey 授權與密鑰層面板：只顯示是否已設定，絕不顯示任何值 */}
+          {externalBridge?.junaikey && (
+            <div className="p-4 bg-slate-800/90 rounded-xl border border-slate-700 shadow-md">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                  <Lock className="w-3.5 h-3.5 text-emerald-400" />
+                  Junaikey 授權與密鑰層
+                </span>
+                <span className="text-[11px] font-mono text-slate-400">
+                  {externalBridge.junaikey.ready}/{externalBridge.junaikey.total} 已設定
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 text-[11px] font-mono">
+                {externalBridge.junaikey.secrets.map((s) => (
+                  <div key={s.id} className="p-1.5 rounded bg-slate-900/60 border border-slate-800 flex justify-between items-center">
+                    <span className="text-slate-400 truncate pr-2">{s.purpose}</span>
+                    <span className={s.present ? 'text-emerald-300 font-semibold' : 'text-amber-300 font-semibold'}>
+                      {s.present ? '已設定' : '未設定'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-2">僅顯示是否已設定，不顯示任何密鑰值。</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
