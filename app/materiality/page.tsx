@@ -1,1 +1,557 @@
-J3VzZSBjbGllbnQnOwoKaW1wb3J0IFJlYWN0LCB7IHdTZXRpbWUsIHdTZU1lZGlhUXVlcnksIHdTZVN0YXRlLCB1c2VFZmZlY3QgfSBmcm9tICdyZWFjdCc7CmltcG9ydCBMaW5rIGZyb20gJ25leHQvbGluayc7CmltcG9ydCB7IAogIFNsaWRlcnMsIFNoaWVsZENoZWNrLCBEb3dubG9hZCwgU2F2ZSwgUmVmcmVzaEN3LCAKICBMYXllcnMsIEZpbGVUZXh0LCBDaGVja0NpcmNsZTIsIFNwYXJrbGVzLCBIZWxwQ2lyY2xlLAogIFN1biwgTW9vbiwgQ29weSwgQ2hlY2ssIEFycm93UmlnaHQsIEV4dGVybmFsTGluaywgQWN0aXZpdHkKfSBmcm9tICdsdWNpZGUtcmVhY3QnOwppbXBvcnQgeyBNYXRlcmlhbGl0eVRvcGljLCBERUZBVUxUX1RPUElDUyB9IGZyb20gJy4uLy4uL3NyYy90eXBlcy9tYXRlcmlhbGl0eSc7CmltcG9ydCB7IE9tbmlDYXJkLCBPbW5pQ2FyZEhlYWRlciwgT21uaUNhcmRUaXRsZSwgT21uaUNhcmRDb250ZW50IH0gZnJvbSAnLi4vLi4vc3JjL2NvbXBvbmVudHMvb21uaS1iYXNlL09tbmlDYXJkJzsKaW1wb3J0IHsgT21uaUJ1dHRvbiB9IGZyb20gJy4uLy4uL3NyYy9jb21wb25lbnRzL29tbmktYmFzZS9PbW5pQnV0dG9uJzsKaW1wb3J0IHsgT21uaUJhZGdlIH0gZnJvbSAnLi4vLi4vc3JjL2NvbXBvbmVudHMvb21uaS1iYXNlL09tbmlCYWRnZSc7CgpleHBvcnQgZGVmYXVsdCBmdW5jdGlvbiBNYXRlcmlhbGl0eVBhZ2UoKSB7CiAgY29uc3QgW3RoZW1lLCBzZXRUaGVtZV0gPSB1c2VTdGF0ZTwnbGlnaHQnIHwgJ2RhcmsnPignbGlnaHQnKTsKICBjb25zdCBbdG9waWNzLCBzZXRUb3BpY3NdID0gdXNlU3RhdGU8TWF0ZXJpYWxpdHlUb3BpY1tdPihERUZBVUxUX1RPUElDUyk7CiAgY29uc3QgW3RpdGxlLCBzZXRUaXRsZV0gPSB1c2VTdGF0ZSgn6ZuZ6YeN6YeN5aSn5oCn562W55Wl6KmV5Lyw5qij5Z2AIDIwMjYnKTsKICBjb25zdCBbeWVhciwgc2V0WWVhcl0gPSB1c2VTdGF0ZSgyMDI2KTsKICBjb25zdCBbZnJhbWV3b3JrLCBzZXRGcmFtZXdvcmtdID0gdXNlU3RhdGU8J0dSSV9DU1JEJyB8ICdJU1NCX1RDRkQnIHwgJ1NBU0JfU0VDVE9SJz4oJ0dSSV9DU1JEJyk7CiAgY29uc3QgW3RocmVzaG9sZCwgc2V0VGhyZXNob2xkXSA9IHVzZVN0YXRlKDMuNSk7CiAgY29uc3QgW3NlbGVjdGVkVG9waWMsIHNldFNlbGVjdGVkVG9waWNdID0gdXNlU3RhdGU8TWF0ZXJpYWxpdHlUb3BpYyB8IG51bGw+KG51bGwpOwogIAogIGNvbnN0IFtpc0xvYWRpbmcsIHNldElzTG9hZGluZ10gPSB1c2VTdGF0ZShmYWxzZSk7CiAgY29uc3QgW2lzU2F2aW5nLCBzZXRJc1NhdmluZ10gPSB1c2VTdGF0ZShmYWxzZSk7CiAgY29uc3QgW3NhdmVSZXN1bHQsIHNldFNhdmVSZXN1bHRdID0gdXNlU3RhdGU8ewogICAgaWQ6IHN0cmluZzsKICAgIGhhc2hMb2NrOiBzdHJpbmc7CiAgICBtZXNzYWdlOiBzdHJpbmc7CiAgICBjcmVhdGVkQXQ6IHN0cmluZzsKICB9IHwgbnVsbD4obnVsbCk7CiAgY29uc3QgW2Vycm9yTWVzc2FnZSwgc2V0RXJyb3JNZXNzYWdlXSA9IHVzZVN0YXRlKCcnKTsKICBjb25zdCBbY29waWVkSGFzaCwgc2V0Q29waWVkSGFzaF0gPSB1c2VTdGF0ZShmYWxzZSk7CgogIC8vIOWIneapi+WMluS4u+mhjAogIHVzZUVmZmVjdCgoKSA9PiB7CiAgICBjb25zdCBpc0RhcmsgPSBkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuY2xhc3NMaXN0LmNvbnRhaW5zKCdkYXJrJyk7CiAgICBzZXRUaGVtZShpc0RhcmsgPyAnZGFyaycgOiAnbGlnaHQnKTsKICB9LCBbXSk7CgogIGNvbnN0IGhhbmRsZVRvZ2dsZVRoZW1lID0gKG5ld1RoZW1lOiAnbGlnaHQnIHwgJ2RhcmsnKSA9PiB7CiAgICBzZXRUaGVtZShuZXdUaGVtZSk7CiAgICBpZiAobmV3VGhlbWUgPT09ICdkYXJrJykgewogICAgICBkb2N1bWVudC5kb2N1bWVudEVsZW1lbnQuY2xhc3NMaXN0LmFkZCgnZGFyaycpOwogICAgfSBlbHNlIHsKICAgICAgZG9jdW1lbnQuZG9jdW1lbnRFbGVtZW50LmNsYXNzTGlzdC5yZW1vdmUoJ2RhcmsnKTsKICAgIH0KICB9OwoKICAvLyDosInlhaPmnIDmlrDntIDpjIQogIHVzZUVmZmVjdCgoKSA9PiB7CiAgICBmZXRjaExhdGVzdEFzc2Vzc21lbnQoKTsKICB9LCBbXSk7CgogIGNvbnN0IGZldGNoTGF0ZXN0QXNzZXNzbWVudCA9IGFzeW5jICgpID0+IHsKICAgIHNldElzTG9hZGluZyh0cnVlKTsKICAgIHRyeSB7CiAgICAgIGNvbnN0IHJlcyA9IGF3YWl0IGZldGNoKCcvYXBpL21hdGVyaWFsaXR5L2Fzc2VzcycpOwogICAgICBjb25zdCBqc29uID0gYXdhaXQgcmVzLmpzb24oKTsKICAgICAgaWYgKGpzb24uc3VjY2VzcyAmJiBqc29uLmRhdGEpIHsKICAgICAgICBpZiAoanNvbi5kYXRhLnRvcGljcykgc2V0VG9waWNzKGpzb24uZGF0YS50b3BpY3MpOwogICAgICAgIGlmIChqc29uLmRhdGEudGl0bGUpIHNldFRpdGxlKGpzb24uZGF0YS50aXRsZSk7CiAgICAgICAgaWYgKGpzb24uZGF0YS55ZWFyKSBzZXRZZWFyKGpzb24uZGF0YS55ZWFyKTsKICAgICAgICBpZiAoanNvbi5kYXRhLmZyYW1ld29yaykgc2V0RnJhbWV3b3JrKGpzb24uZGF0YS5mcmFtZXdvcmspOwogICAgICAgIGlmIChqc29uLmRhdGEudGhyZXNob2xkKSBzZXRUaHJlc2hvbGQoanNvbi5kYXRhLnRocmVzaG9sZCk7CiAgICAgICAgaWYgKGpzb24uZGF0YS5oYXNoTG9jaykgewogICAgICAgICAgc2V0U2F2ZVJlc3VsdCh7CiAgICAgICAgICAgIGlkOiBqc29uLmRhdGEuaWQsCiAgICAgICAgICAgIGhhc2hMb2NrOiBqc29uLmRhdGEuaGFzaExvY2ssCiAgICAgICAgICAgIG1lc3NhZ2U6ICflt7LmiJDlip/ovInlhaPmnIDmlrAgNVQg5a+G56K85a245bCB5Y2w57SA6YyEJywKICAgICAgICAgICAgY3JlYXRlZEF0OiBqc29uLmRhdGEuY3JlYXRlZEF0LAogICAgICAgICAgfSk7CiAgICAgICAgfQogICAgICB9CiAgICB9IGNhdGNoIChlcnI6IHVua25vd24pIHsKICAgICAgY29uc29sZS5lcnJvcignRmV0Y2ggZXJyb3I6JywgZXJyKTsKICAgIH0gZmluYWxseSB7CiAgICAgIHNldElzTG9hZGluZyhmYWxzZSk7CiAgICB9CiAgfTsKCgogIGNvbnN0IGhhbmRsZVNjb3JlQ2hhbmdlID0gKGlkOiBzdHJpbmcsIGZpZWxkOiAnaW1wYWN0U2NvcmUnIHwgJ2ZpbmFuY2lhbFNjb3JlJywgdmFsdWU6IG51bWJlcikgPT4gewogICAgc2V0VG9waWNzKChwcmV2KSA9PgogICAgICBwcmV2Lm1hcCgodCkgPT4gKHQuaWQgPT09IGlkID8geyAuLnQsIFtmaWVsZF06IHZhbHVlIH0gOiB0KSkKICAgICk7CiAgfTsKCgogIGNvbnN0IGhhbmRsZVJhdGlvbmFsZUNoYW5nZSA9IChpZDogc3RyaW5nLCByYXRpb25hbGU6IHN0cmluZykgPT4gewogICAgc2V0VG9waWNzKChwcmV2KSA9PgogICAgICBwcmV2Lm1hcCgodCkgPT4gKHQuaWQgPT09IGlkID8geyAuLnQsIHJhdGlvbmFsZSB9IDogdCkpCiAgICApOwogIH07CgoKICBjb25zdCBoYW5kbGVTYXZlQXNzZXNzbWVudCA9IGFzeW5jICgpID0+IHsKICAgIHNldElzU2F2aW5nKHRydWUpOwogICAgc2V0RXJyb3JNZXNzYWdlKCcnKTsKICAgIHRyeSB7CiAgICAgIGNvbnN0IHJlcyA9IGF3YWl0IGZldGNoKCcvYXBpL21hdGVyaWFsaXR5L2Fzc2VzcycsIHsKICAgICAgICBtZXRob2Q6ICdQT1NUJywKICAgICAgICBoZWFkZXJzOiB7ICdDb250ZW50LVR5cGUnOiAnYXBwbGljYXRpb24vanNvbicgfSwKICAgICAgICBib2R5OiBKU09OLnN0cmluZ2lmeSh7CiAgICAgICAgICB0aXRsZSwKICAgICAgICAgIHllYXIsCiAgICAgICAgICBmcmFtZXdvcmssCiAgICAgICAgICB0aHJlc2hvbGQsCiAgICAgICAgICB0b3BpY3MsCiAgICAgICAgfSksCiAgICAgIH0pOwogICAgICBjb25zdCBqc29uID0gYXdhaXQgcmVzLmpzb24oKTsKICAgICAgaWYgKGpzb24uc3VjY2VzcyAmJiBqc29uLmRhdGEpIHsKICAgICAgICBzZXRTYXZlUmVzdWx0KHsKICAgICAgICAgIGlkOiBqc29uLmRhdGEuaWQsCiAgICAgICAgICBoYXNoTG9jazoganNvbi5kYXRhLmhhc2hMb2NrLAogICAgICAgICAgbWVzc2FnZToganNvbi5kYXRhLm1lc3NhZ2UsCiAgICAgICAgICBjcmVhdGVkQXQ6IGpzb24uZGF0YS5jcmVhdGVkQXQsCiAgICAgICAgfSk7CiAgICAgIH0gZWxzZSB7CiAgICAgICAgc2V0RXJyb3JNZXNzYWdlKGpzb24uZXJyb3IgfHwgJ0TFtJ10msLH0ycpOwogICAgICB9CiAgICB9IGNhdGNoIChlcnI6IHVua25vd24pIHsKICAgICAgc2V0RXJyb3JNZXNzYWdlKGVyciBpbnN0YW5jZW9mIEVycm9yID8gZXJyLm1lc3NhZ2UgOiAn6YCj57ea5Ly65pyN5Zmo5aSx5pWXCyk7CiAgICB9IGZpbmFsbHkgewogICAgICBzZXRJc1NhdmluZyhmYWxzZSk7CiAgICB9CiAgfTsKCgogIGNvbnN0IGhhbmRsZUV4cG9ydENlcnRpZmljYXRlID0gKCkgPT4gewogICAgaWYgKCFzYXZlUmVzdWx0Py5pZCkgcmV0dXJuOwogICAgd2luZG93Lm9wZW4oYC9hcGkvbWF0ZXJpYWxpdHkvZXhwb3J0LyR7c2F2ZVJlc3VsdC5pZH1gLCAnX2JsYW5rJyk7CiAgfTsKCgogIGNvbnN0IGhhbmRsZUV4cG9ydFBkZkNlcnRpZmljYXRlID0gKCkgPT4gewogICAgaWYgKCFzYXZlUmVzdWx0Py5pZCkgcmV0dXJuOwogICAgd2luZG93Lm9wZW4oYC9hcGkvbWF0ZXJpYWxpdHkvZXhwb3J0LXBkZi8ke3NhdmVSZXN1bHQuaWR9YCwgJ19ibGFuaycpOwogIH07CgoKICBjb25zdCBoYW5kbGVDb3B5SGFzaCA9IChoYXNoOiBzdHJpbmcpID0+IHsKICAgIG5hdmlnYXRvci5jbGlwYm9hcmQud3JpdGVUZXh0KGhhc2gpOwogICAgc2V0Q29waWVkSGFzaCh0cnVlKTsKICAgIHNldFRpbWVvdXQoKCkgPT4gc2V0Q29waWVkSGFzaChmYWxzZSksIDIwMDApOwogIH07CgoKICAvLyDOiM1h5Y+Z6YeN6YeN5aSn5qC45b+D6K2w6aGMCiAgY29uc3QgbWF0ZXJpYWxUb3BpY3MgPSB0b3BpY3MuZmlsdGVyKAogICAgKHQpID0+IHQuaW1wYWN0U2NvcmUgPj0gdGhyZXNob2xkICYmIHQuZmluYW5jaWFsU2NvcmUgPj0gdGhyZXNob2xkCiAgKTsKCgogIHJldHVybiAoCiAgICA8ZGl2IGNsYXNzTmFtZT17YG1pbi1oLXNjcmVlbiB0cmFuc2l0aW9uLWNvbG9ycyBkdXJhdGlvbi0zMDAgZm9udC1zYW5zICR7dGhlbWUgPT09ICdkYXJrJyA/ICdkYXJrIGJnLXNsYXRlLTk1MCB0ZXh0LXNsYXRlLTEwMCcgOiAnYmctc2xhdGUtNTAgdGV4dC1zbGF0ZS05MDAnfWB9PgogICAgICAKICAgICAgey8qIOKUgOKUgiDpoILpg6jmiYvht4bpmZXliLblrpcgKEhlYWRlcikg4pSA4pSCICovfQogICAgICA8aGVhZGVyIGNsYXNzTmFtZT0ic3RpY2t5IHRvcC0wIHotNDAgYmFja2Ryb3AtYmx1ci1tZCBiZy13aGl0ZS85MCBkYXJrOmJnLXNsYXRlLTkwMC85MCBib3JkZXItYiBib3JkZXItc2xhdGUtMjAwIGRhcms6Ym9yZGVyLXdoaXRlLzEwIHB4LTYgcHktNCI+CiAgICAgICAgPGRpdiBjbGFzc05hbWU9Im1heC13LVsxNjAwcHhdIG14LWF1dG8gZmxleCBmbGV4LWNvbCBtZDpmbGV4LXJvdyBtZDppdGVtcy1jZW50ZXIganVzdGlmeS1iZXR3ZWVuIGdhcC00Ij4KICAgICAgICAgIDxkaXY+CiAgICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPSJmbGV4IGl0ZW1zLWNlbnRlciBnYXAtMiBtYi0xIj4KICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9ImlubGluZS1mbGV4IGl0ZW1zLWNlbnRlciBnYXAtMS41IHB4LTIuNSBweS0wLjUgcm91bmRlZC1mdWxsIHRleHQteHMgZm9udC1tb25vIGZvbnQtYm9sZCBiZy10ZWFsLTUwIHRleHQtdGVhbC04MDAgYm9yZGVyIGJvcmRlci10ZWFsLTIwMC85MCBkYXJrOmJnLXRlYWwtOTUwLzUwIGRhcms6dGV4dC10ZWFsLTMwMCBkYXJrOmJvcmRlci10ZWFsLTUwMC8zMCI+CiAgICAgICAgICAgICAgQTA0IMK3IERPVUJMRU1BVEVSSUFMSVRZIFdPUktCRU5DSAogICAgICAgICAgICAgIDwvc3Bhbj4KICAgICAgICAgICAgICA8c3BhbiBjbGFzc05hbWU9ImlubGluZS1mbGV4IGl0ZW1zLWNlbnRlciBnYXAtMSBweC0yLjUgcHktMC41IHJvdW5kZWQtZnVsbCB0ZXh0LXhzIGZvbnQtc2VtaWJvbGQgYmctZW1lcmFsZC01MCB0ZXh0LWVtZXJhbGQtODAwIGJvcmRlciBib3JkZXItZW1lcmFsZC0yMDAvOTAgZGFyazpiZy1lbWVyYWxkLTk1MC81MCBkYXJrOnRleHQtZW1lcmFsZC0zMDAgZGFyazpib3JkZXItZW1lcmFsZC01MDAvMzAiPgogICAgICAgICAgICAgICAgRVUgQ1NSRCAmIEdSSSAyMDI0IENPTVBMSUFOVAl7Lyogc2FmZSBndWFyZCAqL30KICAgICAgICAgICAgICA8L3NwYW4+CiAgICAgICAgICAgIDwvZGl2PgogICAgICAgICAgICA8aDEgY2xhc3NOYW1lPSJ0ZXh0LTJ4bCBtZDp0ZXh0LTN4bCBmb250LWV4dHJhYm9sZCB0cmFja2luZy10aWdodCB0ZXh0LXNsYXRlLTkwMCBkYXJrOnRleHQtc2xhdGUtMTAwIGZsZXggaXRlbXMtY2VudGVyIGdhcC0yIj4KICAgICAgICAgICAgICA8TGF5ZXJzIGNsYXNzTmFtZT0idy03IGgtNyB0ZXh0LXRlYWwtNjAwIGRhcms6dGV4dC1jeWFuLTQwMCIgLz4KICAgICAgICAgICAgICDpmZnpm7Hph43lpKfnqoXnrZbnlZXoqZXkvbDmqKPlt6ogKERvdWJsZSBNYXRlcmlhbGl0eSkKICAgICAgICAgICAgPC9oMT4KICAgICAgICAgICAgPHAgY2xhc3NOYW1lPSJ0ZXh0LXhzIHRleHQtc2xhdGUtNTAwIGRhcms6dGV4dC1zbGF0ZS00MDAgbXQtMC41IGZvbnQtbWVkaXVtIj4KICAgICAgICAgICAgICDooZ3oqYrph43lpKfnqoXvvIjnhKToqZrliLDkuqnvvInoiIfosqHli5nph43lpKfnqoXvvIjlpJboqZrliLDnhKTvvInpmZnoqZrli5XmhYvmlbPltIggwrcgNVQg5a+G56K85a24IEhhc2ggTG9jayDlsIHljpAKICAgICAgICAgICAgPC9wPgogICAgICAgICAgPC9kaXY+CgogICAgICAgICAgey8qIOWPs+WBtOaTjemcgee+pCAqL30KICAgICAgICAgIDxkaXYgY2xhc3NOYW1lPSJmbGV4IGl0ZW1zLWNlbnRlciBmbGV4LXdyYXAgZ2FwLTMiPgogICAgICAgICAgICB7Lyog6ZuZ5Li76aGM5Yfields6Iet6I2JICovfQogICAgICAgICAgICA8ZGl2IGNsYXNzTmFtZT0iZmxleCBpdGVtcy1jZW50ZXIgcC0xIHJvdW5kZWQtZnVsbCBiZy1zbGF0ZS0xMDAgZGFyazpiZy1zbGF0ZS04MDAgYm9yZGVyIGJvcmRlci1zbGF0ZS0yMDAgZGFyazpib3JkZXItd2hpdGUvMTAgc2hhZG93LWlubmVyIj4KICAgICAgICAgICAgICA8YnV0dG9uCiAgICAgICAgICAgICAgICB0eXBlPSJidXR0b24iCiAgICAgICAgICAgICAgICBvbkNsaWNrPSgoKSA9PiBoYW5kbGVUb2dnbGVUaGVtZSgnbGlnaHQnKSkKICAgICAgICAgICAgICAgIGNsYXNzTmFtZT17YGZsZXggaXRlbXMtY2VudGVyIGdhcC0xLjUgcHgtMyBweS0xIHJvdW5kZWQtZnVsbCB0ZXh0LXhzIGZvbnQtbWVkaXVtIHRyYW5zaXRpb24tYWxsICR7CiAgICAgICAgICAgICAgICAgIHRoZW1lID09PSAnbGlnaHQnIAogICAgICAgICAgICAgICAgICAgID8gJ2JnLXdoaXRlIHRleHQtdGVhbC04MDAgc2hhZG93LXNtIGZvbnQtc2VtaWJvbGQnIAogICAgICAgICAgICAgICAgICAgIDogJ3RleHQtc2xhdGUtNTAwIGhvdmVyOnRleHQtc2xhdGUtNzAwIGRhcms6dGV4dC1zbGF0ZS00MDAnCiAgICAgICAgICAgICAgICB9YH0KICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICA8U3VuIGNsYXNzTmFtZT0idy0zLjUgaC0zLjUgdGV4dC1hbWJlci01MDAiIC8+CiAgICAgICAgICAgICAgICA8c3Bhbj7mtYXoibLmiYvht4w8L3NwYW4+CiAgICAgICAgICAgICAgPC9idXR0b24+CiAgICAgICAgICAgICAgPGJ1dHRvbgogICAgICAgICAgICAgICAgdHlwZT0iYnV0dG9uIgogICAgICAgICAgICAgICAgb25DbGljaz0oKCkgPT4gaGFuZGxlVG9nZ2xlVGhlbWUoJ2RhcmsnKSkKICAgICAgICAgICAgICAgIGNsYXNzTmFtZT17YGZsZXggaXRlbXMtY2VudGVyIGdhcC0xLjUgcHgtMyBweS0xIHJvdW5kZWQtZnVsbCB0ZXh0LXhzIGZvbnQtbWVkaXVtIHRyYW5zaXRpb24tYWxsICR7CiAgICAgICAgICAgICAgICAgIHRoZW1lID09PSAnZGFyaycgCiAgICAgICAgICAgICAgICAgICAgPyAnYmctc2xhdGUtOTAwIHRleHQtdGVhbC0zMDAgc2hhZG93LXNtIGZvbnQtc2VtaWJvbGQgYm9yZGVyIGJvcmRlci10ZWFsLTUwMC8zMCcgCiAgICAgICAgICAgICAgICAgICAgOiAndGV4dC1zbGF0ZS01MDAgaG92ZXI6dGV4dC1zbGF0ZS03MDAgZGFyazp0ZXh0LXNsYXRlLTQwMCcKICAgICAgICAgICAgICAgIH1gfQogICAgICAgICAgICAgID4KICAgICAgICAgICAgICAgIDxNb29uIGNsYXNzTmFtZT0idy0zLjUgaC0zLjUgdGV4dC10ZWFsLTMwMCIgLz4KICAgICAgICAgICAgICAgIDxzcGFuPua3seibkuaLi7e3jDwvc3Bhbj4KICAgICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgICAgPC9kaXY+CgogICAgICAgICAgICA8T21uaUJ1dHRvbgogICAgICAgICAgICAgIHZhcmlhbnQ9InNlY29uZGFyeSIKICAgICAgICAgICAgICBvbkNsaWNrPXtmZXRjaExhdGVzdEFzc2Vzc21lbnR9CiAgICAgICAgICAgICAgZGlzYWJsZWQ9e2lzTG9hZGluZ30KICAgICAgICAgICAgICBjbGFzc05hbWU9InRleHQteHMiCiAgICAgICAgICAgID4KICAgICAgICAgICAgICA8UmVmcmVzaEN3IGNsYXNzTmFtZT17YHctMy41IGgtMy41ICR7aXNMb2FkaW5nID8gJ2FuaW1hdGUtc3BpbicgOiAnJ31gfSAvPgogICAgICAgICAgICAgIOWItuW8tue0gOmMhAogICAgICAgICAgICA8L09tbmlCdXR0b24+CgogICAgICAgICAgICA8YnV0dG9uCiAgICAgICAgICAgICAgb25DbGljaz17aGFuZGxlU2F2ZUFzc2Vzc21lbnR9CiAgICAgICAgICAgICAgZGlzYWJsZWQ9e2lzU2F2aW5nfQogICAgICAgICAgICAgIGNsYXNzTmFtZT0icHgtMy41IHB5LTEuNSByb3VuZGVkLXgxIGJnLXRlYWwtNzAwIGhvdmVyOmJnLXRlYWwtODAwIHRleHQtd2hpdGUgZGFyazpiZy1jeWFuLTUwMCBkYXJrOnRleHQtc2xhdGUtOTUwIGRhcms6aG92ZXI6YmctY3lhbi00MDAgdGV4dC14cyBmb250LWJvbGQgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTEuNSB0cmFuc2l0aW9uLWFsbCBzaGFkb3ctc20gZGlzYWJsZWQ6b3BhY2l0eS01MCIKICAgICAgICAgICAgPgogICAgICAgICAgICAgIDxTYXZlIGNsYXNzTmFtZT0idy0zLjUgaC0zLjUiIC8+CiAgICAgICAgICAgICAge2lzU2F2aW5nID8gJzVUIOWwgeWNkOS4uLicgOiAn5bCB5Y2w5Lim5YSy5a2Y6KmV5LywnfQogICAgICAgICAgICA8L2J1dHRvbj4KCgogICAgICAgICAgICB7c2F2ZVJlc3VsdD8uaWQgJiYgKAogICAgICAgICAgICAgIDw+CiAgICAgICAgICAgICAgICA8YnV0dG9uCiAgICAgICAgICAgICAgICAgIG9uQ2xpY2s9e2hhbmRsZUV4cG9ydENlcnRpZmljYXRlfQogICAgICAgICAgICAgICAgICBjbGFzc05hbWU9InB4LTMgcHktMS41IHJvdW5kZWQteDEgYmctc2xhdGUtMTAwIGhvdmVyOmJnLXNsYXRlLTIwMCB0ZXh0LXNsYXRlLTgwMCBib3JkZXIgYm9yZGVyLXNsYXRlLTMwMCBkYXJrOmJnLXNsYXRlLTgwMCBkYXJrOmhvdmVyOmJnLXNsYXRlLTcwMCBkYXJrOnRleHQtc2xhdGUtMjAwIGRhcms6Ym9yZGVyLXNsYXRlLTcwMCB0ZXh0LXhzIGZvbnQtc2VtaWJvbGQgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTEuNSB0cmFuc2l0aW9uLWFsbCBzaGFkb3ctc20iCiAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgIDxEb3dubG9hZCBjbGFzc05hbWU9InctMy41IGgtMy41IHRleHQtc2xhdGUtNTAwIiAvPiBKU09OCiAgICAgICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgICAgICAgIDxidXR0b24KICAgICAgICAgICAgICAgICAgb25DbGljaz17aGFuZGxlRXhwb3J0UGRmQ2VydGlmaWNhdGV9CiAgICAgICAgICAgICAgICAgIGNsYXNzTmFtZT0icHgtMyBweS0xLjUgcm91bmRlZC14MSBiZy13aGl0ZSBob3ZlcjpiZy1zbGF0ZS01MCB0ZXh0LXNsYXRlLTgwMCBib3JkZXIgYm9yZGVyLXNsYXRlLTMwMCBkYXJrOmJnLXNsYXRlLTkwMCBkYXJrOmhvdmVyOmJnLXNsYXRlLTgwMCBkYXJrOnRleHQtc2xhdGUtMjAwIGRhcms6Ym9yZGVyLXNsYXRlLTcwMCB0ZXh0LXhzIGZvbnQtc2VtaWJvbGQgZmxleCBpdGVtcy1jZW50ZXIgZ2FwLTEuNSB0cmFuc2l0aW9uLWFsbCBzaGFkb3ctc20iCiAgICAgICAgICAgICAgICA+CiAgICAgICAgICAgICAgICAgIDxGaWxlVGV4dCBjbGFzc05hbWU9InctMy41IGgtMy41IHRleHQtc2xhdGUtNTAwIiAvPiBQREYg6K2J5pu4CiAgICAgICAgICAgICAgICA8L2J1dHRvbj4KICAgICAgICAgICAgICA8Lz4KICAgICAgICAgICAgfQogICAgICAgICAgPC9kaXY+CiAgICAgICAgPC9kaXY+CiAgICAgIDwvaGVhZGVyPgoKICAgICAgc3ViX3BhZ2VfY29udGVudHMKICAgIDwvZGl2PgogICk7Cn0=
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { 
+  Sliders, ShieldCheck, Download, Save, RefreshCw, 
+  Layers, FileText, CheckCircle2, Sparkles, HelpCircle,
+  Sun, Moon, Copy, Check, ArrowRight, ExternalLink, Activity
+} from 'lucide-react';
+import { MaterialityTopic, DEFAULT_TOPICS } from '../../src/types/materiality';
+import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
+import { OmniButton } from '../../src/components/omni-base/OmniButton';
+import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
+
+export default function MaterialityPage() {
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [topics, setTopics] = useState<MaterialityTopic[]>(DEFAULT_TOPICS);
+  const [title, setTitle] = useState('雙重重大性策略評估矩陣 2026');
+  const [year, setYear] = useState(2026);
+  const [framework, setFramework] = useState<'GRI_CSRD' | 'ISSB_TCFD' | 'SASB_SECTOR'>('GRI_CSRD');
+  const [threshold, setThreshold] = useState(3.5);
+  const [selectedTopic, setSelectedTopic] = useState<MaterialityTopic | null>(null);
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveResult, setSaveResult] = useState<{
+    id: string;
+    hashLock: string;
+    message: string;
+    createdAt: string;
+  } | null>(null);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [copiedHash, setCopiedHash] = useState(false);
+
+  // 初始化主題
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
+
+  const handleToggleTheme = (newTheme: 'light' | 'dark') => {
+    setTheme(newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  // 載入最新紀錄
+  useEffect(() => {
+    fetchLatestAssessment();
+  }, []);
+
+  const fetchLatestAssessment = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/materiality/assess');
+      const json = await res.json();
+      if (json.success && json.data) {
+        if (json.data.topics) setTopics(json.data.topics);
+        if (json.data.title) setTitle(json.data.title);
+        if (json.data.year) setYear(json.data.year);
+        if (json.data.framework) setFramework(json.data.framework);
+        if (json.data.threshold) setThreshold(json.data.threshold);
+        if (json.data.hashLock) {
+          setSaveResult({
+            id: json.data.id,
+            hashLock: json.data.hashLock,
+            message: '已成功載入最新 5T 密碼學封印紀錄',
+            createdAt: json.data.createdAt,
+          });
+        }
+      }
+    } catch (err: unknown) {
+      console.error('Fetch error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleScoreChange = (id: string, field: 'impactScore' | 'financialScore', value: number) => {
+    setTopics((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, [field]: value } : t))
+    );
+  };
+
+  const handleRationaleChange = (id: string, rationale: string) => {
+    setTopics((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, rationale } : t))
+    );
+  };
+
+  const handleSaveAssessment = async () => {
+    setIsSaving(true);
+    setErrorMessage('');
+    try {
+      const res = await fetch('/api/materiality/assess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          year,
+          framework,
+          threshold,
+          topics,
+        }),
+      });
+      const json = await res.json();
+      if (json.success && json.data) {
+        setSaveResult({
+          id: json.data.id,
+          hashLock: json.data.hashLock,
+          message: json.data.message,
+          createdAt: json.data.createdAt,
+        });
+      } else {
+        setErrorMessage(json.error || '儲存失敗');
+      }
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : '連線伺服器失敗');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleExportCertificate = () => {
+    if (!saveResult?.id) return;
+    window.open(`/api/materiality/export/${saveResult.id}`, '_blank');
+  };
+
+  const handleExportPdfCertificate = () => {
+    if (!saveResult?.id) return;
+    window.open(`/api/materiality/export-pdf/${saveResult.id}`, '_blank');
+  };
+
+  const handleCopyHash = (hash: string) => {
+    navigator.clipboard.writeText(hash);
+    setCopiedHash(true);
+    setTimeout(() => setCopiedHash(false), 2000);
+  };
+
+  // 計算雙重重大核心議題
+  const materialTopics = topics.filter(
+    (t) => t.impactScore >= threshold && t.financialScore >= threshold
+  );
+
+  return (
+    <div className={`min-h-screen transition-colors duration-300 font-sans ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
+      
+      {/* ── 頂部手冊控制列 (Header) ── */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-white/10 px-6 py-4">
+        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
+                A04 · DOUBLE MATERIALITY WORKBENCH
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
+                EU CSRD & GRI 2024 COMPLIANT
+              </span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Layers className="w-7 h-7 text-teal-600 dark:text-cyan-400" />
+              雙重重大性策略評估矩陣 (Double Materiality)
+            </h1>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+              衝擊重大性 (內向外) 與財務重大性 (外向內) 雙向動態散佈 · 5T 密碼學 Hash Lock 封印
+            </p>
+          </div>
+
+          {/* 右側操作群 */}
+          <div className="flex items-center flex-wrap gap-3">
+            {/* 雙主題切換膠囊 */}
+            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-inner">
+              <button
+                type="button"
+                onClick={() => handleToggleTheme('light')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  theme === 'light' 
+                    ? 'bg-white text-teal-800 shadow-sm font-semibold' 
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                <span>淺色手冊</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleTheme('dark')}
+                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  theme === 'dark' 
+                    ? 'bg-slate-900 text-teal-300 shadow-sm font-semibold border border-teal-500/30' 
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5 text-teal-300" />
+                <span>深色手冊</span>
+              </button>
+            </div>
+
+            <OmniButton
+              variant="secondary"
+              onClick={fetchLatestAssessment}
+              disabled={isLoading}
+              className="text-xs"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+              刷新紀錄
+            </OmniButton>
+
+            <button
+              onClick={handleSaveAssessment}
+              disabled={isSaving}
+              className="px-3.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white dark:bg-cyan-500 dark:text-slate-950 dark:hover:bg-cyan-400 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm disabled:opacity-50"
+            >
+              <Save className="w-3.5 h-3.5" />
+              {isSaving ? '5T 封印中...' : '封印並儲存評估'}
+            </button>
+
+            {saveResult?.id && (
+              <>
+                <button
+                  onClick={handleExportCertificate}
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-500" /> JSON
+                </button>
+                <button
+                  onClick={handleExportPdfCertificate}
+                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <FileText className="w-3.5 h-3.5 text-slate-500" /> PDF 證書
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+
+      {/* ── 評估設定控制列 (Assessment Control Bar) ── */}
+      <div className="max-w-[1600px] mx-auto px-6 pt-5">
+        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-xs">
+          
+          <div className="flex flex-wrap items-center gap-4">
+            {/* 年度設定 */}
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-700 dark:text-slate-300">評估年度:</span>
+              <select
+                value={year}
+                onChange={(e) => setYear(Number(e.target.value))}
+                className="px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 font-bold text-teal-800 dark:text-cyan-300 focus:outline-none"
+              >
+                <option value={2025}>2025 年度</option>
+                <option value={2026}>2026 年度</option>
+                <option value={2027}>2027 年度</option>
+              </select>
+            </div>
+
+            {/* 準則選擇 */}
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-slate-700 dark:text-slate-300">標準框架:</span>
+              <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                {[
+                  { id: 'GRI_CSRD', label: 'GRI + CSRD (ESRS)' },
+                  { id: 'ISSB_TCFD', label: 'ISSB (IFRS S1/S2)' },
+                  { id: 'SASB_SECTOR', label: 'SASB 產業標準' }
+                ].map(fw => (
+                  <button
+                    key={fw.id}
+                    onClick={() => setFramework(fw.id as any)}
+                    className={`px-2.5 py-0.5 rounded text-[11px] font-bold transition-all ${
+                      framework === fw.id
+                        ? 'bg-white text-teal-800 shadow-sm dark:bg-slate-900 dark:text-cyan-300'
+                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                    }`}
+                  >
+                    {fw.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 重大性門檻滑桿 */}
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-slate-700 dark:text-slate-300">重大門檻閥值:</span>
+            <input
+              type="range"
+              min="1.0"
+              max="5.0"
+              step="0.1"
+              value={threshold}
+              onChange={(e) => setThreshold(Number(e.target.value))}
+              className="w-32 accent-teal-600 dark:accent-cyan-400 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+            />
+            <span className="font-mono font-bold text-sm text-teal-700 dark:text-cyan-400 px-2 py-0.5 rounded bg-teal-50 dark:bg-teal-950/60 border border-teal-200/80 dark:border-teal-500/30">
+              ≥ {threshold.toFixed(1)}
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      {/* ── 封印狀態通知 ── */}
+      {saveResult && (
+        <div className="max-w-[1600px] mx-auto px-6 mt-4">
+          <div className="p-4 rounded-xl bg-teal-50/70 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-500/40 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="w-5 h-5 text-teal-600 dark:text-cyan-400 shrink-0" />
+              <div>
+                <p className="font-bold text-teal-900 dark:text-teal-200">{saveResult.message}</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="font-mono text-[11px] text-slate-600 dark:text-slate-300">
+                    Hash Lock: <span className="font-bold text-teal-700 dark:text-cyan-300">{saveResult.hashLock}</span>
+                  </span>
+                  <button
+                    onClick={() => handleCopyHash(saveResult.hashLock)}
+                    className="text-slate-400 hover:text-teal-600 dark:hover:text-cyan-300 transition-colors"
+                    title="複製 Hash Lock"
+                  >
+                    {copiedHash ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
+              刻印時間: {new Date(saveResult.createdAt).toLocaleString('zh-TW')}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* ── 主畫面佈局 (Matrix & Sliders) ── */}
+      <main className="max-w-[1600px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* 左側：2D 雙重重大性散佈矩陣圖 (7 cols) */}
+        <div className="lg:col-span-7 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+            <h2 className="font-bold text-sm text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Layers className="w-4 h-4 text-teal-600 dark:text-cyan-400" />
+              2D 雙重重大性散佈圖 (Scatter Plot)
+            </h2>
+            <div className="flex items-center gap-3 text-xs font-bold">
+              <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> E 環境
+              </div>
+              <div className="flex items-center gap-1.5 text-teal-700 dark:text-cyan-400">
+                <span className="w-2.5 h-2.5 rounded-full bg-teal-500 dark:bg-cyan-400" /> S 社會
+              </div>
+              <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> G 治理
+              </div>
+            </div>
+          </div>
+
+          {/* 矩陣繪製容器 */}
+          <div className="relative w-full aspect-square max-h-[520px] my-6 bg-slate-100/90 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 rounded-2xl p-8 overflow-hidden select-none">
+            
+            {/* 四象限劃分 */}
+            <div className="absolute inset-0 grid grid-cols-2 grid-rows-2">
+              <div className="border-r border-b border-slate-300 dark:border-slate-800/60 p-2 text-[10px] text-slate-500 dark:text-slate-600 font-mono">
+                定期監測區 (Low Priority)
+              </div>
+              <div className="border-b border-slate-300 dark:border-slate-800/60 p-2 text-[10px] text-teal-700 dark:text-cyan-900 font-mono text-right">
+                衝擊導向關注區 (Impact-Led)
+              </div>
+              <div className="border-r border-slate-300 dark:border-slate-800/60 p-2 text-[10px] text-emerald-700 dark:text-emerald-900 font-mono">
+                財務導向關注區 (Financial-Led)
+              </div>
+              <div className="bg-teal-500/10 dark:bg-cyan-950/30 p-2 text-[10px] text-teal-800 dark:text-cyan-300 font-bold font-mono text-right flex flex-col justify-end items-end">
+                <span>⭐ 雙重重大核心區域 (Double Material)</span>
+                <span className="text-[9px] text-teal-600 dark:text-cyan-500/70 font-normal">Score ≥ {threshold}</span>
+              </div>
+            </div>
+
+            {/* 門檻指示虛線 */}
+            <div 
+              className="absolute left-0 right-0 border-t-2 border-dashed border-teal-500/60 dark:border-cyan-500/50 pointer-events-none transition-all duration-300"
+              style={{ bottom: `${((threshold - 1) / 4) * 100}%` }}
+            />
+            <div 
+              className="absolute top-0 bottom-0 border-l-2 border-dashed border-teal-500/60 dark:border-cyan-500/50 pointer-events-none transition-all duration-300"
+              style={{ left: `${((threshold - 1) / 4) * 100}%` }}
+            />
+
+            {/* 坐標軸標籤 */}
+            <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[11px] font-bold text-slate-600 dark:text-slate-400 tracking-wider">
+              財務重大性 (Financial Materiality) ➔
+            </div>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[11px] font-bold text-slate-600 dark:text-slate-400 tracking-wider">
+              衝擊重大性 (Impact Materiality) ➔
+            </div>
+
+            {/* 議題散佈節點 */}
+            {topics.map((t) => {
+              const leftPercent = Math.min(Math.max(((t.impactScore - 1) / 4) * 100, 5), 92);
+              const bottomPercent = Math.min(Math.max(((t.financialScore - 1) / 4) * 100, 5), 92);
+              const isMaterial = t.impactScore >= threshold && t.financialScore >= threshold;
+              const isSelected = selectedTopic?.id === t.id;
+
+              const bgColor = t.category === 'E' 
+                ? 'bg-emerald-500 text-white' 
+                : t.category === 'S' 
+                ? 'bg-teal-600 dark:bg-cyan-400 text-white dark:text-slate-950' 
+                : 'bg-amber-500 text-white';
+
+              return (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedTopic(t)}
+                  style={{ left: `${leftPercent}%`, bottom: `${bottomPercent}%` }}
+                  className={`
+                    absolute -translate-x-1/2 translate-y-1/2 cursor-pointer transition-all duration-300 group z-10
+                    ${isSelected ? 'scale-125 z-30' : 'hover:scale-110'}
+                  `}
+                >
+                  <div className={`
+                    w-7 h-7 rounded-full ${bgColor} font-black text-xs flex items-center justify-center
+                    shadow-md border-2 ${isMaterial ? 'border-white ring-2 ring-teal-500 dark:ring-cyan-400' : 'border-slate-800 dark:border-slate-700'}
+                  `}>
+                    {t.category}
+                  </div>
+                  
+                  {/* Tooltip 浮動標籤 */}
+                  <div className={`
+                    absolute left-1/2 -translate-x-1/2 bottom-8 whitespace-nowrap px-2.5 py-1 rounded-lg text-[11px] font-medium
+                    bg-slate-900 border border-slate-700 text-slate-100 pointer-events-none transition-all shadow-xl
+                    ${isSelected ? 'opacity-100 scale-100' : 'opacity-0 group-hover:opacity-100 scale-95'}
+                  `}>
+                    {t.name}
+                    <div className="text-[9px] text-teal-300 dark:text-cyan-400 font-mono">
+                      (衝擊: {t.impactScore} · 財務: {t.financialScore})
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* 統計指標底列 */}
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+              <span className="text-xs text-slate-500 dark:text-slate-400">總評估議題數</span>
+              <p className="text-xl font-bold font-mono text-slate-900 dark:text-slate-100 mt-0.5">{topics.length}</p>
+            </div>
+            <div className="p-3 rounded-xl bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-500/30">
+              <span className="text-xs text-teal-800 dark:text-teal-300">雙重重大核心議題</span>
+              <p className="text-xl font-bold font-mono text-teal-700 dark:text-cyan-400 mt-0.5">{materialTopics.length}</p>
+            </div>
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+              <span className="text-xs text-slate-500 dark:text-slate-400">篩選標準門檻</span>
+              <p className="text-xl font-bold font-mono text-slate-800 dark:text-slate-200 mt-0.5">≥ {threshold.toFixed(1)}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 右側：議題評估工作台與滑桿控制 (5 cols) */}
+        <div className="lg:col-span-5 bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm flex flex-col">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4">
+            <div className="flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">議題量化評估面板</h3>
+            </div>
+            <span className="text-[11px] text-slate-400 font-mono">點擊散佈點切換選取</span>
+          </div>
+
+          <div className="space-y-3 max-h-[620px] overflow-y-auto pr-1">
+            {topics.map((t) => {
+              const isSelected = selectedTopic?.id === t.id;
+              const isMaterial = t.impactScore >= threshold && t.financialScore >= threshold;
+
+              return (
+                <div
+                  key={t.id}
+                  onClick={() => setSelectedTopic(t)}
+                  className={`
+                    p-3.5 rounded-xl border transition-all cursor-pointer text-xs
+                    ${isSelected 
+                      ? 'bg-teal-50/90 dark:bg-teal-950/60 border-teal-500 dark:border-teal-500 shadow-sm' 
+                      : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
+                    }
+                  `}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className={`
+                        px-2 py-0.5 rounded text-[10px] font-bold font-mono
+                        ${t.category === 'E' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 
+                          t.category === 'S' ? 'bg-teal-100 text-teal-800 dark:bg-teal-950 dark:text-teal-300' : 
+                          'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'}
+                      `}>
+                        {t.category}
+                      </span>
+                      <h4 className="font-bold text-xs text-slate-900 dark:text-slate-100">{t.name}</h4>
+                    </div>
+                    {isMaterial && (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
+                        重大議題
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 滑桿調節 */}
+                  <div className="grid grid-cols-2 gap-3 mt-2.5">
+                    <div>
+                      <div className="flex justify-between text-[11px] text-slate-600 dark:text-slate-400 mb-0.5">
+                        <span>衝擊重大性</span>
+                        <span className="font-mono font-bold text-teal-700 dark:text-cyan-400">{t.impactScore}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="5"
+                        step="0.1"
+                        value={t.impactScore}
+                        onChange={(e) => handleScoreChange(t.id, 'impactScore', Number(e.target.value))}
+                        className="w-full accent-teal-600 dark:accent-cyan-400 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-[11px] text-slate-600 dark:text-slate-400 mb-0.5">
+                        <span>財務重大性</span>
+                        <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400">{t.financialScore}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="1"
+                        max="5"
+                        step="0.1"
+                        value={t.financialScore}
+                        onChange={(e) => handleScoreChange(t.id, 'financialScore', Number(e.target.value))}
+                        className="w-full accent-emerald-600 dark:accent-emerald-400 bg-slate-200 dark:bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 實證依據 (Rationale) */}
+                  <div className="mt-2.5">
+                    <input
+                      type="text"
+                      value={t.rationale || ''}
+                      onChange={(e) => handleRationaleChange(t.id, e.target.value)}
+                      placeholder="請輸入評估依據與實證說明 (Rationale)..."
+                      className="w-full text-[11px] bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 rounded-lg px-2.5 py-1 text-slate-900 dark:text-slate-200 focus:outline-none focus:border-teal-500 font-medium"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+      </main>
+    </div>
+  );
+}
