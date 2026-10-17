@@ -168,18 +168,27 @@ jobs:
           # 果因消除：部署宣告成功 ≠ 站台可用。本閘的契約是「公開可達」，
           # 因此 Cloudflare Access 攔截一律判失敗 —— 過去把它當成功（warning + exit 0）
           # 會讓「生產壞掉但 CI 全綠」，違反不帶病上線。
+          #
+          # 偵測必須以 response headers 為準，不能只看 redirect URL：
+          #  · 本機 curl web.esggo.co → 302 + Location: …cloudflareaccess.com…
+          #  · CI runner（GitHub Actions IP）→ **403 且 redirect 為空**
+          # 兩者都會帶 Access 特徵標頭（Www-Authenticate: Cloudflare-Access /
+          # Set-Cookie: CF_AppSession），故 headers+body 皆掃。
           for i in $(seq 1 6); do
-            code=$(curl -sS -m 20 -o /dev/null -w "%{http_code}" "$DEPLOY_WORKER_URL/" 2>&1 || true)
-            loc=$(curl -sS -m 20 -o /dev/null -w "%{redirect_url}" "$DEPLOY_WORKER_URL/" 2>&1 || true)
-            echo "[diag] attempt $i: code=$code redirect=$loc at $(date -u +%FT%TZ)"
+            hdr=/tmp/verify_hdr; body=/tmp/verify_body
+            code=$(curl -sS -m 20 -D "$hdr" -o "$body" -w "%{http_code}" \
+              "$DEPLOY_WORKER_URL/" 2>/dev/null || true)
+            loc=$(grep -i '^location:' "$hdr" 2>/dev/null | head -1 | cut -d' ' -f2- | tr -d '\r')
+            echo "[diag] attempt $i: code=$code redirect=${loc:0:80} at $(date -u +%FT%TZ)"
 
-            if echo "$loc" | grep -qiE "cloudflareaccess\.com|/cdn-cgi/access/"; then
-              echo "::error::PUBLIC SITE BLOCKED BY CLOUDFLARE ACCESS — worker deployed, but $DEPLOY_WORKER_URL still 302s to $loc"
+            if grep -qiE 'cloudflareaccess\.com|/cdn-cgi/access/|cloudflare-access|cf-access|CF_AppSession' \
+                 "$hdr" "$body" 2>/dev/null; then
+              echo "::error::PUBLIC SITE BLOCKED BY CLOUDFLARE ACCESS — worker deployed, but $DEPLOY_WORKER_URL is not publicly reachable (HTTP $code)"
               echo "::error::Remediation (needs Access: Apps and Policies edit, which repo tokens do NOT have):"
               echo "::error::  Zero Trust → Access → Applications → app 'web.esggo.co'"
               echo "::error::  (id 14121b0e-ac40-492e-83a1-f3697d791df3, currently has ZERO policies)"
               echo "::error::  → Add policy → Include: Everyone → Action: Skip (bypass)."
-              echo "::error::  Verified 2026-10-17: API POST returns 1010 auth.forbidden for CLOUDFLARE_API_TOKEN / CF_DNS_EDIT_TOKEN."
+              echo "::error::  Verified 2026-10-17: MCP token and both repo tokens all return 1010 auth.forbidden."
               exit 1
             fi
 
@@ -194,17 +203,11 @@ jobs:
                   exit 0
                 fi
                 ;;
-              401|403)
-                if echo "$(curl -sSI -m 20 "$DEPLOY_WORKER_URL/" 2>/dev/null || true)" | grep -qiE "cf-access|cloudflareaccess"; then
-                  echo "::error::PUBLIC SITE BLOCKED BY CLOUDFLARE ACCESS (HTTP $code) — see remediation in the workflow comments"
-                  exit 1
-                fi
-                ;;
             esac
             sleep 10
           done
 
-          echo "::error::worker endpoint not publicly reachable: $DEPLOY_WORKER_URL"
+          echo "::error::worker endpoint not publicly reachable: $DEPLOY_WORKER_URL (see [diag] attempts above)"
           exit 1
 
       - name: Notify
