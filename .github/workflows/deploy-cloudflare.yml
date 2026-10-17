@@ -146,9 +146,10 @@ jobs:
         run: |
           # 必須在 deploy 之後：versions 工作流要求「最新版本已部署」才能改 secret；
           # 且顯式 --config 指向 esggo-web（預設會誤抓 wrangler.toml 的 esggo worker）。
+          # SUPABASE_DATABASE_URL 為選用 secret：未設定時跳過並警告，不讓部署流程失敗。
           if [ -z "$SUPABASE_DATABASE_URL" ]; then
-            echo "::error::SUPABASE_DATABASE_URL secret missing"
-            exit 1
+            echo "::warning::SUPABASE_DATABASE_URL secret not configured, skipping DATABASE_URL secret update (existing worker secret is kept)"
+            exit 0
           fi
           echo "$SUPABASE_DATABASE_URL" | npx wrangler secret put DATABASE_URL --config wrangler.web.jsonc
           echo "[diag] DATABASE_URL secret set on esggo-web"
