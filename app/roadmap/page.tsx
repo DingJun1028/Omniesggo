@@ -7,7 +7,7 @@ import {
   Zap, DollarSign, Activity, CheckCircle2, AlertTriangle, Plus, Trash2, ArrowRight, FileText,
   Sun, Moon, Layers
 } from 'lucide-react';
-import { AbatementMeasure, DEFAULT_MEASURES } from '../api/roadmap/plan/route';
+import { type AbatementMeasure, DEFAULT_MEASURES } from '../../src/lib/roadmap-measures';
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../src/components/omni-base/OmniCard';
 import { OmniButton } from '../../src/components/omni-base/OmniButton';
 import { OmniBadge } from '../../src/components/omni-base/OmniBadge';
