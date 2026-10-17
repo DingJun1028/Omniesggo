@@ -28,3 +28,5 @@ jobs:
         run: node tests/junaikey.bench.mjs
       - name: Run omni-one 10-layer concentric facilities unit tests
         run: node tests/omni-one.test.mjs
+      - name: Run G17 deploy contract tests
+        run: node tests/deploy-contract.test.mjs
