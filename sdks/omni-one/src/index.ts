@@ -362,3 +362,8 @@ export type {
   IFacilityNode,
   LayerTelemetrySnapshot,
 } from './architecture-facilities';
+
+// ═══════════════════════════════════════════════════════════════
+// SECTION 7: Junaikey authorization-and-key layer (status and telemetry only, never secret values)
+// ═══════════════════════════════════════════════════════════════
+export * from './junaikey-gate';
