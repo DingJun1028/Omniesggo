@@ -38,8 +38,15 @@ jobs:
   green-gate:
     name: CI Green Gate
     runs-on: ubuntu-latest
-    # 讓出空間給真正的 CI/auto-repair 先產出 checks，再做判定
-    timeout-minutes: 20
+    # 讓出空間給真正的 CI/auto-repair 先產出 checks，再做判定。
+    # 本值必須 > GREEN_GATE_WAIT（下方 3600s），否則 gate 會在自己「等待
+    # 其他 checks」的途中被 job timeout 砍掉，結論變成 cancelled，永遠
+    # 輸不出 verdict —— 即一個永遠無法判定的閘。
+    # 實證：run 39044066048 於 15:13:06 起跑、15:33:20 在 20m14s 被取消，
+    # step "Run CI all-green gate" conclusion=cancelled（非 failure）。
+    # 成因：Cloudflare Workers Builds 實測常 >20 分鐘（本輪 esggo-worker
+    # 至 24 分鐘仍 pending），20 分鐘必然不夠。
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v4
         with:

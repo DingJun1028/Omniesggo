@@ -38,8 +38,15 @@ jobs:
     env:
       # Cloudflare account（非機密；對應本機 wrangler whoami 登入帳戶）
       CLOUDFLARE_ACCOUNT_ID: d9d7ecd92cbad6d858fba3e529b9cb7b
-      # 公開網站域名（CF 取代 Vercel）：CNAME → esggo-web workers.dev（proxied），
-      # 不經 Cloudflare Access「All Workers」層（該層僅匹配 workers.dev hostname）。
+      # 公開網站域名（CF 取代 Vercel）：CNAME → esggo-web workers.dev（proxied）。
+      # 注意：此域名「會」被 Cloudflare Access 攔截 —— 實測 curl 得 302 →
+      # omniesggo.cloudflareaccess.com/cdn-cgi/access/login/web.esggo.co，
+      # 蓋因帳號級「All Workers」app（id 86a4d5af-f6a9-49ec-9cda-9ce49862d052,
+      # destination=all_workers, policy=allow cloudflare_account_member）會匹配
+      # 自訂網域；本 repo 另有專屬 app web.esggo.co
+      # （id 14121b0e-ac40-492e-83a1-f3697d791df3）但 policies 為空 ——
+      # 空策略等於無一匹配，故仍被踢回登入頁。
+      # 因此 Verify 步驟以「公開可達」為硬性成功條件，不再把 Access 302 當成功。
       DEPLOY_WORKER_URL: https://web.esggo.co
     steps:
       - name: Checkout code
@@ -158,45 +165,46 @@ jobs:
         if: success()
         timeout-minutes: 3
         run: |
-          # 果因消除：部署宣告成功後實測端點。
-          # 若遇到 Cloudflare Zero Trust Access 攔截（重定向、401/403 或 cloudflareaccess 相關標頭/路徑），
-          # 說明 Worker 已成功部署至 Cloudflare 邊緣並受 Access 保護，輸出警告提示並通過驗證。
+          # 果因消除：部署宣告成功 ≠ 站台可用。本閘的契約是「公開可達」，
+          # 因此 Cloudflare Access 攔截一律判失敗 —— 過去把它當成功（warning + exit 0）
+          # 會讓「生產壞掉但 CI 全綠」，違反不帶病上線。
           for i in $(seq 1 6); do
-            resp=$(curl -sSL -m 20 -D - -o /tmp/resp_body "$DEPLOY_WORKER_URL/" 2>&1 || true)
             code=$(curl -sS -m 20 -o /dev/null -w "%{http_code}" "$DEPLOY_WORKER_URL/" 2>&1 || true)
-            effective_url=$(curl -sS -m 20 -o /dev/null -w "%{url_effective}" -L "$DEPLOY_WORKER_URL/" 2>&1 || true)
-            echo "[diag] health attempt $i: code=$code effective_url=$effective_url at $(date -u +%FT%TZ)"
-            
-            if echo "$resp $effective_url" | grep -qiE "cloudflareaccess\.com|cdn-cgi/access|cf-access"; then
-              echo "::warning::Worker deployed successfully but protected by Cloudflare Zero Trust Access ($effective_url)"
-              echo "✅ worker reachable via Cloudflare Access (HTTP $code)"
-              exit 0
+            loc=$(curl -sS -m 20 -o /dev/null -w "%{redirect_url}" "$DEPLOY_WORKER_URL/" 2>&1 || true)
+            echo "[diag] attempt $i: code=$code redirect=$loc at $(date -u +%FT%TZ)"
+
+            if echo "$loc" | grep -qiE "cloudflareaccess\.com|/cdn-cgi/access/"; then
+              echo "::error::PUBLIC SITE BLOCKED BY CLOUDFLARE ACCESS — worker deployed, but $DEPLOY_WORKER_URL still 302s to $loc"
+              echo "::error::Remediation (needs Access: Apps and Policies edit, which repo tokens do NOT have):"
+              echo "::error::  Zero Trust → Access → Applications → app 'web.esggo.co'"
+              echo "::error::  (id 14121b0e-ac40-492e-83a1-f3697d791df3, currently has ZERO policies)"
+              echo "::error::  → Add policy → Include: Everyone → Action: Skip (bypass)."
+              echo "::error::  Verified 2026-10-17: API POST returns 1010 auth.forbidden for CLOUDFLARE_API_TOKEN / CF_DNS_EDIT_TOKEN."
+              exit 1
             fi
-            
+
             case "$code" in
-              2*|3*)
-                echo "✅ worker reachable (HTTP $code)"
+              2*)
+                echo "✅ public site reachable (HTTP $code)"
                 exit 0
                 ;;
-              401|403)
-                if echo "$resp" | grep -qiE "cloudflare|cf-ray"; then
-                  echo "::warning::Worker deployed and reachable at Cloudflare edge, but returned HTTP $code (Zero Trust Access protected)"
-                  echo "✅ worker endpoint active on Cloudflare edge (HTTP $code)"
+              3*)
+                if [ -z "$loc" ]; then
+                  echo "✅ worker reachable (HTTP $code, no Access redirect)"
                   exit 0
+                fi
+                ;;
+              401|403)
+                if echo "$(curl -sSI -m 20 "$DEPLOY_WORKER_URL/" 2>/dev/null || true)" | grep -qiE "cf-access|cloudflareaccess"; then
+                  echo "::error::PUBLIC SITE BLOCKED BY CLOUDFLARE ACCESS (HTTP $code) — see remediation in the workflow comments"
+                  exit 1
                 fi
                 ;;
             esac
             sleep 10
           done
-          
-          # 最後防線：若 Cloudflare 邊緣已確認正常響應（有 cf-ray 或 server: cloudflare）
-          if curl -sI -m 10 "$DEPLOY_WORKER_URL/" | grep -qiE "cloudflare|cf-ray"; then
-            echo "::warning::Worker deployed successfully; Cloudflare edge responding with Access challenge"
-            echo "✅ worker reachable on Cloudflare edge"
-            exit 0
-          fi
-          
-          echo "::error::worker endpoint not reachable: $DEPLOY_WORKER_URL"
+
+          echo "::error::worker endpoint not publicly reachable: $DEPLOY_WORKER_URL"
           exit 1
 
       - name: Notify
