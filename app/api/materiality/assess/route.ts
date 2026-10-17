@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '../../../src/lib/prisma';
+import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
-import { MaterialityTopic, DEFAULT_TOPICS } from '../../../src/types/materiality';
+import { MaterialityTopic, DEFAULT_TOPICS } from '@/types/materiality';
 
 export type { MaterialityTopic };
 export { DEFAULT_TOPICS };
