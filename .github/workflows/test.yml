@@ -30,3 +30,7 @@ jobs:
         run: node tests/omni-one.test.mjs
       - name: Run G17 deploy contract tests
         run: node tests/deploy-contract.test.mjs
+      - name: Junaikey secrets convention check (fault-tolerant)
+        run: node scripts/ci-secrets.mjs
+      - name: Run G18 junaikey secrets gate tests
+        run: node tests/junaikey-secrets.test.mjs
