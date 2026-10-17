@@ -513,7 +513,7 @@ importers:
 
   apps/omnilive: {}
 
-  apps/omnlive: {}
+  apps/omnlive-offline: {}
 
   apps/oneringai:
     dependencies:

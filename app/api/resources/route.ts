@@ -338,13 +338,13 @@ export async function GET() {
     },
     {
       id: 'nextjs',
-      name: 'Next.js 16',
+      name: 'Next.js 16 on Cloudflare Workers',
       icon: '▲',
       type: 'compute',
-      provider: 'Vercel',
-      tier: 'Hobby (Free)',
+      provider: 'Cloudflare Workers',
+      tier: 'Free',
       status: 'healthy',
-      description: 'App Router、Server Components、Turbopack',
+      description: 'App Router、Server Components，vinext 建置部署至 Cloudflare Workers',
       configKey: 'N/A',
     },
     {
