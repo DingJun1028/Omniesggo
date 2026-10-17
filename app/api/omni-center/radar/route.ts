@@ -2,7 +2,7 @@
  * GET & POST /api/omni-center/radar
  *
  * 萬能系統 10 層 MECE 同心圓雷達即時聯調與外部 API 遙測端點
- * 串接真實外部 API 狀態 (Groq Qwen, 5T 存證治理, ESGGO 永續計算模型)
+ * 串接真實外部 API 狀態 (Groq Qwen, 5T 存證治理, ESGGO 永續計算模型, Junaikey 授權與密鑰層)
  * 整合 Omni-Sanctuary/omni-one-萬能筆記/memories/cases.jsonl 實體 5T 存證與歷史回溯
  */
 
@@ -17,6 +17,10 @@ import {
   getFacilityTelemetryDefaults,
   type LayerTelemetrySnapshot,
 } from '../../../../sdks/omni-one/src/architecture-facilities';
+import {
+  getJunaikeyTelemetry,
+  type JunaikeyLayerTelemetry,
+} from '../../../../sdks/omni-one/src/junaikey-gate';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -100,6 +104,7 @@ export interface RadarTelemetryResponseData {
       reductionRatio: number;
       griStandard: string;
     };
+    junaikey: JunaikeyLayerTelemetry;
   };
   layers: LayerTelemetrySnapshot[];
   history: FiveTCaseRecord[];
@@ -198,6 +203,8 @@ export async function GET(): Promise<Response> {
           reductionRatio,
           griStandard: 'GRI 305: Emissions 2026',
         },
+        // Junaikey 授權與密鑰層：只回報 presence 與狀態，不含任何密鑰值
+        junaikey: getJunaikeyTelemetry(),
       },
       layers,
       history: persistedCases.slice(-10),
