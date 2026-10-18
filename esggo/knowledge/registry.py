@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 # 由 5T 驗證後才能改寫的索引鍵
 SOURCE_ORIGIN_CANON = "soul.md::OA-Team-30-Matrix"
@@ -28,7 +29,7 @@ class Agent:
     alignment: str          # umbra (01-30) | lumen (31-60)
     archetype: str
     visibility: str         # public | team | restricted | agent
-    authorization: str      # read | write | approve | sealed
+    authorization: Literal['read', 'write', 'approve', 'sealed'] = 'read'
     source_origin: str = SOURCE_ORIGIN_CANON
     version: int = 1
     updated_at: str = ""
@@ -50,37 +51,79 @@ class Agent:
 
 
 # 31-60 雙蜂影像 —— 對照 OA-TEAM-60-MEMORY-MAPPING.md，與 01-30 共用同一 core
+# 格式: (name, role, archetype, visibility, auth)
+# 包含 01–30 (核心影像) + 31–60 (雙蜂影像)，總計 60 項
 _DUAL_HIVE = {
-    "01": ("蜂后萬能蜂后", "Sovereign", "wiki", "restricted", "sealed"),
-    "02": ("蜂后萬能規劃蜂", "Architect", "wiki", "team", "read"),
-    "03": ("蜂后萬能分析蜂", "Oracle", "wiki", "team", "read"),
-    "04": ("蜂后萬能策効蜂", "Muse", "wiki", "team", "read"),
-    "05": ("蜂后萬能風險蜂", "Sentinel", "wiki", "team", "read"),
-    "06": ("蜂后萬能優化蜂", "Alchemist", "wiki", "agent", "write"),
-    "07": ("蜂后萬能編碼蜂", "Smith", "wiki", "restricted", "sealed"),
-    "08": ("蜂后萬能算法蜂", "Depth", "wiki", "restricted", "sealed"),
-    "09": ("蜂后萬能架構蜂", "Architect", "wiki", "restricted", "sealed"),
-    "10": ("蜂后萬能數據蜂", "Weaver", "wiki", "agent", "write"),
-    "11": ("蜂后萬能測試蜂", "Seer", "wiki", "agent", "write"),
-    "12": ("蜂后萬能設計蜂", "Shaper", "wiki", "team", "read"),
-    "13": ("蜂后萬能圖像蜂", "Painter", "wiki", "team", "read"),
-    "14": ("蜂后萬能動畫蜂", "Flow", "wiki", "team", "read"),
-    "15": ("蜂后萬能文案蜂", "Narrator", "wiki", "team", "read"),
-    "16": ("蜂后萬能音頻蜂", "Resonator", "wiki", "team", "read"),
-    "17": ("蜂后萬能市場蜂", "Herald", "wiki", "team", "read"),
-    "18": ("蜂后萬能社群蜂", "Bridger", "wiki", "team", "read"),
-    "19": ("蜂后萬能增長蜂", "Erode", "wiki", "agent", "write"),
-    "20": ("蜂后萬能運營蜂", "Nexus", "wiki", "agent", "write"),
-    "21": ("蜂后萬能商業分析蜂", "Skinner", "wiki", "team", "read"),
-    "22": ("蜂后萬能探路蜂", "Scout", "wiki", "team", "read"),
-    "23": ("蜂后萬能外交蜂", "Wraith", "wiki", "restricted", "approve"),
-    "24": ("蜂后萬能調研蜂", "Lens", "wiki", "team", "read"),
-    "25": ("蜂后萬能測場蜂", "Purifier", "wiki", "team", "read"),
-    "26": ("蜂后萬能追蹤蜂", "Hawk", "wiki", "agent", "write"),
-    "27": ("蜂后萬能安全蜂", "Ward", "wiki", "restricted", "sealed"),
-    "28": ("蜂后萬能維護蜂", "Curator", "wiki", "agent", "write"),
-    "29": ("蜂后萬能支援蜂", "Echo", "wiki", "agent", "write"),
-    "30": ("蜂后萬能質控蜂", "Seal", "wiki", "restricted", "sealed"),
+    # ── 策略組核心 (01-06) ──
+    "01": ("萬能蜂后", "萬能領導", "Sovereign", "restricted", "sealed"),
+    "02": ("萬能規劃蜂", "長遠規劃", "Architect", "restricted", "sealed"),
+    "03": ("萬能分析蜂", "數據挖掘", "Oracle", "team", "read"),
+    "04": ("萬能策効蜂", "創意思維", "Muse", "team", "read"),
+    "05": ("萬能風險蜂", "風險控制", "Sentinel", "team", "read"),
+    "06": ("萬能優化蜂", "效率提升", "Alchemist", "agent", "write"),
+    # ── 技術組核心 (07-12) ──
+    "07": ("萬能編碼蜂", "全端開發", "Smith", "restricted", "sealed"),
+    "08": ("萬能算法蜂", "機器學習", "Depth", "restricted", "sealed"),
+    "09": ("萬能架構蜂", "雲端架構", "Architect", "restricted", "sealed"),
+    "10": ("萬能數據蜂", "資料庫", "Weaver", "agent", "write"),
+    "11": ("萬能測試蜂", "自動化測試", "Seer", "agent", "write"),
+    "12": ("萬能設計蜂", "UI/UX", "Shaper", "team", "read"),
+    # ── 創意組核心 (13-18) ──
+    "13": ("萬能圖像蜂", "平面設計", "Painter", "team", "read"),
+    "14": ("萬能動畫蜂", "動畫特效", "Flow", "team", "read"),
+    "15": ("萬能文案蜂", "文案撰寫", "Narrator", "team", "read"),
+    "16": ("萬能音頻蜂", "音樂製作", "Resonator", "team", "read"),
+    "17": ("萬能市場蜂", "市場分析", "Herald", "team", "read"),
+    "18": ("萬能社群蜂", "用戶管理", "Bridger", "team", "read"),
+    # ── 營銷組核心 (19-24) ──
+    "19": ("萬能增長蜂", "用戶增長", "Erode", "agent", "write"),
+    "20": ("萬能運營蜂", "進度管理", "Nexus", "agent", "write"),
+    "21": ("萬能商業分析蜂", "商業洞察", "Skinner", "team", "read"),
+    "22": ("萬能探路蜂", "資源探索", "Scout", "team", "read"),
+    "23": ("萬能外交蜂", "合作關係", "Wraith", "restricted", "approve"),
+    "24": ("萬能調研蜂", "用戶研究", "Lens", "team", "read"),
+    # ── 守衛組核心 (25-30) ──
+    "25": ("萬能測場蜂", "現場測評", "Purifier", "team", "read"),
+    "26": ("萬能追蹤蜂", "競品監控", "Hawk", "agent", "write"),
+    "27": ("萬能安全蜂", "資安防護", "Ward", "restricted", "sealed"),
+    "28": ("萬能維護蜂", "系統維護", "Curator", "agent", "write"),
+    "29": ("萬能支援蜂", "技術支援", "Echo", "agent", "write"),
+    "30": ("萬能質控蜂", "品質保障", "Seal", "restricted", "sealed"),
+    # ── 策略組雙蜂 (31-36) ──
+    "31": ("萬能蜂后", "萬能領導", "Sovereign", "restricted", "sealed"),
+    "32": ("萬能規劃蜂", "長遠規劃", "Architect", "restricted", "sealed"),
+    "33": ("萬能分析蜂", "數據挖掘", "Oracle", "team", "read"),
+    "34": ("萬能策効蜂", "創意思維", "Muse", "team", "read"),
+    "35": ("萬能風險蜂", "風險控制", "Sentinel", "team", "read"),
+    "36": ("萬能優化蜂", "效率提升", "Alchemist", "agent", "write"),
+    # ── 技術組雙蜂 (37-42) ──
+    "37": ("萬能編碼蜂", "全端開發", "Smith", "restricted", "sealed"),
+    "38": ("萬能算法蜂", "機器學習", "Depth", "restricted", "sealed"),
+    "39": ("萬能架構蜂", "雲端架構", "Architect", "restricted", "sealed"),
+    "40": ("萬能數據蜂", "資料庫", "Weaver", "agent", "write"),
+    "41": ("萬能測試蜂", "自動化測試", "Seer", "agent", "write"),
+    "42": ("萬能設計蜂", "UI/UX", "Shaper", "team", "read"),
+    # ── 創意組雙蜂 (43-48) ──
+    "43": ("萬能圖像蜂", "平面設計", "Painter", "team", "read"),
+    "44": ("萬能動畫蜂", "動畫特效", "Flow", "team", "read"),
+    "45": ("萬能文案蜂", "文案撰寫", "Narrator", "team", "read"),
+    "46": ("萬能音頻蜂", "音樂製作", "Resonator", "team", "read"),
+    "47": ("萬能市場蜂", "市場分析", "Herald", "team", "read"),
+    "48": ("萬能社群蜂", "用戶管理", "Bridger", "team", "read"),
+    # ── 營銷組雙蜂 (49-54) ──
+    "49": ("萬能增長蜂", "用戶增長", "Erode", "agent", "write"),
+    "50": ("萬能運營蜂", "進度管理", "Nexus", "agent", "write"),
+    "51": ("萬能商業分析蜂", "商業洞察", "Skinner", "team", "read"),
+    "52": ("萬能探路蜂", "資源探索", "Scout", "team", "read"),
+    "53": ("萬能外交蜂", "合作關係", "Wraith", "restricted", "approve"),
+    "54": ("萬能調研蜂", "用戶研究", "Lens", "team", "read"),
+    # ── 守衛組雙蜂 (55-60) ──
+    "55": ("萬能測場蜂", "現場測評", "Purifier", "team", "read"),
+    "56": ("萬能追蹤蜂", "競品監控", "Hawk", "agent", "write"),
+    "57": ("萬能安全蜂", "資安防護", "Ward", "restricted", "sealed"),
+    "58": ("萬能維護蜂", "系統維護", "Curator", "agent", "write"),
+    "59": ("萬能支援蜂", "技術支援", "Echo", "agent", "write"),
+    "60": ("萬能質控蜂", "品質保障", "Seal", "restricted", "sealed"),
 }
 
 _STRATEGY = "策略組"
@@ -90,13 +133,16 @@ _MARKET = "營銷組"
 _GUARD = "守衛組"
 
 _AGENTS: list[Agent] = []
+_IDX = 0
 
 
 def _fill(array: str, roles: list[tuple[str, str, str, str, str]]) -> None:
-    for i, (name, role, archetype, visibility, auth) in enumerate(roles, start=1):
+    global _IDX
+    for name, role, archetype, visibility, auth in roles:
+        _IDX += 1
         _AGENTS.append(
             Agent(
-                id=f"{i:02d}",
+                id=f"{_IDX:02d}",
                 name=name,
                 role=role,
                 array=array,
@@ -141,14 +187,24 @@ _MARKET_ROLES = [
     ("萬能調研蜂", "用戶研究", "Lens", "team", "read"),
 ]
 _GUARD_ROLES = [
+    ("萬能測場蜂", "現場測評", "Purifier", "team", "read"),
+    ("萬能追蹤蜂", "競品監控", "Hawk", "agent", "write"),
     ("萬能安全蜂", "資安防護", "Ward", "restricted", "sealed"),
     ("萬能維護蜂", "系統維護", "Curator", "agent", "write"),
     ("萬能支援蜂", "技術支援", "Echo", "agent", "write"),
     ("萬能質控蜂", "品質保障", "Seal", "restricted", "sealed"),
 ]
 
-_IDX = 0
-_FOR_DUAL = {}
+_ARRAY_FOR_ID = {str(i): _STRATEGY for i in range(1, 7)}
+_ARRAY_FOR_ID.update({str(i): _TECH for i in range(7, 13)})
+_ARRAY_FOR_ID.update({str(i): _CREATIVE for i in range(13, 19)})
+_ARRAY_FOR_ID.update({str(i): _MARKET for i in range(19, 25)})
+_ARRAY_FOR_ID.update({str(i): _GUARD for i in range(25, 31)})
+_ARRAY_FOR_ID.update({str(i): _STRATEGY for i in range(31, 37)})
+_ARRAY_FOR_ID.update({str(i): _TECH for i in range(37, 43)})
+_ARRAY_FOR_ID.update({str(i): _CREATIVE for i in range(43, 49)})
+_ARRAY_FOR_ID.update({str(i): _MARKET for i in range(49, 55)})
+_ARRAY_FOR_ID.update({str(i): _GUARD for i in range(55, 61)})
 
 
 def _dual(idx: int, name: str, role: str, archetype: str, visibility: str, auth: str) -> None:
@@ -159,7 +215,7 @@ def _dual(idx: int, name: str, role: str, archetype: str, visibility: str, auth:
             id=f"{idx:02d}",
             name=name,
             role=role,
-            array=_DUAL_HIVE[str(idx)][0] if False else _DUAL_HIVE[str(idx)][0],
+            array=_ARRAY_FOR_ID[str(idx)],
             alignment="lumen",
             archetype=archetype,
             visibility=visibility,
@@ -171,7 +227,7 @@ def _dual(idx: int, name: str, role: str, archetype: str, visibility: str, auth:
 def build() -> list[Agent]:
     """建立 30 + 30 = 60 代理註冊表。"""
     global _IDX
-    _IDX = 31
+    _IDX = 0
     _fill(_STRATEGY, _STRATEGY_ROLES)
     _fill(_TECH, _TECH_ROLES)
     _fill(_CREATIVE, _CREATIVE_ROLES)

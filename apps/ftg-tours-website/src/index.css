@@ -1,10 +1,22 @@
 /* 5T-Traceable: 原本是 Google Fonts 遠端 @import，序列阻塞且在台港常抓不到。
    改為本地 @font-face 子集（Vite 會內聯到 bundle 頂端），見 src/fonts.css 的說明。 */
 @import './fonts.css';
+@import "tailwindcss";
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@theme {
+  /* 品牌色票（SSOT：tailwind.config.js 与本文件保持同步） */
+  --color-ftg-green: #2d4a3e;
+  --color-ftg-forest: #1a3c34;
+  --color-ftg-leaf: #4a7c59;
+  --color-ftg-sand: #f5f0e8;
+  --color-ftg-cream: #faf7f2;
+  --color-ftg-orange: #e07a3d;
+  --color-ftg-sunlight: var(--color-ftg-sand);
+  --color-ftg-deepgreen: var(--color-ftg-forest);
+  /* 字型（SSOT：tailwind.config.js 与本文件保持同步） */
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-serif: 'Noto Serif TC', serif;
+}
 
 @layer base {
   html {

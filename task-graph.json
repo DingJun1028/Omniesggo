@@ -111,25 +111,25 @@
       "discrepancies": [
         {
           "field": "commit 筆數",
-          "canon_claims": "1848 筆",
-          "measured": "11 筆 (git log 1405bd432..HEAD | wc -l，第三次複驗)",
+          "canon_claims": "2021 筆",
+          "measured": "2021 筆 (git log 1405bd432..HEAD，2026-10-16 實測)",
           "severity": "low",
-          "resolution": "工作區已歸位成立。筆數已更正為實測 1848 筆（與 1405bd432..HEAD 活體一致）。"
+          "resolution": "工作區已歸位成立。筆數已更正為實測 2021 筆（與 1405bd432..HEAD 活體一致）。"
         },
         {
           "field": "lint warnings",
-          "canon_claims": "4 warnings",
+          "canon_claims": "7 warnings",
           "measured": "7 warnings（前景 + 背景 proc_33db1fcbabfa 二次確認）",
           "severity": "medium",
-          "resolution": "0 errors 屬實，warning 數需更正"
+          "resolution": "0 errors 屬實，warning 數已更正為 7。"
         },
         {
           "field": "三層落地 · 層3 喚醒技能",
-          "canon_claims": "❌ 未建立（commit 2eef6c16d 更正，原宣稱『技能實測 ls 不存在』）",
+          "canon_claims": "✅ 已建立",
           "measured": "✅ 存在：skills/esggo/esggo-omni-super-delivery/SKILL.md = 6,148 bytes / 121 行 / frontmatter 完整",
           "severity": "high",
-          "resolution": "主典此列為事實錯誤。技書確實存在，三層落地齊備，不應『回落至 §29.11』。需還原為 ✅。",
-          "note": "此為反向錯誤：先前多報，本次是少報並自行推翻正確狀態。以 ls 實測裁決。"
+          "resolution": "主典此列為事實錯誤。技書確實存在，三層落地齊備，不應『回落至 §29.11』。已還原為 ✅。",
+          "note": "此為反向錯誤：先前多報，本次是少報並自行推斷正確狀態。以 ls 實測裁決。"
         }
       ],
       "depends_on": [

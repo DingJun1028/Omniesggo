@@ -1,0 +1,20 @@
+{
+  "name": "omnilive-offline",
+  "version": "1.0.0",
+  "description": "OA-Team OmniLive legacy/unofficial leftover (name clash fix)",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node start.mjs",
+    "health": "curl -sf http://localhost:8795/health",
+    "verify": "node verify.mjs",
+    "e2e:voice": "node scripts/e2e-voice.mjs",
+    "omnistation": "node omnistation.mjs",
+    "test": "node --test \"test/**/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

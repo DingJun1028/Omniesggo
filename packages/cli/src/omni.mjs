@@ -489,10 +489,64 @@ gateway
     }
   });
 
+// ── router — Smart AI Router ───────────────────────────────
+const routerCmd = program
+  .command('router')
+  .description('Smart AI Router — 免費模組自動轉換路由器');
+
+routerCmd
+  .command('chat <message>')
+  .description('透過免費 LLM 路由執行 chat completion')
+  .option('--provider <id>', '指定 provider (nvidia|gemini)')
+  .option('--model <name>', '指定模型')
+  .option('--max-tokens <n>', '最大 token 數')
+  .option('--json', '輸出 JSON 格式')
+  .action(async (message, opts) => {
+    const { SmartAIRouter } = await import('../../../vps/smart-ai-router.mjs');
+    const router = new SmartAIRouter().init();
+    
+    const options = {};
+    if (opts.provider) options.provider = opts.provider;
+    if (opts.model) options.model = opts.model;
+    if (opts.maxTokens) options.maxTokens = parseInt(opts.maxTokens);
+
+    try {
+      const result = await router.chat([{ role: 'user', content: message }], options);
+      
+      if (opts.json) {
+        console.log(JSON.stringify(result, null, 2));
+      } else {
+        const content = result.choices?.[0]?.message?.content || '(no content)';
+        console.log(content);
+        console.log(`\n---\nProvider: ${result.provider} | Model: ${result.model}`);
+      }
+    } catch (error) {
+      console.error(`Error: ${error.message}`);
+      process.exit(1);
+    }
+  });
+
+routerCmd
+  .command('health')
+  .description('Smart AI Router 健康檢查')
+  .action(async () => {
+    const { SmartAIRouter } = await import('../../../vps/smart-ai-router.mjs');
+    const router = new SmartAIRouter().init();
+    const health = await router.healthCheck();
+    console.log(JSON.stringify(health, null, 2));
+  });
+
+routerCmd
+  .command('stats')
+  .description('Smart AI Router 統計資訊')
+  .action(async () => {
+    const { SmartAIRouter } = await import('../../../vps/smart-ai-router.mjs');
+    const router = new SmartAIRouter().init();
+    console.log(JSON.stringify(router.getStats(), null, 2));
+  });
+
 // ── Parse ──────────────────────────────────────────────────
-// ── run — unified python pipeline ──────────────────────────
-const { spawn } = await import('node:child_process');
-// existsSync 已於檔頭 (line 231) 自 'node:fs' 靜態匯入，此處不可重複宣告
+program.parse();
 
 const PIPELINE_STAGES = [
   { key: 'gen',   label: 'Generate ESG data',     file: 'scripts/generate_esg_data.py' },

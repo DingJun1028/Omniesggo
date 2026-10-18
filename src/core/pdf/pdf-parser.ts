@@ -97,13 +97,13 @@ export class PDFReportParser {
   private pages: string[] = [];
 
   async parse(buffer: Buffer): Promise<PDFParseResult> {
-    const parser = new PDFParse({ data: buffer });
+    const parser = new PDFParse({ data: buffer.subarray(0) as unknown as Uint8Array });
     try {
       const textResult = await parser.getText();
       const rawText = textResult.text || '';
       this.pages = textResult.pages
-        .map((p) => (p.text || '').trim())
-        .filter((p) => p.length > 0);
+        .map((p: { text?: string }) => (p.text || '').trim())
+        .filter((p: string) => p.length > 0);
       if (this.pages.length === 0) this.pages = [rawText];
 
       const esg = this.extractESG(rawText);

@@ -68,6 +68,11 @@ class ProvenanceArchive:
                 lifecycle_json TEXT,
                 evidence_json TEXT,
                 storage_url TEXT,
+                # ── 新增：萬能標籤（OmniTag）系統 ──────────────────────────
+                tags_json TEXT,                    -- JSON array: ["tag1", "tag2"]
+                keywords_json TEXT,                -- JSON array: keyword list
+                backlinks_json TEXT,               -- JSON array: artifact UUIDs that link to this
+                external_links_json TEXT,          -- JSON array: {url, note}
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP
             )
         """)
@@ -229,6 +234,112 @@ class ProvenanceArchive:
         )
 
         return artifact_uuid, module_out
+
+    # ── OmniTag 萬能標籤系統 ────────────────────────────────────────────
+    def _safe_json(self, value) -> str:
+        """Serialize to JSON string, handling objects via default=str."""
+        if value is None:
+            return "[]"
+        if isinstance(value, (list, dict)):
+            return json.dumps(value, ensure_ascii=False, default=str)
+        return json.dumps([value], ensure_ascii=False, default=str)
+
+    def _get_json_column(self, row: sqlite3.Row, col: str) -> list:
+        """Read a JSON array column from sqlite3.Row, return [] if null."""
+        val = row[col]
+        if val is None or val == "":
+            return []
+        try:
+            return json.loads(val)
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def _set_json_column(self, conn, uuid_val: str, col: str, new_list: list):
+        """Read existing JSON array, merge with new_list (deduplicate), write back."""
+        cur = conn.execute(f"SELECT {col} FROM artifacts WHERE uuid = ?", (uuid_val,))
+        row = cur.fetchone()
+        if row and row[col]:
+            existing = self._get_json_column(row, col)
+        else:
+            existing = []
+        merged = list(dict.fromkeys(existing + new_list))
+        conn.execute(f"UPDATE artifacts SET {col} = ? WHERE uuid = ?", (self._safe_json(merged), uuid_val))
+
+    def add_tags(self, artifact_uuid: str, tags: list[str]) -> int:
+        """Add tags to an artifact (OmniTag). Deduplicates."""
+        tags = [str(t).strip() for t in tags if str(t).strip()]
+        if not tags:
+            return 0
+        conn = sqlite3.connect(self.db_path)
+        self._set_json_column(conn, artifact_uuid, "tags_json", tags)
+        conn.commit()
+        count = len(tags)
+        conn.close()
+        return count
+
+    def add_keywords(self, artifact_uuid: str, keywords: list[str]) -> int:
+        """Add keywords to an artifact. Deduplicates."""
+        keywords = [str(k).strip() for k in keywords if str(k).strip()]
+        if not keywords:
+            return 0
+        conn = sqlite3.connect(self.db_path)
+        self._set_json_column(conn, artifact_uuid, "keywords_json", keywords)
+        conn.commit()
+        count = len(keywords)
+        conn.close()
+        return count
+
+    def add_backlinks(self, artifact_uuid: str, related_uuids: list[str]) -> int:
+        """
+        Add backlinks (reverse links): related_uuids are artifacts that
+        link TO this artifact. Also updates the related artifacts'
+        backlinks_json to include this UUID.
+        """
+        related_uuids = [str(u).strip() for u in related_uuids if str(u).strip()]
+        if not related_uuids:
+            return 0
+
+        conn = sqlite3.connect(self.db_path)
+        added_count = 0
+        for ru in related_uuids:
+            # Avoid self-reference
+            if ru == artifact_uuid:
+                continue
+            # Add this artifact to the related artifact's backlinks
+            self._set_json_column(conn, ru, "backlinks_json", [artifact_uuid])
+            added_count += 1
+        conn.commit()
+        conn.close()
+        return added_count
+
+    def add_external_links(self, artifact_uuid: str, links: list[dict]) -> int:
+        """
+        Add external links to an artifact.
+        Each link: {url: str, note: str}
+        """
+        cleaned = []
+        for link in links:
+            if not isinstance(link, dict):
+                continue
+            url = str(link.get("url", "")).strip()
+            note = str(link.get("note", "")).strip()
+            if url:
+                cleaned.append({"url": url, "note": note})
+        if not cleaned:
+            return 0
+        conn = sqlite3.connect(self.db_path)
+        self._set_json_column(conn, artifact_uuid, "external_links_json", cleaned)
+        conn.commit()
+        count = len(cleaned)
+        conn.close()
+        return count
+
+    def query_by_tag(self, tag: str, min_score: int = 1) -> list[dict]:
+        \"\"\"\n        Query artifacts by a single tag.\n        min_score: minimum number of times the tag appears (default 1)\n        \"\"\n        conn = sqlite3.connect(self.db_path)\n        conn.row_factory = sqlite3.Row\n        cursor = conn.execute(\n            \"SELECT uuid, title, tags_json, created_at FROM artifacts \"\n            \"WHERE ? IS NOT NULL AND tags_json IS NOT NULL \"\n            \"AND json_each.value IS NOT NULL \"\n            \"AND (SELECT COUNT(*) FROM json_each(tags_json)) >= ? \"\n            \"AND EXISTS (SELECT 1 FROM json_each(tags_json) WHERE json_each.value = ?)\",\n            (tag, min_score, tag)\n        )\n        rows = cursor.fetchall()\n        conn.close()\n        return [dict(r) for r in rows]
+
+    def query_by_keyword(self, keyword: str) -> list[dict]:\n        \"\"\"Query artifacts by keyword (substring match on title or keywords).\"\"\"\n        conn = sqlite3.connect(self.db_path)\n        conn.row_factory = sqlite3.Row\n        cursor = conn.execute(\n            \"SELECT uuid, title, keywords_json, created_at FROM artifacts \"\n            \"WHERE title LIKE ? OR (keywords_json IS NOT NULL AND instr(lower(keywords_json), lower(?)) > 0)\",\n            (f\"%{keyword}%\", keyword)\n        )\n        rows = cursor.fetchall()\n        conn.close()\n        return [dict(r) for r in rows]
+
+    def get_backlinks(self, artifact_uuid: str) -> list[str]:\n        \"\"\"Get all artifact UUIDs that have backlinks TO this artifact.\"\"\"\n        conn = sqlite3.connect(self.db_path)\n        conn.row_factory = sqlite3.Row\n        cursor = conn.execute(\n            \"SELECT uuid FROM artifacts WHERE backlinks_json IS NOT NULL \"\n            \"AND EXISTS (SELECT 1 FROM json_each(backlinks_json) WHERE json_each.value = ?)\",\n            (artifact_uuid,)\n        )\n        rows = cursor.fetchall()\n        conn.close()\n        return [r[\"uuid\"] for r in rows]
 
     def lookup(self, artifact_uuid: str) -> dict[str, Any] | None:
         """Look up an artifact by UUID."""

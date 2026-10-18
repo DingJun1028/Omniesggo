@@ -14,8 +14,8 @@
     "types": ["node"],
     "baseUrl": ".",
     "paths": {
-      "@esggo/shared": ["../../packages/shared/src"],
-      "@esggo/errors": ["../../packages/errors/src"]
+      "@esggo/shared": ["../../../packages/shared/src"],
+      "@esggo/errors": ["../../../packages/errors/src"]
     }
   },
   "include": ["./**/*.ts"],

@@ -34,7 +34,7 @@ export async function POST(
     }
 
     if (kb.locked) {
-      return jsonError('CONFLICT', `知識庫已封存: ${uuid}`, 409);
+      return jsonError('INVALID_PARAMS', `知識庫已封存: ${uuid}`, 409);
     }
 
     const sealed = sealKnowledgeBase(kb) as SealedKnowledgeBase;

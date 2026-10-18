@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const buffer = Buffer.from(arrayBuffer);
 
     // 1. 解析 PDF (pdf-parse v2: PDFParse class API)
-    const parser = new PDFParse({ data: buffer });
+    const parser = new PDFParse({ data: buffer.subarray(0) as unknown as Uint8Array });
     let rawText = '';
     let pageCount = 0;
     try {

@@ -33,6 +33,7 @@ aistation = [
 
 [project.scripts]
 aistation = "apps.aistation.src.cli:main"
+esggo-knowledge = "scripts.esggo_knowledge:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
