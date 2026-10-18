@@ -160,10 +160,13 @@ jobs:
         run: |
           # 果因消除：部署宣告成功後必須實測端點，避免「綠燈但站掛」的靜默失敗。
           # 嚴格化：Access 登入跳轉（cloudflareaccess.com）視同失敗——公開站不得被 Access 擋。
+          # 用 GET + User-Agent（原本的 HEAD 請求在 runner 上穩定回 403），並印出回應標頭
+          # 以辨識 403 的來源（Access、WAF/Bot 規則或 worker 本身）。判定規則不變：僅 2xx/3xx 通過。
           for i in $(seq 1 6); do
-            headers=$(curl -sSI --max-time 20 "$DEPLOY_WORKER_URL/" || true)
+            headers=$(curl -sS -D - -o /dev/null -A "Mozilla/5.0 (compatible; esggo-deploy-verify/1.0)" --max-time 20 "$DEPLOY_WORKER_URL/" || true)
             code=$(echo "$headers" | head -n1 | awk '{print $2}')
             echo "[diag] health attempt $i: $code at $(date -u +%FT%TZ)"
+            echo "$headers" | tr -d '\r' | grep -iE '^(server|cf-ray|cf-mitigated|location|content-type):' | sed 's/^/[diag]   /' || true
             if echo "$headers" | grep -qi "cloudflareaccess.com"; then
               echo "[diag] blocked by Cloudflare Access, retrying..."
               sleep 10
