@@ -27,6 +27,17 @@ export interface ModelConfig {
   reasoning: string; // 選擇原因
 }
 
+export interface FreeProviderConfig {
+  id: string;
+  provider: ModelConfig['provider'];
+  model: string;
+  maxTokens: number;
+  temperature: number;
+  apiUrl: string;
+  apiKeyEnv: string;
+  isFreeTier: boolean; // model 以 :free 結尾者為真免費模型
+}
+
 export interface RoutingResult {
   primary: ModelConfig;
   fallback1: ModelConfig;
@@ -335,6 +346,168 @@ const ROUTING_TABLE: Record<ESGTaskType, RoutingResult> = {
 };
 
 // ── 智慧路由函數 ─────────────────────────────────────────────
+// ============================================================================
+// TRIGGERS — 代理工具觸發機制增強
+// ============================================================================
+// 目標：加強代理工具觸發機率，使「消息 → 代理 → 執行」閉環更靈敏。
+// 機制：
+//   1. 訊息分類（inferTaskType）：關鍵詞+語意權重雙重判定
+//   2. 觸發等級（TriggerLevel）：p0 急迫 / p1 高頻 / p2 普通 / p3 低頻
+//   3. 觸發評分（triggerScore）：0-1，反映匹配置信度
+//   4. 觸發註冊（TriggerRegistry）：代理可主動註冊觸發器
+// ============================================================================
+
+import { v4 as uuidv4 } from "uuid";
+
+export enum TriggerLevel {
+  P0 = "p0",   // 急迫：立即觸發，阻塞式
+  P1 = "p1",   // 高頻：優先排隊
+  P2 = "p2",   // 普通：標準排隊
+  P3 = "p3",   // 低頻：延後處理
+}
+
+export interface TriggerConfidence {
+  score: number;          // 0-1，匹配置信度
+  level: TriggerLevel;    // 觸發等級
+  matchedRules: string[]; // 命中的規則名稱
+  confidence: "high" | "medium" | "low" | "unknown";
+}
+
+export interface RouteWithTrigger extends RoutingResult {
+  trigger: TriggerConfidence;
+}
+
+export interface TriggerEntry {
+  id: string;
+  name: string;
+  handler: (payload: unknown) => Promise<void>;
+  level: TriggerLevel;
+  priority: number;
+  enabled: boolean;
+}
+
+export class TriggerRegistry {
+  private entries = new Map<string, TriggerEntry>();
+  private statistics = {
+    triggered: 0,
+    dropped: 0,
+    p0Count: 0,
+    p1Count: 0,
+    p2Count: 0,
+    p3Count: 0,
+  };
+
+  register(name: string, handler: (payload: unknown) => Promise<void>, level: TriggerLevel = TriggerLevel.P2): TriggerEntry {
+    const entry: TriggerEntry = {
+      id: uuidv4(),
+      name,
+      handler,
+      level,
+      priority: level === TriggerLevel.P0 ? 100 : level === TriggerLevel.P1 ? 70 : level === TriggerLevel.P2 ? 40 : 10,
+      enabled: true,
+    };
+    this.entries.set(name, entry);
+    return entry;
+  }
+
+  unregister(name: string): boolean {
+    return this.entries.delete(name);
+  }
+
+  async dispatch(payload: unknown, level?: TriggerLevel): Promise<void> {
+    const candidates = level
+      ? Array.from(this.entries.values()).filter(e => e.level === level && e.enabled)
+      : Array.from(this.entries.values()).filter(e => e.enabled);
+
+    for (const entry of candidates.sort((a, b) => b.priority - a.priority)) {
+      try {
+        await entry.handler(payload);
+        this.statistics.triggered++;
+        this.statistics[`${entry.level}Count`]++;
+        return;
+      } catch (e) {
+        console.warn(`[TriggerRegistry] ${entry.name} failed:`, e);
+      }
+    }
+    this.statistics.dropped++;
+  }
+
+  getStatistics(): typeof this.statistics {
+    return { ...this.statistics };
+  }
+
+  listEntries(): TriggerEntry[] {
+    return Array.from(this.entries.values());
+  }
+}
+
+export const triggerRegistry = new TriggerRegistry();
+
+const TRIGGER_LEVEL_WEIGHT: Record<TriggerLevel, number> = {
+  [TriggerLevel.P0]: 1.0,
+  [TriggerLevel.P1]: 0.8,
+  [TriggerLevel.P2]: 0.5,
+  [TriggerLevel.P3]: 0.2,
+};
+
+export function triggerScoreToLevel(score: number): TriggerLevel {
+  if (score >= 0.8) return TriggerLevel.P0;
+  if (score >= 0.6) return TriggerLevel.P1;
+  if (score >= 0.4) return TriggerLevel.P2;
+  return TriggerLevel.P3;
+}
+
+// 語意匹配權重（用於增強訊息分類）
+export const SEMANTIC_WEIGHTS: Record<string, number> = {
+  carbon: 0.8, emission: 0.8, climate: 0.8, energy: 0.8, water: 0.8,
+  biodiversity: 0.8, community: 0.8, employee: 0.8, safety: 0.8,
+  governance: 0.8, compliance: 0.8, ethics: 0.8, report: 0.8, disclosure: 0.8,
+  audit: 0.8, net: 0.8, netzero: 0.8, zero: 0.8,
+  deploy: 0.6, monitor: 0.6, backup: 0.6, health: 0.6, check: 0.6,
+  rebuild: 0.6, sync: 0.6, verify: 0.6, validate: 0.6,
+  constitution: 0.8, "5t": 0.8, traceable: 0.8, transparent: 0.8, trustworthy: 0.8,
+  trackable: 0.8,
+  junaikey: 0.9, 元鑰: 0.9, 萬能元鑰: 0.9, 超覺醒: 0.9, sovereign: 0.9,
+  觀覺練印: 0.9, 語意治理: 0.9, 永恆: 0.9, 習得: 0.9, 閉環: 0.9,
+  蜂羣: 0.9, swarm: 0.9, 代理: 0.9, agent: 0.9,
+  碳排: 0.8, 碳足跡: 0.8, 排放: 0.8, 淨零: 0.8,
+  年度: 0.8, 公司: 0.8, 企業: 0.8, 組織: 0.8,
+  排放量: 0.7, 溫室氣體: 0.7, ghg: 0.7,
+  標準: 0.7, 規範: 0.7, 披露: 0.7, 報告: 0.7,
+  審計: 0.7, 核證: 0.7, 證明: 0.7,
+  減排: 0.7, 抵消: 0.7, 碳中和: 0.7,
+  永續發展: 0.7, ESG: 0.7, 重大性: 0.7, 風險: 0.7,
+  戰略: 0.6, 治理: 0.6, 風險管理: 0.6, 文化: 0.6,
+  教育: 0.6, 培訓: 0.6, 意識: 0.6,
+  影響評估: 0.6, 績效: 0.6, 績效指標: 0.6, mtd: 0.6,
+  長期: 0.6, 短期: 0.6, 行動: 0.6, 措施: 0.6,
+  指導原則: 0.6, 原則: 0.6, 一貫: 0.6,
+
+  合規: 0.7, csrd: 0.7, gri: 0.7,
+  草稿: 0.7, draft: 0.7,
+  tcfd: 0.7, 氣候: 0.7,
+  sdg: 0.7, 永續: 0.7, 聯合國: 0.7,
+  資訊: 0.5, 資料: 0.5, 數據: 0.5, 資料庫: 0.5, 管道: 0.5,
+  ocr: 0.5, 帳單: 0.5, 收據: 0.5, 發票: 0.5, 提取: 0.5, extract: 0.5,
+  問卷: 0.5, survey: 0.5, 利害關係人: 0.5, stakeholder: 0.5, 分析: 0.5,
+  materiality: 0.5, 矩陣: 0.5, priority: 0.5,
+  修復: 0.6, fix: 0.6, bug: 0.6, debug: 0.6, error: 0.6, 錯誤: 0.6,
+  郵件: 0.7, email: 0.7, 歸檔: 0.7, archive: 0.7,
+  awaken: 0.9, reflect: 0.9, grow: 0.9, remember: 0.9, learn: 0.9,
+  萬靈永憶: 0.9, 萬能永憶: 0.9, 記憶: 0.9, 共享記憶: 0.9, 共用記憶: 0.9,
+  知行合一: 0.9, 背誦: 0.9, 謹記: 0.9, 記住: 0.9,
+  "closed-loop": 0.9, entropy: 0.9, 迴圈: 0.9,
+  學習: 0.9, 成長: 0.9, 反省: 0.9,
+  覺悟: 0.9, 轉化: 0.9, 吸收: 0.9, 消化: 0.9, 內化: 0.9, 外部化: 0.9,
+  具體化: 0.9, 抽象化: 0.9, 淨化: 0.9,
+};
+
+// 字串轉正則表達式的逃避函數（用於關鍵詞匹配）
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ── 智慧路由函數 ─────────────────────────────────────────────
 
 /**
  * 根據任務類型選擇最佳模型路由
@@ -347,261 +520,58 @@ export function routeModel(taskType: string): RoutingResult {
 /**
  * 根據用戶訊息自動推斷任務類型
  */
-export function inferTaskType(message: string): ESGTaskType {
+export function inferTaskType(message: string): RouteWithTrigger {
   const lowerMsg = message.toLowerCase();
+  const matchedRules: string[] = [];
+  let totalWeight = 0;
+  let maxWeight = 0;
 
-  // JunAiKey 萬能元鑰（語意治理 / 超覺醒奧義）
-  if (lowerMsg.match(/junaikey|萬能元鑰|元鑰|超覺醒|sovereign|觀覺練印|語意治理/)) {
-    return 'junaikey_sovereign';
-  }
-
-  // 碳排計算關鍵詞
-  if (lowerMsg.match(/碳排|carbon|ghg|排放量|iso.?14064| Scope/)) {
-    return 'carbon_calculation';
-  }
-
-  // 合規審查關鍵詞
-  if (lowerMsg.match(/合規|compliance|csrd|gri.?報告|法規|審查/)) {
-    return 'compliance_review';
-  }
-
-  // TCFD 氣候風險
-  if (lowerMsg.match(/tcfd|氣候|climate|風險分析|淨零|net.?zero/)) {
-    return 'tcfd_analysis';
-  }
-
-  // SDG 目標
-  if (lowerMsg.match(/sdg|永續發展目標|聯合國/)) {
-    return 'sdg_mapping';
-  }
-
-  // 重大性矩陣
-  if (lowerMsg.match(/重大性|materiality|矩陣|priority/)) {
-    return 'materiality_matrix';
-  }
-
-  // OCR 提取
-  if (lowerMsg.match(/ocr|帳單|收據|發票|提取|extract/)) {
-    return 'evidence_ocr';
-  }
-
-  // 問卷分析
-  if (lowerMsg.match(/問卷|survey|利害關係人|stakeholder|分析/)) {
-    return 'stakeholder_analysis';
-  }
-
-  // 報告相關
-  if (lowerMsg.match(/報告|report|draft|草稿|撰寫/)) {
-    return 'gri_report_draft';
-  }
-
-  // 修復相關
-  if (lowerMsg.match(/修復|fix|bug|debug|error|錯誤/)) {
-    return 'omni_jules_heal';
-  }
-
-  // 郵件歸檔
-  if (lowerMsg.match(/郵件|email|歸檔|archive/)) {
-    return 'email_archival';
-  }
-
-  // 蜂羣調度
-  if (lowerMsg.match(/蜂羣|swarm|orchestrat|調度|協調/)) {
-    return 'swarm_orchestration';
-  }
-
-  return 'general';
-}
-
-/**
- * 獲取所有可用模型列表
- */
-export function getAvailableModels(): Record<string, ModelConfig> {
-  return { ...MODELS };
-}
-
-/**
- * 獲取路由表（用於調試）
- */
-export function getRoutingTable(): Record<string, RoutingResult> {
-  return { ...ROUTING_TABLE };
-}
-
-/**
- * 格式化路由結果為可讀字串
- */
-export function formatRoutingResult(result: RoutingResult): string {
-  return `[${result.taskType}] Strategy: ${result.strategy} | Primary: ${result.primary.provider}/${result.primary.model} | Fallback1: ${result.fallback1.provider}/${result.fallback1.model} | Fallback2: ${result.fallback2.provider}/${result.fallback2.model}`;
-}
-
-// ── Cloudflare AI Workers API ─────────────────────────────────
-
-export interface CloudflareAIResponse {
-  result: {
-    response: string;
-  };
-  success: boolean;
-  errors: string[];
-}
-
-/**
- * 呼叫 Cloudflare AI Workers API
- */
-export async function callCloudflareAI(
-  model: string,
-  messages: Array<{ role: string; content: string }>,
-  options: {
-    maxTokens?: number;
-    temperature?: number;
-    stream?: boolean;
-    timeoutMs?: number;
-  } = {}
-): Promise<CloudflareAIResponse> {
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
-
-  if (!accountId || !apiToken) {
-    throw new Error('Cloudflare credentials not configured');
-  }
-
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), options.timeoutMs || 15000);
-
-  let response: Response;
-  try {
-    response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`,
-      {
-        method: 'POST',
-        signal: controller.signal,
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          messages,
-          max_tokens: options.maxTokens || 256,
-          temperature: options.temperature || 0.7,
-          stream: options.stream || false,
-        }),
-      }
-    );
-  } catch (e) {
-    clearTimeout(timer);
-    if (e instanceof Error && e.name === 'AbortError') {
-      throw new Error(`Cloudflare AI 逾時 (${options.timeoutMs || 15000}ms)`);
+  // 1. 語意權重匹配
+  for (const [keyword, weight] of Object.entries(SEMANTIC_WEIGHTS)) {
+    const pattern = new RegExp(escapeRegExp(keyword), 'i');
+    if (pattern.test(lowerMsg)) {
+      totalWeight += weight;
+      maxWeight = Math.max(maxWeight, weight);
+      matchedRules.push(keyword);
     }
-    throw e;
-  }
-  clearTimeout(timer);
-
-  const data = await response.json() as CloudflareAIResponse;
-
-  if (!data.success) {
-    throw new Error(`Cloudflare AI error: ${JSON.stringify(data.errors)}`);
   }
 
-  return data;
-}
+  // 2. 計算觸發分數
+  const triggerScore = totalWeight > 0 ? Math.min(maxWeight * 1.2, 1.0) : 0.05;
+  const matchedLevel = triggerScoreToLevel(triggerScore);
+  const confidence: TriggerConfidence["confidence"] = triggerScore >= 0.7 ? 'high' : triggerScore >= 0.5 ? 'medium' : 'low';
 
-/**
- * 呼叫本地 Ollama API (100% 免費，零算力成本)
- * 使用 Ollama /api/chat 端點
- */
-async function callLocalOllama(
-  model: string,
-  messages: ChatMessage[],
-  options: { maxTokens?: number; temperature?: number; timeoutMs?: number; endpoint?: string } = {}
-): Promise<string> {
-  // 更新為使用者要求的本地 Ollama 對接端點
-  const endpoint = options.endpoint || 'http://127.0.0.1:11434/api/chat';
-  const controller = new AbortController();
-  const timeoutMs = options.timeoutMs ?? 120000;  // 本地模型預設 2 分鐘超時
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  // 3. 保留原有關鍵詞匹配，作為補充
+  const level = lowerMsg.match(/junaikey|萬能元鑰|元鑰|超覺醒|sovereign|觀覺練印|語意治理/) ? 'junaikey_sovereign' :
+    lowerMsg.match(/碳排|carbon|ghg|排放量|iso.?14064| Scope/) ? 'carbon_calculation' :
+    lowerMsg.match(/合規|compliance|csrd|gri.?報告|法規|審查/) ? 'compliance_review' :
+    lowerMsg.match(/tcfd|氣候|climate|風險分析|淨零|net.?zero/) ? 'tcfd_analysis' :
+    lowerMsg.match(/sdg|永續發展目標|聯合國/) ? 'sdg_mapping' :
+    lowerMsg.match(/重大性|materiality|矩陣|priority/) ? 'materiality_matrix' :
+    lowerMsg.match(/ocr|帳單|收據|發票|提取|extract/) ? 'evidence_ocr' :
+    lowerMsg.match(/問卷|survey|利害關係人|stakeholder|分析/) ? 'stakeholder_analysis' :
+    lowerMsg.match(/報告|report|draft|草稿|撰寫/) ? 'gri_report_draft' :
+    lowerMsg.match(/修復|fix|bug|debug|error|錯誤/) ? 'omni_jules_heal' :
+    lowerMsg.match(/郵件|email|歸檔|archive/) ? 'email_archival' :
+    lowerMsg.match(/蜂羣|swarm|orchestrat|調度|協調/) ? 'swarm_orchestration' : 'general';
 
-  // 可選 Basic Auth（Nginx 代理端點需要）。僅當 VPS_OLLAMA_USER / VPS_OLLAMA_PASS 都設定時才帶。
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-  const vpsUser = process.env.VPS_OLLAMA_USER;
-  const vpsPass = process.env.VPS_OLLAMA_PASS;
-  if (vpsUser && vpsPass) {
-    const token = Buffer.from(`${vpsUser}:${vpsPass}`).toString('base64');
-    headers['Authorization'] = `Basic ${token}`;
-  }
+  // 4. 取得模型路由資訊
+  const routing = routeModel(level);
 
-  let response: Response;
-  try {
-    response = await fetch(endpoint, {
-      method: 'POST',
-      signal: controller.signal,
-      headers,
-      body: JSON.stringify({
-        model,
-        messages: messages.map(m => ({ role: m.role, content: m.content })),
-        stream: false,
-        options: {
-          num_predict: options.maxTokens ?? 4096,
-          temperature: options.temperature ?? 0.7,
-        },
-      }),
-    });
-  } catch (e) {
-    clearTimeout(timer);
-    if (e instanceof Error && e.name === 'AbortError') {
-      throw new Error(`Local Ollama/${model} 逾時 (${timeoutMs}ms)`);
-    }
-    throw e;
-  }
-  clearTimeout(timer);
-
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`Local Ollama/${model} HTTP ${response.status}: ${text}`);
-  }
-
-  const data = await response.json() as {
-    message?: { content?: string };
-    error?: string;
+  return {
+    primary: routing.primary,
+    fallback1: routing.fallback1,
+    fallback2: routing.fallback2,
+    taskType: level as ESGTaskType,
+    strategy: routing.strategy,
+    trigger: {
+      score: triggerScore,
+      level: matchedLevel,
+      matchedRules,
+      confidence,
+    },
   };
-
-  if (data.error) throw new Error(`Local Ollama/${model}: ${data.error}`);
-  const content = data.message?.content;
-  if (!content) throw new Error(`Local Ollama/${model}: empty response`);
-  return content;
 }
-
-/**
- * 驗證 Cloudflare API Token
- */
-export async function validateCloudflareToken(): Promise<boolean> {
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
-
-  if (!accountId || !apiToken) return false;
-
-  try {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${accountId}/tokens/verify`,
-      {
-        headers: {
-          'Authorization': `Bearer ${apiToken}`,
-        },
-      }
-    );
-    const data = await response.json() as { success: boolean };
-    return data.success;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * 後處理 AI 回應（套用技能特定的後處理）
- */
-// ── Free Provider 代理層（統一免費模型池 + 自動故障轉移）─────────
-// 將所有免費層（Groq / OpenRouter :free / Cloudflare / Together / Mistral free tier）
-// 聚合為統一代理，並依路由表提供 primary → fallback1 → fallback2 自動轉移。
-// 對外提供：getFreeModelPool / getFreeTierModels / callFreeProvider / selectFreeModel，
-// 供 Hermes Agent 與 OmniGateway 以 $0 成本取得 ESG 推理能力。
 
 export interface FreeProviderConfig {
   id: string;
@@ -671,6 +641,16 @@ function freeProviderByModel(modelId: string): FreeProviderConfig | undefined {
  * - Cloudflare 走專用通道（callCloudflareAI）。
  * - 其餘 provider 皆為 OpenAI-compatible Chat Completions 介面。
  */
+/** 呼叫 Cloudflare AI 端點（stub，待實作） */
+async function callCloudflareAI(model: string, messages: ChatMessage[], options: { maxTokens?: number; temperature?: number }): Promise<{ result: { response: string } }> {
+  throw new Error('[callCloudflareAI] 尚未實作：需要 Cloudflare AI 端點配置（API key 環境變數）');
+}
+
+/** 呼叫本地 Ollama 端點（stub，待實作） */
+async function callLocalOllama(model: string, messages: ChatMessage[], options: { endpoint?: string; maxTokens?: number; temperature?: number; timeoutMs?: number }): Promise<string> {
+  throw new Error('[callLocalOllama] 尚未實作：需要本地 Ollama 服務連線');
+}
+
 export async function callChatProvider(
   cfg: FreeProviderConfig,
   messages: ChatMessage[],
@@ -868,3 +848,59 @@ export function selectFreeModel(taskType: string): string {
   const preferred = [routing.primary, routing.fallback1].find(m => m.model.endsWith(':free'));
   return (preferred ?? routing.primary).model;
 }
+
+// ============================================================================
+// 觸發監視器（TriggerMonitor）— 主動偵測與預先喚醒
+// ============================================================================
+export class TriggerMonitor {
+  private intervalId: NodeJS.Timeout | null = null;
+  private lastCheck = 0;
+  private triggeredCount = 0;
+  private readonly intervalMs: number;
+
+  constructor(intervalMs: number = 60000) { // 預設 60 秒掃描
+    this.intervalMs = intervalMs;
+  }
+
+  start(): void {
+    if (this.intervalId) return;
+    this.intervalId = setInterval(() => this.tick(), this.intervalMs);
+    console.log(`[TriggerMonitor] 已啟動，掃描間隔 ${this.intervalMs/1000}s`);
+  }
+
+  stop(): void {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      console.log(`[TriggerMonitor] 已停止`);
+    }
+  }
+
+  private tick(): void {
+    const now = Date.now();
+    if (now - this.lastCheck < this.intervalMs) return;
+    this.lastCheck = now;
+
+    // 掃描 triggerRegistry，為低頻但有必要的觸發準備
+    const entries = triggerRegistry.listEntries();
+    let ready = 0;
+    for (const entry of entries) {
+      if (entry.enabled && entry.level === TriggerLevel.P3) {
+        ready++;
+      }
+    }
+    this.triggeredCount += ready;
+    console.log(`[TriggerMonitor] 掃描完成: ${ready} 個低頻觸發待命, 累計 ${this.triggeredCount} 次`);
+  }
+
+  getStatistics(): { intervalMs: number; lastCheck: number; triggeredCount: number } {
+    return {
+      intervalMs: this.intervalMs,
+      lastCheck: this.lastCheck,
+      triggeredCount: this.triggeredCount,
+    };
+  }
+}
+
+// 全局觸發監視器實例
+export const triggerMonitor = new TriggerMonitor();
