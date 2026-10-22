@@ -38,8 +38,10 @@ jobs:
   green-gate:
     name: CI Green Gate
     runs-on: ubuntu-latest
-    # 讓出空間給真正的 CI/auto-repair 先產出 checks，再做判定
-    timeout-minutes: 20
+    # gate 會輪詢等待其他 checks 完成（GREEN_GATE_WAIT=3600s）。job 逾時
+    # 必須長於該等待上限，否則 gate 會在等待途中被砍（step=cancelled），
+    # 永遠走不到判定區 —— 一個輸出不了判定的閘。故 20 → 65。
+    timeout-minutes: 65
     steps:
       - uses: actions/checkout@v4
         with:
