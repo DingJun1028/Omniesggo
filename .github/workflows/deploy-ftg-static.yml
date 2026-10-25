@@ -46,6 +46,7 @@ jobs:
           FTG_DST="/var/www/ftgtours"
           echo "Syncing FTG build artifacts to VPS..."
           rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             "$FTG_SRC/" \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$FTG_DST/"
           echo "Sync complete!"
