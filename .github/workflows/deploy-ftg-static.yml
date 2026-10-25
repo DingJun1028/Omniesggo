@@ -55,11 +55,9 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             'sudo nginx -t && sudo nginx -s reload'
-        continue-on-error: true
 
       - name: Verify deployment
         run: |
           sleep 3
-          curl -sL -o /dev/null -w "ftgtours.esggo.co status: %{http_code}\n" "https://ftgtours.esggo.co/"
-          curl -sL -o /dev/null -w "esggo.co status: %{http_code}\n" "https://esggo.co/"
-        continue-on-error: true
+          curl -fsSL -o /dev/null -w "ftgtours.esggo.co status: %{http_code}\n" "https://ftgtours.esggo.co/"
+          curl -fsSL -o /dev/null -w "esggo.co status: %{http_code}\n" "https://esggo.co/"
