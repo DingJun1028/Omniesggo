@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import crypto from 'crypto';
 import { AbatementMeasure, DEFAULT_MEASURES } from '@/types/roadmap';
+import crypto from 'crypto';
 
 export { type AbatementMeasure, DEFAULT_MEASURES };
 
@@ -46,12 +46,12 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { 
-      title = '企業淨零碳中和減碳路徑規劃 2050', 
-      baseYear = 2024, 
-      baseEmissions = 50000, 
-      target2030Percent = 42.0, 
-      measures 
+    const {
+      title = '企業淨零碳中和減碳路徑規劃 2050',
+      baseYear = 2024,
+      baseEmissions = 50000,
+      target2030Percent = 42.0,
+      measures
     } = body;
 
     if (!measures || !Array.isArray(measures)) {

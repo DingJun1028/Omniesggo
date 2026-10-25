@@ -236,13 +236,20 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
     });
     if (query) filtered = filtered.filter(item => item.tags.length > 0);
 
-    // aggregate
-    const allTags = filtered.flatMap(i => i.tags);
+    // aggregate: single pass O(N) indexing
     const counts = new Map();
-    for (const t of allTags) counts.set(t, (counts.get(t) || 0) + 1);
+    const itemsByTag = new Map();
+    for (const item of filtered) {
+      const id = item.name || item.event || item.ts;
+      for (const t of item.tags) {
+        counts.set(t, (counts.get(t) || 0) + 1);
+        if (!itemsByTag.has(t)) itemsByTag.set(t, []);
+        itemsByTag.get(t).push(id);
+      }
+    }
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .map(([tag, count]) => ({ tag, count, items: filtered.filter(i => i.tags.includes(tag)).map(i => i.name || i.event || i.ts) }));
+      .map(([tag, count]) => ({ tag, count, items: itemsByTag.get(tag) || [] }));
   }
 
   async function findByTag(tag) {

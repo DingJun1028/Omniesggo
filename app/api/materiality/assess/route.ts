@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import crypto from 'crypto';
 import { MaterialityTopic, DEFAULT_TOPICS } from '@/types/materiality';
+import crypto from 'crypto';
 
 export type { MaterialityTopic };
 export { DEFAULT_TOPICS };
@@ -17,7 +17,7 @@ export async function GET() {
         success: true,
         data: {
           id: 'draft',
-          title: '雙重重大性策略評估矩陣 2026',
+          title: '雙重重大性評估矩陣 2026',
           year: 2026,
           framework: 'GRI_CSRD',
           threshold: 3.5,
@@ -47,12 +47,12 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { 
-      title = '雙重重大性策略評估矩陣 2026', 
-      year = 2026, 
-      framework = 'GRI_CSRD', 
-      threshold = 3.5, 
-      topics 
+    const {
+      title = '雙重重大性評估矩陣 2026',
+      year = 2026,
+      framework = 'GRI_CSRD',
+      threshold = 3.5,
+      topics
     } = body;
 
     if (!topics || !Array.isArray(topics)) {

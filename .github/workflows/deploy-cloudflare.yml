@@ -154,8 +154,10 @@ jobs:
         run: |
           # 必須在 deploy 之後：versions 工作流要求「最新版本已部署」才能改 secret；
           # 且顯式 --config 指向 esggo-web（預設會誤抓 wrangler.toml 的 esggo worker）。
+          # SUPABASE_DATABASE_URL 為選用 secret：未設定時跳過並警告，不讓部署流程失敗。
           if [ -z "$SUPABASE_DATABASE_URL" ]; then
-            echo "::warning::SUPABASE_DATABASE_URL secret missing, skipping secret configuration"
+            echo "::warning::SUPABASE_DATABASE_URL secret not configured, skipping DATABASE_URL secret update (existing worker secret is kept)"
+            echo "::warning::SUPABASE_DATABASE_URL secret not configured, skipping DATABASE_URL secret update (existing worker secret is kept)"
             exit 0
           fi
           echo "$SUPABASE_DATABASE_URL" | npx wrangler secret put DATABASE_URL --config wrangler.web.jsonc
@@ -174,15 +176,16 @@ jobs:
           #  · CI runner（GitHub Actions IP）→ **403 且 redirect 為空**
           # 兩者都會帶 Access 特徵標頭（Www-Authenticate: Cloudflare-Access /
           # Set-Cookie: CF_AppSession），故 headers+body 皆掃。
+          #
+          # 嚴格化（omniesggo）：用 GET + User-Agent（原本的 HEAD 請求在 runner 上穩定回 403），
+          # 並印出回應標頭以辨識 403 的來源（Access、WAF/Bot 規則或 worker 本身）。
+          # 判定規則不變：僅 2xx/3xx 通過。
           for i in $(seq 1 6); do
-            hdr=/tmp/verify_hdr; body=/tmp/verify_body
-            code=$(curl -sS -m 20 -D "$hdr" -o "$body" -w "%{http_code}" \
-              "$DEPLOY_WORKER_URL/" 2>/dev/null || true)
-            loc=$(grep -i '^location:' "$hdr" 2>/dev/null | head -1 | cut -d' ' -f2- | tr -d '\r')
-            echo "[diag] attempt $i: code=$code redirect=${loc:0:80} at $(date -u +%FT%TZ)"
-
-            if grep -qiE 'cloudflareaccess\.com|/cdn-cgi/access/|cloudflare-access|cf-access|CF_AppSession' \
-                 "$hdr" "$body" 2>/dev/null; then
+            headers=$(curl -sS -D - -o /dev/null -A "Mozilla/5.0 (compatible; esggo-deploy-verify/1.0)" --max-time 20 "$DEPLOY_WORKER_URL/" || true)
+            code=$(echo "$headers" | head -n1 | awk '{print $2}')
+            echo "[diag] health attempt $i: $code at $(date -u +%FT%TZ)"
+            echo "$headers" | tr -d '' | grep -iE '^(server|cf-ray|cf-mitigated|location|content-type):' | sed 's/^\[/[diag]   /' || true
+            if echo "$headers" | grep -qiE 'cloudflareaccess\.com|/cdn-cgi/access/|cloudflare-access|cf-access|CF_AppSession'; then
               echo "::error::PUBLIC SITE BLOCKED BY CLOUDFLARE ACCESS — worker deployed, but $DEPLOY_WORKER_URL is not publicly reachable (HTTP $code)"
               echo "::error::Remediation (needs Access: Apps and Policies edit, which repo tokens do NOT have):"
               echo "::error::  Zero Trust → Access → Applications → app 'web.esggo.co'"
