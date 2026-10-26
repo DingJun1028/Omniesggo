@@ -1,0 +1,36 @@
+name: Repository repair workflow checks
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/crewai-run.yml'
+      - '.github/workflows/deploy-worker.yml'
+      - '.github/workflows/deploy-deerflow.yml'
+      - '.github/workflows/repo-repair-checks.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/crewai-run.yml'
+      - '.github/workflows/deploy-worker.yml'
+      - '.github/workflows/deploy-deerflow.yml'
+      - '.github/workflows/repo-repair-checks.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+          cache: false
+      - name: Install actionlint
+        run: go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
+      - name: Check repaired workflows and existing Deerflow workflow
+        run: |
+          "$(go env GOPATH)/bin/actionlint" -shellcheck= -pyflakes= .github/workflows/crewai-run.yml .github/workflows/deploy-worker.yml .github/workflows/deploy-deerflow.yml .github/workflows/repo-repair-checks.yml

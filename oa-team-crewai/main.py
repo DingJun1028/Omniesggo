@@ -15,6 +15,7 @@ OA-Team 30 萬能蜂群 — CrewAI JSON-first + Flow 入口
 
 用法:
   python main.py "為 ESG-GO 產出一個 5T 合規的元件骨架"
+  python main.py --check  # 載入設定，不執行 kickoff
 """
 import os
 import sys
@@ -50,6 +51,16 @@ class OATeamFlow(Flow[SwarmState]):
         return result
 
 
+def check_config():
+    """Construct the configured crew without calling any LLM or starting the Flow."""
+    crew, default_inputs = load_crew(Path(__file__).with_name("crew.jsonc"))
+    if len(crew.agents) != 30 or len(crew.tasks) != 5:
+        raise ValueError("Expected the configured 30 agents and 5 tasks")
+    if not isinstance(default_inputs, dict):
+        raise TypeError("load_crew must return default inputs as a dictionary")
+    print(f"Config smoke passed: {len(crew.agents)} agents, {len(crew.tasks)} tasks; no kickoff")
+
+
 def kickoff():
     OATeamFlow().kickoff()
 
@@ -59,4 +70,7 @@ def plot():
 
 
 if __name__ == "__main__":
-    kickoff()
+    if sys.argv[1:] == ["--check"]:
+        check_config()
+    else:
+        kickoff()
