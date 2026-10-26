@@ -48,9 +48,9 @@ jobs:
           p.write_text(text)
           p = Path('pnpm-workspace.yaml')
           text = p.read_text()
-          for old, new in [(\'"dompurify": ">=3.4.12 <4"\', \'"dompurify": ">=3.4.17 <4"\'), (\'"body-parser": ">=1.20.6 <2"\', \'"body-parser": ">=1.20.9 <2"\'), (\'"undici": ">=7.29.1 <8"\', \'"undici": ">=7.30.1 <8"\')]:
+          for old, new in [('3.4.12 <4', '3.4.17 <4'), ('1.20.6 <2', '1.20.9 <2'), ('7.29.1 <8', '7.30.1 <8')]:
               assert old in text, old
-              text = text.replace(old, new)
+              text = text.replace(old, new, 1)
           text = text.replace('overrides:\n', 'overrides:\n  "@azure/msal-node": ">=7.1.0 <8"\n  "zod-to-json-schema>zod": ">=4.6.6 <5"\n', 1)
           p.write_text(text)
           p = Path('package.json')
@@ -74,8 +74,7 @@ jobs:
           text = p.read_text()
           assert "exit-code: '0'" in text
           p.write_text(text.replace("exit-code: '0'", "exit-code: '1'", 1))
-          # These five files are Node scripts or node:test suites, not Vitest suites.
-          # Run the three self-contained assertion scripts with Node below; resolver tests require a local Ollama service.
+          # Exclude non-Vitest scripts; run three self-contained assertions below. Resolver tests require local Ollama.
           p = Path('vitest.config.ts')
           text = p.read_text()
           anchor = "        'tests/junaikey.test.mjs',\n"
