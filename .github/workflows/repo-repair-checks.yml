@@ -29,6 +29,8 @@ on:
       - 'packages/oa-framework/src/**'
       - 'packages/oa-framework/test/**'
       - 'packages/oa-framework/package.json'
+      - 'packages/oa-framework/tsconfig.json'
+      - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
   workflow_dispatch:
