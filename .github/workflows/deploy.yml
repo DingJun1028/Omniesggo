@@ -310,7 +310,7 @@ jobs:
             echo "::error::Possible secret found in vps/ — aborting."; exit 1
           fi
           # 2) Hardcoded default secrets in long-running SERVER code (.mjs only).
-          if grep -rInE "\$\{[A-Za-z_]+:-[A-Za-z0-9_'-]{8,}\}" vps/*.mjs vps/**/*.mjs 2>/dev/null | grep -iE "token|secret|key|pass|auth" ; then
+          if grep -rInE "\\\$\{[A-Za-z_]+:-[A-Za-z0-9_'-]{8,}\}" vps/*.mjs vps/**/*.mjs 2>/dev/null | grep -iE "token|secret|key|pass|auth" ; then
             echo "::error::Hardcoded default secret in server .mjs (use env + fail-fast) — aborting."; exit 1
           fi
           if grep -rInE "(AUTH_TOKEN|TOKEN|API_KEY|API_SERVER_KEY)=\"?[A-Za-z0-9_'-]{8,}\"?" vps/ | grep -vE '\$\{|\$\(|process\.env|os\.environ|getenv' | grep -iE "token|secret|key|pass|auth" ; then

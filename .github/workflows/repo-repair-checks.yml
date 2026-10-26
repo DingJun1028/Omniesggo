@@ -5,6 +5,7 @@ on:
       - '.github/workflows/crewai-run.yml'
       - '.github/workflows/deploy-worker.yml'
       - '.github/workflows/deploy-deerflow.yml'
+      - '.github/workflows/deploy.yml'
       - '.github/workflows/repo-repair-checks.yml'
       - '.github/actionlint/**'
       - 'packages/oa-framework/src/**'
@@ -20,6 +21,7 @@ on:
       - '.github/workflows/crewai-run.yml'
       - '.github/workflows/deploy-worker.yml'
       - '.github/workflows/deploy-deerflow.yml'
+      - '.github/workflows/deploy.yml'
       - '.github/workflows/repo-repair-checks.yml'
       - '.github/actionlint/**'
       - 'packages/oa-framework/src/**'
@@ -58,14 +60,20 @@ jobs:
           from pathlib import Path
 
           source = Path('.github/workflows/deploy.yml').read_text()
-          line = next(line for line in source.splitlines() if 'grep -rInE' in line and 'vps/*.mjs' in line and '8,}' in line)
-          match = re.search(r'grep -rInE\s+"([^"]+)"', line)
-          assert match, 'expected a quoted default-secret ERE'
-          pattern = match.group(1)
-          fixtures = [('${TOKEN:-fixture-secret-value}', True), ('${API_KEY:-another-secret-123}', True), ('${TOKEN:-short}', False)]
-          for sample, should_match in fixtures:
-              result = subprocess.run(['grep', '-E', pattern], input=sample + chr(10), text=True, capture_output=True)
-              assert (result.returncode == 0) == should_match, f'pattern mismatch for {sample!r}: {result.stderr}'
+          default_line = next(line for line in source.splitlines() if 'grep -rInE' in line and 'vps/*.mjs' in line and '8,}' in line)
+          assignment_line = next(line for line in source.splitlines() if 'grep -rInE' in line and 'AUTH_TOKEN|TOKEN|API_KEY|API_SERVER_KEY' in line)
+          cases = [
+              (default_line, [("${TOKEN:-fixture'secret-value}", True), ('${API_KEY:-another-secret-123}', True), ('${TOKEN:-short}', False)]),
+              (assignment_line, [("API_KEY=fixture'secret-value", True), ('AUTH_TOKEN="another-secret-123"', True), ('API_KEY=short', False)]),
+          ]
+          for line, fixtures in cases:
+              match = re.search(r'grep -rInE\s+("(?:\\.|[^"\\])*")', line)
+              assert match, 'expected a shell-quoted secret ERE'
+              command = 'grep -E -- ' + match.group(1)
+              for sample, should_match in fixtures:
+                  result = subprocess.run(['bash', '-c', command], input=sample + chr(10), text=True, capture_output=True)
+                  assert result.returncode in (0, 1), result.stderr
+                  assert (result.returncode == 0) == should_match, f'pattern mismatch for {sample!r}: {result.stderr}'
           print('DEPLOY_SECRET_REGEX_APOSTROPHE_FIXTURES_OK')
           PY
   oa-framework-offline:
