@@ -2,7 +2,6 @@ FROM node:22-alpine AS deps
 WORKDIR /app
 # 升級系統套件以修復已知的 Alpine 漏洞
 RUN apk upgrade --no-cache && corepack enable pnpm
-
 # 複製 package.json 與 lock 檔案
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 # 安裝所有相依套件
@@ -11,22 +10,21 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 FROM node:22-alpine AS builder
 WORKDIR /app
 RUN apk upgrade --no-cache && corepack enable pnpm
-
 # 複製所有原始碼
 COPY . .
 # 從 deps 階段複製 node_modules（--ignore-scripts 跳過了 prisma generate）
 COPY --from=deps /app/node_modules ./node_modules
-
-# 手動執行 prisma generate（因為 --ignore-scripts 跳過了 postinstall）
-RUN npx prisma generate && npx next build
+# 只執行已由 frozen lockfile 安裝的本機工具，不允許 npx 臨時下載
+RUN pnpm exec prisma generate && pnpm exec next build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
-RUN apk upgrade --no-cache && corepack enable pnpm && mkdir -p /app/data /app/public/uploads /app/Omni-Sanctuary/omni-one-萬能筆記/memories
-
+RUN apk upgrade --no-cache && corepack enable pnpm \
+    && mkdir -p /app/data /app/public/uploads \
+       /app/Omni-Sanctuary/omni-one-萬能筆記/memories
 # 複製構建出的靜態資源與 .next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
@@ -39,12 +37,9 @@ COPY --from=builder /app/packages ./packages
 # 拷貝 10 層設施 SDK 與 5T 記憶存證（支援 /api/omni-center/radar 等端點）
 COPY --from=builder /app/sdks ./sdks
 COPY --from=builder /app/Omni-Sanctuary ./Omni-Sanctuary
-
 EXPOSE 3000
-
 # 容器健康探活：Next.js 監聽 0.0.0.0:3000，探 /api/healthz
 HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:3000/api/healthz', {signal: AbortSignal.timeout(4000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
-
+    CMD node -e "fetch('http://127.0.0.1:3000/api/healthz', {signal: AbortSignal.timeout(4000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
 # 啟動服務（綁定 0.0.0.0 以支援 Docker 容器網路與外部請求轉發）
 CMD ["node", "node_modules/next/dist/bin/next", "start", "-H", "0.0.0.0"]
