@@ -14,9 +14,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       cloud_ready: ${{ steps.cloud_gate.outputs.cloud_ready }}
-    # Map the secret into an env var so it can be referenced in `with:` and `if:`.
+    # Publishing and cloud-provider secrets are available only on main pushes.
     env:
-      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_USERNAME: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && secrets.DOCKERHUB_USERNAME || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -44,22 +44,20 @@ jobs:
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
         uses: docker/setup-qemu-action@v3
 
-      - name: Log in to Docker Hub (only if credentials are set)
+      - name: Log in to Docker Hub (only on main pushes with credentials)
         if: ${{ env.DOCKERHUB_USERNAME != '' }}
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build image (and push multi-arch to Docker Hub when credentials exist)
+      - name: Build image (publish only on main pushes with credentials)
         uses: docker/build-push-action@v6
         continue-on-error: true   # build-only CI: image build is best-effort
         with:
           context: .
-          # CI-only run (no secrets): build + load a single-arch image to prove
-          # it builds. With secrets: build + push a MULTI-ARCH manifest
-          # (amd64 + arm64) so it runs NATIVELY on Oracle Always-Free ARM VPS.
-          push: ${{ env.DOCKERHUB_USERNAME != '' }}
+          # Pull requests and manual runs build locally without registry credentials or publishing.
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && env.DOCKERHUB_USERNAME != '' }}
           load: ${{ env.DOCKERHUB_USERNAME == '' }}
           platforms: >-
             ${{ env.DOCKERHUB_USERNAME != '' && 'linux/amd64,linux/arm64' || 'linux/amd64' }}
@@ -68,8 +66,9 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Probe cloud secrets (gate output for next job)
+      - name: Probe cloud secrets (main pushes only)
         id: cloud_gate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           RUNWAY_API_KEY: ${{ secrets.RUNWAY_API_KEY }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
@@ -81,12 +80,9 @@ jobs:
           fi
 
   cloud-integration:
-    # Real cloud-provider calls (Runway / ElevenLabs). Runs ONLY when the
-    # matching secrets are set (gated by the build job's cloud_gate output),
-    # so the default CI stays free + green. Best-effort; never blocks the main
-    # build. Keys are injected as env vars, never printed or committed.
+    # Real cloud-provider calls run only after a main push and when matching secrets exist.
     needs: build
-    if: ${{ needs.build.outputs.cloud_ready == 'true' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.build.outputs.cloud_ready == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
