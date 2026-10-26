@@ -1,1 +1,147 @@
-# placeholder
+name: Temporary verified security dependency repair
+on:
+  push:
+    branches: [fix/repo-ci-crewai-worker]
+    paths: ['.github/workflows/repair-security-deps.yml']
+permissions:
+  contents: write
+concurrency:
+  group: security-repair-pr-76
+  cancel-in-progress: false
+jobs:
+  repair:
+    if: github.ref == 'refs/heads/fix/repo-ci-crewai-worker'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OTEL_SDK_DISABLED: 'true'
+      CREWAI_TELEMETRY_DISABLED: 'true'
+      OPENAI_API_KEY: 'offline-config-check-not-a-real-key'
+      OPENAI_MODEL_NAME: gpt-4o-mini
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/repo-ci-crewai-worker
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+        with:
+          version: '0.13.5'
+          enable-cache: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.5.2'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Apply bounded manifest and Dockerfile repairs
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('oa-team-crewai/pyproject.toml')
+          text = p.read_text()
+          assert '"crewai[litellm]==1.15.23"' in text
+          text = text.replace('>=3.10,<3.14', '>=3.11,<3.14').replace('"crewai[litellm]==1.15.23"', '"crewai[litellm]==1.15.30"').replace('"crewai-tools>=0.30.0"', '"crewai-tools==1.15.30"')
+          text += '\n[tool.uv]\nconstraint-dependencies = ["pillow>=13.0.0", "filelock>=4.2.1", "uv>=0.13.4"]\n'
+          p.write_text(text)
+          p = Path('pnpm-workspace.yaml')
+          text = p.read_text()
+          for old, new in [(\'"dompurify": ">=3.4.12 <4"\', \'"dompurify": ">=3.4.17 <4"\'), (\'"body-parser": ">=1.20.6 <2"\', \'"body-parser": ">=1.20.9 <2"\'), (\'"undici": ">=7.29.1 <8"\', \'"undici": ">=7.30.1 <8"\')]:
+              assert old in text, old
+              text = text.replace(old, new)
+          text = text.replace('overrides:\n', 'overrides:\n  "@azure/msal-node": ">=7.1.0 <8"\n  "zod-to-json-schema>zod": ">=4.6.6 <5"\n', 1)
+          p.write_text(text)
+          p = Path('package.json')
+          data = json.loads(p.read_text())
+          for section in ('overrides', 'resolutions'):
+              data[section].update({'dompurify': '^3.4.17', 'body-parser': '^1.20.9', 'undici': '^7.30.1'})
+          p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+          p = Path('Dockerfile')
+          text = p.read_text()
+          text = text.replace('RUN apk upgrade --no-cache\n# 啟用 corepack 以支援 pnpm\nRUN corepack enable pnpm', 'RUN apk upgrade --no-cache && corepack enable pnpm')
+          text = text.replace('RUN apk upgrade --no-cache\nRUN corepack enable pnpm', 'RUN apk upgrade --no-cache && corepack enable pnpm')
+          text = text.replace('RUN npx prisma generate\n\n# 執行建置（用 npx next build 繞過 pnpm 11 deps-status-check 鎖定，與本機驗證一致）\nRUN npx next build', 'RUN npx prisma generate && npx next build')
+          text = text.replace('RUN apk upgrade --no-cache && corepack enable pnpm\n# healthcheck 探活依賴 curl\nRUN apk add --no-cache curl\n# 應用資料目錄 (NCBDB / uploads / 5T 存證目錄等需要)\nRUN mkdir -p /app/data /app/public/uploads /app/Omni-Sanctuary/omni-one-萬能筆記/memories', 'RUN apk upgrade --no-cache && corepack enable pnpm && mkdir -p /app/data /app/public/uploads /app/Omni-Sanctuary/omni-one-萬能筆記/memories')
+          old = 'CMD curl -f -s -o /dev/null http://127.0.0.1:3000/api/healthz || exit 1'
+          assert old in text
+          text = text.replace(old, 'CMD node -e "fetch(\\'http://127.0.0.1:3000/api/healthz\\', {signal: AbortSignal.timeout(4000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"')
+          assert 'apk add --no-cache curl' not in text
+          p.write_text(text)
+          p = Path('.github/workflows/deploy.yml')
+          text = p.read_text()
+          assert "exit-code: '0'" in text
+          p.write_text(text.replace("exit-code: '0'", "exit-code: '1'", 1))
+          # These five files are Node scripts or node:test suites, not Vitest suites.
+          # Run the three self-contained assertion scripts with Node below; the resolver tests require a local Ollama service.
+          p = Path('vitest.config.ts')
+          text = p.read_text()
+          anchor = "        'tests/junaikey.test.mjs',\n"
+          assert anchor in text
+          additions = "        'tests/deploy-contract.test.mjs',\n        'tests/junaikey-secrets.test.mjs',\n        'tests/omni-one.test.mjs',\n        'vps/junaikey/model-resolver.test.mjs',\n        'vps/junaikey/service-resolver.test.mjs',\n"
+          for line in additions.splitlines(keepends=True):
+              if line not in text:
+                  text = text.replace(anchor, line + anchor, 1)
+                  anchor = line + anchor
+          p.write_text(text)
+          PY
+      - name: Resolve and install locked Python dependencies
+        working-directory: oa-team-crewai
+        run: |
+          uv lock --upgrade-package crewai --upgrade-package crewai-cli --upgrade-package crewai-tools --upgrade-package pillow --upgrade-package filelock --upgrade-package uv --python 3.13
+          uv sync --locked --no-build --no-install-project --python 3.13
+      - name: Smoke configuration without network or LLM calls
+        working-directory: oa-team-crewai
+        run: |
+          ./.venv/bin/python - <<'PY'
+          import socket
+          def deny_network(*args, **kwargs):
+              raise RuntimeError('Network access is forbidden in config smoke')
+          socket.socket.connect = deny_network
+          socket.socket.connect_ex = deny_network
+          socket.create_connection = deny_network
+          from crewai import Crew
+          def deny_kickoff(*args, **kwargs):
+              raise RuntimeError('LLM execution is forbidden in config smoke')
+          Crew.kickoff = deny_kickoff
+          from main import check_config
+          check_config()
+          PY
+      - name: Resolve JavaScript lockfile and test
+        run: |
+          pnpm install --lockfile-only --ignore-scripts
+          pnpm install --frozen-lockfile
+          pnpm typecheck
+          pnpm test
+          node tests/deploy-contract.test.mjs
+          node tests/junaikey-secrets.test.mjs
+          node tests/omni-one.test.mjs
+      - name: Hadolint repaired Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+      - name: Scan regenerated lockfiles for fixed high and critical vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          trivyignores: .trivyignore
+      - name: Commit only validated repairs to fixed PR branch
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = 'fix/repo-ci-crewai-worker'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add oa-team-crewai/pyproject.toml oa-team-crewai/uv.lock pnpm-workspace.yaml package.json pnpm-lock.yaml Dockerfile .github/workflows/deploy.yml vitest.config.ts
+          git diff --cached --stat
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git commit -m 'fix: remediate scanned dependencies, test discovery, and Dockerfile healthcheck'
+            git push origin HEAD:fix/repo-ci-crewai-worker
+          fi
