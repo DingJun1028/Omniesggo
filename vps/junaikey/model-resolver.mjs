@@ -54,8 +54,8 @@ const BACKEND_DEFAULT_MODELS = {
   openrouter: 'nvidia/nemotron-3-super-120b-a12b:free',
 };
 
-/** 建眾鑰之首 model resolver。opts: { chain, ollamaUrl, timeoutMs, log } */
-export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = DEFAULT_OLLAMA_URL, timeoutMs = 30000, log = console.error } = {}) {
+/** 建眾鑰之首 model resolver。opts: { chain, ollamaUrl, timeoutMs, log, fetchImpl, env } */
+export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = DEFAULT_OLLAMA_URL, timeoutMs = 30000, log = console.error, fetchImpl = globalThis.fetch, env = process.env } = {}) {
   if (!Array.isArray(chain) || chain.length === 0) {
     throw new Error('model-resolver: chain 不可為空');
   }
@@ -66,7 +66,7 @@ export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = D
     if (backend === 'ollama') {
       const base = url || ollamaUrl;
       // 1) 輕探 /api/tags 確認服務在
-      const tagsResp = await fetch(`${base}/api/tags`, {
+      const tagsResp = await fetchImpl(`${base}/api/tags`, {
         signal: AbortSignal.timeout(Math.min(timeoutMs, 3000)),
       });
       if (!tagsResp.ok) throw new Error(`ollama HTTP ${tagsResp.status}`);
@@ -76,7 +76,7 @@ export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = D
       const hit = installed.find(n => n === model || n.startsWith(model.split(':')[0] + ':'));
       if (!hit) throw new Error(`model ${model} 未安裝`);
       // 3) 真實 generate 微探測 (帶 num_ctx, 與 embed 慣例一致)
-      const genResp = await fetch(`${base}/api/generate`, {
+      const genResp = await fetchImpl(`${base}/api/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -100,7 +100,7 @@ export function createModelResolver({ chain = DEFAULT_MODEL_CHAIN, ollamaUrl = D
         : backend === 'stepfun' ? 'STEPFUN_API_KEY'
         : backend === 'openrouter' ? 'JUNAKEY_OPENROUTER_API_KEY'
         : 'OPENAI_API_KEY';
-      const key = process.env[keyEnv];
+      const key = env[keyEnv];
       if (!key) throw new Error(`${backend} 無 API key (${keyEnv} 未設)`);
       // 不實際呼叫雲端 (避免費用/速率), 僅確認 key 存在
       return { ok: true, resolvedModel: model || BACKEND_DEFAULT_MODELS[backend] || backend, latencyMs: Date.now() - started, keyPresent: true };
