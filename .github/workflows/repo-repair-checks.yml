@@ -1,5 +1,4 @@
 name: Repository repair workflow checks
-
 on:
   pull_request:
     paths:
@@ -8,6 +7,13 @@ on:
       - '.github/workflows/deploy-deerflow.yml'
       - '.github/workflows/repo-repair-checks.yml'
       - '.github/actionlint/**'
+      - 'packages/oa-framework/src/**'
+      - 'packages/oa-framework/test/**'
+      - 'packages/oa-framework/package.json'
+      - 'packages/oa-framework/tsconfig.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
   push:
     branches: [main]
     paths:
@@ -16,11 +22,16 @@ on:
       - '.github/workflows/deploy-deerflow.yml'
       - '.github/workflows/repo-repair-checks.yml'
       - '.github/actionlint/**'
+      - 'packages/oa-framework/src/**'
+      - 'packages/oa-framework/test/**'
+      - 'packages/oa-framework/package.json'
+      - 'packages/oa-framework/tsconfig.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
   workflow_dispatch:
-
 permissions:
   contents: read
-
 jobs:
   workflow-syntax:
     runs-on: ubuntu-latest
@@ -37,3 +48,24 @@ jobs:
       - name: Check repaired workflows and existing Deerflow workflow
         run: |
           "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= .github/workflows/crewai-run.yml .github/workflows/deploy-worker.yml .github/workflows/deploy-deerflow.yml .github/workflows/repo-repair-checks.yml
+
+  oa-framework-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install locked workspace dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck OA Framework
+        run: pnpm --filter @esggo/oa-framework typecheck
+      - name: Build OA Framework
+        run: pnpm --filter @esggo/oa-framework build
+      - name: Run offline registration and 5T smoke test
+        run: pnpm --filter @esggo/oa-framework exec tsx test/registration.smoke.ts
