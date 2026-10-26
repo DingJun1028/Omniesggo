@@ -77,11 +77,23 @@ jobs:
           # Exclude non-Vitest scripts; run three self-contained assertions below. Resolver tests require local Ollama.
           p = Path('vitest.config.ts')
           text = p.read_text()
-          anchor = "        'tests/junaikey.test.mjs',\n"
-          assert anchor in text
-          additions = "        'tests/deploy-contract.test.mjs',\n        'tests/junaikey-secrets.test.mjs',\n        'tests/omni-one.test.mjs',\n        'vps/junaikey/model-resolver.test.mjs',\n        'vps/junaikey/service-resolver.test.mjs',\n"
-          if "'tests/deploy-contract.test.mjs'" not in text:
-              text = text.replace(anchor, additions + anchor, 1)
+          target = "'tests/junaikey.test.mjs',"
+          additions = [
+              'tests/deploy-contract.test.mjs',
+              'tests/junaikey-secrets.test.mjs',
+              'tests/omni-one.test.mjs',
+              'vps/junaikey/model-resolver.test.mjs',
+              'vps/junaikey/service-resolver.test.mjs',
+          ]
+          lines = text.splitlines()
+          index = next((i for i, line in enumerate(lines) if line.strip() == target), None)
+          assert index is not None, target
+          existing = {line.strip().strip("',") for line in lines}
+          missing = [name for name in additions if name not in existing]
+          if missing:
+              indent = lines[index][:len(lines[index]) - len(lines[index].lstrip())]
+              lines[index:index] = [indent + "'" + name + "'," for name in missing]
+              text = '\n'.join(lines) + ('\n' if text.endswith('\n') else '')
           p.write_text(text)
           PY
       - name: Resolve and install locked Python dependencies
