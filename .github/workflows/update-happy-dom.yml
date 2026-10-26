@@ -1,0 +1,84 @@
+name: Temporary Happy DOM security repair
+on:
+  push:
+    branches:
+      - fix/repo-ci-crewai-worker
+    paths:
+      - .github/workflows/update-happy-dom.yml
+permissions:
+  contents: write
+concurrency:
+  group: happy-dom-security-repair-pr-76
+  cancel-in-progress: false
+jobs:
+  repair:
+    if: github.ref == 'refs/heads/fix/repo-ci-crewai-worker'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fix/repo-ci-crewai-worker
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+        with:
+          version: '11.5.2'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Update direct dependency and workspace security override
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          package = Path('apps/ftg-tours-website/package.json')
+          data = json.loads(package.read_text())
+          current = data['devDependencies']['happy-dom']
+          assert current in ('^20.14.5', '^21.0.4'), current
+          data['devDependencies']['happy-dom'] = '^21.0.4'
+          package.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+          workspace = Path('pnpm-workspace.yaml')
+          text = workspace.read_text()
+          rule = '  "happy-dom": ">=21.0.4 <22"\n'
+          if '"happy-dom":' in text:
+              assert rule.strip() in text, 'unexpected existing happy-dom override'
+          else:
+              anchor = '  "dompurify": ">=3.4.17 <4"\n'
+              assert text.count(anchor) == 1, 'expected single patched dompurify anchor'
+              text = text.replace(anchor, anchor + rule, 1)
+              workspace.write_text(text)
+          PY
+      - name: Regenerate and verify frozen pnpm lockfile
+        run: pnpm install --lockfile-only --ignore-scripts
+      - name: Install frozen workspace dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Build FTG website
+        run: pnpm --filter @esggo/ftg-tours-website build
+      - name: Root typecheck and test suite
+        run: |
+          pnpm typecheck
+          pnpm test
+      - name: Fail on remaining high or critical advisories
+        run: pnpm audit --audit-level=high
+      - name: Enforce filesystem high and critical vulnerability gate
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          trivyignores: .trivyignore
+      - name: Commit verified dependency files to PR branch
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = 'fix/repo-ci-crewai-worker'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add apps/ftg-tours-website/package.json pnpm-workspace.yaml pnpm-lock.yaml
+          git diff --cached --check
+          if ! git diff --cached --quiet; then
+            git diff --cached --stat
+            git commit -m 'fix(security): update happy-dom to patched 21.0.4'
+            git push origin HEAD:fix/repo-ci-crewai-worker
+          fi
