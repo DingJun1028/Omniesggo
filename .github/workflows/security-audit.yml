@@ -76,10 +76,7 @@ jobs:
           )
           FOUND=0
           for pattern in "${PATTERNS[@]}"; do
-            if grep -rInE "$pattern" \
-              --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" \
-              --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git \
-              .; then
+            if grep -rInE --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" --exclude-dir=node_modules --exclude-dir=.next --exclude-dir=.git -- "$pattern" .; then
               echo "::error::Potential secret found matching pattern: $pattern"
               FOUND=1
             fi

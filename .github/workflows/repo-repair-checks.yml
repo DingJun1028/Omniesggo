@@ -6,6 +6,7 @@ on:
       - '.github/workflows/deploy-worker.yml'
       - '.github/workflows/deploy-deerflow.yml'
       - '.github/workflows/deploy.yml'
+      - '.github/workflows/security-audit.yml'
       - '.github/workflows/repo-repair-checks.yml'
       - '.github/actionlint/**'
       - 'packages/oa-framework/src/**'
@@ -22,13 +23,12 @@ on:
       - '.github/workflows/deploy-worker.yml'
       - '.github/workflows/deploy-deerflow.yml'
       - '.github/workflows/deploy.yml'
+      - '.github/workflows/security-audit.yml'
       - '.github/workflows/repo-repair-checks.yml'
       - '.github/actionlint/**'
       - 'packages/oa-framework/src/**'
       - 'packages/oa-framework/test/**'
       - 'packages/oa-framework/package.json'
-      - 'packages/oa-framework/tsconfig.json'
-      - 'package.json'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
   workflow_dispatch:
@@ -51,7 +51,7 @@ jobs:
         run: go build -mod=readonly -o "$RUNNER_TEMP/actionlint" github.com/rhysd/actionlint/cmd/actionlint
       - name: Check repaired workflows and existing Deerflow workflow
         run: |
-          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= .github/workflows/crewai-run.yml .github/workflows/deploy-worker.yml .github/workflows/deploy-deerflow.yml .github/workflows/repo-repair-checks.yml .github/workflows/deploy.yml
+          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= .github/workflows/crewai-run.yml .github/workflows/deploy-worker.yml .github/workflows/deploy-deerflow.yml .github/workflows/repo-repair-checks.yml .github/workflows/deploy.yml .github/workflows/security-audit.yml
       - name: Test deploy secret-scan regex with apostrophe fixtures
         run: |
           python3 - <<'PY'
@@ -75,6 +75,26 @@ jobs:
                   assert result.returncode in (0, 1), result.stderr
                   assert (result.returncode == 0) == should_match, f'pattern mismatch for {sample!r}: {result.stderr}'
           print('DEPLOY_SECRET_REGEX_APOSTROPHE_FIXTURES_OK')
+          PY
+      - name: Test Security Audit private-key grep option parsing
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          import tempfile
+          from pathlib import Path
+
+          source = Path('.github/workflows/security-audit.yml').read_text()
+          assert '"-----BEGIN .*PRIVATE KEY-----"' in source
+          scan_line = next(line for line in source.splitlines() if 'if grep -rInE' in line and '-- "$pattern" .' in line)
+          assert scan_line.index('-- "$pattern" .') > scan_line.index('--exclude-dir=.git')
+          command = scan_line.strip()[len('if '):].split('; then', 1)[0]
+          shell = 'pattern="-----BEGIN .*PRIVATE KEY-----"\n' + command
+          for content, expected in [('-----BEGIN FAKE PRIVATE KEY-----\n', 0), ('ordinary source text\n', 1)]:
+              with tempfile.TemporaryDirectory() as directory:
+                  (Path(directory) / 'fixture.ts').write_text(content)
+                  result = subprocess.run(['bash', '-c', shell], cwd=directory, text=True, capture_output=True)
+                  assert result.returncode == expected, f'grep exit {result.returncode}, expected {expected}: {result.stderr}'
+          print('SECURITY_AUDIT_PRIVATE_KEY_GREP_FIXTURES_OK')
           PY
   oa-framework-offline:
     runs-on: ubuntu-latest
