@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "ESG-GO OA-Team 30 萬能代理小隊 — CrewAI 實作 (對應 soul.md)"
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai>=0.175.0",
+    "crewai[litellm]==1.15.23",
     "crewai-tools>=0.30.0",
 ]
 
