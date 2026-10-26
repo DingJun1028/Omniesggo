@@ -38,6 +38,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
       - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
         with:
           go-version: '1.24.13'
@@ -47,12 +49,32 @@ jobs:
         run: go build -mod=readonly -o "$RUNNER_TEMP/actionlint" github.com/rhysd/actionlint/cmd/actionlint
       - name: Check repaired workflows and existing Deerflow workflow
         run: |
-          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= .github/workflows/crewai-run.yml .github/workflows/deploy-worker.yml .github/workflows/deploy-deerflow.yml .github/workflows/repo-repair-checks.yml
+          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= .github/workflows/crewai-run.yml .github/workflows/deploy-worker.yml .github/workflows/deploy-deerflow.yml .github/workflows/repo-repair-checks.yml .github/workflows/deploy.yml
+      - name: Test deploy secret-scan regex with apostrophe fixtures
+        run: |
+          python3 - <<'PY'
+          import re
+          import subprocess
+          from pathlib import Path
+
+          source = Path('.github/workflows/deploy.yml').read_text()
+          line = next(line for line in source.splitlines() if 'grep -rInE' in line and 'vps/*.mjs' in line and '8,}' in line)
+          match = re.search(r'grep -rInE\s+"([^"]+)"', line)
+          assert match, 'expected a quoted default-secret ERE'
+          pattern = match.group(1)
+          fixtures = [('${TOKEN:-fixture-secret-value}', True), ('${API_KEY:-another-secret-123}', True), ('${TOKEN:-short}', False)]
+          for sample, should_match in fixtures:
+              result = subprocess.run(['grep', '-E', pattern], input=sample + chr(10), text=True, capture_output=True)
+              assert (result.returncode == 0) == should_match, f'pattern mismatch for {sample!r}: {result.stderr}'
+          print('DEPLOY_SECRET_REGEX_APOSTROPHE_FIXTURES_OK')
+          PY
   oa-framework-offline:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
         with:
           version: 11.5.2
