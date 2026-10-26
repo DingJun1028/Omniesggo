@@ -65,8 +65,9 @@ jobs:
           text = text.replace('RUN npx prisma generate\n\n# 執行建置（用 npx next build 繞過 pnpm 11 deps-status-check 鎖定，與本機驗證一致）\nRUN npx next build', 'RUN npx prisma generate && npx next build')
           text = text.replace('RUN apk upgrade --no-cache && corepack enable pnpm\n# healthcheck 探活依賴 curl\nRUN apk add --no-cache curl\n# 應用資料目錄 (NCBDB / uploads / 5T 存證目錄等需要)\nRUN mkdir -p /app/data /app/public/uploads /app/Omni-Sanctuary/omni-one-萬能筆記/memories', 'RUN apk upgrade --no-cache && corepack enable pnpm && mkdir -p /app/data /app/public/uploads /app/Omni-Sanctuary/omni-one-萬能筆記/memories')
           old = 'CMD curl -f -s -o /dev/null http://127.0.0.1:3000/api/healthz || exit 1'
+          new = "CMD node -e \"fetch('http://127.0.0.1:3000/api/healthz', {signal: AbortSignal.timeout(4000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))\""
           assert old in text
-          text = text.replace(old, 'CMD node -e "fetch(\\'http://127.0.0.1:3000/api/healthz\\', {signal: AbortSignal.timeout(4000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"')
+          text = text.replace(old, new)
           assert 'apk add --no-cache curl' not in text
           p.write_text(text)
           p = Path('.github/workflows/deploy.yml')
@@ -74,16 +75,14 @@ jobs:
           assert "exit-code: '0'" in text
           p.write_text(text.replace("exit-code: '0'", "exit-code: '1'", 1))
           # These five files are Node scripts or node:test suites, not Vitest suites.
-          # Run the three self-contained assertion scripts with Node below; the resolver tests require a local Ollama service.
+          # Run the three self-contained assertion scripts with Node below; resolver tests require a local Ollama service.
           p = Path('vitest.config.ts')
           text = p.read_text()
           anchor = "        'tests/junaikey.test.mjs',\n"
           assert anchor in text
           additions = "        'tests/deploy-contract.test.mjs',\n        'tests/junaikey-secrets.test.mjs',\n        'tests/omni-one.test.mjs',\n        'vps/junaikey/model-resolver.test.mjs',\n        'vps/junaikey/service-resolver.test.mjs',\n"
-          for line in additions.splitlines(keepends=True):
-              if line not in text:
-                  text = text.replace(anchor, line + anchor, 1)
-                  anchor = line + anchor
+          if "'tests/deploy-contract.test.mjs'" not in text:
+              text = text.replace(anchor, additions + anchor, 1)
           p.write_text(text)
           PY
       - name: Resolve and install locked Python dependencies
