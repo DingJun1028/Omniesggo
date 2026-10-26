@@ -8,7 +8,6 @@
 import { createOAFrame, verify5T, OA_SUBFRAMES } from '../src/index.js';
 
 const OVERALL_TIMEOUT_MS = 60_000;
-
 type OAFrame = ReturnType<typeof createOAFrame>;
 type OAResults = Awaited<ReturnType<OAFrame['run']>>;
 
@@ -36,7 +35,6 @@ async function runSmokeTask(oa: OAFrame): Promise<OAResults> {
     prompt: '為 ESG-GO 產出 5T 合規元件骨架',
     routeTo: [...OA_SUBFRAMES] as string[],
   };
-
   try {
     return await withTimeout(oa.run(task as any), OVERALL_TIMEOUT_MS, 'oa.run');
   } catch (error) {
@@ -49,7 +47,6 @@ async function runSmokeTask(oa: OAFrame): Promise<OAResults> {
 function reportResults(results: OAResults): void {
   let allPass = true;
   let okCount = 0;
-
   for (const id of OA_SUBFRAMES) {
     const result = results.find((item) => item.subFrame === id);
     if (!result) {
@@ -57,16 +54,13 @@ function reportResults(results: OAResults): void {
       allPass = false;
       continue;
     }
-
     const verification = verify5T(result);
     if (verification.pass) okCount += 1;
     else allPass = false;
-
     const contentTag = verification.contentPassed ? 'CONTENT_OK' : 'CONTENT_FAIL';
     const fieldTag = verification.pass ? 'PASS' : 'FAIL';
     console.log(` [${id}] field=${fieldTag} ${contentTag}`);
   }
-
   const complete = results.length === OA_SUBFRAMES.length && allPass;
   const resultTag = complete ? 'ALL_10_FRAMEWORKS_OK' : `PARTIAL (${okCount}/${OA_SUBFRAMES.length} pass)`;
   console.log(`\nRESULT: ${resultTag}`);
@@ -80,7 +74,6 @@ async function reportHealth(oa: OAFrame): Promise<void> {
     const message = error instanceof Error ? error.message : String(error);
     console.error('HEALTH_ERR:', message);
   }
-
   for (const id of OA_SUBFRAMES) {
     const status = health[id]?.status ?? 'TIMEOUT';
     console.log(` ${id}: ${status}`);
@@ -101,7 +94,9 @@ async function main(): Promise<void> {
   process.exit(0);
 }
 
-main().catch((error) => {
+try {
+  await main();
+} catch (error) {
   console.error('SMOKE_FAIL:', error);
   process.exit(1);
-});
+}
