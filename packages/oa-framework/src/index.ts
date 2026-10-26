@@ -1,13 +1,12 @@
 /**
  * OA Framework — 萬能分身元框架入口
- * 整合: ADK + Genkit + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶 + OpenMontage + OmniRoute + TurboVec
+ * 整合: ADK + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶 + OpenMontage + OmniRoute + TurboVec
  */
 import { OAOrchestrator } from './core/orchestrator.js';
 import { verify5T } from './core/t5.js';
 import type { OAFrameConfig, SubFrameId } from './core/types.js';
 
 import { ADKAdapter } from './adapters/adk.js';
-import { GenkitAdapter } from './adapters/genkit.js';
 import { Agent0Adapter } from './adapters/agent0.js';
 import { CrewAIAdapter } from './adapters/crewai.js';
 import { AgentReachAdapter } from './adapters/agentreach.js';
@@ -22,7 +21,6 @@ import { OneRingAIAdapter } from './adapters/oneringai.js';
 export function createOAFrame(config: OAFrameConfig = {}): OAOrchestrator {
   const oa = new OAOrchestrator(config);
   oa.register(new ADKAdapter(config));
-  oa.register(new GenkitAdapter(config));
   oa.register(new Agent0Adapter(config));
   oa.register(new CrewAIAdapter(config));
   oa.register(new AgentReachAdapter(config));
@@ -41,5 +39,5 @@ export * from './core/omni-gate.js';
 export * from './core/unverified-registry.js';
 export * from './core/swarm-map.js';
 export const OA_SUBFRAMES: SubFrameId[] = [
-  'adk', 'genkit', 'agent0', 'crewai', 'agentreach', 'deerflow', 'tencent-mem', 'openmontage', 'omniroute', 'turbovec', 'oneringai',
+  'adk', 'agent0', 'crewai', 'agentreach', 'deerflow', 'tencent-mem', 'openmontage', 'omniroute', 'turbovec', 'oneringai',
 ];

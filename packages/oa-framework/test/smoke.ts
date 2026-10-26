@@ -1,9 +1,9 @@
 /**
- * OA Framework smoke test — 驗證 11 子框架註冊 + 5T 鑄造
+ * OA Framework smoke test — 驗證 10 子框架註冊 + 5T 鑄造
  * 執行: npx tsx test/smoke.ts
  *
  * 設計: 全框架並行 dispatch, 但包整體 race timeout (60s),
- * 避免個別 adapter (adk/genkit/crewai/deerflow/tencent-mem 等需聯網/docker)
+ * 避免個別 adapter (adk/crewai/deerflow/tencent-mem 等需聯網/docker)
  * 在本機無 key/無服務時無限掛起. 逾時的 framework 標 TIMEOUT, 不阻塞其他.
  */
 import { createOAFrame, verify5T, OA_SUBFRAMES } from '../src/index.js';
@@ -33,7 +33,7 @@ async function main() {
   const task = {
     id: 't1',
     prompt: '為 ESG-GO 產出 5T 合規元件骨架',
-    routeTo: [...OA_SUBFRAMES] as string[], // 全 11 框架並行
+    routeTo: [...OA_SUBFRAMES] as string[], // 全 10 框架並行
   };
 
   console.log('=== 並行 dispatch (整體 race timeout 60s) ===');
@@ -73,7 +73,7 @@ async function main() {
 
   const okCount = results.filter((r) => verify5T(r).pass).length;
   console.log(
-    `\nRESULT: ${results.length === OA_SUBFRAMES.length && allPass ? 'ALL_11_FRAMEWORKS_OK' : `PARTIAL (${okCount}/${OA_SUBFRAMES.length} pass)`}`
+    `\nRESULT: ${results.length === OA_SUBFRAMES.length && allPass ? 'ALL_10_FRAMEWORKS_OK' : `PARTIAL (${okCount}/${OA_SUBFRAMES.length} pass)`}`
   );
   // smoke 不強制全過 (本機無 key/docker 時個別框架會 down),
   // 但必須在 timeout 內結束 — 這才是「修逾時」的目標.
