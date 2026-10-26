@@ -1,0 +1,71 @@
+name: Temporary dependency remediation diagnostics
+on:
+  push:
+    branches: [fix/repo-ci-crewai-worker]
+    paths: ['.github/workflows/repair-security-deps.yml']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    if: github.ref == 'refs/heads/fix/repo-ci-crewai-worker'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+        with:
+          version: '0.13.5'
+          enable-cache: false
+      - name: Report affected Python dependency constraints
+        run: |
+          python - <<'PY'
+          import json, pathlib, tomllib, urllib.request
+          data = tomllib.loads(pathlib.Path('oa-team-crewai/uv.lock').read_text())
+          targets = {'pillow','filelock','uv'}
+          for pkg in data['package']:
+              deps = {x['name'] for x in pkg.get('dependencies', [])}
+              if pkg['name'] in targets or deps & targets:
+                  print('DEPENDENCY', pkg['name'], pkg['version'], sorted(deps & targets))
+                  url = f"https://pypi.org/pypi/{pkg['name']}/{pkg['version']}/json"
+                  with urllib.request.urlopen(url, timeout=30) as response:
+                      info = json.load(response)['info']
+                  print('METADATA', pkg['name'], info['requires_python'], info['requires_dist'])
+          PY
+      - name: Trial security constraints with normal resolver
+        working-directory: oa-team-crewai
+        run: |
+          cp pyproject.toml "$RUNNER_TEMP/original-pyproject.toml"
+          cp uv.lock "$RUNNER_TEMP/original-uv.lock"
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('pyproject.toml')
+          text = p.read_text().replace('>=3.10,<3.14', '>=3.11,<3.14')
+          text += '\n[tool.uv]\nconstraint-dependencies = ["pillow>=13.0.0", "filelock>=4.2.1", "uv>=0.13.4"]\n'
+          p.write_text(text)
+          PY
+          set +e
+          uv lock --upgrade-package pillow --upgrade-package filelock --upgrade-package uv --python 3.13 > "$RUNNER_TEMP/resolution.txt" 2>&1
+          status=$?
+          set -e
+          cat "$RUNNER_TEMP/resolution.txt"
+          if [ "$status" -eq 0 ]; then
+            uv sync --locked --no-build --no-install-project --python 3.13
+            OTEL_SDK_DISABLED=true CREWAI_TELEMETRY_DISABLED=true OPENAI_API_KEY=offline-config-check-not-a-real-key ./.venv/bin/python main.py --check
+          fi
+          cp "$RUNNER_TEMP/original-pyproject.toml" pyproject.toml
+          cp "$RUNNER_TEMP/original-uv.lock" uv.lock
+          echo "TRIAL_RESOLUTION_EXIT=$status"
+      - name: Report affected JavaScript dependency parents
+        run: |
+          python - <<'PY'
+          import pathlib, re
+          text = pathlib.Path('pnpm-lock.yaml').read_text()
+          blocks = re.split(r'(?m)^  (?=\S)', text)
+          targets = ('@azure/msal-node', 'zod', 'dompurify', 'body-parser', 'undici')
+          for block in blocks:
+              if any(re.search(r'(?m)^    [\x27\x22]?' + re.escape(t) + r'[\x27\x22]?:', block) for t in targets):
+                  print('PARENT_BLOCK', block[:4000])
+          PY
