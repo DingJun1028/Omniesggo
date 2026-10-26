@@ -7,11 +7,13 @@ on:
       - 'worker/**'
       - 'wrangler.toml'
       - '.github/workflows/deploy-worker.yml'
+      - '.github/worker-tools/**'
   pull_request:
     paths:
       - 'worker/**'
       - 'wrangler.toml'
       - '.github/workflows/deploy-worker.yml'
+      - '.github/worker-tools/**'
   workflow_dispatch:
 
 permissions:
@@ -31,12 +33,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install isolated Worker tooling
+      - name: Install locked isolated Worker tooling without scripts
         run: |
           mkdir -p "$RUNNER_TEMP/worker-tools"
+          cp .github/worker-tools/package.json .github/worker-tools/package-lock.json "$RUNNER_TEMP/worker-tools/"
           cd "$RUNNER_TEMP/worker-tools"
-          npm init -y
-          npm install --no-audit --no-fund typescript@5.9.3 @types/node@26.6.5 wrangler@4.151.2
+          npm ci --ignore-scripts --no-audit --no-fund
       - name: Typecheck Worker
         run: |
           "$RUNNER_TEMP/worker-tools/node_modules/.bin/tsc" --noEmit -p worker/tsconfig.json --typeRoots "$RUNNER_TEMP/worker-tools/node_modules/@types"
@@ -59,12 +61,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install isolated Wrangler
+      - name: Install locked isolated Worker tooling without scripts
         run: |
           mkdir -p "$RUNNER_TEMP/worker-tools"
+          cp .github/worker-tools/package.json .github/worker-tools/package-lock.json "$RUNNER_TEMP/worker-tools/"
           cd "$RUNNER_TEMP/worker-tools"
-          npm init -y
-          npm install --no-audit --no-fund wrangler@4.151.2
+          npm ci --ignore-scripts --no-audit --no-fund
       - name: Deploy to Cloudflare Workers
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CF_API_TOKEN }}

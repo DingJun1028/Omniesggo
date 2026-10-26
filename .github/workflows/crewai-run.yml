@@ -1,4 +1,4 @@
-name: OA-Team 30 Swarm — CrewAI Run
+name: OA-Team 30 Swarm - CrewAI Run
 
 on:
   push:
@@ -29,12 +29,15 @@ jobs:
       OPENAI_MODEL_NAME: gpt-4o-mini
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+        with:
+          version: '0.13.5'
+          enable-cache: false
+      - name: Install locked CrewAI dependencies without builds
+        run: uv sync --locked --no-build --no-install-project --python 3.13
       - name: Load config without LLM calls or network access
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          uv run --no-project --python 3.13 --with 'crewai[litellm]==1.15.23' python - <<'PY'
+          ./.venv/bin/python - <<'PY'
           import socket
           def deny_network(*args, **kwargs):
               raise RuntimeError('Network access is forbidden in the config smoke test')
@@ -61,16 +64,20 @@ jobs:
       CREWAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-      - name: Run OA-Team 30 Swarm (via uv run)
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+        with:
+          version: '0.13.5'
+          enable-cache: false
+      - name: Install locked CrewAI dependencies without builds
+        run: uv sync --locked --no-build --no-install-project --python 3.13
+      - name: Run OA-Team 30 Swarm
         env:
           OPENAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
           OPENAI_MODEL_NAME: gpt-4o-mini
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
           if [ -z "$OPENAI_API_KEY" ]; then
-            echo '::error::LLM 憑證缺失：secrets.CREWAI_API_KEY 與 secrets.OPENAI_API_KEY 皆為空'
+            echo '::error::LLM API key missing: configure CREWAI_API_KEY or OPENAI_API_KEY'
             exit 1
           fi
-          uv run --no-project --python 3.13 --with 'crewai[litellm]==1.15.23' python main.py "為 ESG-GO 產出一個 5T 合規的元件骨架"
+          ./.venv/bin/python main.py "為 ESG-GO 產出一個 5T 合規的元件骨架"
+          
