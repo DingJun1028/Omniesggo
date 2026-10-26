@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createOAFrame, OA_SUBFRAMES, SWARM_NODES, verify5T } from '../src/index.js';
+import { createOAFrame, OAOrchestrator, OA_SUBFRAMES, SWARM_NODES, verify5T } from '../src/index.js';
 
 const expected = ['adk', 'agent0', 'crewai', 'agentreach', 'deerflow', 'tencent-mem', 'openmontage', 'omniroute', 'turbovec', 'oneringai'];
 assert.deepEqual(OA_SUBFRAMES, expected);
@@ -10,7 +10,17 @@ for (const node of SWARM_NODES) {
   for (const id of node.binds) assert.ok(OA_SUBFRAMES.includes(id), `Invalid binding: ${id}`);
 }
 
-const oa = createOAFrame();
+const factoryRegistrations: string[] = [];
+const originalRegister = OAOrchestrator.prototype.register;
+const oa = (() => {
+  OAOrchestrator.prototype.register = function (adapter) {
+    factoryRegistrations.push(adapter.id);
+    return originalRegister.call(this, adapter);
+  };
+  try { return createOAFrame(); } finally { OAOrchestrator.prototype.register = originalRegister; }
+})();
+assert.deepEqual(factoryRegistrations, expected, 'createOAFrame must register every expected adapter before stubbing');
+
 for (const id of OA_SUBFRAMES) {
   oa.register({
     id,
