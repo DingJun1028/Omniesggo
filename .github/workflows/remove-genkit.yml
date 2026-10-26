@@ -1,0 +1,147 @@
+name: Temporary Genkit removal and verification
+on:
+  push:
+    branches: [fix/repo-ci-crewai-worker]
+    paths: ['.github/workflows/remove-genkit.yml']
+permissions:
+  contents: write
+concurrency:
+  group: genkit-removal-pr-76
+  cancel-in-progress: false
+jobs:
+  remove:
+    if: github.ref == 'refs/heads/fix/repo-ci-crewai-worker'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fix/repo-ci-crewai-worker
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+        with:
+          version: '11.5.2'
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+      - name: Remove only the approved integration
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('packages/oa-framework')
+          def replace(text, old, new, count=1):
+              assert text.count(old) == count, (old, text.count(old))
+              return text.replace(old, new)
+          p = root / 'package.json'
+          data = json.loads(p.read_text())
+          data['description'] = replace(data['description'], ' + Genkit', '')
+          for section in ('peerDependencies', 'peerDependenciesMeta'):
+              for name in ('genkit', '@genkit-ai/google-genai'):
+                  assert name in data[section], (section, name)
+                  del data[section][name]
+          data['scripts']['test'] = 'tsx test/registration.smoke.ts && ' + data['scripts']['test']
+          p.write_text(json.dumps(data, ensure_ascii=False, indent=2) + '\n')
+          p = root / 'src/index.ts'
+          text = p.read_text()
+          text = replace(text, ' + Genkit', '')
+          text = replace(text, "import { GenkitAdapter } from './adapters/genkit.js';\n", '')
+          text = replace(text, '  oa.register(new GenkitAdapter(config));\n', '')
+          text = replace(text, "'adk', 'genkit',", "'adk',")
+          p.write_text(text)
+          p = root / 'src/core/types.ts'
+          text = replace(p.read_text(), ' + Genkit', '')
+          text = replace(text, "  | 'genkit'     // Google Genkit (Firebase)\n", '')
+          p.write_text(text)
+          p = root / 'src/core/swarm-map.ts'
+          text = replace(p.read_text(), "binds: ['genkit']", 'binds: []', 3)
+          text = text.replace('/** 30 蜂群 → { 陣列, 綁定子框架, 職責 } */', '/** 30 蜂群 → { 陣列, 綁定子框架, 職責 }; 空 binds 保留節點但不路由到已移除的框架 */')
+          p.write_text(text)
+          p = root / 'test/smoke.ts'
+          text = replace(p.read_text(), '11 子框架', '10 子框架')
+          text = replace(text, 'adk/genkit/crewai', 'adk/crewai')
+          text = replace(text, '全 11 框架', '全 10 框架')
+          text = replace(text, 'ALL_11_FRAMEWORKS_OK', 'ALL_10_FRAMEWORKS_OK')
+          p.write_text(text)
+          p = root / 'README.md'
+          text = p.read_text()
+          text = replace(text, '| `genkit` | Google Genkit (Firebase) | npm `genkit` | `adapters/genkit.ts` |\n', '')
+          text = replace(text, '- [x] **Genkit** — 真實連結 `genkit({plugins:[googleAI()]})` + `ai.generate()` (dynamic import, 未裝時 graceful 降級)\n', '')
+          text = replace(text, '@google/adk / genkit / Agent0', '@google/adk / Agent0')
+          text = text.replace('7 大 AI Agent 框架', '10 個子框架適配器').replace('7 個子框架適配器', '10 個子框架適配器').replace('全部 7 框架', '全部 10 框架').replace('7 框架並行', '10 框架並行').replace('ALL_7_FRAMEWORKS_OK', 'ALL_10_FRAMEWORKS_OK')
+          marker = '\n## 架構\n'
+          assert marker in text
+          rows = '| `openmontage` | OpenMontage | 本地適配器 | `adapters/openmontage.ts` |\n| `omniroute` | OmniRoute | 本地適配器 | `adapters/omniroute.ts` |\n| `turbovec` | TurboVec | 本地適配器 | `adapters/turbovec.ts` |\n| `oneringai` | OneRingAI | npm `@everworker/oneringai` | `adapters/oneringai.ts` |\n'
+          text = text.replace(marker, rows + '\nGenkit 整合已移除。原綁定 Genkit 的蜂群節點 3、11、21 保留，但 binds 為空，不自動改派其他框架。子框架可用性以各 adapter health() 結果為準。\n' + marker, 1)
+          p.write_text(text)
+          (root / 'src/adapters/genkit.ts').unlink()
+          PY
+      - name: Add strict offline registration regression
+        run: |
+          cat > packages/oa-framework/test/registration.smoke.ts <<'TS'
+          import assert from 'node:assert/strict';
+          import { createOAFrame, OA_SUBFRAMES, SWARM_NODES, verify5T } from '../src/index.js';
+          const expected = ['adk', 'agent0', 'crewai', 'agentreach', 'deerflow', 'tencent-mem', 'openmontage', 'omniroute', 'turbovec', 'oneringai'];
+          assert.deepEqual(OA_SUBFRAMES, expected);
+          assert.equal(new Set(OA_SUBFRAMES).size, 10);
+          assert.equal(SWARM_NODES.length, 30);
+          assert.deepEqual(SWARM_NODES.filter(n => n.binds.length === 0).map(n => n.id), [3, 11, 21]);
+          for (const node of SWARM_NODES) {
+            for (const id of node.binds) assert.ok(OA_SUBFRAMES.includes(id), `Invalid binding: ${id}`);
+          }
+          const oa = createOAFrame();
+          for (const id of OA_SUBFRAMES) {
+            oa.register({
+              id, label: id, runtime: 'ts',
+              bootstrap: async () => ({ ok: true }),
+              dispatch: async task => ({ output: `${id}: ${task.prompt}` }),
+              health: async () => ({ status: 'ok' }),
+            });
+          }
+          const results = await oa.run({ id: 'offline-registration', prompt: '離線註冊與 5T 回歸驗證' }, 100);
+          assert.deepEqual(results.map(r => r.subFrame), expected);
+          assert.ok(results.every(r => verify5T(r).pass));
+          assert.deepEqual(Object.keys(await oa.healthAll()), expected);
+          console.log('ALL_10_REGISTRATIONS_AND_30_SWARM_NODES_OK');
+          TS
+      - name: Regenerate the lockfile through pnpm
+        run: |
+          pnpm install --lockfile-only --ignore-scripts
+          if grep -iE 'genkit' pnpm-lock.yaml; then
+            echo '::error::Genkit remains in the resolved dependency graph'
+            exit 1
+          fi
+          pnpm install --frozen-lockfile
+      - name: Typecheck and build affected package
+        run: |
+          pnpm --filter @esggo/oa-framework typecheck
+          pnpm --filter @esggo/oa-framework build
+          pnpm exec tsx packages/oa-framework/test/registration.smoke.ts
+          node packages/oa-framework/test/tencent-mem-shared-memory.mjs
+      - name: Preserve existing root checks
+        run: |
+          pnpm typecheck
+          pnpm test
+          node tests/deploy-contract.test.mjs
+          node tests/junaikey-secrets.test.mjs
+          node tests/omni-one.test.mjs
+      - name: Save tested removal only to the fixed PR branch
+        run: |
+          set -euo pipefail
+          test "$(git branch --show-current)" = 'fix/repo-ci-crewai-worker'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add packages/oa-framework/package.json packages/oa-framework/src/index.ts packages/oa-framework/src/core/types.ts packages/oa-framework/src/core/swarm-map.ts packages/oa-framework/src/adapters/genkit.ts packages/oa-framework/test/smoke.ts packages/oa-framework/test/registration.smoke.ts packages/oa-framework/README.md pnpm-lock.yaml
+          git diff --cached --check
+          git diff --cached --stat
+          git commit -m 'fix: remove Genkit integration and regenerate tested lockfile'
+          git push origin HEAD:fix/repo-ci-crewai-worker
+      - name: Keep the existing HIGH and CRITICAL vulnerability gate
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          trivyignores: .trivyignore
