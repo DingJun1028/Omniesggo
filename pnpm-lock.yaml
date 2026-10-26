@@ -5,6 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@azure/msal-node': '>=7.1.0 <8'
   '@vitest/mocker': '>=4.1.11 <5'
   ws: '>=8.21.0 <9'
   tar: '>=7.5.21 <8'
@@ -17,8 +18,8 @@ overrides:
   fast-xml-parser: '>=5.10.1'
   brace-expansion: '>=5.0.12 <6'
   nanoid: '>=3.3.18 <4'
-  dompurify: '>=3.4.12 <4'
-  body-parser: '>=1.20.6 <2'
+  dompurify: '>=3.4.17 <4'
+  body-parser: '>=1.20.9 <2'
   qs: '>=6.15.4 <7'
   '@xmldom/xmldom': '>=0.9.12 <1'
   '@google/adk': '>=1.6.1'
@@ -33,7 +34,7 @@ overrides:
   '@opentelemetry/propagator-jaeger': '>=2.9.0 <3'
   vitest: '>=4.1.11 <5'
   vite: '>=7.0.0 <9'
-  undici: '>=7.29.1 <8'
+  undici: '>=7.30.1 <8'
   '@grpc/grpc-js': '>=1.13.6 <2'
   cross-spawn: '>=7.0.6 <8'
   express: '>=4.21.2 <5'
@@ -180,7 +181,7 @@ importers:
         version: 8.72.0(@typescript-eslint/parser@8.72.0(eslint@9.39.5(jiti@1.21.7))(typescript@5.9.3))(eslint@9.39.5(jiti@1.21.7))(typescript@5.9.3)
       '@vinext/cloudflare':
         specifier: ^1.1.1
-        version: 1.1.1(c498af7b186599cb766a3b96b04525a1)
+        version: 1.1.1(3564dbf36171b21e7cfa7ee57160f16e)
       '@vitejs/plugin-rsc':
         specifier: ^0.5.38
         version: 0.5.38(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
@@ -216,7 +217,7 @@ importers:
         version: 16.4.0
       next:
         specifier: ^16.4.2
-        version: 16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+        version: 16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       pino-pretty:
         specifier: ^13.2.0
         version: 13.2.0
@@ -243,7 +244,7 @@ importers:
         version: 8.72.0(eslint@9.39.5(jiti@1.21.7))(typescript@5.9.3)
       vinext:
         specifier: ^1.2.1
-        version: 1.2.1(@types/node@26.6.5)(@vitejs/plugin-react@6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(@vitejs/plugin-rsc@0.5.38(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(next@16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
+        version: 1.2.1(@types/node@26.6.5)(@vitejs/plugin-react@6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(@vitejs/plugin-rsc@0.5.38(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
       vite:
         specifier: '>=7.0.0 <9'
         version: 8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)
@@ -519,7 +520,7 @@ importers:
     dependencies:
       '@everworker/oneringai':
         specifier: ^1.2.0
-        version: 1.2.0(@cfworker/json-schema@4.1.1)(@napi-rs/canvas@1.0.10)(encoding@0.1.13)(undici@7.30.0)
+        version: 1.2.0(@cfworker/json-schema@4.1.1)(@napi-rs/canvas@1.0.10)(encoding@0.1.13)(undici@7.30.1)
 
   apps/self-healing: {}
 
@@ -664,7 +665,7 @@ importers:
         version: 1.40.1(genkit@1.40.1(@google-cloud/firestore@9.3.1)(encoding@0.1.13)(firebase-admin@14.5.0(@firebase/app-compat@0.5.19)(@firebase/app@0.16.3))(firebase@13.0.0))
       '@google/adk':
         specifier: '>=1.6.1'
-        version: 2.0.0(20c59d2d2fbbee6aa1a5c5e20bb38632)
+        version: 2.0.0(55c6649fe88784d5781d14510160de51)
       genkit:
         specifier: '*'
         version: 1.40.1(@google-cloud/firestore@9.3.1)(encoding@0.1.13)(firebase-admin@14.5.0(@firebase/app-compat@0.5.19)(@firebase/app@0.16.3))(firebase@13.0.0)
@@ -673,7 +674,7 @@ importers:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: latest
-        version: 1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)
+        version: 1.32.2(@cfworker/json-schema@4.1.1)(zod@4.6.7)
     devDependencies:
       '@types/node':
         specifier: ^26.6.5
@@ -998,8 +999,12 @@ packages:
     resolution: {integrity: sha512-Or6xhPNyi4zHW25158yxBoyxuCqNSPa5YBVqfF1J5Ks4MJWBo/USXdp05DQIPu1Zli00YZu6t0+h6KvHJealxQ==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-node@6.0.1':
-    resolution: {integrity: sha512-ixSO1Y/kCVRthRs+hSx/5qkwaunX1/RAePhlMN0wIpIQ4WEZ6AREGGnGd1AP0qspHVsAwzWQKGubpjh50JyJIQ==}
+  '@azure/msal-common@16.14.3':
+    resolution: {integrity: sha512-tz3GvMrR9V/plb2lDdW8qaO8CPpfZevdExBKjltzzbAtyhK0eB2UIvji1aU+gkyHj3fxQ2ie+LNHyMXdmo8wOg==}
+    engines: {node: '>=0.8.0'}
+
+  '@azure/msal-node@7.1.1':
+    resolution: {integrity: sha512-zHXTJB38XVrsNaXrPBCMqEUjeyQysFfgmKtUHRDsEKTRjNIPckJ/w6fE5wBXrmJXBim1D3C7O7LOag0msPTrgw==}
     engines: {node: '>=20'}
 
   '@babel/code-frame@7.29.7':
@@ -2298,6 +2303,16 @@ packages:
 
   '@modelcontextprotocol/sdk@1.32.1':
     resolution: {integrity: sha512-2DdE+SJDtzLEEWzY1ZjY7Q+VcPhcV1KisD3zI4u0XZyktsjHum1mwbMI+JaulUBi2OZk+KJAi2uPXzxichPkdw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      '@cfworker/json-schema': ^4.1.1
+      zod: ^3.25 || ^4.0
+    peerDependenciesMeta:
+      '@cfworker/json-schema':
+        optional: true
+
+  '@modelcontextprotocol/sdk@1.32.2':
+    resolution: {integrity: sha512-SWsVtH/0vULSQStoZ6xxH2K09Li8fXYTMC64ZeogCdpZ3XSi1eCPOByV1OpuJxuI3OcmHhosDWYyii07tpPsLw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@cfworker/json-schema': ^4.1.1
@@ -4649,8 +4664,8 @@ packages:
   bmp-js@0.1.0:
     resolution: {integrity: sha512-vHdS19CnY3hwiNdkaqk93DvjVLfbEcI8mys4UjuWrlX1haDmroo8o4xCzh4wD6DGV6HxRCyauwhHRqMTfERtjw==}
 
-  body-parser@1.20.8:
-    resolution: {integrity: sha512-JNcyFQ64OiijEkPzUBTCe+hyPXUD/3LEldGQ6iF5LR1w00mx9o7xtDWHXBY2iItjdCFGoilOLNQbH943ut7pHA==}
+  body-parser@1.20.9:
+    resolution: {integrity: sha512-FISIQxV5u91Y9gvuFq3q/tA/qTqLJn3AhRcEvyozyhJTh5OBFFtv827AdHU7Rbyct4r+Ba1/99oFa1Y3yuFsdw==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
 
   boolbase@1.0.0:
@@ -5202,9 +5217,6 @@ packages:
   domhandler@5.0.3:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
-
-  dompurify@3.4.16:
-    resolution: {integrity: sha512-sqo+pNp3qRhCIpbgRi1y8Tgk27Bo2Ry7w0dC1NBeNTdZChWjz9Xb/KOoZbRP/R6pQZ80Qw8YhXw13hWWBbMRnQ==}
 
   dompurify@3.4.17:
     resolution: {integrity: sha512-B/pSlYVHQ58kqISD/yDjuJ1yfzI34m1gF4lAod2bwSRhiN4K5Cl3H8Af7hqB2PmTL911tdEudnnXn5FnhRoz0w==}
@@ -7447,7 +7459,7 @@ packages:
       '@aws-sdk/credential-provider-node': '>=3.972.0 <4'
       '@smithy/hash-node': '>=4.3.0 <5'
       '@smithy/signature-v4': '>=5.4.0 <6'
-      undici: '>=7.29.1 <8'
+      undici: '>=7.30.1 <8'
       ws: '>=8.21.0 <9'
       zod: ^3.25 || ^4.0
     peerDependenciesMeta:
@@ -8801,10 +8813,6 @@ packages:
   undici-types@8.9.0:
     resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
-  undici@7.30.0:
-    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
-    engines: {node: '>=20.18.1'}
-
   undici@7.30.1:
     resolution: {integrity: sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==}
     engines: {node: '>=20.18.1'}
@@ -9522,7 +9530,7 @@ snapshots:
       '@azure/core-util': 1.14.0
       '@azure/logger': 1.4.0
       '@azure/msal-browser': 5.23.0
-      '@azure/msal-node': 6.0.1
+      '@azure/msal-node': 7.1.1
       open: 10.2.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -9576,9 +9584,12 @@ snapshots:
   '@azure/msal-common@16.14.1':
     optional: true
 
-  '@azure/msal-node@6.0.1':
+  '@azure/msal-common@16.14.3':
+    optional: true
+
+  '@azure/msal-node@7.1.1':
     dependencies:
-      '@azure/msal-common': 16.14.1
+      '@azure/msal-common': 16.14.3
       jsonwebtoken: 9.0.3
     optional: true
 
@@ -10002,50 +10013,10 @@ snapshots:
       '@eslint/core': 1.2.1
       levn: 0.4.1
 
-  '@everworker/oneringai@1.2.0(@cfworker/json-schema@4.1.1)(@napi-rs/canvas@1.0.10)(encoding@0.1.13)(undici@7.30.0)':
-    dependencies:
-      '@anthropic-ai/sdk': 0.131.0(zod@4.6.7)
-      '@google/genai': 2.28.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))
-      '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)
-      '@mozilla/readability': 0.6.0
-      ajv: 8.20.0
-      ajv-formats: 3.0.1(ajv@8.20.0)
-      cheerio: 1.2.0
-      clipboardy: 5.3.2
-      dotenv: 17.4.2
-      eventemitter3: 5.0.4
-      exceljs: 4.4.0
-      glob: 13.0.6
-      jose: 6.2.12
-      jsdom: 29.1.1
-      officeparser: 7.8.0(encoding@0.1.13)
-      openai: 7.30.1(undici@7.30.0)(ws@8.22.0)(zod@4.6.7)
-      pngjs: 7.0.0
-      readline-async: 0.1.0
-      simple-icons: 16.34.0
-      turndown: 7.2.4
-      unpdf: 1.8.1(@napi-rs/canvas@1.0.10)
-      ws: 8.22.0
-      zod: 4.6.7
-    transitivePeerDependencies:
-      - '@aws-sdk/credential-provider-node'
-      - '@cfworker/json-schema'
-      - '@napi-rs/canvas'
-      - '@noble/hashes'
-      - '@smithy/hash-node'
-      - '@smithy/signature-v4'
-      - bufferutil
-      - canvas
-      - encoding
-      - puppeteer
-      - supports-color
-      - undici
-      - utf-8-validate
-
   '@everworker/oneringai@1.2.0(@cfworker/json-schema@4.1.1)(@napi-rs/canvas@1.0.10)(encoding@0.1.13)(undici@7.30.1)':
     dependencies:
       '@anthropic-ai/sdk': 0.131.0(zod@4.6.7)
-      '@google/genai': 2.28.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@google/genai': 2.28.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7))
       '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)
       '@mozilla/readability': 0.6.0
       ajv: 8.20.0
@@ -10816,9 +10787,9 @@ snapshots:
       - supports-color
     optional: true
 
-  '@google-cloud/vertexai@1.12.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@google-cloud/vertexai@1.12.0(@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
-      '@google/genai': 1.52.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@google/genai': 1.52.0(@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76))
       google-auth-library: 9.15.1
     transitivePeerDependencies:
       - '@modelcontextprotocol/sdk'
@@ -10826,11 +10797,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@google/adk@2.0.0(20c59d2d2fbbee6aa1a5c5e20bb38632)':
+  '@google/adk@2.0.0(55c6649fe88784d5781d14510160de51)':
     dependencies:
       '@a2a-js/sdk': 0.3.14(@grpc/grpc-js@1.14.6)(express@4.22.3)
-      '@google-cloud/vertexai': 1.12.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))
-      '@google/genai': 2.25.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@google-cloud/vertexai': 1.12.0(@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76))
+      '@google/genai': 2.25.0(@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76))
       '@mikro-orm/core': 6.6.16
       '@mikro-orm/reflection': 6.6.16(@mikro-orm/core@6.6.16)
       '@opentelemetry/api': 1.9.0
@@ -10861,7 +10832,7 @@ snapshots:
       '@mikro-orm/mysql': 6.6.16(@mikro-orm/core@6.6.16)(@types/node@26.6.5)(mariadb@3.5.4)(pg@8.20.0)
       '@mikro-orm/postgresql': 6.6.16(@mikro-orm/core@6.6.16)(mariadb@3.5.4)
       '@mikro-orm/sqlite': 6.6.16(@mikro-orm/core@6.6.16)(mariadb@3.5.4)(pg@8.20.0)
-      '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76)
       express: 4.22.3
     transitivePeerDependencies:
       - '@bufbuild/protobuf'
@@ -10870,40 +10841,27 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  '@google/genai@1.52.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@google/genai@1.52.0(@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       google-auth-library: 10.9.1
       p-retry: 4.6.2
       protobufjs: 7.6.6
       ws: 8.22.0
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@google/genai@2.25.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
+  '@google/genai@2.25.0(@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
     dependencies:
       google-auth-library: 10.9.1
       p-retry: 4.6.2
       protobufjs: 7.6.6
       ws: 8.22.0
     optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76)
-    transitivePeerDependencies:
-      - bufferutil
-      - supports-color
-      - utf-8-validate
-
-  '@google/genai@2.28.0(@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76))':
-    dependencies:
-      google-auth-library: 10.9.1
-      p-retry: 4.6.2
-      protobufjs: 7.6.6
-      ws: 8.22.0
-    optionalDependencies:
-      '@modelcontextprotocol/sdk': 1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      '@modelcontextprotocol/sdk': 1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -11305,7 +11263,31 @@ snapshots:
 
   '@mixmark-io/domino@2.2.0': {}
 
-  '@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@3.25.76)':
+  '@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)':
+    dependencies:
+      '@hono/node-server': 2.1.4(hono@4.13.13)
+      ajv: 8.20.0
+      ajv-formats: 3.0.1(ajv@8.20.0)
+      content-type: 1.0.5
+      cors: 2.8.6
+      cross-spawn: 7.0.6
+      eventsource: 3.0.7
+      eventsource-parser: 3.1.1
+      express: 4.22.3
+      express-rate-limit: 8.7.1(express@4.22.3)
+      hono: 4.13.13
+      jose: 6.2.12
+      json-schema-typed: 8.0.2
+      pkce-challenge: 5.0.1
+      raw-body: 3.0.2
+      zod: 4.6.7
+      zod-to-json-schema: 3.25.2(zod@4.6.7)
+    optionalDependencies:
+      '@cfworker/json-schema': 4.1.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@3.25.76)':
     dependencies:
       '@hono/node-server': 2.1.4(hono@4.13.13)
       ajv: 8.20.0
@@ -11330,7 +11312,7 @@ snapshots:
       - supports-color
     optional: true
 
-  '@modelcontextprotocol/sdk@1.32.1(@cfworker/json-schema@4.1.1)(zod@4.6.7)':
+  '@modelcontextprotocol/sdk@1.32.2(@cfworker/json-schema@4.1.1)(zod@4.6.7)':
     dependencies:
       '@hono/node-server': 2.1.4(hono@4.13.13)
       ajv: 8.20.0
@@ -13261,13 +13243,13 @@ snapshots:
     dependencies:
       unpic: 4.2.2
 
-  '@unpic/react@1.0.2(next@16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
+  '@unpic/react@1.0.2(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)':
     dependencies:
       '@unpic/core': 1.0.3
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
     optionalDependencies:
-      next: 16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      next: 16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
 
   '@unrs/resolver-binding-android-arm-eabi@1.12.2':
     optional: true
@@ -13352,10 +13334,10 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@vinext/cloudflare@1.1.1(c498af7b186599cb766a3b96b04525a1)':
+  '@vinext/cloudflare@1.1.1(3564dbf36171b21e7cfa7ee57160f16e)':
     dependencies:
       '@cloudflare/workers-response-store': 1.1.1
-      vinext: 1.2.1(@types/node@26.6.5)(@vitejs/plugin-react@6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(@vitejs/plugin-rsc@0.5.38(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(next@16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
+      vinext: 1.2.1(@types/node@26.6.5)(@vitejs/plugin-react@6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(@vitejs/plugin-rsc@0.5.38(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
     optionalDependencies:
       '@cloudflare/vite-plugin': 1.64.0(@types/node@26.6.5)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))(wrangler@4.151.2(@cloudflare/workers-types@5.20261019.1)(@types/node@26.6.5))
 
@@ -13961,7 +13943,7 @@ snapshots:
 
   bmp-js@0.1.0: {}
 
-  body-parser@1.20.8:
+  body-parser@1.20.9:
     dependencies:
       bytes: 3.1.2
       content-type: 1.0.5
@@ -14155,7 +14137,7 @@ snapshots:
       parse5: 7.3.0
       parse5-htmlparser2-tree-adapter: 7.1.0
       parse5-parser-stream: 7.1.2
-      undici: 7.30.0
+      undici: 7.30.1
       whatwg-mimetype: 4.0.0
 
   chokidar@3.6.0:
@@ -14529,11 +14511,6 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
-
-  dompurify@3.4.16:
-    optionalDependencies:
-      '@types/trusted-types': 2.0.7
-    optional: true
 
   dompurify@3.4.17:
     optionalDependencies:
@@ -15165,7 +15142,7 @@ snapshots:
     dependencies:
       accepts: 1.3.8
       array-flatten: 1.1.1
-      body-parser: 1.20.8
+      body-parser: 1.20.9
       content-disposition: 0.5.4
       content-type: 1.0.5
       cookie: 0.7.2
@@ -16432,7 +16409,7 @@ snapshots:
     optionalDependencies:
       canvg: 3.0.11
       core-js: 3.50.0
-      dompurify: 3.4.16
+      dompurify: 3.4.17
       html2canvas: 1.4.1
 
   jsx-ast-utils@3.3.5:
@@ -17284,7 +17261,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next@16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
+  next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1):
     dependencies:
       '@next/env': 16.4.2
       '@swc/helpers': 0.5.23
@@ -17293,7 +17270,7 @@ snapshots:
       postcss: 8.5.31
       react: 19.3.1
       react-dom: 19.3.1(react@19.3.1)
-      styled-jsx: 5.1.6(react@19.3.1)
+      styled-jsx: 5.1.6(@babel/core@7.29.7)(react@19.3.1)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.4.2
       '@next/swc-darwin-x64': 16.4.2
@@ -17489,12 +17466,6 @@ snapshots:
       is-inside-container: 1.0.0
       wsl-utils: 0.1.0
     optional: true
-
-  openai@7.30.1(undici@7.30.0)(ws@8.22.0)(zod@4.6.7):
-    optionalDependencies:
-      undici: 7.30.0
-      ws: 8.22.0
-      zod: 4.6.7
 
   openai@7.30.1(undici@7.30.1)(ws@8.22.0)(zod@4.6.7):
     optionalDependencies:
@@ -18700,10 +18671,12 @@ snapshots:
     dependencies:
       inline-style-parser: 0.2.7
 
-  styled-jsx@5.1.6(react@19.3.1):
+  styled-jsx@5.1.6(@babel/core@7.29.7)(react@19.3.1):
     dependencies:
       client-only: 0.0.1
       react: 19.3.1
+    optionalDependencies:
+      '@babel/core': 7.29.7
 
   subsume@4.0.0:
     dependencies:
@@ -19159,8 +19132,6 @@ snapshots:
 
   undici-types@8.9.0: {}
 
-  undici@7.30.0: {}
-
   undici@7.30.1: {}
 
   unenv@2.0.0-rc.24:
@@ -19329,9 +19300,9 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vinext@1.2.1(@types/node@26.6.5)(@vitejs/plugin-react@6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(@vitejs/plugin-rsc@0.5.38(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(next@16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)):
+  vinext@1.2.1(@types/node@26.6.5)(@vitejs/plugin-react@6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(@vitejs/plugin-rsc@0.5.38(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)))(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react-server-dom-webpack@19.3.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(webpack@5.111.1(esbuild@0.28.2)(postcss@8.5.31)))(react@19.3.1)(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0)):
     dependencies:
-      '@unpic/react': 1.0.2(next@16.4.2(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
+      '@unpic/react': 1.0.2(next@16.4.2(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1))(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@vercel/og': 1.0.3(@types/node@26.6.5)
       '@vinext/types': 1.0.1
       '@vitejs/plugin-react': 6.1.2(vite@8.3.4(@types/node@26.6.5)(esbuild@0.28.2)(jiti@1.21.7)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))

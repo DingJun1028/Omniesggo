@@ -96,6 +96,11 @@ export default defineConfig({
       // 由 `node tests/<檔名>.test.mjs` 在對應工作目錄執行，覆蓋率不減。
       'tests/canon.test.mjs',
       'tests/omnitag.test.mjs',
+      'tests/deploy-contract.test.mjs',
+      'tests/junaikey-secrets.test.mjs',
+      'tests/omni-one.test.mjs',
+      'vps/junaikey/model-resolver.test.mjs',
+      'vps/junaikey/service-resolver.test.mjs',
       'tests/junaikey.test.mjs',
       // oneringai/tests/index.test.ts 為自製測試 harness（自建 TestResult
       // 介面、逐項呼叫，非 vitest suite）：被根 vitest 抓取時報
