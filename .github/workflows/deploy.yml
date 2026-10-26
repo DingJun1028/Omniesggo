@@ -238,6 +238,7 @@ jobs:
         run: echo "✅ Deployment successful to ${{ secrets.VPS_HOST }}"
 
       - name: Notify failure
+        id: slack-check
         if: failure()
         run: |
           if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
