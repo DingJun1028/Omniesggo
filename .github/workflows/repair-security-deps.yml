@@ -64,9 +64,9 @@ jobs:
               text = replace_or_accept(text, old, new)
           if '"@azure/msal-node":' not in text:
               assert 'overrides:\n' in text
-              text = text.replace('overrides:\n', 'overrides:\n  "@azure/msal-node": ">=7.1.0 <8"\n  "zod-to-json-schema>zod": ">=4.6.6 <5"\n', 1)
-          else:
-              assert '"zod-to-json-schema>zod":' in text
+              text = text.replace('overrides:\n', 'overrides:\n  "@azure/msal-node": ">=7.1.0 <8"\n', 1)
+          # Genkit still requires Zod 3. Do not force a Zod 4 root export into it.
+          text = text.replace('  "zod-to-json-schema>zod": ">=4.6.6 <5"\n', '')
           p.write_text(text)
           p = Path('package.json')
           data = json.loads(p.read_text())
@@ -148,17 +148,9 @@ jobs:
         with:
           dockerfile: Dockerfile
           failure-threshold: warning
-      - name: Scan regenerated lockfiles for fixed high and critical vulnerabilities
-        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
-        with:
-          scan-type: fs
-          scan-ref: .
-          format: table
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-          trivyignores: .trivyignore
-      - name: Commit only validated repairs to fixed PR branch
+      # Saving independent repairs on this PR branch does not waive the security gate.
+      # The scan below remains fatal. Do not merge this PR while any gate fails.
+      - name: Save independently tested repairs to fixed PR branch
         run: |
           set -euo pipefail
           test "$(git branch --show-current)" = 'fix/repo-ci-crewai-worker'
@@ -168,6 +160,16 @@ jobs:
           git diff --cached --stat
           git diff --cached --check
           if ! git diff --cached --quiet; then
-            git commit -m 'fix: remediate scanned dependencies, test discovery, and Dockerfile healthcheck'
+            git commit -m 'fix: save tested dependency, test discovery, and Dockerfile repairs; Zod remains open'
             git push origin HEAD:fix/repo-ci-crewai-worker
           fi
+      - name: Enforce high and critical vulnerability gate
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          trivyignores: .trivyignore
