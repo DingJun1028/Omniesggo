@@ -1,6 +1,3 @@
-successfully downloaded text file (SHA: f7a748ab1537f2b152a8d30b2fa830c46a8f931b)
-successfully downloaded text file (SHA: 2da628b98e6fda13a9e8f84b7fde9ded175d8123)
-successfully downloaded text file (SHA: 69d2de507246a1b7458a5077593ee4e14a9d7300)
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // ============================================================
 // Supabase-backed Prisma-compat client
@@ -481,7 +478,7 @@ async function getPool(): Promise<any> {
 }
 
 function rawText(segments: TemplateStringsArray, values: any[]): string {
-  return segments.reduce((acc, seg, i) => acc + seg + (i < values.length ? '
+  return segments.reduce((acc, seg, i) => acc + seg + (i < values.length ? '$' + (i + 1) : ''), '');
 }
 
 async function rawQuery(segments: TemplateStringsArray, values: any[]): Promise<any[]> {
