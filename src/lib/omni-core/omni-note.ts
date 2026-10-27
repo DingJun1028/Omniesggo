@@ -1,15 +1,6 @@
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
-/**
- * OmniNote v1.0 — 萬能筆記系統
- *
- * 功能：
- * - OmniNote: 知識萃取與策略構思
- * - OmniTask: 跨部門大型專案管理（含優先級、到期日、完成狀態）
- * - OmniTodo: 瑣碎執行項與即時查驗
- * - 過濾 & 排序: 優先級、到期日、狀態、完成狀態
- * - 5T 協議門控: 每筆記對標 ESG 報告維度
- */
-
+/** 萬能筆記系統 v2.0 — Supabase 主存管（Firebase 已移除） */
+import { storeOmniNote, listOmniNotes, deleteOmniNote, attachTagToNote, detachTagFromNote, listTagsAttachedToNote } from '@/lib/storage-supabase';
 import { createHash, randomBytes } from 'crypto';
 import { EntropyForge } from './entropy-forge';
 import type {
@@ -169,11 +160,20 @@ export function createNote(
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SECTION 4: OmniNoteManager
+// SECTION 4: OmniNoteManager (Supabase)
 // ═══════════════════════════════════════════════════════════════
 
-import { db, collection, doc, setDoc, getDocs, deleteDoc } from '../firebase';
-// 2026-08-25: firebase/firestore 已停用 (GCP 移除, 力度 1); 改用本地 shim
+// 5T Trustworthy: 將資料庫字串五維門禁收窄為合法 FiveTDimension（無效值一律歸零為 undefined）
+const FIVE_T_DIMENSION_SET: ReadonlySet<FiveTDimension> = new Set<FiveTDimension>([
+  'traceable',
+  'transparent',
+  'tangible',
+  'trustworthy',
+  'trackable',
+]);
+function coerceFiveTGate(v: string | null | undefined): FiveTDimension | undefined {
+  return v != null && FIVE_T_DIMENSION_SET.has(v as FiveTDimension) ? (v as FiveTDimension) : undefined;
+}
 
 export class OmniNoteManager {
   private notes: OmniNote[] = [];
@@ -182,10 +182,21 @@ export class OmniNoteManager {
   async loadFromDb(): Promise<void> {
     if (this.dbLoaded) return;
     try {
-      const querySnapshot = await getDocs(collection(db, 'omni-notes'));
-      const dbNotes: OmniNote[] = querySnapshot.docs.map((doc) => doc.data() as unknown as OmniNote);
-      if (dbNotes.length > 0) {
-        this.notes = dbNotes;
+      const notes = await listOmniNotes();
+      if (notes.length > 0) {
+        this.notes = notes.map(n => ({
+          id: n.id,
+          title: n.title || '',
+          content: n.content || '',
+          category: 'note' as const,
+          tags: n.tags ?? [],
+          tasks: [],
+          metadata: {},
+          createdAt: n.createdAt,
+          updatedAt: n.createdAt,
+          isFrozen: false,
+          fiveTGate: coerceFiveTGate(n.fiveTGate),
+        }));
       }
       this.dbLoaded = true;
     } catch (e) {
@@ -194,7 +205,7 @@ export class OmniNoteManager {
   }
 
   /** Add or replace a note */
-  upsert(note: OmniNote): void {
+  async upsert(note: OmniNote): Promise<void> {
     const idx = this.notes.findIndex(n => n.id === note.id);
     const updatedNote = Object.freeze(idx >= 0 ? { ...note, updatedAt: Date.now() } : note);
 
@@ -203,12 +214,17 @@ export class OmniNoteManager {
     } else {
       this.notes.push(updatedNote);
     }
+
     OmniEventBus.publish(OMNI_TOPICS.NOTE_CREATED, { id: updatedNote.id, title: updatedNote.title });
 
     // Async DB write
-    setDoc(doc(db, 'omni-notes', updatedNote.id), updatedNote).catch(e =>
-      console.error('Failed to sync note to DB', e)
-    );
+    await storeOmniNote({
+      title: updatedNote.title,
+      content: updatedNote.content,
+      tags: updatedNote.tags,
+      fiveTGate: updatedNote.fiveTGate,
+      actor: 'omni-note-manager',
+    }).catch(e => console.error('Failed to sync note to DB', e));
   }
 
   get(id: string): OmniNote | undefined {
@@ -223,8 +239,25 @@ export class OmniNoteManager {
     return this.notes.filter(n => n.category === category);
   }
 
-  getByTag(tag: string): OmniNote[] {
-    return this.notes.filter(n => n.tags.includes(tag));
+  /** Get all tags attached to this note */
+  async getAttachedTags(noteId: string): Promise<{ id: string; label: string; kind: string; confidence: number }[]> {
+    return listTagsAttachedToNote(noteId);
+  }
+
+  /** Attach a universal tag to this note */
+  async attachTag(noteId: string, tagId: string, entityType?: string, entityId?: string, confidence?: number): Promise<void> {
+    const tag = await attachTagToNote({ noteId, tagId, entityType, entityId, confidence });
+    if (tag) {
+      OmniEventBus.publish(OMNI_TOPICS.TAG_ATTACHED, { noteId, tagId, entityType, entityId });
+    }
+  }
+
+  /** Detach a tag from this note */
+  async detachTag(noteId: string, tagId: string): Promise<void> {
+    const ok = await detachTagFromNote(noteId, tagId);
+    if (ok) {
+      OmniEventBus.publish(OMNI_TOPICS.TAG_DETACHED, { noteId, tagId });
+    }
   }
 
   /** Get all tasks across all notes (flattened) */
@@ -233,14 +266,14 @@ export class OmniNoteManager {
   }
 
   /** Toggle task completion by taskId */
-  toggleTask(noteId: string, taskId: string): OmniNote | undefined {
+  async toggleTask(noteId: string, taskId: string): Promise<OmniNote | undefined> {
     const note = this.get(noteId);
     if (!note) return undefined;
     const updatedTasks = note.tasks.map(t =>
       t.id === taskId ? toggleTaskCompletion(t) : t,
     );
     const updated: OmniNote = Object.freeze({ ...note, tasks: updatedTasks, updatedAt: Date.now() });
-    this.upsert(updated);
+    await this.upsert(updated);
     const task = updatedTasks.find(t => t.id === taskId);
     if (task?.status === 'completed') {
       OmniEventBus.publish(OMNI_TOPICS.TASK_COMPLETED, { noteId, taskId });
@@ -251,7 +284,7 @@ export class OmniNoteManager {
   }
 
   /** Add a task to a note */
-  addTask(noteId: string, task: OmniTask): OmniNote | undefined {
+  async addTask(noteId: string, task: OmniTask): Promise<OmniNote | undefined> {
     const note = this.get(noteId);
     if (!note) return undefined;
     const updated: OmniNote = Object.freeze({
@@ -259,21 +292,19 @@ export class OmniNoteManager {
       tasks: [...note.tasks, task],
       updatedAt: Date.now(),
     });
-    this.upsert(updated);
+    await this.upsert(updated);
     OmniEventBus.publish(OMNI_TOPICS.TASK_CREATED, { noteId, taskId: task.id, title: task.title });
     return updated;
   }
 
   /** Remove a note */
-  remove(id: string): boolean {
+  async remove(id: string): Promise<boolean> {
     const idx = this.notes.findIndex(n => n.id === id);
     if (idx < 0) return false;
     this.notes.splice(idx, 1);
 
     // Async DB delete
-    deleteDoc(doc(db, 'omni-notes', id)).catch(e =>
-      console.error('Failed to delete note from DB', e)
-    );
+    await deleteOmniNote(id).catch(e => console.error('Failed to delete note from DB', e));
 
     return true;
   }

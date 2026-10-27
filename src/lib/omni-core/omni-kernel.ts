@@ -45,6 +45,9 @@ export const OMNI_TOPICS = {
   TASK_CREATED:          'omni:task:created',
   TASK_COMPLETED:        'omni:task:completed',
   TASK_STATUS_CHANGED:   'omni:task:status_changed',
+  // Tag system
+  TAG_ATTACHED:          'omni:tag:attached',
+  TAG_DETACHED:          'omni:tag:detached',
   // OmniOne SDK
   OMNI_ONE_INITIALIZED:  'omni:one:initialized',
   OMNI_ONE_CASE_ROUTED:  'omni:one:case_routed',

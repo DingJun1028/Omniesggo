@@ -2,43 +2,47 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // ============================================================
 // ESGGO Storage Service — unified data access layer
-// Input → Store → Edit → Retrieve → Operate
+// 2026-08-25 重構: Prisma / Firebase / pgvector 已移除
+// 改用 Supabase (primary DB) + local-store (offline cache)
+// 5T 協議: Traceable / Trackable / Tangible / Transparent / Trustworthy
 // ============================================================
-export { prisma } from './prisma';
-export { getOmniPrisma, withOmni } from './prisma-omni';
-export { query, storeEmbedding, getEmbedding, semanticSearch, storeESGEntity } from './pgvector';
+// 只從集中入口匯出 Supabase 相關功能與清理工具
+export { getSupabaseClient, supabase } from './supabase-client';
+export {
+  computeHashLock,
+  storeReport,
+  getReportById,
+  storeDelegation,
+  listDelegations,
+  storeOmniCase,
+  storeOmniConsoleSnapshot,
+  storeOmniNote,
+  listOmniNotes,
+  deleteOmniNote,
+  attachTagToNote,
+  detachTagFromNote,
+  listTagsAttachedToNote,
+  verifyStorage,
+} from './storage-supabase';
 
-import { createHash } from 'crypto';
-import { prisma } from './prisma';
 import type { DelegationPermission } from '../types/complete-delegation';
-import type { NoteData } from '../../app/api/notes/route';
 
-/** Readiness gate: verify primary + pgvector connectivity. */
+// ─── Supabase client (lazy proxy, per supabase-client.ts) ─────
+import { supabase } from './supabase-client';
+
+// ─── Readiness gate ───────────────────────────────────────────
 export async function verifyStorage() {
   const results: Record<string, boolean> = {};
-
-  // Primary DB
   try {
-    await prisma.$queryRaw`SELECT 1`;
-    results.postgres = true;
+    const res = await supabase.from('notes').select('id').limit(1);
+    results.supabase = res.error === undefined;
   } catch {
-    results.postgres = false;
+    results.supabase = false;
   }
-
-  // pgvector
-  try {
-    const { query } = await import('./pgvector');
-    await query('SELECT 1');
-    results.pgvector = true;
-  } catch {
-    results.pgvector = false;
-  }
-
   return results;
 }
 
 // ─── ESG Report ──────────────────────────────────────────────
-
 export interface StoredReport {
   id: string;
   framework: string;
@@ -64,23 +68,36 @@ export async function storeReport(input: {
     `${input.framework}|${input.year}|${input.companyName}|${input.title}|${input.content}`,
   ).toString('base64').slice(0, 64);
 
-  return prisma.companyReport.create({
-    data: {
-      companyId: `auto-${Date.now()}`,
-      companyName: input.companyName,
-      reportType: input.framework,
-      year: input.year,
-      url: `local://report/${input.framework}/${input.year}/${encodeURIComponent(input.companyName)}`,
-      pdfUrl: null,
-      content: input.content,
-      status: 'generated',
-      hash,
-    },
-  }) as unknown as StoredReport;
+  const record = {
+    id: `rep-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    companyId: `auto-${Date.now()}`,
+    companyName: input.companyName,
+    framework: input.framework,
+    language: input.language,
+    year: input.year,
+    title: input.title || '未命名報告',
+    content: input.content,
+    status: 'generated',
+    hash,
+    sourceOrigin: 'storage-service:sr',
+    hashLock: computeHashLock('rep', hash),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+
+  return supabase
+    .from('company_report')
+    .insert(record)
+    .select('*')
+    .single<StoredReport & { error: any }>();
 }
 
 export async function getReportById(id: string): Promise<StoredReport | null> {
-  return (await prisma.companyReport.findUnique({ where: { id } })) as unknown as StoredReport | null;
+  return supabase
+    .from('company_report')
+    .select('*')
+    .eq('id', id)
+    .single<StoredReport & { error: any }>();
 }
 
 // ─── Delegation ───────────────────────────────────────────────
@@ -124,6 +141,7 @@ export async function listDelegations(): Promise<StoredDelegation[]> {
 }
 
 // ─── OmniCenter / OmniCore Persistence ────────────────────────
+import { createHash } from 'crypto';
 
 export interface OmniCaseRecord {
   id?: string;
@@ -140,35 +158,23 @@ export async function storeOmniCase(input: {
   payload: Record<string, unknown>;
 }): Promise<OmniCaseRecord> {
   const hash = createHash('sha256')
-    .update(JSON.stringify({
-      kind: input.kind,
-      actor: input.actor,
-      payload: input.payload,
-      ts: Date.now(),
-    }))
+    .update(JSON.stringify({ kind: input.kind, actor: input.actor, payload: input.payload, ts: Date.now() }))
     .digest('hex');
-
   const record = {
     id: `omni-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     kind: input.kind,
     actor: input.actor,
     payload: input.payload,
     hash,
+    sourceOrigin: 'storage-service:oc',
+    hashLock: computeHashLock('omni', hash),
     createdAt: new Date(),
-  } as OmniCaseRecord;
-
-  // Best-effort persistence; keep a memory record even if DB is unavailable.
-  try {
-    await prisma.$executeRaw`
-      INSERT INTO omni_case (id, kind, actor, payload, hash, created_at, updated_at)
-      VALUES (${record.id}, ${record.kind}, ${record.actor}, ${JSON.stringify(record.payload)}::jsonb, ${hash}, now(), now())
-      ON CONFLICT (id) DO UPDATE SET payload = EXCLUDED.payload, hash = EXCLUDED.hash, updated_at = now()
-    `;
-  } catch {
-    // table may not exist until migration runs
-  }
-
-  return record;
+    updatedAt: new Date(),
+  };
+  const res = await safeSupabase(() =>
+    supabase.from('omni_case').insert(record).select('*').single<OmniCaseRecord & { error: any }>(),
+  );
+  return res ?? record;
 }
 
 export interface OmniConsoleSnapshot {
@@ -192,24 +198,18 @@ export async function storeOmniConsoleSnapshot(input: {
     input: input.input,
     output: input.output,
     actor: input.actor,
+    sourceOrigin: 'storage-service:ocs',
+    hashLock: computeHashLock('ocs', input.functionName),
     createdAt: new Date(),
-  } as OmniConsoleSnapshot;
-
-  try {
-    await prisma.$executeRaw`
-      INSERT INTO omni_console_snapshot (id, function_name, input, output, actor, created_at, updated_at)
-      VALUES (${record.id}, ${record.functionName}, ${JSON.stringify(record.input)}::jsonb, ${JSON.stringify(record.output)}::jsonb, ${record.actor}, now(), now())
-      ON CONFLICT (id) DO UPDATE SET output = EXCLUDED.output, updated_at = now()
-    `;
-  } catch {
-    // table may not exist until migration runs
-  }
-
-  return record;
+    updatedAt: new Date(),
+  };
+  const res = await safeSupabase(() =>
+    supabase.from('omni_console_snapshot').insert(record).select('*').single<OmniConsoleSnapshot & { error: any }>(),
+  );
+  return res ?? record;
 }
 
 // ─── OmniCenter Notes ────────────────────────────────────────
-
 export async function storeOmniNote(input: {
   title: string;
   content: string;
@@ -226,51 +226,37 @@ export async function storeOmniNote(input: {
     content: input.content,
     tags: input.tags,
     fiveTGate: input.fiveTGate || null,
+    actor: input.actor,
+    sourceOrigin: 'storage-service:on',
+    hashLock: computeHashLock('note', id),
     createdAt,
-  } as NoteData;
+    updatedAt: new Date(),
+  };
 
-  try {
-    await prisma.$executeRaw`
-      INSERT INTO omni_note (id, title, content, tags, five_t_gate, created_at, updated_at, actor)
-      VALUES (${id}, ${record.title}, ${record.content}, ${JSON.stringify(record.tags)}::jsonb, ${record.fiveTGate}, to_timestamp(${createdAt} / 1000.0), now(), ${input.actor})
-      ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, content = EXCLUDED.content, tags = EXCLUDED.tags, five_t_gate = EXCLUDED.five_t_gate, updated_at = now()
-    `;
-  } catch {
-    // table may not exist until migration runs
-  }
-
-  return record;
+  const res = await safeSupabase(() =>
+    supabase.from('notes').upsert(record).select(':force.select=true').single<NoteData & { error: any }>(),
+  );
+  return res ?? record;
 }
 
 export async function listOmniNotes(): Promise<NoteData[]> {
-  try {
-    const rows = await prisma.$queryRaw<any[]>`
-      SELECT id, title, content, tags, five_t_gate AS "fiveTGate", created_at AS "createdAt"
-      FROM omni_note
-      ORDER BY created_at DESC
-      LIMIT 100
-    `;
-
-    return rows.map((row: { id: string; title: string | null; content: string | null; tags: unknown; fiveTGate: string | null; createdAt: number | string }) => ({
-      id: row.id,
-      title: row.title || '',
-      content: row.content || '',
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      fiveTGate: row.fiveTGate ?? undefined,
-      createdAt: typeof row.createdAt === 'number' ? row.createdAt : new Date(row.createdAt).getTime(),
-    }));
-  } catch {
-    return [];
-  }
+  const res = await safeSupabase(() =>
+    supabase.from('notes').select('*').order('createdAt', { ascending: false }).limit(100),
+  );
+  if (!res) return [];
+  return res.map((r: any) => ({
+    id: r.id,
+    title: r.title || '',
+    content: r.content || '',
+    tags: Array.isArray(r.tags) ? r.tags : [],
+    fiveTGate: r.fiveTGate ?? undefined,
+    createdAt: typeof r.createdAt === 'number' ? r.createdAt : new Date(r.createdAt).getTime(),
+  }));
 }
 
 export async function deleteOmniNote(id: string): Promise<boolean> {
-  try {
-    const result = await prisma.$executeRaw`
-      DELETE FROM omni_note WHERE id = ${id}
-    `;
-    return (result ?? 0) > 0;
-  } catch {
-    return false;
-  }
+  const res = await safeSupabase(() =>
+    supabase.from('notes').delete().eq('id', id),
+  );
+  return !!res;
 }
