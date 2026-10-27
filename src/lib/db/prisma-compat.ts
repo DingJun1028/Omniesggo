@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: 69d2de507246a1b7458a5077593ee4e14a9d7300)
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // ============================================================
 // Supabase-backed Prisma-compat client
@@ -408,11 +409,38 @@ class ModelDelegate {
   }
 }
 
-// ── Raw SQL（透過既有 pg / pgvector 連線）────────────────────
+// ── Raw SQL（Node 環境下經 pg 連線池；Worker 環境不支援）────
+let _pool: any = null;
+async function getPool(): Promise<any> {
+  if (_pool) return _pool;
+  const { Pool } = await import('pg');
+  _pool = new Pool({
+    connectionString:
+      process.env.DATABASE_URL ||
+      process.env.PGVECTOR_URL ||
+      process.env.SUPABASE_DB_URL ||
+      '',
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
+  });
+  return _pool;
+}
+
+function rawText(segments: TemplateStringsArray, values: any[]): string {
+  return segments.reduce((acc, seg, i) => acc + seg + (i < values.length ? `${i + 1}` : ''), '');
+}
+
 async function rawQuery(segments: TemplateStringsArray, values: any[]): Promise<any[]> {
-  const { query } = (await import('../pgvector')) as { query: (sql: string, params?: any[]) => Promise<any[]> };
-  const text = segments.reduce((acc, seg, i) => acc + seg + (i < values.length ? `$${i + 1}` : ''), '');
-  return query(text, values);
+  const pool = await getPool();
+  const result = await pool.query(rawText(segments, values), values);
+  return result.rows as any[];
+}
+
+async function rawExecute(segments: TemplateStringsArray, values: any[]): Promise<number> {
+  const pool = await getPool();
+  const result = await pool.query(rawText(segments, values), values);
+  return result.rowCount || 0;
 }
 
 // ── Compat client ────────────────────────────────────────────
@@ -438,8 +466,7 @@ export class PrismaCompatClient {
   }
 
   async $executeRaw(strings: TemplateStringsArray, ...values: any[]): Promise<number> {
-    const rows = await rawQuery(strings, values);
-    return Array.isArray(rows) ? rows.length : 0;
+    return rawExecute(strings, values);
   }
 
   async $transaction(fnOrOps: any, ...rest: any[]): Promise<any> {
