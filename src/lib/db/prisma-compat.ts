@@ -48,7 +48,8 @@ const MODEL_TABLES: Record<string, string> = {
 // ── Relation metadata（供 include 使用）──
 // modelKey.relKey → { table: 目標 modelKey, type: 'many'|'one', fk }
 // many: 子表欄位 fk 指向本表 id；one: 本表欄位 fk 指向目標表 id。
-const RELATIONS: Record<string, Record<string, { table: string; type: 'many' | 'one'; fk: string }>> = {
+const RELATIONS: Record<string, Record<string, { table: string; typ
+e: 'many' | 'one'; fk: string }>> = {
   regulation: {
     crawlHistory: { table: 'crawlHistory', type: 'many', fk: 'regulationId' },
     tags: { table: 'regulationTag', type: 'many', fk: 'regulationId' },
@@ -94,7 +95,8 @@ const RELATIONS: Record<string, Record<string, { table: string; type: 'many' | '
   notificationLog: { alert: { table: 'alert', type: 'one', fk: 'alertId' } },
   userGrowth: {
     achievements: { table: 'userAchievement', type: 'many', fk: 'userId' },
-    tasks: { table: 'userTask', type: 'many', fk: 'userId' },
+    tasks: { table: 'userTask', type: 'many', fk: 
+'userId' },
     subscriptions: { table: 'subscription', type: 'many', fk: 'userId' },
     dailyReports: { table: 'dailyReport', type: 'many', fk: 'createdById' },
   },
@@ -141,7 +143,8 @@ function resolveEnv(opts?: { url?: string; key?: string }) {
 }
 
 function makeSupabase(opts?: { url?: string; key?: string }): SupabaseClient {
-  const { url, key } = resolveEnv(opts);
+  const { url, key 
+} = resolveEnv(opts);
   if (!url || !key) {
     throw new Error(
       '[db] Supabase 未設定：需要 SUPABASE_URL（或 NEXT_PUBLIC_SUPABASE_URL）與 SUPABASE_SERVICE_ROLE_KEY（或 SUPABASE_ANON_KEY）。',
@@ -193,7 +196,8 @@ function collectFilters(where: AnyObj, out: string[]): void {
     if (key === 'AND' && Array.isArray(value)) {
       const parts: string[] = [];
       for (const sub of value) collectFilters(sub, parts);
-      out.push(`and(${parts.join(',')})`);
+      out.push(`and(
+${parts.join(',')})`);
       continue;
     }
     if (key === 'OR' && Array.isArray(value)) {
@@ -246,7 +250,8 @@ async function attachIncludes(
       if (!spec.table) continue;
       const relTable = tableFor(spec.table);
       const ids = rows.map((r) => r.id).filter(Boolean) as any[];
-      if (ids.length === 0) {
+      if (ids.length 
+=== 0) {
         for (const r of rows) {
           if (!r._count) r._count = {};
           r._count[relKey] = 0;
@@ -300,7 +305,8 @@ async function attachIncludes(
         if (!byParent.has(pk)) byParent.set(pk, []);
         byParent.get(pk)!.push(child);
       }
-      for (const r of rows) r[relKey] = byParent.get(String(r.id)) || [];
+      for (const r of rows) r[relKey] = byParent.g
+et(String(r.id)) || [];
     } else {
       const fks = [...new Set(rows.map((r) => r[spec.fk]).filter((v) => v !== null && v !== undefined))] as any[];
       if (fks.length === 0) {
@@ -352,7 +358,8 @@ class ModelDelegate {
   }
 
   async findUnique(args: { where: AnyObj; select?: AnyObj; include?: AnyObj }): Promise<any> {
-    const flat = this.flattenWhere(args.where);
+    const flat = this.flatt
+enWhere(args.where);
     const cols = args.select ? Object.keys(args.select).join(',') : '*';
     let q = this.from().select(cols);
     q = applyWhere(q, flat);
@@ -392,7 +399,8 @@ class ModelDelegate {
     const pendingChildren: Array<{ table: string; fk: string; rows: AnyObj[] }> = [];
     for (const [relKey, specRaw] of Object.entries(rels)) {
       const nested = data[relKey];
-      if (nested && typeof nested === 'object' && Array.isArray((nested as AnyObj).create)) {
+      if (nested 
+&& typeof nested === 'object' && Array.isArray((nested as AnyObj).create)) {
         const spec = specRaw as { table: string; type: string; fk: string };
         if (spec.type === 'many') {
           pendingChildren.push({ table: tableFor(spec.table), fk: spec.fk, rows: (nested as AnyObj).create as AnyObj[] });
@@ -435,7 +443,8 @@ class ModelDelegate {
       const merged = { ...(args.update || {}), id: existing.id };
       return unwrap(await this.from().update(merged).eq('id', existing.id).select().single(), `${this.modelKey}.upsert.update`);
     }
-    return unwrap(await this.from().insert(args.create).select().single(), `${this.modelKey}.upsert.create`);
+    
+return unwrap(await this.from().insert(args.create).select().single(), `${this.modelKey}.upsert.create`);
   }
 
   async delete(args: { where: AnyObj }): Promise<any> {
@@ -489,64 +498,8 @@ async function rawQuery(segments: TemplateStringsArray, values: any[]): Promise<
 
 async function rawExecute(segments: TemplateStringsArray, values: any[]): Promise<number> {
   const pool = await getPool();
-  const result = await pool.query(rawText(segments, values), values);
-  return result.rowCount || 0;
-}
-
-// ── Compat client ────────────────────────────────────────────
-export class PrismaCompatClient {
-  private _supa: SupabaseClient;
-  readonly [key: string]: any;
-
-  constructor(opts?: { url?: string; key?: string }) {
-    this._supa = makeSupabase(opts);
-    return new Proxy(this, {
-      get(target, prop) {
-        if (prop in target || typeof prop === 'symbol') return (target as any)[prop];
-        return new ModelDelegate(target._supa, String(prop));
-      },
-    });
-  }
-
-  async $connect(): Promise<void> { /* supabase-js 為無狀態 HTTP，無需連線 */ }
-  async $disconnect(): Promise<void> { /* no-op */ }
-
-  async $queryRaw(strings: TemplateStringsArray, ...values: any[]): Promise<any[]> {
-    return rawQuery(strings, values);
-  }
-
-  async $executeRaw(strings: TemplateStringsArray, ...values: any[]): Promise<number> {
-    return rawExecute(strings, values);
-  }
-
-  async $transaction(fnOrOps: any, ...rest: any[]): Promise<any> {
-    if (typeof fnOrOps === 'function') return fnOrOps(this);
-    // 陣列型操作：循序執行（不保證原子性；如需嚴格交易請用 $queryRaw + BEGIN/COMMIT）
-    const results: any[] = [];
-    for (const op of [fnOrOps, ...rest]) {
-      if (op && typeof op.then === 'function') results.push(await op);
-    }
-    return results;
-  }
-}
-
-export type PrismaClient = PrismaCompatClient;
-
-export function createPrismaCompatClient(opts?: { url?: string; key?: string }): PrismaClient {
-  return new PrismaCompatClient(opts);
-}
- + (i + 1) : ''), '');
-}
-
-async function rawQuery(segments: TemplateStringsArray, values: any[]): Promise<any[]> {
-  const pool = await getPool();
-  const result = await pool.query(rawText(segments, values), values);
-  return result.rows as any[];
-}
-
-async function rawExecute(segments: TemplateStringsArray, values: any[]): Promise<number> {
-  const pool = await getPool();
-  const result = await pool.query(rawText(segments, values), values);
+  const result = await pool.query(rawText(segments, val
+ues), values);
   return result.rowCount || 0;
 }
 
