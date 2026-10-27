@@ -8,12 +8,12 @@
  * 3. achievement-check — 每小時檢查用戶成就升級
  */
 
-import { prisma } from '@/lib/storage-service';
+import { supabase } from '@/lib/supabase-client';
 
 const HAS_DATABASE_URL = Boolean(process.env.DATABASE_URL?.trim());
 
 if (!HAS_DATABASE_URL) {
-  console.warn('[Cron] DATABASE_URL is not set; skipping Prisma-dependent background jobs until a Postgres datasource is configured.');
+  console.warn('[Cron] DATABASE_URL is not set; Supabase-dependent background jobs will fall back to local/offline mode.');
 }
 
 // 雙向 Oracle 同步協調器 (全域全端全量終始永續矩陣)

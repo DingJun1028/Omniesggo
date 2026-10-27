@@ -211,6 +211,9 @@ importers:
       eslint-plugin-react-hooks:
         specifier: ^7.1.1
         version: 7.1.1(eslint@9.39.5(jiti@1.21.7))
+      next:
+        specifier: ^16.3.8
+        version: 16.4.0(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@26.6.5)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       pino-pretty:
         specifier: ^13.2.0
         version: 13.2.0
@@ -11405,8 +11408,7 @@ snapshots:
       '@tybys/wasm-util': 0.10.4
     optional: true
 
-  '@next/env@16.4.0':
-    optional: true
+  '@next/env@16.4.0': {}
 
   '@next/eslint-plugin-next@16.4.1(eslint@9.39.5(jiti@1.21.7))':
     dependencies:
@@ -12608,7 +12610,6 @@ snapshots:
   '@swc/helpers@0.5.23':
     dependencies:
       tslib: 2.8.1
-    optional: true
 
   '@tailwindcss/node@4.3.3':
     dependencies:
@@ -12811,7 +12812,7 @@ snapshots:
   '@types/jsonwebtoken@9.0.10':
     dependencies:
       '@types/ms': 2.1.0
-      '@types/node': 26.6.4
+      '@types/node': 26.6.5
     optional: true
 
   '@types/long@4.0.2':
@@ -12895,7 +12896,7 @@ snapshots:
 
   '@types/readable-stream@4.0.25':
     dependencies:
-      '@types/node': 26.6.4
+      '@types/node': 26.6.5
     optional: true
 
   '@types/request@2.48.13':
@@ -14262,8 +14263,7 @@ snapshots:
   clean-stack@2.2.0:
     optional: true
 
-  client-only@0.0.1:
-    optional: true
+  client-only@0.0.1: {}
 
   clipboard-image@0.1.0:
     dependencies:
@@ -16348,7 +16348,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 26.6.4
+      '@types/node': 26.6.5
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -16923,7 +16923,7 @@ snapshots:
   mariadb@3.5.4:
     dependencies:
       '@types/geojson': 7946.0.16
-      '@types/node': 26.6.4
+      '@types/node': 26.6.5
       denque: 2.1.0
       iconv-lite: 0.7.3
       lru-cache: 11.5.3
@@ -17390,7 +17390,6 @@ snapshots:
       - '@babel/core'
       - '@types/node'
       - babel-plugin-macros
-    optional: true
 
   node-abi@3.96.0:
     dependencies:
@@ -18758,7 +18757,6 @@ snapshots:
       react: 19.3.1
     optionalDependencies:
       '@babel/core': 7.29.7
-    optional: true
 
   subsume@4.0.0:
     dependencies:
@@ -18863,7 +18861,7 @@ snapshots:
       '@azure/identity': 4.13.3
       '@azure/keyvault-keys': 4.10.2
       '@js-joda/core': 5.7.0
-      '@types/node': 26.6.4
+      '@types/node': 26.6.5
       bl: 6.1.6
       iconv-lite: 0.7.3
       js-md4: 0.3.2
