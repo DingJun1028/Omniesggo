@@ -18,7 +18,6 @@ const FREE_MODEL_PREFIXES = [
   'qwen/qwen3',
   'qwen/qwen',
   'meta-llama/llama-3',
-  'google/gemini',
   'mistralai/mistral',
   'anthropic/claude-3',
   'openai/gpt-4',

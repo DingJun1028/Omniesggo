@@ -17,7 +17,6 @@ const SUPPORTED_PREFIXES = [
   'meta-llama',      // Llama/Llama2/Llama3 系列
   'mistralai',       // Mistral/Mixtral 系列
   'google/gemma',    // Gemma 系列
-  'google/gemini',   // Gemini 系列
   'Qwen',            // Qwen 系列
   'BAAI',            // BAAI 系列
   'BAI-AIGC',        // BAI 商務模型系列
