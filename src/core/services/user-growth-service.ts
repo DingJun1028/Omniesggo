@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: 2b1436a0ecaf78a6ff32cab0b9b837c8488c81dc)
 /**
  * User Growth Service — Tier / XP / Achievements / Tasks
  * 
@@ -5,7 +6,7 @@
  * XP thresholds: 0 / 1000 / 5000 / 20000 / 100000
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, createPrismaCompatClient } from '../../lib/db/prisma-compat';
 import { plantOmniSeed, IOmniSeed } from '../sonnar/omni-seed';
 import { trinityHash } from '../sonnar/hash-lock';
 
@@ -62,7 +63,7 @@ class UserGrowthService {
   private prisma: PrismaClient;
 
   constructor() {
-    this.prisma = new PrismaClient();
+    this.prisma = createPrismaCompatClient();
   }
 
   /** Get or create user growth profile */

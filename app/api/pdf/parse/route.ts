@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: f997f73208ce2e19d95333d8df93f4b7c5d9b33b)
 // ============================================================
 // PDF Upload & Parse API
 // src/app/api/pdf/parse/route.ts
@@ -5,10 +6,10 @@
 
 import { NextRequest } from 'next/server';
 import { parsePDFReport } from '../../../../src/core/pdf/pdf-parser';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import { jsonError, jsonResponse, jsonErrorInternal } from '@lib/api-utils';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaCompatClient();
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;  // 60s timeout for large PDFs

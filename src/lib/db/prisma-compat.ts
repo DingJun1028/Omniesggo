@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: f7a748ab1537f2b152a8d30b2fa830c46a8f931b)
 successfully downloaded text file (SHA: 2da628b98e6fda13a9e8f84b7fde9ded175d8123)
 successfully downloaded text file (SHA: 69d2de507246a1b7458a5077593ee4e14a9d7300)
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -480,7 +481,64 @@ async function getPool(): Promise<any> {
 }
 
 function rawText(segments: TemplateStringsArray, values: any[]): string {
-  return segments.reduce((acc, seg, i) => acc + seg + (i < values.length ? `${i + 1}` : ''), '');
+  return segments.reduce((acc, seg, i) => acc + seg + (i < values.length ? '
+}
+
+async function rawQuery(segments: TemplateStringsArray, values: any[]): Promise<any[]> {
+  const pool = await getPool();
+  const result = await pool.query(rawText(segments, values), values);
+  return result.rows as any[];
+}
+
+async function rawExecute(segments: TemplateStringsArray, values: any[]): Promise<number> {
+  const pool = await getPool();
+  const result = await pool.query(rawText(segments, values), values);
+  return result.rowCount || 0;
+}
+
+// ── Compat client ────────────────────────────────────────────
+export class PrismaCompatClient {
+  private _supa: SupabaseClient;
+  readonly [key: string]: any;
+
+  constructor(opts?: { url?: string; key?: string }) {
+    this._supa = makeSupabase(opts);
+    return new Proxy(this, {
+      get(target, prop) {
+        if (prop in target || typeof prop === 'symbol') return (target as any)[prop];
+        return new ModelDelegate(target._supa, String(prop));
+      },
+    });
+  }
+
+  async $connect(): Promise<void> { /* supabase-js 為無狀態 HTTP，無需連線 */ }
+  async $disconnect(): Promise<void> { /* no-op */ }
+
+  async $queryRaw(strings: TemplateStringsArray, ...values: any[]): Promise<any[]> {
+    return rawQuery(strings, values);
+  }
+
+  async $executeRaw(strings: TemplateStringsArray, ...values: any[]): Promise<number> {
+    return rawExecute(strings, values);
+  }
+
+  async $transaction(fnOrOps: any, ...rest: any[]): Promise<any> {
+    if (typeof fnOrOps === 'function') return fnOrOps(this);
+    // 陣列型操作：循序執行（不保證原子性；如需嚴格交易請用 $queryRaw + BEGIN/COMMIT）
+    const results: any[] = [];
+    for (const op of [fnOrOps, ...rest]) {
+      if (op && typeof op.then === 'function') results.push(await op);
+    }
+    return results;
+  }
+}
+
+export type PrismaClient = PrismaCompatClient;
+
+export function createPrismaCompatClient(opts?: { url?: string; key?: string }): PrismaClient {
+  return new PrismaCompatClient(opts);
+}
+ + (i + 1) : ''), '');
 }
 
 async function rawQuery(segments: TemplateStringsArray, values: any[]): Promise<any[]> {
