@@ -48,8 +48,7 @@ const MODEL_TABLES: Record<string, string> = {
 // ── Relation metadata（供 include 使用）──
 // modelKey.relKey → { table: 目標 modelKey, type: 'many'|'one', fk }
 // many: 子表欄位 fk 指向本表 id；one: 本表欄位 fk 指向目標表 id。
-const RELATIONS: Record<string, Record<string, { table: string; typ
-e: 'many' | 'one'; fk: string }>> = {
+const RELATIONS: Record<string, Record<string, { table: string; type: 'many' | 'one'; fk: string }>> = {
   regulation: {
     crawlHistory: { table: 'crawlHistory', type: 'many', fk: 'regulationId' },
     tags: { table: 'regulationTag', type: 'many', fk: 'regulationId' },
@@ -95,8 +94,7 @@ e: 'many' | 'one'; fk: string }>> = {
   notificationLog: { alert: { table: 'alert', type: 'one', fk: 'alertId' } },
   userGrowth: {
     achievements: { table: 'userAchievement', type: 'many', fk: 'userId' },
-    tasks: { table: 'userTask', type: 'many', fk: 
-'userId' },
+    tasks: { table: 'userTask', type: 'many', fk: 'userId' },
     subscriptions: { table: 'subscription', type: 'many', fk: 'userId' },
     dailyReports: { table: 'dailyReport', type: 'many', fk: 'createdById' },
   },
@@ -143,8 +141,7 @@ function resolveEnv(opts?: { url?: string; key?: string }) {
 }
 
 function makeSupabase(opts?: { url?: string; key?: string }): SupabaseClient {
-  const { url, key 
-} = resolveEnv(opts);
+  const { url, key } = resolveEnv(opts);
   if (!url || !key) {
     throw new Error(
       '[db] Supabase 未設定：需要 SUPABASE_URL（或 NEXT_PUBLIC_SUPABASE_URL）與 SUPABASE_SERVICE_ROLE_KEY（或 SUPABASE_ANON_KEY）。',
@@ -196,8 +193,7 @@ function collectFilters(where: AnyObj, out: string[]): void {
     if (key === 'AND' && Array.isArray(value)) {
       const parts: string[] = [];
       for (const sub of value) collectFilters(sub, parts);
-      out.push(`and(
-${parts.join(',')})`);
+      out.push(`and(${parts.join(',')})`);
       continue;
     }
     if (key === 'OR' && Array.isArray(value)) {
@@ -250,8 +246,7 @@ async function attachIncludes(
       if (!spec.table) continue;
       const relTable = tableFor(spec.table);
       const ids = rows.map((r) => r.id).filter(Boolean) as any[];
-      if (ids.length 
-=== 0) {
+      if (ids.length === 0) {
         for (const r of rows) {
           if (!r._count) r._count = {};
           r._count[relKey] = 0;
@@ -305,8 +300,7 @@ async function attachIncludes(
         if (!byParent.has(pk)) byParent.set(pk, []);
         byParent.get(pk)!.push(child);
       }
-      for (const r of rows) r[relKey] = byParent.g
-et(String(r.id)) || [];
+      for (const r of rows) r[relKey] = byParent.get(String(r.id)) || [];
     } else {
       const fks = [...new Set(rows.map((r) => r[spec.fk]).filter((v) => v !== null && v !== undefined))] as any[];
       if (fks.length === 0) {
@@ -345,7 +339,17 @@ class ModelDelegate {
     // 支援複合唯一鍵（如 userId_taskId: { userId, taskId }）
     const flat: AnyObj = {};
     for (const [key, value] of Object.entries(where || {})) {
-      if (value !== null && typeof value === 'object' && !Array.isArray(value) && !(key in ({} as any)) && typeof (value as AnyObj).in === 'undefined' && typeof (value as AnyObj).gt === 'undefined') {
+      if (
+        value !== null &&
+        typeof value === 'object' &&
+        !Array.isArray(value) &&
+        (value as AnyObj).in === undefined &&
+        (value as AnyObj).gt === undefined &&
+        (value as AnyObj).lt === undefined &&
+        (value as AnyObj).gte === undefined &&
+        (value as AnyObj).lte === undefined &&
+        (value as AnyObj).contains === undefined
+      ) {
         const o = value as AnyObj;
         if (Object.keys(o).length > 0 && Object.values(o).every((v) => typeof v !== 'object')) {
           Object.assign(flat, o);
@@ -358,8 +362,7 @@ class ModelDelegate {
   }
 
   async findUnique(args: { where: AnyObj; select?: AnyObj; include?: AnyObj }): Promise<any> {
-    const flat = this.flatt
-enWhere(args.where);
+    const flat = this.flattenWhere(args.where);
     const cols = args.select ? Object.keys(args.select).join(',') : '*';
     let q = this.from().select(cols);
     q = applyWhere(q, flat);
@@ -399,8 +402,7 @@ enWhere(args.where);
     const pendingChildren: Array<{ table: string; fk: string; rows: AnyObj[] }> = [];
     for (const [relKey, specRaw] of Object.entries(rels)) {
       const nested = data[relKey];
-      if (nested 
-&& typeof nested === 'object' && Array.isArray((nested as AnyObj).create)) {
+      if (nested && typeof nested === 'object' && Array.isArray((nested as AnyObj).create)) {
         const spec = specRaw as { table: string; type: string; fk: string };
         if (spec.type === 'many') {
           pendingChildren.push({ table: tableFor(spec.table), fk: spec.fk, rows: (nested as AnyObj).create as AnyObj[] });
@@ -443,8 +445,7 @@ enWhere(args.where);
       const merged = { ...(args.update || {}), id: existing.id };
       return unwrap(await this.from().update(merged).eq('id', existing.id).select().single(), `${this.modelKey}.upsert.update`);
     }
-    
-return unwrap(await this.from().insert(args.create).select().single(), `${this.modelKey}.upsert.create`);
+    return unwrap(await this.from().insert(args.create).select().single(), `${this.modelKey}.upsert.create`);
   }
 
   async delete(args: { where: AnyObj }): Promise<any> {
@@ -498,8 +499,7 @@ async function rawQuery(segments: TemplateStringsArray, values: any[]): Promise<
 
 async function rawExecute(segments: TemplateStringsArray, values: any[]): Promise<number> {
   const pool = await getPool();
-  const result = await pool.query(rawText(segments, val
-ues), values);
+  const result = await pool.query(rawText(segments, values), values);
   return result.rowCount || 0;
 }
 
