@@ -17,13 +17,8 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@vitejs/plugin-react": "^6.1.2",
     "autoprefixer": "^10.6.1",
-<<<<<<< HEAD
     "happy-dom": "^21.0.1",
     "postcss": "^8.5.29",
-=======
-    "happy-dom": "^20.14.5",
-    "postcss": "^8.5.30",
->>>>>>> omniesggo/dependabot-npm_and_yarn-minor-and-patch-d6bbbd4996
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.4"
   }
