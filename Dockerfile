@@ -12,8 +12,9 @@ WORKDIR /app
 RUN apk upgrade --no-cache && corepack enable pnpm
 # 複製所有原始碼
 COPY . .
-# 從 deps 階段複製 node_modules（Prisma 已移除，無需 generate）
+# 從 deps 階段複製 node_modules
 COPY --from=deps /app/node_modules ./node_modules
+# 2026-10-27 De-Prisma：Supabase 相容層無需 prisma generate；
 # 只執行已由 frozen lockfile 安裝的本機工具，不允許 npx 臨時下載
 RUN pnpm exec next build
 
