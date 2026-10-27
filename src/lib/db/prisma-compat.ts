@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: 2da628b98e6fda13a9e8f84b7fde9ded175d8123)
 successfully downloaded text file (SHA: 69d2de507246a1b7458a5077593ee4e14a9d7300)
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // ============================================================
@@ -237,6 +238,38 @@ async function attachIncludes(
   include?: AnyObj,
 ): Promise<void> {
   if (!include || rows.length === 0) return;
+
+  // _count: { select: { <rel>: true } }
+  if (include._count?.select) {
+    const rels0 = RELATIONS[modelKey] || {};
+    for (const [relKey, specRaw] of Object.entries(include._count.select)) {
+      if (!specRaw) continue;
+      const spec = (rels0[relKey] || {}) as { table: string; type: 'many' | 'one'; fk: string };
+      if (!spec.table) continue;
+      const relTable = tableFor(spec.table);
+      const ids = rows.map((r) => r.id).filter(Boolean) as any[];
+      if (ids.length === 0) {
+        for (const r of rows) {
+          if (!r._count) r._count = {};
+          r._count[relKey] = 0;
+        }
+        continue;
+      }
+      const { data, error } = await supa.from(relTable).select(spec.fk).in(spec.fk, ids);
+      const counts = new Map<string, number>();
+      if (!error && data) {
+        for (const row of data as AnyObj[]) {
+          const k = String(row[spec.fk]);
+          counts.set(k, (counts.get(k) || 0) + 1);
+        }
+      }
+      for (const r of rows) {
+        if (!r._count) r._count = {};
+        r._count[relKey] = counts.get(String(r.id)) || 0;
+      }
+    }
+  }
+
   const rels = RELATIONS[modelKey] || {};
   for (const [relKey, specRaw] of Object.entries(rels)) {
     const includeVal = include[relKey];
@@ -355,7 +388,26 @@ class ModelDelegate {
   }
 
   async create(args: { data: AnyObj }): Promise<any> {
-    return unwrap(await this.from().insert(args.data).select().single(), `${this.modelKey}.create`);
+    const data: AnyObj = { ...args.data };
+    // 巢狀寫入：data.<relKey>.create = [ ... ]（子表 fk = 本表 id）
+    const rels = RELATIONS[this.modelKey] || {};
+    const pendingChildren: Array<{ table: string; fk: string; rows: AnyObj[] }> = [];
+    for (const [relKey, specRaw] of Object.entries(rels)) {
+      const nested = data[relKey];
+      if (nested && typeof nested === 'object' && Array.isArray((nested as AnyObj).create)) {
+        const spec = specRaw as { table: string; type: string; fk: string };
+        if (spec.type === 'many') {
+          pendingChildren.push({ table: tableFor(spec.table), fk: spec.fk, rows: (nested as AnyObj).create as AnyObj[] });
+          delete data[relKey];
+        }
+      }
+    }
+    const row = unwrap(await this.from().insert(data).select().single(), `${this.modelKey}.create`);
+    for (const child of pendingChildren) {
+      const payload = child.rows.map((r) => ({ ...r, [child.fk]: row.id }));
+      await this.supa.from(child.table).insert(payload);
+    }
+    return row;
   }
 
   async createMany(args: { data: AnyObj[] }): Promise<{ count: number }> {
