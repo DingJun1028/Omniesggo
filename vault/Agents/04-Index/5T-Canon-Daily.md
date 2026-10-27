@@ -131,3 +131,37 @@ report_version: 2.0.0
 | 5T 驗證通過率 | 5/5 | ≥4/5 | 1 門待修 |
 | 雲端 API 健康 | OK | OK | 無異常 |
 | 本地模型 | 缺失 | - | `gemma4:e4b` 模型未找到 |
+
+### 6.9 Hash Lock 資料庫 (Hash Lock Database)
+
+| 項目 | 值 |
+|------|-----|
+| 資料庫檔案 | `5T-Canon-HashLock.json` |
+| 版本 | `1.0.0` |
+| 記錄數 | 1 |
+| 建立時間 | `2026-10-27T08:03:18+00:00` |
+
+| 記錄 ID | 鎖類型 | 短 Hash | 狀態 |
+|---------|--------|---------|------|
+| 5T-Canon-Daily-2026-10-27 | report_overall | `252518a5...fe0c` | verified |
+
+### 6.10 Hash Lock 反查 (Hash Lock Reverse Lookup)
+
+Hash Lock 資料庫支援雙向查詢：
+- **反查（Hash → Record）**：輸入 Hash Lock 值，查詢對應記錄 ID、來源、時間戳等
+- **快查（Short Hash → Record）**：輸入 Hash Lock 前 16 字元，快速查詢
+- **記錄查（Record ID → Hash）**：輸入記錄 ID，查詢對應的 Hash Lock
+
+**反查命令範例：**
+
+```bash
+python3 vault/Agents/04-Index/hashlock_lookup.py "252518a50ff04816d20d8a24ae1f75f96062c3e921b0cbaac7127005b2a4fe0c"
+```
+
+**可用腳本：**
+
+| 腳本 | 說明 |
+|------|------|
+| `hashlock_lookup.py` | 反查 Hash Lock → 記錄 |
+| `hashlock_register.py` | 註冊新 Hash Lock 到資料庫 |
+| `hashlock_list.py` | 列出所有記錄 |
