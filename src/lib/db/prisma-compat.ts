@@ -521,12 +521,12 @@ export class PrismaCompatClient {
   async $connect(): Promise<void> { /* supabase-js 為無狀態 HTTP，無需連線 */ }
   async $disconnect(): Promise<void> { /* no-op */ }
 
-  async $queryRaw(strings: TemplateStringsArray, ...values: any[]): Promise<any[]> {
-    return rawQuery(strings, values);
+  async $queryRaw<T = any[]>(strings: TemplateStringsArray, ...values: any[]): Promise<T> {
+    return rawQuery(strings, values) as Promise<T>;
   }
 
-  async $executeRaw(strings: TemplateStringsArray, ...values: any[]): Promise<number> {
-    return rawExecute(strings, values);
+  async $executeRaw<T = number>(strings: TemplateStringsArray, ...values: any[]): Promise<T> {
+    return rawExecute(strings, values) as unknown as Promise<T>;
   }
 
   async $transaction(fnOrOps: any, ...rest: any[]): Promise<any> {

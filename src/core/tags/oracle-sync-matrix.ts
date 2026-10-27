@@ -79,7 +79,7 @@ async function collectAppOriginSeq(): Promise<Array<{ uuid: string; originSeq: n
   });
   // uuid 可能為 NULL (舊資料), 過濾避免下游 string|null 型別錯誤
   return pairs
-    .filter((p): p is { uuid: string; createdAt: Date } => !!p.uuid)
+    .filter((p: any): p is { uuid: string; createdAt: Date } => !!p.uuid)
     .map((p: { uuid: string; createdAt: Date }, i: number) => ({ uuid: p.uuid, originSeq: i + 1 }));
 }
 
