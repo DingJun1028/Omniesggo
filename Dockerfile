@@ -12,10 +12,10 @@ WORKDIR /app
 RUN apk upgrade --no-cache && corepack enable pnpm
 # 複製所有原始碼
 COPY . .
-# 從 deps 階段複製 node_modules（--ignore-scripts 跳過了 prisma generate）
+# 從 deps 階段複製 node_modules（Prisma 已移除，無需 generate）
 COPY --from=deps /app/node_modules ./node_modules
 # 只執行已由 frozen lockfile 安裝的本機工具，不允許 npx 臨時下載
-RUN pnpm exec prisma generate && pnpm exec next build
+RUN pnpm exec next build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
