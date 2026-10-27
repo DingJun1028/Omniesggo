@@ -6,7 +6,7 @@
 export interface FreeModel {
   id: string;
   name: string;
-  provider: 'openrouter' | 'groq' | 'huggingface' | 'gemini';
+  provider: 'openrouter' | 'groq' | 'huggingface';
   tags: string[];
   contextWindow?: number;
   maxTokens?: number;
@@ -49,13 +49,6 @@ export const PROVIDERS: Record<string, ProviderInfo> = {
     apiKeyEnvVar: 'HF_TOKEN',
     freeEndpoint: '/models?sort=downloads&direction=-1&filter=pytorch',
     rateLimit: { requestsPerMinute: 30 }
-  },
-  gemini: {
-    name: 'Gemini',
-    apiUrl: 'https://generativelanguage.googleapis.com/v1beta',
-    apiKeyEnvVar: 'GOOGLE_API_KEY',
-    freeEndpoint: '/models',
-    rateLimit: { requestsPerMinute: 15, dailyLimit: 1500 }
   }
 };
 
