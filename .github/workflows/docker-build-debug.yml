@@ -1,0 +1,36 @@
+name: docker-build-debug
+on:
+  push:
+    branches: [feat/supabase-migration]
+    paths: ['.github/workflows/docker-build-debug.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Reproduce docker build (capture log)
+        run: |
+          set +e
+          docker buildx build --progress=plain --platform linux/arm64 \
+            -f vps/Dockerfile.arm64 -t esggo:debug . > /tmp/build.log 2>&1
+          echo "BUILD_EXIT=$?" >> "$GITHUB_ENV"
+      - name: Extract error context to summary
+        if: always()
+        run: |
+          {
+            echo "# Docker build debug"
+            echo "BUILD_EXIT=${BUILD_EXIT:-unknown}"
+            echo '---'
+            echo '## Last 120 lines'
+            echo '---'
+            tail -n 120 /tmp/build.log | sed 's/^/    /'
+            echo '---'
+            echo '## Error-matching lines'
+            echo '---'
+            grep -n -iE 'error|failed|exception|cannot|not found|undefined is not|throw' /tmp/build.log | tail -n 60 | sed 's/^/    /'
+          } >> "$GITHUB_STEP_SUMMARY"
