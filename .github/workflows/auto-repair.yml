@@ -71,6 +71,8 @@ jobs:
 
       - name: Parse error from logs
         id: parse
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
           FAILED_JOBS='${{ steps.logs.outputs.failed_jobs }}'
@@ -468,6 +470,7 @@ jobs:
             const conclusion = '${{ github.event.workflow_run.conclusion }}';
             const errorType = '${{ needs.analyze.outputs.error_type }}';
             const detail = '${{ needs.analyze.outputs.error_detail }}';
+            const failedJobs = `${{ needs.analyze.outputs.failed_jobs }}`;
             const repairable = '${{ needs.analyze.outputs.repairable }}';
 
             const results = {
@@ -486,6 +489,7 @@ jobs:
             ghBody += '- Tracker: ' + trackerId + '\n';
             ghBody += '- CI Run: #' + runId + '\n';
             ghBody += '- Result: ' + conclusion + '\n';
+            if (failedJobs) ghBody += '- Failed Jobs: ' + failedJobs + '\n';
             ghBody += '- Error Type: ' + errorType + '\n';
             ghBody += '- Repairable: ' + repairable + '\n';
             ghBody += '- Repaired: ' + (fixed ? 'Yes' : 'No') + '\n\n';
@@ -507,6 +511,28 @@ jobs:
               'Tracker: OA-TWINS-AUTO-REPAIR';
 
             if (conclusion === 'failure') {
+              // 0. Dedup: reuse existing open tracker issue for the same CI run
+              const openTrackers = await github.rest.issues.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                labels: 'tracker',
+                per_page: 100
+              }).catch(() => ({ data: [] }));
+              const existing = openTrackers.data.find(i =>
+                i.title && i.title.includes('CI #' + runId + ' ')
+              );
+              if (existing) {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: existing.number,
+                  body: ghBody
+                });
+                console.log('Tracker issue already exists for CI #' + runId + ', comment added instead of new issue');
+                return;
+              }
+
               // 1. Create GitHub Issue
               const labels = ['auto-repair', 'tracker', 'swarm'];
               if (fixed) labels.push('auto-fixed');
