@@ -1,0 +1,70 @@
+# 一次性 De-Google 清理工作流程（自我移除）
+# 觸發條件：本檔案被推送至 feat/degoogle-supabase 時執行一次。
+# 動作：批次 git rm Firebase/Gemini/GCP 相關技能目錄與其鏡像，提交後自我刪除。
+name: degoogle-cleanup
+on:
+  push:
+    branches: [feat/degoogle-supabase]
+    paths: ['.github/workflows/degoogle-cleanup.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/degoogle-supabase
+          fetch-depth: 0
+
+      - name: Remove Firebase/Gemini/GCP skills and mirrors
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          PATTERNS=(
+            'agents/skills/firebase-*'
+            'agents/skills/developing-genkit-*'
+            'agents/skills/genkit-mcp-integration'
+            'agents/skills/gcp-*'
+            'agents/skills/bigquery*'
+            'agents/skills/dataform-bigquery'
+            'agents/skills/dbt-bigquery'
+            'agents/skills/developing-with-bigquery'
+            'agents/skills/discovering-gcp-data-assets'
+            'agents/skills/building-data-apps'
+            'agents/skills/gemma-dev'
+            'agents/skills/.datacloud_skills_manifest'
+            '.agents/skills/firebase-*'
+            '.agents/skills/developing-genkit-*'
+            '.agents/skills/genkit-mcp-integration'
+            '.agents/skills/gcp-*'
+            '.agents/skills/bigquery*'
+            '.agents/skills/dataform-bigquery'
+            '.agents/skills/dbt-bigquery'
+            '.agents/skills/developing-with-bigquery'
+            '.agents/skills/discovering-gcp-data-assets'
+            '.agents/skills/building-data-apps'
+            '.agents/skills/gemma-dev'
+            '.agents/skills/.datacloud_skills_manifest'
+            'esggo-omni-center/.agents/**/firebase-*'
+            'esggo-omni-center/.agents/**/developing-genkit-*'
+            'esggo-omni-center/.agents/**/genkit-mcp-integration'
+            'esggo-omni-center/.agents/**/gcp-*'
+            'esggo-omni-center/.agents/**/bigquery*'
+          )
+          for p in "${PATTERNS[@]}"; do
+            git rm -r -q --ignore-unmatch $p || true
+          done
+          if git diff --cached --quiet; then
+            echo "Nothing to remove."
+          else
+            git commit -q -m "chore(degoogle): 批次移除 Firebase/Gemini/GCP 技能目錄與鏡像"
+          fi
+
+      - name: Self-remove this workflow
+        run: |
+          git rm -q .github/workflows/degoogle-cleanup.yml
+          git commit -q -m "chore(ci): 移除一次性 degoogle-cleanup 工作流程" --allow-empty
+          git push origin feat/degoogle-supabase
