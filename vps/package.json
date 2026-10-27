@@ -8,7 +8,6 @@
     "start": "node omni-server.mjs"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "express-rate-limit": "^7.1.5",

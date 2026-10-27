@@ -11,7 +11,6 @@
 //
 // 可用模組（已驗證 2026-10-16）：
 //   - NVIDIA NIM: nemotron-3-super-120b-a12b, gpt-oss-20b
-//   - Gemini: gemini-3.1-flash-lite, gemini-3-flash-preview
 //
 // 5T 協定：
 //   - Traceable: 所有請求記錄 provider + model + timestamp
@@ -42,20 +41,8 @@ const DEFAULT_CONFIG = {
       priority: 1,          // 數字小 = 優先
       format: 'openai',     // 輸出格式
     },
-    gemini: {
-      name: 'Google Gemini',
-      endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
-      apiKeyEnv: 'GEMINI_API_KEY',
-      models: [
-        'gemini-3.1-flash-lite',
-        'gemini-3-flash-preview',
-      ],
-      rateLimit: 60,
-      priority: 2,
-      format: 'gemini',
-    },
   },
-  fallbackChain: ['nvidia', 'gemini'],
+  fallbackChain: ['nvidia'],
   rateLimitThreshold: 0.8,   // 80% 時切換到下一個
   maxRetries: 2,             // 每個 provider 重試次數
   retryDelayMs: 1000,        // 重試間隔
@@ -192,70 +179,6 @@ async function callNVIDIA(config, apiKey, messages, options = {}) {
   };
 }
 
-/**
- * 呼叫 Gemini（轉換為 OpenAI 相容格式）
- */
-async function callGemini(config, apiKey, messages, options = {}) {
-  const model = options.model || config.models[0];
-  const endpoint = config.endpoint.replace('{model}', model);
-
-  // 轉換 OpenAI messages 為 Gemini contents
-  const contents = messages.map(msg => ({
-    role: msg.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: msg.content }],
-  }));
-
-  const body = {
-    contents,
-    generationConfig: {
-      maxOutputTokens: options.maxTokens || 1024,
-      temperature: options.temperature ?? 0.7,
-    },
-  };
-
-  const url = `${endpoint}?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-    signal: AbortSignal.timeout(DEFAULT_CONFIG.requestTimeoutMs),
-  });
-
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(`Gemini ${response.status}: ${error.error?.message || response.statusText}`);
-  }
-
-  const data = await response.json();
-  
-  // 轉換為 OpenAI 相容格式
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-  
-  return {
-    id: `gemini-${Date.now()}`,
-    object: 'chat.completion',
-    created: Math.floor(Date.now() / 1000),
-    model: model,
-    choices: [{
-      index: 0,
-      message: {
-        role: 'assistant',
-        content: text,
-      },
-      finish_reason: data.candidates?.[0]?.finishReason === 'STOP' ? 'stop' : 'length',
-    }],
-    usage: {
-      prompt_tokens: data.usageMetadata?.promptTokenCount || 0,
-      completion_tokens: data.usageMetadata?.candidatesTokenCount || 0,
-      total_tokens: data.usageMetadata?.totalTokenCount || 0,
-    },
-    provider: 'gemini',
-    _raw: data,
-  };
-}
-
 // ── Smart Router Core ─────────────────────────────────────
 
 export class SmartAIRouter {
@@ -383,11 +306,7 @@ export class SmartAIRouter {
 
       try {
         let result;
-        if (provider.format === 'gemini') {
-          result = await callGemini(provider, apiKey, messages, options);
-        } else {
-          result = await callNVIDIA(provider, apiKey, messages, options);
-        }
+        result = await callNVIDIA(provider, apiKey, messages, options);
 
         // 記錄 fallback 事件（如果不是首選 provider）
         if (preferredProvider && providerId !== preferredProvider) {
@@ -495,14 +414,13 @@ Usage:
   node smart-ai-router.mjs stats
 
 Options:
-  --provider <id>    指定 provider (nvidia|gemini)
+  --provider <id>    指定 provider (nvidia)
   --model <name>     指定模型
   --max-tokens <n>   最大 token 數
   --json             輸出 JSON 格式
 
 Examples:
   node smart-ai-router.mjs chat "Hello, how are you?"
-  node smart-ai-router.mjs chat "Write a poem" --provider gemini
   node smart-ai-router.mjs health
   node smart-ai-router.mjs stats --json
 `);

@@ -1,6 +1,5 @@
 import express from 'express';
 import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import { gatewayKey, audit, summary, isSummoned, summonRitual } from './omni-master-key.mjs';
 
 const app = express();
@@ -10,7 +9,6 @@ const port = 8642;
 // to correctly read X-Forwarded-For for client IP identification.
 app.set('trust proxy', 1);
 
-const API_KEY = process.env.GEMINI_API_KEY;
 // 由 OmniMasterKey 模組統一解析：優先 OMNI_KEY，向後相容 GATEWAY_API_KEY / GATEWAY_KEY
 const GATEWAY_KEY = gatewayKey();
 if (!GATEWAY_KEY) {
@@ -18,7 +16,6 @@ if (!GATEWAY_KEY) {
     '[OmniGateway] WARNING: GATEWAY_KEY (OMNI_KEY / GATEWAY_API_KEY) is not set; gateway requests may be unauthorized or fail.',
   );
 }
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
 
 // OmniMasterKey 金鑰庫稽核：啟動時列出缺少的必要密鑰（僅輸出名稱，不輸出密鑰值本身）
 const vaultAudit = audit();
@@ -180,7 +177,7 @@ app.post('/execute', requireAuth, async (req, res) => {
   const { task } = req.body;
   console.log(`[OmniAgent VPS] Executing task: ${task.id} (${task.taskType})`);
 
-  // In a real scenario, this would call Gemini or Nous OmniAgent models.
+  // In a real scenario, this would call Nous OmniAgent models.
   // For this deployment kit, we provide the logic to structure the response
   // correctly for the ESG GO dashboard.
 
@@ -190,8 +187,8 @@ app.post('/execute', requireAuth, async (req, res) => {
     sessionId: genId('sess'),
     runtime: 'omniagent',
     runtimeVersion: '0.14.0',
-    modelProvider: 'Google (VPS-Native)',
-    modelName: 'gemini-2.0-flash',
+    modelProvider: 'OmniAgent (VPS-Native)',
+    modelName: 'omni-mock-template',
     triggerSource: 'user',
     status: 'draft_generated',
     inputRefIds: task.inputRefIds,

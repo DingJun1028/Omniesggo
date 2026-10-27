@@ -122,7 +122,7 @@ const server = createServer(async (req, res) => {
           'POST /chat': 'Chat completion（自動路由）',
           'GET /stats': '統計資訊',
         },
-        providers: ['nvidia', 'gemini'],
+        providers: ['nvidia'],
         timestamp: new Date().toISOString(),
       });
     }
@@ -145,7 +145,7 @@ const server = createServer(async (req, res) => {
 
 server.listen(PORT, HOST, () => {
   console.log(`[Smart AI Router] Server running at http://${HOST}:${PORT}`);
-  console.log(`[Smart AI Router] Providers: nvidia → gemini`);
+  console.log(`[Smart AI Router] Providers: nvidia`);
 });
 
 // ── Graceful Shutdown ──────────────────────────────────────

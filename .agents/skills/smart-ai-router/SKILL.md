@@ -11,7 +11,7 @@ Smart AI model routing for free LLM providers. Routes chat completions to optima
 - **Core Module**: `vps/smart-ai-router.mjs` — 轉換路由器核心邏輯
 - **CLI Integration**: `packages/cli/src/omni.mjs` — `omni router` 子命令
 - **Rate Limit Tracking**: Per-provider request counting with automatic threshold detection
-- **Fallback Chain**: NVIDIA NIM → Gemini (configurable priority)
+- **Provider**: NVIDIA NIM (sole provider)
 - **OpenAI Compatible**: Unified output format regardless of provider
 
 ## Provider Fallback Chain
@@ -19,7 +19,6 @@ Smart AI model routing for free LLM providers. Routes chat completions to optima
 | Priority | Provider | Endpoint | Models | Rate Limit |
 |----------|----------|----------|--------|------------|
 | 1 | NVIDIA NIM | `https://integrate.api.nvidia.com/v1/chat/completions` | `nvidia/nemotron-3-super-120b-a12b`, `openai/gpt-oss-20b` | 60 req/min |
-| 2 | Google Gemini | `https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent` | `gemini-3.1-flash-lite`, `gemini-3-flash-preview` | 60 req/min |
 
 ## CLI Usage
 
@@ -31,7 +30,6 @@ omni router health
 omni router chat "Hello, how are you?"
 
 # Specify provider
-omni router chat "Write a poem" --provider gemini
 omni router chat "Explain quantum computing" --provider nvidia
 
 # Specify model
@@ -68,9 +66,8 @@ Default configuration in `vps/smart-ai-router.mjs`:
 {
   providers: {
     nvidia: { priority: 1, rateLimit: 60, models: [...] },
-    gemini: { priority: 2, rateLimit: 60, models: [...] },
   },
-  fallbackChain: ['nvidia', 'gemini'],
+  fallbackChain: ['nvidia'],
   rateLimitThreshold: 0.8,  // Switch at 80% of rate limit
   maxRetries: 2,
   retryDelayMs: 1000,
@@ -80,9 +77,8 @@ Default configuration in `vps/smart-ai-router.mjs`:
 
 ## Testing & Validation
 
-- 2026-10-16: Health check passed for both providers
+- 2026-10-16: Health check passed for NVIDIA NIM
 - 2026-10-16: NVIDIA NIM chat completion verified (reasoning content handling)
-- 2026-10-16: Gemini 503 failover to NVIDIA verified
 - 2026-10-16: Rate limit tracking and fallback event logging verified
 
 ## Migration Path
