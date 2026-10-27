@@ -1,39 +1,83 @@
-name: OA-Team 30 Swarm — CrewAI Run
+name: OA-Team 30 Swarm - CrewAI Run
 
 on:
   push:
+    branches: [main]
     paths:
       - 'oa-team-crewai/**'
+      - '.github/workflows/crewai-run.yml'
+  pull_request:
+    paths:
+      - 'oa-team-crewai/**'
+      - '.github/workflows/crewai-run.yml'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  crewai-run:
+  config-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: oa-team-crewai
     env:
-      # LLM 憑證：優先用 CREWAI_API_KEY（若日後設定），否則回落到倉庫既有的 OPENAI_API_KEY。
-      # 註：GitHub Actions 運算式中空字串為 falsy，故未設定的 secret 會自動回落。
+      OTEL_SDK_DISABLED: 'true'
+      CREWAI_TELEMETRY_DISABLED: 'true'
+      OPENAI_API_KEY: 'offline-config-check-not-a-real-key'
+      OPENAI_MODEL_NAME: gpt-4o-mini
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+        with:
+          version: '0.13.5'
+          enable-cache: false
+      - name: Install locked CrewAI dependencies without builds
+        run: uv sync --locked --no-build --no-install-project --python 3.13
+      - name: Load config without LLM calls or network access
+        run: |
+          ./.venv/bin/python - <<'PY'
+          import socket
+          def deny_network(*args, **kwargs):
+              raise RuntimeError('Network access is forbidden in the config smoke test')
+          socket.socket.connect = deny_network
+          socket.socket.connect_ex = deny_network
+          socket.create_connection = deny_network
+          from crewai import Crew
+          def deny_kickoff(*args, **kwargs):
+              raise RuntimeError('LLM execution is forbidden in the config smoke test')
+          Crew.kickoff = deny_kickoff
+          from main import check_config
+          check_config()
+          PY
+
+  crewai-run:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: config-smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: oa-team-crewai
+    env:
       CREWAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install uv
-        run: curl -LsSf https://astral.sh/uv/install.sh | sh
-
-      - name: Run OA-Team 30 Swarm (via uv run)
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+        with:
+          version: '0.13.5'
+          enable-cache: false
+      - name: Install locked CrewAI dependencies without builds
+        run: uv sync --locked --no-build --no-install-project --python 3.13
+      - name: Run OA-Team 30 Swarm
         env:
           OPENAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
           OPENAI_MODEL_NAME: gpt-4o-mini
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          echo "DEBUG: injected OPENAI_API_KEY length = ${#OPENAI_API_KEY}"
           if [ -z "$OPENAI_API_KEY" ]; then
-            echo "::error::LLM 憑證缺失：secrets.CREWAI_API_KEY 與 secrets.OPENAI_API_KEY 皆為空，無法載入 agents/*.jsonc"
+            echo '::error::LLM API key missing: configure CREWAI_API_KEY or OPENAI_API_KEY'
             exit 1
           fi
-          uv run --python 3.13 --with 'crewai[litellm]' python main.py "為 ESG-GO 產出一個 5T 合規的元件骨架"
+          ./.venv/bin/python main.py "為 ESG-GO 產出一個 5T 合規的元件骨架"
+          

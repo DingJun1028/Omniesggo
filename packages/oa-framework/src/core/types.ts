@@ -1,13 +1,12 @@
 /**
  * OA Framework — 萬能分身元框架核心型別
- * 整合: ADK + Genkit + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶
+ * 整合: ADK + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶
  * 對齊 soul.md IComponentCore 與 omni-agent 5T 驗證
  */
 
 /** 子框架識別碼 */
 export type SubFrameId =
   | 'adk'        // Google Agent Development Kit (TS)
-  | 'genkit'     // Google Genkit (Firebase)
   | 'agent0'     // Agent Zero organic framework
   | 'crewai'     // CrewAI multi-agent
   | 'agentreach' // Agent Reach (Panniantong/agent-reach, 本地聯網能力層)

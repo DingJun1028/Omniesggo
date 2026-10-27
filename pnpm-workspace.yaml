@@ -21,6 +21,7 @@ packages:
   - '!apps/oa-swarm'
 
 overrides:
+  "@azure/msal-node": ">=7.1.0 <8"
   "@vitest/mocker": ">=4.1.11 <5"
   ws: '>=8.21.0 <9'
   "tar": ">=7.5.21 <8"
@@ -35,8 +36,9 @@ overrides:
   # 安全修補：必須加 <major 上界，裸 '>=' 會讓 pnpm 跳到跨 major。
   # （原註解引用的 AGENTS.md #4 經實查不存在：root AGENTS.md 無編號條文）
   "nanoid": ">=3.3.18 <4"
-  "dompurify": ">=3.4.12 <4"
-  "body-parser": ">=1.20.6 <2"
+  "dompurify": ">=3.4.17 <4"
+  "happy-dom": ">=21.0.4 <22"
+  "body-parser": ">=1.20.9 <2"
   # ── 2026-09-05 pnpm audit 修補：qs SSRF (express → body-parser → qs) ──
   # 傳入鏈路：express@4.22.2 → body-parser(~1.20.5) → qs(~6.15.1)
   # 修補：升級至 >=6.15.4 (patched version)
@@ -77,7 +79,7 @@ overrides:
   # ⛔ 回退 (2026-08-17 09:00 部署前驗證): undici@8 移除了 lib/handler/wrap-handler.js，
   #    jsdom@29.1.1 硬性 require 該路徑 → OmniCore CI / learning-center-ci / VPS 建置三紅。
   #    jsdom@29 只接受 ^7.25.0；跨 major 亦違反 major 上界原則。維持 7.x 修補版。
-  "undici": ">=7.29.1 <8"
+  "undici": ">=7.30.1 <8"
   "@grpc/grpc-js": ">=1.13.6 <2"
   "cross-spawn": ">=7.0.6 <8"
   "express": ">=4.21.2 <5"

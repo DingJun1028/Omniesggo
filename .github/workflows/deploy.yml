@@ -48,12 +48,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scanner (filesystem)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@8f28faec26515256b6d22074d1d2a8986f4cbd87
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'table'
-          exit-code: '0'
+          exit-code: '1'
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
           trivyignores: ".trivyignore"
@@ -238,6 +238,7 @@ jobs:
         run: echo "✅ Deployment successful to ${{ secrets.VPS_HOST }}"
 
       - name: Notify failure
+        id: slack-check
         if: failure()
         run: |
           if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
@@ -309,10 +310,10 @@ jobs:
             echo "::error::Possible secret found in vps/ — aborting."; exit 1
           fi
           # 2) Hardcoded default secrets in long-running SERVER code (.mjs only).
-          if grep -rInE '\$\{[A-Za-z_]+:-[A-Za-z0-9_'"'"'-]{8,}\}' vps/*.mjs vps/**/*.mjs 2>/dev/null | grep -iE "token|secret|key|pass|auth" ; then
+          if grep -rInE "\\\$\{[A-Za-z_]+:-[A-Za-z0-9_'-]{8,}\}" vps/*.mjs vps/**/*.mjs 2>/dev/null | grep -iE "token|secret|key|pass|auth" ; then
             echo "::error::Hardcoded default secret in server .mjs (use env + fail-fast) — aborting."; exit 1
           fi
-          if grep -rInE '(AUTH_TOKEN|TOKEN|API_KEY|API_SERVER_KEY)="?[A-Za-z0-9_'"'"'-]{8,}"?' vps/ | grep -vE '\$\{|\$\(|process\.env|os\.environ|getenv' | grep -iE "token|secret|key|pass|auth" ; then
+          if grep -rInE "(AUTH_TOKEN|TOKEN|API_KEY|API_SERVER_KEY)=\"?[A-Za-z0-9_'-]{8,}\"?" vps/ | grep -vE '\$\{|\$\(|process\.env|os\.environ|getenv' | grep -iE "token|secret|key|pass|auth" ; then
             echo "::warning::Hardcoded token fallback found in a console/bootstrap script — ensure .env.secrets provides the real value."
           fi
           # 3) Server binding to all interfaces (should be 127.0.0.1 behind nginx) (HARD FAIL)
@@ -325,4 +326,3 @@ jobs:
             echo "::error::Connection string with embedded password found — use env vars instead — aborting."; exit 1
           fi
           echo "No secrets or unsafe patterns detected."
-

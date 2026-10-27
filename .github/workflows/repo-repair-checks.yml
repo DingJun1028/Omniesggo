@@ -1,0 +1,122 @@
+name: Repository repair workflow checks
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/crewai-run.yml'
+      - '.github/workflows/deploy-worker.yml'
+      - '.github/workflows/deploy-deerflow.yml'
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/security-audit.yml'
+      - '.github/workflows/repo-repair-checks.yml'
+      - '.github/actionlint/**'
+      - 'packages/oa-framework/src/**'
+      - 'packages/oa-framework/test/**'
+      - 'packages/oa-framework/package.json'
+      - 'packages/oa-framework/tsconfig.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/crewai-run.yml'
+      - '.github/workflows/deploy-worker.yml'
+      - '.github/workflows/deploy-deerflow.yml'
+      - '.github/workflows/deploy.yml'
+      - '.github/workflows/security-audit.yml'
+      - '.github/workflows/repo-repair-checks.yml'
+      - '.github/actionlint/**'
+      - 'packages/oa-framework/src/**'
+      - 'packages/oa-framework/test/**'
+      - 'packages/oa-framework/package.json'
+      - 'packages/oa-framework/tsconfig.json'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  workflow-syntax:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff
+        with:
+          go-version: '1.24.13'
+          cache: false
+      - name: Build actionlint from the checked-in lockfile
+        working-directory: .github/actionlint
+        run: go build -mod=readonly -o "$RUNNER_TEMP/actionlint" github.com/rhysd/actionlint/cmd/actionlint
+      - name: Check repaired workflows and existing Deerflow workflow
+        run: |
+          "$RUNNER_TEMP/actionlint" -shellcheck= -pyflakes= .github/workflows/crewai-run.yml .github/workflows/deploy-worker.yml .github/workflows/deploy-deerflow.yml .github/workflows/repo-repair-checks.yml .github/workflows/deploy.yml .github/workflows/security-audit.yml
+      - name: Test deploy secret-scan regex with apostrophe fixtures
+        run: |
+          python3 - <<'PY'
+          import re
+          import subprocess
+          from pathlib import Path
+
+          source = Path('.github/workflows/deploy.yml').read_text()
+          default_line = next(line for line in source.splitlines() if 'grep -rInE' in line and 'vps/*.mjs' in line and '8,}' in line)
+          assignment_line = next(line for line in source.splitlines() if 'grep -rInE' in line and 'AUTH_TOKEN|TOKEN|API_KEY|API_SERVER_KEY' in line)
+          cases = [
+              (default_line, [("${TOKEN:-fixture'secret-value}", True), ('${API_KEY:-another-secret-123}', True), ('${TOKEN:-short}', False)]),
+              (assignment_line, [("API_KEY=fixture'secret-value", True), ('AUTH_TOKEN="another-secret-123"', True), ('API_KEY=short', False)]),
+          ]
+          for line, fixtures in cases:
+              match = re.search(r'grep -rInE\s+("(?:\\.|[^"\\])*")', line)
+              assert match, 'expected a shell-quoted secret ERE'
+              command = 'grep -E -- ' + match.group(1)
+              for sample, should_match in fixtures:
+                  result = subprocess.run(['bash', '-c', command], input=sample + chr(10), text=True, capture_output=True)
+                  assert result.returncode in (0, 1), result.stderr
+                  assert (result.returncode == 0) == should_match, f'pattern mismatch for {sample!r}: {result.stderr}'
+          print('DEPLOY_SECRET_REGEX_APOSTROPHE_FIXTURES_OK')
+          PY
+      - name: Test Security Audit private-key grep option parsing
+        run: |
+          python3 - <<'PY'
+          import subprocess
+          import tempfile
+          from pathlib import Path
+
+          source = Path('.github/workflows/security-audit.yml').read_text()
+          assert '"-----BEGIN .*PRIVATE KEY-----"' in source
+          scan_line = next(line for line in source.splitlines() if 'if grep -rInE' in line and '-- "$pattern" .' in line)
+          assert scan_line.index('-- "$pattern" .') > scan_line.index('--exclude-dir=.git')
+          command = scan_line.strip()[len('if '):].split('; then', 1)[0]
+          shell = 'pattern="-----BEGIN .*PRIVATE KEY-----"\n' + command
+          for content, expected in [('-----BEGIN FAKE PRIVATE KEY-----\n', 0), ('ordinary source text\n', 1)]:
+              with tempfile.TemporaryDirectory() as directory:
+                  (Path(directory) / 'fixture.ts').write_text(content)
+                  result = subprocess.run(['bash', '-c', shell], cwd=directory, text=True, capture_output=True)
+                  assert result.returncode == expected, f'grep exit {result.returncode}, expected {expected}: {result.stderr}'
+          print('SECURITY_AUDIT_PRIVATE_KEY_GREP_FIXTURES_OK')
+          PY
+  oa-framework-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install locked workspace dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Typecheck OA Framework
+        run: pnpm --filter @esggo/oa-framework typecheck
+      - name: Build OA Framework
+        run: pnpm --filter @esggo/oa-framework build
+      - name: Run offline registration and 5T smoke test
+        run: pnpm --filter @esggo/oa-framework exec tsx test/registration.smoke.ts

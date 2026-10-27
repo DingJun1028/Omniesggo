@@ -2,10 +2,10 @@
 name = "oa-team-30-swarm"
 version = "0.1.0"
 description = "ESG-GO OA-Team 30 萬能代理小隊 — CrewAI 實作 (對應 soul.md)"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.11,<3.14"
 dependencies = [
-    "crewai>=0.175.0",
-    "crewai-tools>=0.30.0",
+    "crewai[litellm]==1.15.30",
+    "crewai-tools==1.15.30",
 ]
 
 [tool.crewai]
@@ -13,3 +13,6 @@ dependencies = [
 crew = "crew.jsonc"
 agents_dir = "agents"
 project_id = "2330330d-b354-48f7-ac9e-153fdb92d638"
+
+[tool.uv]
+constraint-dependencies = ["pillow>=13.0.0", "filelock>=4.2.1", "uv>=0.13.4"]
