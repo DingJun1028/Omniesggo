@@ -1,3 +1,4 @@
+successfully downloaded text file (SHA: a81320f01d526e0a4eeada8fefbfa9d748556f34)
 // ============================================================
 // ESG Data Export API
 // GET /api/data/export?format=json|csv
@@ -6,10 +7,10 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import { jsonResponse, jsonError } from '@lib/api-utils';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaCompatClient();
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';

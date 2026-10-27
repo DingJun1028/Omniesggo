@@ -1,7 +1,8 @@
+successfully downloaded text file (SHA: b40dedd5b9a97a352c1c359bbb207caf3f1c73de)
 "use server";
 
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
+const prisma = createPrismaCompatClient();
 
 export async function syncGamificationState(
   userId: string,

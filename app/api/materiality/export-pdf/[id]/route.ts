@@ -1,8 +1,9 @@
+successfully downloaded text file (SHA: 5600b6e0e86549ba9a21cec8456488eac74b2005)
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import { jsPDF } from 'jspdf';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaCompatClient();
 
 export async function GET(
   req: Request,
