@@ -22,7 +22,7 @@
     ],
     "plugins": [
       {
-        "next"
+        "name": "next"
       }
     ],
     "baseUrl": ".",
