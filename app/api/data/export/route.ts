@@ -1,4 +1,3 @@
-successfully downloaded text file (SHA: a81320f01d526e0a4eeada8fefbfa9d748556f34)
 // ============================================================
 // ESG Data Export API
 // GET /api/data/export?format=json|csv

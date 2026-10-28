@@ -1,4 +1,3 @@
-successfully downloaded text file (SHA: aec0b3b40d2e09594585f3267ce7100a2da7f92b)
 import { NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
 import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';

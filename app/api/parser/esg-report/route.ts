@@ -1,4 +1,3 @@
-successfully downloaded text file (SHA: 13914fda3986ae92fe0bd98da50f0f23a9878915)
 import { NextResponse } from 'next/server';
 import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import { PDFParse } from 'pdf-parse';

@@ -1,4 +1,3 @@
-successfully downloaded text file (SHA: 830626c182d0db9a462d1052e3685b449163c50e)
 // ═══════════════════════════════════════════════════════════════
 // @esggo/shared/database — Unified Database Client
 // Single source for Supabase-backed database operations
