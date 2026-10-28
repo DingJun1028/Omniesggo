@@ -1,5 +1,5 @@
 /**
- * OmniGateway (Cloudflare Worker) — v4 Optimized
+ * OmniGateway (Cloudflare Worker) — v4 Optimized (De-Google: Gemini 上游已移除)
  *
  * 統一 AI 存取點：Cloudflare WAF → AI Crawl Control → Semantic Cache → Model Router → Fallback → Audit Sink
  *
@@ -7,7 +7,6 @@
  *  - OMNI_GATEWAY_KEY   :  Bearer token for protected routes
  *  - OPENROUTER_API_KEY :  OpenRouter upstream key
  *  - GROQ_API_KEY       :  Groq upstream key
- *  - GEMINI_API_KEY     :  Gemini upstream key
  *  - TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID : optional alert transport
  *  - DISCORD_ALERT_WEBHOOK_ID / DISCORD_ALERT_WEBHOOK_TOKEN : optional alert transport
  *  - AI_CRAWL_CONTROL    : "strict|moderate|off" (default strict)
@@ -28,7 +27,6 @@ type Env = {
   OMNI_GATEWAY_KEY?: string;
   OPENROUTER_API_KEY?: string;
   GROQ_API_KEY?: string;
-  GEMINI_API_KEY?: string;
   TELEGRAM_BOT_TOKEN?: string;
   TELEGRAM_CHAT_ID?: string;
   DISCORD_ALERT_WEBHOOK_ID?: string;
@@ -56,7 +54,7 @@ interface RequestContext {
   crawlMode: 'strict' | 'moderate' | 'off';
 }
 
-// ── Helpers ──────────────────────────────────────────────────
+// ── Helpers ─────────────────────────────────────────────────
 
 function json(body: unknown, status = 200, headers: Record<string, string> = {}) {
   return new Response(JSON.stringify(body), {
@@ -115,7 +113,7 @@ async function cacheSet(env: Env, key: string, value: unknown, ttlSec = 1800) {
   } catch {}
 }
 
-// ── Crawl Control ───────────────────────────────────────────
+// ── Crawl Control ────────────────────────────────────────────
 
 function resolveCrawlMode(env: Env): 'strict' | 'moderate' | 'off' {
   const raw = (env.AI_CRAWL_CONTROL || env.CF_AI_CRAWL_CONTROL || 'strict') as
@@ -169,7 +167,7 @@ function bearerOk(req: Request, env: Env): boolean {
   return bearer === expected || token === expected;
 }
 
-// ── Upstream providers ──────────────────────────────────────
+// ── Upstream providers ───────────────────────────────────────
 
 async function callOpenRouter(env: Env, body: Record<string, unknown>, requestId: string) {
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -198,21 +196,6 @@ async function callGroq(env: Env, model: string, messages: ChatMessage[], reques
   return { status: r.status, body: await r.json().catch(() => ({})) };
 }
 
-async function callGemini(env: Env, prompt: string, requestId: string) {
-  const r = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${env.GEMINI_API_KEY || ''}`,
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'cf-aig-metadata': JSON.stringify({ source: 'omnigateway-core', requestId }),
-      },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
-    }
-  );
-  return { status: r.status, body: await r.json().catch(() => ({})) };
-}
-
 async function callPrivateModel(env: Env, body: Record<string, unknown>, requestId: string) {
   if (!env.PRIVATE_API) return { status: 503, body: { error: 'private_api_not_bound' } };
   try {
@@ -232,13 +215,13 @@ async function callPrivateModel(env: Env, body: Record<string, unknown>, request
   }
 }
 
-// ── Fallback policy ─────────────────────────────────────────
+// ── Fallback policy ──────────────────────────────────────────
+// De-Google: Gemini 上游已依政策移除；fallback 鏈為 OpenRouter → Groq → VPC 私有模型。
 
 async function fallbackGenerate(env: Env, messages: ChatMessage[], requestId: string): Promise<{ ok: boolean; status: number; body: unknown }> {
   const candidates: Array<() => Promise<{ ok: boolean; status: number; body: unknown }>> = [
     () => callOpenRouter(env, { model: 'openrouter/auto', messages }, requestId).then((r) => ({ ok: r.status < 300, status: r.status, body: r.body })),
     () => callGroq(env, 'llama-3.3-70b-versatile', messages, requestId).then((r) => ({ ok: r.status < 300, status: r.status, body: r.body })),
-    () => callGemini(env, messages.map((m) => `${m.role}: ${m.content}`).join('\n'), requestId).then((r) => ({ ok: r.status < 300, status: r.status, body: r.body })),
     () => callPrivateModel(env, { model: 'vpc/private-model', messages }, requestId).then((r) => ({ ok: r.status < 300, status: r.status, body: r.body })),
   ];
   for (const fn of candidates) {
@@ -279,7 +262,6 @@ async function handleStatus(env: Env) {
     providers: {
       openrouter: !!env.OPENROUTER_API_KEY,
       groq: !!env.GROQ_API_KEY,
-      gemini: !!env.GEMINI_API_KEY,
       vpc_private: !!env.PRIVATE_API,
     },
     spendCap: true,
@@ -291,7 +273,6 @@ async function handleModels(env: Env) {
     data: [
       { id: 'openrouter/auto', provider: 'openrouter', supports: ['chat.completions'] },
       { id: 'groq/llama-3.3-70b-versatile', provider: 'groq', supports: ['chat.completions'] },
-      { id: 'gemini-2.0-flash-exp', provider: 'gemini', supports: ['generateContent'] },
       { id: 'vpc/private-model', provider: 'vpc', supports: ['chat.completions'] },
     ],
   });

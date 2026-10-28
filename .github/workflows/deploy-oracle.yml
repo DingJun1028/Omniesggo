@@ -42,7 +42,6 @@ on:
       - "packages/**"
       - "apps/**"
       - "public/**"
-      - "prisma/**"
       - "next.config.js"
       - "next.config.mjs"
       - "pnpm-lock.yaml"
@@ -221,8 +220,7 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             pnpm install --frozen-lockfile
-            pnpm prisma migrate deploy 2>&1 | tail -8
-            pnpm prisma generate 2>&1 | tail -2
+            # (Prisma removed — Supabase 直接連線，無 migrate/generate 需求)
             pnpm run build
             # ─── PM2 狀態重置（2026-09-27 實測根因修復）───
             # 實測 VPS 現況: 4 個服務無限重啟迴圈 (esggo-core 22788 / stt-whisper 16273 /
