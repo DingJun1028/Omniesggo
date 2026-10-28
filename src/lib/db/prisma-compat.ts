@@ -8,6 +8,12 @@
 // update / updateMany / upsert / delete / deleteMany / count /
 // $connect / $disconnect / $queryRaw / $executeRaw / $transaction
 // 以及一層以上巢狀 include / select / where(AND/OR/in/gt/lt/gte/lte/contains)。
+//
+// 2026-10-28 延遲建構：next build 於 page-data collection 會載入路由
+// 模組；Docker 等無 secrets 的建置環境沒有 SUPABASE_* 環境變數。若於
+// 模組載入時即建構 SupabaseClient（makeSupabase 會拋錯），建置會失敗
+// （Failed to collect page data）。改為首次實際查詢才建立連線，
+// 模組載入與建構皆永不拋錯；設定錯誤改於第一次資料操作時回報。
 // ============================================================
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
@@ -329,11 +335,13 @@ function unwrap(result: { data: any; error: any }, what: string): any {
 }
 
 // ── Model delegate ────────────────────────────────────────────
+// getSupa 為延遲取得 SupabaseClient 的 getter：建構 delegate 不觸發連線，
+// 首次實際查詢才解析環境變數並建立客戶端。
 class ModelDelegate {
-  constructor(private supa: SupabaseClient, private modelKey: string) {}
+  constructor(private getSupa: () => SupabaseClient, private modelKey: string) {}
 
   private get table() { return tableFor(this.modelKey); }
-  private from() { return this.supa.from(this.table); }
+  private from() { return this.getSupa().from(this.table); }
 
   private flattenWhere(where: AnyObj): AnyObj {
     // 支援複合唯一鍵（如 userId_taskId: { userId, taskId }）
@@ -367,7 +375,7 @@ class ModelDelegate {
     let q = this.from().select(cols);
     q = applyWhere(q, flat);
     const data = unwrap(await q.maybeSingle(), `${this.modelKey}.findUnique`);
-    if (data && args.include && !args.select) await attachIncludes(this.supa, this.modelKey, [data], args.include);
+    if (data && args.include && !args.select) await attachIncludes(this.getSupa(), this.modelKey, [data], args.include);
     return data;
   }
 
@@ -378,7 +386,7 @@ class ModelDelegate {
     q = applyWhere(q, flat);
     q = applyOrderBy(q, args.orderBy);
     const data = unwrap(await q.limit(1).maybeSingle(), `${this.modelKey}.findFirst`);
-    if (data && args.include && !args.select) await attachIncludes(this.supa, this.modelKey, [data], args.include);
+    if (data && args.include && !args.select) await attachIncludes(this.getSupa(), this.modelKey, [data], args.include);
     return data;
   }
 
@@ -391,7 +399,7 @@ class ModelDelegate {
     if (typeof args.take === 'number') q = q.limit(args.take);
     if (typeof args.skip === 'number' && args.skip > 0) q = q.range(args.skip, args.skip + (args.take ?? 1000) - 1);
     const data = unwrap(await q, `${this.modelKey}.findMany`) as AnyObj[];
-    if (args.include && !args.select) await attachIncludes(this.supa, this.modelKey, data, args.include);
+    if (args.include && !args.select) await attachIncludes(this.getSupa(), this.modelKey, data, args.include);
     return data;
   }
 
@@ -413,7 +421,7 @@ class ModelDelegate {
     const row = unwrap(await this.from().insert(data).select().single(), `${this.modelKey}.create`);
     for (const child of pendingChildren) {
       const payload = child.rows.map((r) => ({ ...r, [child.fk]: row.id }));
-      await this.supa.from(child.table).insert(payload);
+      await this.getSupa().from(child.table).insert(payload);
     }
     return row;
   }
@@ -505,17 +513,25 @@ async function rawExecute(segments: TemplateStringsArray, values: any[]): Promis
 
 // ── Compat client ────────────────────────────────────────────
 export class PrismaCompatClient {
-  private _supa: SupabaseClient;
+  private _opts?: { url?: string; key?: string };
+  private _supa: SupabaseClient | null = null;
   readonly [key: string]: any;
 
   constructor(opts?: { url?: string; key?: string }) {
-    this._supa = makeSupabase(opts);
+    // 延遲建構：建構子不解析環境變數、不建立連線（見檔頭說明）。
+    this._opts = opts;
     return new Proxy(this, {
       get(target, prop) {
         if (prop in target || typeof prop === 'symbol') return (target as any)[prop];
-        return new ModelDelegate(target._supa, String(prop));
+        return new ModelDelegate(() => target.supa(), String(prop));
       },
-    });
+    }) as PrismaCompatClient;
+  }
+
+  /** 首次實際查詢才建立 SupabaseClient；缺少設定時於此處拋錯。 */
+  private supa(): SupabaseClient {
+    if (!this._supa) this._supa = makeSupabase(this._opts);
+    return this._supa;
   }
 
   async $connect(): Promise<void> { /* supabase-js 為無狀態 HTTP，無需連線 */ }
