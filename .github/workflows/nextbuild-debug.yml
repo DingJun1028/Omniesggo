@@ -31,12 +31,15 @@ jobs:
           set +e
           pnpm run build > /tmp/build.log 2>&1
           echo "BUILD_EXIT=$?" >> "$GITHUB_ENV"
-      - name: Summary
+      - name: Emit error annotations and fail
         if: always()
         run: |
-          {
-            echo "# next build debug"
-            echo "BUILD_EXIT=${BUILD_EXIT:-unknown}"
-            echo '## Last 100 lines'
-            tail -n 100 /tmp/build.log | sed 's/^/    /'
-          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "${BUILD_EXIT:-0}" != "0" ]; then
+            MSG=$(grep -iE "error|failed|exception|not found" /tmp/build.log | tail -n 6 | tr '\n' ' ' | tr -d '%' | cut -c1-600)
+            echo "::error::next build exit=$BUILD_EXIT :: $MSG"
+            TAILMSG=$(tail -n 20 /tmp/build.log | tr '\n' ' ' | tr -d '%' | cut -c1-600)
+            echo "::error::tail: $TAILMSG"
+            exit 1
+          else
+            echo "next build passed"
+          fi
