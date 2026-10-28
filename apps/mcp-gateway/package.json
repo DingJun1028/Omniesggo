@@ -1,0 +1,22 @@
+{
+  "name": "@esggo/mcp-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "tzin 試點：AI 原生 MCP 閘道（唯讀），契約即 OpenAPI/MCP，服務自架 Ollama agent 群",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tzin dev",
+    "build": "tzin build",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@carlos-tzin/tzin": "^1.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^5.9.3"
+  }
+}
