@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import crypto from 'crypto';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaCompatClient();
 
 // ─── 5T Column Mapping Registry ──────────────────────────────────────────────
 const COLUMN_SYNONYMS: Record<string, string[]> = {

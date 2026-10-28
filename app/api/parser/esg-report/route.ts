@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import { PDFParse } from 'pdf-parse';
 import crypto from 'crypto';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaCompatClient();
 
 export async function POST(req: Request) {
   try {
