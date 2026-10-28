@@ -1,4 +1,3 @@
-successfully downloaded text file (SHA: 2c58fb0be8dccaa9d1f153d7bcaaca14e8ea9a4f)
 import { NextResponse } from 'next/server';
 import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 
