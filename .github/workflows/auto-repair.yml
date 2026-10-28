@@ -126,11 +126,6 @@ jobs:
             ERROR_TYPE="docker"
             REPAIRABLE="true"
             DETAIL=$(echo "$ALL_LOGS" | grep -iE "docker|image" | head -3)
-          # 8. Prisma / DB errors
-          elif echo "$ALL_LOGS" | grep -qiE "prisma|database|migration"; then
-            ERROR_TYPE="prisma"
-            REPAIRABLE="true"
-            DETAIL=$(echo "$ALL_LOGS" | grep -iE "prisma|database" | head -3)
           fi
 
           echo "error_type=$ERROR_TYPE" >> $GITHUB_OUTPUT
@@ -274,7 +269,7 @@ jobs:
             --title "Auto-Repair: ESLint [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- ESLint Fixed"
 
-  # -- Auto-fix: Build (missing imports, prisma generate)
+  # -- Auto-fix: Build (missing imports)
   repair-build:
     name: Repair Build Errors
     needs: analyze
@@ -301,8 +296,7 @@ jobs:
 
       - name: Fix build issues
         run: |
-          # Regenerate Prisma client
-          npx prisma generate 2>/dev/null || true
+          # (Prisma removed — Supabase compat layer needs no codegen)
           # Try full build
           pnpm build 2>/dev/null || true
 
@@ -410,52 +404,10 @@ jobs:
             --title "Auto-Repair: Docker [${{ env.TRACKER_ID }}]" \
             --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- Docker Fixed"
 
-  # -- Auto-fix: Prisma
-  repair-prisma:
-    name: Repair Prisma Errors
-    needs: analyze
-    if: needs.analyze.outputs.repairable == 'true' && needs.analyze.outputs.error_type == 'prisma'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_PAT_AUTO_REPAIR || secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: "pnpm"
-
-      - name: Install + generate
-        run: |
-          pnpm install --frozen-lockfile
-          npx prisma generate
-          npx prisma validate 2>/dev/null || true
-
-      - name: Create repair PR
-        run: |
-          git diff --quiet && exit 0
-          BRANCH="${{ env.REPAIR_BRANCH_PREFIX }}prisma-$(date +%Y%m%d-%H%M%S)"
-          git config user.name "OA-TWINS Auto-Repair"
-          git config user.email "auto-repair@esggo.co"
-          git checkout -b "$BRANCH"
-          git add -A
-          git commit -m "fix: auto-repair Prisma generation [${{ env.TRACKER_ID }}]"
-          git push origin "$BRANCH"
-          gh pr create --base main --head "$BRANCH" \
-            --title "Auto-Repair: Prisma [${{ env.TRACKER_ID }}]" \
-            --body "OA-TWINS Auto-Repair -- Tracker: ${{ env.TRACKER_ID }} -- Prisma Fixed"
-
   # -- Tracker Notification (always runs)
   tracker-notify:
     name: OA-TWINS Tracker Notification
-    needs: [analyze, repair-typescript, repair-eslint, repair-build, repair-dependency, repair-docker, repair-prisma]
+    needs: [analyze, repair-typescript, repair-eslint, repair-build, repair-dependency, repair-docker]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -478,8 +430,7 @@ jobs:
               'ESLint': '${{ needs.repair-eslint.result }}',
               'Build': '${{ needs.repair-build.result }}',
               'Dependencies': '${{ needs.repair-dependency.result }}',
-              'Docker': '${{ needs.repair-docker.result }}',
-              'Prisma': '${{ needs.repair-prisma.result }}'
+              'Docker': '${{ needs.repair-docker.result }}'
             };
 
             const fixed = Object.values(results).some(r => r === 'success');

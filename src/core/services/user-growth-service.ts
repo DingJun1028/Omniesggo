@@ -5,7 +5,7 @@
  * XP thresholds: 0 / 1000 / 5000 / 20000 / 100000
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, createPrismaCompatClient } from '../../lib/db/prisma-compat';
 import { plantOmniSeed, IOmniSeed } from '../sonnar/omni-seed';
 import { trinityHash } from '../sonnar/hash-lock';
 
@@ -62,7 +62,7 @@ class UserGrowthService {
   private prisma: PrismaClient;
 
   constructor() {
-    this.prisma = new PrismaClient();
+    this.prisma = createPrismaCompatClient();
   }
 
   /** Get or create user growth profile */

@@ -125,8 +125,8 @@ export async function checkDatabase(): Promise<ComponentHealth> {
     return { status: 'degraded', message: 'DATABASE_URL not configured' };
   }
   try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
+    const { createPrismaCompatClient } = await import('@lib/db/prisma-compat');
+    const prisma = createPrismaCompatClient();
     await prisma.$queryRaw`SELECT 1`;
     await prisma.$disconnect();
     return { status: 'healthy', message: 'Connected' };
