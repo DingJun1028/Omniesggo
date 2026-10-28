@@ -1,0 +1,41 @@
+name: docker-build-debug
+on:
+  push:
+    branches: [feat/supabase-migration]
+    paths: ['.github/workflows/docker-build-debug.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  debug:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Reproduce docker build (capture log)
+        run: |
+          set +e
+          docker buildx build --progress=plain --platform linux/arm64 \
+            -f vps/Dockerfile.arm64 -t esggo:debug . > /tmp/build.log 2>&1
+          echo "BUILD_EXIT=$?" >> "$GITHUB_ENV"
+      - name: Emit error annotations and fail
+        if: always()
+        run: |
+          if [ "${BUILD_EXIT:-0}" != "0" ]; then
+            LN=$(grep -n -m1 -iE 'Parsing ecmascript|Build error occurred' /tmp/build.log | cut -d: -f1)
+            if [ -n "$LN" ]; then
+              START=$((LN - 60)); [ $START -lt 1 ] && START=1
+              sed -n "${START},$((START + 160))p" /tmp/build.log | tr -d '%' > /tmp/ctx.txt
+            else
+              tail -n 120 /tmp/build.log | tr -d '%' > /tmp/ctx.txt
+            fi
+            split -l 27 /tmp/ctx.txt /tmp/part_
+            for f in /tmp/part_*; do
+              MSG=$(cat "$f" | tr '\n' ' ' | cut -c1-600)
+              echo "::error::[ctx] $MSG"
+            done
+            exit 1
+          else
+            echo "docker build passed"
+          fi
