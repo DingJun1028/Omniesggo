@@ -1,5 +1,6 @@
 # 一次性 workflow：為 apps/mcp-gateway 加入 @carlos-tzin/tzin 後同步根 pnpm-lock.yaml。
 # 完成後自我移除（最後一步 git rm 本檔並推送）。
+# 修正：pnpm 11.5.2 需要 Node >= 22.13（node:sqlite），改用 Node 22。
 name: lockfile-sync (one-shot)
 on:
   push:
@@ -17,7 +18,7 @@ jobs:
           version: 11.5.2
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - name: Install and sync lockfile
         run: pnpm install --no-frozen-lockfile
