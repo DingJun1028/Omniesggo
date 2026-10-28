@@ -104,22 +104,6 @@ fix_actions:
     rollback: "none"
 
   # ── Build Failures ──
-  BLD-001:
-    tags:
-      security: low
-      agent: auto-repair
-      lifecycle: repair
-      quality: p3
-      platform: local
-      barrier: none
-    description: "Regenerate Prisma client after build failure"
-    commands:
-      - "npx prisma generate"
-      - "pnpm rebuild @prisma/client"
-      - "pnpm build"
-    requires: [pnpm, npx]
-    rollback: "git checkout prisma/schema.prisma"
-
   BLD-002:
     tags:
       security: low

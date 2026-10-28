@@ -16,7 +16,6 @@ on:
       - "packages/**"
       - "apps/**"
       - "public/**"
-      - "prisma/**"
       - "next.config.*"
       - "package.json"
       - "pnpm-lock.yaml"
