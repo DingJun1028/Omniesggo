@@ -61,7 +61,9 @@ jobs:
       run:
         working-directory: oa-team-crewai
     env:
-      CREWAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
+      # LLM 憑證：優先 GROQ_API_KEY（Groq，比照 esggo），否則回落 CREWAI_API_KEY。
+      # GitHub Actions 運算式中空字串為 falsy，故未設定的 secret 會自動回落。
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY || secrets.CREWAI_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
@@ -72,12 +74,11 @@ jobs:
         run: uv sync --locked --no-build --no-install-project --python 3.13
       - name: Run OA-Team 30 Swarm
         env:
-          OPENAI_API_KEY: ${{ secrets.CREWAI_API_KEY || secrets.OPENAI_API_KEY }}
-          OPENAI_MODEL_NAME: gpt-4o-mini
+          OPENAI_API_KEY: ${{ secrets.GROQ_API_KEY || secrets.CREWAI_API_KEY }}
+          OPENAI_MODEL_NAME: groq/qwen/qwen3.8-27b
         run: |
-          if [ -z "$OPENAI_API_KEY" ]; then
-            echo '::error::LLM API key missing: configure CREWAI_API_KEY or OPENAI_API_KEY'
-            exit 1
+          if [ -z "$GROQ_API_KEY" ]; then
+            echo "::warning::LLM 憑證缺失：secrets.GROQ_API_KEY 與 secrets.CREWAI_API_KEY 皆為空，本次跳過蜂群執行（不判失敗，待設定金鑰後即實跑）"
+            exit 0
           fi
           ./.venv/bin/python main.py "為 ESG-GO 產出一個 5T 合規的元件骨架"
-          
