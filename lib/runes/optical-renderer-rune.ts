@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,11 +6,11 @@ import { defineRune } from '@lib/adk/core';
  * 責任：專攻「液態玻璃」渲染與物理動態回饋
  */
 
-export const OpticalRendererInputSchema = z.object({
-  componentType: z.string().describe("欲渲染的元件類型 (如 Card, Button, Header)"),
-  textureType: z.enum(["GLASS", "LIQUID", "CRYSTAL", "METAL"]).describe("材質類型"),
-  opacity: z.number().min(0).max(1).describe("不透明度係數"),
-  blurStrength: z.number().describe("模糊強度 (px)"),
+export const OpticalRendererInputSchema = Type.Object({
+  componentType: Type.String({ description: "欲渲染的元件類型 (如 Card, Button, Header)" }),
+  textureType: Type.Union([Type.Literal("GLASS"), Type.Literal("LIQUID"), Type.Literal("CRYSTAL"), Type.Literal("METAL")], { description: "材質類型" }),
+  opacity: Type.Number({ minimum: 0, maximum: 1, description: "不透明度係數" }),
+  blurStrength: Type.Number({ description: "模糊強度 (px)" }),
 });
 
 export const opticalRendererRune = defineRune({

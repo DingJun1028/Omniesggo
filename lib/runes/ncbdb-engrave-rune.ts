@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,10 +6,10 @@ import { defineRune } from '@lib/adk/core';
  * 責任：負責 LingoStep 語言邏輯與 API 無縫集成，調度符文 API
  */
 
-export const RuneScrivenerInputSchema = z.object({
-  targetApi: z.string().describe("目標 API 端點或符文名稱"),
-  payload: z.record(z.string(), z.any()).describe("傳遞數據"),
-  isSandbox: z.boolean().describe("是否在沙盒中執行"),
+export const RuneScrivenerInputSchema = Type.Object({
+  targetApi: Type.String({ description: "目標 API 端點或符文名稱" }),
+  payload: Type.Record(Type.String(), Type.Any(), { description: "傳遞數據" }),
+  isSandbox: Type.Boolean({ description: "是否在沙盒中執行" }),
 });
 
 /**
@@ -19,7 +19,7 @@ export const RuneScrivenerInputSchema = z.object({
 export const ncbdbEngraveRune = defineRune({
   name: "ncbdbEngraveRune",
   description: "執行 NCBDB 數據刻印與 5T 協議存證",
-  schema: z.any(), // 接受 ESGCalculationResult
+  schema: Type.Any(), // 接受 ESGCalculationResult
   execute: async (context, input) => {
     return `[NCBDB] Data engraved. TraceID: ${context.traceId}. Value: ${input.calculated_value} ${input.unit || 'tCO2e'}`;
   }
