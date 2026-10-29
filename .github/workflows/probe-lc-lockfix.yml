@@ -1,0 +1,38 @@
+name: probe-learning-center-lockfix
+
+on:
+  push:
+    branches: [probe/lc-lockfix]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lockfix-73:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/73/head
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Regenerate lockfile
+        working-directory: apps/learning-center
+        run: pnpm install --no-frozen-lockfile
+      - name: Commit and push regenerated lockfile
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/learning-center/pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo "no lockfile changes"
+            exit 0
+          fi
+          git commit -m "chore(deps): regenerate learning-center pnpm-lock.yaml to match manifest (lucide-react, vite)"
+          git push origin HEAD:dependabot/npm_and_yarn/apps/learning-center/eslint-10.13.0
