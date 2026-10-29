@@ -1,0 +1,22 @@
+{
+  "canonical": "soul.md",
+  "versionLinePattern": "系統版本：ESG GO v{semver}",
+  "incrementRule": "每次修訂 +0.0.1，並於跋記載變更摘要與簽名（soul.md §十四）",
+  "copies": [
+    "soul.md",
+    "docs/soul.md",
+    "esggo-omni-center/soul.md"
+  ],
+  "note": "v0.7.3 之前之歷史版本未回溯登記；自本檔建立起，每次 soul.md 修訂須新增一筆 entry（version 接續 +0.0.1、soulBlobSha 為新版 git blob SHA、frozenZoneMd5 重新登記且 §1.2 內容不得變更）。",
+  "entries": [
+    {
+      "version": "0.7.3",
+      "date": "2026-10-28",
+      "summary": "InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典",
+      "commitSha": "0c28b5a35caf89c1e6c5f44516c636e049830aac",
+      "soulBlobSha": "ca23ddb72246af0f7d8021582a462644e9358de9",
+      "frozenZoneMd5": "4121840d2c12d6ee08d1308fc5d88b30",
+      "previous": null
+    }
+  ]
+}
