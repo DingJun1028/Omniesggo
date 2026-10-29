@@ -48,11 +48,14 @@ export interface NoteEmbeddingRow {
   updated_at: Date;
 }
 
-export interface SearchResult {
+export interface PgSearchResult {
   note_id: string;
   similarity: number;
   created_at: Date;
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { PgSearchResult as SearchResult };
 
 export async function storeEmbedding(
   noteId: string,
@@ -75,7 +78,8 @@ export async function getEmbedding(noteId: string): Promise<NoteEmbeddingRow | n
     'SELECT * FROM note_embeddings WHERE note_id = $1',
     [noteId]
   );
-  return result.rows[0] || null;
+  return result.rows[0] || 
+null;
 }
 
 export async function deleteEmbedding(noteId: string): Promise<boolean> {
@@ -86,9 +90,9 @@ export async function deleteEmbedding(noteId: string): Promise<boolean> {
 export async function semanticSearch(
   queryEmbedding: number[],
   options: { limit?: number; threshold?: number; excludeNoteIds?: string[] } = {}
-): Promise<SearchResult[]> {
+): Promise<PgSearchResult[]> {
   const { limit = 10, threshold = 0.5, excludeNoteIds = [] } = options;
-  const result = await query<SearchResult>(
+  const result = await query<PgSearchResult>(
     `SELECT * FROM search_notes_semantic($1, $2, $3) WHERE note_id != ALL($4)`,
     [JSON.stringify(queryEmbedding), limit, threshold, excludeNoteIds]
   );
@@ -99,7 +103,7 @@ export async function findRelatedNotes(
   noteId: string,
   limit: number = 10,
   threshold: number = 0.7
-): Promise<SearchResult[]> {
+): Promise<PgSearchResult[]> {
   const original = await getEmbedding(noteId);
   if (!original) return [];
   const embedding = JSON.parse(original.embedding);
@@ -138,7 +142,8 @@ export interface ESGEntityRow {
   entity_type: string;
   entity_name: string;
   entity_id: string | null;
-  confidence: number;
+  confidence: num
+ber;
   metadata: Record<string, unknown> | null;
   created_at: Date;
 }
@@ -200,7 +205,8 @@ export async function getEmbeddingStats() {
   );
   const row = result.rows[0];
   return {
-    totalEmbeddings: parseInt(String(row.total_embeddings), 10) || 0,
+    totalEmbeddings: parseInt(String(row.total_embe
+ddings), 10) || 0,
     modelsUsed: row.models_used || [],
     oldestEmbedding: row.oldest_embedding,
     newestEmbedding: row.newest_embedding,

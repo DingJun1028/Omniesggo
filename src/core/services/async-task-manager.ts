@@ -30,7 +30,7 @@ import {
 // Types — kept for backward compatibility with existing API routes
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type TaskStatus =
+export type ManagedTaskStatus =
   | 'pending'
   | 'running'
   | 'processing'
@@ -38,9 +38,12 @@ export type TaskStatus =
   | 'failed'
   | 'cancelled';
 
-export interface TaskProgress {
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { ManagedTaskStatus as TaskStatus };
+
+export interface ManagedTaskProgress {
   readonly taskId: string;
-  readonly status: TaskStatus;
+  readonly status: ManagedTaskStatus;
   readonly taskType?: 'report_generation' | 'grammar_rewrite' | 'ocr_processing';
   readonly templateId?: string;
   readonly noteIds?: readonly string[];
@@ -66,6 +69,7 @@ export interface TaskProgress {
   readonly error?: string;
   readonly result?: {
     readonly totalWords: number;
+
     readonly totalTags: number;
     readonly trinityHash: string;
     readonly durationMs: number;
@@ -76,6 +80,9 @@ export interface TaskProgress {
     readonly imagery?: boolean;
   };
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { ManagedTaskProgress as TaskProgress };
 
 export const DEFAULT_RENDER_OPTIONS = { charts: true, imagery: true };
 
@@ -90,16 +97,16 @@ export function normalizeRenderOptions(opts?: any): { charts: boolean; imagery: 
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// In-Memory Overlay (for backward compat with TaskProgress shape)
+// In-Memory Overlay (for backward compat with ManagedTaskProgress shape)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const tasks = new Map<string, TaskProgress>();
+const tasks = new Map<string, ManagedTaskProgress>();
 const taskTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 const taskCancelled = new Set<string>();
 const RESULT_TTL_MS = 3600000;
 
-/** Map a TaskState (Redis) to a TaskProgress (legacy API shape) */
-function stateToProgress(state: TaskState, extra?: Partial<TaskProgress>): TaskProgress {
+/** Map a TaskState (Redis) to a ManagedTaskProgress (legacy API shape) */
+function stateToProgress(state: TaskState, extra?: Partial<ManagedTaskProgress>): ManagedTaskProgress {
   const currentChapter = state.completedChapters.length;
   const runningChapter = Object.entries(state.chapters).find(([, ch]) => ch.status === 'running');
   const wordsSoFar = Object.values(state.chapters).reduce((sum, ch) => sum + (ch.words || 0), 0);
@@ -118,13 +125,14 @@ function stateToProgress(state: TaskState, extra?: Partial<TaskProgress>): TaskP
 
   return {
     taskId: state.taskId,
-    status: state.status as TaskStatus,
+    status: state.status as ManagedTaskStatus,
     taskType: 'report_generation',
     currentChapter,
     totalChapters: state.totalChapters,
     chapterTitle,
     wordsSoFar,
-    fiveTGate: gate,
+    fi
+veTGate: gate,
     tagsCreated: state.completedChapters.length,
     decisionsCount: state.completedChapters.length * 3,
     percent:
@@ -175,7 +183,7 @@ export function createTask(
   const totalChapters = chapterMap[templateId?.toLowerCase() || 'gri'] || 28;
 
   // In-memory overlay (for immediate reads)
-  const task: TaskProgress = {
+  const task: ManagedTaskProgress = {
     taskId,
     status: 'pending',
     taskType: 'report_generation',
@@ -190,7 +198,8 @@ export function createTask(
     startedAt: now,
     updatedAt: now,
     templateId: templateId || 'gri',
-    renderOptions: normalizeRenderOptions(renderOptions),
+    render
+Options: normalizeRenderOptions(renderOptions),
     ...(noteIds && noteIds.length > 0 ? { noteIds } : {}),
     ...(customCompany ? { customCompany } : {}),
   };
@@ -209,7 +218,7 @@ export function createTask(
   return taskId;
 }
 
-export async function getTask(taskId: string): Promise<TaskProgress | null> {
+export async function getTask(taskId: string): Promise<ManagedTaskProgress | null> {
   // Try in-memory first (fastest, always up-to-date during processing)
   const memTask = tasks.get(taskId);
   if (memTask) return memTask;
@@ -228,7 +237,7 @@ export async function getTask(taskId: string): Promise<TaskProgress | null> {
   return null;
 }
 
-export function getAllTasks(): TaskProgress[] {
+export function getAllTasks(): ManagedTaskProgress[] {
   return Array.from(tasks.values());
 }
 
@@ -243,7 +252,7 @@ export function cancelTask(taskId: string): boolean {
     taskTimeouts.delete(taskId);
   }
 
-  const updated: TaskProgress = {
+  const updated: ManagedTaskProgress = {
     ...task,
     status: 'cancelled',
     updatedAt: new Date().toISOString(),
@@ -268,7 +277,8 @@ export function cancelTask(taskId: string): boolean {
   return true;
 }
 
-export function cleanupOldTasks(): number {
+export function cl
+eanupOldTasks(): number {
   const now = Date.now();
   let cleaned = 0;
   const entries = Array.from(tasks.entries());
@@ -292,7 +302,7 @@ export function cleanupOldTasks(): number {
 // Real Async Report Generation (Redis-enhanced)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export type ProgressCallback = (progress: TaskProgress) => void;
+export type ProgressCallback = (progress: ManagedTaskProgress) => void;
 
 interface RagChunk {
   content: string;
@@ -340,7 +350,8 @@ export function startAsyncTask(
           .update(`${taskId}:${report?.totalWords ?? wordsSoFar}`)
           .digest('hex');
 
-        const result: TaskProgress = {
+      
+  const result: ManagedTaskProgress = {
           ...current,
           status: 'completed',
           currentChapter: totalChapters,
@@ -363,7 +374,7 @@ export function startAsyncTask(
         completeTaskStateRedis(taskId, result).catch(() => {});
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-        const failed: TaskProgress = {
+        const failed: ManagedTaskProgress = {
           ...current,
           status: 'failed',
           updatedAt: new Date().toISOString(),
@@ -406,7 +417,8 @@ export function startAsyncTask(
       const { adminDb } = require('@/lib/firebase-admin');
       if (adminDb) {
         const snapshot = await (() => {
-          const col = adminDb.collection('rag_knowledge');
+          const col = adminDb.collection('rag
+_knowledge');
           if (!col) throw new Error('Firestore collection unavailable');
           return col.get();
         })();
@@ -454,7 +466,8 @@ export function startAsyncTask(
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             tool: 'lhub_ask',
-            arguments: { task: 'summarize', context: ragContext },
+            arguments: { task: 'summarize', context: rag
+Context },
           }),
         }).then((r) => r.json());
 
@@ -476,7 +489,7 @@ export function startAsyncTask(
         wordsSoFar += chapterWords;
         chapterIndex++;
 
-        const progress: TaskProgress = {
+        const progress: ManagedTaskProgress = {
           ...current,
           status: 'running',
           currentChapter: chapterIndex,
@@ -517,12 +530,13 @@ export function startAsyncTask(
         taskTimeouts.set(taskId, timeout);
       })
       .catch((err: unknown) => {
-        console.warn('[V5 Task] AGNES API Failed, using fallback.', err);
+ 
+       console.warn('[V5 Task] AGNES API Failed, using fallback.', err);
         const chapterWords = 500 + Math.floor(Math.random() * 200);
         wordsSoFar += chapterWords;
         chapterIndex++;
 
-        const progress: TaskProgress = {
+        const progress: ManagedTaskProgress = {
           ...current,
           status: 'running',
           currentChapter: chapterIndex,
@@ -563,13 +577,13 @@ async function updateTaskStateRedis(taskId: string, status: string): Promise<voi
   if (state) {
     await setTaskState({
       ...state,
-      status: status as TaskStatus,
+      status: status as ManagedTaskStatus,
       updatedAt: new Date().toISOString(),
     });
   }
 }
 
-async function completeTaskStateRedis(taskId: string, result: TaskProgress): Promise<void> {
+async function completeTaskStateRedis(taskId: string, result: ManagedTaskProgress): Promise<void> {
   const state = await getTaskState(taskId);
   if (!state) return;
 
@@ -579,7 +593,8 @@ async function completeTaskStateRedis(taskId: string, result: TaskProgress): Pro
     updatedAt: new Date().toISOString(),
     result: result.result
       ? {
-          totalWords: result.result.totalWords,
+          totalWords: r
+esult.result.totalWords,
           totalTags: result.result.totalTags,
           trinityHash: result.result.trinityHash,
           durationMs: result.result.durationMs,

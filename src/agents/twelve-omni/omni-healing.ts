@@ -30,7 +30,7 @@ import { IBusEvent } from '../../lib/omni-core/contracts';
  * 果因追溯節點
  * 從症狀逆向追溯到根源的每一步
  */
-export interface EffectCauseNode {
+export interface HealingEffectCauseNode {
   /** 節點 ID */
   id: string;
   /** 描述 */
@@ -45,10 +45,13 @@ export interface EffectCauseNode {
   parentCauseId?: string;
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { HealingEffectCauseNode as EffectCauseNode };
+
 /**
  * 果因修復結果
  */
-export interface EffectCauseHealingResult {
+export interface HealingEffectCauseResult {
   /** 追溯 ID */
   traceId: string;
   /** 原始症狀 */
@@ -56,7 +59,7 @@ export interface EffectCauseHealingResult {
   /** 追溯到的根源 */
   rootCause: string;
   /** 追溯鏈 */
-  chain: EffectCauseNode[];
+  chain: HealingEffectCauseNode[];
   /** 修復策略 */
   strategy: RecoveryStrategy;
   /** 修復是否成功 */
@@ -68,6 +71,9 @@ export interface EffectCauseHealingResult {
   /** 總耗時 */
   totalMs: number;
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { HealingEffectCauseResult as EffectCauseHealingResult };
 
 // ==========================================
 // OmniHealing 實現
@@ -90,7 +96,8 @@ interface MutableSystemIssue {
 }
 export class OmniHealing implements IOmniHealing {
   readonly uuid: string;
-  readonly version: string = '1.0.0';
+  readonly version: string = '1.0.
+0';
   readonly timestamp: number;
   evidence: {
     originCause: string;
@@ -109,7 +116,7 @@ export class OmniHealing implements IOmniHealing {
   }> = [];
 
   /** 果因修復歷史 */
-  private _effectCauseHistory: EffectCauseHealingResult[] = [];
+  private _effectCauseHistory: HealingEffectCauseResult[] = [];
 
   /** 監控定時器 */
   private watchInterval: ReturnType<typeof setInterval> | null = null;
@@ -175,7 +182,8 @@ export class OmniHealing implements IOmniHealing {
       };
     }
 
-    const startTime = Date.now();
+    const startTime
+ = Date.now();
     const strategy = this.selectStrategy(issue);
 
     // 模擬修復
@@ -220,7 +228,7 @@ export class OmniHealing implements IOmniHealing {
   async effectCauseHeal(
     effect: string,
     context?: Record<string, unknown>
-  ): Promise<EffectCauseHealingResult> {
+  ): Promise<HealingEffectCauseResult> {
     const traceId = `EC-${Date.now()}-${randomUUID().slice(0, 8).toUpperCase()}`;
     const startTime = Date.now();
 
@@ -246,7 +254,8 @@ export class OmniHealing implements IOmniHealing {
 
     const totalMs = Date.now() - startTime;
 
-    const result: EffectCauseHealingResult = {
+    const result: EffectCauseHealingRes
+ult = {
       traceId,
       effect,
       rootCause,
@@ -273,12 +282,12 @@ export class OmniHealing implements IOmniHealing {
   private async _traceEffectToCause(
     effect: string,
     _context?: Record<string, unknown>
-  ): Promise<EffectCauseNode[]> {
-    const chain: EffectCauseNode[] = [];
+  ): Promise<HealingEffectCauseNode[]> {
+    const chain: HealingEffectCauseNode[] = [];
     const effectLower = effect.toLowerCase();
 
     // Stage 1: 症狀節點
-    const effectNode: EffectCauseNode = {
+    const effectNode: HealingEffectCauseNode = {
       id: `NODE-${Date.now()}-0`,
       description: effect,
       type: 'effect',
@@ -311,10 +320,11 @@ export class OmniHealing implements IOmniHealing {
       intermediateConfidence = 0.7;
     } else {
       intermediateCause = '異常狀態';
-      intermediateConfidence = 0.5;
+      intermediateConfidence = 0.
+5;
     }
 
-    const intermediateNode: EffectCauseNode = {
+    const intermediateNode: HealingEffectCauseNode = {
       id: `NODE-${Date.now()}-1`,
       description: intermediateCause,
       type: 'intermediate',
@@ -348,7 +358,7 @@ export class OmniHealing implements IOmniHealing {
       rootConfidence = 0.3;
     }
 
-    const rootCauseNode: EffectCauseNode = {
+    const rootCauseNode: HealingEffectCauseNode = {
       id: `NODE-${Date.now()}-2`,
       description: rootCause,
       type: 'cause',
@@ -380,7 +390,8 @@ export class OmniHealing implements IOmniHealing {
    * 執行修復
    */
   private async _executeHealing(
-    strategy: RecoveryStrategy,
+   
+ strategy: RecoveryStrategy,
     _rootCause: string,
     _context?: Record<string, unknown>
   ): Promise<boolean> {
@@ -403,7 +414,7 @@ export class OmniHealing implements IOmniHealing {
   /**
    * 獲取果因修復歷史
    */
-  getEffectCauseHistory(): EffectCauseHealingResult[] {
+  getEffectCauseHistory(): HealingEffectCauseResult[] {
     return [...this._effectCauseHistory];
   }
 
@@ -464,7 +475,8 @@ export class OmniHealing implements IOmniHealing {
     // 模擬恢復
     await new Promise((resolve) => setTimeout(resolve, Math.random() * 200));
 
-    const success = Math.random() > 0.1; // 90% 恢復成功率
+    const success = Mat
+h.random() > 0.1; // 90% 恢復成功率
 
     return {
       success,

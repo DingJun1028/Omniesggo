@@ -19,7 +19,7 @@ export type SubFrameId =
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface IComponentCore {
+export interface BusComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
   // 語義化版本控制
@@ -33,6 +33,9 @@ export interface IComponentCore {
     finalEffect: string;    // 果：最終執行結果與狀態
   };
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { BusComponentCore as IComponentCore };
 
 export interface OATaskResult {
   uuid: string;
@@ -61,4 +64,7 @@ export interface BusMessage<T = unknown> {
   passedGate?: boolean;
 }
 
-export type BusHandler<T = unknown> = (msg: BusMessage<T>) => void | Promise<void>;
+export type BusHandlerFn<T = unknown> = (msg: BusMessage<T>) => void | Promise<void>;
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { BusHandlerFn as BusHandler };

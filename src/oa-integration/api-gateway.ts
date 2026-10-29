@@ -4,35 +4,41 @@
  */
 import { freeze, uuidV4 } from './types';
 
-export interface APIRequest {
+export interface OaAPIRequest {
   clientId: string;
   path: string;
 }
 
-export interface APIResponse {
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { OaAPIRequest as APIRequest };
+
+export interface OaAPIResponse {
   readonly id: string;
   readonly status: number;
   readonly body: string;
   readonly ts: number;
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { OaAPIResponse as APIResponse };
+
 export class APIGateway {
-  private readonly accessLog: APIResponse[] = [];
+  private readonly accessLog: OaAPIResponse[] = [];
 
   /** Trackable: 每次請求寫入訪問日誌 */
-  async handle(req: APIRequest, handler: () => string): Promise<APIResponse> {
+  async handle(req: OaAPIRequest, handler: () => string): Promise<OaAPIResponse> {
     const body = handler();
     const res = freeze({
       id: uuidV4(),
       status: 200,
       body,
       ts: Date.now(),
-    }) as APIResponse;
+    }) as OaAPIResponse;
     this.accessLog.push(res);
     return res;
   }
 
-  getAccessLog(): ReadonlyArray<APIResponse> {
+  getAccessLog(): ReadonlyArray<OaAPIResponse> {
     return freeze([...this.accessLog]);
   }
 }

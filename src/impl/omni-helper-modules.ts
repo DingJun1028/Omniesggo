@@ -58,9 +58,12 @@ export class OmniBlackboard {
   }
 }
 
-export type HealingResult =
+export type ImplHealingResult =
   | { status: 'repaired'; restoredUuid: string }
   | { status: 'failed'; reason: string };
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { ImplHealingResult as HealingResult };
 
 export class OmniHealing {
   private readonly seedVault = new Map<string, SeedRecord>();
@@ -70,7 +73,8 @@ export class OmniHealing {
 
   constructor(private readonly seedFactory: OmniSeed = new OmniSeed()) {}
 
-  declareMartialLaw(reason: string): void {
+  declareMartia
+lLaw(reason: string): void {
     this.underMartialLaw = true;
     this.reason = reason;
     console.warn(`[OmniHealing] MARTIAL LAW ACTIVATED – ${reason}`);
@@ -99,7 +103,7 @@ export class OmniHealing {
     return seed;
   }
 
-  async autoRepair(corruptedUuid: string): Promise<HealingResult> {
+  async autoRepair(corruptedUuid: string): Promise<ImplHealingResult> {
     const seed = this.seedVault.get(corruptedUuid);
     if (!seed) {
       return { status: 'failed', reason: `No seed found for ${corruptedUuid}` };
@@ -139,7 +143,8 @@ export class OmniEvolution {
     return this.approvedLicenses.has(license);
   }
 
-  async sacrificeTechnicalDebt(amount = 0.1): Promise<DebtMetric> {
+  
+async sacrificeTechnicalDebt(amount = 0.1): Promise<DebtMetric> {
     const metric = Object.freeze({
       measuredAt: Date.now(),
       technicalDebt: amount,

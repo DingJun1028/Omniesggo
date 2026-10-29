@@ -12,7 +12,7 @@ export interface Task {
   metadata?: Record<string, unknown>
 }
 
-export interface TaskResult {
+export interface OmniAgentTaskResult {
   success: boolean
   result?: unknown
   error?: string
@@ -26,9 +26,12 @@ export interface TaskResult {
   timestamp: number
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { OmniAgentTaskResult as TaskResult };
+
 export interface MultiStepResult {
   success: boolean
-  results: TaskResult[]
+  results: OmniAgentTaskResult[]
   summary: {
     totalTasks: number
     successfulTasks: number
@@ -87,14 +90,15 @@ export interface ImplementationPhase {
 }
 
 export interface FeedbackReport {
-  systemHealth: SystemHealth
+  systemHealth: OmniAgentSystemHealth
   aiPerformance: AIPerformance
   coordinationMetrics: CoordinationMetrics
-  recommendations: Recommendation[]
+  recommendation
+s: Recommendation[]
   nextReview: Date
 }
 
-export interface SystemHealth {
+export interface OmniAgentSystemHealth {
   overallScore: number
   performance: {
     score: number
@@ -109,6 +113,9 @@ export interface SystemHealth {
     usage: number
   }
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { OmniAgentSystemHealth as SystemHealth };
 
 export interface AIPerformance {
   modelLatency: number
@@ -145,7 +152,7 @@ export interface AgentStatus {
   status: 'online' | 'offline' | 'degraded' | 'maintenance'
   capabilities: string[]
   protocols: string[]
-  health: SystemHealth
+  health: OmniAgentSystemHealth
   uptime: number
   lastTask?: string
 }
@@ -183,6 +190,7 @@ export const FIVE_T_META: Record<FiveTDimension, { zh: string; color: string }> 
   traceable: { zh: '可追溯', color: '#2563EB' },
   transparent: { zh: '可透明', color: '#0EA5E9' },
   tangible: { zh: '可量化', color: '#F59E0B' },
-  trustworthy: { zh: '可信任', color: '#10B981' },
+  trustworthy: { zh: '可信任', color
+: '#10B981' },
   trackable: { zh: '可追蹤', color: '#8B5CF6' },
 };

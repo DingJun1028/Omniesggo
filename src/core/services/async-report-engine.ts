@@ -20,7 +20,10 @@ import type { ChapterTemplate } from '../../../chapter-templates/index';
 // ═══════════════════════════════════════════════════════════════
 
 export type ChapterStatus = 'pending' | 'processing' | 'completed' | 'failed';
-export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type ReportTaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { ReportTaskStatus as TaskStatus };
 
 export interface ChapterState {
   chapterNum: number;
@@ -34,9 +37,9 @@ export interface ChapterState {
   error?: string;
 }
 
-export interface TaskProgress {
+export interface ReportTaskProgress {
   taskId: string;
-  status: TaskStatus;
+  status: ReportTaskStatus;
   companyId: string;
   companyName: string;
   currentChapter: number; // most recent chapter being processed
@@ -55,13 +58,17 @@ export interface TaskProgress {
   chapters: Record<number, ChapterState>;
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { ReportTaskProgress as TaskProgress };
+
 // ═══════════════════════════════════════════════════════════════
 // Redis Client (lazy initialization)
 // ═══════════════════════════════════════════════════════════════
 
 interface RedisClient {
   connect(): Promise<void>;
-  setex(key: string, ttl: number, value: string): Promise<unknown>;
+  setex(key: string, ttl: number, value: string): Promise<unk
+nown>;
   get(key: string): Promise<string | null>;
 }
 
@@ -128,7 +135,8 @@ function _progressKey(taskId: string): string {
 // Task Store (Redis-backed)
 // ═══════════════════════════════════════════════════════════════
 
-async function storeTaskState(state: TaskProgress): Promise<void> {
+
+async function storeTaskState(state: ReportTaskProgress): Promise<void> {
   const key = taskKey(state.taskId);
   const data = JSON.stringify(state);
   const redis = await getRedis();
@@ -138,7 +146,7 @@ async function storeTaskState(state: TaskProgress): Promise<void> {
   setMemoryStore(key, state, TASK_TTL);
 }
 
-async function _getTaskState(taskId: string): Promise<TaskProgress | null> {
+async function _getTaskState(taskId: string): Promise<ReportTaskProgress | null> {
   const key = taskKey(taskId);
   const redis = await getRedis();
   if (redis) {
@@ -149,7 +157,7 @@ async function _getTaskState(taskId: string): Promise<TaskProgress | null> {
       // fallback to memory
     }
   }
-  return getMemoryStore(key) as TaskProgress | null;
+  return getMemoryStore(key) as ReportTaskProgress | null;
 }
 
 async function storeChapterState(taskId: string, chapter: ChapterState): Promise<void> {
@@ -205,7 +213,8 @@ class ConcurrencyController {
 
 // ═══════════════════════════════════════════════════════════════
 // ETA Calculator
-// ═══════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════
+══
 
 function calculateETA(
   startTime: number,
@@ -266,7 +275,8 @@ function generateChapterContent(input: ChapterGenInput): { content: string; word
   // Generate rich chapter content with multiple sections
   let html = '';
   html += `<h2>第${chapterNum}章 ${title} <span style="color:#009EB0;font-size:13px">[${gl}]</span></h2>`;
-  html += `<p>${companyName}（以下簡稱${shortName}）營運據點包含${loc}，主要業務為${profile?.mainBusiness || '高科技製造'}。截至${year}年12月31日，員工約${emp}人，年營收約${rev}。${shortName}在「${title}」面向依5T協議${gl}（${fiveTGate}）原則進行完整揭露。</p>`;
+  html += `<p>${companyName}（以下簡稱${shortName}）營運據點包含${loc}，主要業務為${profile?.mainBusiness || '高科技製造'}。截至${year}年12月31日，員工約${emp}人，年營收約${rev}。${shortName}在「${title}」面向依5T協議${gl}
+（${fiveTGate}）原則進行完整揭露。</p>`;
   
   // Add template-specified key sections
   for (let i = 0; i < template.keySections.length; i++) {
@@ -310,11 +320,12 @@ function generateChapterContent(input: ChapterGenInput): { content: string; word
   return { content: html, wordCount };
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+════════
 // Async Report Engine
 // ═══════════════════════════════════════════════════════════════
 
-const tasks = new Map<string, TaskProgress>();
+const tasks = new Map<string, ReportTaskProgress>();
 const cancelledTasks = new Set<string>();
 const concurrencyController = new ConcurrencyController(4); // 4 concurrent chapters
 const _taskConcurrencyController = new ConcurrencyController(8); // 8 concurrent tasks
@@ -326,7 +337,7 @@ export function createReportTask(companyId: string, companyName: string): string
   const taskId = `task-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
   const now = new Date().toISOString();
   
-  const state: TaskProgress = {
+  const state: ReportTaskProgress = {
     taskId,
     status: 'pending',
     companyId,
@@ -381,8 +392,9 @@ export function startReportGeneration(
       const companyAnswers = answers.length > 0 ? answers : getAnswersByCompany(companyId);
       const typedAnswers = companyAnswers as { chapterNum: number; content: string; [key: string]: unknown }[];
       
-      // Update task to running
-      const runningState: TaskProgress = {
+      // Update task to runni
+ng
+      const runningState: ReportTaskProgress = {
         ...task,
         status: 'running',
         updatedAt: new Date().toISOString(),
@@ -422,7 +434,7 @@ export function startReportGeneration(
           const overallProgress = Math.round((completedCount / 28) * 100);
           const eta = calculateETA(startTime, completedCount, 28);
           
-          const updatedState: TaskProgress = {
+          const updatedState: ReportTaskProgress = {
             ...currentTask,
             completedChapters: [...currentTask.completedChapters, ...(result.success ? [chNum] : [])],
             failedChapters: [...currentTask.failedChapters, ...(result.success ? [] : [chNum])],
@@ -437,7 +449,8 @@ export function startReportGeneration(
             completedAt: completedCount === 28 ? new Date().toISOString() : undefined,
           };
           
-          tasks.set(taskId, updatedState);
+          tasks.set(taskId, updatedSta
+te);
           storeTaskState(updatedState);
           
           // Clean up after completion
@@ -495,11 +508,12 @@ async function processChapterWithConcurrency(
       fiveTGate: template?.fiveTGate || '',
     };
     
-    const updatedTask: TaskProgress = {
+    const updatedTask: ReportTaskProgress = {
       ...currentTask,
       chapters: { ...currentTask.chapters, [chNum]: chapterState },
       currentChapter: chNum,
-      chapterTitle: template?.title || `第${chNum}章`,
+      chapterTitle: template?.t
+itle || `第${chNum}章`,
       fiveTGate: template?.fiveTGate || '',
       updatedAt: new Date().toISOString(),
     };
@@ -540,7 +554,7 @@ async function processChapterWithConcurrency(
       completedAt: new Date().toISOString(),
     };
     
-    const finalUpdatedTask: TaskProgress = {
+    const finalUpdatedTask: ReportTaskProgress = {
       ...finalTask,
       chapters: { ...finalTask.chapters, [chNum]: completedChapterState },
       updatedAt: new Date().toISOString(),
@@ -551,7 +565,8 @@ async function processChapterWithConcurrency(
     
     return { success: true, wordCount, title: template?.title || '', fiveTGate: template?.fiveTGate || '' };
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
+    const errorMsg = err instanceof Error ? err.message :
+ 'Unknown error';
     
     // Update chapter to failed
     const currentTask = tasks.get(taskId);
@@ -562,7 +577,7 @@ async function processChapterWithConcurrency(
         error: errorMsg,
         completedAt: new Date().toISOString(),
       };
-      const updatedTask: TaskProgress = {
+      const updatedTask: ReportTaskProgress = {
         ...currentTask,
         chapters: { ...currentTask.chapters, [chNum]: failedChapterState },
         updatedAt: new Date().toISOString(),
@@ -580,7 +595,7 @@ async function processChapterWithConcurrency(
 /**
  * Get task progress (for API endpoint)
  */
-export function getTaskProgress(taskId: string): TaskProgress | null {
+export function getTaskProgress(taskId: string): ReportTaskProgress | null {
   return tasks.get(taskId) ?? null;
 }
 
@@ -592,7 +607,7 @@ export function cancelTask(taskId: string): boolean {
   if (!task || task.status === 'completed' || task.status === 'failed') return false;
   
   cancelledTasks.add(taskId);
-  const cancelledState: TaskProgress = {
+  const cancelledState: ReportTaskProgress = {
     ...task,
     status: 'cancelled',
     updatedAt: new Date().toISOString(),
@@ -606,7 +621,7 @@ export function cancelTask(taskId: string): boolean {
 /**
  * Get all active tasks
  */
-export function getActiveTasks(): TaskProgress[] {
+export function getActiveTasks(): ReportTaskProgress[] {
   return Array.from(tasks.values()).filter(
     t => t.status === 'pending' || t.status === 'running'
   );
@@ -615,7 +630,7 @@ export function getActiveTasks(): TaskProgress[] {
 /**
  * Get all tasks
  */
-export function getAllTasks(): TaskProgress[] {
+export function getAllTasks(): ReportTaskProgress[] {
   return Array.from(tasks.values());
 }
 
@@ -628,7 +643,8 @@ export function cleanupOldTasks(): number {
   const now = Date.now();
   const entries = Array.from(tasks.entries());
   
-  for (const [id, task] of entries) {
+  for (const [id, task] of
+ entries) {
     if (['completed', 'failed', 'cancelled'].includes(task.status) && task.completedAt) {
       if (now - new Date(task.completedAt).getTime() > 3600000) {
         tasks.delete(id);

@@ -16,11 +16,14 @@
 // M2: Entity Watchlist — 實體監測清單
 // ============================================================
 
-export type EntityType = 'competitor' | 'customer' | 'supplier' | 'country' | 'port' | 'route' | 'regulation' | 'standard';
+export type IntelligenceEntityType = 'competitor' | 'customer' | 'supplier' | 'country' | 'port' | 'route' | 'regulation' | 'standard';
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { IntelligenceEntityType as EntityType };
 
 export interface WatchedEntity {
   id: string;
-  type: EntityType;
+  type: IntelligenceEntityType;
   name: string;
   aliases: string[];       // 別名/簡稱
   country?: string;
@@ -33,7 +36,7 @@ export interface WatchedEntity {
 export interface EntityChangeEvent {
   entityId: string;
   entityName: string;
-  entityType: EntityType;
+  entityType: IntelligenceEntityType;
   changeType: 'filing' | 'ir_update' | 'esg_report' | 'procurement' | 'penalty' | 'litigation' | 'audit' | 'sanction' | 'standard_update';
   title: string;
   summary: string;
@@ -58,8 +61,9 @@ export interface AlertRouting {
 }
 
 // 部門路由映射
-export const DEPARTMENT_ROUTING: Record<EntityType, AlertRouting> = {
-  competitor:  { department: 'Strategy',     role: '分析師',   urgency: 'medium' },
+export const DEPARTMENT_ROUTING: Record<IntelligenceEntityType, AlertRouting> = {
+  competitor:  { department: 'Strategy',     role:
+ '分析師',   urgency: 'medium' },
   customer:    { department: 'Sales',        role: '客戶經理', urgency: 'high' },
   supplier:    { department: 'Procurement',  role: '採購/法務', urgency: 'high' },
   country:     { department: 'Legal',        role: '法務',     urgency: 'medium' },
@@ -119,7 +123,8 @@ export const DEFAULT_WEIGHTS = {
 };
 
 // 指示燈邏輯
-function getLight(score: number): 'green' | 'yellow' | 'red' | 'black' {
+function getLight(score: number)
+: 'green' | 'yellow' | 'red' | 'black' {
   if (score >= 80) return 'black';
   if (score >= 60) return 'red';
   if (score >= 40) return 'yellow';
@@ -176,7 +181,8 @@ export function calcImpactScore(dims: {
   return {
     financial, compliance, supply, reputation,
     composite,
-    light: getLight(composite),
+    ligh
+t: getLight(composite),
     reasoning: [],
     evidenceLinks: [],
     generatedAt: new Date().toISOString(),
@@ -247,7 +253,8 @@ export function detectAnomaly(series: TimeSeriesPoint[], opts?: {
               Math.abs(zscore) > 2.5 ? 'high' : 'medium',
     currentValue: current.value,
     expectedValue: parseFloat(mean.toFixed(2)),
-    deviation: parseFloat(deviation.toFixed(2)),
+   
+ deviation: parseFloat(deviation.toFixed(2)),
     description: `${detectAnomaly.name} 偵測：${zscore > 0 ? '異常上升' : '異常下降'}（偏離均值 ${deviation.toFixed(1)}%, Z=${zscore.toFixed(2)}）`,
     recommendation: zscore > 0
       ? '建議檢查是否為單事件、政策或持續性趨勢，並啟動因應對策'
@@ -309,7 +316,8 @@ export function assessApplicability(
     matches.push(`revenue>=${policy.revenueThreshold}`);
     applicable = true;
   }
-  if (policy.sectors.includes(company.sector)) {
+  if (policy.sectors.includ
+es(company.sector)) {
     matches.push(`sector=${company.sector}`);
     applicable = true;
   }
@@ -386,7 +394,8 @@ export interface AlternativeRoute {
   riskLevel: 'low' | 'medium' | 'high';
 }
 
-export interface MaterialRisk {
+export interface MaterialRis
+k {
   material: string;
   singlePointOfFailure: boolean;
   topSuppliers: { name: string; country: string; share: number }[];
@@ -438,7 +447,8 @@ export function assessSupplyChainRisk(opts: {
 
 export interface Opportunity {
   id: string;
-  type: 'subsidy' | 'tender' | 'green_finance' | 'procurement_demand' | 'tax_incentive';
+  type: 'subsidy' | 'tender' | 'green_finance' | 'procurement_demand'
+ | 'tax_incentive';
   title: string;
   agency: string;
   region: string;
@@ -507,7 +517,8 @@ export function buildRadarSnapshot(opts: {
   opportunities: Opportunity[];
 }): RadarSnapshot {
   const byCategory: Record<string, number> = {};
-  const byRegion: Record<string, number> = {};
+  const byRegion: Record<string, num
+ber> = {};
   const bySeverity = { low: 0, medium: 0, high: 0, critical: 0 };
 
   const count = (m: string) => { byCategory[m] = (byCategory[m] || 0) + 1; };
@@ -539,7 +550,7 @@ export function buildRadarSnapshot(opts: {
 // ============================================================
 export const IntelligenceModules = {
   // M2
-  getRouting: (type: EntityType) => DEPARTMENT_ROUTING[type],
+  getRouting: (type: IntelligenceEntityType) => DEPARTMENT_ROUTING[type],
   getAction:   (eventType: string) => CHANGE_TYPE_ACTIONS[eventType] || '內部審查',
   buildAlert:  (event: EntityChangeEvent): EntityAlert => ({
     event,

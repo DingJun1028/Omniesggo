@@ -5,24 +5,27 @@
  */
 import { hashLock } from './stream-buffer.js';
 
-export interface APIRequest {
+export interface IncrementalAPIRequest {
   clientId: string;
   hmac?: string;
   body?: unknown;
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { IncrementalAPIRequest as APIRequest };
+
 export class APIGateway {
   private readonly rateCounter = new Map<string, number>();
   private readonly cdnCache = new Map<string, string>();
 
-  async handle(req: APIRequest, secret: string): Promise<{ ok: boolean; page?: number }> {
+  async handle(req: IncrementalAPIRequest, secret: string): Promise<{ ok: boolean; page?: number }> {
     if (!this.verifyHMAC(req, secret)) return { ok: false }; // Trustworthy
     const cnt = (this.rateCounter.get(req.clientId) ?? 0) + 1; // Trackable: 增量計數
     this.rateCounter.set(req.clientId, cnt);
     return { ok: true, page: 1 };
   }
 
-  private verifyHMAC(req: APIRequest, secret: string): boolean {
+  private verifyHMAC(req: IncrementalAPIRequest, secret: string): boolean {
     // 簡化: 實際應 hmac.compare_digest (constant-time)
     return req.hmac === `hmac_${secret}_${req.clientId}`;
   }

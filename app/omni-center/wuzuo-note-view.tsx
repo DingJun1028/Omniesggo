@@ -16,14 +16,17 @@ import { omniOne } from "../../sdks/omni-one/src";
 // 1. Types & Data
 // ==========================================
 export type Priority = "High" | "Medium" | "Low";
-export type TaskStatus = "Pending" | "Completed";
+export type WuzuoTaskStatus = "Pending" | "Completed";
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { WuzuoTaskStatus as TaskStatus };
 
 export interface OmniTask {
   id: string;
   title: string;
   priority: Priority;
   dueDate: number; // timestamp
-  status: TaskStatus;
+  status: WuzuoTaskStatus;
   tags: string[];
 }
 
@@ -81,7 +84,8 @@ const liquidGlassCard = {
     "linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 100%)",
   backdropFilter: "blur(16px) saturate(180%)",
   WebkitBackdropFilter: "blur(16px) saturate(180%)",
-  border: "1px solid rgba(255, 255, 255, 0.4)",
+  border: "1px solid rgba(255, 255, 255, 0.4)
+",
   borderTop: "1px solid rgba(255, 255, 255, 0.7)",
   borderLeft: "1px solid rgba(255, 255, 255, 0.7)",
   boxShadow:
@@ -144,7 +148,8 @@ export function WuzuoNoteView() {
         setLearningFeedback(
           `🧠 OmniOne 學習回饋: 信心度提昇至 ${(res.confidence * 100).toFixed(0)}%`,
         );
-        setTimeout(() => setLearningFeedback(null), 4000);
+        setTimeout(() => se
+tLearningFeedback(null), 4000);
       }
     } catch (e) {
       console.error("Failed to update task status or trigger OmniOne", e);
@@ -213,7 +218,8 @@ export function WuzuoNoteView() {
   }, [tasks, filterPriority, filterDueDate, sortBy]);
 
   // Priority color mapper
-  const getPriorityColor = (p: Priority) => {
+  const getPriorityColor = (p: 
+Priority) => {
     switch (p) {
       case "High":
         return "text-[#F5222D] bg-[#F5222D]/10 border-[#F5222D]/20";
@@ -264,7 +270,8 @@ export function WuzuoNoteView() {
         )}
       </div>
 
-      {/* Control Panel: Filters & Sorting */}
+      {/* Control
+ Panel: Filters & Sorting */}
       <div
         style={liquidGlassCard}
         className="p-3.5 border border-borderColor/50 dark:border-white/10 dark:bg-slate-800/40"
@@ -304,7 +311,8 @@ export function WuzuoNoteView() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as "DueDate" | "Priority" | "Status")}
-              className="bg-primary border border-borderColor rounded-lg px-2 py-1 outline-none focus:border-accentTeal cursor-pointer font-medium text-accentTeal"
+              className="bg-primary border border-borderColor rounded-lg px-2 py-1 outline-none focus:
+border-accentTeal cursor-pointer font-medium text-accentTeal"
             >
               <option value="DueDate">到期日優先</option>
               <option value="Priority">優先級最高</option>
@@ -347,7 +355,8 @@ export function WuzuoNoteView() {
                       : `標記為已完成: ${task.title}`
                   }
                   className={`relative w-6 h-6 shrink-0 rounded-full border-2 transition-all duration-300 flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentTeal focus-visible:ring-offset-1 focus-visible:ring-offset-primary
-                    ${
+ 
+                   ${
                       isCompleted
                         ? "border-accentGreen bg-accentGreen"
                         : "border-textSecondary/40 bg-transparent hover:border-accentTeal"
@@ -391,7 +400,8 @@ export function WuzuoNoteView() {
                           {t}
                         </span>
                       ))}
-                    </div>
+                  
+  </div>
                   </div>
 
                   {/* Due Date Indicator */}

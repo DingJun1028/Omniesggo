@@ -1,3 +1,5 @@
+// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../types/core-contract）提供，單一真實來源。
+import type { IComponentCore } from '../../types/core-contract';
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
  * OmniCore v1.0 — 萬能中心核心類型定義
@@ -54,7 +56,8 @@ export type ExtractionMethod = 'OCR' | 'IoT' | 'Manual' | 'AI' | 'API';
 export type LifecycleEvent = 'created' | 'updated' | 'verified' | 'locked' | 'archived' | 'restored';
 
 export interface ComponentEvidence {
-  originCause: string;    // 因：原始觸發條件
+  originCause: string;    // 因：原始
+觸發條件
   processTrace: string[]; // 循：InfoOne 流轉路徑
   finalEffect: string;    // 果：最終執行結果與狀態
 }
@@ -71,20 +74,8 @@ export interface ComponentLifecycleEntry {
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface IComponentCore {
-  // 萬能永憶主體唯一識別碼 (Immutable)
-  readonly uuid: string;
-  // 語義化版本控制
-  readonly version: string;
-  // 刻印時間戳 (溯源起點)
-  readonly timestamp: number;
-  // 證據左證庫 (儲存觀因循果的執行軌跡)
-  evidence: {
-    originCause: string;    // 因：原始觸發條件
-    processTrace: string[]; // 循：InfoOne 流轉路徑
-    finalEffect: string;    // 果：最終執行結果與狀態
-  };
-}
+// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../types/core-contract）提供，單一真實來源。
+export type { IComponentCore };
 
 /** 建立 IComponentCore 實例 */
 export function createComponent<T>(
@@ -124,7 +115,8 @@ export function createComponent<T>(
     lifecycle_events: [{ event: 'created', timestamp, actor }],
     data,
     isFrozen: true,
-    fiveT: fiveTScore,
+    fiveT: fiv
+eTScore,
     hash: bodyHash,
   };
 
@@ -137,14 +129,17 @@ export function createComponent<T>(
 
 export type NotePriority = 'high' | 'medium' | 'low';
 export type NoteCategory = 'note' | 'task' | 'todo' | 'calendar' | 'reference';
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+export type CoreTaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { CoreTaskStatus as TaskStatus };
 
 export interface OmniTask {
   readonly id: string;
   title: string;
   description?: string;
   priority: NotePriority;
-  status: TaskStatus;
+  status: CoreTaskStatus;
   dueAt?: number;          // Unix timestamp
   tags: string[];
   assignee?: string;
@@ -177,7 +172,7 @@ export type TaskSortField = 'dueAt' | 'priority' | 'status' | 'createdAt';
 export interface OmniTaskFilter {
   priority: TaskFilterPriority;
   due: TaskFilterDue;
-  status?: TaskStatus | 'all';
+  status?: CoreTaskStatus | 'all';
 }
 
 export interface OmniTaskSort {
@@ -201,7 +196,7 @@ export type CaseType =
 
 export type AwakeningLevel = 'dormant' | 'awakening' | 'active' | 'transcendent';
 
-export interface MemoryEntry {
+export interface CoreMemoryEntry {
   readonly id: string;
   readonly caseType: CaseType;
   readonly input: string;
@@ -211,6 +206,9 @@ export interface MemoryEntry {
   readonly tags: string[];
   relevanceScore?: number;
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { CoreMemoryEntry as MemoryEntry };
 
 export interface OmniOneState {
   level: AwakeningLevel;

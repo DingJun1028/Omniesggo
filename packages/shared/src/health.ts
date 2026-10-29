@@ -9,12 +9,15 @@ import { getConfig, checkConfig } from './config';
 
 export type HealthStatus = 'healthy' | 'degraded' | 'unhealthy';
 
-export interface ComponentHealth {
+export interface SharedComponentHealth {
   status: HealthStatus;
   latencyMs?: number;
   message?: string;
   details?: Record<string, unknown>;
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { SharedComponentHealth as ComponentHealth };
 
 export interface ServiceHealth {
   service: string;
@@ -22,13 +25,13 @@ export interface ServiceHealth {
   status: HealthStatus;
   uptime: number;
   timestamp: string;
-  components: Record<string, ComponentHealth>;
+  components: Record<string, SharedComponentHealth>;
   responseMs: number;
 }
 
 // ── Health Check Registry ─────────────────────────────────────
 
-export type HealthCheckFn = () => Promise<ComponentHealth>;
+export type HealthCheckFn = () => Promise<SharedComponentHealth>;
 
 const healthChecks = new Map<string, HealthCheckFn>();
 
@@ -48,7 +51,7 @@ export function registerHealthCheck(
 export async function runHealthChecks(): Promise<ServiceHealth> {
   const config = getConfig();
   const startTime = Date.now();
-  const components: Record<string, ComponentHealth> = {};
+  const components: Record<string, SharedComponentHealth> = {};
 
   // Run all registered checks in parallel
   const checks = Array.from(healthChecks.entries()).map(async ([name, fn]) => {
@@ -56,7 +59,7 @@ export async function runHealthChecks(): Promise<ServiceHealth> {
     try {
       const result = await Promise.race([
         fn(),
-        new Promise<ComponentHealth>((_, reject) =>
+        new Promise<SharedComponentHealth>((_, reject) =>
           setTimeout(() => reject(new Error('Health check timeout')), 5000)
         ),
       ]);
@@ -67,7 +70,8 @@ export async function runHealthChecks(): Promise<ServiceHealth> {
         status: 'unhealthy',
         latencyMs: Date.now() - checkStart,
         message: err instanceof Error ? err.message : 'Unknown error',
-      };
+ 
+     };
     }
   });
 
@@ -98,7 +102,7 @@ export async function runHealthChecks(): Promise<ServiceHealth> {
 /**
  * Check Redis connectivity.
  */
-export async function checkRedis(): Promise<ComponentHealth> {
+export async function checkRedis(): Promise<SharedComponentHealth> {
   try {
     const { getRedis, isRedisReady } = await import('@lib/redis/client');
     const redis = await getRedis();
@@ -119,7 +123,7 @@ export async function checkRedis(): Promise<ComponentHealth> {
 /**
  * Check database connectivity.
  */
-export async function checkDatabase(): Promise<ComponentHealth> {
+export async function checkDatabase(): Promise<SharedComponentHealth> {
   const config = getConfig();
   if (!config.database.url) {
     return { status: 'degraded', message: 'DATABASE_URL not configured' };
@@ -141,7 +145,8 @@ export async function checkDatabase(): Promise<ComponentHealth> {
 /**
  * Check Firebase Admin configuration.
  */
-export async function checkFirebase(): Promise<ComponentHealth> {
+
+export async function checkFirebase(): Promise<SharedComponentHealth> {
   const config = getConfig();
   if (config.firebase.serviceAccountJson || config.firebase.projectId) {
     return {
@@ -156,7 +161,7 @@ export async function checkFirebase(): Promise<ComponentHealth> {
 /**
  * Check AI provider availability.
  */
-export async function checkAI(): Promise<ComponentHealth> {
+export async function checkAI(): Promise<SharedComponentHealth> {
   const config = getConfig();
   const providers: string[] = [];
   if (config.ai.openrouterApiKey) providers.push('openrouter');
@@ -176,7 +181,7 @@ export async function checkAI(): Promise<ComponentHealth> {
 /**
  * Check OmniAgent Gateway connectivity.
  */
-export async function checkGateway(): Promise<ComponentHealth> {
+export async function checkGateway(): Promise<SharedComponentHealth> {
   const config = getConfig();
   try {
     const res = await fetch(`${config.gateway.url}/health`, {

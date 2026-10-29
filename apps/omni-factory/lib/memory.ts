@@ -8,7 +8,7 @@
  * - /recall: Recall a specific memory by ID
  */
 
-export interface MemoryMetadata {
+export interface FactoryMemoryMetadata {
   createdAt?: number;
   updatedAt?: number;
   category?: string;
@@ -17,11 +17,14 @@ export interface MemoryMetadata {
   confidence?: number;
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { FactoryMemoryMetadata as MemoryMetadata };
+
 export interface MemoryRecord {
   id: string;
   content: string;
   timestamp: number;
-  metadata?: MemoryMetadata;
+  metadata?: FactoryMemoryMetadata;
   embedding?: number[];
 }
 
@@ -77,7 +80,8 @@ export class MemoryClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-      const response = await fetch(`${this.baseUrl}/memory/retrieve`, {
+      const response = await fetch(`${this.baseUrl}/memory/retrieve`,
+ {
         method: 'POST',
         headers: this.headers,
         body: JSON.stringify({ query }),
@@ -158,7 +162,8 @@ export class MemoryClient {
    */
   async recall(memoryId: string): Promise<MemoryRecord | null> {
     try {
-      const controller = new AbortController();
+      const controller =
+ new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
       const response = await fetch(`${this.baseUrl}/recall`, {

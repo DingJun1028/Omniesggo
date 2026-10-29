@@ -66,7 +66,8 @@ export const ERROR_CODES = {
     description: '請求參數驗證失敗',
   },
   NOT_FOUND: {
-    code: 'ERR_NOT_FOUND',
+    co
+de: 'ERR_NOT_FOUND',
     message: '資源不存在',
     httpStatus: HTTP_STATUS.NOT_FOUND,
     description: '請求的資源或資料不存在',
@@ -140,7 +141,8 @@ export const ERROR_CODES = {
     description: '請求的公司 ID 不存在',
   },
   PROJECT_NOT_FOUND: {
-    code: 'ERR_PROJECT_NOT_FOUND',
+    code: 'ERR_PROJECT_NO
+T_FOUND',
     message: '專案不存在',
     httpStatus: HTTP_STATUS.NOT_FOUND,
     description: 'Village 專案 ID 不存在',
@@ -214,7 +216,8 @@ export const ERROR_CODES = {
     description: '投票所需點數不足',
   },
   TASK_NOT_FOUND: {
-    code: 'ERR_TASK_NOT_FOUND',
+ 
+   code: 'ERR_TASK_NOT_FOUND',
     message: '任務不存在',
     httpStatus: HTTP_STATUS.NOT_FOUND,
     description: '請求的任務 ID 不存在',
@@ -280,15 +283,19 @@ export const ERROR_CODES = {
 export type ErrorCodeKey = keyof typeof ERROR_CODES;
 
 /** Mapping from ErrorCodeKey to its code string, e.g. "ERR_INVALID_PARAMS" */
-export type ErrorCodeString = (typeof ERROR_CODES)[ErrorCodeKey]['code'];
+export type ErrorCodeString = (typeof ERROR_CODES)[ErrorCodeKey]['co
+de'];
 
 // ── Standard Response Shapes ───────────────────────────────────
 
-export interface ErrorResponse {
+export interface EsggoErrorResponse {
   success: false;
   error: string;
   code: string;
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { EsggoErrorResponse as ErrorResponse };
 
 export interface SuccessResponse<T = unknown> {
   success: true;
@@ -311,7 +318,7 @@ export function getError(key: string): ErrorCodeDef {
 /**
  * Create a standard error response JSON body.
  */
-export function createErrorBody(key: ErrorCodeKey, customMessage?: string): ErrorResponse {
+export function createErrorBody(key: ErrorCodeKey, customMessage?: string): EsggoErrorResponse {
   const def = ERROR_CODES[key];
   return {
     success: false,

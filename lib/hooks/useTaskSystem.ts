@@ -2,13 +2,16 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type TaskPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
-export type TaskStatus = 'TODO' | 'IN_PROGRESS' | 'WAITING' | 'DONE';
+export type TaskSystemTaskStatus = 'TODO' | 'IN_PROGRESS' | 'WAITING' | 'DONE';
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { TaskSystemTaskStatus as TaskStatus };
 
 export interface OmniTask {
   id: string;
   title: string;
   description?: string;
-  status: TaskStatus;
+  status: TaskSystemTaskStatus;
   
   // 🔗 萬能連結 (Universal Links)
   contextId?: string;    // 關聯的 ESG 指標 (例如 "Carbon-Scope-1")
@@ -66,7 +69,8 @@ export const useTaskSystem = create<TaskStore>()(
       }),
 
       updateTask: (id: string, updates: Partial<OmniTask>) => set((state: TaskStore) => ({
-        tasks: state.tasks.map((t: OmniTask) => t.id === id ? { ...t, ...updates, updatedAt: Date.now() } : t)
+        tasks: state.tasks.map((t: OmniTask) => t.id === id ? { ...t, ...updates, updatedAt: Da
+te.now() } : t)
       })),
 
       deleteTask: (id: string) => set((state: TaskStore) => ({

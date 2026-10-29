@@ -50,7 +50,8 @@ export type ConsistencyCheck = z.infer<typeof ConsistencyCheckSchema>;
 export const GeminiConsistencyCheckSchema: Schema = {
   type: Type.OBJECT,
   properties: {
-    source_chapter: { type: Type.STRING },
+    source_chapter:
+ { type: Type.STRING },
     target_chapter: { type: Type.STRING },
     is_consistent: { type: Type.BOOLEAN },
     conflict_details: { type: Type.STRING },
@@ -68,7 +69,10 @@ export const EvidenceVerificationSchema = z.object({
   remark: z.string().describe("驗證意見或需要補充的說明。")
 });
 
-export type EvidenceVerification = z.infer<typeof EvidenceVerificationSchema>;
+export type NavEvidenceVerification = z.infer<typeof EvidenceVerificationSchema>;
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { NavEvidenceVerification as EvidenceVerification };
 
 export const GeminiEvidenceVerificationSchema: Schema = {
   type: Type.OBJECT,
@@ -95,7 +99,8 @@ export const VerificationCertificateSchema = z.object({
     tasteful: z.number().min(0).max(100).describe("【美】Tangible: UI 物理感知與液態渲染"),
     trustful: z.number().min(0).max(100).describe("【信】Trustworthy: Hash Lock 數位簽章防篡改")
   }),
-  digital_signature: z.string().describe("由神使集體刻印的數位簽章 (Hash)"),
+  digi
+tal_signature: z.string().describe("由神使集體刻印的數位簽章 (Hash)"),
   status: z.enum(["certified", "pending_vouchers", "rejected"])
 });
 
@@ -152,7 +157,8 @@ export const DebateInputSchema = z.object({
   }))
 });
 
-export const DebateResultSchema = DebateInputSchema.extend({
+export const DebateResultSchema = DebateInput
+Schema.extend({
   orchestrator_verdict: z.string().describe("總管最終裁決"),
   confidence_score: z.number().min(0).max(100).describe("裁決信心指數")
 });

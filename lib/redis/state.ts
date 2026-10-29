@@ -1,3 +1,5 @@
+// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/sustain-write）提供，單一真實來源。
+import type { TaskResult } from '../../src/types/sustain-write';
 /**
  * ESGGO Redis State CRUD Operations
  *
@@ -31,13 +33,16 @@ export const TTL = {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type TaskStatus = 'pending' | 'processing' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type RedisTaskStatus = 'pending' | 'processing' | 'running' | 'completed' | 'failed' | 'cancelled';
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { RedisTaskStatus as TaskStatus };
 
 export interface TaskState {
   taskId: string;
   companyId: string;
   companyName: string;
-  status: TaskStatus;
+  status: RedisTaskStatus;
   totalChapters: number;
   completedChapters: number[];
   failedChapters: number[];
@@ -58,17 +63,12 @@ export interface ChapterState {
   error?: string;
 }
 
-export interface TaskResult {
-  totalWords: number;
-  totalTags: number;
-  trinityHash: string;
-  durationMs: number;
-  companyId: string;
-}
+// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/sustain-write）提供，單一真實來源。
+export type { TaskResult };
 
 export interface ProgressInfo {
   taskId: string;
-  status: TaskStatus;
+  status: RedisTaskStatus;
   completed: number;
   total: number;
   percentage: number;
@@ -77,7 +77,8 @@ export interface ProgressInfo {
   updatedAt: string;
 }
 
-// ─── Key Builders ─────────────────────────────────────────────────────────────
+// ─── Key Builders ───────────────────────────────────────────────────────────
+──
 
 export function taskKey(taskId: string): string {
   return `${PREFIX}task:${taskId}`;
@@ -157,7 +158,8 @@ export async function setTaskState(state: TaskState): Promise<void> {
   if (redis) {
     await redis.setex(key, TTL.TASK_STATE, json);
   }
-  memoryFallback.set(key, updated, TTL.TASK_STATE);
+  memo
+ryFallback.set(key, updated, TTL.TASK_STATE);
 }
 
 /**
@@ -229,7 +231,8 @@ export async function updateChapterProgress(
       : existing.completedAt,
   };
 
-  state.chapters[chapterNum] = updatedChapter;
+  state.chapters[chapterNum] = updatedChap
+ter;
 
   // Update completed / failed arrays
   if (updatedChapter.status === 'completed') {
@@ -295,7 +298,8 @@ export async function setChapterCache(
   const key = chapterKey(taskId, chapterNum);
   const json = safeStringify(chapterState);
 
-  const redis = await getRedis();
+  const redis = 
+await getRedis();
   if (redis) {
     await redis.setex(key, TTL.CHAPTER_CACHE, json);
   }
@@ -324,7 +328,7 @@ export async function getProgress(taskId: string): Promise<ProgressInfo> {
   if (!state) {
     return {
       taskId,
-      status: 'not_found' as unknown as TaskStatus,
+      status: 'not_found' as unknown as RedisTaskStatus,
       completed: 0,
       total: 28,
       percentage: 0,
@@ -366,7 +370,8 @@ export async function setProgressInfo(info: ProgressInfo): Promise<void> {
   if (redis) {
     await redis.setex(key, TTL.PROGRESS, json);
   }
-  memoryFallback.set(key, info, TTL.PROGRESS);
+  memoryFallback.set(key, info, 
+TTL.PROGRESS);
 }
 
 /**
@@ -441,7 +446,8 @@ export async function clearTaskCache(taskId: string): Promise<void> {
   if (state) {
     for (const chapterNum of Object.keys(state.chapters)) {
       const key = chapterKey(taskId, parseInt(chapterNum, 10));
-      if (redis) await redis.del(key);
+      if 
+(redis) await redis.del(key);
       memoryFallback.del(key);
     }
   }
@@ -507,7 +513,8 @@ export async function cleanupStaleTasks(maxAgeSeconds: number = TTL.TASK_STATE):
       state &&
       (state.status === 'completed' || state.status === 'failed' || state.status === 'cancelled')
     ) {
-      if (new Date(state.updatedAt).getTime() < cutoff) {
+      if (new Date(state.updat
+edAt).getTime() < cutoff) {
         memoryFallback.del(key);
         cleaned++;
       }

@@ -48,7 +48,7 @@ export interface ThemeConfig {
 }
 
 // Data types
-export interface ChartDataPoint {
+export interface OmniComponentDataPoint {
   label: string;
   value: number | null;
   timestamp?: string;
@@ -56,8 +56,11 @@ export interface ChartDataPoint {
   metadata?: Record<string, unknown>;
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { OmniComponentDataPoint as ChartDataPoint };
+
 export interface TimeSeriesData {
-  series: ChartDataPoint[];
+  series: OmniComponentDataPoint[];
   metadata: {
     startDate: string;
     endDate: string;
@@ -94,7 +97,8 @@ export interface CompanyData {
 
 export interface Indicator {
   id: string;
-  name: string;
+  nam
+e: string;
   category: 'environmental' | 'social' | 'governance' | 'economic';
   unit: string;
   description?: string;
@@ -173,7 +177,7 @@ export interface ChartConfig {
   type: 'line' | 'bar' | 'area' | 'pie' | 'doughnut' | 'radar' | 'scatter';
   title?: string;
   subtitle?: string;
-  data: ChartDataPoint[];
+  data: OmniComponentDataPoint[];
   options?: Record<string, unknown>;
   theme?: 'light' | 'dark' | 'auto';
 }
@@ -183,7 +187,8 @@ export type {
   DataCardProps,
   MetricCardProps,
   ProofBadgeProps,
-  ButtonProps,
+  Butto
+nProps,
   BadgeProps,
   CardProps,
 } from './functional/index';

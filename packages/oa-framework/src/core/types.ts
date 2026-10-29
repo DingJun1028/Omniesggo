@@ -1,7 +1,7 @@
 /**
  * OA Framework — 萬能分身元框架核心型別
  * 整合: ADK + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶
- * 對齊 soul.md IComponentCore 與 omni-agent 5T 驗證
+ * 對齊 soul.md FrameworkComponentCore 與 omni-agent 5T 驗證
  */
 
 /** 子框架識別碼 */
@@ -30,7 +30,7 @@ export type T5State = {
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface IComponentCore {
+export interface FrameworkComponentCore {
   // 萬能永憶主體唯一識別碼 (Immutable)
   readonly uuid: string;
   // 語義化版本控制
@@ -45,6 +45,9 @@ export interface IComponentCore {
   };
 }
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { FrameworkComponentCore as IComponentCore };
+
 /** 子框架統一適配器介面 */
 export interface ISubFrameAdapter {
   readonly id: SubFrameId;
@@ -55,7 +58,8 @@ export interface ISubFrameAdapter {
   /** 提交一個任務給此框架 (回傳中間產出, 由 Orchestrator 經 forgeT5 鑄造 5T) */
   dispatch(task: OATask): Promise<{ output: string }>;
   /** 健康檢查 */
-  health(): Promise<{ status: 'ok' | 'down'; detail?: string }>;
+  health(): Promise<{ status: 'ok' | 'down'; detail?: strin
+g }>;
 }
 
 /** OA 元框架配置 */
@@ -84,7 +88,7 @@ export interface OATask {
 }
 
 /** 任務結果 (帶 5T 狀態與 Hash Lock) */
-export interface OATaskResult extends IComponentCore {
+export interface OATaskResult extends FrameworkComponentCore {
   subFrame: SubFrameId;
   output: string;
   t5: T5State;

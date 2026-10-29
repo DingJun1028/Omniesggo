@@ -3,13 +3,16 @@ import { EventEmitter } from 'events';
 import { CelestialCoreProcessor } from './omni-core/celestial-core-processor';
 
 /** Simple event shape used throughout the project */
-export interface IBusEvent {
+export interface OaBusEvent {
   event: string;
   payload: unknown;
   ts: number;
   uuid?: string;
   [key: string]: unknown;
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { OaBusEvent as IBusEvent };
 
 /** Simple OmniBus implementation */
 class SimpleOmniBus {
@@ -18,10 +21,10 @@ class SimpleOmniBus {
   private entropyProcessor = new CelestialCoreProcessor();
 
   /** Publish an event */
-  publish(topic: string, event: IBusEvent | unknown): void {
-    let ev: IBusEvent;
+  publish(topic: string, event: OaBusEvent | unknown): void {
+    let ev: OaBusEvent;
     if (typeof event === 'object' && event && 'event' in event) {
-      ev = event as IBusEvent;
+      ev = event as OaBusEvent;
     } else {
       ev = { event: topic, payload: event as unknown, ts: Date.now() };
     }
@@ -30,7 +33,7 @@ class SimpleOmniBus {
   }
 
   /** Subscribe to a topic – returns an unsubscribe function */
-  subscribe(topic: string, callback: (event: IBusEvent) => void): () => void {
+  subscribe(topic: string, callback: (event: OaBusEvent) => void): () => void {
     this.emitter.on(topic, callback);
     return () => this.emitter.off(topic, callback);
   }
@@ -54,7 +57,8 @@ class SimpleOmniBus {
   }
 
   /** Lifecycle cleanup when a topic queue becomes empty */
-  cleanup(topic: string): void {
+  cleanup(topic: string): void 
+{
     if ((this.queueLengths[topic] || 0) === 0) {
       const marker = this.entropyProcessor.lifecycleCleanup(topic);
       console.info(`[Lifecycle] Cleaned up ${topic}:`, marker);

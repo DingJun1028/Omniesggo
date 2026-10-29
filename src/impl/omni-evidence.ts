@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'crypto';
 
-export type EvidenceRecord = {
+export type ImplEvidenceRecord = {
   readonly uuid: string;
   readonly sourceOrigin: string;
   readonly timestamp: number;
@@ -9,6 +9,9 @@ export type EvidenceRecord = {
   readonly status: 'verified' | 'pending' | 'failed';
 };
 
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { ImplEvidenceRecord as EvidenceRecord };
+
 export type VerificationInput = {
   readonly sourceOrigin: string;
   readonly standard?: string;
@@ -16,7 +19,7 @@ export type VerificationInput = {
 };
 
 export class OmniEvidence {
-  private records: EvidenceRecord[] = [];
+  private records: ImplEvidenceRecord[] = [];
   private readonly standard: string;
 
   constructor(standard = '[ISO-14064-1]') {
@@ -29,7 +32,7 @@ export class OmniEvidence {
       .digest('hex');
   }
 
-  capture(input: VerificationInput): EvidenceRecord {
+  capture(input: VerificationInput): ImplEvidenceRecord {
     const record = Object.freeze({
       uuid: randomUUID(),
       sourceOrigin: input.sourceOrigin,
@@ -37,13 +40,13 @@ export class OmniEvidence {
       standard: input.standard ?? this.standard,
       payloadHash: OmniEvidence.hashPayload(input.payload),
       status: 'pending',
-    } as EvidenceRecord);
+    } as ImplEvidenceRecord);
 
     this.records.push(record);
     return record;
   }
 
-  verify(record: EvidenceRecord, payload: unknown): boolean {
+  verify(record: ImplEvidenceRecord, payload: unknown): boolean {
     const expected = OmniEvidence.hashPayload(payload);
     const ok = record.payloadHash === expected;
 
@@ -52,13 +55,13 @@ export class OmniEvidence {
       this.records[idx] = Object.freeze({
         ...record,
         status: ok ? 'verified' : 'failed',
-      }) as EvidenceRecord;
+      }) as ImplEvidenceRecord;
     }
 
     return ok;
   }
 
-  getRecords(sourceOrigin?: string): readonly EvidenceRecord[] {
+  getRecords(sourceOrigin?: string): readonly ImplEvidenceRecord[] {
     if (!sourceOrigin) return Object.freeze([...this.records]);
     return Object.freeze(this.records.filter(r => r.sourceOrigin === sourceOrigin));
   }

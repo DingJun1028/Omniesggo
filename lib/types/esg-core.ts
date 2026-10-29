@@ -1,3 +1,5 @@
+// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/core-contract）提供，單一真實來源。
+import type { IComponentCore } from '../../src/types/core-contract';
 /**
  * 【真 Truthful】生命週期流轉動作
  */
@@ -33,17 +35,5 @@ export interface IEvidenceHash {
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface IComponentCore {
-  // 萬能永憶主體唯一識別碼 (Immutable)
-  readonly uuid: string;
-  // 語義化版本控制
-  readonly version: string;
-  // 刻印時間戳 (溯源起點)
-  readonly timestamp: number;
-  // 證據左證庫 (儲存觀因循果的執行軌跡)
-  evidence: {
-    originCause: string;    // 因：原始觸發條件
-    processTrace: string[]; // 循：InfoOne 流轉路徑
-    finalEffect: string;    // 果：最終執行結果與狀態
-  };
-}
+// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/core-contract）提供，單一真實來源。
+export type { IComponentCore };

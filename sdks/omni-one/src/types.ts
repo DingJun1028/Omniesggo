@@ -16,8 +16,11 @@ export interface IMemoryRecord {
   timestamp: number;
   tags: string[];
 }
-export interface IAwakeningResult {
+export interface OneIAwakeningResult {
   status: "success" | "partial" | "failed";
   data: any;
   plan: string[];
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { OneIAwakeningResult as IAwakeningResult };

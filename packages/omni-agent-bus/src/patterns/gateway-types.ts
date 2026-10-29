@@ -1,7 +1,7 @@
 /**
  * Pattern 4 輔助型別 — API Gateway 請求/回應 (避免與 bus.ts 全域型別衝突)
  */
-export interface APIRequest {
+export interface GatewayAPIRequest {
   clientId: string;
   path: string;
   body?: string;
@@ -9,9 +9,15 @@ export interface APIRequest {
   handler?: () => Promise<unknown> | unknown;
 }
 
-export interface APIResponse {
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { GatewayAPIRequest as APIRequest };
+
+export interface GatewayAPIResponse {
   status: number;
   body: unknown;
   cached: boolean;
   hashLock: string;
 }
+
+// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+export type { GatewayAPIResponse as APIResponse };
