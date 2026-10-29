@@ -1,0 +1,36 @@
+Scope: all 2 workspace projects
+? Verifying lockfile against supply-chain policies (458 entries)...
+✓ Lockfile passes supply-chain policies (458 entries in 2.2s)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +360
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 360, reused 0, downloaded 269, added 258
+Progress: resolved 360, reused 0, downloaded 359, added 359
+Progress: resolved 360, reused 0, downloaded 360, added 360, done
+.../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+.../node_modules/workerd postinstall$ node install.js
+.../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+.../node_modules/workerd postinstall: Done
+
+dependencies:
++ @supabase/supabase-js 2.118.0
++ lucide-react 1.61.0
++ react 19.3.1
++ react-dom 19.3.1
+
+devDependencies:
++ @eslint/js 10.0.1
++ @vitejs/plugin-react 6.1.2
++ autoprefixer 10.6.1
++ eslint 10.12.0
++ eslint-plugin-react 7.37.5
++ eslint-plugin-react-hooks 7.1.1
++ jsdom 30.1.3
++ postcss 8.5.31
++ tailwindcss 4.3.3
++ vite 8.3.5
++ vitest 5.0.3
+
+Done in 6.8s using pnpm v11.5.2
+pnpm-exit=0
