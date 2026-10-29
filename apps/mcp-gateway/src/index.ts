@@ -1,5 +1,5 @@
 /**
- * @esggo/mcp-gateway — tzin 試點（2026-10-28 評估決議）
+ * @esggo/mcp-gateway — tzin 試點（2026-10-28 評估決議；issue #91 第 5 項加認證骨架）
  *
  * 定位：獨立唯讀服務，將平台資料以 MCP / OpenAPI 暴露給自架 Ollama agent 群。
  * 邊界（評估結論，勿越界）：
@@ -8,13 +8,35 @@
  *      相容層之上再疊 ORM，違反 PR #80 遷移決策）。
  *   3. 不使用 tzin 即時模組（channels/presence），避免與 Supabase Realtime
  *      形成雙軌基礎設施。
- *   4. 僅部署於私有網路（VPC / 內網），對外暴露前必須先加認證層。
+ *   4. 僅部署於私有網路（VPC / 內網）；對外路徑一律經 withAuth 預設拒絕。
  */
 import { t, contract, impl, createApp, listen, HttpError } from '@carlos-tzin/tzin'
+import { withAuth } from './auth.js'
 
 const SERVICE = 'mcp-gateway'
 
-// ── 契約：健康檢查 ────────────────────────────────────────────
+// ── Supabase 最小權限唯讀金鑰路徑 ─────────────────────────────
+// 優先 anon key（受限 RLS、唯讀語意）；service role 僅為回退，
+// 於私有網路部署時才允許（見 README 安全注意事項）。
+export interface SupabaseKeyResolution {
+  key: string | undefined
+  scope: 'anon' | 'service-role' | 'none'
+}
+
+export function resolveSupabaseKey(env: {
+  SUPABASE_ANON_KEY?: string
+  SUPABASE_SERVICE_ROLE_KEY?: string
+}): SupabaseKeyResolution {
+  if (env.SUPABASE_ANON_KEY && env.SUPABASE_ANON_KEY.length > 0) {
+    return { key: env.SUPABASE_ANON_KEY, scope: 'anon' }
+  }
+  if (env.SUPABASE_SERVICE_ROLE_KEY && env.SUPABASE_SERVICE_ROLE_KEY.length > 0) {
+    return { key: env.SUPABASE_SERVICE_ROLE_KEY, scope: 'service-role' }
+  }
+  return { key: undefined, scope: 'none' }
+}
+
+// ── 契約：健康檢查（唯一免認證端點）────────────────────────────
 const health = contract({
   method: 'GET',
   path: '/health',
@@ -64,7 +86,7 @@ type RegulationRow = { id: string; title: string | null; summary: string | null 
 export const listRegulationsRoute = impl(listRegulations, async ({ query }) => {
   const limit = query?.limit ?? 20
   const url = process.env.SUPABASE_URL
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const { key } = resolveSupabaseKey(process.env)
   if (!url || !key) {
     throw new HttpError(503, 'supabase not configured')
   }
@@ -101,12 +123,15 @@ export const app = createApp([healthRoute, listRegulationsRoute], {
   mcp: true,
   meta: {
     title: 'Omniesggo MCP Gateway',
-    version: '0.1.0',
-    description: 'tzin contract-first 唯讀試點：平台資料之 MCP / OpenAPI 暴露層',
+    version: '0.2.0',
+    description: 'tzin contract-first 唯讀試點：平台資料之 MCP / OpenAPI 暴露層（default-deny auth）',
   },
 })
 
-// 直接執行（node/tsx）時啟動伺服器；作為模組匯入時不監聽。
+/** 對外（含 /mcp、/openapi.json）一律經 withAuth 預設拒絕；/health 免認證。 */
+export const securedApp = withAuth(app, { token: process.env.MCP_GATEWAY_TOKEN })
+
+// 直接執行（node/tsx）時啟動伺服器；作為模組匯入（契約測試）時不監聽。
 if (process.argv[1] && process.argv[1].endsWith('index.ts')) {
-  listen(app, Number(process.env.PORT ?? 8787))
+  listen(securedApp, Number(process.env.PORT ?? 8787))
 }
