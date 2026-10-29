@@ -39,24 +39,24 @@ export class AdkSquadFactory {
     };
   }
 
+  // TypeBox schema: TSchema object with `properties` / `required` (JSON-Schema-shaped)
   static registerRuneAsTool(rune: any) {
+    const schema = ((rune.schema as AnyObject) ?? {}) as Record<string, any>;
+    const properties = (schema.properties ?? {}) as Record<string, any>;
     return {
       definition: {
         name: rune.name,
         description: rune.description,
         parameters: {
           type: 'object',
-          properties: Object.entries(((rune.schema as AnyObject)._def as any)?.shape?.() ?? {}).reduce(
-            (acc: AnyObject, [key, value]: [string, any]) => {
-              acc[key] = {
-                type: String(value._def?.typeName ?? 'string').replace('Zod', '').toLowerCase(),
-                description: value.description ?? key,
-              };
-              return acc;
-            },
-            {} as AnyObject,
-          ),
-          required: Object.keys(((rune.schema as AnyObject)._def as any)?.shape?.() ?? {}),
+          properties: Object.entries(properties).reduce((acc: Record<string, any>, [key, value]) => {
+            acc[key] = {
+              type: value?.type ?? 'string',
+              description: value?.description ?? key,
+            };
+            return acc;
+          }, {}),
+          required: (schema.required as string[]) ?? Object.keys(properties),
         },
       },
       execute: async (args: any) => rune.execute({}, args),

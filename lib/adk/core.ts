@@ -1,13 +1,13 @@
-import { z } from "zod";
+import { type Static, type TSchema } from "@sinclair/typebox";
 
-export interface RuneConfig<T extends z.ZodTypeAny> {
+export interface RuneConfig<T extends TSchema = TSchema> {
   name: string;
   description: string;
   schema: T;
-  execute: (context: any, input: z.infer<T>) => Promise<string>;
+  execute: (context: any, input: Static<T>) => Promise<string>;
 }
 
-export function defineRune<T extends z.ZodTypeAny>(config: RuneConfig<T>) {
+export function defineRune<T extends TSchema>(config: RuneConfig<T>) {
   return config;
 }
 
