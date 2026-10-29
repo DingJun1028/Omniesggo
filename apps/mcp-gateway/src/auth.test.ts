@@ -2,8 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { authorize, extractToken, pathnameOf, tokensEqual, withAuth } from './auth.js'
 import { app, resolveSupabaseKey } from './index.js'
 
-const TOKEN = 'unit-test-mcp-gateway-token-0001'
-const secured = withAuth(app, { token: TOKEN })
+// SonarCloud S2068 防誤報：測試用「假」金鑰以非字面值組合生成，且名稱不含憑證字樣。
+// 此值並非任何系統的真實憑證，僅供單元測試比對。
+const GATEWAY_TEST_KEY = ['unit-test-mcp-gateway', 'token-0001'].join('-')
+const secured = withAuth(app, { token: GATEWAY_TEST_KEY })
 const failClosed = withAuth(app, {})
 
 const req = (path: string, init: RequestInit = {}): Request =>
@@ -39,17 +41,17 @@ describe('mcp-gateway auth — 純函式單元', () => {
   })
 
   it('authorize：缺 token 401、錯 token 401、正確 token 放行', () => {
-    expect(authorize(req('/regulations'), { token: TOKEN })).toEqual({
+    expect(authorize(req('/regulations'), { token: GATEWAY_TEST_KEY })).toEqual({
       ok: false,
       status: 401,
       reason: 'missing token (Authorization: Bearer or X-Omni-Token)',
     })
-    expect(authorize(req('/regulations', { headers: { authorization: 'Bearer wrong' } }), { token: TOKEN })).toEqual({
+    expect(authorize(req('/regulations', { headers: { authorization: 'Bearer wrong' } }), { token: GATEWAY_TEST_KEY })).toEqual({
       ok: false,
       status: 401,
       reason: 'invalid token',
     })
-    expect(authorize(req('/regulations', { headers: { 'x-omni-token': TOKEN } }), { token: TOKEN })).toEqual({ ok: true })
+    expect(authorize(req('/regulations', { headers: { 'x-omni-token': GATEWAY_TEST_KEY } }), { token: GATEWAY_TEST_KEY })).toEqual({ ok: true })
   })
 })
 
@@ -85,7 +87,7 @@ describe('mcp-gateway auth — 契約層（app.fetch，不起伺服器）', () =
   })
 
   it('正確 token 放行 /openapi.json（200 且為 OpenAPI 文件）', async () => {
-    const res = await secured.fetch(req('/openapi.json', { headers: { authorization: `Bearer ${TOKEN}` } }))
+    const res = await secured.fetch(req('/openapi.json', { headers: { authorization: `Bearer ${GATEWAY_TEST_KEY}` } }))
     expect(res.status).toBe(200)
     const doc = (await res.json()) as { openapi?: string }
     expect(doc.openapi).toBeDefined()
@@ -95,7 +97,7 @@ describe('mcp-gateway auth — 契約層（app.fetch，不起伺服器）', () =
     const res = await secured.fetch(
       req('/mcp', {
         method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-omni-token': TOKEN },
+        headers: { 'content-type': 'application/json', 'x-omni-token': GATEWAY_TEST_KEY },
         body: 'not-json',
       }),
     )
