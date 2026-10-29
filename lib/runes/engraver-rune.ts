@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：將所有執行日誌與知識沉澱至「萬能智庫」，確保知識永續不可篡改
  */
 
-export const EngraverInputSchema = z.object({
-  knowledgeBlock: z.string().describe("欲刻印的知識或日誌塊"),
-  metadata: z.record(z.string(), z.string()).describe("關聯元數據"),
+export const EngraverInputSchema = Type.Object({
+  knowledgeBlock: Type.String({ description: "欲刻印的知識或日誌塊" }),
+  metadata: Type.Record(Type.String(), Type.String(), { description: "關聯元數據" }),
 });
 
 export const engraverRune = defineRune({

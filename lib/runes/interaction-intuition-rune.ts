@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：最佳化用戶交互路徑，實作即時物理動態回饋
  */
 
-export const IntuitionDesignerInputSchema = z.object({
-  userPath: z.string().describe("用戶目前的操作路徑"),
-  interactionType: z.enum(["CLICK", "HOVER", "SCROLL", "DRAG"]).describe("交互類型"),
+export const IntuitionDesignerInputSchema = Type.Object({
+  userPath: Type.String({ description: "用戶目前的操作路徑" }),
+  interactionType: Type.Union([Type.Literal("CLICK"), Type.Literal("HOVER"), Type.Literal("SCROLL"), Type.Literal("DRAG")], { description: "交互類型" }),
 });
 
 export const intuitionDesignerRune = defineRune({

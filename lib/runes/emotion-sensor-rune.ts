@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：根據用戶交互過程中的「情緒熵」調整界面反饋強度
  */
 
-export const EmotionSensorInputSchema = z.object({
-  userInteractionLog: z.string().describe("用戶近期交互日誌片段"),
-  sessionDuration: z.number().describe("會話時長 (秒)"),
+export const EmotionSensorInputSchema = Type.Object({
+  userInteractionLog: Type.String({ description: "用戶近期交互日誌片段" }),
+  sessionDuration: Type.Number({ description: "會話時長 (秒)" }),
 });
 
 export const emotionSensorRune = defineRune({

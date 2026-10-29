@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：根據「萬有引力協議」進行路由，自動分發任務
  */
 
-export const DispatcherInputSchema = z.object({
-  taskDescription: z.string().describe("任務詳細描述"),
-  priority: z.number().min(1).max(5).describe("優先級"),
+export const DispatcherInputSchema = Type.Object({
+  taskDescription: Type.String({ description: "任務詳細描述" }),
+  priority: Type.Number({ minimum: 1, maximum: 5, description: "優先級" }),
 });
 
 export const dispatcherRune = defineRune({

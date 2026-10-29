@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：負責證據文件的 OCR 識別與視景分析，確保原始憑證的真實可感
  */
 
-export const VisualPerceptorInputSchema = z.object({
-  documentUri: z.string().describe("文件或圖片的 URI"),
-  perceiveLevel: z.enum(["LOW", "MEDIUM", "HIGH"]).describe("感知精度級別"),
+export const VisualPerceptorInputSchema = Type.Object({
+  documentUri: Type.String({ description: "文件或圖片的 URI" }),
+  perceiveLevel: Type.Union([Type.Literal("LOW"), Type.Literal("MEDIUM"), Type.Literal("HIGH")], { description: "感知精度級別" }),
 });
 
 export const visualPerceptorRune = defineRune({
