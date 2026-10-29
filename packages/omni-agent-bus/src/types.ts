@@ -1,4 +1,4 @@
-import type { IComponentCore } from '../../../src/types/core-contract';
+import type { IComponentCore } from '../../../src/types/core-contract.js';
 /**
  * OmniAgentBus — 共用型別 (對齊 oa-framework / omni-agent, 不依賴未 build 的 workspace 包)
  * 目的: 讓 OA 萬能分身的「圓通」骨幹獨立可驗證

@@ -1,4 +1,4 @@
-import type { ErrorResponse } from '../../../src/types/sustain-write';
+import type { ErrorResponse } from '../../../src/types/sustain-write.js';
 // ═══════════════════════════════════════════════════════════════
 // @esggo/errors — ESG GO 平臺錯誤代碼統一 Package
 // 單一事實來源 (Single Source of Truth) for all error codes

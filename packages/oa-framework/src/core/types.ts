@@ -1,4 +1,4 @@
-import type { IComponentCore } from '../../../../src/types/core-contract';
+import type { IComponentCore } from '../../../../src/types/core-contract.js';
 /**
  * OA Framework — 萬能分身元框架核心型別
  * 整合: ADK + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶
