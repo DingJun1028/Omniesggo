@@ -19,8 +19,8 @@ const req = (path: string, init: RequestInit = {}): Request =>
 
 describe('mcp-gateway auth — 純函式單元', () => {
   it('pathnameOf 解析路徑並剝離 query/fragment', () => {
-    expect(pathnameOf('http://host:1/health')).toBe('/health')
-    expect(pathnameOf('http://host:1/regulations?limit=5')).toBe('/regulations')
+    expect(pathnameOf('http://127.0.0.1:9/health')).toBe('/health')
+    expect(pathnameOf('http://127.0.0.1:9/regulations?limit=5')).toBe('/regulations')
   })
 
   it('extractToken 支援 Bearer 與 X-Omni-Token，拒絕空值', () => {
