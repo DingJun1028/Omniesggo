@@ -1,0 +1,29 @@
+name: Soul Lineage Check
+
+on:
+  pull_request:
+    paths:
+      - "soul.md"
+      - "docs/soul-lineage.json"
+      - "scripts/check-soul-lineage.mjs"
+      - ".github/workflows/soul-lineage.yml"
+  push:
+    branches: [main]
+    paths:
+      - "soul.md"
+      - "docs/soul-lineage.json"
+      - "scripts/check-soul-lineage.mjs"
+      - ".github/workflows/soul-lineage.yml"
+
+jobs:
+  soul-lineage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check soul.md version lineage
+        run: node scripts/check-soul-lineage.mjs
