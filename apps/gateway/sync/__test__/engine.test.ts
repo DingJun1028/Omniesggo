@@ -60,8 +60,8 @@ const eng4 = new SyncEngine({ originId: 'test' });
 const pkt = eng4.receive({ v: 1, from: 'omni', to: 'esggo', kind: 'state', seq: 1, ts: Date.now(), payload: mkOmni([mkAgent('z', 999)]), originId: 'remote' });
 assert(pkt !== null, 'valid packet accepted');
 assert(eng4.getHealth().packetsRecv === 1, 'packetsRecv incremented');
-const bad = eng4.receive({ v: 1, from: 'omni' });  // 缺欄位 -> zod 拒
-assert(bad === null, 'malformed packet rejected (zod)');
+const bad = eng4.receive({ v: 1, from: 'omni' });  // 缺欄位 -> schema 拒
+assert(bad === null, 'malformed packet rejected (typebox)');
 
 // ── 5. health 匯總 ──
 console.log('[5] health summary');
