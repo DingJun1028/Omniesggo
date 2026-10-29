@@ -1,0 +1,29 @@
+name: Schema Traceability
+
+on:
+  pull_request:
+    paths:
+      - "shared/prd-matrix.json"
+      - "docs/vault-canon/OMN-PRD-001-SCHEMA-TRACEABILITY.md"
+      - "scripts/generate-schema-traceability.mjs"
+      - ".github/workflows/schema-traceability.yml"
+  push:
+    branches: [main]
+    paths:
+      - "shared/prd-matrix.json"
+      - "docs/vault-canon/OMN-PRD-001-SCHEMA-TRACEABILITY.md"
+      - "scripts/generate-schema-traceability.mjs"
+      - ".github/workflows/schema-traceability.yml"
+
+jobs:
+  schema-traceability:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate and check schema requirement traceability
+        run: |
+          node scripts/generate-schema-traceability.mjs
+          node scripts/generate-schema-traceability.mjs --check
