@@ -12,7 +12,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "ws": "^8.18.0",
-    "zod": "^3.23.8"
+    "@sinclair/typebox": "^0.34.52"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
