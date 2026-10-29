@@ -1,0 +1,51 @@
+name: probe-learning-center-install2
+
+on:
+  push:
+    branches: [probe/lc-install2]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe-73-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/73/merge
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Root install (frozen)
+        run: |
+          set +e
+          pnpm install --frozen-lockfile > "${RUNNER_TEMP}/root.log" 2>&1
+          echo "root-exit=$?" >> "${RUNNER_TEMP}/root.log"
+      - name: LC install (frozen)
+        run: |
+          set +e
+          cd apps/learning-center
+          pnpm install --frozen-lockfile > "${RUNNER_TEMP}/lc.log" 2>&1
+          echo "lc-exit=$?" >> "${RUNNER_TEMP}/lc.log"
+      - name: Publish logs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const root = fs.readFileSync(process.env.RUNNER_TEMP + '/root.log', 'utf8');
+            const lc = fs.readFileSync(process.env.RUNNER_TEMP + '/lc.log', 'utf8');
+            const content = '===== ROOT =====\n' + root.slice(-4000) + '\n===== LEARNING-CENTER =====\n' + lc.slice(-4000);
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'probe-logs/probe-73-merge.log',
+              message: 'probe log PR 73 merge ref installs',
+              content: Buffer.from(content).toString('base64'),
+              branch: 'probe/lc-install2',
+            });
