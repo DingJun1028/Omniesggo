@@ -44,8 +44,7 @@ export interface HealingEffectCauseNode {
   /** 上游節點 (因) */
   parentCauseId?: string;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { HealingEffectCauseNode as EffectCauseNode };
 
 /**
@@ -71,8 +70,7 @@ export interface HealingEffectCauseResult {
   /** 總耗時 */
   totalMs: number;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { HealingEffectCauseResult as EffectCauseHealingResult };
 
 // ==========================================
@@ -96,8 +94,7 @@ interface MutableSystemIssue {
 }
 export class OmniHealing implements IOmniHealing {
   readonly uuid: string;
-  readonly version: string = '1.0.
-0';
+  readonly version: string = '1.0.0';
   readonly timestamp: number;
   evidence: {
     originCause: string;
@@ -182,8 +179,7 @@ export class OmniHealing implements IOmniHealing {
       };
     }
 
-    const startTime
- = Date.now();
+    const startTime = Date.now();
     const strategy = this.selectStrategy(issue);
 
     // 模擬修復
@@ -254,8 +250,7 @@ export class OmniHealing implements IOmniHealing {
 
     const totalMs = Date.now() - startTime;
 
-    const result: EffectCauseHealingRes
-ult = {
+    const result: HealingEffectCauseResult = {
       traceId,
       effect,
       rootCause,
@@ -320,8 +315,7 @@ ult = {
       intermediateConfidence = 0.7;
     } else {
       intermediateCause = '異常狀態';
-      intermediateConfidence = 0.
-5;
+      intermediateConfidence = 0.5;
     }
 
     const intermediateNode: HealingEffectCauseNode = {
@@ -390,8 +384,7 @@ ult = {
    * 執行修復
    */
   private async _executeHealing(
-   
- strategy: RecoveryStrategy,
+    strategy: RecoveryStrategy,
     _rootCause: string,
     _context?: Record<string, unknown>
   ): Promise<boolean> {
@@ -475,8 +468,7 @@ ult = {
     // 模擬恢復
     await new Promise((resolve) => setTimeout(resolve, Math.random() * 200));
 
-    const success = Mat
-h.random() > 0.1; // 90% 恢復成功率
+    const success = Math.random() > 0.1; // 90% 恢復成功率
 
     return {
       success,

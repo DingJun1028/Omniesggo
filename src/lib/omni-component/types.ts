@@ -55,8 +55,7 @@ export interface OmniComponentDataPoint {
   color?: string;
   metadata?: Record<string, unknown>;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { OmniComponentDataPoint as ChartDataPoint };
 
 export interface TimeSeriesData {
@@ -97,8 +96,7 @@ export interface CompanyData {
 
 export interface Indicator {
   id: string;
-  nam
-e: string;
+  name: string;
   category: 'environmental' | 'social' | 'governance' | 'economic';
   unit: string;
   description?: string;
@@ -187,8 +185,7 @@ export type {
   DataCardProps,
   MetricCardProps,
   ProofBadgeProps,
-  Butto
-nProps,
+  ButtonProps,
   BadgeProps,
   CardProps,
 } from './functional/index';

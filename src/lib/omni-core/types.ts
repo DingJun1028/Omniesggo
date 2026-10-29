@@ -1,4 +1,3 @@
-// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../types/core-contract）提供，單一真實來源。
 import type { IComponentCore } from '../../types/core-contract';
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /**
@@ -56,8 +55,7 @@ export type ExtractionMethod = 'OCR' | 'IoT' | 'Manual' | 'AI' | 'API';
 export type LifecycleEvent = 'created' | 'updated' | 'verified' | 'locked' | 'archived' | 'restored';
 
 export interface ComponentEvidence {
-  originCause: string;    // 因：原始
-觸發條件
+  originCause: string;    // 因：原始觸發條件
   processTrace: string[]; // 循：InfoOne 流轉路徑
   finalEffect: string;    // 果：最終執行結果與狀態
 }
@@ -74,7 +72,7 @@ export interface ComponentLifecycleEntry {
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../types/core-contract）提供，單一真實來源。
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
 export type { IComponentCore };
 
 /** 建立 IComponentCore 實例 */
@@ -115,8 +113,7 @@ export function createComponent<T>(
     lifecycle_events: [{ event: 'created', timestamp, actor }],
     data,
     isFrozen: true,
-    fiveT: fiv
-eTScore,
+    fiveT: fiveTScore,
     hash: bodyHash,
   };
 
@@ -130,8 +127,7 @@ eTScore,
 export type NotePriority = 'high' | 'medium' | 'low';
 export type NoteCategory = 'note' | 'task' | 'todo' | 'calendar' | 'reference';
 export type CoreTaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { CoreTaskStatus as TaskStatus };
 
 export interface OmniTask {
@@ -206,8 +202,7 @@ export interface CoreMemoryEntry {
   readonly tags: string[];
   relevanceScore?: number;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { CoreMemoryEntry as MemoryEntry };
 
 export interface OmniOneState {

@@ -30,8 +30,7 @@ export interface TwinComponentCore {
   /** 證據佐證庫 */
   evidence: Record<string, unknown>;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { TwinComponentCore as IComponentCore };
 
 /** 暗陣：Hermes 指揮 01–30，收斂／深潛除錯／記憶沉澱／自我修復 */
@@ -68,8 +67,7 @@ export interface GovernanceState {
 export interface HyperAwakenedState extends TwinComponentCore {
   readonly mode: 'OMNIPOTENT_HYPER_AWAKENED';
   readonly twins: TwinsState;
-  readonly go
-vernance: GovernanceState;
+  readonly governance: GovernanceState;
 }
 
 /** 參照以產生 lock 的欄位集合 —— hash 刻意**不**含 governance 自身與 timestamp */
@@ -146,8 +144,7 @@ export function verifyHyperAwakening(s: HyperAwakenedState): VerificationResult 
     hashErr = e instanceof Error ? e.message : String(e);
   }
   checks.push({
-    name:
- 'hash_lock',
+    name: 'hash_lock',
     ok: recomputed !== null && recomputed === s.governance.hash_lock,
     detail: hashErr
       ? `重算失敗：${hashErr}`

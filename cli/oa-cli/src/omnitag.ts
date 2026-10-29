@@ -54,8 +54,7 @@ export function enforceFrozenLock(tag: OmniTagSet, attemptedMutation: boolean): 
   const violations: string[] = [];
   const isSealed = tag.lifecycle === 'frozen' && tag.security === 'restricted';
   if (isSealed && attemptedMutation) {
-    violations
-.push('H4 frozen: lifecycle:frozen + restricted artifact is immutable');
+    violations.push('H4 frozen: lifecycle:frozen + restricted artifact is immutable');
   }
   return { valid: violations.length === 0, violations };
 }
@@ -109,8 +108,7 @@ export function routeOmniTag(tag: OmniTagSet): {
 }
 
 // ── §18 Hash Lock（對齊 FiveTHashLock.generate 同構）─────────
-export function generateHashLock(source: string, content: string, timestamp:
- number): string {
+export function generateHashLock(source: string, content: string, timestamp: number): string {
   const payload = `${source}|${content}|${timestamp}`;
   return createHash('sha256').update(payload).digest('hex');
 }
@@ -130,8 +128,7 @@ export interface CliSealResult {
   hashLock: string;
   sealedAt: number;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { CliSealResult as SealResult };
 
 export function emitArtifact(params: {
@@ -187,8 +184,7 @@ export interface RegistryOptions {
 
 export class OmniTagRegistry {
   private _path: string;
-  private _i
-nMemory: boolean;
+  private _inMemory: boolean;
   private _mem: string[] = [];
 
   constructor(opts: RegistryOptions = {}) {
@@ -261,7 +257,6 @@ nMemory: boolean;
   /** 讀取單一實體（若有） */
   getArtifact(entityId: string): PersistedArtifact | null {
     for (const line of this._readLines()) {
-
       try {
         const rec = JSON.parse(line) as PersistedArtifact;
         if (rec.entityId === entityId) return rec;

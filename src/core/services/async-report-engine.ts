@@ -21,8 +21,7 @@ import type { ChapterTemplate } from '../../../chapter-templates/index';
 
 export type ChapterStatus = 'pending' | 'processing' | 'completed' | 'failed';
 export type ReportTaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { ReportTaskStatus as TaskStatus };
 
 export interface ChapterState {
@@ -57,8 +56,7 @@ export interface ReportTaskProgress {
   fiveTGate: string;
   chapters: Record<number, ChapterState>;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { ReportTaskProgress as TaskProgress };
 
 // ═══════════════════════════════════════════════════════════════
@@ -67,8 +65,7 @@ export type { ReportTaskProgress as TaskProgress };
 
 interface RedisClient {
   connect(): Promise<void>;
-  setex(key: string, ttl: number, value: string): Promise<unk
-nown>;
+  setex(key: string, ttl: number, value: string): Promise<unknown>;
   get(key: string): Promise<string | null>;
 }
 
@@ -134,7 +131,6 @@ function _progressKey(taskId: string): string {
 // ═══════════════════════════════════════════════════════════════
 // Task Store (Redis-backed)
 // ═══════════════════════════════════════════════════════════════
-
 
 async function storeTaskState(state: ReportTaskProgress): Promise<void> {
   const key = taskKey(state.taskId);
@@ -213,8 +209,7 @@ class ConcurrencyController {
 
 // ═══════════════════════════════════════════════════════════════
 // ETA Calculator
-// ═════════════════════════════════════════════════════════════
-══
+// ═══════════════════════════════════════════════════════════════
 
 function calculateETA(
   startTime: number,
@@ -275,8 +270,7 @@ function generateChapterContent(input: ChapterGenInput): { content: string; word
   // Generate rich chapter content with multiple sections
   let html = '';
   html += `<h2>第${chapterNum}章 ${title} <span style="color:#009EB0;font-size:13px">[${gl}]</span></h2>`;
-  html += `<p>${companyName}（以下簡稱${shortName}）營運據點包含${loc}，主要業務為${profile?.mainBusiness || '高科技製造'}。截至${year}年12月31日，員工約${emp}人，年營收約${rev}。${shortName}在「${title}」面向依5T協議${gl}
-（${fiveTGate}）原則進行完整揭露。</p>`;
+  html += `<p>${companyName}（以下簡稱${shortName}）營運據點包含${loc}，主要業務為${profile?.mainBusiness || '高科技製造'}。截至${year}年12月31日，員工約${emp}人，年營收約${rev}。${shortName}在「${title}」面向依5T協議${gl}（${fiveTGate}）原則進行完整揭露。</p>`;
   
   // Add template-specified key sections
   for (let i = 0; i < template.keySections.length; i++) {
@@ -320,8 +314,7 @@ function generateChapterContent(input: ChapterGenInput): { content: string; word
   return { content: html, wordCount };
 }
 
-// ═══════════════════════════════════════════════════════
-════════
+// ═══════════════════════════════════════════════════════════════
 // Async Report Engine
 // ═══════════════════════════════════════════════════════════════
 
@@ -392,8 +385,7 @@ export function startReportGeneration(
       const companyAnswers = answers.length > 0 ? answers : getAnswersByCompany(companyId);
       const typedAnswers = companyAnswers as { chapterNum: number; content: string; [key: string]: unknown }[];
       
-      // Update task to runni
-ng
+      // Update task to running
       const runningState: ReportTaskProgress = {
         ...task,
         status: 'running',
@@ -449,8 +441,7 @@ ng
             completedAt: completedCount === 28 ? new Date().toISOString() : undefined,
           };
           
-          tasks.set(taskId, updatedSta
-te);
+          tasks.set(taskId, updatedState);
           storeTaskState(updatedState);
           
           // Clean up after completion
@@ -512,8 +503,7 @@ async function processChapterWithConcurrency(
       ...currentTask,
       chapters: { ...currentTask.chapters, [chNum]: chapterState },
       currentChapter: chNum,
-      chapterTitle: template?.t
-itle || `第${chNum}章`,
+      chapterTitle: template?.title || `第${chNum}章`,
       fiveTGate: template?.fiveTGate || '',
       updatedAt: new Date().toISOString(),
     };
@@ -565,8 +555,7 @@ itle || `第${chNum}章`,
     
     return { success: true, wordCount, title: template?.title || '', fiveTGate: template?.fiveTGate || '' };
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message :
- 'Unknown error';
+    const errorMsg = err instanceof Error ? err.message : 'Unknown error';
     
     // Update chapter to failed
     const currentTask = tasks.get(taskId);
@@ -643,8 +632,7 @@ export function cleanupOldTasks(): number {
   const now = Date.now();
   const entries = Array.from(tasks.entries());
   
-  for (const [id, task] of
- entries) {
+  for (const [id, task] of entries) {
     if (['completed', 'failed', 'cancelled'].includes(task.status) && task.completedAt) {
       if (now - new Date(task.completedAt).getTime() > 3600000) {
         tasks.delete(id);

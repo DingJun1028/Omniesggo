@@ -3,8 +3,7 @@
 
 export const LOCALES = ['zh-TW', 'en', 'ja'] as const;
 export type AppLocale = (typeof LOCALES)[number];
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { AppLocale as Locale };
 
 export const DEFAULT_LOCALE: AppLocale = 'zh-TW';
@@ -20,8 +19,7 @@ export const STORAGE_KEY = 'esggo-locale';
 
 // 字典型別：key → 翻譯字串。集中於 config 以避免 core ↔ dictionaries 循環依賴。
 export type AppDictionary = Record<string, string>;
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { AppDictionary as Dictionary };
 
 export function isLocale(value: unknown): value is AppLocale {

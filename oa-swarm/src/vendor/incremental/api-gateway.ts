@@ -10,8 +10,7 @@ export interface IncrementalAPIRequest {
   hmac?: string;
   body?: unknown;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { IncrementalAPIRequest as APIRequest };
 
 export class APIGateway {

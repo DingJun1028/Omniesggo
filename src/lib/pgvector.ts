@@ -53,8 +53,7 @@ export interface PgSearchResult {
   similarity: number;
   created_at: Date;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { PgSearchResult as SearchResult };
 
 export async function storeEmbedding(
@@ -78,8 +77,7 @@ export async function getEmbedding(noteId: string): Promise<NoteEmbeddingRow | n
     'SELECT * FROM note_embeddings WHERE note_id = $1',
     [noteId]
   );
-  return result.rows[0] || 
-null;
+  return result.rows[0] || null;
 }
 
 export async function deleteEmbedding(noteId: string): Promise<boolean> {
@@ -142,8 +140,7 @@ export interface ESGEntityRow {
   entity_type: string;
   entity_name: string;
   entity_id: string | null;
-  confidence: num
-ber;
+  confidence: number;
   metadata: Record<string, unknown> | null;
   created_at: Date;
 }
@@ -205,8 +202,7 @@ export async function getEmbeddingStats() {
   );
   const row = result.rows[0];
   return {
-    totalEmbeddings: parseInt(String(row.total_embe
-ddings), 10) || 0,
+    totalEmbeddings: parseInt(String(row.total_embeddings), 10) || 0,
     modelsUsed: row.models_used || [],
     oldestEmbedding: row.oldest_embedding,
     newestEmbedding: row.newest_embedding,

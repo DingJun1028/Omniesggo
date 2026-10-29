@@ -1,9 +1,10 @@
+import type { IComponentCore } from '../src/types/core-contract';
 /**
  * 萬能藍圖中心 (Omni-Blueprint Hub) - 核心執行引擎
  *
  * 核心公約：
  * 1. 5T 協議：Traceable, Trackable, Transparent, Tangible, Trustworthy
- * 2. 萬能元件心核 (BlueprintHubComponentCore)：UUID, Version, Timestamp, Evidence
+ * 2. 萬能元件心核 (IComponentCore)：UUID, Version, Timestamp, Evidence
  * 3. 4 可 1 不可狀態機 + 單一資料表原則 (Single Data Table)
  * 4. 全端雙向 TypeScript 架構
  *
@@ -23,27 +24,12 @@ import crypto from 'crypto';
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface BlueprintHubComponentCore {
-  // 萬能永憶主體唯一識別碼 (Immutable)
-  readonly uuid: string;
-  // 語義化版本控制
-  readonly version: string;
-  // 刻印時間戳 (溯源起點)
-  readonly timestamp: number;
-  // 證據左證庫 (儲存觀因循果的執行軌跡)
-  evidence: {
-    originCause: string;    // 因：原始觸發條件
-    processTrace: string[]; // 循：InfoOne 流轉路徑
-    finalEffect: string;    // 果：最終執行結果與狀態
-  };
-}
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
-export type { BlueprintHubComponentCore as IComponentCore };
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
+export type { IComponentCore };
 
 export type BlueprintType = 'LIVE_BROADCAST' | 'DESIGNATED_URL_BROADCAST';
 
-export interface BlueprintDefinition extends BlueprintHubComponentCore {
+export interface BlueprintDefinition extends IComponentCore {
   type: BlueprintType;
   name: string;
   sourceEndpoint: string;
@@ -52,7 +38,7 @@ export interface BlueprintDefinition extends BlueprintHubComponentCore {
   hashLock?: string;
 }
 
-export interface BlueprintProduct extends BlueprintHubComponentCore {
+export interface BlueprintProduct extends IComponentCore {
   blueprintId: string;
   productName: string;
   broadcastUrl?: string;
@@ -79,8 +65,7 @@ export interface UnifiedBlueprintEntity {
   createdAt: string;
 }
 
-// ===========================
-===============
+// ==========================================
 // 2. 萬能藍圖中心 (Omni-Blueprint Hub) 服務類別
 // ==========================================
 
@@ -154,8 +139,7 @@ export class OmniBlueprintHub {
         .digest('hex')
         .substring(0, 10);
 
-      broadcastUrl = `https://esggo.app/live-sync?host=${encodeURIComponent(blueprint.hostEmail)}&token=5T-${shareTo
-ken}`;
+      broadcastUrl = `https://esggo.app/live-sync?host=${encodeURIComponent(blueprint.hostEmail)}&token=5T-${shareToken}`;
     }
 
     const product: BlueprintProduct = {
@@ -231,8 +215,7 @@ ken}`;
     this.saveToSingleTable({
       id: logId,
       entityType: 'BROADCAST_LOG',
-      blueprintType: product.broadcastUrl ? 
-'DESIGNATED_URL_BROADCAST' : 'LIVE_BROADCAST',
+      blueprintType: product.broadcastUrl ? 'DESIGNATED_URL_BROADCAST' : 'LIVE_BROADCAST',
       hostEmail: product.productName,
       payload: { ...streamItem, productId: product.uuid },
       hashLock: payloadHash,
@@ -303,8 +286,7 @@ hub.pushBroadcastPayload(
   '永續報告書數據 ISO-14064-1 驗算已通過。',
   {
     en: 'Sustainability report data verified under ISO-14064-1.',
-    ja: '持続可能性レポートデータは ISO-14064-1 
-に基づいて検証されました。'
+    ja: '持続可能性レポートデータは ISO-14064-1 に基づいて検証されました。'
   }
 );
 console.log(' 即時轉播數據已推播 (5T 可溯源)。\n');

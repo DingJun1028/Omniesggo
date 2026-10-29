@@ -8,8 +8,7 @@ export interface GatewayAPIRequest {
   headers?: Record<string, string>;
   handler?: () => Promise<unknown> | unknown;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { GatewayAPIRequest as APIRequest };
 
 export interface GatewayAPIResponse {
@@ -18,6 +17,5 @@ export interface GatewayAPIResponse {
   cached: boolean;
   hashLock: string;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { GatewayAPIResponse as APIResponse };

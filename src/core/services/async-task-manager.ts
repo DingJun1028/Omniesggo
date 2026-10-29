@@ -37,8 +37,7 @@ export type ManagedTaskStatus =
   | 'completed'
   | 'failed'
   | 'cancelled';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { ManagedTaskStatus as TaskStatus };
 
 export interface ManagedTaskProgress {
@@ -69,7 +68,6 @@ export interface ManagedTaskProgress {
   readonly error?: string;
   readonly result?: {
     readonly totalWords: number;
-
     readonly totalTags: number;
     readonly trinityHash: string;
     readonly durationMs: number;
@@ -80,8 +78,7 @@ export interface ManagedTaskProgress {
     readonly imagery?: boolean;
   };
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { ManagedTaskProgress as TaskProgress };
 
 export const DEFAULT_RENDER_OPTIONS = { charts: true, imagery: true };
@@ -131,8 +128,7 @@ function stateToProgress(state: TaskState, extra?: Partial<ManagedTaskProgress>)
     totalChapters: state.totalChapters,
     chapterTitle,
     wordsSoFar,
-    fi
-veTGate: gate,
+    fiveTGate: gate,
     tagsCreated: state.completedChapters.length,
     decisionsCount: state.completedChapters.length * 3,
     percent:
@@ -198,8 +194,7 @@ export function createTask(
     startedAt: now,
     updatedAt: now,
     templateId: templateId || 'gri',
-    render
-Options: normalizeRenderOptions(renderOptions),
+    renderOptions: normalizeRenderOptions(renderOptions),
     ...(noteIds && noteIds.length > 0 ? { noteIds } : {}),
     ...(customCompany ? { customCompany } : {}),
   };
@@ -277,8 +272,7 @@ export function cancelTask(taskId: string): boolean {
   return true;
 }
 
-export function cl
-eanupOldTasks(): number {
+export function cleanupOldTasks(): number {
   const now = Date.now();
   let cleaned = 0;
   const entries = Array.from(tasks.entries());
@@ -350,8 +344,7 @@ export function startAsyncTask(
           .update(`${taskId}:${report?.totalWords ?? wordsSoFar}`)
           .digest('hex');
 
-      
-  const result: ManagedTaskProgress = {
+        const result: ManagedTaskProgress = {
           ...current,
           status: 'completed',
           currentChapter: totalChapters,
@@ -417,8 +410,7 @@ export function startAsyncTask(
       const { adminDb } = require('@/lib/firebase-admin');
       if (adminDb) {
         const snapshot = await (() => {
-          const col = adminDb.collection('rag
-_knowledge');
+          const col = adminDb.collection('rag_knowledge');
           if (!col) throw new Error('Firestore collection unavailable');
           return col.get();
         })();
@@ -466,8 +458,7 @@ _knowledge');
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             tool: 'lhub_ask',
-            arguments: { task: 'summarize', context: rag
-Context },
+            arguments: { task: 'summarize', context: ragContext },
           }),
         }).then((r) => r.json());
 
@@ -530,8 +521,7 @@ Context },
         taskTimeouts.set(taskId, timeout);
       })
       .catch((err: unknown) => {
- 
-       console.warn('[V5 Task] AGNES API Failed, using fallback.', err);
+        console.warn('[V5 Task] AGNES API Failed, using fallback.', err);
         const chapterWords = 500 + Math.floor(Math.random() * 200);
         wordsSoFar += chapterWords;
         chapterIndex++;
@@ -593,8 +583,7 @@ async function completeTaskStateRedis(taskId: string, result: ManagedTaskProgres
     updatedAt: new Date().toISOString(),
     result: result.result
       ? {
-          totalWords: r
-esult.result.totalWords,
+          totalWords: result.result.totalWords,
           totalTags: result.result.totalTags,
           trinityHash: result.result.trinityHash,
           durationMs: result.result.durationMs,

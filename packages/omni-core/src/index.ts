@@ -44,8 +44,7 @@ export interface OmniCoreComponentCore {
   /** 證據佐證庫 (可變, 用於鏈式追加) */
   evidence: Evidence[];
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { OmniCoreComponentCore as IComponentCore };
 
 /**
@@ -83,8 +82,7 @@ export function computeHash(payload: unknown): string {
  *
  * @example
  * ```typescript
- * const core = createComponentCore('test://origin'
-);
+ * const core = createComponentCore('test://origin');
  * const sealed = await sealComponentCore(core);
  * // sealed.evidence[0].hash === sha256 of sealed (self-referential seal)
  * // Object.isFrozen(sealed) === true

@@ -1,4 +1,3 @@
-// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/core-contract）提供，單一真實來源。
 import type { IComponentCore } from '../../src/types/core-contract';
 // 5T-Traceable: source_origin=lib/types/oab-types.ts (OAB 契約正典)
 import { randomUUID } from 'node:crypto';
@@ -15,7 +14,7 @@ import { randomUUID } from 'node:crypto';
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/core-contract）提供，單一真實來源。
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
 export type { IComponentCore };
 
 /**
@@ -44,15 +43,13 @@ export interface OabIBusEvent {
   /** Unique event id (different from component uuid) */
   readonly eventId: string;
   /** Event name – e.g. 'task:created', 'system:error', 'managed:mutation' */
- 
- readonly name: string;
+  readonly name: string;
   /** Timestamp of the event emission */
   readonly timestamp: number;
   /** The payload is always an IComponentCore (or a subclass) */
   readonly payload: IComponentCore;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { OabIBusEvent as IBusEvent };
 
 /**
@@ -94,8 +91,7 @@ export interface OabITaskSpec extends IComponentCore {
   /** Arbitrary parameters for the task */
   readonly params: Record<string, unknown>;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { OabITaskSpec as ITaskSpec };
 
 export interface IMutationSpec extends IComponentCore {
@@ -109,8 +105,7 @@ export interface IMutationSpec extends IComponentCore {
 }
 
 export interface IHealingAction extends IComponentCore {
-  /** Healin
-g operation – 'restart' | 'rollback' | 'retry' | 'notify' | 'dynamicPatch' */
+  /** Healing operation – 'restart' | 'rollback' | 'retry' | 'notify' | 'dynamicPatch' */
   readonly action: string;
   /** Target of the healing (service name, file path, agent id, …) */
   readonly target: string;

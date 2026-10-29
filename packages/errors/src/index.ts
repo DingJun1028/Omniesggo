@@ -1,3 +1,4 @@
+import type { ErrorResponse } from '../../../src/types/sustain-write';
 // ═══════════════════════════════════════════════════════════════
 // @esggo/errors — ESG GO 平臺錯誤代碼統一 Package
 // 單一事實來源 (Single Source of Truth) for all error codes
@@ -66,8 +67,7 @@ export const ERROR_CODES = {
     description: '請求參數驗證失敗',
   },
   NOT_FOUND: {
-    co
-de: 'ERR_NOT_FOUND',
+    code: 'ERR_NOT_FOUND',
     message: '資源不存在',
     httpStatus: HTTP_STATUS.NOT_FOUND,
     description: '請求的資源或資料不存在',
@@ -141,8 +141,7 @@ de: 'ERR_NOT_FOUND',
     description: '請求的公司 ID 不存在',
   },
   PROJECT_NOT_FOUND: {
-    code: 'ERR_PROJECT_NO
-T_FOUND',
+    code: 'ERR_PROJECT_NOT_FOUND',
     message: '專案不存在',
     httpStatus: HTTP_STATUS.NOT_FOUND,
     description: 'Village 專案 ID 不存在',
@@ -216,8 +215,7 @@ T_FOUND',
     description: '投票所需點數不足',
   },
   TASK_NOT_FOUND: {
- 
-   code: 'ERR_TASK_NOT_FOUND',
+    code: 'ERR_TASK_NOT_FOUND',
     message: '任務不存在',
     httpStatus: HTTP_STATUS.NOT_FOUND,
     description: '請求的任務 ID 不存在',
@@ -283,19 +281,12 @@ T_FOUND',
 export type ErrorCodeKey = keyof typeof ERROR_CODES;
 
 /** Mapping from ErrorCodeKey to its code string, e.g. "ERR_INVALID_PARAMS" */
-export type ErrorCodeString = (typeof ERROR_CODES)[ErrorCodeKey]['co
-de'];
+export type ErrorCodeString = (typeof ERROR_CODES)[ErrorCodeKey]['code'];
 
 // ── Standard Response Shapes ───────────────────────────────────
 
-export interface EsggoErrorResponse {
-  success: false;
-  error: string;
-  code: string;
-}
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
-export type { EsggoErrorResponse as ErrorResponse };
+// ts-matrix: 收斂至規範型別 (canonical: src/types/sustain-write)
+export type { ErrorResponse };
 
 export interface SuccessResponse<T = unknown> {
   success: true;
@@ -318,7 +309,7 @@ export function getError(key: string): ErrorCodeDef {
 /**
  * Create a standard error response JSON body.
  */
-export function createErrorBody(key: ErrorCodeKey, customMessage?: string): EsggoErrorResponse {
+export function createErrorBody(key: ErrorCodeKey, customMessage?: string): ErrorResponse {
   const def = ERROR_CODES[key];
   return {
     success: false,

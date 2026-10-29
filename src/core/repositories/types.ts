@@ -18,8 +18,7 @@ export interface RepositoryReportChapter {
   griIndicators: string[];
   dataQuality: 'high' | 'medium' | 'low';
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { RepositoryReportChapter as ReportChapter };
 
 export interface GRIIndex {

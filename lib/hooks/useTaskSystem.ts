@@ -3,8 +3,7 @@ import { persist } from 'zustand/middleware';
 
 export type TaskPriority = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 export type TaskSystemTaskStatus = 'TODO' | 'IN_PROGRESS' | 'WAITING' | 'DONE';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { TaskSystemTaskStatus as TaskStatus };
 
 export interface OmniTask {
@@ -69,8 +68,7 @@ export const useTaskSystem = create<TaskStore>()(
       }),
 
       updateTask: (id: string, updates: Partial<OmniTask>) => set((state: TaskStore) => ({
-        tasks: state.tasks.map((t: OmniTask) => t.id === id ? { ...t, ...updates, updatedAt: Da
-te.now() } : t)
+        tasks: state.tasks.map((t: OmniTask) => t.id === id ? { ...t, ...updates, updatedAt: Date.now() } : t)
       })),
 
       deleteTask: (id: string) => set((state: TaskStore) => ({

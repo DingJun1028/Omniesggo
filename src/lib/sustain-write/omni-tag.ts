@@ -88,15 +88,13 @@ export type SyncStatus = 'synced' | 'syncing' | 'pending' | 'drift';
 export interface TagReportChapter {
   readonly id: string;
   readonly title: string;
-  readonly fiveTGate: 'traceable' | 'transparent' | 'tangible' | 'trustworth
-y' | 'trackable';
+  readonly fiveTGate: 'traceable' | 'transparent' | 'tangible' | 'trustworthy' | 'trackable';
   readonly content: string;
   readonly omniTags: OmniTag[];
   readonly evidenceRefs: string[];
   readonly wordCount: number;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { TagReportChapter as ReportChapter };
 
 export interface GeneratedReport {
@@ -160,8 +158,7 @@ export class OmniTagFactory {
     const tagB = tagRegistry[tagA.pairedWith];
     if (!tagB) return null;
 
-    const syn
-cedA: OmniTag = { ...tagA, lifecycle: 'synced' };
+    const syncedA: OmniTag = { ...tagA, lifecycle: 'synced' };
     const syncedB: OmniTag = { ...tagB, lifecycle: 'synced' };
     tagRegistry[tagAUuid] = syncedA;
     tagRegistry[tagA.pairedWith] = syncedB;
@@ -226,8 +223,7 @@ export class FiveTReportEngine {
       companyId,
       companyName: profile ? profile.companyName || companyId : companyId,
       chapters,
-      to
-talWords,
+      totalWords,
       fiveTStatus,
       generatedAt: new Date().toISOString(),
     };
@@ -272,8 +268,7 @@ talWords,
       a.questionId.indexOf('C8') === 0
     );
     const content = this.generateNarrative(envAnswers, profile, '環境社會指標與具體成果');
-    const tags = envAnswers.map(() => OmniTagFactory.create({ lifecycle: '
-verified' }));
+    const tags = envAnswers.map(() => OmniTagFactory.create({ lifecycle: 'verified' }));
 
     return {
       id: 'ch-tangible',
@@ -325,8 +320,7 @@ verified' }));
 
     if (profile) {
       paragraphs.push(
-        (profile.companyName || '{{company_name}}') + ' 在「'
- + section + '」面向的永續揭露，' +
+        (profile.companyName || '{{company_name}}') + ' 在「' + section + '」面向的永續揭露，' +
         '以完整價值鏈為報告邊界，涵蓋 {{operating_locations}} 的營運活動。' +
         '本章節透過 OmniTag 萬能標籤系統，確保每一筆數據的 5T 檢驗（真善美信通）完整通過。'
       );

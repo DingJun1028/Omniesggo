@@ -22,6 +22,5 @@ export interface OmniNote {
 }
 
 export type OmniNoteCreateInput = Omit<OmniNote, "id" | "note_id" | "created_at" | "updated_at">;
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { OmniNoteCreateInput as CreateNoteInput };

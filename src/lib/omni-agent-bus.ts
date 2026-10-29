@@ -10,8 +10,7 @@ export interface OaBusEvent {
   uuid?: string;
   [key: string]: unknown;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { OaBusEvent as IBusEvent };
 
 /** Simple OmniBus implementation */
@@ -57,8 +56,7 @@ class SimpleOmniBus {
   }
 
   /** Lifecycle cleanup when a topic queue becomes empty */
-  cleanup(topic: string): void 
-{
+  cleanup(topic: string): void {
     if ((this.queueLengths[topic] || 0) === 0) {
       const marker = this.entropyProcessor.lifecycleCleanup(topic);
       console.info(`[Lifecycle] Cleaned up ${topic}:`, marker);

@@ -51,8 +51,7 @@ export interface DbEvolutionReport extends IComponentCore {
   newInsights: Insight[];
   iteratedAt: number;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { DbEvolutionReport as EvolutionReport };
 
 /**
@@ -78,8 +77,7 @@ export class OmniDB {
    * Algorithm 2: Cross-Domain Linking
    */
   link(patternIds: string[], reasoning: string, confidence = 0.8): Insight {
-    const id = `insight-${Date.now()}-${Math.random().toString(36).slice(2, 6)
-}`;
+    const id = `insight-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
     const crossDomain = patternIds.length >= 2;
     const insight: Insight = {
       id,
@@ -156,8 +154,7 @@ export class OmniDB {
    * Algorithm 5: Self-Iteration Loop
    */
   async iterate(): Promise<Readonly<DbEvolutionReport>> {
-    const contradictions: Array<{ factA: s
-tring; factB: string; severity: number }> = [];
+    const contradictions: Array<{ factA: string; factB: string; severity: number }> = [];
     const seenRules = new Map<string, string>();
 
     // 偵測矛盾: 同樣 key 不同 rule
@@ -222,8 +219,7 @@ tring; factB: string; severity: number }> = [];
       hash: this.wisdomLog[this.wisdomLog.length - 1]?.provenance.hash || '',
     };
 
-    return { answer, p
-rovenance };
+    return { answer, provenance };
   }
 
   /**

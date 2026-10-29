@@ -1,3 +1,4 @@
+import type { IComponentCore } from '../../../src/types/core-contract';
 /**
  * OmniAgentBus — 共用型別 (對齊 oa-framework / omni-agent, 不依賴未 build 的 workspace 包)
  * 目的: 讓 OA 萬能分身的「圓通」骨幹獨立可驗證
@@ -19,23 +20,8 @@ export type SubFrameId =
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface BusComponentCore {
-  // 萬能永憶主體唯一識別碼 (Immutable)
-  readonly uuid: string;
-  // 語義化版本控制
-  readonly version: string;
-  // 刻印時間戳 (溯源起點)
-  readonly timestamp: number;
-  // 證據左證庫 (儲存觀因循果的執行軌跡)
-  evidence: {
-    originCause: string;    // 因：原始觸發條件
-    processTrace: string[]; // 循：InfoOne 流轉路徑
-    finalEffect: string;    // 果：最終執行結果與狀態
-  };
-}
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
-export type { BusComponentCore as IComponentCore };
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
+export type { IComponentCore };
 
 export interface OATaskResult {
   uuid: string;
@@ -65,6 +51,5 @@ export interface BusMessage<T = unknown> {
 }
 
 export type BusHandlerFn<T = unknown> = (msg: BusMessage<T>) => void | Promise<void>;
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { BusHandlerFn as BusHandler };

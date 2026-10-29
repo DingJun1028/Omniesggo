@@ -21,6 +21,5 @@ export interface OneIAwakeningResult {
   data: any;
   plan: string[];
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { OneIAwakeningResult as IAwakeningResult };

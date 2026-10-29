@@ -12,8 +12,7 @@ export interface EsgChartsDataPoint {
   color?: string;
   metadata?: Record<string, unknown>;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { EsgChartsDataPoint as ChartDataPoint };
 
 export interface ChartDataset {
@@ -93,8 +92,7 @@ export interface AreaChartProps {
   yAxisLabel?: string;
   smooth?: boolean;
   fill?: boolean;
-  animation?: boolea
-n;
+  animation?: boolean;
   onClick?: (point: EsgChartsDataPoint) => void;
   className?: string;
 }

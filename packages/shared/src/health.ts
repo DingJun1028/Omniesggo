@@ -15,8 +15,7 @@ export interface SharedComponentHealth {
   message?: string;
   details?: Record<string, unknown>;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { SharedComponentHealth as ComponentHealth };
 
 export interface ServiceHealth {
@@ -70,8 +69,7 @@ export async function runHealthChecks(): Promise<ServiceHealth> {
         status: 'unhealthy',
         latencyMs: Date.now() - checkStart,
         message: err instanceof Error ? err.message : 'Unknown error',
- 
-     };
+      };
     }
   });
 
@@ -145,7 +143,6 @@ export async function checkDatabase(): Promise<SharedComponentHealth> {
 /**
  * Check Firebase Admin configuration.
  */
-
 export async function checkFirebase(): Promise<SharedComponentHealth> {
   const config = getConfig();
   if (config.firebase.serviceAccountJson || config.firebase.projectId) {

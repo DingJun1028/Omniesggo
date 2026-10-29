@@ -1,31 +1,17 @@
-// Omni-Blueprint Hub - Core Types (BlueprintComponentCore)
+import type { IComponentCore } from '../../src/types/core-contract';
+// Omni-Blueprint Hub - Core Types (IComponentCore)
 // 5T Protocol + Single Data Table + Hash Lock
 
 /**
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface BlueprintComponentCore {
-  // 萬能永憶主體唯一識別碼 (Immutable)
-  readonly uuid: string;
-  // 語義化版本控制
-  readonly version: string;
-  // 刻印時間戳 (溯源起點)
-  readonly timestamp: number;
-  // 證據左證庫 (儲存觀因循果的執行軌跡)
-  evidence: {
-    originCause: string;    // 因：原始觸發條件
-    processTrace: string[]; // 循：InfoOne 流轉路徑
-    finalEffect: string;    // 果：最終執行結果與狀態
-  };
-}
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
-export type { BlueprintComponentCore as IComponentCore };
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
+export type { IComponentCore };
 
 export type BlueprintType = 'LIVE_BROADCAST' | 'DESIGNATED_URL_BROADCAST';
 
-export interface BlueprintDefinition extends BlueprintComponentCore {
+export interface BlueprintDefinition extends IComponentCore {
   type: BlueprintType;
   name: string;
   sourceEndpoint: string;
@@ -34,7 +20,7 @@ export interface BlueprintDefinition extends BlueprintComponentCore {
   hashLock?: string;
 }
 
-export interface BlueprintProduct extends BlueprintComponentCore {
+export interface BlueprintProduct extends IComponentCore {
   blueprintId: string;
   productName: string;
   broadcastUrl?: string;

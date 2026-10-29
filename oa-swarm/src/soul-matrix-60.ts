@@ -1,3 +1,4 @@
+import type { ArrayKey, HiveSide } from '../../shared/types';
 /// <reference path="../types/generated/esggo-shared.d.ts" />
 /**
  * OA-Team 雙蜂戰隊 60 員矩陣 (Dual-Hive 60 Colony)
@@ -8,25 +9,21 @@
  */
 import type { ISoulAgent } from '../types/generated/esggo-shared.js';
 
-export type SoulHiveSide = 'local' | 'vps';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
-export type { SoulHiveSide as HiveSide };
-export type SoulArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
-export type { SoulArrayKey as ArrayKey };
+// ts-matrix: 收斂至規範型別 (canonical: shared/types)
+export type { HiveSide };
+// ts-matrix: 收斂至規範型別 (canonical: shared/types)
+export type { ArrayKey };
 
 export interface SoulAgent60 extends ISoulAgent {
   id: number;
   title: string;
   tags: string[];
-  array: SoulArrayKey;
-  side: SoulHiveSide;
+  array: ArrayKey;
+  side: HiveSide;
   task: string;
 }
 
-export const ARRAY_NAMES: Record<SoulArrayKey, string> = {
+export const ARRAY_NAMES: Record<ArrayKey, string> = {
   sanctum: '智庫聖所',
   rune: '符文契約',
   wing: '光之羽翼',
@@ -34,7 +31,7 @@ export const ARRAY_NAMES: Record<SoulArrayKey, string> = {
   audit: '5T 驗算',
 };
 
-const A = (title: string, tags: string[], array: SoulArrayKey, side: SoulHiveSide, task: string): SoulAgent60 => ({
+const A = (title: string, tags: string[], array: ArrayKey, side: HiveSide, task: string): SoulAgent60 => ({
   id: 0, title, tags, array, side, task,
 });
 
@@ -54,8 +51,7 @@ export const SOUL_MATRIX_60: SoulAgent60[] = [
   A('萬能情境蜂后', ['#上下文', '#狀態機'], 'sanctum', 'vps', '上下文視窗管理，狀態機協同。'),
   A('萬能反思蜂后', ['#自我反思', '#對齊'], 'sanctum', 'vps', '蜂群自我反思與價值對齊。'),
   // 符文契約 07-12 / 37-42
-  A('萬
-能編碼蜂', ['#全端開發', '#API設計'], 'rune', 'local', 'Traceable 代碼產出，API 設計。'),
+  A('萬能編碼蜂', ['#全端開發', '#API設計'], 'rune', 'local', 'Traceable 代碼產出，API 設計。'),
   A('萬能算法蜂', ['#機器學習', '#深度學習'], 'rune', 'local', '構建 AI 模型管線，訓練可驗證。'),
   A('萬能架構蜂', ['#雲端架構', '#分布式'], 'rune', 'local', '可擴展系統架構，Trackable 監控。'),
   A('萬能數據蜂', ['#資料庫', '#數據管道'], 'rune', 'local', '高可靠數據管道，Traceable 與 Trustworthy。'),
@@ -84,8 +80,7 @@ export const SOUL_MATRIX_60: SoulAgent60[] = [
   A('萬能增長蜂', ['#用戶增長', '#業務拓展'], 'alchemy', 'local', '推動業務增長，驗證指標。'),
   A('萬能運營蜂', ['#進度管理', '#資源調度'], 'alchemy', 'local', '協調資源與進度。'),
   A('萬能商業分析蜂', ['#商業洞察', '#決策支持'], 'alchemy', 'local', '商業決策支持。'),
-  A('萬能探路蜂', ['#資源探索', '#機會發掘'], 'alchemy', 'local', '發掘新
-機會。'),
+  A('萬能探路蜂', ['#資源探索', '#機會發掘'], 'alchemy', 'local', '發掘新機會。'),
   A('萬能外交蜂', ['#合作關係', '#談判協商'], 'alchemy', 'local', '建立合作關係。'),
   A('萬能調研蜂', ['#用戶研究', '#需求分析'], 'alchemy', 'local', '用戶調研分析。'),
   A('萬能重構蜂后', ['#重構', '#技術債'], 'alchemy', 'vps', '技術債清除與重構。'),
@@ -112,6 +107,6 @@ export const SOUL_MATRIX_60: SoulAgent60[] = [
 export const LOCAL_AGENTS = SOUL_MATRIX_60.filter((a) => a.side === 'local');
 export const VPS_AGENTS = SOUL_MATRIX_60.filter((a) => a.side === 'vps');
 
-export function agentsByArray(key: SoulArrayKey): SoulAgent60[] {
+export function agentsByArray(key: ArrayKey): SoulAgent60[] {
   return SOUL_MATRIX_60.filter((a) => a.array === key);
 }

@@ -22,8 +22,7 @@ import { getDelegationMetrics, type DelegationMetricsSnapshot } from './metrics'
 
 /** 健康狀態等級 */
 export type DelegationHealthLevel = 'healthy' | 'degraded' | 'unhealthy';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { DelegationHealthLevel as HealthLevel };
 
 /** 單項檢查結果 */
@@ -87,8 +86,7 @@ function getFlowTracker(): EventFlowTracker {
 }
 
 /**
- * 記錄一筆事件流入（供 publishDelegationEvent 或 bu
-s 訂閱者回呼）。
+ * 記錄一筆事件流入（供 publishDelegationEvent 或 bus 訂閱者回呼）。
  * 呼叫此方法不影響主流程（fire-and-forget）。
  */
 export function recordDelegationEventFlow(): void {
@@ -169,8 +167,7 @@ function checkJournalHealth(): {
       item: {
         name: 'journal',
         status: 'healthy',
-        message: `Journal 可讀寫：${all.length} 筆（審
-計 ${auditCount} / 事件 ${eventCount}），最新 id=${latestId}`,
+        message: `Journal 可讀寫：${all.length} 筆（審計 ${auditCount} / 事件 ${eventCount}），最新 id=${latestId}`,
         metrics: { totalRecords: all.length, auditCount, eventCount, latestId },
       },
       stats,
@@ -254,8 +251,7 @@ function checkEventFlowHealth(): HealthCheckItem {
     return {
       name: 'eventFlow',
       status: 'healthy',
-      message: `事件流
-活性：${Math.floor(secs)} 秒前有事件流入`,
+      message: `事件流活性：${Math.floor(secs)} 秒前有事件流入`,
       metrics: { totalEvents: tracker.eventCount, lastEventAt: tracker.lastEventAt, secondsAgo: Math.floor(secs) },
     };
   }

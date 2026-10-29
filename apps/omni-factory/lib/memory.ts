@@ -16,8 +16,7 @@ export interface FactoryMemoryMetadata {
   source?: string;
   confidence?: number;
 }
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { FactoryMemoryMetadata as MemoryMetadata };
 
 export interface MemoryRecord {
@@ -80,8 +79,7 @@ export class MemoryClient {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
-      const response = await fetch(`${this.baseUrl}/memory/retrieve`,
- {
+      const response = await fetch(`${this.baseUrl}/memory/retrieve`, {
         method: 'POST',
         headers: this.headers,
         body: JSON.stringify({ query }),
@@ -162,8 +160,7 @@ export class MemoryClient {
    */
   async recall(memoryId: string): Promise<MemoryRecord | null> {
     try {
-      const controller =
- new AbortController();
+      const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
       const response = await fetch(`${this.baseUrl}/recall`, {

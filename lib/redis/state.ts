@@ -1,4 +1,3 @@
-// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/sustain-write）提供，單一真實來源。
 import type { TaskResult } from '../../src/types/sustain-write';
 /**
  * ESGGO Redis State CRUD Operations
@@ -34,8 +33,7 @@ export const TTL = {
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type RedisTaskStatus = 'pending' | 'processing' | 'running' | 'completed' | 'failed' | 'cancelled';
-
-// [ts-matrix] 對外相容別名：保留原匯出名稱，既有呼叫端不受影響。
+// ts-matrix: 對外相容別名 (API 不變)
 export type { RedisTaskStatus as TaskStatus };
 
 export interface TaskState {
@@ -63,7 +61,7 @@ export interface ChapterState {
   error?: string;
 }
 
-// [ts-matrix] 重複定義已收斂：改由規範型別提供者（../../src/types/sustain-write）提供，單一真實來源。
+// ts-matrix: 收斂至規範型別 (canonical: src/types/sustain-write)
 export type { TaskResult };
 
 export interface ProgressInfo {
@@ -77,8 +75,7 @@ export interface ProgressInfo {
   updatedAt: string;
 }
 
-// ─── Key Builders ───────────────────────────────────────────────────────────
-──
+// ─── Key Builders ─────────────────────────────────────────────────────────────
 
 export function taskKey(taskId: string): string {
   return `${PREFIX}task:${taskId}`;
@@ -158,8 +155,7 @@ export async function setTaskState(state: TaskState): Promise<void> {
   if (redis) {
     await redis.setex(key, TTL.TASK_STATE, json);
   }
-  memo
-ryFallback.set(key, updated, TTL.TASK_STATE);
+  memoryFallback.set(key, updated, TTL.TASK_STATE);
 }
 
 /**
@@ -231,8 +227,7 @@ export async function updateChapterProgress(
       : existing.completedAt,
   };
 
-  state.chapters[chapterNum] = updatedChap
-ter;
+  state.chapters[chapterNum] = updatedChapter;
 
   // Update completed / failed arrays
   if (updatedChapter.status === 'completed') {
@@ -298,8 +293,7 @@ export async function setChapterCache(
   const key = chapterKey(taskId, chapterNum);
   const json = safeStringify(chapterState);
 
-  const redis = 
-await getRedis();
+  const redis = await getRedis();
   if (redis) {
     await redis.setex(key, TTL.CHAPTER_CACHE, json);
   }
@@ -370,8 +364,7 @@ export async function setProgressInfo(info: ProgressInfo): Promise<void> {
   if (redis) {
     await redis.setex(key, TTL.PROGRESS, json);
   }
-  memoryFallback.set(key, info, 
-TTL.PROGRESS);
+  memoryFallback.set(key, info, TTL.PROGRESS);
 }
 
 /**
@@ -446,8 +439,7 @@ export async function clearTaskCache(taskId: string): Promise<void> {
   if (state) {
     for (const chapterNum of Object.keys(state.chapters)) {
       const key = chapterKey(taskId, parseInt(chapterNum, 10));
-      if 
-(redis) await redis.del(key);
+      if (redis) await redis.del(key);
       memoryFallback.del(key);
     }
   }
@@ -513,8 +505,7 @@ export async function cleanupStaleTasks(maxAgeSeconds: number = TTL.TASK_STATE):
       state &&
       (state.status === 'completed' || state.status === 'failed' || state.status === 'cancelled')
     ) {
-      if (new Date(state.updat
-edAt).getTime() < cutoff) {
+      if (new Date(state.updatedAt).getTime() < cutoff) {
         memoryFallback.del(key);
         cleaned++;
       }
