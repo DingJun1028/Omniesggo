@@ -67,6 +67,13 @@ updates:
     labels:
       - "dependencies"
       - "learning-center"
+    # 2026-10-29 決策（DIN-15）：tailwindcss 3→4 為破壞性大版本升級，
+    # PR #84 多項 CI 失敗且遷移風險高，決定維持 3.x，major 不自動開 PR。
+    # 未來若要遷移 tailwind 4，需先備妥 migration plan 再手動進行。
+    ignore:
+      - dependency-name: "tailwindcss"
+        update-types:
+          - "version-update:semver-major"
 
   # === npm/pnpm (oa-swarm) ===
   - package-ecosystem: "npm"
