@@ -1,0 +1,14 @@
+Scope: all 2 workspace projects
+? Verifying lockfile against supply-chain policies (505 entries)...
+✓ Lockfile passes supply-chain policies (505 entries in 1.9s)
+[ERR_PNPM_OUTDATED_LOCKFILE] Cannot install with "frozen-lockfile" because pnpm-lock.yaml is not up to date with <ROOT>/package.json
+
+Note that in CI environments this setting is true by default. If you still need to run install in such cases, use "pnpm install --no-frozen-lockfile"
+
+  Failure reason:
+  specifiers in the lockfile don't match specifiers in package.json:
+* 2 dependencies are mismatched:
+  - lucide-react (lockfile: ^1.59.0, manifest: ^1.61.0)
+  - vite (lockfile: ^8.3.4, manifest: ^8.3.5)
+
+pnpm-exit=1
