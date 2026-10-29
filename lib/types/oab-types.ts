@@ -1,3 +1,4 @@
+import type { IComponentCore } from '../../src/types/core-contract';
 // 5T-Traceable: source_origin=lib/types/oab-types.ts (OAB 契約正典)
 import { randomUUID } from 'node:crypto';
 
@@ -13,20 +14,8 @@ import { randomUUID } from 'node:crypto';
  * 萬能元件心核 - 觀因循果修復版
  * 確保數據從因到果的完整性與不可篡改性
  */
-export interface IComponentCore {
-  // 萬能永憶主體唯一識別碼 (Immutable)
-  readonly uuid: string;
-  // 語義化版本控制
-  readonly version: string;
-  // 刻印時間戳 (溯源起點)
-  readonly timestamp: number;
-  // 證據左證庫 (儲存觀因循果的執行軌跡)
-  evidence: {
-    originCause: string;    // 因：原始觸發條件
-    processTrace: string[]; // 循：InfoOne 流轉路徑
-    finalEffect: string;    // 果：最終執行結果與狀態
-  };
-}
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
+export type { IComponentCore };
 
 /**
  * Black‑board entry – a persisted snapshot of a component that can be
@@ -45,12 +34,12 @@ export interface IBlackboardEntry extends IComponentCore {
  * Hook signature – a lifecycle observer receives the raw event object.
  * The hook may be async; any unhandled rejection is logged by the bus.
  */
-export type OABHook = (event: IBusEvent) => Promise<void> | void;
+export type OABHook = (event: OabIBusEvent) => Promise<void> | void;
 
 /**
  * Full bus event – carries the component and a logical event name.
  */
-export interface IBusEvent {
+export interface OabIBusEvent {
   /** Unique event id (different from component uuid) */
   readonly eventId: string;
   /** Event name – e.g. 'task:created', 'system:error', 'managed:mutation' */
@@ -60,13 +49,15 @@ export interface IBusEvent {
   /** The payload is always an IComponentCore (or a subclass) */
   readonly payload: IComponentCore;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { OabIBusEvent as IBusEvent };
 
 /**
  * Public contract exposed by the bus.
  */
 export interface IOmniBus {
-  /** Publish an event onto the bus. Returns the generated IBusEvent. */
-  publish(name: string, payload: IComponentCore): IBusEvent;
+  /** Publish an event onto the bus. Returns the generated OabIBusEvent. */
+  publish(name: string, payload: IComponentCore): OabIBusEvent;
 
   /** Register a lifecycle hook that will receive every emitted event. */
   registerHook(hook: OABHook): void;
@@ -88,18 +79,20 @@ export interface IOmniBus {
   /** Register a self‑healing hook – special hook that reacts to
    *  'system:error' or 'managed:mutation' events and produces a HealingAction.
    */
-  registerSelfHealHook(handler: (errorEvent: IBusEvent) => Promise<void> | void): void;
+  registerSelfHealHook(handler: (errorEvent: OabIBusEvent) => Promise<void> | void): void;
 }
 
 /**
  * Example concrete component types used throughout the ecosystem.
  */
-export interface ITaskSpec extends IComponentCore {
+export interface OabITaskSpec extends IComponentCore {
   /** Human‑readable name of the task (e.g. 'carbon-report') */
   readonly name: string;
   /** Arbitrary parameters for the task */
   readonly params: Record<string, unknown>;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { OabITaskSpec as ITaskSpec };
 
 export interface IMutationSpec extends IComponentCore {
   /** Target of the mutation – 'http' | 'fs' | 'exec' | 'env' */

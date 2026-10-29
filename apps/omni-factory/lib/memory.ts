@@ -8,7 +8,7 @@
  * - /recall: Recall a specific memory by ID
  */
 
-export interface MemoryMetadata {
+export interface FactoryMemoryMetadata {
   createdAt?: number;
   updatedAt?: number;
   category?: string;
@@ -16,12 +16,14 @@ export interface MemoryMetadata {
   source?: string;
   confidence?: number;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { FactoryMemoryMetadata as MemoryMetadata };
 
 export interface MemoryRecord {
   id: string;
   content: string;
   timestamp: number;
-  metadata?: MemoryMetadata;
+  metadata?: FactoryMemoryMetadata;
   embedding?: number[];
 }
 

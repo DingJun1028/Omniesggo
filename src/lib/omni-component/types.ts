@@ -48,16 +48,18 @@ export interface ThemeConfig {
 }
 
 // Data types
-export interface ChartDataPoint {
+export interface OmniComponentDataPoint {
   label: string;
   value: number | null;
   timestamp?: string;
   color?: string;
   metadata?: Record<string, unknown>;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { OmniComponentDataPoint as ChartDataPoint };
 
 export interface TimeSeriesData {
-  series: ChartDataPoint[];
+  series: OmniComponentDataPoint[];
   metadata: {
     startDate: string;
     endDate: string;
@@ -173,7 +175,7 @@ export interface ChartConfig {
   type: 'line' | 'bar' | 'area' | 'pie' | 'doughnut' | 'radar' | 'scatter';
   title?: string;
   subtitle?: string;
-  data: ChartDataPoint[];
+  data: OmniComponentDataPoint[];
   options?: Record<string, unknown>;
   theme?: 'light' | 'dark' | 'auto';
 }

@@ -5,17 +5,19 @@
  * Shared type definitions for ESG visualization components
  */
 
-export interface ChartDataPoint {
+export interface EsgChartsDataPoint {
   label: string;
   value: number | null;
   timestamp?: string;
   color?: string;
   metadata?: Record<string, unknown>;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { EsgChartsDataPoint as ChartDataPoint };
 
 export interface ChartDataset {
   label: string;
-  data: ChartDataPoint[];
+  data: EsgChartsDataPoint[];
   color?: string;
   strokeWidth?: number;
   fill?: boolean;
@@ -26,7 +28,7 @@ export interface ChartDataset {
 export interface LineChartProps {
   title: string;
   description?: string;
-  data: ChartDataPoint[];
+  data: EsgChartsDataPoint[];
   proof?: {
     hashLock: string;
     timestamp?: string;
@@ -60,7 +62,7 @@ export interface LineChartProps {
 export interface BarChartProps {
   title: string;
   description?: string;
-  data: ChartDataPoint[];
+  data: EsgChartsDataPoint[];
   proof?: {
     hashLock: string;
     timestamp?: string;
@@ -72,14 +74,14 @@ export interface BarChartProps {
   horizontal?: boolean;
   stacked?: boolean;
   animation?: boolean;
-  onClick?: (point: ChartDataPoint) => void;
+  onClick?: (point: EsgChartsDataPoint) => void;
   className?: string;
 }
 
 export interface AreaChartProps {
   title: string;
   description?: string;
-  data: ChartDataPoint[];
+  data: EsgChartsDataPoint[];
   proof?: {
     hashLock: string;
     timestamp?: string;
@@ -91,14 +93,14 @@ export interface AreaChartProps {
   smooth?: boolean;
   fill?: boolean;
   animation?: boolean;
-  onClick?: (point: ChartDataPoint) => void;
+  onClick?: (point: EsgChartsDataPoint) => void;
   className?: string;
 }
 
 export interface RadarChartProps {
   title: string;
   description?: string;
-  data: ChartDataPoint[];
+  data: EsgChartsDataPoint[];
   proof?: {
     hashLock: string;
     timestamp?: string;
@@ -107,7 +109,7 @@ export interface RadarChartProps {
   width?: number | string;
   aspectRatio?: number; /* ratio width/height */
   animate?: boolean;
-  onClick?: (point: ChartDataPoint) => void;
+  onClick?: (point: EsgChartsDataPoint) => void;
   className?: string;
 }
 

@@ -1,3 +1,4 @@
+import type { ArrayKey, HiveSide } from '../../shared/types';
 /// <reference path="../types/generated/esggo-shared.d.ts" />
 /**
  * OA-Team 雙蜂戰隊 60 員矩陣 (Dual-Hive 60 Colony)
@@ -8,8 +9,10 @@
  */
 import type { ISoulAgent } from '../types/generated/esggo-shared.js';
 
-export type HiveSide = 'local' | 'vps';
-export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
+// ts-matrix: 收斂至規範型別 (canonical: shared/types)
+export type { HiveSide };
+// ts-matrix: 收斂至規範型別 (canonical: shared/types)
+export type { ArrayKey };
 
 export interface SoulAgent60 extends ISoulAgent {
   id: number;

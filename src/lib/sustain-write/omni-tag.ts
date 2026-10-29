@@ -85,7 +85,7 @@ export type SyncStatus = 'synced' | 'syncing' | 'pending' | 'drift';
 
 // === 報告章節 ===
 
-export interface ReportChapter {
+export interface TagReportChapter {
   readonly id: string;
   readonly title: string;
   readonly fiveTGate: 'traceable' | 'transparent' | 'tangible' | 'trustworthy' | 'trackable';
@@ -94,11 +94,13 @@ export interface ReportChapter {
   readonly evidenceRefs: string[];
   readonly wordCount: number;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { TagReportChapter as ReportChapter };
 
 export interface GeneratedReport {
   readonly companyId: string;
   readonly companyName: string;
-  readonly chapters: ReportChapter[];
+  readonly chapters: TagReportChapter[];
   readonly totalWords: number;
   readonly fiveTStatus: {
     traceable: boolean;
@@ -207,7 +209,7 @@ export class FiveTReportEngine {
       trackable: true,
     };
 
-    const chapters: ReportChapter[] = [
+    const chapters: TagReportChapter[] = [
       this.buildTraceableChapter(companyId, answers, profile),
       this.buildTransparentChapter(companyId, answers, profile),
       this.buildTangibleChapter(companyId, answers, profile),
@@ -227,7 +229,7 @@ export class FiveTReportEngine {
     };
   }
 
-  private static buildTraceableChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): ReportChapter {
+  private static buildTraceableChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): TagReportChapter {
     const orgAnswers = answers.filter((a: ReportAnswer) => a.questionId.indexOf('C1') === 0);
     const content = this.generateNarrative(orgAnswers, profile, '組織溯源與報告邊界');
     const tags = orgAnswers.map(() => OmniTagFactory.create({ lifecycle: 'verified' }));
@@ -243,7 +245,7 @@ export class FiveTReportEngine {
     };
   }
 
-  private static buildTransparentChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): ReportChapter {
+  private static buildTransparentChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): TagReportChapter {
     const govAnswers = answers.filter((a: ReportAnswer) => a.questionId.indexOf('C2') === 0 || a.questionId.indexOf('C3') === 0);
     const content = this.generateNarrative(govAnswers, profile, '治理透明與重大性驗算');
     const tags = govAnswers.map(() => OmniTagFactory.create({ lifecycle: 'verified' }));
@@ -259,7 +261,7 @@ export class FiveTReportEngine {
     };
   }
 
-  private static buildTangibleChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): ReportChapter {
+  private static buildTangibleChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): TagReportChapter {
     const envAnswers = answers.filter((a: ReportAnswer) =>
       a.questionId.indexOf('C4') === 0 || a.questionId.indexOf('C5') === 0 ||
       a.questionId.indexOf('C6') === 0 || a.questionId.indexOf('C7') === 0 ||
@@ -279,7 +281,7 @@ export class FiveTReportEngine {
     };
   }
 
-  private static buildTrustworthyChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): ReportChapter {
+  private static buildTrustworthyChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): TagReportChapter {
     const riskAnswers = answers.filter((a: ReportAnswer) => a.questionId.indexOf('C9') === 0 || a.questionId.indexOf('C10') === 0);
     const content = this.generateNarrative(riskAnswers, profile, '風險管理與數據可信度');
     const tags = riskAnswers.map(() => OmniTagFactory.create({ lifecycle: 'anchored' }));
@@ -295,7 +297,7 @@ export class FiveTReportEngine {
     };
   }
 
-  private static buildTrackableChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): ReportChapter {
+  private static buildTrackableChapter(companyId: string, answers: ReportAnswer[], profile: CompanyProfile | null): TagReportChapter {
     const supplyAnswers = answers.filter((a: ReportAnswer) => a.questionId.indexOf('C11') === 0 || a.questionId.indexOf('C12') === 0);
     const content = this.generateNarrative(supplyAnswers, profile, '供應鏈追蹤與生命週期');
     const tags = supplyAnswers.map(() => OmniTagFactory.create({ lifecycle: 'synced' }));

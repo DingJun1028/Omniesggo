@@ -11,7 +11,7 @@ export function defineRune<T extends z.ZodTypeAny>(config: RuneConfig<T>) {
   return config;
 }
 
-export interface AgentConfig {
+export interface AdkAgentConfig {
   name: string;
   role: string;
   model: string;
@@ -20,8 +20,10 @@ export interface AgentConfig {
   equippedRunes: RuneConfig<any>[];
   onStepComplete?: (stepInfo: any) => Promise<void>;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { AdkAgentConfig as AgentConfig };
 
-export function createAgent(config: AgentConfig) {
+export function createAgent(config: AdkAgentConfig) {
   return {
     ...config,
     executeTask: async (input: any, context: any) => {

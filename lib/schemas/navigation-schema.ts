@@ -68,7 +68,9 @@ export const EvidenceVerificationSchema = z.object({
   remark: z.string().describe("驗證意見或需要補充的說明。")
 });
 
-export type EvidenceVerification = z.infer<typeof EvidenceVerificationSchema>;
+export type NavigationEvidenceVerification = z.infer<typeof EvidenceVerificationSchema>;
+// ts-matrix: 對外相容別名 (API 不變)
+export type { NavigationEvidenceVerification as EvidenceVerification };
 
 export const GeminiEvidenceVerificationSchema: Schema = {
   type: Type.OBJECT,

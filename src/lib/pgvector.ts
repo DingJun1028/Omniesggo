@@ -48,11 +48,13 @@ export interface NoteEmbeddingRow {
   updated_at: Date;
 }
 
-export interface SearchResult {
+export interface PgSearchResult {
   note_id: string;
   similarity: number;
   created_at: Date;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { PgSearchResult as SearchResult };
 
 export async function storeEmbedding(
   noteId: string,
@@ -86,9 +88,9 @@ export async function deleteEmbedding(noteId: string): Promise<boolean> {
 export async function semanticSearch(
   queryEmbedding: number[],
   options: { limit?: number; threshold?: number; excludeNoteIds?: string[] } = {}
-): Promise<SearchResult[]> {
+): Promise<PgSearchResult[]> {
   const { limit = 10, threshold = 0.5, excludeNoteIds = [] } = options;
-  const result = await query<SearchResult>(
+  const result = await query<PgSearchResult>(
     `SELECT * FROM search_notes_semantic($1, $2, $3) WHERE note_id != ALL($4)`,
     [JSON.stringify(queryEmbedding), limit, threshold, excludeNoteIds]
   );
@@ -99,7 +101,7 @@ export async function findRelatedNotes(
   noteId: string,
   limit: number = 10,
   threshold: number = 0.7
-): Promise<SearchResult[]> {
+): Promise<PgSearchResult[]> {
   const original = await getEmbedding(noteId);
   if (!original) return [];
   const embedding = JSON.parse(original.embedding);

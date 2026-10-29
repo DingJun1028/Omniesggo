@@ -16,11 +16,13 @@
 // M2: Entity Watchlist — 實體監測清單
 // ============================================================
 
-export type EntityType = 'competitor' | 'customer' | 'supplier' | 'country' | 'port' | 'route' | 'regulation' | 'standard';
+export type IntelligenceEntityType = 'competitor' | 'customer' | 'supplier' | 'country' | 'port' | 'route' | 'regulation' | 'standard';
+// ts-matrix: 對外相容別名 (API 不變)
+export type { IntelligenceEntityType as EntityType };
 
 export interface WatchedEntity {
   id: string;
-  type: EntityType;
+  type: IntelligenceEntityType;
   name: string;
   aliases: string[];       // 別名/簡稱
   country?: string;
@@ -33,7 +35,7 @@ export interface WatchedEntity {
 export interface EntityChangeEvent {
   entityId: string;
   entityName: string;
-  entityType: EntityType;
+  entityType: IntelligenceEntityType;
   changeType: 'filing' | 'ir_update' | 'esg_report' | 'procurement' | 'penalty' | 'litigation' | 'audit' | 'sanction' | 'standard_update';
   title: string;
   summary: string;
@@ -58,7 +60,7 @@ export interface AlertRouting {
 }
 
 // 部門路由映射
-export const DEPARTMENT_ROUTING: Record<EntityType, AlertRouting> = {
+export const DEPARTMENT_ROUTING: Record<IntelligenceEntityType, AlertRouting> = {
   competitor:  { department: 'Strategy',     role: '分析師',   urgency: 'medium' },
   customer:    { department: 'Sales',        role: '客戶經理', urgency: 'high' },
   supplier:    { department: 'Procurement',  role: '採購/法務', urgency: 'high' },
@@ -539,7 +541,7 @@ export function buildRadarSnapshot(opts: {
 // ============================================================
 export const IntelligenceModules = {
   // M2
-  getRouting: (type: EntityType) => DEPARTMENT_ROUTING[type],
+  getRouting: (type: IntelligenceEntityType) => DEPARTMENT_ROUTING[type],
   getAction:   (eventType: string) => CHANGE_TYPE_ACTIONS[eventType] || '內部審查',
   buildAlert:  (event: EntityChangeEvent): EntityAlert => ({
     event,

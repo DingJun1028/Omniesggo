@@ -121,20 +121,22 @@ export class OmniTagContractViolation extends Error {
   }
 }
 
-export interface SealResult {
+export interface CliSealResult {
   entityId: string;
   contract: ContractCheck;
   route: ReturnType<typeof routeOmniTag>;
   hashLock: string;
   sealedAt: number;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { CliSealResult as SealResult };
 
 export function emitArtifact(params: {
   entityId: string;
   tag: OmniTagSet;
   content?: string;
   attemptedMutation?: boolean;
-}): SealResult {
+}): CliSealResult {
   const check = (() => {
     const all: string[] = [];
     all.push(...validateRequiredTriad(params.tag).violations);
