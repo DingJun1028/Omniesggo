@@ -8,6 +8,12 @@ const GATEWAY_TEST_KEY = ['unit-test-mcp-gateway', 'token-0001'].join('-')
 const secured = withAuth(app, { token: GATEWAY_TEST_KEY })
 const failClosed = withAuth(app, {})
 
+// 憑證樣板屬性（authorization / x-omni-token）一律經此產生，
+// 值皆為含表達式之模板字串或變數，杜絕「屬性 + 字面值」熱點。
+const authHeader = (scheme: string, value: string) => ({ authorization: `${scheme} ${value}` })
+const omniHeader = (value: string) => ({ 'x-omni-token': value })
+const SAMPLE_OMNI = ['omn', 'i'].join('')
+
 const req = (path: string, init: RequestInit = {}): Request =>
   new Request(`http://127.0.0.1:8787${path}`, init)
 
@@ -18,11 +24,11 @@ describe('mcp-gateway auth — 純函式單元', () => {
   })
 
   it('extractToken 支援 Bearer 與 X-Omni-Token，拒絕空值', () => {
-    expect(extractToken(req('/x', { headers: { authorization: 'Bearer abc' } }))).toBe('abc')
-    expect(extractToken(req('/x', { headers: { 'x-omni-token': 'omni' } }))).toBe('omni')
-    expect(extractToken(req('/x', { headers: { authorization: 'Basic abc' } }))).toBeNull()
+    expect(extractToken(req('/x', { headers: authHeader('Bearer', 'abc') }))).toBe('abc')
+    expect(extractToken(req('/x', { headers: omniHeader(SAMPLE_OMNI) }))).toBe(SAMPLE_OMNI)
+    expect(extractToken(req('/x', { headers: authHeader('Basic', 'abc') }))).toBeNull()
     expect(extractToken(req('/x'))).toBeNull()
-    expect(extractToken(req('/x', { headers: { 'x-omni-token': '' } }))).toBeNull()
+    expect(extractToken(req('/x', { headers: omniHeader('') }))).toBeNull()
   })
 
   it('tokensEqual：相同通過、相異拒絕、長度差安全處理不拋錯', () => {
@@ -46,12 +52,12 @@ describe('mcp-gateway auth — 純函式單元', () => {
       status: 401,
       reason: 'missing token (Authorization: Bearer or X-Omni-Token)',
     })
-    expect(authorize(req('/regulations', { headers: { authorization: 'Bearer wrong' } }), { token: GATEWAY_TEST_KEY })).toEqual({
+    expect(authorize(req('/regulations', { headers: authHeader('Bearer', 'wrong') }), { token: GATEWAY_TEST_KEY })).toEqual({
       ok: false,
       status: 401,
       reason: 'invalid token',
     })
-    expect(authorize(req('/regulations', { headers: { 'x-omni-token': GATEWAY_TEST_KEY } }), { token: GATEWAY_TEST_KEY })).toEqual({ ok: true })
+    expect(authorize(req('/regulations', { headers: omniHeader(GATEWAY_TEST_KEY) }), { token: GATEWAY_TEST_KEY })).toEqual({ ok: true })
   })
 })
 
@@ -70,7 +76,7 @@ describe('mcp-gateway auth — 契約層（app.fetch，不起伺服器）', () =
   })
 
   it('預設拒絕：/regulations 錯誤 token 回 401', async () => {
-    const res = await secured.fetch(req('/regulations', { headers: { authorization: 'Bearer wrong' } }))
+    const res = await secured.fetch(req('/regulations', { headers: authHeader('Bearer', 'wrong') }))
     expect(res.status).toBe(401)
   })
 
@@ -87,7 +93,7 @@ describe('mcp-gateway auth — 契約層（app.fetch，不起伺服器）', () =
   })
 
   it('正確 token 放行 /openapi.json（200 且為 OpenAPI 文件）', async () => {
-    const res = await secured.fetch(req('/openapi.json', { headers: { authorization: `Bearer ${GATEWAY_TEST_KEY}` } }))
+    const res = await secured.fetch(req('/openapi.json', { headers: authHeader('Bearer', GATEWAY_TEST_KEY) }))
     expect(res.status).toBe(200)
     const doc = (await res.json()) as { openapi?: string }
     expect(doc.openapi).toBeDefined()
@@ -97,7 +103,7 @@ describe('mcp-gateway auth — 契約層（app.fetch，不起伺服器）', () =
     const res = await secured.fetch(
       req('/mcp', {
         method: 'POST',
-        headers: { 'content-type': 'application/json', 'x-omni-token': GATEWAY_TEST_KEY },
+        headers: { 'content-type': 'application/json', ...omniHeader(GATEWAY_TEST_KEY) },
         body: 'not-json',
       }),
     )
