@@ -1,0 +1,85 @@
+name: probe-learning-center-install
+
+on:
+  push:
+    branches: [probe/lc-install]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe-73:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/73/head
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install (frozen)
+        working-directory: apps/learning-center
+        run: |
+          set +e
+          pnpm install --frozen-lockfile > "${RUNNER_TEMP}/probe.log" 2>&1
+          echo "pnpm-exit=$?" >> "${RUNNER_TEMP}/probe.log"
+          tail -n 100 "${RUNNER_TEMP}/probe.log"
+      - name: Publish log
+        uses: actions/github-script@v7
+        env:
+          PRN: '73'
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.readFileSync(process.env.RUNNER_TEMP + '/probe.log', 'utf8').slice(-8000);
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'probe-logs/probe-' + process.env.PRN + '.log',
+              message: 'probe log PR ' + process.env.PRN,
+              content: Buffer.from(log).toString('base64'),
+              branch: 'probe/lc-install',
+            });
+
+  probe-84:
+    needs: probe-73
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: refs/pull/84/head
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.5.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install (frozen)
+        working-directory: apps/learning-center
+        run: |
+          set +e
+          pnpm install --frozen-lockfile > "${RUNNER_TEMP}/probe.log" 2>&1
+          echo "pnpm-exit=$?" >> "${RUNNER_TEMP}/probe.log"
+          tail -n 100 "${RUNNER_TEMP}/probe.log"
+      - name: Publish log
+        uses: actions/github-script@v7
+        env:
+          PRN: '84'
+        with:
+          script: |
+            const fs = require('fs');
+            const log = fs.readFileSync(process.env.RUNNER_TEMP + '/probe.log', 'utf8').slice(-8000);
+            await github.rest.repos.createOrUpdateFileContents({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              path: 'probe-logs/probe-' + process.env.PRN + '.log',
+              message: 'probe log PR ' + process.env.PRN,
+              content: Buffer.from(log).toString('base64'),
+              branch: 'probe/lc-install',
+            });
