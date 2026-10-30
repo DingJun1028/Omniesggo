@@ -1,6 +1,7 @@
-report updated Fri Oct 30 22:32:59 UTC 2026
+report updated Fri Oct 30 22:33:16 UTC 2026
 V8 run started
 oci-cli installed
 OCI_AUTH_OK
 TARGET_REGION=ap-singapore-1
 fast path failed, scanning compartments
+TARGET_FOUND state=RUNNING
