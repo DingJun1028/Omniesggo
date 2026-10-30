@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ArrowLeft, Bot, Activity, CheckCircle2, 
-  XCircle, Settings, Plus, Wifi
+  XCircle, Settings, Plus, Wifi, Plug
 } from 'lucide-react';
 import { Button } from '@esggo/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
@@ -223,7 +223,47 @@ export default function AgentsPage() {
               );
             })
           )}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, delay: agents.length * 0.05 }}
+          >
+            <Link href="/omni-agent-zone/connect">
+              <Card className="h-full border-dashed border-2 hover:border-[var(--accent-cool)] hover:shadow-lg transition-all cursor-pointer group">
+                <CardContent className="p-6 flex flex-col items-center justify-center text-center h-full min-h-[200px]">
+                  <div className="w-12 h-12 rounded-xl bg-[var(--accent-cool-soft)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Plus className="w-6 h-6 text-[var(--accent-cool)]" />
+                  </div>
+                  <h3 className="font-semibold text-[var(--text-1)] mb-2 group-hover:text-[var(--accent-cool)] transition-colors">
+                    連接新代理
+                  </h3>
+                  <p className="text-sm text-[var(--text-2)]">
+                    透過 API 金鑰接入 Hermes、Jules 等代理
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+          </motion.div>
         </motion.div>
+      </main>
+    </div>
+  );
+}
+
+      </main>
+    </div>
+  );
+}
+
+        <div className="mt-6">
+          <Link href="/omni-agent-zone/connect">
+            <Button variant="primary" size="lg" className="w-full group">
+              <Plug className="w-5 h-5 mr-2" />
+              透過 API 金鑰連接新代理（支援 Hermes、Jules、Claude、OpenAI）
+              <Plus className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
+            </Button>
+          </Link>
+        </div>
       </main>
     </div>
   );
