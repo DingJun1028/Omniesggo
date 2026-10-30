@@ -56,7 +56,7 @@ export default function OmniAgentZonePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchBrainData();
+    void fetchBrainData();
   }, []);
 
   const fetchBrainData = async () => {
