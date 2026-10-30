@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Button } from '@esggo/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '../../_components/card-primitives';
 
 const CONTACT_ITEMS = [
   { icon: Mail, title: '電子郵件', value: 'hello@esggo.co', href: 'mailto:hello@esggo.co' },

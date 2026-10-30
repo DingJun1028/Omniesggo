@@ -7,7 +7,8 @@ import {
   ArrowLeft, Plus, Search, Clock, Tag,
   MessageSquare, Activity, GitBranch, Bot, Cpu
 } from 'lucide-react';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Button } from '@esggo/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '../_components/card-primitives';
 import { motion } from 'framer-motion';
 import { ZonePageShell } from './_components/zone-page-shell';
 import { MOCK_MEMORIES } from './_shared/mock-brain';

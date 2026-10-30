@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Cpu, Zap, Settings, CheckCircle2, Server, Key, RefreshCw, Activity, Cloud } from 'lucide-react';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Button } from '@esggo/ui';
+import { Card, CardContent, CardHeader, CardTitle } from '../../_components/card-primitives';
 import { motion } from 'framer-motion';
 import { ZonePageShell } from '../_components/zone-page-shell';
 import { ZoneHeaderCore } from '../_components/zone-header-core';
