@@ -67,6 +67,12 @@ const SEMVER_RE = /^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$/;
 
 const coreRefine: RefineFn<{ evidence: unknown }> = (data) => {
   const issues: Array<{ path: string; message: string }> = [];
+  // 零證據攔截：空 evidence 以中文零幻覺訊息拒收（對齊 Zod 時代之「佐證」提示;
+  // TypeBox minItems 之錯誤訊息為英文, 無法承載語義, 故至少一份之語義由 refine 承擔）
+  if (!Array.isArray(data.evidence) || data.evidence.length === 0) {
+    issues.push({ path: 'evidence', message: '請至少附上一份佐證文件 URL (S3/R2)：無證據之宣稱一律拒收 (零幻覺)' });
+    return issues;
+  }
   // URL 檢查：zod z.string().url() 由 schema 引擎強制；TypeBox 以 refine 對齊行為
   for (const ev of Array.isArray(data.evidence) ? data.evidence : []) {
     if (typeof ev !== 'string' || !URL_RE.test(ev)) {
@@ -82,7 +88,7 @@ const ComponentCoreShape = Type.Object({
   version: Type.String({ pattern: '^\\d+\\.\\d+\\.\\d+(-[a-zA-Z0-9]+)?$' }),
   timestamp: Type.Integer({ exclusiveMinimum: 0 }),
   source_origin: Type.String({ minLength: 1 }),
-  evidence: Type.Array(Type.String(), { minItems: 1 }),
+  evidence: Type.Array(Type.String()), // 「至少一份」語義由 coreRefine 承擔 (中文零幻覺訊息)
 });
 
 export const ComponentCoreSchema = defineContract(ComponentCoreShape, [coreRefine]);

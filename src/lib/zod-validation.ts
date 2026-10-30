@@ -125,9 +125,10 @@ export const ESGReportSchema = Type.Object({
   company: Type.String({ minLength: 1 }),
   year: Type.Integer({ minimum: 2000, maximum: 2100 }),
   sections: Type.Optional(Type.Array(Type.String())),
-  language: Type.Union(
-    [Type.Literal('en'), Type.Literal('zh-TW'), Type.Literal('zh-CN')],
-    { default: 'zh-TW' }
+  // TypeBox 之 Value.Check 不套用 default — 對齊 Zod .default() 語義需 Type.Optional:
+  // 缺席時 Check 通過, validateBody 之 parseWithDefaults 再補 default。
+  language: Type.Optional(
+    Type.Union([Type.Literal('en'), Type.Literal('zh-TW'), Type.Literal('zh-CN')], { default: 'zh-TW' })
   ),
 });
 
@@ -137,9 +138,11 @@ export type ESGReportInput = Static<typeof ESGReportSchema>;
 export const DelegationRequestSchema = Type.Object({
   task: Type.String({ minLength: 1, maxLength: 2000 }),
   agentId: Type.Optional(Type.String()),
-  priority: Type.Union(
-    [Type.Literal('low'), Type.Literal('normal'), Type.Literal('high'), Type.Literal('critical')],
-    { default: 'normal' }
+  priority: Type.Optional(
+    Type.Union(
+      [Type.Literal('low'), Type.Literal('normal'), Type.Literal('high'), Type.Literal('critical')],
+      { default: 'normal' }
+    )
   ),
   context: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
 });
