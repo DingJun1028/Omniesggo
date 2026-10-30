@@ -33,6 +33,42 @@
 
 雙向閉合規則：每一需求必列於本表（無 schema 證據者如實標 —，不得虛報）；每一列出之證據檔必須存在於磁碟且其需求編號必須存在於 shared/prd-matrix.json（無孤兒）。
 
+## TypeBox Schema 定義檔 ↔ 需求編號矩陣（2026-10-30 擴充掃描）
+
+> 掃描規則：含 `Type.Object(` 之 .ts/.mts 檔為 TypeBox schema 定義檔；依檔內 FR-xx/NFR-xx 標註掛需求編號
+> （標註慣例：檔頭 `// PRD: docs/OMN-PRD-001.md §2.3 F-xx · §5.1 Mx · §4.1 FR-xx`）；未標註者如實列 —（不得虛報）；
+> 標註未知需求編號即 gate FAIL。達成 schema → 需求 → 功能 → 驗證之全鏈自動追溯。
+
+| TypeBox 定義檔 | Type.Object 定義數 | 掛需求編號 |
+| --- | --- | --- |
+| `app/api/tags/pair/route.ts` | 2 | — |
+| `apps/gateway/sync/schema.ts` | 6 | — |
+| `lib/runes/aesthetic-rune.ts` | 1 | — |
+| `lib/runes/alchemist-rune.ts` | 1 | — |
+| `lib/runes/benchmark-rune.ts` | 1 | — |
+| `lib/runes/covenanter-rune.ts` | 1 | — |
+| `lib/runes/creative-genesis-rune.ts` | 1 | — |
+| `lib/runes/creative-resonance-rune.ts` | 1 | — |
+| `lib/runes/data-visualizer-rune.ts` | 1 | — |
+| `lib/runes/dispatcher-rune.ts` | 1 | — |
+| `lib/runes/emotion-sensor-rune.ts` | 1 | — |
+| `lib/runes/engraver-rune.ts` | 1 | — |
+| `lib/runes/hallucination-verification-rune.ts` | 1 | — |
+| `lib/runes/interaction-intuition-rune.ts` | 1 | — |
+| `lib/runes/ncbdb-engrave-rune.ts` | 1 | — |
+| `lib/runes/optical-renderer-rune.ts` | 1 | — |
+| `lib/runes/perception-integrator-rune.ts` | 1 | — |
+| `lib/runes/semantic-alchemy-rune.ts` | 1 | — |
+| `lib/runes/semanticist-rune.ts` | 2 | — |
+| `lib/runes/telepath-rune.ts` | 1 | — |
+| `lib/runes/tracer-rune.ts` | 1 | — |
+| `lib/runes/validator-rune.ts` | 2 | — |
+| `lib/runes/visual-perceptor-rune.ts` | 1 | — |
+| `src/lib/omni-reports/jules-validator.ts` | 4 | — |
+| `src/lib/zod-validation.ts` | 3 | — |
+
+小計：定義檔 25 個；已掛需求編號 0 個；未掛需求編號 25 個（如實標示，後續以 PR 逐檔補標註）。
+
 ## JunAiKey 唯讀共享大腦（skillCoverage，唯讀納入）
 
 | 技能 | 任務型別 | 角色 | 覆蓋需求 | 覆蓋 NFR | 證據 |
@@ -41,6 +77,6 @@
 
 JunAiKey 可讀內容以唯讀方式納入共享大腦（docs/vault-canon）；不觸 VPS 與 junaikey 之 VPS 腳本。
 
-## 後續（第 1 項 TypeBox 遷移落地後）
+## 後續
 
-- TypeBox schema 將掛需求編號（FR-xx），本表生成邏輯將擴充掃描 TypeBox schema 定義檔並納入矩陣，達成 schema → 需求 → 功能 → 驗證之全鏈自動追溯。
+- TypeBox schema 掃描已落地（2026-10-30，本表上方矩陣）；未掛需求編號之定義檔由後續 PR 依檔頭標註慣例逐檔補上，gate 將自動納入追溯。
