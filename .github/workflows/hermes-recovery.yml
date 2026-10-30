@@ -9,8 +9,45 @@ on:
 jobs:
   recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
+    env:
+      OCI_USER: ${{ secrets.OCI_USER_OCID }}
+      OCI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+      OCI_REGION: ${{ secrets.OCI_REGION }}
+      OCI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+      OCI_KEY: ${{ secrets.OCI_API_KEY }}
+      OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
     steps:
-      - name: Smoke
+      - uses: actions/checkout@v4
+      - name: Heartbeat
+        timeout-minutes: 3
         run: |
-          echo "SMOKE_OK $(date -u)"
+          set -e
+          touch /tmp/recovery.log
+          echo "HEARTBEAT run started $(date -u)" >> /tmp/recovery.log
+          git config user.name "hermes-recovery-bot"
+          git config user.email "actions@users.noreply.github.com"
+          cp /tmp/recovery.log hermes-recovery-report.txt
+          git add hermes-recovery-report.txt
+          git commit -m "heartbeat: run started" || true
+          git push origin HEAD:fix/hermes-serve-recovery && echo "PUSH_OK" || echo "PUSH_FAIL"
+      - name: Setup oci-cli
+        timeout-minutes: 8
+        run: |
+          set -euo pipefail
+          pip3 install --user --quiet oci-cli
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          mkdir -p ~/.oci
+          cat > ~/.oci/config <<EOFCONF
+          [DEFAULT]
+          user=$OCI_USER
+          tenancy=$OCI_TENANCY
+          region=$OCI_REGION
+          key_file=/tmp/oci_key.pem
+          fingerprint=$OCI_FINGERPRINT
+          EOFCONF
+          printf '%s' "$OCI_KEY" > /tmp/oci_key.pem
+          chmod 600 /tmp/oci_key.pem
+          oci iam region-subscription list --tenancy-id "$OCI_TENANCY" --output json >/dev/null 2>&1 && echo "OCI_AUTH_OK" || echo "OCI_AUTH_FAIL"
