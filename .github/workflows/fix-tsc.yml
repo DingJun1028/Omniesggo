@@ -1,0 +1,48 @@
+name: Fix TSC (one-shot)
+
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-tsc.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable && corepack prepare pnpm@11.5.2 --activate
+      - run: pnpm install --frozen-lockfile
+      - name: Apply one-line fix
+        run: |
+          sed -i '53s/= { _errors: \[\] };/= { _errors: [] as string[] };/' src/lib/omni-reports/jules-validator.ts
+          sed -n '53p' src/lib/omni-reports/jules-validator.ts
+      - name: Verify tsc 0 errors
+        run: |
+          set +e
+          npx tsc --noEmit > tsc-out.txt 2>&1
+          code=$?
+          cat tsc-out.txt
+          if [ $code -ne 0 ]; then
+            git config user.name "omni-agent-bot"
+            git config user.email "actions@users.noreply.github.com"
+            mv tsc-out.txt tsc-diag.txt
+            git add tsc-diag.txt
+            git commit -m "chore: tsc diagnostic output (fix attempt failed)"
+            git push
+            exit 1
+          fi
+      - name: Cleanup and push
+        run: |
+          git config user.name "omni-agent-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git rm -q .github/workflows/tsc-diag.yml tsc-diag.txt
+          git add src/lib/omni-reports/jules-validator.ts
+          git commit -m "fix(omni-reports): explicit string[] annotation in formatIssues initializer"
+          git push
