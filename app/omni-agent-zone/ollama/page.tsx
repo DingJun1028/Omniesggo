@@ -31,6 +31,7 @@ export default function OllamaPage() {
       await new Promise(resolve => setTimeout(resolve, 1500));
       setConnected(true);
     } catch (error) {
+      console.error('ollama connect failed:', error);
       setConnected(false);
     } finally {
       setIsConnecting(false);

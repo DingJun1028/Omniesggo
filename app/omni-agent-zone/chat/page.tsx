@@ -91,6 +91,7 @@ export default function ChatPage() {
       };
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
+      console.error('omni-agent chat request failed:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',

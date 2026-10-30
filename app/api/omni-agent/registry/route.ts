@@ -8,7 +8,7 @@ export async function GET() {
   } catch (error) {
     // Mock 資料端點；序列化失敗時如實回 500，不做吞異常重試。
     return NextResponse.json(
-      { error: 'Failed to fetch agents' },
+      { error: 'Failed to fetch agents', detail: (error as Error).message },
       { status: 500 }
     );
   }
