@@ -1,7 +1,8 @@
-report updated Fri Oct 30 22:31:24 UTC 2026
+report updated Fri Oct 30 22:31:26 UTC 2026
 V7 run started
 oci-cli installed
 OCI_AUTH_OK
 TARGET_REGION=ap-singapore-1
 fast path failed, scanning compartments
 TARGET_FOUND state=RUNNING
+AGENTS_RAW Usage: oci instance-agent [OPTIONS] COMMAND [ARGS]...  Error: No such command 'agent'.  For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`. 
