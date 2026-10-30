@@ -1,0 +1,71 @@
+# SonarCloud Quality Gate check (companion to Automatic Analysis).
+#
+# The repository uses SonarCloud Automatic Analysis (GitHub App). This job
+# does NOT re-analyze; it authenticates with SONAR_TOKEN, polls the quality
+# gate for the PR (or main), and prints the failing conditions and issue
+# details directly in the log so failures are diagnosed from evidence
+# instead of hypothesis iteration.
+#
+# Required repository secret: SONAR_TOKEN (GitHub Settings -> Secrets and
+# variables -> Actions). The canonical copy for rotation lives in Supabase
+# public.vault_secrets (service-role only, RLS enabled); GitHub Actions
+# secrets are write-only and must be re-set on each rotation.
+#
+# If the secret is absent the job skips gracefully so the Green Gate
+# aggregate is not blocked by credential logistics.
+
+name: SonarCloud Quality Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches: [main]
+
+concurrency:
+  group: sonar-gate-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout (script only)
+        uses: actions/checkout@v4
+
+      - name: Check quality gate
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -z "${SONAR_TOKEN:-}" ]; then
+            echo "SONAR_TOKEN is not configured; skipping gate check (not a failure)."
+            exit 0
+          fi
+          if [ "${PR_NUMBER:-0}" != "0" ]; then
+            CONTEXT=(--pull-request "$PR_NUMBER")
+          else
+            CONTEXT=(--branch main)
+          fi
+          node scripts/sonar-quality-gate.mjs \
+            --organization dingjun1028 \
+            --project DingJun1028_Omniesggo \
+            "${CONTEXT[@]}" \
+            --timeout 600 \
+            --interval 20 \
+            --verbose
+
+      - name: Summary
+        if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo "### SonarCloud Quality Gate"
+            echo "- Context: ${PR_NUMBER:+PR #$PR_NUMBER}${PR_NUMBER:-main}"
+            echo "- Details: see job log for failing conditions and issue list."
+          } >> "$GITHUB_STEP_SUMMARY"
