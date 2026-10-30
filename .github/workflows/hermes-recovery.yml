@@ -1,5 +1,5 @@
 name: hermes-recovery
-# One-off recovery workflow v8: Run Command with corrected CLI flags.
+# One-off recovery workflow v9: direct SSH probe + hermes-serve repair (port 22/8042).
 permissions:
   contents: write
 on:
@@ -10,15 +10,11 @@ on:
 jobs:
   recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
     env:
-      OCI_USER: ${{ secrets.OCI_USER_OCID }}
-      OCI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
-      OCI_REGION: ${{ secrets.OCI_REGION }}
-      OCI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
-      OCI_KEY: ${{ secrets.OCI_API_KEY }}
-      OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
       VPS_HOST: ${{ secrets.VPS_HOST }}
+      VPS_USER: ${{ secrets.VPS_USER || 'root' }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
     steps:
       - uses: actions/checkout@v4
       - name: Report helper
@@ -30,109 +26,71 @@ jobs:
           {
             echo "report updated $(date -u)"
             cat /tmp/recovery.log
-          } > hermes-v8-report.txt
+          } > hermes-v9-report.txt
           git config user.name "hermes-recovery-bot" || true
           git config user.email "actions@users.noreply.github.com" || true
-          git add hermes-v8-report.txt || true
-          git commit -m "diag: update v8" || true
+          git add hermes-v9-report.txt || true
+          git commit -m "diag: update v9" || true
           git push origin HEAD:fix/hermes-serve-recovery || true
           EOS
           chmod +x /usr/local/bin/report
-          report "V8 run started"
-      - name: Setup oci-cli
-        timeout-minutes: 8
-        run: |
-          set -euo pipefail
-          pip3 install --user --quiet oci-cli
-          export PATH="$HOME/.local/bin:$PATH"
-          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
-          export SUPPRESS_LABEL_WARNING=True
-          mkdir -p ~/.oci
-          cat > ~/.oci/config <<EOFCONF
-          [DEFAULT]
-          user=$OCI_USER
-          tenancy=$OCI_TENANCY
-          region=$OCI_REGION
-          key_file=/tmp/oci_key.pem
-          fingerprint=$OCI_FINGERPRINT
-          EOFCONF
-          printf '%s' "$OCI_KEY" > /tmp/oci_key.pem
-          chmod 600 /tmp/oci_key.pem
-          report "oci-cli installed"
-          oci iam region-subscription list --tenancy-id "$OCI_TENANCY" --output json >/dev/null 2>&1 && report "OCI_AUTH_OK" || report "OCI_AUTH_FAIL"
-      - name: Locate target instance
-        timeout-minutes: 10
-        run: |
-          set -euo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
-          export SUPPRESS_LABEL_WARNING=True
-          TARGET_REGION=$(printf '%s' "$OCI_TARGET" | tr '.' ' ' | awk '{print $4}')
-          echo "TARGET_REGION=$TARGET_REGION" >> /tmp/recovery.log
-          INST_ID=""
-          state=$(oci compute instance get --instance-id "$OCI_TARGET" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data."lifecycle-state" // empty' 2>/dev/null || true)
-          if [ -n "$state" ]; then
-            INST_ID="$OCI_TARGET"
-            report "FAST_PATH instance-ocid state=$state"
-          else
-            report "fast path failed, scanning compartments"
-            for cid in $(oci iam compartment list -c "$OCI_TENANCY" --all --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data[].id' 2>/dev/null; echo "$OCI_TENANCY"); do
-              [ -n "$cid" ] || continue
-              for iid in $(oci compute instance list -c "$cid" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data[].id' 2>/dev/null); do
-                [ -n "$iid" ] || continue
-                ip=$(oci compute instance list-vnics --instance-id "$iid" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data[0]."public-ip" // empty' 2>/dev/null || true)
-                if [ "$ip" = "$VPS_HOST" ]; then INST_ID="$iid"; break; fi
-              done
-              [ -n "$INST_ID" ] && break
-            done
-            if [ -n "$INST_ID" ]; then
-              state=$(oci compute instance get --instance-id "$INST_ID" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data."lifecycle-state"' 2>/dev/null || true)
-            fi
-          fi
-          if [ -z "$INST_ID" ]; then
-            report "TARGET_NOT_FOUND region=$TARGET_REGION"
-            exit 1
-          fi
-          COMP_ID=$(oci compute instance get --instance-id "$INST_ID" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data."compartment-id"')
-          echo "COMP_ID=$COMP_ID" >> "$GITHUB_ENV"
-          echo "INST_ID=$INST_ID" >> "$GITHUB_ENV"
-          echo "TARGET_REGION=$TARGET_REGION" >> "$GITHUB_ENV"
-          report "TARGET_FOUND state=$state"
-      - name: Run Command - enable and restart hermes-serve
-        timeout-minutes: 15
+          report "V9 run started"
+      - name: SSH probe
+        timeout-minutes: 6
         run: |
           set -uo pipefail
-          export PATH="$HOME/.local/bin:$PATH"
-          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
-          export SUPPRESS_LABEL_WARNING=True
-          oci instance-agent plugin list --instanceagent-id "$INST_ID" --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json > /tmp/plugins.json 2>/tmp/plugins.err || true
-          report "PLUGINS_RAW $(head -c 800 /tmp/plugins.json | tr '\n' ' ')"
-          report "PLUGINS_ERR $(head -c 300 /tmp/plugins.err | tr '\n' ' ')"
-          B64='RD0vdG1wL2hlcm1lc2RpYWcudHh0CnsKICBkYXRlIC11CiAgZWNobyAnLS0tTkdJTlgtLS0nCiAgbmdpbnggLVQgMj4mMSB8IGdyZXAgLUUgJ3NlcnZlcl9uYW1lfHJvb3QgfHByb3h5X3Bhc3N8bGlzdGVuJyB8fCB0cnVlCiAgZWNobyAnLS0tRU5BQkxFLS0tJwogIHN5c3RlbWN0bCBlbmFibGUgaGVybWVzLXNlcnZlIDI+JjEgfHwgdHJ1ZQogIGVjaG8gJy0tLVJFU1RBUlQtLS0nCiAgc3lzdGVtY3RsIHJlc3RhcnQgaGVybWVzLXNlcnZlIDI+JjEgfHwgdHJ1ZQogIHNsZWVwIDYKICBlY2hvICctLS1JU0FDVElWRS0tLScKICBzeXN0ZW1jdGwgaXMtYWN0aXZlIGhlcm1lcy1zZXJ2ZSAyPiYxIHx8IHRydWUKICBlY2hvICctLS1KT1VSTkFMLS0tJwogIGpvdXJuYWxjdGwgLXUgaGVybWVzLXNlcnZlIC1uIDgwIC0tbm8tcGFnZXIgMj4mMSB8fCB0cnVlCiAgZWNobyAnLS0tTE9DQUw5MTE5LS0tJwogIGN1cmwgLXMgLW8gL2Rldi9udWxsIC13ICcle2h0dHBfY29kZX1cbicgLW0gMTAgaHR0cDovLzEyNy4wLjAuMTo5MTE5LyAyPiYxIHx8IGVjaG8gbG9jYWwtZmFpbAp9ID4gIiREIiAyPiYxCmZvciByIGluICQobmdpbnggLVQgMj4vZGV2L251bGwgfCBzZWQgLW4gJ3MvXltbOnNwYWNlOl1dKnJvb3RbWzpzcGFjZTpdXVwrXChbXiA7XSpcKTsuKi9cMS9wJyk7IGRvCiAgY3AgIiREIiAiJHtyJS99L2hlcm1lc2RpYWcudHh0IiAyPi9kZXYvbnVsbCB8fCB0cnVlCmRvbmUKY3AgIiREIiAvdmFyL3d3dy9odG1sL2hlcm1lc2RpYWcudHh0IDI+L2Rldi9udWxsIHx8IHRydWUKZXhpdCAw'
-          TEXT="echo $B64 | base64 -d | sudo bash"
-          jq -n --arg t "$TEXT" '{sourceType:"TEXT",text:$t}' > /tmp/content.json
-          printf '{"instanceId":"%s"}\n' "$INST_ID" > /tmp/target.json
-          oci instance-agent command create --compartment-id "$COMP_ID" --content file:///tmp/content.json --target file:///tmp/target.json --timeout-in-seconds 300 --region "$TARGET_REGION" --output json > /tmp/cmd.out 2>/tmp/cmd.err
-          rc=$?
-          report "CMD_CREATE_RC=$rc"
-          report "CMD_OUT $(tail -c 700 /tmp/cmd.out | tr '\n' ' ')"
-          report "CMD_ERR $(tail -c 700 /tmp/cmd.err | tr '\n' ' ')"
-          CMD_ID=$(jq -r '.data.id // empty' /tmp/cmd.out 2>/dev/null) || true
-          if [ -z "$CMD_ID" ]; then report "CMD_CREATE_FAILED"; exit 1; fi
-          report "CMD_ID=$CMD_ID"
-          ST=UNKNOWN
-          for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16; do
-            sleep 20
-            oci instance-agent command-execution list --command-id "$CMD_ID" --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json > /tmp/exec.json 2>/dev/null || true
-            ST=$(jq -r 'if type == "array" then . else .data end | .[0].lifecycleState // "NONE"' /tmp/exec.json 2>/dev/null || echo PARSE_FAIL)
-            echo "attempt $i: cmdState=$ST" >> /tmp/recovery.log
-            case "$ST" in SUCCEEDED|FAILED|TIMEDOUT|CANCELED) break;; esac
+          if [ -z "${VPS_SSH_KEY:-}" ]; then report "NO_VPS_SSH_KEY secret absent"; exit 1; fi
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          head -1 ~/.ssh/deploy_key | cut -c1-40 >> /tmp/recovery.log
+          PORT=22
+          for P in 22 8042; do
+            timeout 25 ssh-keyscan -p $P "$VPS_HOST" > /tmp/scan.$P 2>/dev/null || true
+            NL=$(grep -c '^' /tmp/scan.$P || true)
+            report "KEYSCAN port=$P lines=$NL"
           done
-          report "CMD_FINAL_STATE=$ST"
+          N22=$(grep -c '^' /tmp/scan.22 2>/dev/null || true)
+          N8042=$(grep -c '^' /tmp/scan.8042 2>/dev/null || true)
+          if [ "${N22:-0}" -lt 1 ] && [ "${N8042:-0}" -ge 1 ]; then PORT=8042; fi
+          echo "SSHPORT=$PORT" >> "$GITHUB_ENV"
+          report "CHOSEN_PORT=$PORT"
+          OUT=$(timeout 35 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -p $PORT "$VPS_USER@$VPS_HOST" 'echo SSH_OK host=$(hostname)' 2>&1) || true
+          report "SSH_TRY rc_out=$(echo "$OUT" | tr '\n' ' ' | head -c 400)"
+          if ! echo "$OUT" | grep -q SSH_OK; then report "SSH_FAILED"; exit 1; fi
+          report "SSH_CONNECTED user=$VPS_USER port=$PORT"
+      - name: SSH repair hermes-serve
+        timeout-minutes: 12
+        run: |
+          set -uo pipefail
+          timeout 150 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=20 -p "$SSHPORT" "$VPS_USER@$VPS_HOST" 'sudo bash -s' <<'VPS' > /tmp/repair.out 2>&1 || true
+            echo '---ENABLE---'
+            systemctl enable hermes-serve 2>&1 || true
+            echo '---RESTART---'
+            systemctl restart hermes-serve 2>&1 || true
+            sleep 6
+            echo '---ISACTIVE---'
+            systemctl is-active hermes-serve 2>&1 || true
+            echo '---UNIT---'
+            systemctl cat hermes-serve 2>&1 | head -30 || true
+            echo '---JOURNAL---'
+            journalctl -u hermes-serve -n 40 --no-pager 2>&1 | cut -c1-300 || true
+            echo '---LOCAL9119---'
+            curl -s -o /dev/null -w '%{http_code}\n' -m 10 http://127.0.0.1:9119/ 2>&1 || true
+            echo '---DONE---'
+          VPS
+          n=0
+          while IFS= read -r l; do n=$((n+1)); [ $n -le 60 ] && echo "R|$l" >> /tmp/recovery.log; done < /tmp/repair.out || true
+          report "REPAIR_DONE lines=$n"
+          rm -f ~/.ssh/deploy_key
+      - name: Verify API
+        timeout-minutes: 6
+        run: |
+          set -uo pipefail
           for i in 1 2 3 4 5 6 7 8 9 10; do
             code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health || echo 000)
             echo "verify $i: HTTP $code" >> /tmp/recovery.log
-            case "$code" in 502|503|000) sleep 20;; *) report "HERMES_API_RECOVERED code=$code"; exit 0;; esac
+            case "$code" in 502|503|000) sleep 15;; *) report "HERMES_API_RECOVERED code=$code"; exit 0;; esac
           done
           report "HERMES_API_STILL_DOWN"
       - name: Final report
@@ -147,12 +105,9 @@ jobs:
             echo "hermex api final:"
             curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health
             echo
-            echo "--- diag from VPS (hermesdiag.txt) ---"
-            curl -s -m 15 https://hermex.esggo.co/hermesdiag.txt | head -c 4000
-            echo
-          } > hermes-v8-report.txt
+          } > hermes-v9-report.txt
           git config user.name "hermes-recovery-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add hermes-v8-report.txt
-          git commit -m "chore: hermes v8 diagnostic report"
+          git add hermes-v9-report.txt
+          git commit -m "chore: hermes v9 diagnostic report"
           git push origin HEAD:fix/hermes-serve-recovery
