@@ -1,4 +1,4 @@
-report updated Fri Oct 30 22:18:49 UTC 2026
+report updated Fri Oct 30 22:19:02 UTC 2026
 HEARTBEAT run started
 oci-cli installed
 OCI_AUTH_OK
@@ -11,3 +11,4 @@ TARGET_FOUND state=RUNNING
 plugin list error Warning: To increase security of your API key located at /tmp/oci_key.pem, append an extra line with 'OCI_API_KEY' at the end. For more information, r
 jq: parse error: Invalid numeric literal at line 1, column 6
 RESET_BEGIN
+RESET_DONE RUNNING
