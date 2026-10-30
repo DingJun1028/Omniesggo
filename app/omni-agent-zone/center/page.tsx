@@ -2,14 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  ArrowLeft, Brain, Network, Zap, Activity, 
-  GitBranch, Sparkles, RefreshCw, CheckCircle2,
-  TrendingUp, Cpu, Database, Users
-} from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Brain, Network, Zap, Activity, GitBranch, Sparkles, RefreshCw, CheckCircle2, TrendingUp, Cpu, Database, Users } from 'lucide-react';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZonePageShell } from '../_components/zone-page-shell';
 import { ZoneHeaderCore } from '../_components/zone-header-core';
 
 export default function OmniCenterPage() {
@@ -49,20 +45,18 @@ export default function OmniCenterPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+    <ZonePageShell
+      header={
+        <>
             <ZoneHeaderCore icon={<Network className="w-6 h-6 text-white" />} title="萬能代理整合中樞" subtitle="完善優化 • 缺口補齊 • 乘上啟下 • 無縫接軌" iconBg="from-emerald-500 to-cyan-500" />
             <Button variant="primary" size="sm" onClick={handleSync} disabled={isSyncing}>
               <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
               {isSyncing ? '同步中...' : '全域同步'}
             </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        </>
+      }
+      mainClassName="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8"
+    >
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-8">
           <Card className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/30">
             <CardContent className="p-6">
@@ -189,7 +183,6 @@ export default function OmniCenterPage() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+    </ZonePageShell>
   );
 }

@@ -1,13 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  ArrowLeft, Download, FileText, CheckCircle2, Brain, 
-  Calendar, Filter, FileJson, FileSpreadsheet, Archive
-} from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Download, FileText, CheckCircle2, Brain, Calendar, Filter, FileJson, FileSpreadsheet, Archive } from 'lucide-react';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZonePageShell } from '../_components/zone-page-shell';
 import { ZoneHeaderCore } from '../_components/zone-header-core';
 
 interface ExportOptions {
@@ -77,16 +74,14 @@ export default function ExportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+    <ZonePageShell
+      header={
+        <>
             <ZoneHeaderCore icon={<Download className="w-6 h-6 text-white" />} title="記憶匯出中心" subtitle="匯出第二共享大腦記憶至本地" iconBg="from-blue-500 to-cyan-500" />
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+        </>
+      }
+      mainClassName="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8"
+    >
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Card className="mb-6">
             <CardHeader>
@@ -173,7 +168,6 @@ export default function ExportPage() {
             </CardContent>
           </Card>
         </motion.div>
-      </main>
-    </div>
+    </ZonePageShell>
   );
 }

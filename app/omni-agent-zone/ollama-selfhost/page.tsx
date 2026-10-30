@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { Cloud, Server, Shield, Zap, CheckCircle2, Settings, Globe, HardDrive } from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZonePageShell } from '../_components/zone-page-shell';
 import { ZoneHeaderCore } from '../_components/zone-header-core';
 
 export default function OllamaSelfHostPage() {
@@ -39,19 +39,17 @@ export default function OllamaSelfHostPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+    <ZonePageShell
+      header={
+        <>
             <ZoneHeaderCore icon={<Cloud className="w-6 h-6 text-white" />} title="自託管雲端 Ollama 零算力配置" subtitle="一鍵部署 • 永久免費 • 零算力運行" iconBg="from-cyan-500 to-blue-500" backHref="/omni-agent-zone/ollama" backLabel="返回 Ollama 設定" />
             <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
               <Zap className="w-3 h-3" />零算力雲端
             </span>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        </>
+      }
+      mainClassName="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8"
+    >
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="mb-8">
           <Card className="bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border-cyan-500/30">
             <CardContent className="p-6">
@@ -152,7 +150,6 @@ export default function OllamaSelfHostPage() {
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+    </ZonePageShell>
   );
 }

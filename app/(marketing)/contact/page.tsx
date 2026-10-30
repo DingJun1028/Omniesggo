@@ -2,8 +2,13 @@
 
 import { useState } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+
+const CONTACT_ITEMS = [
+  { icon: Mail, title: '電子郵件', value: 'hello@esggo.co', href: 'mailto:hello@esggo.co' },
+  { icon: Phone, title: '電話', value: '+886-2-7743-1006', href: 'tel:+886-2-7743-1006' },
+  { icon: MapPin, title: '地址', value: '台北市中山區 台灣', href: null },
+] as const;
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -66,54 +71,27 @@ export default function ContactPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1 space-y-6">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-[var(--accent-cool-soft)] flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-6 h-6 text-[var(--accent-cool)]" />
+              {CONTACT_ITEMS.map(({ icon: Icon, title, value, href }) => (
+                <Card key={title}>
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-lg bg-[var(--accent-cool-soft)] flex items-center justify-center flex-shrink-0">
+                        <Icon className="w-6 h-6 text-[var(--accent-cool)]" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-[var(--text-1)] mb-1">{title}</h3>
+                        {href ? (
+                          <a href={href} className="text-[var(--text-2)] hover:text-[var(--accent-cool)] transition-colors">
+                            {value}
+                          </a>
+                        ) : (
+                          <p className="text-[var(--text-2)]">{value}</p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-[var(--text-1)] mb-1">電子郵件</h3>
-                      <a href="mailto:hello@esggo.co" className="text-[var(--text-2)] hover:text-[var(--accent-cool)] transition-colors">
-                        hello@esggo.co
-                      </a>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-[var(--accent-cool-soft)] flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-6 h-6 text-[var(--accent-cool)]" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-[var(--text-1)] mb-1">電話</h3>
-                      <a href="tel:+886-2-7743-1006" className="text-[var(--text-2)] hover:text-[var(--accent-cool)] transition-colors">
-                        +886-2-7743-1006
-                      </a>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-lg bg-[var(--accent-cool-soft)] flex items-center justify-center flex-shrink-0">
-                      <MapPin className="w-6 h-6 text-[var(--accent-cool)]" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-[var(--text-1)] mb-1">地址</h3>
-                      <p className="text-[var(--text-2)]">
-                        台北市中山區<br />
-                        台灣
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
 
             <div className="lg:col-span-2">

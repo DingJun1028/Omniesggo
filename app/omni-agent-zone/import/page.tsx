@@ -2,15 +2,18 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  Upload, FileText, Database, 
-  CheckCircle2, AlertCircle, Download, Brain,
-  History, Zap
-} from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Upload, FileText, Database, CheckCircle2, AlertCircle, Download, Brain, History, Zap } from 'lucide-react';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZonePageShell } from '../_components/zone-page-shell';
 import { ZoneHeaderCore } from '../_components/zone-header-core';
+
+const IMPORT_MODES = [
+  { id: 'json', icon: FileText, iconColor: 'text-[var(--accent-cool)]', title: 'JSON 檔案', desc: '結構化記憶資料' },
+  { id: 'csv', icon: Database, iconColor: 'text-green-500', title: 'CSV 檔案', desc: '表格式記憶資料' },
+  { id: 'history', icon: History, iconColor: 'text-orange-500', title: '對話歷史', desc: '從當前會話匯入' },
+  { id: 'api', icon: Zap, iconColor: 'text-purple-500', title: 'API 匯入', desc: '從外部系統匯入' },
+] as const;
 
 interface ImportResult {
   success: boolean;
@@ -101,8 +104,10 @@ export default function ImportPage() {
     }
   };
 
-  const renderModePanel = () =>
-    importType === 'history' ? (
+  const renderModePanel = () => {
+    if (importType === 'history') {
+      return (
+
             <Card className="mb-6">
               <CardContent className="p-8 text-center">
                 <History className="w-16 h-16 text-orange-500 mx-auto mb-4" />
@@ -114,7 +119,11 @@ export default function ImportPage() {
                 </Button>
               </CardContent>
             </Card>
-    ) : importType === 'api' ? (
+      );
+    }
+    if (importType === 'api') {
+      return (
+
             <Card className="mb-6">
               <CardContent className="p-8 text-center">
                 <Zap className="w-16 h-16 text-purple-500 mx-auto mb-4" />
@@ -123,7 +132,10 @@ export default function ImportPage() {
                 <Button variant="primary" size="lg" disabled>即將推出</Button>
               </CardContent>
             </Card>
-    ) : (
+      );
+    }
+    return (
+
             <Card className="mb-6">
               <CardHeader>
                 <CardTitle>上傳檔案</CardTitle>
@@ -156,6 +168,8 @@ export default function ImportPage() {
               </CardContent>
             </Card>
     );
+  };
+
 
   const renderResult = () => {
     if (!result) return null;
@@ -213,16 +227,14 @@ export default function ImportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+    <ZonePageShell
+      header={
+        <>
             <ZoneHeaderCore icon={<Upload className="w-6 h-6 text-white" />} title="記憶匯入中心" subtitle="從當前紀錄匯入至第二共享大腦" iconBg="from-emerald-500 to-teal-500" />
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+        </>
+      }
+      mainClassName="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8"
+    >
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Card className="mb-6">
             <CardHeader>
@@ -230,46 +242,19 @@ export default function ImportPage() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <button
-                  onClick={() => setImportType('json')}
-                  className={`p-4 rounded-lg border text-left transition-all ${
-                    importType === 'json' ? 'border-[var(--accent-cool)] bg-[var(--accent-cool-soft)]' : 'border-[var(--border)] hover:border-[var(--border-accent)]'
-                  }`}
-                >
-                  <FileText className="w-6 h-6 text-[var(--accent-cool)] mb-2" />
-                  <h3 className="font-medium text-[var(--text-1)] mb-1">JSON 檔案</h3>
-                  <p className="text-xs text-[var(--text-2)]">結構化記憶資料</p>
-                </button>
-                <button
-                  onClick={() => setImportType('csv')}
-                  className={`p-4 rounded-lg border text-left transition-all ${
-                    importType === 'csv' ? 'border-[var(--accent-cool)] bg-[var(--accent-cool-soft)]' : 'border-[var(--border)] hover:border-[var(--border-accent)]'
-                  }`}
-                >
-                  <Database className="w-6 h-6 text-green-500 mb-2" />
-                  <h3 className="font-medium text-[var(--text-1)] mb-1">CSV 檔案</h3>
-                  <p className="text-xs text-[var(--text-2)]">表格式記憶資料</p>
-                </button>
-                <button
-                  onClick={() => setImportType('history')}
-                  className={`p-4 rounded-lg border text-left transition-all ${
-                    importType === 'history' ? 'border-[var(--accent-cool)] bg-[var(--accent-cool-soft)]' : 'border-[var(--border)] hover:border-[var(--border-accent)]'
-                  }`}
-                >
-                  <History className="w-6 h-6 text-orange-500 mb-2" />
-                  <h3 className="font-medium text-[var(--text-1)] mb-1">對話歷史</h3>
-                  <p className="text-xs text-[var(--text-2)]">從當前會話匯入</p>
-                </button>
-                <button
-                  onClick={() => setImportType('api')}
-                  className={`p-4 rounded-lg border text-left transition-all ${
-                    importType === 'api' ? 'border-[var(--accent-cool)] bg-[var(--accent-cool-soft)]' : 'border-[var(--border)] hover:border-[var(--border-accent)]'
-                  }`}
-                >
-                  <Zap className="w-6 h-6 text-purple-500 mb-2" />
-                  <h3 className="font-medium text-[var(--text-1)] mb-1">API 匯入</h3>
-                  <p className="text-xs text-[var(--text-2)]">從外部系統匯入</p>
-                </button>
+                {IMPORT_MODES.map(({ id, icon: Icon, iconColor, title, desc }) => (
+                  <button
+                    key={id}
+                    onClick={() => setImportType(id)}
+                    className={`p-4 rounded-lg border text-left transition-all ${
+                      importType === id ? 'border-[var(--accent-cool)] bg-[var(--accent-cool-soft)]' : 'border-[var(--border)] hover:border-[var(--border-accent)]'
+                    }`}
+                  >
+                    <Icon className={`w-6 h-6 ${iconColor} mb-2`} />
+                    <h3 className="font-medium text-[var(--text-1)] mb-1">{title}</h3>
+                    <p className="text-xs text-[var(--text-2)]">{desc}</p>
+                  </button>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -278,7 +263,6 @@ export default function ImportPage() {
 
           {renderResult()}
         </motion.div>
-      </main>
-    </div>
+    </ZonePageShell>
   );
 }

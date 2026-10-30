@@ -3,9 +3,9 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Plug, Key, Server, CheckCircle2, AlertCircle, Zap, Bot } from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZonePageShell } from '../_components/zone-page-shell';
 import { ZoneHeaderCore } from '../_components/zone-header-core';
 
 interface AgentConfig {
@@ -74,16 +74,14 @@ export default function ConnectPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+    <ZonePageShell
+      header={
+        <>
             <ZoneHeaderCore icon={<Plug className="w-6 h-6 text-white" />} title="代理 API 接入" subtitle="透過伺服器 API 輕鬆連接代理" iconBg="from-cyan-500 to-blue-500" backHref="/omni-agent-zone/agents" backLabel="返回代理管理" />
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
+        </>
+      }
+      mainClassName="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8"
+    >
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <Card className="mb-6">
             <CardHeader>
@@ -163,7 +161,6 @@ export default function ConnectPage() {
             </motion.div>
           )}
         </motion.div>
-      </main>
-    </div>
+    </ZonePageShell>
   );
 }

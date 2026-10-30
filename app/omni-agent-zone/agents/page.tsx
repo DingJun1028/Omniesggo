@@ -2,13 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  ArrowLeft, Bot, Activity, CheckCircle2, 
-  XCircle, Settings, Plus, Wifi, Plug
-} from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
+import { Bot, Activity, CheckCircle2, XCircle, Settings, Plus, Wifi } from 'lucide-react';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZonePageShell } from '../_components/zone-page-shell';
 import { ZoneHeaderCore } from '../_components/zone-header-core';
 import { REGISTRY_AGENTS } from '../_shared/registry-data';
 
@@ -54,7 +51,7 @@ export default function AgentsPage() {
         setAgents(data.agents || []);
       }
     } catch (error) {
-      setAgents(REGISTRY_AGENTS););
+      setAgents(REGISTRY_AGENTS);
     } finally {
       setIsLoading(false);
     }
@@ -69,20 +66,18 @@ export default function AgentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]">
-      <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 lg:h-20">
+    <ZonePageShell
+      header={
+        <>
             <ZoneHeaderCore icon={<Bot className="w-6 h-6 text-white" />} title="代理管理中心" subtitle="連接與管理所有代理 • 統一介面" iconBg="from-cyan-500 to-blue-500" />
             <Button variant="primary" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               添加代理
             </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        </>
+      }
+      mainClassName="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8"
+    >
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -198,26 +193,6 @@ export default function AgentsPage() {
             </Link>
           </motion.div>
         </motion.div>
-      </main>
-    </div>
-  );
-}
-
-      </main>
-    </div>
-  );
-}
-
-        <div className="mt-6">
-          <Link href="/omni-agent-zone/connect">
-            <Button variant="primary" size="lg" className="w-full group">
-              <Plug className="w-5 h-5 mr-2" />
-              透過 API 金鑰連接新代理（支援 Hermes、Jules、Claude、OpenAI）
-              <Plus className="w-5 h-5 ml-2 group-hover:scale-110 transition-transform" />
-            </Button>
-          </Link>
-        </div>
-      </main>
-    </div>
+    </ZonePageShell>
   );
 }

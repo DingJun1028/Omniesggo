@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { importErrorResponse } from '../_lib/import-response';
 
 export async function POST() {
   try {
@@ -35,14 +36,8 @@ export async function POST() {
       ],
     });
   } catch (error) {
-    return NextResponse.json(
-      { 
-        success: false,
-        imported: 0,
-        skipped: 0,
-        errors: ['匯入失敗：' + (error as Error).message],
-        memories: []
-      },
+    return importErrorResponse('匯入失敗：', error);
+  }},
       { status: 500 }
     );
   }
