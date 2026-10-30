@@ -1,4 +1,4 @@
-report updated Fri Oct 30 22:26:55 UTC 2026
+report updated Fri Oct 30 22:26:56 UTC 2026
 V5 run started
 oci-cli installed
 OCI_AUTH_OK
@@ -8,3 +8,4 @@ TARGET_FOUND state=RUNNING
 PLUGIN_LIST_ERR Warning: To increase security of your API key located at /tmp/oci_key.pem, append an extra line with 'OCI_API_KEY' at the end. For more information, refer to https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm. To suppress the warning, set the env variable SUPPRESS_LABEL_WARNING=True 
 jq: parse error: Invalid numeric literal at line 1, column 6
 PLUGIN_JSON_UNPARSEABLE Usage: oci instance-agent plugin list [OPTIONS]  Error: No such option '--instance-id'. Did you mean '--instanceagent-id'?  For OCI CLI commands and parameters suggestion, auto completion and other us
+CMD_CREATE_FAILED Warning: To increase security of your API key located at /tmp/oci_key.pem, append an extra line with 'OCI_API_KEY' at the end. For more information, refer to https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm. To suppress the warning, set the env variable SUPPRESS_LABEL_WARNING=True 
