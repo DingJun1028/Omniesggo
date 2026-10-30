@@ -1,0 +1,54 @@
+name: Lockfile Sync (one-time)
+"on":
+  push:
+    branches: [feature/omni-arch-12-modules]
+    paths: ['.github/workflows/lockfile-sync.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: lockfile-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/omni-arch-12-modules
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+        timeout-minutes: 5
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+        timeout-minutes: 3
+
+      - name: Install dependencies and update lockfile
+        run: |
+          set +e
+          pnpm install --no-frozen-lockfile 2>&1 | tee install-diag.log
+          echo "exit_code=$?" >> install-diag.log
+        timeout-minutes: 25
+
+      - name: TS Matrix drift diagnosis
+        run: |
+          node tools/ts-matrix/verify.mjs || true
+          cp tools/ts-matrix/drift-report.json diag-drift-report.json || true
+        timeout-minutes: 10
+
+      - name: Commit lockfile and diagnostics
+        run: |
+          git config user.name "omni-arch-bot"
+          git config user.email "actions@github.com"
+          git add pnpm-lock.yaml install-diag.log diag-drift-report.json
+          if git diff --cached --quiet; then
+            echo "nothing to commit"
+          else
+            git commit -m "chore: lockfile sync + diagnostics for @esggo/omni-arch"
+            git push
+          fi
+        timeout-minutes: 5
