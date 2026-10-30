@@ -7,26 +7,10 @@
  *   - restore: 回傳新的深複製副本 (分身可自由寫入, 母體與快照皆不受影響)
  *
  * 5T 對應: Trustworthy (快照凍結) / Tangible (隔離結果可驗證: 副本互不相干)
- * 模組自持, 不新增 workspace 依賴。
+ * 模組自持 (共用原語來自 ./internal/freeze.js), 不新增 workspace 依賴。
  */
+import { clone, deepFreeze } from './internal/freeze.js';
 import type { BusMessage } from './types.js';
-
-function clone<T>(x: T): T {
-  return JSON.parse(JSON.stringify(x)) as T;
-}
-
-function deepFreeze<T>(obj: T): T {
-  if (obj !== null && (typeof obj === 'object' || typeof obj === 'function')) {
-    Object.freeze(obj);
-    for (const key of Object.keys(obj as Record<string, unknown>)) {
-      const value = (obj as Record<string, unknown>)[key];
-      if (value !== null && typeof value === 'object') {
-        deepFreeze(value);
-      }
-    }
-  }
-  return obj;
-}
 
 /** 快照識別: snap_{agentId}_{序號}_{時間戳} */
 export type SnapshotId = string;

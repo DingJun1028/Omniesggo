@@ -7,28 +7,10 @@
  *   - 影子測試: reprocessReplayed 選項允許重放件再次執行 (隔離區盲測)
  *
  * 5T 對應: Trackable (重放軌跡可追蹤) / Trustworthy (journal 深凍結不可篡改)
- * 模組自持 (clone/deepFreeze 內建), 不新增 workspace 依賴, 避免觸 lockfile。
+ * 模組自持 (共用原語來自 ./internal/freeze.js), 不新增 workspace 依賴。
  */
+import { clone, deepFreeze } from './internal/freeze.js';
 import type { BusHandlerFn, BusMessage } from './types.js';
-
-/** 可攜式深複製 (訊息為 JSON 可序列化載荷) */
-function clone<T>(x: T): T {
-  return JSON.parse(JSON.stringify(x)) as T;
-}
-
-/** 遞迴深凍結 (對齊 @esggo/omni-core deep-freeze R1 語義) */
-function deepFreeze<T>(obj: T): T {
-  if (obj !== null && (typeof obj === 'object' || typeof obj === 'function')) {
-    Object.freeze(obj);
-    for (const key of Object.keys(obj as Record<string, unknown>)) {
-      const value = (obj as Record<string, unknown>)[key];
-      if (value !== null && typeof value === 'object') {
-        deepFreeze(value);
-      }
-    }
-  }
-  return obj;
-}
 
 /** 重放訊息的附加標記 */
 export interface ReplayedMessage<T = unknown> extends BusMessage<T> {
@@ -47,7 +29,7 @@ export interface ReplayOptions {
 /**
  * 冪等重放日誌 (append-only journal)
  *
- * - append: 刻印即深凍結, 後續 publish 對凍結件寫入會 throw (strict mode)
+ * - append: 刻印即深凍結, 後續對凍結件寫入會 throw (strict mode)
  * - replay: 於時間窗 [startTime, endTime] (含端點) 內重放, 可選 topic 過濾
  * - duplicateRate: 為 EntropyLedger (@esggo/omni-core R3) 提供重複事件率原始數據
  */
@@ -110,7 +92,7 @@ export class IdempotentJournal<T = unknown> {
     for (const frozen of this.entries) {
       if (frozen.timestamp < startTime || frozen.timestamp > endTime) continue;
       if (topic !== undefined && frozen.topic !== topic) continue;
-      if (!reprocessReprocessed(reprocessReplayed, this.processed, frozen.id)) continue;
+      if (!reprocessReplayed && this.processed.has(frozen.id)) continue;
       this.processed.add(frozen.id);
       const replayMsg = clone(frozen) as ReplayedMessage<T>;
       replayMsg.replayed = true;
@@ -137,11 +119,6 @@ export class IdempotentJournal<T = unknown> {
   size(): number {
     return this.entries.length;
   }
-}
-
-function reprocessReprocessed(reprocess: boolean, processed: Set<string>, id: string): boolean {
-  if (reprocess) return true;
-  return !processed.has(id);
 }
 
 /**
