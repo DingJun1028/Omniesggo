@@ -1,5 +1,5 @@
 name: hermes-recovery
-# One-off recovery workflow v9: direct SSH probe + hermes-serve repair (port 22/8042).
+# One-off recovery workflow v10: SSH live diagnostic of hermes-serve stability.
 permissions:
   contents: write
 on:
@@ -10,7 +10,7 @@ on:
 jobs:
   recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 15
     env:
       VPS_HOST: ${{ secrets.VPS_HOST }}
       VPS_USER: ${{ secrets.VPS_USER || 'root' }}
@@ -26,73 +26,44 @@ jobs:
           {
             echo "report updated $(date -u)"
             cat /tmp/recovery.log
-          } > hermes-v9-report.txt
+          } > hermes-v10-report.txt
           git config user.name "hermes-recovery-bot" || true
           git config user.email "actions@users.noreply.github.com" || true
-          git add hermes-v9-report.txt || true
-          git commit -m "diag: update v9" || true
+          git add hermes-v10-report.txt || true
+          git commit -m "diag: update v10" || true
           git push origin HEAD:fix/hermes-serve-recovery || true
           EOS
           chmod +x /usr/local/bin/report
-          report "V9 run started"
-      - name: SSH probe
-        timeout-minutes: 6
+          report "V10 run started"
+      - name: SSH diagnostic
+        timeout-minutes: 10
         run: |
           set -uo pipefail
-          if [ -z "${VPS_SSH_KEY:-}" ]; then report "NO_VPS_SSH_KEY secret absent"; exit 1; fi
           mkdir -p ~/.ssh
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          head -1 ~/.ssh/deploy_key | cut -c1-40 >> /tmp/recovery.log
-          PORT=22
-          for P in 22 8042; do
-            timeout 25 ssh-keyscan -p $P "$VPS_HOST" > /tmp/scan.$P 2>/dev/null || true
-            NL=$(grep -c '^' /tmp/scan.$P || true)
-            report "KEYSCAN port=$P lines=$NL"
-          done
-          N22=$(grep -c '^' /tmp/scan.22 2>/dev/null || true)
-          N8042=$(grep -c '^' /tmp/scan.8042 2>/dev/null || true)
-          if [ "${N22:-0}" -lt 1 ] && [ "${N8042:-0}" -ge 1 ]; then PORT=8042; fi
-          echo "SSHPORT=$PORT" >> "$GITHUB_ENV"
-          report "CHOSEN_PORT=$PORT"
-          OUT=$(timeout 35 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -p $PORT "$VPS_USER@$VPS_HOST" 'echo SSH_OK host=$(hostname)' 2>&1) || true
-          report "SSH_TRY rc_out=$(echo "$OUT" | tr '\n' ' ' | head -c 400)"
-          if ! echo "$OUT" | grep -q SSH_OK; then report "SSH_FAILED"; exit 1; fi
-          report "SSH_CONNECTED user=$VPS_USER port=$PORT"
-      - name: SSH repair hermes-serve
-        timeout-minutes: 12
-        run: |
-          set -uo pipefail
-          timeout 150 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=20 -p "$SSHPORT" "$VPS_USER@$VPS_HOST" 'sudo bash -s' <<'VPS' > /tmp/repair.out 2>&1 || true
-            echo '---ENABLE---'
-            systemctl enable hermes-serve 2>&1 || true
-            echo '---RESTART---'
-            systemctl restart hermes-serve 2>&1 || true
-            sleep 6
+          timeout 150 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=20 -p 22 "$VPS_USER@$VPS_HOST" 'sudo bash -s' <<'VPS' > /tmp/diag.out 2>&1 || true
+            echo '---STATUS---'
+            systemctl status hermes-serve --no-pager -l 2>&1 | head -25 || true
             echo '---ISACTIVE---'
             systemctl is-active hermes-serve 2>&1 || true
-            echo '---UNIT---'
-            systemctl cat hermes-serve 2>&1 | head -30 || true
-            echo '---JOURNAL---'
-            journalctl -u hermes-serve -n 40 --no-pager 2>&1 | cut -c1-300 || true
-            echo '---LOCAL9119---'
-            curl -s -o /dev/null -w '%{http_code}\n' -m 10 http://127.0.0.1:9119/ 2>&1 || true
+            echo '---NREST---'
+            systemctl show hermes-serve -p NRestarts -p ExecMainStartTimestamp -p SubState 2>&1 || true
+            echo '---JOURNAL60---'
+            journalctl -u hermes-serve -n 60 --no-pager 2>&1 | cut -c1-300 || true
+            echo '---PROC---'
+            ps aux | grep -E 'hermes|9119' | grep -v grep || true
+            echo '---LOCAL---'
+            curl -s -o /dev/null -w 'root=%{http_code}\n' -m 10 http://127.0.0.1:9119/ || true
+            curl -s -o /dev/null -w 'health=%{http_code}\n' -m 10 http://127.0.0.1:9119/health || true
+            echo '---MEM---'
+            free -m | head -3 || true
             echo '---DONE---'
           VPS
           n=0
-          while IFS= read -r l; do n=$((n+1)); [ $n -le 60 ] && echo "R|$l" >> /tmp/recovery.log; done < /tmp/repair.out || true
-          report "REPAIR_DONE lines=$n"
+          while IFS= read -r l; do n=$((n+1)); [ $n -le 90 ] && echo "R|$l" >> /tmp/recovery.log; done < /tmp/diag.out || true
+          report "DIAG_DONE lines=$n"
           rm -f ~/.ssh/deploy_key
-      - name: Verify API
-        timeout-minutes: 6
-        run: |
-          set -uo pipefail
-          for i in 1 2 3 4 5 6 7 8 9 10; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health || echo 000)
-            echo "verify $i: HTTP $code" >> /tmp/recovery.log
-            case "$code" in 502|503|000) sleep 15;; *) report "HERMES_API_RECOVERED code=$code"; exit 0;; esac
-          done
-          report "HERMES_API_STILL_DOWN"
       - name: Final report
         if: always()
         timeout-minutes: 4
@@ -105,9 +76,9 @@ jobs:
             echo "hermex api final:"
             curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health
             echo
-          } > hermes-v9-report.txt
+          } > hermes-v10-report.txt
           git config user.name "hermes-recovery-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add hermes-v9-report.txt
-          git commit -m "chore: hermes v9 diagnostic report"
+          git add hermes-v10-report.txt
+          git commit -m "chore: hermes v10 diagnostic report"
           git push origin HEAD:fix/hermes-serve-recovery
