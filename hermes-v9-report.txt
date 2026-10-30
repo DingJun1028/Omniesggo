@@ -1,7 +1,8 @@
-report updated Fri Oct 30 22:36:13 UTC 2026
+report updated Fri Oct 30 22:36:14 UTC 2026
 V9 run started
 -----BEGIN RSA PRIVATE KEY-----
 KEYSCAN port=22 lines=3
 KEYSCAN port=8042 lines=0
 CHOSEN_PORT=22
 SSH_TRY rc_out=Warning: Permanently added '161.118.248.180' (ED25519) to the list of known hosts. SSH_OK host=esggo-vps 
+SSH_CONNECTED user=ubuntu port=22
