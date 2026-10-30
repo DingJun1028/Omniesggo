@@ -1,4 +1,6 @@
-report updated Fri Oct 30 22:28:51 UTC 2026
+report updated Fri Oct 30 22:28:53 UTC 2026
 V6 run started
 oci-cli installed
 OCI_AUTH_OK
+TARGET_REGION=ap-singapore-1
+fast path failed, scanning compartments
