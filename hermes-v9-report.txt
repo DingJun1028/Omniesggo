@@ -1,4 +1,4 @@
-report updated Fri Oct 30 22:36:34 UTC 2026
+report updated Fri Oct 30 22:37:08 UTC 2026
 V9 run started
 -----BEGIN RSA PRIVATE KEY-----
 KEYSCAN port=22 lines=3
@@ -35,3 +35,7 @@ R|---LOCAL9119---
 R|000
 R|---DONE---
 REPAIR_DONE lines=28
+verify 1: HTTP 502
+verify 2: HTTP 502
+verify 3: HTTP 401
+HERMES_API_RECOVERED code=401
