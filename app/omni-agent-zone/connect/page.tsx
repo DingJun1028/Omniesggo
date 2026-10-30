@@ -114,16 +114,16 @@ export default function ConnectPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--text-1)] mb-2">代理名稱</label>
-                <input type="text" value={config.name} onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))} placeholder="輸入自定義名稱" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)] focus:border-transparent" />
+                <label htmlFor="connect-agent-name" className="block text-sm font-medium text-[var(--text-1)] mb-2">代理名稱</label>
+                <input id="connect-agent-name" type="text" value={config.name} onChange={(e) => setConfig(prev => ({ ...prev, name: e.target.value }))} placeholder="輸入自定義名稱" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)] focus:border-transparent" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Server className="w-4 h-4" />API 端點 URL</label>
-                <input type="url" value={config.endpoint} onChange={(e) => setConfig(prev => ({ ...prev, endpoint: e.target.value }))} placeholder="https://api.example.com/v1" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)] focus:border-transparent" />
+                <label htmlFor="connect-endpoint" className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Server className="w-4 h-4" />API 端點 URL</label>
+                <input id="connect-endpoint" type="url" value={config.endpoint} onChange={(e) => setConfig(prev => ({ ...prev, endpoint: e.target.value }))} placeholder="https://api.example.com/v1" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)] focus:border-transparent" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Key className="w-4 h-4" />API 金鑰</label>
-                <input type="password" value={config.apiKey} onChange={(e) => setConfig(prev => ({ ...prev, apiKey: e.target.value }))} placeholder="sk-... 或輸入代理 API 金鑰" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)] focus:border-transparent" />
+                <label htmlFor="connect-api-key" className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Key className="w-4 h-4" />API 金鑰</label>
+                <input id="connect-api-key" type="password" value={config.apiKey} onChange={(e) => setConfig(prev => ({ ...prev, apiKey: e.target.value }))} placeholder="sk-... 或輸入代理 API 金鑰" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)] focus:border-transparent" />
                 <p className="text-xs text-[var(--text-3)] mt-1">API 金鑰將安全儲存在伺服器端，僅用於與該代理通訊</p>
               </div>
               {error && (
