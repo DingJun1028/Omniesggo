@@ -66,14 +66,14 @@ export default function OllamaPage() {
                         <p className="text-sm text-[var(--text-2)]">使用本地 Ollama 模型，完全零成本</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" checked={config.zeroCost} onChange={(e) => setConfig(prev => ({ ...prev, zeroCost: e.target.checked }))} className="sr-only peer" />
+                    <div className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" aria-label="零算力功能" checked={config.zeroCost} onChange={(e) => setConfig(prev => ({ ...prev, zeroCost: e.target.checked }))} className="sr-only peer" />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[var(--accent-cool-soft)] rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-[var(--accent-cool)]"></div>
-                    </label>
+                    </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Server className="w-4 h-4" />Ollama 端點</label>
-                    <input type="url" value={config.endpoint} onChange={(e) => setConfig(prev => ({ ...prev, endpoint: e.target.value }))} className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)]" />
+                    <label htmlFor="ollama-endpoint" className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Server className="w-4 h-4" />Ollama 端點</label>
+                    <input id="ollama-endpoint" type="url" value={config.endpoint} onChange={(e) => setConfig(prev => ({ ...prev, endpoint: e.target.value }))} className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)]" />
                   </div>
                   <div className="flex items-center justify-between p-4 rounded-lg border border-[var(--border)]">
                     <div className="flex items-center gap-3">
@@ -83,15 +83,15 @@ export default function OllamaPage() {
                         <p className="text-sm text-[var(--text-2)]">使用自有 API 金鑰連接遠端 Ollama</p>
                       </div>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input type="checkbox" checked={config.byok} onChange={(e) => setConfig(prev => ({ ...prev, byok: e.target.checked }))} className="sr-only peer" />
+                    <div className="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" aria-label="BYOK 金鑰連接" checked={config.byok} onChange={(e) => setConfig(prev => ({ ...prev, byok: e.target.checked }))} className="sr-only peer" />
                       <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-500/20 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-500"></div>
-                    </label>
+                    </div>
                   </div>
                   {config.byok && (
                     <div>
-                      <label className="block text-sm font-medium text-[var(--text-1)] mb-2">API 金鑰</label>
-                      <input type="password" value={config.apiKey} onChange={(e) => setConfig(prev => ({ ...prev, apiKey: e.target.value }))} placeholder="輸入您的 Ollama API 金鑰" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-purple-500" />
+                      <label htmlFor="ollama-api-key" className="block text-sm font-medium text-[var(--text-1)] mb-2">API 金鑰</label>
+                      <input id="ollama-api-key" type="password" value={config.apiKey} onChange={(e) => setConfig(prev => ({ ...prev, apiKey: e.target.value }))} placeholder="輸入您的 Ollama API 金鑰" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-purple-500" />
                     </div>
                   )}
                   <Button variant="primary" size="lg" onClick={handleConnect} disabled={isConnecting} className="w-full group">

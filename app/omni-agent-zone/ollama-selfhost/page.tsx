@@ -97,12 +97,12 @@ export default function OllamaSelfHostPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Globe className="w-4 h-4" />實例名稱/URL</label>
-                  <input type="text" value={config.instanceUrl} onChange={(e) => setConfig(prev => ({ ...prev, instanceUrl: e.target.value }))} placeholder="ollama-esggo" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)]" />
+                  <label htmlFor="selfhost-instance-url" className="block text-sm font-medium text-[var(--text-1)] mb-2 flex items-center gap-2"><Globe className="w-4 h-4" />實例名稱/URL</label>
+                  <input id="selfhost-instance-url" type="text" value={config.instanceUrl} onChange={(e) => setConfig(prev => ({ ...prev, instanceUrl: e.target.value }))} placeholder="ollama-esggo" className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)]" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[var(--text-1)] mb-2">地區</label>
-                  <select value={config.region} onChange={(e) => setConfig(prev => ({ ...prev, region: e.target.value }))} className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)]">
+                  <label htmlFor="selfhost-region" className="block text-sm font-medium text-[var(--text-1)] mb-2">地區</label>
+                  <select id="selfhost-region" value={config.region} onChange={(e) => setConfig(prev => ({ ...prev, region: e.target.value }))} className="w-full px-4 py-2.5 rounded-lg border border-[var(--border)] bg-[var(--surface-1)] text-[var(--text-1)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-cool)]">
                     <option value="ap-tokyo-1">亞太 - 東京</option>
                     <option value="ap-singapore-1">亞太 - 新加坡</option>
                     <option value="us-west-1">美西</option>
