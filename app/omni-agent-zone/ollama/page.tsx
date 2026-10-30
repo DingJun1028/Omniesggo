@@ -2,10 +2,11 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Cpu, Zap, Settings, CheckCircle2, Server, Key, RefreshCw, Activity } from 'lucide-react';
+import { Cpu, Zap, Settings, CheckCircle2, Server, Key, RefreshCw, Activity } from 'lucide-react';
 import { Button } from '@esggo/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZoneHeaderCore } from '../_components/zone-header-core';
 
 export default function OllamaPage() {
   const [config, setConfig] = useState({
@@ -41,23 +42,7 @@ export default function OllamaPage() {
       <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center gap-4">
-              <Link href="/omni-agent-zone">
-                <Button variant="ghost" size="sm" className="group">
-                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                  返回專區
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-                  <Cpu className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg lg:text-xl font-bold text-[var(--text-1)]">Ollama 零算力整合</h1>
-                  <p className="text-xs text-[var(--text-3)]">本地推理 • 零成本 • BYOK 支援</p>
-                </div>
-              </div>
-            </div>
+            <ZoneHeaderCore icon={<Cpu className="w-6 h-6 text-white" />} title="Ollama 零算力整合" subtitle="本地推理 • 零成本 • BYOK 支援" iconBg="from-orange-500 to-red-500" />
             <span className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-xs font-medium">
               <Zap className="w-3 h-3" />零算力模式
             </span>

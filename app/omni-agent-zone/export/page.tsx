@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { 
   ArrowLeft, Download, FileText, CheckCircle2, Brain, 
   Calendar, Filter, FileJson, FileSpreadsheet, Archive
@@ -9,6 +8,7 @@ import {
 import { Button } from '@esggo/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZoneHeaderCore } from '../_components/zone-header-core';
 
 interface ExportOptions {
   format: 'json' | 'csv' | 'markdown' | 'zip';
@@ -81,23 +81,7 @@ export default function ExportPage() {
       <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center gap-4">
-              <Link href="/omni-agent-zone">
-                <Button variant="ghost" size="sm" className="group">
-                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                  返回專區
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                  <Download className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg lg:text-xl font-bold text-[var(--text-1)]">記憶匯出中心</h1>
-                  <p className="text-xs text-[var(--text-3)]">匯出第二共享大腦記憶至本地</p>
-                </div>
-              </div>
-            </div>
+            <ZoneHeaderCore icon={<Download className="w-6 h-6 text-white" />} title="記憶匯出中心" subtitle="匯出第二共享大腦記憶至本地" iconBg="from-blue-500 to-cyan-500" />
           </div>
         </div>
       </header>

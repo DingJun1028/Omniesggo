@@ -42,7 +42,7 @@ export default function ChatPage() {
     type: 'omni',
     status: 'online',
   });
-  const [agents, setAgents] = useState<Agent[]>([
+  const [agents] = useState<Agent[]>([
     { id: 'omni-core', name: 'OmniAgent Core', type: 'omni', status: 'online' },
     { id: 'hermes-30', name: 'Hermes 30', type: 'hermes', status: 'online' },
     { id: 'jules', name: 'Jules AI', type: 'jules', status: 'online' },
@@ -107,7 +107,7 @@ export default function ChatPage() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      void handleSend();
     }
   };
 

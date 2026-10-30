@@ -9,6 +9,8 @@ import {
 import { Button } from '@esggo/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZoneHeaderCore } from '../_components/zone-header-core';
+import { REGISTRY_AGENTS } from '../_shared/registry-data';
 
 interface Agent {
   id: string;
@@ -52,40 +54,7 @@ export default function AgentsPage() {
         setAgents(data.agents || []);
       }
     } catch (error) {
-      setAgents([
-        {
-          id: 'omni-core-01',
-          name: 'OmniAgent Core',
-          type: 'omni',
-          status: 'online',
-          capabilities: ['報告生成', '重大性分析', '碳盤查', '供應鏈盡調'],
-          endpoint: '/api/omni-agent',
-          lastHeartbeat: Date.now() - 30000,
-          tasksCompleted: 156,
-          memoryUsage: 45,
-        },
-        {
-          id: 'hermes-30-01',
-          name: 'Hermes 30 蜂群',
-          type: 'hermes',
-          status: 'online',
-          capabilities: ['自動巡檢', '自癒修復', '排程任務', '監控告警'],
-          endpoint: '/api/cron',
-          lastHeartbeat: Date.now() - 15000,
-          tasksCompleted: 892,
-          memoryUsage: 32,
-        },
-        {
-          id: 'jules-assistant',
-          name: 'Jules AI',
-          type: 'jules',
-          status: 'busy',
-          capabilities: ['程式開發', '代碼審查', '除錯修復', '文件撰寫'],
-          lastHeartbeat: Date.now() - 60000,
-          tasksCompleted: 234,
-          memoryUsage: 67,
-        },
-      ]);
+      setAgents(REGISTRY_AGENTS););
     } finally {
       setIsLoading(false);
     }
@@ -104,23 +73,7 @@ export default function AgentsPage() {
       <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center gap-4">
-              <Link href="/omni-agent-zone">
-                <Button variant="ghost" size="sm" className="group">
-                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                  返回專區
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-                  <Bot className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg lg:text-xl font-bold text-[var(--text-1)]">代理管理中心</h1>
-                  <p className="text-xs text-[var(--text-3)]">連接與管理所有代理 • 統一介面</p>
-                </div>
-              </div>
-            </div>
+            <ZoneHeaderCore icon={<Bot className="w-6 h-6 text-white" />} title="代理管理中心" subtitle="連接與管理所有代理 • 統一介面" iconBg="from-cyan-500 to-blue-500" />
             <Button variant="primary" size="sm">
               <Plus className="w-4 h-4 mr-2" />
               添加代理

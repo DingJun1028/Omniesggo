@@ -10,6 +10,7 @@ import {
 import { Button } from '@esggo/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
 import { motion } from 'framer-motion';
+import { ZoneHeaderCore } from '../_components/zone-header-core';
 
 interface ImportResult {
   success: boolean;
@@ -105,23 +106,7 @@ export default function ImportPage() {
       <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
-            <div className="flex items-center gap-4">
-              <Link href="/omni-agent-zone">
-                <Button variant="ghost" size="sm" className="group">
-                  <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                  返回專區
-                </Button>
-              </Link>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
-                  <Upload className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-lg lg:text-xl font-bold text-[var(--text-1)]">記憶匯入中心</h1>
-                  <p className="text-xs text-[var(--text-3)]">從當前紀錄匯入至第二共享大腦</p>
-                </div>
-              </div>
-            </div>
+            <ZoneHeaderCore icon={<Upload className="w-6 h-6 text-white" />} title="記憶匯入中心" subtitle="從當前紀錄匯入至第二共享大腦" iconBg="from-emerald-500 to-teal-500" />
           </div>
         </div>
       </header>
