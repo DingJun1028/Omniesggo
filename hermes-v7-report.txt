@@ -1,4 +1,4 @@
-report updated Fri Oct 30 22:31:28 UTC 2026
+report updated Fri Oct 30 22:31:29 UTC 2026
 V7 run started
 oci-cli installed
 OCI_AUTH_OK
@@ -8,3 +8,4 @@ TARGET_FOUND state=RUNNING
 AGENTS_RAW Usage: oci instance-agent [OPTIONS] COMMAND [ARGS]...  Error: No such command 'agent'.  For OCI CLI commands and parameters suggestion, auto completion and other useful features, try the Interactive mode by typing `oci -i`. 
 AGENTS_ERR 
 AGENT_ID=
+CC_HELP   -c, --compartment-id TEXT  The [OCID] of the compartment to create the;  --target COMPLEX TYPE      The target instance to run the command on. This;                             The --generate-param-json-input option can be;  --content COMPLEX TYPE     The contents of the command. This is a complex;                             The --generate-param-json-input option can be;  --display-name TEXT        A user-friendly name for the command. It does not;  --timeout-in-seconds TEXT  Command execution time limit. Zero means no;  --from-json TEXT           Provide input to this command as a JSON document;                             The --generate-full-command-json-input option can;  -?, -h, --help             For detailed help on any of these individual;                             commands, en
