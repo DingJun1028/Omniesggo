@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { 
   Brain, Database, Share2, Zap, Network, Upload, Download, 
   ArrowLeft, Plus, Search, Clock, Tag,
-  MessageSquare, Activity, GitBranch, Bot
+  MessageSquare, Activity, GitBranch, Bot, Cpu
 } from 'lucide-react';
 import { Button } from '@esggo/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
@@ -372,152 +372,104 @@ export default function OmniAgentZonePage() {
             </Card>
           </motion.div>
         </div>
+
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link href="/omni-agent-zone/import">
+              <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Upload className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[var(--text-1)] group-hover:text-[var(--accent-cool)] transition-colors">
+                        記憶匯入中心
+                      </h3>
+                      <p className="text-sm text-[var(--text-2)]">從當前紀錄匯入</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[var(--text-3)]">
+                    支援 JSON、CSV、對話歷史匯入至第二共享大腦
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/omni-agent-zone/export">
+              <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Download className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[var(--text-1)] group-hover:text-[var(--accent-cool)] transition-colors">
+                        記憶匯出中心
+                      </h3>
+                      <p className="text-sm text-[var(--text-2)]">匯出至本地</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[var(--text-3)]">支援 JSON、CSV、Markdown、ZIP</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/omni-agent-zone/chat">
+              <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Brain className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[var(--text-1)] group-hover:text-purple-500 transition-colors">
+                        萬能代理聊天專區
+                      </h3>
+                      <p className="text-sm text-[var(--text-2)]">全能對話與執行</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[var(--text-3)]">編碼、自定義回覆、介面修改、功能實現</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/omni-agent-zone/center">
+              <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Network className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[var(--text-1)] group-hover:text-emerald-500 transition-colors">
+                        萬能代理整合中樞
+                      </h3>
+                      <p className="text-sm text-[var(--text-2)]">系統整合度 100%</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[var(--text-3)]">完善優化 • 缺口補齊 • 無縫接軌 • 無限進化</p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/omni-agent-zone/ollama">
+              <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Cpu className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-[var(--text-1)] group-hover:text-orange-500 transition-colors">
+                        Ollama 零算力整合
+                      </h3>
+                      <p className="text-sm text-[var(--text-2)]">本地推理 • 零成本</p>
+                    </div>
+                  </div>
+                  <p className="text-sm text-[var(--text-3)]">零算力功能 • BYOK 設置 • 本地模型</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </div>
       </main>
     </div>
-  );
-}
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link href="/omni-agent-zone/import">
-            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Upload className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-[var(--accent-cool)] transition-colors">
-                      記憶匯入中心
-                    </h3>
-                    <p className="text-sm text-[var(--text-2)]">從當前紀錄匯入</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[var(--text-3)]">
-                  支援 JSON、CSV、對話歷史匯入至第二共享大腦
-                </p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </div>
-  );
-}
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/omni-agent-zone/import">
-            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Upload className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-[var(--accent-cool)] transition-colors">
-                      記憶匯入中心
-                    </h3>
-                    <p className="text-sm text-[var(--text-2)]">從當前紀錄匯入</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[var(--text-3)]">支援 JSON、CSV、對話歷史</p>
-              </CardContent>
-            </Card>
-          </Link>
-          <Link href="/omni-agent-zone/export">
-            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Download className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-[var(--accent-cool)] transition-colors">
-                      記憶匯出中心
-                    </h3>
-                    <p className="text-sm text-[var(--text-2)]">匯出至本地</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[var(--text-3)]">支援 JSON、CSV、Markdown、ZIP</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </div>
-  );
-}
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/omni-agent-zone/chat">
-            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Brain className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-purple-500 transition-colors">
-                      萬能代理聊天專區
-                    </h3>
-                    <p className="text-sm text-[var(--text-2)]">全能對話與執行</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[var(--text-3)]">編碼、自定義回覆、介面修改、功能實現</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </div>
-  );
-}
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/omni-agent-zone/center">
-            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Network className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-emerald-500 transition-colors">
-                      萬能代理整合中樞
-                    </h3>
-                    <p className="text-sm text-[var(--text-2)]">系統整合度 100%</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[var(--text-3)]">完善優化 • 缺口補齊 • 無縫接軌 • 無限進化</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </div>
-  );
-}
-
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Link href="/omni-agent-zone/ollama">
-            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Cpu className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-orange-500 transition-colors">
-                      Ollama 零算力整合
-                    </h3>
-                    <p className="text-sm text-[var(--text-2)]">本地推理 • 零成本</p>
-                  </div>
-                </div>
-                <p className="text-sm text-[var(--text-3)]">零算力功能 • BYOK 設置 • 本地模型</p>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </div>
   );
 }

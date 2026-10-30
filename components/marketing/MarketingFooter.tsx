@@ -59,56 +59,27 @@ export function MarketingFooter() {
             </div>
           </div>
 
-          {/* Product Links */}
-          <div>
-            <h3 className="font-semibold text-[var(--text-1)] mb-4">產品</h3>
-            <ul className="space-y-3">
-              {FOOTER_LINKS.product.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-[var(--text-2)] hover:text-[var(--accent-cool)] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Resources Links */}
-          <div>
-            <h3 className="font-semibold text-[var(--text-1)] mb-4">資源</h3>
-            <ul className="space-y-3">
-              {FOOTER_LINKS.resources.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-[var(--text-2)] hover:text-[var(--accent-cool)] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company Links */}
-          <div>
-            <h3 className="font-semibold text-[var(--text-1)] mb-4">公司</h3>
-            <ul className="space-y-3">
-              {FOOTER_LINKS.company.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-[var(--text-2)] hover:text-[var(--accent-cool)] transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {[
+            { title: '產品', links: FOOTER_LINKS.product },
+            { title: '資源', links: FOOTER_LINKS.resources },
+            { title: '公司', links: FOOTER_LINKS.company },
+          ].map((group) => (
+            <div key={group.title}>
+              <h3 className="font-semibold text-[var(--text-1)] mb-4">{group.title}</h3>
+              <ul className="space-y-3">
+                {group.links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-[var(--text-2)] hover:text-[var(--accent-cool)] transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
 
         {/* Bottom Bar */}

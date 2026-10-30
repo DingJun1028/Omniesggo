@@ -14,18 +14,22 @@ export function ZoneHeaderCore({
   title,
   subtitle,
   iconBg = 'from-blue-500 to-cyan-500',
+  backHref = '/omni-agent-zone',
+  backLabel = '返回專區',
 }: {
   icon: ReactNode;
   title: string;
   subtitle?: string;
   iconBg?: string;
+  backHref?: string;
+  backLabel?: string;
 }) {
   return (
     <div className="flex items-center gap-4">
-      <Link href="/omni-agent-zone">
+      <Link href={backHref}>
         <Button variant="ghost" size="sm" className="group">
           <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-          返回專區
+          {backLabel}
         </Button>
       </Link>
       <div className="flex items-center gap-3">
