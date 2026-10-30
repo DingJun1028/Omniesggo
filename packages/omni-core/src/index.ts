@@ -141,3 +141,19 @@ export async function verifySeal(component: Readonly<OmniCoreComponentCore>): Pr
 }
 
 export type { OmniCoreComponentCore as IComponentCoreType };
+
+// ── v2 Hardening & Evolution (2026-10-30) ─────────────────────
+// 12大萬能架構 v2 缺口補齊模組:
+//   R1 deepFreeze 深凍結 | R2 egressLock 事件 SHA-256 出口封裝
+//   R3 EntropyLedger 可量化熵減 | R6 PrefetchGate 先知預判成本閘門
+//   R7 LearningLoop + ChaosEngine 自我學習進化閉環
+export { deepFreeze } from './deep-freeze';
+export { egressLock, hashLockEvent, type EgressSeal, type LockableEvent } from './egress';
+export {
+  ChaosEngine,
+  EntropyLedger,
+  LearningLoop,
+  PrefetchGate,
+  type EntropyMetrics,
+  type RepairTemplate,
+} from './evolution';
