@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Brain, Database, Share2, Zap, Network, 
   ArrowLeft, Plus, Search, Clock, Tag,
-  MessageSquare, Activity, GitBranch
+  MessageSquare, Activity, GitBranch, Bot
 } from 'lucide-react';
 import { Button } from '@esggo/ui';
 import { Card, CardContent, CardHeader, CardTitle } from '@esggo/ui';
@@ -68,7 +68,6 @@ export default function OmniAgentZonePage() {
       }
     } catch (error) {
       console.error('Failed to fetch brain data:', error);
-      // Use mock data for demo
       setMemories([
         {
           id: '1',
@@ -124,7 +123,6 @@ export default function OmniAgentZonePage() {
 
   return (
     <div className="min-h-screen bg-[var(--bg)]">
-      {/* Header */}
       <header className="border-b border-[var(--border)] bg-[var(--surface-1)]/95 backdrop-blur-xl sticky top-0 z-40">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 lg:h-20">
@@ -146,10 +144,12 @@ export default function OmniAgentZonePage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="secondary" size="sm">
-                <GitBranch className="w-4 h-4 mr-2" />
-                記憶圖譜
-              </Button>
+              <Link href="/omni-agent-zone/agents">
+                <Button variant="secondary" size="sm">
+                  <Bot className="w-4 h-4 mr-2" />
+                  代理管理
+                </Button>
+              </Link>
               <Button variant="primary" size="sm">
                 <Plus className="w-4 h-4 mr-2" />
                 新增記憶
@@ -160,7 +160,6 @@ export default function OmniAgentZonePage() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Overview */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -214,14 +213,12 @@ export default function OmniAgentZonePage() {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="lg:col-span-1 space-y-6"
           >
-            {/* Memory Layers */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -266,7 +263,6 @@ export default function OmniAgentZonePage() {
               </CardContent>
             </Card>
 
-            {/* Quick Actions */}
             <Card>
               <CardHeader>
                 <CardTitle>快速操作</CardTitle>
@@ -276,6 +272,12 @@ export default function OmniAgentZonePage() {
                   <Button variant="secondary" size="sm" className="w-full justify-start">
                     <MessageSquare className="w-4 h-4 mr-2" />
                     代理對話
+                  </Button>
+                </Link>
+                <Link href="/omni-agent-zone/agents">
+                  <Button variant="secondary" size="sm" className="w-full justify-start">
+                    <Bot className="w-4 h-4 mr-2" />
+                    代理管理中心
                   </Button>
                 </Link>
                 <Button variant="secondary" size="sm" className="w-full justify-start">
@@ -290,7 +292,6 @@ export default function OmniAgentZonePage() {
             </Card>
           </motion.div>
 
-          {/* Main Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
