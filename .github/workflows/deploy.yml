@@ -171,11 +171,11 @@ jobs:
           if [ "${BUILD_FAILED:-0}" = "1" ]; then
             echo "==== BUILD FAILED — error extract (see annotations) ===="
             grep -nEi "error:|module not found|cannot find|failed to compile|type error|syntax error|not found:" build.log | tail -40 | while IFS= read -r line; do
-              msg=$(printf '%s' "$line" | cut -c1-240 | tr """ '' )
+              msg=$(printf '%s' "$line" | cut -c1-240 | tr "'" '"' )
               echo "::error::$msg"
             done
             tail -30 build.log | while IFS= read -r line; do
-              msg=$(printf '%s' "$line" | cut -c1-240 | tr """ '' )
+              msg=$(printf '%s' "$line" | cut -c1-240 | tr "'" '"' )
               echo "::error::TAIL $msg"
             done
             exit 1
