@@ -1,2 +1,38 @@
-report updated Fri Oct 30 22:38:19 UTC 2026
+report updated Fri Oct 30 22:38:26 UTC 2026
 V10 run started
+R|Warning: Permanently added '161.118.248.180' (ED25519) to the list of known hosts.
+R|---STATUS---
+R|● hermes-serve.service - Hermes Agent WebUI Serve (Hermex backend)
+R|     Loaded: loaded (/etc/systemd/system/hermes-serve.service; enabled; preset: enabled)
+R|     Active: active (running) since Fri 2026-10-30 22:36:25 UTC; 1min 59s ago
+R|   Main PID: 32234 (hermes)
+R|      Tasks: 4 (limit: 28649)
+R|     Memory: 86.3M (peak: 102.2M)
+R|        CPU: 1.680s
+R|     CGroup: /system.slice/hermes-serve.service
+R|             └─32234 /opt/hermes-venv/bin/python3 /opt/hermes-venv/bin/hermes serve --port 9119 --skip-build
+R|
+R|Oct 30 22:36:25 esggo-vps systemd[1]: Started hermes-serve.service - Hermes Agent WebUI Serve (Hermex backend).
+R|Oct 30 22:37:01 esggo-vps hermes[32234]: HERMES_BACKEND_READY port=9119
+R|---ISACTIVE---
+R|active
+R|---NREST---
+R|NRestarts=0
+R|ExecMainStartTimestamp=Fri 2026-10-30 22:36:25 UTC
+R|SubState=running
+R|---JOURNAL60---
+R|Oct 30 22:36:25 esggo-vps systemd[1]: Started hermes-serve.service - Hermes Agent WebUI Serve (Hermex backend).
+R|Oct 30 22:37:01 esggo-vps hermes[32234]: HERMES_BACKEND_READY port=9119
+R|---PROC---
+R|root        3155  0.0  0.0   7420  2996 ?        Ss   22:19   0:00 su -s /bin/bash -c exec "/hermeswebui_init.bash" hermeswebui
+R|opc         5091  0.0  0.0   4044  2864 ?        Ss   22:19   0:00 /bin/bash /hermeswebui_init.bash
+R|ubuntu     32234  1.3  0.3 322640 87456 ?        Ssl  22:36   0:01 /opt/hermes-venv/bin/python3 /opt/hermes-venv/bin/hermes serve --port 9119 --skip-build
+R|---LOCAL---
+R|root=404
+R|health=404
+R|---MEM---
+R|               total        used        free      shared  buff/cache   available
+R|Mem:           23974       11641         226          21       12447       12333
+R|Swap:              0           0           0
+R|---DONE---
+DIAG_DONE lines=35
