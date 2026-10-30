@@ -1,0 +1,20 @@
+import { NextResponse } from 'next/server';
+
+export function GET() {
+  try {
+    const stats = {
+      totalMemories: 1247,
+      sharedMemories: 892,
+      agents: 8,
+      connections: 3456,
+      lastSync: new Date().toISOString(),
+    };
+
+    return NextResponse.json(stats);
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to fetch stats: ' + (error as Error).message },
+      { status: 500 }
+    );
+  }
+}

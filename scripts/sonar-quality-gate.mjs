@@ -123,6 +123,63 @@ async function fetchIssues(args, token, qualities) {
   return issues.slice(0, MAX_ISSUES);
 }
 
+function deriveQualities(conditions) {
+  const failed = (conditions ?? []).filter((c) => c.status !== "OK");
+  const qualities = [...new Set(failed.map((c) => {
+    const key = c.metricKey ?? "";
+    return key.startsWith("new_") ? key.replace(/^new_/, "").replace(/_rating$/, "").toUpperCase() : null;
+  }).filter(Boolean))];
+  return qualities.length ? qualities : ["SECURITY", "RELIABILITY", "MAINTAINABILITY"];
+}
+
+async function pollOnce(args, token) {
+  try {
+    const { status, data } = await api("qualitygates/project_status", contextParams(args), token);
+    const projectStatus = status === 200 ? data?.projectStatus : null;
+    if (projectStatus?.status) return projectStatus;
+    if (args.verbose) console.log(`  ...gate not ready (HTTP ${status}); retrying.`);
+    return null;
+  } catch (err) {
+    // Transient SonarCloud API errors (e.g. while the Automatic Analysis for a
+    // fresh push is being re-indexed) are retried until the deadline expires.
+    if (args.verbose) console.log(`  ...API error: ${err?.message ?? err}; retrying.`);
+    return null;
+  }
+}
+
+async function pollGate(args, token) {
+  const deadline = Date.now() + args.timeout * 1000;
+  let lastStatus = null;
+  while (Date.now() < deadline) {
+    const t0 = Date.now();
+    const projectStatus = await pollOnce(args, token);
+    if (projectStatus) {
+      lastStatus = projectStatus;
+      if (projectStatus.status !== "UNKNOWN") break;
+    }
+    const elapsed = Date.now() - t0;
+    await new Promise((r) => setTimeout(r, Math.max(0, args.interval * 1000 - elapsed)));
+  }
+  return lastStatus;
+}
+
+async function printIssues(args, token, status, where) {
+  let issues = [];
+  try {
+    issues = await fetchIssues(args, token, deriveQualities(status.conditions));
+  } catch (err) {
+    console.log(`  (issue details unavailable: ${err?.message ?? err})`);
+  }
+  if (!issues.length) {
+    console.log(`\nNo issues returned for the failing qualities on ${where}; check the SonarCloud UI for detail.`);
+    return;
+  }
+  console.log(`\nTop ${issues.length} issue(s) on ${where}:`);
+  for (const it of issues) {
+    console.log(`  - [${it.severity}] ${it.rule} ${it.component}:${it.line} — ${it.message}`);
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const token = process.env.SONAR_TOKEN;
@@ -138,19 +195,7 @@ async function main() {
   console.log(`SonarCloud quality gate: ${args.project} @ ${where} — polling up to ${args.timeout}s.`);
 
   // 2. Poll the gate until the Automatic Analysis has finished computing it.
-  const deadline = Date.now() + args.timeout * 1000;
-  let lastStatus = null;
-  while (Date.now() < deadline) {
-    const t0 = Date.now();
-    const { status, data } = await api("qualitygates/project_status", contextParams(args), token);
-    if (status === 200 && data?.projectStatus?.status) {
-      lastStatus = data.projectStatus;
-      if (lastStatus.status !== "UNKNOWN") break;
-    }
-    if (args.verbose) console.log(`  ...gate not ready (HTTP ${status}); retrying.`);
-    const elapsed = Date.now() - t0;
-    await new Promise((r) => setTimeout(r, Math.max(0, args.interval * 1000 - elapsed)));
-  }
+  const lastStatus = await pollGate(args, token);
   if (!lastStatus || lastStatus.status === "UNKNOWN") {
     fail(`quality gate not computed within ${args.timeout}s for ${where}.`);
   }
@@ -160,21 +205,7 @@ async function main() {
 
   // 3. On failure, surface the concrete issues so the fix is evidence-driven.
   if (lastStatus.status === "ERROR" || lastStatus.status === "WARN") {
-    const failed = (lastStatus.conditions ?? []).filter((c) => c.status !== "OK");
-    const qualities = [...new Set(failed.map((c) => {
-      const key = c.metricKey ?? "";
-      if (key.startsWith("new_")) return key.replace(/^new_/, "").replace(/_rating$/, "").toUpperCase();
-      return null;
-    }).filter(Boolean))];
-    const issues = await fetchIssues(args, token, qualities.length ? qualities : ["SECURITY", "RELIABILITY", "MAINTAINABILITY"]);
-    if (issues.length) {
-      console.log(`\nTop ${issues.length} issue(s) on ${where}:`);
-      for (const it of issues) {
-        console.log(`  - [${it.severity}] ${it.rule} ${it.component}:${it.line} — ${it.message}`);
-      }
-    } else {
-      console.log(`\nNo issues returned for the failing qualities on ${where}; check the SonarCloud UI for detail.`);
-    }
+    await printIssues(args, token, lastStatus, where);
   }
 
   if (lastStatus.status === "ERROR") {

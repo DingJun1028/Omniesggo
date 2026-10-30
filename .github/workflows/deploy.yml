@@ -155,15 +155,31 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image (ARM64)
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: vps/Dockerfile.arm64
-          platforms: linux/arm64
-          push: false
-          tags: esggo:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+        # Diagnostic build: on failure, surface the build log's error lines as
+        # check-run annotations (::error::) so the root cause is visible via the
+        # public annotations API without admin log access. See issue #91 / PR #114.
+        run: |
+          set -o pipefail
+          docker buildx build \
+            --file vps/Dockerfile.arm64 \
+            --platform linux/arm64 \
+            --tag esggo:test \
+            --cache-from type=gha \
+            --cache-to type=gha,mode=max \
+            --progress=plain \
+            . > build.log 2>&1 || BUILD_FAILED=1
+          if [ "${BUILD_FAILED:-0}" = "1" ]; then
+            echo "==== BUILD FAILED — error extract (see annotations) ===="
+            grep -nEi "error:|module not found|cannot find|failed to compile|type error|syntax error|not found:" build.log | tail -40 | while IFS= read -r line; do
+              msg=$(printf '%s' "$line" | cut -c1-240 | tr "'" '"' )
+              echo "::error::$msg"
+            done
+            tail -30 build.log | while IFS= read -r line; do
+              msg=$(printf '%s' "$line" | cut -c1-240 | tr "'" '"' )
+              echo "::error::TAIL $msg"
+            done
+            exit 1
+          fi
 
   # ─── Deploy to VPS ──────────────────────────────────────────
   deploy:
