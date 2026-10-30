@@ -1,0 +1,32 @@
+{
+  "name": "@esggo/oesg-report",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "oesg",
+    "report",
+    "esg-reporting",
+    "esggo",
+    "iso-14064-1",
+    "5t-protocol"
+  ],
+  "author": "ESG GO Team",
+  "license": "UNLICENSED",
+  "description": "OESG-Report 報告生成引擎 — OESG 五路線圖次站（Pulse→Report→Audit→Exchange→DAO），訂閱 oesg.pulse.tick 彙整期報告，驗算後廣播 oesg.report.draft 供第三站 Audit 稽核",
+  "dependencies": {
+    "@esggo/oesg-pulse": "workspace:*",
+    "@esggo/omni-arch": "workspace:*",
+    "@esggo/omni-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": ">=4.1.11 <5"
+  }
+}
