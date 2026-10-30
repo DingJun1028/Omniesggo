@@ -41,33 +41,33 @@
 
 | TypeBox 定義檔 | Type.Object 定義數 | 掛需求編號 |
 | --- | --- | --- |
-| `app/api/tags/pair/route.ts` | 2 | — |
-| `apps/gateway/sync/schema.ts` | 6 | — |
+| `app/api/tags/pair/route.ts` | 2 | FR-03 |
+| `apps/gateway/sync/schema.ts` | 6 | FR-02 |
 | `lib/runes/aesthetic-rune.ts` | 1 | — |
-| `lib/runes/alchemist-rune.ts` | 1 | — |
+| `lib/runes/alchemist-rune.ts` | 1 | FR-08 |
 | `lib/runes/benchmark-rune.ts` | 1 | — |
-| `lib/runes/covenanter-rune.ts` | 1 | — |
+| `lib/runes/covenanter-rune.ts` | 1 | FR-07 |
 | `lib/runes/creative-genesis-rune.ts` | 1 | — |
 | `lib/runes/creative-resonance-rune.ts` | 1 | — |
 | `lib/runes/data-visualizer-rune.ts` | 1 | — |
-| `lib/runes/dispatcher-rune.ts` | 1 | — |
+| `lib/runes/dispatcher-rune.ts` | 1 | FR-08 |
 | `lib/runes/emotion-sensor-rune.ts` | 1 | — |
-| `lib/runes/engraver-rune.ts` | 1 | — |
-| `lib/runes/hallucination-verification-rune.ts` | 1 | — |
+| `lib/runes/engraver-rune.ts` | 1 | FR-10 |
+| `lib/runes/hallucination-verification-rune.ts` | 1 | NFR-03 |
 | `lib/runes/interaction-intuition-rune.ts` | 1 | — |
-| `lib/runes/ncbdb-engrave-rune.ts` | 1 | — |
+| `lib/runes/ncbdb-engrave-rune.ts` | 1 | FR-07, FR-10 |
 | `lib/runes/optical-renderer-rune.ts` | 1 | — |
 | `lib/runes/perception-integrator-rune.ts` | 1 | — |
 | `lib/runes/semantic-alchemy-rune.ts` | 1 | — |
 | `lib/runes/semanticist-rune.ts` | 2 | — |
 | `lib/runes/telepath-rune.ts` | 1 | — |
-| `lib/runes/tracer-rune.ts` | 1 | — |
-| `lib/runes/validator-rune.ts` | 2 | — |
+| `lib/runes/tracer-rune.ts` | 1 | FR-04 |
+| `lib/runes/validator-rune.ts` | 2 | NFR-03 |
 | `lib/runes/visual-perceptor-rune.ts` | 1 | — |
-| `src/lib/omni-reports/jules-validator.ts` | 4 | — |
+| `src/lib/omni-reports/jules-validator.ts` | 4 | FR-07 |
 | `src/lib/zod-validation.ts` | 3 | — |
 
-小計：定義檔 25 個；已掛需求編號 0 個；未掛需求編號 25 個（如實標示，後續以 PR 逐檔補標註）。
+小計：定義檔 25 個；已掛需求編號 11 個；未掛需求編號 14 個（如實標示，後續以 PR 逐檔補標註）。
 
 ## JunAiKey 唯讀共享大腦（skillCoverage，唯讀納入）
 

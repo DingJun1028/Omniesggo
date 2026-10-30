@@ -1,3 +1,4 @@
+// PRD: docs/OMN-PRD-001.md §4.1 NFR-03（標籤準確率/ schema 追溯標註）
 import { Type, type Static } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 

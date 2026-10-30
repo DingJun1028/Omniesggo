@@ -1,3 +1,4 @@
+// PRD: docs/OMN-PRD-001.md §4.1 FR-02（即時事件流/ schema 追溯標註）
 // apps/gateway/sync/schema.ts
 // 運行時驗證（TypeBox）— 與 types.ts 的編譯期型別互補。
 // 所有跨節點封包都先過 TypeBox Value.Check 再進入引擎，避免髒資料污染全域同步態。

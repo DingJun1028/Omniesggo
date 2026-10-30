@@ -1,3 +1,4 @@
+// PRD: docs/OMN-PRD-001.md §4.1 FR-03（智慧標籤引擎/ schema 追溯標註）
 // ============================================================
 // Tag Pair API — 萬能標籤配對（含本地 Gemma 4 autoPair）
 // app/api/tags/pair/route.ts

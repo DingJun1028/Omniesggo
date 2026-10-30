@@ -1,3 +1,4 @@
+// PRD: docs/OMN-PRD-001.md §4.1 FR-10（稽核與監控/ schema 追溯標註）
 import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 

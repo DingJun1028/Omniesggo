@@ -1,3 +1,4 @@
+// PRD: docs/OMN-PRD-001.md §4.1 FR-07（符文鑲嵌插件 API/ schema 追溯標註）
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
