@@ -4,7 +4,6 @@
  * 12大萬能架構的物理載體: 模組註冊表 + 生命週期 (init/start/stop)。
  * 所有註冊進容器的模組以 deepFreeze 鎖定註冊表, 禁止運行期置換 (核心禁區)。
  */
-import { deepFreeze } from '@esggo/omni-core';
 import { OmniArchError } from './types';
 
 export interface Lifecycle {
@@ -23,7 +22,11 @@ export class OmniBase {
     if (this.registry.has(id)) {
       throw new OmniArchError('E_MODULE_DUPLICATE', `模組 ${id} 已註冊, MECE 禁止重複`);
     }
-    const record: ModuleRecord = deepFreeze({ id, instance });
+    // 淺凍結註冊記錄: id → instance 綁定不可置換 (核心禁區)。
+    // 模組本體不凍結 — live 元件之內部狀態須於運行期演化;
+    // deepFreeze 實例會使原始型別欄位 (locked/state/beats) 與陣列欄位
+    // (verifications/stream/records) 之寫入炸裂 (TypeError), 故僅鎖記錄本身。
+    const record: ModuleRecord = Object.freeze({ id, instance });
     this.registry.set(id, record);
     return record;
   }
