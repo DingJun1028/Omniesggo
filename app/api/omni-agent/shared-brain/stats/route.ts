@@ -13,7 +13,7 @@ export async function GET() {
     return NextResponse.json(stats);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch stats' },
+      { error: 'Failed to fetch stats: ' + (error as Error).message },
       { status: 500 }
     );
   }

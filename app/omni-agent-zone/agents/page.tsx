@@ -40,7 +40,7 @@ export default function AgentsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetchAgents();
+    void fetchAgents();
   }, []);
 
   const fetchAgents = async () => {

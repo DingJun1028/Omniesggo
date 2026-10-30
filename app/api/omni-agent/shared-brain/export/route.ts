@@ -70,6 +70,6 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Export failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Export failed: ' + (error as Error).message }, { status: 500 });
   }
 }

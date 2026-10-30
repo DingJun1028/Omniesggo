@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { 
   ArrowRight, FileText, BarChart3, Shield, CheckCircle2, 
-  Zap, Users, Globe, TrendingUp, Award, Sparkles
+  Zap, Users, TrendingUp, Award, Sparkles
 } from 'lucide-react';
 import { Button } from '@esggo/ui';
 import { motion } from 'framer-motion';

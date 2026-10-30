@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { error: '聊天失敗' },
+      { error: '聊天失敗：' + (error as Error).message },
       { status: 500 }
     );
   }

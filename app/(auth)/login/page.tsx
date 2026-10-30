@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import { Leaf } from 'lucide-react';
-import { Button } from '@esggo/ui';
-import { Card, CardContent } from '@esggo/ui';
+import { Button, Card, CardContent } from '@esggo/ui';
 
 export default function LoginPage() {
   return (

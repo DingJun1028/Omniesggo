@@ -142,7 +142,15 @@ async function main() {
   let lastStatus = null;
   while (Date.now() < deadline) {
     const t0 = Date.now();
-    const { status, data } = await api("qualitygates/project_status", contextParams(args), token);
+    let status = 0;
+    let data = null;
+    try {
+      ({ status, data } = await api("qualitygates/project_status", contextParams(args), token));
+    } catch (err) {
+      // Transient SonarCloud API errors (e.g. while the Automatic Analysis for a
+      // fresh push is being re-indexed) are retried until the deadline expires.
+      if (args.verbose) console.log(`  ...API error: ${err?.message ?? err}; retrying.`);
+    }
     if (status === 200 && data?.projectStatus?.status) {
       lastStatus = data.projectStatus;
       if (lastStatus.status !== "UNKNOWN") break;
@@ -166,7 +174,12 @@ async function main() {
       if (key.startsWith("new_")) return key.replace(/^new_/, "").replace(/_rating$/, "").toUpperCase();
       return null;
     }).filter(Boolean))];
-    const issues = await fetchIssues(args, token, qualities.length ? qualities : ["SECURITY", "RELIABILITY", "MAINTAINABILITY"]);
+    let issues = [];
+    try {
+      issues = await fetchIssues(args, token, qualities.length ? qualities : ["SECURITY", "RELIABILITY", "MAINTAINABILITY"]);
+    } catch (err) {
+      console.log(`  (issue details unavailable: ${err?.message ?? err})`);
+    }
     if (issues.length) {
       console.log(`\nTop ${issues.length} issue(s) on ${where}:`);
       for (const it of issues) {
