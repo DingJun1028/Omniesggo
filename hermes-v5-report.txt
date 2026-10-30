@@ -1,7 +1,8 @@
-report updated Fri Oct 30 22:26:52 UTC 2026
+report updated Fri Oct 30 22:26:54 UTC 2026
 V5 run started
 oci-cli installed
 OCI_AUTH_OK
 TARGET_REGION=ap-singapore-1
 fast path failed, scanning compartments
 TARGET_FOUND state=RUNNING
+PLUGIN_LIST_ERR Warning: To increase security of your API key located at /tmp/oci_key.pem, append an extra line with 'OCI_API_KEY' at the end. For more information, refer to https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm. To suppress the warning, set the env variable SUPPRESS_LABEL_WARNING=True 
