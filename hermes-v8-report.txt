@@ -1,4 +1,5 @@
-report updated Fri Oct 30 22:33:20 UTC 2026
+run_url=https://github.com/DingJun1028/Omniesggo/actions/runs/41138743320
+Fri Oct 30 22:33:23 UTC 2026
 V8 run started
 oci-cli installed
 OCI_AUTH_OK
@@ -7,3 +8,29 @@ fast path failed, scanning compartments
 TARGET_FOUND state=RUNNING
 PLUGINS_RAW {   "data": [     {       "name": "Custom Logs Monitoring",       "status": "RUNNING",       "time-last-updated-utc": "2026-10-30T22:21:06.843000+00:00"     },     {       "name": "Compute Instance Run Command",       "status": "INVALID",       "time-last-updated-utc": "2026-10-08T06:01:38.986000+00:00"     },     {       "name": "Cloud Guard Workload Protection",       "status": "RUNNING",       "time-last-updated-utc": "2026-10-30T22:21:06.801000+00:00"     },     {       "name": "Vulnerability Scanning",       "status": "STOPPED",       "time-last-updated-utc": "2026-10-30T22:21:06.801000+00:00"     },     {       "name": "Compute HPC RDMA Authentication",       "status": "NOT_SUPPORTED",       "time-last-updated-utc": "2026-10-30T22:21:06.801000+00:00"     },     {       "name": "OS Ma
 PLUGINS_ERR 
+hermex api final:
+502
+--- diag from VPS (hermesdiag.txt) ---
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/icon-512.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hermex">
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>Hermes Agent - Dashboard</title>
+    <script type="module" crossorigin src="/assets/index-DE8KfxAS.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BbJ3HYO2.css">
+  <script>window.__HERMES_SESSION_TOKEN__="Ry6UGmBFt1H2LBhwrfgNEvKBJMvoZ5jBmy459F9b7Qw";</script></head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
+
