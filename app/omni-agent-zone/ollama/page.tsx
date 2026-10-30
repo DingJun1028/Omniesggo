@@ -184,3 +184,17 @@ export default function OllamaPage() {
     </div>
   );
 }
+
+            <Link href="/omni-agent-zone/ollama-selfhost" className="block mt-4">
+              <Button variant="secondary" className="w-full group">
+                <Cloud className="w-4 h-4 mr-2" />
+                自託管雲端零算力配置
+                <Settings className="w-4 h-4 ml-2 group-hover:rotate-90 transition-transform" />
+              </Button>
+            </Link>
+          </Card>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
