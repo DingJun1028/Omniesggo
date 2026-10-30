@@ -1,4 +1,4 @@
-report updated Fri Oct 30 22:36:14 UTC 2026
+report updated Fri Oct 30 22:36:34 UTC 2026
 V9 run started
 -----BEGIN RSA PRIVATE KEY-----
 KEYSCAN port=22 lines=3
@@ -6,3 +6,32 @@ KEYSCAN port=8042 lines=0
 CHOSEN_PORT=22
 SSH_TRY rc_out=Warning: Permanently added '161.118.248.180' (ED25519) to the list of known hosts. SSH_OK host=esggo-vps 
 SSH_CONNECTED user=ubuntu port=22
+R|Warning: Permanently added '161.118.248.180' (ED25519) to the list of known hosts.
+R|---ENABLE---
+R|Created symlink /etc/systemd/system/multi-user.target.wants/hermes-serve.service → /etc/systemd/system/hermes-serve.service.
+R|---RESTART---
+R|---ISACTIVE---
+R|active
+R|---UNIT---
+R|# /etc/systemd/system/hermes-serve.service
+R|[Unit]
+R|Description=Hermes Agent WebUI Serve (Hermex backend)
+R|After=network.target
+R|
+R|[Service]
+R|Type=simple
+R|User=ubuntu
+R|Environment=HERMES_HOME=/home/ubuntu/.hermes
+R|Environment=HERMES_DASHBOARD_SESSION_TOKEN=Ry6UGmBFt1H2LBhwrfgNEvKBJMvoZ5jBmy459F9b7Qw
+R|ExecStart=/opt/hermes-venv/bin/hermes serve --port 9119 --skip-build
+R|Restart=always
+R|RestartSec=5
+R|
+R|[Install]
+R|WantedBy=multi-user.target
+R|---JOURNAL---
+R|Oct 30 22:36:25 esggo-vps systemd[1]: Started hermes-serve.service - Hermes Agent WebUI Serve (Hermex backend).
+R|---LOCAL9119---
+R|000
+R|---DONE---
+REPAIR_DONE lines=28
