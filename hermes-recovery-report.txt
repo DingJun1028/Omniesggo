@@ -1,4 +1,4 @@
-report updated Fri Oct 30 22:18:46 UTC 2026
+report updated Fri Oct 30 22:18:47 UTC 2026
 HEARTBEAT run started
 oci-cli installed
 OCI_AUTH_OK
@@ -8,3 +8,4 @@ scan ip=129.150.58.240 inst=ocid1.instance.oc1.ap-singapore-1.anzwsljrkl3rykycc4
 scan ip=140.245.120.225 inst=ocid1.instance.oc1.ap-singapore-1.anzwsljrkl3rykyco5sv2phjmioldlmvcp5q2ee5nah2ud6xn7xo3eif7p6a
 scan ip=161.118.248.180 inst=ocid1.instance.oc1.ap-singapore-1.anzwsljrkl3rykycjrvcywrcqcxmmbjjv4eid3ah3jfkg6ymvi5bnxko3zbq
 TARGET_FOUND state=RUNNING
+plugin list error Warning: To increase security of your API key located at /tmp/oci_key.pem, append an extra line with 'OCI_API_KEY' at the end. For more information, r
