@@ -1,4 +1,4 @@
-report updated Fri Oct 30 22:29:10 UTC 2026
+report updated Fri Oct 30 22:29:12 UTC 2026
 V6 run started
 oci-cli installed
 OCI_AUTH_OK
@@ -7,3 +7,4 @@ fast path failed, scanning compartments
 TARGET_FOUND state=RUNNING
 AGENT_ID=
 AGENT_NOT_FOUND continuing without plugin list
+CMD_CREATE_FAILED 
