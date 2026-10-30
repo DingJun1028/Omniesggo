@@ -36,18 +36,17 @@ async function main() {
 
   // ── R4: 冪等重放零副作用 ──
   journal.markProcessed('m1');
-  journal.markProcessed('m1');
-  let skipped = 0;
-  const replayed1 = await journal.replay(0, Date.now(), async () => { skipped += 1; });
-  if (replayed1 !== 1 || skipped !== 1) {
-    throw new Error(`預設重放應僅執行未處理的 m2 (1 筆), 實際 ${replayed1}`);
+  let replayed1 = 0;
+  const first = await journal.replay(0, Date.now(), () => { replayed1 += 1; });
+  if (first !== 1 || replayed1 !== 1) {
+    throw new Error(`預設重放應僅執行未處理的 m2 (1 筆), 實際 ${first}`);
   }
-  const replayed2 = await journal.replay(0, Date.now(), async () => { skipped += 1; });
-  if (replayed2 !== 0) throw new Error(`二次重放應零執行 (m2 已處理), 實際 ${replayed2}`);
+  const second = await journal.replay(0, Date.now(), () => { replayed1 += 1; });
+  if (second !== 0) throw new Error(`二次重放應零執行 (m2 已處理), 實際 ${second}`);
 
   // ── R4: 影子測試模式 (reprocessReplayed) ──
-  const replayed3 = await journal.replay(0, Date.now(), async () => { skipped += 1; }, { reprocessReplayed: true });
-  if (replayed3 !== 3) throw new Error(`影子測試應重放全 3 筆, 實際 ${replayed3}`);
+  const shadow = await journal.replay(0, Date.now(), () => { replayed1 += 1; }, { reprocessReplayed: true });
+  if (shadow !== 3) throw new Error(`影子測試應重放全 3 筆, 實際 ${shadow}`);
 
   // ── R4: wrapIdempotent 與總線 handler 相容 ──
   let executed = 0;
@@ -72,9 +71,14 @@ async function main() {
 
   console.log('REPLAY_SNAPSHOT_OK');
   console.log('  journal.size      =', journal.size(), '| duplicateRate =', dup.toFixed(4));
-  console.log('  replay skipped    =', replayed1, replayed2, '| shadow =', replayed3);
+  console.log('  replay skipped    =', first, second, '| shadow =', shadow);
   console.log('  wrapIdempotent    = executed', executed, '(同 id 2 次呼叫)');
   console.log('  snapshot isolated = true (母體 99 / 分身 42 / 快照 5)');
 }
 
-main().catch((e) => { console.error('REPLAY_SNAPSHOT_FAIL:', e.message); process.exit(1); });
+try {
+  await main();
+} catch (e) {
+  console.error('REPLAY_SNAPSHOT_FAIL:', (e as Error).message);
+  process.exit(1);
+}

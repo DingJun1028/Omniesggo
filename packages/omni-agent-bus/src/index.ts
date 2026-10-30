@@ -11,4 +11,4 @@ export type { OAFrameworkModule } from './oa-bridge.js';
 export { IdempotentJournal, wrapIdempotent } from './idempotent-replay.js';
 export type { ReplayedMessage, ReplayOptions } from './idempotent-replay.js';
 export { StateSnapshotStore } from './state-snapshot.js';
-export type { SnapshotId, FissionState } from './state-snapshot.js';
+export type { FissionState } from './state-snapshot.js';

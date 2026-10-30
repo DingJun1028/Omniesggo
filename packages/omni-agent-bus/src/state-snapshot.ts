@@ -12,9 +12,6 @@
 import { clone, deepFreeze } from './internal/freeze.js';
 import type { BusMessage } from './types.js';
 
-/** 快照識別: snap_{agentId}_{序號}_{時間戳} */
-export type SnapshotId = string;
-
 /**
  * 狀態快照庫: 細胞分裂 (Agent Fission) 的前置隔離設施。
  *
@@ -28,22 +25,22 @@ export type SnapshotId = string;
  */
 export class StateSnapshotStore {
   private counter = 0;
-  private readonly snapshots = new Map<SnapshotId, Readonly<object>>();
+  private readonly snapshots = new Map<string, Readonly<object>>();
 
-  /** 捕獲母體狀態: 深複製 + 深凍結後入庫, 回傳快照 id */
-  capture<T extends object>(agentId: string, state: T): SnapshotId {
+  /** 捕獲母體狀態: 深複製 + 深凍結後入庫, 回傳快照 id (snap_{agentId}_{序號}_{時間戳}) */
+  capture<T extends object>(agentId: string, state: T): string {
     const id = `snap_${agentId}_${this.counter++}_${Date.now()}`;
     this.snapshots.set(id, deepFreeze(clone(state)));
     return id;
   }
 
   /** 還原快照: 回傳新的可寫副本; 快照 id 不存在回傳 undefined */
-  restore<T extends object>(snapshotId: SnapshotId): T | undefined {
+  restore<T extends object>(snapshotId: string): T | undefined {
     const snapshot = this.snapshots.get(snapshotId);
     return snapshot === undefined ? undefined : (clone(snapshot) as T);
   }
 
-  has(snapshotId: SnapshotId): boolean {
+  has(snapshotId: string): boolean {
     return this.snapshots.has(snapshotId);
   }
 

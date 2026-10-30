@@ -7,9 +7,9 @@
  *
  * 5T 對應: Trustworthy (深凍結不可篡改語義與 @esggo/omni-core deep-freeze R1 對齊)
  */
-/** 可攜式深複製 (訊息為 JSON 可序列化載荷) */
+/** 深複製 (Node 17+ 內建 structuredClone, 訊息為可結構化克隆載荷) */
 export function clone<T>(x: T): T {
-  return JSON.parse(JSON.stringify(x)) as T;
+  return structuredClone(x);
 }
 
 /** 遞迴深凍結 */

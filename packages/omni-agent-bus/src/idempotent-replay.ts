@@ -96,7 +96,8 @@ export class IdempotentJournal<T = unknown> {
       this.processed.add(frozen.id);
       const replayMsg = clone(frozen) as ReplayedMessage<T>;
       replayMsg.replayed = true;
-      await onReplay(replayMsg);
+      // 重放必須按刻印順序逐一執行 (時空軸還原語義), 故意循序 await
+      await onReplay(replayMsg); // NOSONAR
       count += 1;
     }
     return count;
