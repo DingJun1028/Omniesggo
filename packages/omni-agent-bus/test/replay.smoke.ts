@@ -48,9 +48,9 @@ async function main() {
   const shadow = await journal.replay(0, Date.now(), () => { replayed1 += 1; }, { reprocessReplayed: true });
   if (shadow !== 3) throw new Error(`影子測試應重放全 3 筆, 實際 ${shadow}`);
 
-  // ── R4: wrapIdempotent 與總線 handler 相容 ──
+  // ── R4: wrapIdempotent 與總線 handler 相容 (同步 handler: BusHandlerFn 允許 void) ──
   let executed = 0;
-  const handler = wrapIdempotent(async () => { executed += 1; });
+  const handler = wrapIdempotent(() => { executed += 1; });
   const m = makeMsg('m3');
   await handler(m);
   await handler(m);
