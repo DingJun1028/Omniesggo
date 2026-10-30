@@ -1,1 +1,0 @@
-src/lib/omni-reports/jules-validator.ts(53,56): error TS2741: Property '_errors' is missing in type 'string[]' but required in type '{ _errors: string[]; }'.

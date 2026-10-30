@@ -50,7 +50,7 @@ function defineContract<T extends TSchema>(shape: T, refines: RefineFn<Static<T>
 
 /** 仿 zod format() 形狀：Record<string, { _errors: string[] }>（DynamicFormEngine FeedbackState 依賴此形狀） */
 function formatIssues(issues: Array<{ path: string; message: string }>): Record<string, { _errors: string[] }> {
-  const out: Record<string, { _errors: string[] }> = { _errors: [] };
+  const out = { _errors: [] } as unknown as Record<string, { _errors: string[] }>;
   for (const it of issues) {
     const key = it.path || '_errors';
     if (!(key in out)) out[key] = { _errors: [] };
