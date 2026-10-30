@@ -1,5 +1,5 @@
 name: hermes-recovery
-# One-off recovery workflow v7: diagnostics-first Run Command attempt.
+# One-off recovery workflow v8: Run Command with corrected CLI flags.
 permissions:
   contents: write
 on:
@@ -30,15 +30,15 @@ jobs:
           {
             echo "report updated $(date -u)"
             cat /tmp/recovery.log
-          } > hermes-v7-report.txt
+          } > hermes-v8-report.txt
           git config user.name "hermes-recovery-bot" || true
           git config user.email "actions@users.noreply.github.com" || true
-          git add hermes-v7-report.txt || true
-          git commit -m "diag: update v7" || true
+          git add hermes-v8-report.txt || true
+          git commit -m "diag: update v8" || true
           git push origin HEAD:fix/hermes-serve-recovery || true
           EOS
           chmod +x /usr/local/bin/report
-          report "V7 run started"
+          report "V8 run started"
       - name: Setup oci-cli
         timeout-minutes: 8
         run: |
@@ -105,18 +105,14 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
           export SUPPRESS_LABEL_WARNING=True
-          oci instance-agent agent list --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json > /tmp/agents.json 2>/tmp/agents.err || true
-          report "AGENTS_RAW $(head -c 600 /tmp/agents.json | tr '\n' ' ')"
-          report "AGENTS_ERR $(head -c 300 /tmp/agents.err | tr '\n' ' ')"
-          AG_ID=$(jq -r --arg i "$INST_ID" '.data[]? | select(((."instance-id" // "") == $i) or ((.instanceId // "") == $i)) | .id' /tmp/agents.json 2>/dev/null | head -1) || true
-          report "AGENT_ID=$AG_ID"
-          oci instance-agent command create --help > /tmp/cc-help.txt 2>&1 || true
-          report "CC_HELP $(grep -E -- '--[a-z]' /tmp/cc-help.txt | tr '\n' ';' | head -c 800)"
-          B64='RD0vdG1wL2hlcm1lc2RpYWcudHh0CnsKICBkYXRlIC11CiAgZWNobyAnLS0tTkdJTlgtLS0nCiAgbmdpbnggLVQgMj4mMSB8IGdyZXAgLUUgJ3NlcnZlcl9uYW1lfHJvb3QgfHByb3h5X3Bhc3N8bGlzdGVuJyB8fCB0cnVlCiAgZWNobyAnLS0tRU5BQkxFLS0tJwogIHN5c3RlbWN0bCBlbmFibGUgaGVybWVzLXNlcnZlIDI+JjEgfHwgdHJ1ZQogIGVjaG8gJy0tLVJFU1RBUlQtLS0nCiAgc3lzdGVtY3RsIHJlc3RhcnQgaGVybWVzLXNlcnZlIDI+JjEgfHwgdHJ1ZQogIHNsZWVwIDYKICBlY2hvICctLS1JU0FDVElWRS0tLScKICBzeXN0ZW1jdGwgaXMtYWN0aXZlIGhlcm1lcy1zZXJ2ZSAyPiYxIHx8IHRydWUKICBlY2hvICctLS1KT1VSTkFMLS0tJwogIGpvdXJuYWxjdGwgLXUgaGVybWVzLXNlcnZlIC1uIDgwIC0tbm8tcGFnZXIgMj4mMSB8fCB0cnVlCiAgZWNobyAnLS0tTE9DQUw5MTE5LS0tJwogIGN1cmwgLXMgLW8gL2Rldi9udWxsIC13ICcle2h0dHBfY29kZX1cbicgLW0gMTAgaHR0cDovLzEyNy4wLjAuMTo5MTE5LyAyPiYxIHx8IGVjaG8gbG9jYWwtZmFpbAp9ID4gIiREIiAyPiYxCmZvciByIGluICQobmdpbnggLVQgMj4vZGV2L251bGwgfCBzZWQgLW4gJ3MvXltbOnNwYWNlOl1dKnJvb3RbWzpzcGFjZTpdXVcrXChbXiA7XSpcKTsuKi9cMS9wJyk7IGRvCiAgY3AgIiREIiAiJHtyJS99L2hlcm1lc2RpYWcudHh0IiAyPi9kZXYvbnVsbCB8fCB0cnVlCmRvbmUKY3AgIiREIiAvdmFyL3d3dy9odG1sL2hlcm1lc2RpYWcudHh0IDI+L2Rldi9udWxsIHx8IHRydWUKZXhpdCAw'
+          oci instance-agent plugin list --instanceagent-id "$INST_ID" --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json > /tmp/plugins.json 2>/tmp/plugins.err || true
+          report "PLUGINS_RAW $(head -c 800 /tmp/plugins.json | tr '\n' ' ')"
+          report "PLUGINS_ERR $(head -c 300 /tmp/plugins.err | tr '\n' ' ')"
+          B64='RD0vdG1wL2hlcm1lc2RpYWcudHh0CnsKICBkYXRlIC11CiAgZWNobyAnLS0tTkdJTlgtLS0nCiAgbmdpbnggLVQgMj4mMSB8IGdyZXAgLUUgJ3NlcnZlcl9uYW1lfHJvb3QgfHByb3h5X3Bhc3N8bGlzdGVuJyB8fCB0cnVlCiAgZWNobyAnLS0tRU5BQkxFLS0tJwogIHN5c3RlbWN0bCBlbmFibGUgaGVybWVzLXNlcnZlIDI+JjEgfHwgdHJ1ZQogIGVjaG8gJy0tLVJFU1RBUlQtLS0nCiAgc3lzdGVtY3RsIHJlc3RhcnQgaGVybWVzLXNlcnZlIDI+JjEgfHwgdHJ1ZQogIHNsZWVwIDYKICBlY2hvICctLS1JU0FDVElWRS0tLScKICBzeXN0ZW1jdGwgaXMtYWN0aXZlIGhlcm1lcy1zZXJ2ZSAyPiYxIHx8IHRydWUKICBlY2hvICctLS1KT1VSTkFMLS0tJwogIGpvdXJuYWxjdGwgLXUgaGVybWVzLXNlcnZlIC1uIDgwIC0tbm8tcGFnZXIgMj4mMSB8fCB0cnVlCiAgZWNobyAnLS0tTE9DQUw5MTE5LS0tJwogIGN1cmwgLXMgLW8gL2Rldi9udWxsIC13ICcle2h0dHBfY29kZX1cbicgLW0gMTAgaHR0cDovLzEyNy4wLjAuMTo5MTE5LyAyPiYxIHx8IGVjaG8gbG9jYWwtZmFpbAp9ID4gIiREIiAyPiYxCmZvciByIGluICQobmdpbnggLVQgMj4vZGV2L251bGwgfCBzZWQgLW4gJ3MvXltbOnNwYWNlOl1dKnJvb3RbWzpzcGFjZTpdXVwrXChbXiA7XSpcKTsuKi9cMS9wJyk7IGRvCiAgY3AgIiREIiAiJHtyJS99L2hlcm1lc2RpYWcudHh0IiAyPi9kZXYvbnVsbCB8fCB0cnVlCmRvbmUKY3AgIiREIiAvdmFyL3d3dy9odG1sL2hlcm1lc2RpYWcudHh0IDI+L2Rldi9udWxsIHx8IHRydWUKZXhpdCAw'
           TEXT="echo $B64 | base64 -d | sudo bash"
           jq -n --arg t "$TEXT" '{sourceType:"TEXT",text:$t}' > /tmp/content.json
           printf '{"instanceId":"%s"}\n' "$INST_ID" > /tmp/target.json
-          oci instance-agent command create --compartment-id "$COMP_ID" --content file:///tmp/content.json --target file:///tmp/target.json --execution-time-out-in-seconds 300 --region "$TARGET_REGION" --output json > /tmp/cmd.out 2>/tmp/cmd.err
+          oci instance-agent command create --compartment-id "$COMP_ID" --content file:///tmp/content.json --target file:///tmp/target.json --timeout-in-seconds 300 --region "$TARGET_REGION" --output json > /tmp/cmd.out 2>/tmp/cmd.err
           rc=$?
           report "CMD_CREATE_RC=$rc"
           report "CMD_OUT $(tail -c 700 /tmp/cmd.out | tr '\n' ' ')"
@@ -151,9 +147,12 @@ jobs:
             echo "hermex api final:"
             curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health
             echo
-          } > hermes-v7-report.txt
+            echo "--- diag from VPS (hermesdiag.txt) ---"
+            curl -s -m 15 https://hermex.esggo.co/hermesdiag.txt | head -c 4000
+            echo
+          } > hermes-v8-report.txt
           git config user.name "hermes-recovery-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add hermes-v7-report.txt
-          git commit -m "chore: hermes v7 diagnostic report"
+          git add hermes-v8-report.txt
+          git commit -m "chore: hermes v8 diagnostic report"
           git push origin HEAD:fix/hermes-serve-recovery
