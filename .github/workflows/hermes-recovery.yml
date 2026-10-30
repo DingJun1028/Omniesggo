@@ -1,0 +1,166 @@
+name: hermes-recovery
+# One-off recovery workflow: restart hermes-serve (Hermex backend, 127.0.0.1:9119) on the VPS.
+# Path A (preferred): OCI Compute Instance Run Command plugin (no downtime).
+# Path B (fallback): hard RESET of the instance (hermes-serve has Restart=always
+#   and WantedBy=multi-user.target, so it starts on boot).
+# Verification: https://hermex.esggo.co/api/health must return 200.
+on:
+  workflow_dispatch:
+  push:
+    branches: ['**']
+    paths: ['.github/workflows/hermes-recovery.yml']
+
+jobs:
+  recover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      OCI_USER: ${{ secrets.OCI_USER_OCID }}
+      OCI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+      OCI_REGION: ${{ secrets.OCI_REGION }}
+      OCI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+      OCI_KEY: ${{ secrets.OCI_API_KEY }}
+      OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+    steps:
+      - name: Setup oci-cli
+        run: |
+          set -euo pipefail
+          pip3 install --user --quiet oci-cli
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          mkdir -p ~/.oci
+          cat > ~/.oci/config <<EOFCONF
+          [DEFAULT]
+          user=$OCI_USER
+          tenancy=$OCI_TENANCY
+          region=$OCI_REGION
+          key_file=/tmp/oci_key.pem
+          fingerprint=$OCI_FINGERPRINT
+          EOFCONF
+          printf '%s' "$OCI_KEY" > /tmp/oci_key.pem
+          chmod 600 /tmp/oci_key.pem
+          oci iam region-subscription list --tenancy-id "$OCI_TENANCY" --output json >/dev/null
+          echo "oci-cli OK"
+
+      - name: Locate target instance
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          TARGET_REGION=$(printf '%s' "$OCI_TARGET" | tr '.' ' ' | awk '{print $4}')
+          echo "TARGET_REGION=$TARGET_REGION"
+          SAN() { sed -e 's/\[//g' -e 's/\]//g' -e 's/"//g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/,$//'; }
+          {
+            echo "$OCI_TENANCY"
+            oci --raw-output iam compartment list -c "$OCI_TENANCY" --all --region "$TARGET_REGION" \
+              --query 'data[].id' 2>/dev/null | SAN
+          } | while read -r cid; do
+            oci --raw-output compute instance list -c "$cid" --region "$TARGET_REGION" \
+              --query 'data[].id' 2>/dev/null | SAN \
+              | while read -r iid; do
+                ip=$(oci --raw-output compute instance list-vnics --instance-id "$iid" --region "$TARGET_REGION" \
+                  --query 'data[?\"public-ip\" != null]."public-ip" | [0]' 2>/dev/null | SAN)
+                if [ "$ip" = "$VPS_HOST" ]; then echo "$cid|$iid"; fi
+              done
+          done | tee /tmp/found.txt | head -1 > /tmp/target.txt
+          if [ -s /tmp/target.txt ]; then
+            found=$(cat /tmp/target.txt)
+            echo "FOUND=$found"
+          else
+            echo 'TARGET_NOT_FOUND'; exit 1
+          fi
+          COMP_ID=$(printf '%s' "$found" | cut -d'|' -f1)
+          INST_ID=$(printf '%s' "$found" | cut -d'|' -f2)
+          echo "COMP_ID=$COMP_ID" >> "$GITHUB_ENV"
+          echo "INST_ID=$INST_ID" >> "$GITHUB_ENV"
+          state=$(oci --raw-output compute instance get --instance-id "$INST_ID" --region "$TARGET_REGION" --query 'data."lifecycle-state"' | SAN)
+          echo "CURRENT_STATE=$state"
+          [ "$state" = "RUNNING" ] || { echo 'INSTANCE_NOT_RUNNING'; exit 1; }
+
+      - name: Path A - Run Command plugin restart (no downtime)
+        id: runcmd
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          TARGET_REGION=$(printf '%s' "$OCI_TARGET" | tr '.' ' ' | awk '{print $4}')
+          echo '--- Run Command plugin status ---'
+          oci instance-agent plugin list --instance-id "$INST_ID" --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json \
+            | tee /tmp/plugins.json
+          python3 - <<'EOF'
+          import json
+          plugins=json.load(open('/tmp/plugins.json'))
+          items = plugins if isinstance(plugins,list) else plugins.get('data',plugins)
+          rc=[p for p in items if 'Run Command' in (p.get('name') or '')]
+          for p in items: print('PLUGIN:', p.get('name'), p.get('status'))
+          if not rc: raise SystemExit('RUN_COMMAND_PLUGIN_NOT_LISTED')
+          p=rc[0]
+          if p.get('status') not in ('ENABLED','ACTIVE'):
+              raise SystemExit('RUN_COMMAND_PLUGIN_NOT_ENABLED:'+str(p.get('status')))
+          EOF
+          cat > /tmp/content.json <<'EOFJSON'
+          {"sourceType":"TEXT","text":"sudo systemctl restart hermes-serve.service; sleep 5; systemctl is-active hermes-serve.service; curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:9119/ || true","runAsUser":"ubuntu"}
+          EOFJSON
+          cat > /tmp/target.json <<EOFJSON
+          {"instanceId":"$INST_ID"}
+          EOFJSON
+          CMD_ID=$(oci --raw-output instance-agent command create \
+            --compartment-id "$COMP_ID" \
+            --content file:///tmp/content.json \
+            --target file:///tmp/target.json \
+            --timeout-in-seconds 120 --region "$TARGET_REGION" --query 'data.id')
+          echo "CMD_ID=$CMD_ID"
+          echo '--- poll command execution (up to 4 min) ---'
+          ST=UNKNOWN
+          for i in $(seq 1 16); do
+            sleep 15
+            oci instance-agent command-execution list --command-id "$CMD_ID" --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json > /tmp/exec.json || true
+            ST=$(python3 -c "
+import json
+d=json.load(open('/tmp/exec.json'))
+items=d if isinstance(d,list) else d.get('data',d)
+print(items[0].get('lifecycleState') if items else 'NONE')" 2>/dev/null || echo PARSE_FAIL)
+            echo "attempt $i: state=$ST"
+            case "$ST" in
+              SUCCEEDED|FAILED|TIMEDOUT|CANCELED) break;;
+            esac
+          done
+          echo "CMD_FINAL_STATE=$ST"
+          [ "$ST" = "SUCCEEDED" ] || { echo 'RUN_COMMAND_NOT_SUCCEEDED'; exit 1; }
+          echo '--- verify from runner ---'
+          for i in $(seq 1 12); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health || echo 000)
+            echo "verify $i: HTTP $code"
+            [ "$code" = "200" ] && exit 0
+            sleep 15
+          done
+          echo 'HERMES_API_STILL_DOWN'; exit 1
+
+      - name: Path B - hard RESET fallback
+        if: steps.runcmd.outcome == 'failure'
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          TARGET_REGION=$(printf '%s' "$OCI_TARGET" | tr '.' ' ' | awk '{print $4}')
+          SAN() { sed -e 's/\[//g' -e 's/\]//g' -e 's/"//g' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/,$//'; }
+          echo '--- resetting instance ---'
+          oci --raw-output compute instance action --instance-id "$INST_ID" --region "$TARGET_REGION" --action RESET \
+            --wait-for-state RUNNING --wait-interval-seconds 20 --max-wait-seconds 900 \
+            --query 'data."lifecycle-state"' | SAN | sed 's/^/RESET_RESULT=/'
+          echo '--- waiting for Hermex API (up to 10 min) ---'
+          for i in $(seq 1 40); do
+            sleep 15
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health || echo 000)
+            echo "verify $i: HTTP $code"
+            [ "$code" = "200" ] && { echo 'HERMES_API_RECOVERED'; exit 0; }
+          done
+          echo 'HERMES_API_STILL_DOWN_AFTER_RESET'; exit 1
+
+      - name: Final report
+        if: always()
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health || echo 000)
+          echo "FINAL_HERMES_API_STATUS=$code"
