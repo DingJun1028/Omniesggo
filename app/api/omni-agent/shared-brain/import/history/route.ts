@@ -4,11 +4,11 @@ import { importErrorResponse } from '../_lib/import-response';
 export async function POST() {
   try {
     // Simulate importing from conversation history
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     const imported = 23;
     const skipped = 2;
-    
+
     return NextResponse.json({
       success: true,
       imported,
@@ -16,19 +16,19 @@ export async function POST() {
       errors: [],
       memories: [
         {
-          id: `hist-${Date.now()}-1`,
+          id: 'hist-1',
           content: '重構 ESG-GO 根平台 UI/UX/RWD，採用行銷與應用分離架構',
           layer: 'L2',
           tags: ['專案', 'UI/UX', '重構'],
         },
         {
-          id: `hist-${Date.now()}-2`,
+          id: 'hist-2',
           content: '建立萬能代理專區，實現第二共享大腦與跨代理記憶整合',
           layer: 'L2',
           tags: ['代理', '記憶系統', '整合'],
         },
         {
-          id: `hist-${Date.now()}-3`,
+          id: 'hist-3',
           content: '連接 Hermes、Jules 等代理至統一管理中心',
           layer: 'L1',
           tags: ['代理管理', 'Hermes', 'Jules'],
@@ -37,8 +37,5 @@ export async function POST() {
     });
   } catch (error) {
     return importErrorResponse('匯入失敗：', error);
-  }},
-      { status: 500 }
-    );
   }
 }
