@@ -32,6 +32,7 @@ export default function OllamaSelfHostPage() {
       await new Promise(resolve => setTimeout(resolve, 3000));
       setDeployed(true);
     } catch (error) {
+      console.error('ollama self-host deploy failed:', error);
       setDeployed(false);
     } finally {
       setIsDeploying(false);

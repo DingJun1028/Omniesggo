@@ -51,6 +51,7 @@ export default function AgentsPage() {
         setAgents(data.agents || []);
       }
     } catch (error) {
+      console.error('agent registry fetch failed:', error);
       setAgents(REGISTRY_AGENTS);
     } finally {
       setIsLoading(false);
