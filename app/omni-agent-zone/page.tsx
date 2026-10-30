@@ -496,3 +496,28 @@ export default function OmniAgentZonePage() {
       </div>
   );
 }
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Link href="/omni-agent-zone/ollama">
+            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Cpu className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-orange-500 transition-colors">
+                      Ollama 零算力整合
+                    </h3>
+                    <p className="text-sm text-[var(--text-2)]">本地推理 • 零成本</p>
+                  </div>
+                </div>
+                <p className="text-sm text-[var(--text-3)]">零算力功能 • BYOK 設置 • 本地模型</p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
+  );
+}
