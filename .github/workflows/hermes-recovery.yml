@@ -1,4 +1,7 @@
 name: hermes-recovery
+# One-off recovery workflow v4: restart hermes-serve (Hermex backend 127.0.0.1:9119) on the VPS.
+# Path A: OCI Compute Instance Run Command plugin (no downtime). Path B: instance RESET fallback.
+# Progress is committed to the branch as hermes-recovery-report.txt after each stage.
 permissions:
   contents: write
 on:
@@ -9,7 +12,7 @@ on:
 jobs:
   recover:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 35
     env:
       OCI_USER: ${{ secrets.OCI_USER_OCID }}
       OCI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
@@ -20,18 +23,24 @@ jobs:
       VPS_HOST: ${{ secrets.VPS_HOST }}
     steps:
       - uses: actions/checkout@v4
-      - name: Heartbeat
-        timeout-minutes: 3
+      - name: Report helper
         run: |
-          set -e
           touch /tmp/recovery.log
-          echo "HEARTBEAT run started $(date -u)" >> /tmp/recovery.log
-          git config user.name "hermes-recovery-bot"
-          git config user.email "actions@users.noreply.github.com"
-          cp /tmp/recovery.log hermes-recovery-report.txt
-          git add hermes-recovery-report.txt
-          git commit -m "heartbeat: run started" || true
-          git push origin HEAD:fix/hermes-serve-recovery && echo "PUSH_OK" || echo "PUSH_FAIL"
+          cat > /usr/local/bin/report <<'EOS'
+          #!/bin/bash
+          for l in "$@"; do echo "$l" >> /tmp/recovery.log; done
+          {
+            echo "report updated $(date -u)"
+            cat /tmp/recovery.log
+          } > hermes-recovery-report.txt
+          git config user.name "hermes-recovery-bot" || true
+          git config user.email "actions@users.noreply.github.com" || true
+          git add hermes-recovery-report.txt || true
+          git commit -m "diag: update" || true
+          git push origin HEAD:fix/hermes-serve-recovery || true
+          EOS
+          chmod +x /usr/local/bin/report
+          report "HEARTBEAT run started"
       - name: Setup oci-cli
         timeout-minutes: 8
         run: |
@@ -50,4 +59,123 @@ jobs:
           EOFCONF
           printf '%s' "$OCI_KEY" > /tmp/oci_key.pem
           chmod 600 /tmp/oci_key.pem
-          oci iam region-subscription list --tenancy-id "$OCI_TENANCY" --output json >/dev/null 2>&1 && echo "OCI_AUTH_OK" || echo "OCI_AUTH_FAIL"
+          report "oci-cli installed"
+          oci iam region-subscription list --tenancy-id "$OCI_TENANCY" --output json >/dev/null 2>&1 && report "OCI_AUTH_OK" || report "OCI_AUTH_FAIL"
+      - name: Locate target instance
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          TARGET_REGION=$(printf '%s' "$OCI_TARGET" | tr '.' ' ' | awk '{print $4}')
+          echo "TARGET_REGION=$TARGET_REGION" >> /tmp/recovery.log
+          INST_ID=""
+          state=$(oci compute instance get --instance-id "$OCI_TARGET" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data."lifecycle-state" // empty' 2>/dev/null || true)
+          if [ -n "$state" ]; then
+            INST_ID="$OCI_TARGET"
+            report "FAST_PATH instance-ocid state=$state"
+          else
+            report "fast path failed, scanning compartments"
+            for cid in $(oci iam compartment list -c "$OCI_TENANCY" --all --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data[].id' 2>/dev/null; echo "$OCI_TENANCY"); do
+              [ -n "$cid" ] || continue
+              for iid in $(oci compute instance list -c "$cid" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data[].id' 2>/dev/null); do
+                [ -n "$iid" ] || continue
+                ip=$(oci compute instance list-vnics --instance-id "$iid" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data[0]."public-ip" // empty' 2>/dev/null || true)
+                echo "scan ip=$ip inst=$iid" >> /tmp/recovery.log
+                if [ "$ip" = "$VPS_HOST" ]; then INST_ID="$iid"; break; fi
+              done
+              [ -n "$INST_ID" ] && break
+            done
+            if [ -n "$INST_ID" ]; then
+              state=$(oci compute instance get --instance-id "$INST_ID" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data."lifecycle-state"' 2>/dev/null || true)
+            fi
+          fi
+          if [ -z "$INST_ID" ]; then
+            report "TARGET_NOT_FOUND region=$TARGET_REGION"
+            exit 1
+          fi
+          COMP_ID=$(oci compute instance get --instance-id "$INST_ID" --region "$TARGET_REGION" --output json 2>/dev/null | jq -r '.data."compartment-id"')
+          echo "COMP_ID=$COMP_ID" >> "$GITHUB_ENV"
+          echo "INST_ID=$INST_ID" >> "$GITHUB_ENV"
+          report "TARGET_FOUND state=$state"
+          if [ "$state" != "RUNNING" ]; then report "INSTANCE_NOT_RUNNING"; exit 1; fi
+      - name: Path A - Run Command plugin restart
+        id: runcmd
+        continue-on-error: true
+        timeout-minutes: 10
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          TARGET_REGION=$(printf '%s' "$OCI_TARGET" | tr '.' ' ' | awk '{print $4}')
+          oci instance-agent plugin list --instance-id "$INST_ID" --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json > /tmp/plugins.json 2>/tmp/plugins.err || report "plugin list error $(head -c 150 /tmp/plugins.err)"
+          jq -r 'if type == "array" then . else .data end | .[] | "PLUGIN \(.name) \(.status)"' /tmp/plugins.json >> /tmp/recovery.log 2>&1 || true
+          plstatus=$(jq -r 'if type == "array" then . else .data end | .[] | select((.name // "") | contains("Run Command")) | .status' /tmp/plugins.json 2>/dev/null | head -1)
+          report "RUN_CMD_PLUGIN_STATUS=$plstatus"
+          if [ "$plstatus" != "ENABLED" ] && [ "$plstatus" != "ACTIVE" ]; then
+            report "PATH_A_ABORT plugin unavailable"
+            exit 1
+          fi
+          cat > /tmp/content.json <<'EOFJSON'
+          {"sourceType":"TEXT","text":"sudo systemctl restart hermes-serve.service; sleep 5; systemctl is-active hermes-serve.service; curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:9119/ || true","runAsUser":"ubuntu"}
+          EOFJSON
+          cat > /tmp/target.json <<EOFJSON
+          {"instanceId":"$INST_ID"}
+          EOFJSON
+          CMD_ID=$(oci instance-agent command create --compartment-id "$COMP_ID" --content file:///tmp/content.json --target file:///tmp/target.json --timeout-in-seconds 120 --region "$TARGET_REGION" --output json | jq -r '.data.id') || { report "RUN_COMMAND_CREATE_FAILED"; exit 1; }
+          report "CMD_ID=$CMD_ID"
+          ST=UNKNOWN
+          for i in 1 2 3 4 5 6 7 8; do
+            sleep 15
+            oci instance-agent command-execution list --command-id "$CMD_ID" --compartment-id "$COMP_ID" --region "$TARGET_REGION" --output json > /tmp/exec.json 2>/dev/null || true
+            ST=$(jq -r 'if type == "array" then . else .data end | .[0].lifecycleState // "NONE"' /tmp/exec.json 2>/dev/null || echo PARSE_FAIL)
+            echo "attempt $i: cmdState=$ST" >> /tmp/recovery.log
+            case "$ST" in SUCCEEDED|FAILED|TIMEDOUT|CANCELED) break;; esac
+          done
+          report "CMD_FINAL_STATE=$ST"
+          if [ "$ST" != "SUCCEEDED" ]; then report "RUN_COMMAND_NOT_SUCCEEDED"; exit 1; fi
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health || echo 000)
+            echo "verify $i: HTTP $code" >> /tmp/recovery.log
+            case "$code" in 502|503|000) sleep 15;; *) report "HERMES_API_RECOVERED"; exit 0;; esac
+          done
+          report "HERMES_API_STILL_DOWN"
+          exit 1
+      - name: Path B - hard RESET fallback
+        if: steps.runcmd.outcome == 'failure'
+        timeout-minutes: 18
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.local/bin:$PATH"
+          export OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True
+          TARGET_REGION=$(printf '%s' "$OCI_TARGET" | tr '.' ' ' | awk '{print $4}')
+          report "RESET_BEGIN"
+          oci compute instance action --instance-id "$INST_ID" --region "$TARGET_REGION" --action RESET --wait-for-state RUNNING --wait-interval-seconds 20 --max-wait-seconds 600 --output json > /tmp/reset.json 2>/tmp/reset.err
+          rc=$?
+          if [ "$rc" != "0" ]; then report "RESET_FAILED rc=$rc $(head -c 200 /tmp/reset.err)"; else report "RESET_DONE $(jq -r '.data."lifecycle-state"' /tmp/reset.json 2>/dev/null)"; fi
+          for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32; do
+            sleep 15
+            code=$(curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health || echo 000)
+            echo "verify $i: HTTP $code" >> /tmp/recovery.log
+            case "$code" in 502|503|000) ;; *) report "HERMES_API_RECOVERED"; exit 0;; esac
+          done
+          report "HERMES_API_STILL_DOWN_AFTER_RESET"
+          exit 1
+      - name: Final report
+        if: always()
+        timeout-minutes: 4
+        run: |
+          set +e
+          {
+            echo "run_url=https://github.com/DingJun1028/Omniesggo/actions/runs/$GITHUB_RUN_ID"
+            date -u
+            cat /tmp/recovery.log
+            echo "hermex api final:"
+            curl -s -o /dev/null -w '%{http_code}' -m 15 https://hermex.esggo.co/api/health
+            echo
+          } > hermes-recovery-report.txt
+          git config user.name "hermes-recovery-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add hermes-recovery-report.txt
+          git commit -m "chore: hermes recovery diagnostic report"
+          git push origin HEAD:fix/hermes-serve-recovery
