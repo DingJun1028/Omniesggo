@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
-  Brain, Database, Share2, Zap, Network, 
+  Brain, Database, Share2, Zap, Network, Upload, 
   ArrowLeft, Plus, Search, Clock, Tag,
   MessageSquare, Activity, GitBranch, Bot
 } from 'lucide-react';
@@ -374,5 +374,32 @@ export default function OmniAgentZonePage() {
         </div>
       </main>
     </div>
+  );
+}
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Link href="/omni-agent-zone/import">
+            <Card className="hover:shadow-lg hover:border-[var(--border-accent)] transition-all cursor-pointer group">
+              <CardContent className="p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Upload className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-[var(--text-1)] group-hover:text-[var(--accent-cool)] transition-colors">
+                      記憶匯入中心
+                    </h3>
+                    <p className="text-sm text-[var(--text-2)]">從當前紀錄匯入</p>
+                  </div>
+                </div>
+                <p className="text-sm text-[var(--text-3)]">
+                  支援 JSON、CSV、對話歷史匯入至第二共享大腦
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </div>
   );
 }
