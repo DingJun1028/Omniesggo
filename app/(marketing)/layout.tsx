@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { MarketingHeader } from '@/components/marketing/MarketingHeader';
-import { MarketingFooter } from '@/components/marketing/MarketingFooter';
+import { MarketingHeader } from '../../components/marketing/MarketingHeader';
+import { MarketingFooter } from '../../components/marketing/MarketingFooter';
 
 export const metadata: Metadata = {
   title: 'ESGGO — AI 驅動的永續報告書平台 | GRI、CSRD、ESRS 合規解決方案',
