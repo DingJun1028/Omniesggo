@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,10 +6,10 @@ import { defineRune } from '@lib/adk/core';
  * 責任：產出具備感召力的 ESG 故事與品牌文案
  */
 
-export const CreativeResonatorInputSchema = z.object({
-  topic: z.string().describe("故事主題 (如 環境保護, 員工福祉)"),
-  targetAudience: z.string().describe("目標受眾"),
-  tone: z.enum(["INSPIRING", "PROFESSIONAL", "EMOTIONAL"]).describe("語調"),
+export const CreativeResonatorInputSchema = Type.Object({
+  topic: Type.String({ description: "故事主題 (如 環境保護, 員工福祉)" }),
+  targetAudience: Type.String({ description: "目標受眾" }),
+  tone: Type.Union([Type.Literal("INSPIRING"), Type.Literal("PROFESSIONAL"), Type.Literal("EMOTIONAL")], { description: "語調" }),
 });
 
 export const creativeResonatorRune = defineRune({

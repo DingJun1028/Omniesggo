@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,10 +6,10 @@ import { defineRune } from '@lib/adk/core';
  * 責任：自動識別代碼或數據熵值，優化冗餘邏輯，持續降低系統熵值
  */
 
-export const AlchemistInputSchema = z.object({
-  targetNode: z.string().describe("欲優化的目標節點或模組名稱"),
-  currentEntropy: z.number().describe("當前熵值 (0-1)"),
-  complexityScore: z.number().describe("邏輯複雜度評分"),
+export const AlchemistInputSchema = Type.Object({
+  targetNode: Type.String({ description: "欲優化的目標節點或模組名稱" }),
+  currentEntropy: Type.Number({ description: "當前熵值 (0-1)" }),
+  complexityScore: Type.Number({ description: "邏輯複雜度評分" }),
 });
 
 export const alchemistRune = defineRune({

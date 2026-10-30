@@ -3,25 +3,28 @@
 // app/api/tags/pair/route.ts
 // ============================================================
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
+import { Type, type Static } from '@sinclair/typebox';
+import { Value } from '@sinclair/typebox/value';
 import { jsonResponse, jsonError } from '@lib/api-utils';
 import { createOmniTagPair, autoPair } from '@/core/tags/universal-tag-service';
 
-const OmniPairSchema = z.object({
-  mode: z.literal('omni'),
-  anchorLabel: z.string().min(1).max(200),
-  evidenceLabel: z.string().min(1).max(200).optional(),
-  entityType: z.string().min(1).max(50),
-  entityId: z.string().min(1).max(100),
-  omniType: z.enum(['GRI', 'TCFD', 'TNFD', 'SDG', 'custom']).optional(),
+const OmniPairSchema = Type.Object({
+  mode: Type.Literal('omni'),
+  anchorLabel: Type.String({ minLength: 1, maxLength: 200 }),
+  evidenceLabel: Type.Optional(Type.String({ minLength: 1, maxLength: 200 })),
+  entityType: Type.String({ minLength: 1, maxLength: 50 }),
+  entityId: Type.String({ minLength: 1, maxLength: 100 }),
+  omniType: Type.Optional(Type.Union([
+    Type.Literal('GRI'), Type.Literal('TCFD'), Type.Literal('TNFD'), Type.Literal('SDG'), Type.Literal('custom')
+  ])),
 });
 
-const AutoPairSchema = z.object({
-  mode: z.literal('auto'),
-  entityType: z.string().min(1).max(50),
-  entityId: z.string().min(1).max(100),
-  content: z.string().min(1).max(8000),
-  prompt: z.string().max(8000).optional(),
+const AutoPairSchema = Type.Object({
+  mode: Type.Literal('auto'),
+  entityType: Type.String({ minLength: 1, maxLength: 50 }),
+  entityId: Type.String({ minLength: 1, maxLength: 100 }),
+  content: Type.String({ minLength: 1, maxLength: 8000 }),
+  prompt: Type.Optional(Type.String({ maxLength: 8000 })),
 });
 
 // POST /api/tags/pair
@@ -35,16 +38,14 @@ export async function POST(request: NextRequest) {
     return jsonError('INVALID_PARAMS', 'Invalid JSON body', 400);
   }
 
-  const omni = OmniPairSchema.safeParse(raw);
-  if (omni.success) {
-    const { anchorLabel, evidenceLabel, entityType, entityId, omniType } = omni.data;
+  if (Value.Check(OmniPairSchema, raw)) {
+    const { anchorLabel, evidenceLabel, entityType, entityId, omniType } = raw as Static<typeof OmniPairSchema>;
     const result = await createOmniTagPair({ anchorLabel, evidenceLabel, entityType, entityId, omniType });
     return jsonResponse(result, 201);
   }
 
-  const auto = AutoPairSchema.safeParse(raw);
-  if (auto.success) {
-    const { entityType, entityId, content, prompt } = auto.data;
+  if (Value.Check(AutoPairSchema, raw)) {
+    const { entityType, entityId, content, prompt } = raw as Static<typeof AutoPairSchema>;
     const result = await autoPair({ entityType, entityId, content, prompt });
     return jsonResponse(result, 200);
   }

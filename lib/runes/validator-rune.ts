@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type, type Static } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,24 +6,24 @@ import { defineRune } from '@lib/adk/core';
  * 責任：確保 AI 輸出符合 ISO-14064-1，消除幻覺，強制公式透明化
  */
 
-export const ValidatorInputSchema = z.object({
-  aiOutput: z.string().describe("AI 生成的 ESG 數據或內容"),
-  referenceStandard: z.enum(["ISO-14064-1", "GRI", "TCFD", "SASB", "CSRD"]).describe("對標準則"),
-  metric: z.string().describe("具體指標名稱 (如碳排放量)"),
-  claimedValue: z.number().describe("AI 聲稱的數值"),
-  sourceData: z.number().optional().describe("來源數據的實際值（如有）"),
-  unit: z.string().describe("數值單位"),
+export const ValidatorInputSchema = Type.Object({
+  aiOutput: Type.String({ description: "AI 生成的 ESG 數據或內容" }),
+  referenceStandard: Type.Union([Type.Literal("ISO-14064-1"), Type.Literal("GRI"), Type.Literal("TCFD"), Type.Literal("SASB"), Type.Literal("CSRD")], { description: "對標準則" }),
+  metric: Type.String({ description: "具體指標名稱 (如碳排放量)" }),
+  claimedValue: Type.Number({ description: "AI 聲稱的數值" }),
+  sourceData: Type.Optional(Type.Number({ description: "來源數據的實際值（如有）" })),
+  unit: Type.String({ description: "數值單位" }),
 });
 
-export const ValidatorResultSchema = z.object({
-  isHallucination: z.boolean(),
-  confidenceScore: z.number(),     // 0-100 置信度
-  varianceRate: z.number(),        // 數值差異率
-  isISOCompliant: z.boolean(),
-  verdict: z.string(),
-  correctedValue: z.number().optional(),
-  formulaTransparency: z.string(),
-  message: z.string(),
+export const ValidatorResultSchema = Type.Object({
+  isHallucination: Type.Boolean(),
+  confidenceScore: Type.Number(),     // 0-100 置信度
+  varianceRate: Type.Number(),        // 數值差異率
+  isISOCompliant: Type.Boolean(),
+  verdict: Type.String(),
+  correctedValue: Type.Optional(Type.Number()),
+  formulaTransparency: Type.String(),
+  message: Type.String(),
 });
 
 export const validatorRune = defineRune({
@@ -51,7 +51,7 @@ export const validatorRune = defineRune({
     const formulaTransparency = `[${referenceStandard}] ${metric} = ${claimedValue} ${unit}` 
       + (sourceData !== undefined ? ` | Source: ${sourceData} ${unit} | Variance: ${varianceRate.toFixed(4)}%` : " | No source data provided");
 
-    const result: z.infer<typeof ValidatorResultSchema> = {
+    const result: Static<typeof ValidatorResultSchema> = {
       isHallucination,
       confidenceScore,
       varianceRate,

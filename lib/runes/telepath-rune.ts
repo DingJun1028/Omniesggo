@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：維護 OmniAntigravityRemoteChat 的即時通訊穩定性與加密通道
  */
 
-export const TelepathInputSchema = z.object({
-  targetNodeId: z.string().describe("目標節點 ID"),
-  messageContent: z.string().describe("通訊內容"),
+export const TelepathInputSchema = Type.Object({
+  targetNodeId: Type.String({ description: "目標節點 ID" }),
+  messageContent: Type.String({ description: "通訊內容" }),
 });
 
 export const telepathRune = defineRune({

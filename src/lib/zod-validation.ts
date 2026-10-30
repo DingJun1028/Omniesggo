@@ -1,7 +1,8 @@
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /**
- * Zod-based API request validation utilities.
+ * TypeBox-based API request validation utilities.
+ * (檔名保留 zod-validation.ts 以維持匯入路徑相容；內部已由 Zod 遷移至 TypeBox)
  *
  * Usage:
  *   import { validateBody, ESGReportSchema } from '@lib/zod-validation';
@@ -13,21 +14,55 @@
  *   }
  */
 
-import { z } from 'zod';
+import { Type, type Static, type TSchema } from '@sinclair/typebox';
+import { Value } from '@sinclair/typebox/value';
 import { NextRequest, NextResponse } from 'next/server';
+
+// ─── Helpers ────────────────────────────────────────────────────────
+
+/** 對缺少之欄位套用 schema 宣告之 default（行為對齊 zod .default()） */
+function applyDefaults(schema: TSchema, data: any): any {
+  if (schema && (schema as any).default !== undefined) return (schema as any).default;
+  if (schema && Array.isArray((schema as any).anyOf)) {
+    for (const sub of (schema as any).anyOf) {
+      if (sub.default !== undefined) return sub.default;
+    }
+  }
+  return data;
+}
+
+function parseWithDefaults(schema: any, raw: any): any {
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return raw;
+  const out: any = { ...raw };
+  const props = schema?.properties ?? {};
+  for (const [key, sub] of Object.entries(props) as Array<[string, any]>) {
+    if (!(key in out)) {
+      const d = applyDefaults(sub, undefined);
+      if (d !== undefined) out[key] = d;
+    }
+  }
+  return out;
+}
+
+function issuesFrom(schema: TSchema, raw: unknown): Array<{ path: string; message: string }> {
+  return [...Value.Errors(schema, raw)].map((e: any) => ({
+    path: String(e.path ?? ''),
+    message: String(e.message ?? 'Invalid value'),
+  }));
+}
 
 // ─── Generic Validators ─────────────────────────────────────────────
 
 type validatedRequest = { data: unknown; error: null } | { data: null; error: NextResponse };
 
 /**
- * Parse and validate the JSON body of a NextRequest against a Zod schema.
- * Returns typed data on success, or a 400 NextResponse on failure.
+ * Parse and validate the JSON body of a NextRequest against a TypeBox schema.
+ * Returns typed data on success (with schema defaults applied), or a 400 NextResponse on failure.
  */
-export async function validateBody<T>(
+export async function validateBody<T extends TSchema>(
   req: NextRequest,
-  schema: z.ZodSchema<T>
-): Promise<{ data: T; error: null } | { data: null; error: NextResponse }> {
+  schema: T
+): Promise<{ data: Static<T>; error: null } | { data: null; error: NextResponse }> {
   let raw: unknown;
   try {
     raw = await req.json();
@@ -41,12 +76,8 @@ export async function validateBody<T>(
     };
   }
 
-  const result = schema.safeParse(raw);
-  if (!result.success) {
-    const issues = result.error.issues.map((i) => ({
-      path: i.path.join('.'),
-      message: i.message,
-    }));
+  if (!Value.Check(schema, raw)) {
+    const issues = issuesFrom(schema, raw);
     return {
       data: null,
       error: NextResponse.json(
@@ -56,28 +87,24 @@ export async function validateBody<T>(
     };
   }
 
-  return { data: result.data, error: null };
+  return { data: parseWithDefaults(schema, raw) as Static<T>, error: null };
 }
 
 /**
- * Validate query string parameters against a Zod schema.
+ * Validate query string parameters against a TypeBox schema.
  */
-export function validateQuery<T>(
+export function validateQuery<T extends TSchema>(
   url: string,
-  schema: z.ZodSchema<T>
-): { data: T; error: null } | { data: null; error: NextResponse } {
+  schema: T
+): { data: Static<T>; error: null } | { data: null; error: NextResponse } {
   const { searchParams } = new URL(url);
   const params: Record<string, string> = {};
   searchParams.forEach((value, key) => {
     params[key] = value;
   });
 
-  const result = schema.safeParse(params);
-  if (!result.success) {
-    const issues = result.error.issues.map((i) => ({
-      path: i.path.join('.'),
-      message: i.message,
-    }));
+  if (!Value.Check(schema, params)) {
+    const issues = issuesFrom(schema, params);
     return {
       data: null,
       error: NextResponse.json(
@@ -87,39 +114,45 @@ export function validateQuery<T>(
     };
   }
 
-  return { data: result.data, error: null };
+  return { data: parseWithDefaults(schema, params) as Static<T>, error: null };
 }
 
 // ─── Domain Schemas ─────────────────────────────────────────────────
 
 /** ESG Report request validation */
-export const ESGReportSchema = z.object({
-  framework: z.string().min(1, 'Framework is required'),
-  company: z.string().min(1, 'Company name is required'),
-  year: z.number().int().min(2000).max(2100),
-  sections: z.array(z.string()).optional(),
-  language: z.enum(['en', 'zh-TW', 'zh-CN']).default('zh-TW'),
+export const ESGReportSchema = Type.Object({
+  framework: Type.String({ minLength: 1 }),
+  company: Type.String({ minLength: 1 }),
+  year: Type.Integer({ minimum: 2000, maximum: 2100 }),
+  sections: Type.Optional(Type.Array(Type.String())),
+  language: Type.Union(
+    [Type.Literal('en'), Type.Literal('zh-TW'), Type.Literal('zh-CN')],
+    { default: 'zh-TW' }
+  ),
 });
 
-export type ESGReportInput = z.infer<typeof ESGReportSchema>;
+export type ESGReportInput = Static<typeof ESGReportSchema>;
 
 /** Delegation request validation */
-export const DelegationRequestSchema = z.object({
-  task: z.string().min(1, 'Task description is required').max(2000),
-  agentId: z.string().optional(),
-  priority: z.enum(['low', 'normal', 'high', 'critical']).default('normal'),
-  context: z.record(z.string(), z.unknown()).optional(),
+export const DelegationRequestSchema = Type.Object({
+  task: Type.String({ minLength: 1, maxLength: 2000 }),
+  agentId: Type.Optional(Type.String()),
+  priority: Type.Union(
+    [Type.Literal('low'), Type.Literal('normal'), Type.Literal('high'), Type.Literal('critical')],
+    { default: 'normal' }
+  ),
+  context: Type.Optional(Type.Record(Type.String(), Type.Unknown())),
 });
 
-export type DelegationRequestInput = z.infer<typeof DelegationRequestSchema>;
+export type DelegationRequestInput = Static<typeof DelegationRequestSchema>;
 
 /** Universal tag creation validation */
-export const UniversalTagSchema = z.object({
-  name: z.string().min(1).max(100),
-  pillar: z.enum(['Environmental', 'Social', 'Governance']),
-  category: z.string().min(1).max(50),
-  description: z.string().max(500).optional(),
-  source: z.string().optional(),
+export const UniversalTagSchema = Type.Object({
+  name: Type.String({ minLength: 1, maxLength: 100 }),
+  pillar: Type.Union([Type.Literal('Environmental'), Type.Literal('Social'), Type.Literal('Governance')]),
+  category: Type.String({ minLength: 1, maxLength: 50 }),
+  description: Type.Optional(Type.String({ maxLength: 500 })),
+  source: Type.Optional(Type.String()),
 });
 
-export type UniversalTagInput = z.infer<typeof UniversalTagSchema>;
+export type UniversalTagInput = Static<typeof UniversalTagSchema>;

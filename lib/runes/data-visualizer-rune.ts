@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,10 +6,10 @@ import { defineRune } from '@lib/adk/core';
  * 責任：將複雜的數據轉化為 3D 美感視覺資產
  */
 
-export const DataVisualizerInputSchema = z.object({
-  datasetName: z.string().describe("數據集名稱"),
-  dimensions: z.array(z.string()).describe("展示維度"),
-  vizType: z.enum(["3D_MAP", "NEXUS_GRAPH", "AURA_CHART"]).describe("視覺化類型"),
+export const DataVisualizerInputSchema = Type.Object({
+  datasetName: Type.String({ description: "數據集名稱" }),
+  dimensions: Type.Array(Type.String(), { description: "展示維度" }),
+  vizType: Type.Union([Type.Literal("3D_MAP"), Type.Literal("NEXUS_GRAPH"), Type.Literal("AURA_CHART")], { description: "視覺化類型" }),
 });
 
 export const dataVisualizerRune = defineRune({
