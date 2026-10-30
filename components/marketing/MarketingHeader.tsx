@@ -98,15 +98,11 @@ export function MarketingHeader() {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          <div
+          <button
+            type="button"
             className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-            role="button"
-            tabIndex={0}
             aria-label="關閉選單"
             onClick={() => setIsMenuOpen(false)}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape' || e.key === 'Enter') setIsMenuOpen(false);
-            }}
           />
           <div className="absolute top-0 right-0 w-full max-w-sm h-full bg-[var(--surface-1)] shadow-2xl">
             <div className="flex items-center justify-between p-4 border-b border-[var(--border)]">

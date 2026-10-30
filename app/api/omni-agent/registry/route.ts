@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { REGISTRY_AGENTS } from '../../../omni-agent-zone/_shared/registry-data';
 
-export async function GET() {
+export function GET() {
   try {
     const agents = REGISTRY_AGENTS;
     return NextResponse.json({ agents, total: agents.length });
