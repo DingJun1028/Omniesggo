@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { importErrorResponse } from '../_lib/import-response';
+import { importErrorResponse } from '../../_lib/import-response';
 
 export async function POST() {
   try {
