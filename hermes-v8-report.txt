@@ -1,7 +1,8 @@
-report updated Fri Oct 30 22:33:16 UTC 2026
+report updated Fri Oct 30 22:33:19 UTC 2026
 V8 run started
 oci-cli installed
 OCI_AUTH_OK
 TARGET_REGION=ap-singapore-1
 fast path failed, scanning compartments
 TARGET_FOUND state=RUNNING
+PLUGINS_RAW {   "data": [     {       "name": "Custom Logs Monitoring",       "status": "RUNNING",       "time-last-updated-utc": "2026-10-30T22:21:06.843000+00:00"     },     {       "name": "Compute Instance Run Command",       "status": "INVALID",       "time-last-updated-utc": "2026-10-08T06:01:38.986000+00:00"     },     {       "name": "Cloud Guard Workload Protection",       "status": "RUNNING",       "time-last-updated-utc": "2026-10-30T22:21:06.801000+00:00"     },     {       "name": "Vulnerability Scanning",       "status": "STOPPED",       "time-last-updated-utc": "2026-10-30T22:21:06.801000+00:00"     },     {       "name": "Compute HPC RDMA Authentication",       "status": "NOT_SUPPORTED",       "time-last-updated-utc": "2026-10-30T22:21:06.801000+00:00"     },     {       "name": "OS Ma
