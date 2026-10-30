@@ -1,0 +1,45 @@
+name: Lockfile Sync (one-time)
+"on":
+  push:
+    branches: [feature/omni-arch-12-modules]
+    paths: ['.github/workflows/lockfile-sync.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: lockfile-sync
+  cancel-in-progress: false
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/omni-arch-12-modules
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+        timeout-minutes: 5
+
+      - name: Install pnpm
+        run: corepack enable && corepack prepare pnpm@latest --activate
+        timeout-minutes: 3
+
+      - name: Install dependencies and update lockfile
+        run: pnpm install --no-frozen-lockfile
+        timeout-minutes: 20
+
+      - name: Commit lockfile if changed
+        run: |
+          git config user.name "omni-arch-bot"
+          git config user.email "actions@github.com"
+          git add pnpm-lock.yaml
+          if git diff --cached --quiet; then
+            echo "lockfile unchanged"
+          else
+            git commit -m "chore: sync pnpm-lock.yaml for @esggo/omni-arch importer"
+            git push
+          fi
+        timeout-minutes: 5
