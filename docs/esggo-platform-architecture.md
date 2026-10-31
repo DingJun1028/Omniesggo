@@ -8,13 +8,13 @@
 
 ## 1. 已上線サービスの現狀
 
-| 層 | 実体 | 位置 | 狀態 |
+| 層 | 実體 | 位置 | 狀態 |
 |---|---|---|---|
 | Frontend | Next.js 16 App Router | `/var/www/esggo/app` + `/var/www/esggo/src/app` | online |
 | Backend | Next.js API Routes | `/var/www/esggo/app/api/**` | online |
 | Gateway | Express + WS | `/var/www/esggo/apps/gateway` | online |
 | 反向代理 | nginx | `/etc/nginx/sites-available/esggo` | active |
-| 进程管理 | PM2 | `ecosystem.config.cjs` | online |
+| 行程管理 | PM2 | `ecosystem.config.cjs` | online |
 | DB | SQLite + Redis | `/var/www/esggo/prisma/dev.db` + `127.0.0.1:6379` | online |
 | AI 路由 | model-router | CF / Gemini / Groq / OpenRouter | 依 env 切換 |
 
@@ -72,7 +72,7 @@
 
 | 資源 | 免費層 | ESGGO 使用方式 |
 |---|---|---|
-| Firestore | 5 萬讀/2 萬寫/日 | 使用者設定缓存 |
+| Firestore | 5 萬讀/2 萬寫/日 | 使用者設定快取 |
 | Auth | 無限匿名登入 | 訪客身份 |
 | Hosting | 10 GB | esggo.app fallback |
 | Functions | 125 萬調用/月 | webhook / cron |
@@ -95,7 +95,7 @@
 | Telegram Bot | 免費 | 警報與 agent 通知 |
 | Upstash Redis | 免費 10K req/日 | Rate limit / session |
 | Groq | 免費 RPM | LLM 推理加速 |
-| OpenRouter | 免費层 | 多模型路由 |
+| OpenRouter | 免費層 | 多模型路由 |
 
 與 esggo 連動：
 - `apps/gateway/.env` 內有 `CLOUDFLARE_*` / `NOTION_DATABASE_ID`

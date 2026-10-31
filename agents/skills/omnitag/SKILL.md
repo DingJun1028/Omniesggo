@@ -32,9 +32,9 @@ OmniTag 是 ESG-GO 萬能蜂群的統一標籤系統，用於：
 | 安全分級 | security | public / internal / confidential / restricted | 資料機密等級 | [security:restricted] |
 | 代理歸屬 | agent | 01 ~ 30; squad:智庫聖所/符文契約/光之羽翼/煉金熵減/5T驗算 | 責任歸屬 | [agent:13][squad:光之羽翼] |
 | 生命週期 | lifecycle | draft / active / frozen / archived | 狀態追蹤 | [lifecycle:active] |
-| 品質/熵減 | priority | p0 / p1 / p2 / p3 | P0=阻断項、P3=噪音 | [p0] |
+| 品質/熵減 | priority | p0 / p1 / p2 / p3 | P0=阻斷項、P3=噪音 | [p0] |
 | 平台/環境 | platform | esggo / omni / vps / firebase / vercel / github | 部署環境 | [platform:vps] |
-| 最佳實踐覺 | best-practice | awakened / 结界 / draft | 覺醒狀態 | [best-practice:结界] |
+| 最佳實踐覺 | best-practice | awakened / 結界 / draft | 覺醒狀態 | [best-practice:結界] |
 
 完整語法: [security:level][agent:id][squad:name][lifecycle:state][p0-3][platform:env][best-practice:state]
 
@@ -49,11 +49,11 @@ OmniTag 是 ESG-GO 萬能蜂群的統一標籤系統，用於：
 | [agent:13-18][squad:光之羽翼] | 部署 / cron / 自動化 | Agent 13 |
 | [agent:19-24][squad:煉金熵減] | 重構 / lint / test / entropy | Agent 19 |
 | [agent:25-30][squad:5T驗算] | ISO / Hash Lock / 稽核 | Agent 25 |
-| [best-practice:结界] | 全部自動 inheriting | Agent 06 |
+| [best-practice:結界] | 全部自動 inheriting | Agent 06 |
 | [security:restricted] | 加密通道 + 限權存取 | Agent 11 |
 | [lifecycle:frozen] | 唯讀鏡像 + 禁止修改 | Agent 26 |
 
-路由優先級: 1. security:restricted → 2. best-practice:结界 → 3. p0 → 4. agent:* → 5. squad:* → 6. platform:* → 7. lifecycle:*
+路由優先順序: 1. security:restricted → 2. best-practice:結界 → 3. p0 → 4. agent:* → 5. squad:* → 6. platform:* → 7. lifecycle:*
 
 ---
 
@@ -79,7 +79,7 @@ tags:
   - lifecycle:active
   - p0
   - platform:github
-  - best-practice:结界
+  - best-practice:結界
 
 ### Cron Job（esggo-monitor-vps-health）
 
@@ -119,7 +119,7 @@ tags:
 ## 第五奧義：驗證規則
 
 1. 必備 Tag：每個 artifact 至少要有 agent:* + lifecycle:* + p*
-2. 結界自動繼承：best-practice:结界 會自動擴散至全部子代理
+2. 結界自動繼承：best-practice:結界 會自動擴散至全部子代理
 3. 凍結不可改：lifecycle:frozen + restricted 的 artifact 禁止修改
 4. 熵減追蹤：p0 任務完成後 entropy 必須下降 < 0.1
 5. 衝突處理：security:restricted 不可與 public 共存（自動升級為 restricted）
@@ -140,7 +140,7 @@ tags:
 | 4 可 1 不可 | lifecycle:active / lifecycle:frozen | 狀態管理 |
 | Hash Lock | lifecycle:frozen + security:restricted | 凍結不可改 |
 | 熵減 < 0.1 | p0 / p1 / p2 / p3 | 品質分級 + 治理目標 |
-| 最佳實踐覺結界 | best-practice:awakened / best-practice:结界 | 覺醒狀態 inheritance |
+| 最佳實踐覺結界 | best-practice:awakened / best-practice:結界 | 覺醒狀態 inheritance |
 | 萬能自動 | platform:* + lifecycle:active | 跨平台自動化路由 |
 
 跨技能整合：
@@ -157,10 +157,10 @@ tags:
 |------|---------|
 | 新 agent 啟動 | [agent:XX][squad:XXX][lifecycle:active][p2][best-practice:awakened] |
 | CI 失敗修復 | [agent:15][lifecycle:active][p0][platform:github] |
-| Secrets 更新 | [agent:11][security:restricted][p0][best-practice:结界] |
+| Secrets 更新 | [agent:11][security:restricted][p0][best-practice:結界] |
 | 過往記憶歸檔 | [agent:01][lifecycle:archived][p3][platform:omni] |
 | VPS 監控 | [agent:13][lifecycle:active][p2][platform:vps][best-practice:awakened] |
-| Docker 健康檢查 | [agent:14][lifecycle:active][p2][platform:vps][best-practice:结界] |
+| Docker 健康檢查 | [agent:14][lifecycle:active][p2][platform:vps][best-practice:結界] |
 | 熵減治理 | [agent:22][lifecycle:active][p1][entropy-target:<0.1] |
 
 ---

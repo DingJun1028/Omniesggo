@@ -26,14 +26,14 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 | 生命週期 | lifecycle:draft / active / frozen / archived                      | 狀態追蹤，frozen 後禁止修改           |
 | 品質分級 | p0 / p1 / p2 / p3                                                 | p0=阻斷、p1=高熵、p2=中熵、p3=噪音    |
 | 平台環境 | platform:esggo / platform:omni / platform:vps / platform:firebase | 部署環境定位                          |
-| 結界繼承 | best-practice:awakened / best-practice:结界                       | 覺醒狀態，结界自動擴散全蜂群          |
+| 結界繼承 | best-practice:awakened / best-practice:結界                       | 覺醒狀態，結界自動擴散全蜂群          |
 
 ---
 
 ## 20.3 標籤語法（Syntax）
 
 ```
-[agent:13][squad:光之羽翼][lifecycle:active][p1][platform:vps][best-practice:结界]
+[agent:13][squad:光之羽翼][lifecycle:active][p1][platform:vps][best-practice:結界]
 ```
 
 **必備標籤**：每筆產物至少 `agent:*` + `lifecycle:*` + `p*` 三枚，缺一即不合約。
@@ -49,7 +49,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 | agent:13-18 + squad:光之羽翼 | 部署 / cron / 自動化代行               |
 | agent:19-24 + squad:煉金熵減 | 重構 / lint / 熵減煉金                 |
 | agent:25-30 + squad:5T驗算   | ISO / Hash Lock / 稽核                 |
-| best-practice:结界           | 全體自動繼承（子代理、蜂群、後代任務） |
+| best-practice:結界           | 全體自動繼承（子代理、蜂群、後代任務） |
 
 ---
 
@@ -57,7 +57,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 
 1. **必備三枚**：`agent:`、`lifecycle:`、`p*` 缺一不可。
 2. **凍結不可改**：`lifecycle:frozen` + `restricted` 的產物禁止任何修改。
-3. **結界自動繼承**：標記 `best-practice:结界` 後，全部子代理自動 inheriting。
+3. **結界自動繼承**：標記 `best-practice:結界` 後，全部子代理自動 inheriting。
 4. **熵減連動**：p0 任務完成後，熵值必須下降（第八章煉金驗收）。
 5. **稽核抽驗**：5T 驗算陣列每週抽驗標籤合約率，目標 100%。
 
@@ -68,7 +68,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 - [ ] 新產物誕生即附三枚必備標籤（agent:* + lifecycle:* + p*）
 - [ ] 標籤與實際狀態一致（不謊報 lifecycle / p 級 / 平台）
 - [ ] lifecycle:frozen + restricted 產物零修改（H4 凍結生效）
-- [ ] best-practice:结界 標記後，子代理自動繼承（抽驗無遺漏）
+- [ ] best-practice:結界 標記後，子代理自動繼承（抽驗無遺漏）
 - [ ] 每週標籤合約率稽核 = 100%，缺失者當週煉金補標
 - [ ] 標籤變更皆可溯源（誰在何時改動、原因留存）
 

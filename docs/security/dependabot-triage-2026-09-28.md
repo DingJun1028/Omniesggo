@@ -181,7 +181,7 @@ esggo-auto-repair/worker > hono@4.12.32
 
 ---
 
-## 4. 31 moderate + 3 low 的壓縮视图
+## 4. 31 moderate + 3 low 的壓縮檢視
 
 同樣按「誰拉進來的」分類：
 

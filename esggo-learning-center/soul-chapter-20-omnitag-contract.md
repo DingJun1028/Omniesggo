@@ -33,7 +33,7 @@ export interface OmniTagSet {
   lifecycle?: OmnitagLifecycle;
   priority?: OmnitagPriority;
   platform?: OmnitagPlatform;
-  bestPractice?: 'awakened' | '结界';
+  bestPractice?: 'awakened' | '結界';
 }
 ```
 
@@ -43,7 +43,7 @@ export interface OmniTagSet {
 |---|---|---|
 | 1 必備三枚 | `validateRequiredTriad` | 缺 `agent`+`lifecycle`+`p*` 任一即違約 |
 | 2 凍結不可改 | `enforceFrozenLock` | `frozen`+`restricted` 實體禁止 mutation |
-| 3 結界自動繼承 | `isBarrierInherited` | `best-practice:结界` 觸發全體繼承 |
+| 3 結界自動繼承 | `isBarrierInherited` | `best-practice:結界` 觸發全體繼承 |
 | 4 熵減連動 | `validateEntropyReduction` | p0 完成後熵值必降（< 0.1） |
 | 5 稽核抽驗 | `auditContractRate` | 批次契約率目標 100% |
 

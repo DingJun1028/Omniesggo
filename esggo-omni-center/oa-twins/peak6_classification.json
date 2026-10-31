@@ -80,7 +80,7 @@
       "function_line": "守衛與品質",
       "agents": [
         { "id": 25, "code": "25", "title": "萬能測場蜂", "tags": "#現場測評 #回饋收集", "5t": ["Trackable", "Tangible"] },
-        { "id": 26, "code": "26", "title": "萬能追蹤蜂", "tags": "#競品監控 #動態追踪", "5t": ["Trackable", "Transparent"] },
+        { "id": 26, "code": "26", "title": "萬能追蹤蜂", "tags": "#競品監控 #動態追蹤", "5t": ["Trackable", "Transparent"] },
         { "id": 27, "code": "27", "title": "萬能安全蜂", "tags": "#資安防護 #數據保護", "5t": ["Trustworthy", "Trackable"] },
         { "id": 28, "code": "28", "title": "萬能維護蜂", "tags": "#系統維護 #故障排除", "5t": ["Trackable", "Trustworthy"] },
         { "id": 29, "code": "29", "title": "萬能支援蜂", "tags": "#技術支援 #問題解決", "5t": ["Traceable", "Trackable"] },
@@ -163,7 +163,7 @@
         { "id": 56, "code": "56", "title": "雙隊 Hash Lock 代理 · QB-56", "tags": "#雙隊寫入凍結 #雙隊完整性", "5t": ["Trustworthy", "Trackable"] },
         { "id": 57, "code": "57", "title": "雙隊 UUID 發放代理 · QB-57", "tags": "#雙隊身分發放 #雙隊登記", "5t": ["Trackable", "Traceable"] },
         { "id": 58, "code": "58", "title": "雙隊零幻覺稽核代理 · QB-58", "tags": "#雙隊幻覺檢測 #雙隊真實性", "5t": ["Transparent", "Trustworthy"] },
-        { "id": 59, "code": "59", "title": "雙隊稽核追踪代理 · QB-59", "tags": "#雙隊日志追踪 #雙隊異常", "5t": ["Trackable", "Trustworthy"] },
+        { "id": 59, "code": "59", "title": "雙隊稽核追蹤代理 · QB-59", "tags": "#雙隊日誌追蹤 #雙隊異常", "5t": ["Trackable", "Trustworthy"] },
         { "id": 60, "code": "60", "title": "雙隊 5T 終審代理 · QB-60", "tags": "#雙隊終審審核 #雙隊釋出", "5t": ["T", "T", "T", "T", "T"] }
       ]
     }

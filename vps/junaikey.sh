@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # ============================================================================
 # junaikey.sh — JunAikey 萬能元鑰 安全喚醒包裝器 (v2.0.0)
-# 用途: 統一由秘密聖櫃授權, 自動載入 NCB 憑證, 規避 'stdin is not a tty' 故障。
+# 用途: 統一由祕密聖櫃授權, 自動載入 NCB 憑證, 規避 'stdin is not a tty' 故障。
 # 原則: 憑證單一來源 = secret-vault/ENV20230818.env (5T: Traceable/Trustworthy)
 # 用法: junaikey.sh <command> [args...]
 # 範例: junaikey.sh awaken | junaikey.sh grow "name" "body" --traits=永恆
 # ============================================================================
 set -euo pipefail
 
-# --- 單一憑證來源 (秘密聖櫃 / 第一原則) ---
+# --- 單一憑證來源 (祕密聖櫃 / 第一原則) ---
 SECRET_VAULT="C:/Users/dingj/secret-vault/ENV20230818.env"
 JUNAIKEY_MJS="C:/Project/esggo/vps/junaikey.mjs"
 
-# --- 健檢: 秘密聖櫃存在且可讀 ---
+# --- 健檢: 祕密聖櫃存在且可讀 ---
 if [ ! -f "$SECRET_VAULT" ]; then
-  echo "[junaikey] ✗ 秘密聖櫃不存在: $SECRET_VAULT" >&2
+  echo "[junaikey] ✗ 祕密聖櫃不存在: $SECRET_VAULT" >&2
   echo "[junaikey] 請先建立/確認 secret-vault (含 NCBDB_* 變數)。" >&2
   exit 2
 fi

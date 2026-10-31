@@ -338,7 +338,7 @@ app.post('/api/auth/request-code', rateLimit({ windowMs: 60_000, max: 5 }), asyn
   res.json({ ok: true });
 });
 
-// ===== Email OTP：驗證并簽發 token =====
+// ===== Email OTP：驗證並簽發 token =====
 app.post('/api/auth/verify-code', rateLimit({ windowMs: 60_000, max: 10 }), (req, res) => {
   const email = String(req.body.email || '').trim().toLowerCase();
   const code = String(req.body.code || '').trim();

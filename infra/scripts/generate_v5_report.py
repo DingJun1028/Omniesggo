@@ -124,18 +124,18 @@ def generate_chapter(ch_num, answers, profile, questions):
 
     # Opening paragraph with company data
     parts.append('<section class="chapter-intro">')
-    parts.append(f'<p>{company}（以下简称{short}）成立于台湾，营运据点包含{locations}，')
-    parts.append(f'主要业务为{business}。截至{year}年12月31日，')
-    parts.append(f'员工人数约{employees}人，年合并营收约{revenue}，')
-    parts.append(f'年用电量约{electricity:,} kWh，年用水量约{water:,}吨。')
-    parts.append(f'{short}在「{title}」面向的{year}年度具体作为，依5T协议{gate_label}（{gate}）原则进行揭露。</p>')
+    parts.append(f'<p>{company}（以下簡稱{short}）成立於臺灣，營運據點包含{locations}，')
+    parts.append(f'主要業務為{business}。截至{year}年12月31日，')
+    parts.append(f'員工人數約{employees}人，年合併營收約{revenue}，')
+    parts.append(f'年用電量約{electricity:,} kWh，年用水量約{water:,}噸。')
+    parts.append(f'{short}在「{title}」面向的{year}年度具體作為，依5T協議{gate_label}（{gate}）原則進行揭露。</p>')
     parts.append('</section>')
 
     # Table of contents for the chapter
     parts.append('<section class="chapter-toc">')
-    parts.append('<h3>章节架构</h3>')
+    parts.append('<h3>章節架構</h3>')
     parts.append('<ul>')
-    subsections = ['管理策略', '目标与绩效', '风险与机会', '外部合作', '未来展望']
+    subsections = ['管理策略', '目標與績效', '風險與機會', '外部合作', '未來展望']
     for i, sub in enumerate(subsections):
         parts.append(f'<li>{ch_num}.{i+1} {sub}</li>')
     parts.append('</ul>')
@@ -144,7 +144,7 @@ def generate_chapter(ch_num, answers, profile, questions):
     # Add high-fidelity answers as main content
     if answers:
         parts.append('<section class="chapter-content">')
-        parts.append('<h3>核心揭露事项</h3>')
+        parts.append('<h3>核心揭露事項</h3>')
 
         for i, ans_obj in enumerate(answers):
             ans = ans_obj['answer']
@@ -154,7 +154,7 @@ def generate_chapter(ch_num, answers, profile, questions):
             direction = ans_obj.get('direction', '')
 
             parts.append(f'<div class="answer-block" id="{qid}">')
-            parts.append(f'<h3>{ch_num}.{i+1} {qinfo.get("question", "揭露事项")}</h3>')
+            parts.append(f'<h3>{ch_num}.{i+1} {qinfo.get("question", "揭露事項")}</h3>')
             parts.append('<div class="answer-content">')
             parts.append(f'{ans}')
             parts.append('</div>')
@@ -162,7 +162,7 @@ def generate_chapter(ch_num, answers, profile, questions):
             if gri:
                 parts.append(f'<p class="gri-tag">GRI: {gri}</p>')
             if direction:
-                parts.append(f'<p class="direction-tag">报告方向: {direction}</p>')
+                parts.append(f'<p class="direction-tag">報告方向: {direction}</p>')
 
             parts.append('</div>')
 
@@ -170,13 +170,13 @@ def generate_chapter(ch_num, answers, profile, questions):
     else:
         # Generate content from template if no answers
         parts.append('<section class="chapter-content">')
-        parts.append('<h3>核心揭露事项</h3>')
+        parts.append('<h3>核心揭露事項</h3>')
 
         template_paras = [
-            f'{short}于{year}年度依「{title}」相关规范进行完整揭露。公司高层对此面向高度重视，设立专责单位推动相关策略，并将执行成果定期向董事会报告。',
-            f'在具体作为方面，{short}透过三大主轴推动{title}相关工作：第一，建立完整监测与回报机制，确保信息透明度；第二，设定量化目标并追踪达成率；第三，与外部利害关系人保持良好沟通，回应各方关注议题。',
-            f'{year}年度具体绩效指标包括：员工满意度调查达85%、供应商评鉴合格率92%、客户抱怨处理时效48小时内完成等。 aforementioned data has been verified by third-party assurance providers.',
-            f'面对未来挑战，{short}将持续深化{title}工作，包括但不限于：导入数字化管理工具、强化供应链伙伴关系、提升信息透明度等。公司期望透过系统化的管理作为，为环境与社会创造正面影响力。',
+            f'{short}于{year}年度依「{title}」相關規範進行完整揭露。公司高層對此面向高度重視，設立專責單位推動相關策略，並將執行成果定期向董事會報告。',
+            f'在具體作為方面，{short}透過三大主軸推動{title}相關工作：第一，建立完整監測與回報機制，確保資訊透明度；第二，設定量化目標並追蹤達成率；第三，與外部利害關係人保持良好溝通，回應各方關注議題。',
+            f'{year}年度具體績效指標包括：員工滿意度調查達85%、供應商評鑑合格率92%、客戶抱怨處理時效48小時內完成等。 aforementioned data has been verified by third-party assurance providers.',
+            f'面對未來挑戰，{short}將持續深化{title}工作，包括但不限於：匯入數字化管理工具、強化供應鏈夥伴關係、提升資訊透明度等。公司期望透過系統化的管理作為，為環境與社會創造正面影響力。',
         ]
 
         for para in template_paras:
@@ -186,18 +186,18 @@ def generate_chapter(ch_num, answers, profile, questions):
 
     # Add data table
     parts.append('<section class="chapter-data">')
-    parts.append('<h3>关键绩效指标</h3>')
+    parts.append('<h3>關鍵績效指標</h3>')
     parts.append('<table class="data-table">')
-    parts.append(f'<thead><tr><th>指标名称</th><th>{year}</th><th>前年度</th><th>目标</th><th>达成率</th><th>GRI</th></tr></thead>')
+    parts.append(f'<thead><tr><th>指標名稱</th><th>{year}</th><th>前年度</th><th>目標</th><th>達成率</th><th>GRI</th></tr></thead>')
     parts.append('<tbody>')
 
     # Generate KPIs based on chapter topic
     kpis = [
         ('完成率', '92%', '85%', '95%', '97%', 'GRI 2-7'),
-        ('覆盖率', '88%', '80%', '90%', '98%', 'GRI 3-3'),
-        ('合规度', '100%', '98%', '100%', '100%', 'GRI 2-26'),
-        ('满意度', '85%', '78%', '90%', '94%', 'GRI 413-1'),
-        ('训练时数', '45小时', '40小时', '50小时', '90%', 'GRI 404-1'),
+        ('覆蓋率', '88%', '80%', '90%', '98%', 'GRI 3-3'),
+        ('合規度', '100%', '98%', '100%', '100%', 'GRI 2-26'),
+        ('滿意度', '85%', '78%', '90%', '94%', 'GRI 413-1'),
+        ('訓練時數', '45小時', '40小時', '50小時', '90%', 'GRI 404-1'),
     ]
 
     for kpi in kpis:
@@ -210,16 +210,16 @@ def generate_chapter(ch_num, answers, profile, questions):
     chart_type = ['bar', 'pie', 'line', 'radar'][ch_num % 4]
     chart_svg = generate_svg_chart(ch_num, chart_type, title)
     parts.append('<section class="chapter-chart">')
-    parts.append('<h3>可视化图表</h3>')
+    parts.append('<h3>視覺化圖表</h3>')
     parts.append(chart_svg)
     parts.append('</section>')
 
     # Extension blocks to fill word count
     ext_topics = {
-        'governance': ['治理架构深化', '内部控制机制', '审计功能强化', '董事多元性', '薪酬与绩效连结'],
-        'climate': ['净零路径', '碳定价机制', '绿色能源转型', '供应链管理', '产品碳足迹'],
-        'social': ['人才发展', '多元平等', '社区参与', '客户关怀', '供应链人权'],
-        'transparency': ['信息揭露', 'GRI索引', '第三方保证', '利害关系人沟通', '持续改善'],
+        'governance': ['治理架構深化', '內部控制機制', '審計功能強化', '董事多元性', '薪酬與績效連結'],
+        'climate': ['淨零路徑', '碳定價機制', '綠色能源轉型', '供應鏈管理', '產品碳足跡'],
+        'social': ['人才發展', '多元平等', '社區參與', '客戶關懷', '供應鏈人權'],
+        'transparency': ['資訊揭露', 'GRI索引', '第三方保證', '利害關係人溝通', '持續改善'],
     }
 
     topic_key = gate if gate in ext_topics else 'transparency'
@@ -227,19 +227,19 @@ def generate_chapter(ch_num, answers, profile, questions):
 
     parts.append('<section class="chapter-extensions">')
     for i, topic in enumerate(topics):
-        parts.append(f'<h3>专题深化：{topic}</h3>')
-        parts.append(f'<p>{short}在{topic}面向的作为如下：</p>')
+        parts.append(f'<h3>專題深化：{topic}</h3>')
+        parts.append(f'<p>{short}在{topic}面向的作為如下：</p>')
         parts.append('<p>')
-        parts.append(f'依金管会「上市柜公司永续报告书画作业办法」及GRI准则规范，本公司已于{year}年度建立完整的{topic}管理机制，')
-        parts.append('并依据PDCA（计划-执行-检查-行动）循环持续改善。具体成效包括：建立量化指标系统、设定短期/中期/长期目标、')
-        parts.append('定期追踪执行成果，并向董事会提报执行报告。此外，公司亦透过与外部利害关系人的对话机制，')
-        parts.append(f'{short}持续关注与回应各方对于{topic}面向的关切与期待。')
+        parts.append(f'依金管會「上市櫃公司永續報告書畫作業辦法」及GRI準則規範，本公司已於{year}年度建立完整的{topic}管理機制，')
+        parts.append('並依據PDCA（計劃-執行-檢查-行動）迴圈持續改善。具體成效包括：建立量化指標系統、設定短期/中期/長期目標、')
+        parts.append('定期追蹤執行成果，並向董事會提報執行報告。此外，公司亦透過與外部利害關係人的對話機制，')
+        parts.append(f'{short}持續關注與回應各方對於{topic}面向的關切與期待。')
         parts.append('</p>')
         parts.append('<p>')
-        parts.append(f'{year}年度{topic}具体成果摘要如下：已举办{4 + ch_num % 6}场内部训练课程，')
-        parts.append(f'参与人数约{50 + ch_num * 10}人；完成{ch_num % 5 + 2}件改善案；')
-        parts.append(f'外部评核获得{85 + ch_num % 10}分（满分100分）。')
-        parts.append(f'{short}将持续强化{topic}相关工作，为利害关系人创造长期价值。')
+        parts.append(f'{year}年度{topic}具體成果摘要如下：已舉辦{4 + ch_num % 6}場內部訓練課程，')
+        parts.append(f'參與人數約{50 + ch_num * 10}人；完成{ch_num % 5 + 2}件改善案；')
+        parts.append(f'外部評核獲得{85 + ch_num % 10}分（滿分100分）。')
+        parts.append(f'{short}將持續強化{topic}相關工作，為利害關係人創造長期價值。')
         parts.append('</p>')
     parts.append('</section>')
 
@@ -258,7 +258,7 @@ def generate_svg_chart(ch_num, chart_type, title):
     colors = ['#009EB0', '#D4AF37', '#3B82F6', '#FF4D6D', '#22C55E', '#8B5CF6', '#06B6D4', '#F59E0B']
 
     svg = '<svg viewBox="0 0 500 280" xmlns="http://www.w3.org/2000/svg" style="background:#f8fafc;border-radius:12px;">'
-    svg += f'<text x="250" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">{title} — 绩效分布</text>'
+    svg += f'<text x="250" y="24" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">{title} — 績效分佈</text>'
 
     if chart_type == 'bar':
         values = [15 + ch_num * 3, 28 + ch_num * 2, 42 + ch_num, 35 + ch_num * 2, 22 + ch_num]
@@ -274,7 +274,7 @@ def generate_svg_chart(ch_num, chart_type, title):
             color = colors[i % len(colors)]
             svg += f'<rect x="{x}" y="{y}" width="{bar_width}" height="{bar_h}" fill="{color}" rx="3"/>'
             svg += f'<text x="{x + bar_width/2}" y="{y - 5}" text-anchor="middle" font-size="11" fill="#475569">{val}</text>'
-            svg += f'<text x="{x + bar_width/2}" y="260" text-anchor="middle" font-size="10" fill="#64748b">项目{i+1}</text>'
+            svg += f'<text x="{x + bar_width/2}" y="260" text-anchor="middle" font-size="10" fill="#64748b">專案{i+1}</text>'
 
     elif chart_type == 'pie':
         values = [30 + ch_num, 25 + ch_num, 20 + ch_num, 15 + ch_num, 10 + ch_num]
@@ -305,7 +305,7 @@ def generate_svg_chart(ch_num, chart_type, title):
     elif chart_type == 'radar':
         cx, cy = 250, 140
         values = [0.7 + ch_num % 4 * 0.05, 0.8, 0.75 + ch_num % 3 * 0.05, 0.85, 0.7, 0.9]
-        labels = ['治理', '环境', '社会', '经济', '科技', '透明度']
+        labels = ['治理', '環境', '社會', '經濟', '科技', '透明度']
         n = len(values)
         for i in range(n):
             angle = 2 * math.pi * i / n - math.pi / 2
@@ -352,7 +352,7 @@ def generate_report(company_id):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{profile["companyName"]} 2025年永续报告书 — ESGGO v5.0</title>
+<title>{profile["companyName"]} 2025年永續報告書 — ESGGO v5.0</title>
 <style>
 :root {{
   --teal: #009EB0; --gold: #D4AF37; --blue: #3B82F6; --purple: #8B5CF6;
@@ -394,23 +394,23 @@ p {{ margin: 12px 0; text-align: justify; }}
 
 <div class="cover">
 <h1>{profile["companyName"]}</h1>
-<h2 style="color: var(--slate-600); border: none; margin-top: 10px;">2025年永续报告书</h2>
-<p style="font-size: 16px; color: var(--teal); margin-top: 20px;">ESGGO v5.0 万能系统版 | 28章 x 5T + ZKP + OmniBase</p>
-<p>报告期间：2025年1月1日至2025年12月31日</p>
-<p>员工人数：{profile["employees"]}人 | 年营收：{profile["annualRevenue"]}</p>
-<p>产业：{profile["industryType"]} | 营运据点：{profile["operatingLocations"]}</p>
+<h2 style="color: var(--slate-600); border: none; margin-top: 10px;">2025年永續報告書</h2>
+<p style="font-size: 16px; color: var(--teal); margin-top: 20px;">ESGGO v5.0 萬能系統版 | 28章 x 5T + ZKP + OmniBase</p>
+<p>報告期間：2025年1月1日至2025年12月31日</p>
+<p>員工人數：{profile["employees"]}人 | 年營收：{profile["annualRevenue"]}</p>
+<p>產業：{profile["industryType"]} | 營運據點：{profile["operatingLocations"]}</p>
 </div>
 
 <div class="stats">
-<div class="stat"><div class="stat-value">28</div><div class="stat-label">章节数</div></div>
+<div class="stat"><div class="stat-value">28</div><div class="stat-label">章節數</div></div>
 <div class="stat"><div class="stat-value">5T</div><div class="stat-label">真善美信通</div></div>
-<div class="stat"><div class="stat-value">ZKP</div><div class="stat-label">零知识证明</div></div>
-<div class="stat"><div class="stat-value">GRI</div><div class="stat-label">2021准则</div></div>
+<div class="stat"><div class="stat-value">ZKP</div><div class="stat-label">零知識證明</div></div>
+<div class="stat"><div class="stat-value">GRI</div><div class="stat-label">2021準則</div></div>
 </div>
 
-<h2>目录</h2>
+<h2>目錄</h2>
 <table>
-<tr><th>章节</th><th>标题</th><th>5T</th><th>字数</th></tr>
+<tr><th>章節</th><th>標題</th><th>5T</th><th>字數</th></tr>
 '''
 
     # Generate each chapter
@@ -440,13 +440,13 @@ p {{ margin: 12px 0; text-align: justify; }}
     # Footer
     html += f'''
 <div class="footer">
-<p><strong>ESGGO v5.0 万能系统版</strong></p>
-<p>总字数：{total_words:,} | 章节数：28 | 生成时间：{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+<p><strong>ESGGO v5.0 萬能系統版</strong></p>
+<p>總字數：{total_words:,} | 章節數：28 | 生成時間：{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
 <p>Trinity Hash: <code>{trinity_hash}</code></p>
 <p>5T Protocol: 真(Traceable) → 善(Transparent) → 美(Tangible) → 信(Trustworthy) → 通(Trackable)</p>
 <p>ZKP: SHA-256 + Pedersen Commitment | OmniBase: Vault + User + Agent</p>
-<p>© 2026 ESGGO | 符合金管会「上市柜公司编制与申报永续报告书作业办法」</p>
-<p>GRI Standards 2021 (含 GRI 101:2024 生物多样性, GRI 102:2025 气候变迁, GRI 103:2025 能源)</p>
+<p>© 2026 ESGGO | 符合金管會「上市櫃公司編制與申報永續報告書作業辦法」</p>
+<p>GRI Standards 2021 (含 GRI 101:2024 生物多樣性, GRI 102:2025 氣候變遷, GRI 103:2025 能源)</p>
 </div>
 
 </body>

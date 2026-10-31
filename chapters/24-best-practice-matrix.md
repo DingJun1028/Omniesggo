@@ -52,7 +52,7 @@ tags: [MECE, 矩陣, 啟動, 驗證]
 | 項目 | 阻礙 | 解決路徑 |
 |------|------|----------|
 | TencentDB Agent Memory | 需 VPS + SSH | Ch.02 解鎖後 |
-| Hindsight 402 | 額度不足 | 等待额度充值 |
+| Hindsight 402 | 額度不足 | 等待額度充值 |
 | VPS instance OOM 凍結 | 記憶體不足 | Oracle Console 重啟 |
 | Docker 6/6 not healthy | 容器異常 | `docker-compose restart` |
 | 5 個殘留 cron jobs | 暫停中 | 更新 prompts + resume |

@@ -153,7 +153,7 @@ repo 內**無對應 `wrangler.toml`**（僅根目錄、`apps/cloudflare-deepseek
 ## 印章
 
 ```
-5T-Trustworthy:  万能分身修复 TASK ID 监控器 — 交付完成
+5T-Trustworthy:  萬能分身修復 TASK ID 監控器 — 交付完成
 交付日期: 2026-09-28
 實證測試: 41 passed | 26 passed | tsc exit 0 | lint 0 problems
 揭露缺陷: 3 項既有問題（皆非本輪造成，已記錄待決）

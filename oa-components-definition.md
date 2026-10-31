@@ -97,7 +97,7 @@ interface DomainEvent<T = unknown> {
 | `agent:25-30` + `squad:5T驗算` | ISO / Hash Lock / 稽核 |
 | `platform:vps` | OA-VPS 消費者 |
 | `platform:esggo` | OA-Local 消費者 |
-| `best-practice:结界` | 全部自動 inheriting |
+| `best-practice:結界` | 全部自動 inheriting |
 
 ### 4.5 通訊頻道（來自 soul.md 第 4 章，建立在 Bus 之上）
 - **萊群廣播**（Broadcast）：蜂后發布全局公告 → 所有訂閱者

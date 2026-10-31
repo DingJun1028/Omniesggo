@@ -11,7 +11,7 @@ import {
 describe('§20.5 規則 5 / §20.6 驗收：OmniTag 合約率稽核', () => {
   it('parseOmniTagHeader extracts tags from header comment', () => {
     const content = `/**
- * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]
+ * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:結界]
  */
 export const x = 1;`;
     const tags = parseOmniTagHeader(content);
@@ -89,7 +89,7 @@ export const x = 1;`;
     const f1 = path.join(dir, 'nohead.ts');
     const f2 = path.join(dir, 'hashead.ts');
     fs.writeFileSync(f1, 'export const a = 1;\n');
-    fs.writeFileSync(f2, '// [agent:09][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]\nexport const b = 2;\n');
+    fs.writeFileSync(f2, '// [agent:09][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]\nexport const b = 2;\n');
     try {
       const found = findUntagged([dir]);
       expect(found.length).toBe(1);

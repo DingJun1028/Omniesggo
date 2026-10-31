@@ -2,7 +2,7 @@
 title: OmniTag Universal Labeling Contract
 canon_id: OMN-004
 date: 2026-10-09
-tags: [best-practice:结界][unit-of-learning][canon][omnitag]
+tags: [best-practice:結界][unit-of-learning][canon][omnitag]
 canonical: [[AI Research Index]]
 ---
 
@@ -34,7 +34,7 @@ canonical: [[AI Research Index]]
 | 3 安全級 | `sec:` | `public` / `internal` / `confidential` / `secret` | 安全分級 |
 | 4 路由 | `route:` | `auto` / `review` / `blocked` | 自動路由 |
 | 5 熵減 | `entropy:` | `reduce` / `neutral` / `increase` | 治理方向 |
-| 6 結界 | `结界:` | `best-practice` / `guard` | 結界標記 |
+| 6 結界 | `結界:` | `best-practice` / `guard` | 結界標記 |
 
 ---
 
@@ -48,7 +48,7 @@ tags:
   - sec:internal
   - route:auto
   - entropy:reduce
-  - best-practice:结界
+  - best-practice:結界
 ```
 
 ```
@@ -67,7 +67,7 @@ domain:sec  type:secret  sec:secret  route:blocked  entropy:reduce  guard
 | `route:blocked` | 需 [[ESG-GO 核心]] 代主通典 L2 授權 |
 | `entropy:increase` | 觸發 [[OMNITAG/Root Cause × Effect Elimination]] 果因消除 |
 | `type:canon` | 允許寫入 vault + 需 5T 校驗 |
-| `best-practice:结界` | 子代理自動繼承（見 [[OMNITAG/Best Practice Awakening]]） |
+| `best-practice:結界` | 子代理自動繼承（見 [[OMNITAG/Best Practice Awakening]]） |
 
 ---
 
@@ -79,7 +79,7 @@ domain:sec  type:secret  sec:secret  route:blocked  entropy:reduce  guard
 | Trackable | `route:` 觀測狀態 |
 | Tangible | 標籤可被程式解析使用 |
 | Transparent | 標籤公開可審計 |
-| Trustworthy | `sec:` + `结界:` 不可靜默改 |
+| Trustworthy | `sec:` + `結界:` 不可靜默改 |
 
 ---
 

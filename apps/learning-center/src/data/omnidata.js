@@ -51,7 +51,7 @@ const seedEntries = [
   {
     id: 'esg_framework',
     title: 'ESG 報告框架簡介',
-    body: '主要框架包括 GRI、SASB、TCFD、EU CSRD。建議先从 GRI 核心選項開始，再依產業叠加 SASB 標準。',
+    body: '主要框架包括 GRI、SASB、TCFD、EU CSRD。建議先從 GRI 核心選項開始，再依產業疊加 SASB 標準。',
     tags: ['ESG', 'framework', 'GRI', 'SASB', 'reporting'],
     roles: ['student', 'TA', 'admin'],
     updatedAt: '2026-06-05T00:00:00.000Z',
@@ -59,7 +59,7 @@ const seedEntries = [
   {
     id: 'sustainability_metrics',
     title: '常見 Sustainability 指標',
-    body: '碳排放範疇一/二/三、用水量、廢棄物回收率、能源強度、供應鏈碳足跡。这些指標用於設定基線與追蹤進展。',
+    body: '碳排放範疇一/二/三、用水量、廢棄物回收率、能源強度、供應鏈碳足跡。這些指標用於設定基線與追蹤進展。',
     tags: ['metrics', 'carbon', 'water', 'waste', 'energy'],
     roles: ['student', 'TA', 'admin'],
     updatedAt: '2026-06-10T00:00:00.000Z',
@@ -83,7 +83,7 @@ const seedEntries = [
   {
     id: 'materiality_assessment',
     title: '實質性評估（Materiality Assessment）步驟',
-    body: '1) 列出议题 2) 利害關係人訪談 3) 影響程度與發生機率矩陣 4) 確立首要 ESG 議題 5) 每两年再评估一次。',
+    body: '1) 列出議題 2) 利害關係人訪談 3) 影響程度與發生機率矩陣 4) 確立首要 ESG 議題 5) 每兩年再評估一次。',
     tags: ['materiality', 'assessment', 'strategy'],
     roles: ['student', 'TA', 'admin'],
     updatedAt: '2026-06-25T00:00:00.000Z',

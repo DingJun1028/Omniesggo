@@ -1299,7 +1299,7 @@ query_group；必要時匿名化
 全站HTTPS、HSTS、Content Security Policy、X-Content-Type-Options與Referrer-Policy。
 CMS啟用MFA、最小權限、登入限制、稽核紀錄與定期帳號複核。
 表單輸入後端驗證、參數化處理、CSRF防護、頻率限制與垃圾訊息防護。
-秘密值存於環境變數或Secret Manager，不提交版本庫。
+祕密值存於環境變數或Secret Manager，不提交版本庫。
 每日自動備份、至少保留30天；每季測試還原。
 定期更新依賴、掃描弱點；上線前進行OWASP常見風險檢查。
 分析與行銷Cookie依同意載入；不得把表單個資傳送至分析工具。

@@ -6,7 +6,7 @@
 // Bridges the Authority Forging workflow output (F-07) into Boost.space
 // scenarios, with bounded retry, explicit errors and no secret leakage.
 // 將權能鍛造 (F-07) 的 workflow 產物橋接為 Boost.space 情境，含限次重試、
-// 明確錯誤與秘密不外洩。
+// 明確錯誤與祕密不外洩。
 // ═══════════════════════════════════════════════════════════════
 
 import type { ForgedScript } from '../authority-forging';

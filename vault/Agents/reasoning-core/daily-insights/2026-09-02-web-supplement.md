@@ -27,7 +27,7 @@ S&P Global 2026 十大永續趨勢指出：
 ### 2. AI 治理納入 ESG 評分
 - Bernard Marr：數據隱私、AI 治理、數位倫理現已成為 ESG 對話一部分
 - IMD：AI 啟用能源系統成為策略槓桿
-- Verdantix：25% 企業已用 AI 起草永續報告，39% 两年內可能採用
+- Verdantix：25% 企業已用 AI 起草永續報告，39% 兩年內可能採用
 
 **ESG-GO 啟示**：OA-Team 的 5T 協定（Transparent + Trustworthy）即是 AI 治理的早期實踐框架，可對映 CSRD/ESG 報告要求。
 

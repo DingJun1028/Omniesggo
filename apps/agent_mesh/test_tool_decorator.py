@@ -161,7 +161,7 @@ def assert_schema(tool_fn, expected_name: str, expected_params: list[str],
                   expected_required: list[str], test_label: str) -> None:
     """斷言工具產出的 Schema 符合預期。"""
     schema = tool_fn.tool_schema
-    assert schema is not None, f"[{test_label}] 裝飾器未掛载 tool_schema"
+    assert schema is not None, f"[{test_label}] 裝飾器未掛載 tool_schema"
     assert schema.name == expected_name, \
         f"[{test_label}] 名稱不符：{schema.name} != {expected_name}"
     assert list(schema.parameters["properties"].keys()) == expected_params, \

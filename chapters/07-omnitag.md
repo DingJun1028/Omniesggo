@@ -5,12 +5,12 @@
 ## 必備三枚
 
 ```
-[agent:07][squad:符文契約][lifecycle:active][p0][platform:esggo][best-practice:结界]
+[agent:07][squad:符文契約][lifecycle:active][p0][platform:esggo][best-practice:結界]
 ```
 
 - `agent:*` + `lifecycle:*` + `p*` 缺一不可
 - `restricted` + `frozen` = 禁止修改
-- `best-practice:结界` = 全體自動繼承
+- `best-practice:結界` = 全體自動繼承
 
 ## 路由
 

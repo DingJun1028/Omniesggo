@@ -1,382 +1,382 @@
 ---
 name: web-design
-description: Web 视觉设计 SKILL。输入 PRD / 参考 URL / 截图 / 关键词（任意组合），先产出一份标准化 DESIGN.md 设计规范，用户确认后据此生成 UI/UX、视觉、动效、响应式全部达标的 web 代码。专攻 web 端：Landing Page、Portfolio、产品页、博客、个人站、SaaS 介绍页等。当用户说"帮我做个网站""设计一个页面""参考 XX 做一个""把这个截图/PRD 做成网页""做一个 landing page""出一份 design 规范"时触发。不用于后端、数据库、纯逻辑 bug 修复。
+description: Web 視覺設計 SKILL。輸入 PRD / 參考 URL / 截圖 / 關鍵詞（任意組合），先產出一份標準化 DESIGN.md 設計規範，使用者確認后據此生成 UI/UX、視覺、動效、響應式全部達標的 web 程式碼。專攻 web 端：Landing Page、Portfolio、產品頁、部落格、個人站、SaaS 介紹頁等。當使用者說"幫我做個網站""設計一個頁面""參考 XX 做一個""把這個截圖/PRD 做成網頁""做一個 landing page""出一份 design 規範"時觸發。不用於後端、資料庫、純邏輯 bug 修復。
 ---
 
 # Web Design
 
-Web 端视觉设计 SKILL。两阶段工作流：**先出规范（DESIGN.md），再出代码。**
+Web 端視覺設計 SKILL。兩階段工作流：**先出規範（DESIGN.md），再出程式碼。**
 
-DESIGN.md 是显式文件产物，保存到项目目录，可跨项目复用、可手动修改、可给其他工具消费。
+DESIGN.md 是顯式檔案產物，儲存到專案目錄，可跨專案複用、可手動修改、可給其他工具消費。
 
 ## 核心流程
 
 ```
-Phase A  理解需求（灵活输入）──→  Phase B  输出 DESIGN.md（用户确认）──→  Phase C  生成项目代码
+Phase A  理解需求（靈活輸入）──→  Phase B  輸出 DESIGN.md（使用者確認）──→  Phase C  生成專案程式碼
 ```
 
-**启动时先检测**（按优先级）：
-1. 项目里已经有 DESIGN.md 了吗？→ 有则沿用/修改/重建
-2. 项目里有 PRD.md 吗？→ 有则进入 A4（PRD 驱动流程）
-3. 都没有 → 正常走 Phase A
+**啟動時先檢測**（按優先順序）：
+1. 專案里已經有 DESIGN.md 了嗎？→ 有則沿用/修改/重建
+2. 專案里有 PRD.md 嗎？→ 有則進入 A4（PRD 驅動流程）
+3. 都沒有 → 正常走 Phase A
 
 ---
 
 ## Phase A: 理解需求
 
-输入是灵活的，以下任意组合都行，不要强制用户走固定路径：
+輸入是靈活的，以下任意組合都行，不要強制使用者走固定路徑：
 
-| 输入 | 处理方式 |
+| 輸入 | 處理方式 |
 |------|---------|
-| **参考 URL** | 抓取 HTML+CSS，提取 Token，motion audit |
-| **截图 / 设计稿** | 从视觉提取气质、色温、密度、字体风格 |
-| **关键词 / 描述** | "暗色克制衬线风格" → 从 style-seeds 匹配 Token |
-| **品牌名** | "做成类似 Linear 的" → 先查 `references/design-systems/`，有则直接读取；无则抓取该网站 |
-| **混合** | "参考这个 URL 但配色要暖一些" → 提取 + 覆盖 |
-| **PRD 文档** | 读取 PRD.md 的产品定位、页面结构、设计交接区 → 分析竞品风格 → 推导设计方向 |
+| **參考 URL** | 抓取 HTML+CSS，提取 Token，motion audit |
+| **截圖 / 設計稿** | 從視覺提取氣質、色溫、密度、字型風格 |
+| **關鍵詞 / 描述** | "暗色剋制襯線風格" → 從 style-seeds 匹配 Token |
+| **品牌名** | "做成類似 Linear 的" → 先查 `references/design-systems/`，有則直接讀取；無則抓取該網站 |
+| **混合** | "參考這個 URL 但配色要暖一些" → 提取 + 覆蓋 |
+| **PRD 文件** | 讀取 PRD.md 的產品定位、頁面結構、設計交接區 → 分析競品風格 → 推導設計方向 |
 
-### A1. URL 分析（有参考 URL 时）
+### A1. URL 分析（有參考 URL 時）
 
-**意图判断**：参考（提取设计语言，做独立新页面）vs 复刻（用户明确说"复刻/clone"）。
+**意圖判斷**：參考（提取設計語言，做獨立新頁面）vs 復刻（使用者明確說"復刻/clone"）。
 
-**抓取流程**（按优先级尝试）：
+**抓取流程**（按優先順序嘗試）：
 
-1. **首选：Playwright 爬虫**（真实浏览器，能绕反爬、渲染 SPA、模拟滚动）
+1. **首選：Playwright 爬蟲**（真實瀏覽器，能繞反爬、渲染 SPA、模擬滾動）
    ```bash
    python3 scripts/crawl_website.py --url [URL] --output ./crawl-output --scroll-delay 600
    ```
-   输出：每屏视口截图 + tokens.json + structure.json + styles.css
+   輸出：每屏視口截圖 + tokens.json + structure.json + styles.css
    
-2. **备选：Token 提取脚本**（轻量，适合简单静态站）
+2. **備選：Token 提取指令碼**（輕量，適合簡單靜態站）
    ```bash
    python3 scripts/extract_design_tokens.py --url [URL] --format json
    ```
 
-3. **降级：手动 curl**（脚本都不可用时）
+3. **降級：手動 curl**（指令碼都不可用時）
    ```bash
    curl -Ls [URL]
    ```
 
-综合三类输入判断：实际体验（氛围节奏）> 截图（局部气质）> Token 数值（精确参数）。Playwright 爬虫的视口截图可直接作为"体验"和"截图"两类输入。
+綜合三類輸入判斷：實際體驗（氛圍節奏）> 截圖（區域性氣質）> Token 數值（精確引數）。Playwright 爬蟲的視口截圖可直接作為"體驗"和"截圖"兩類輸入。
 
-**Motion Audit**（参考站有滚动联动动效时必做）：
-- 触发信号：动效跟随滚动连续变化 / 模块间有 stagger-pin-parallax / 引用 GSAP-Lenis 等
-- 记录每个动效区块的 trigger、driver、elements、effect、timing
+**Motion Audit**（參考站有滾動聯動動效時必做）：
+- 觸發訊號：動效跟隨滾動連續變化 / 模組間有 stagger-pin-parallax / 引用 GSAP-Lenis 等
+- 記錄每個動效區塊的 trigger、driver、elements、effect、timing
 
-**降级链路**：
-- Playwright 爬虫失败 → 查 `references/design-systems/` 有无该品牌预置文件（58 个品牌）
-- 预置文件也无 → `extract_design_tokens.py` 尝试静态提取
-- 静态提取也失败 → 手动 curl CSS
-- 全部失败 → 要求用户提供截图，从视觉手动建 Token
+**降級鏈路**：
+- Playwright 爬蟲失敗 → 查 `references/design-systems/` 有無該品牌預置檔案（58 個品牌）
+- 預置檔案也無 → `extract_design_tokens.py` 嘗試靜態提取
+- 靜態提取也失敗 → 手動 curl CSS
+- 全部失敗 → 要求使用者提供截圖，從視覺手動建 Token
 
-### A2. 对话引导（无参考物时）
+### A2. 對話引導（無參考物時）
 
-快速锁定风格方向，不要机械走问答清单：
+快速鎖定風格方向，不要機械走問答清單：
 
-**核心问题**（按需选问，不全问）：
+**核心問題**（按需選問，不全問）：
 - 亮色 vs 暗色？
-- 衬线 vs 无衬线？
-- 克制留白 vs 丰富饱满？
-- 强调色偏好？
-- 有没有喜欢的网站或风格参考？
+- 襯線 vs 無襯線？
+- 剋制留白 vs 豐富飽滿？
+- 強調色偏好？
+- 有沒有喜歡的網站或風格參考？
 
-从 `references/style-seeds.md` 匹配最近似的种子（10 种预设方向），展示给用户确认或混搭。
+從 `references/style-seeds.md` 匹配最近似的種子（10 种預設方向），展示給使用者確認或混搭。
 
-用户提到具体品牌时，查阅 `references/design-systems/INDEX.md` 按类别检索，按需读取对应品牌文件（58 个真实网站设计规范，每个 ~300 行）。品牌文件只含静态设计系统，动效仍需按交互档位补充。
+使用者提到具體品牌時，查閱 `references/design-systems/INDEX.md` 按類別檢索，按需讀取對應品牌檔案（58 個真實網站設計規範，每個 ~300 行）。品牌檔案只含靜態設計系統，動效仍需按互動檔位補充。
 
-### A3. 交互档位确认（不可跳过）
+### A3. 互動檔位確認（不可跳過）
 
-| 档位 | 体验感 |
+| 檔位 | 體驗感 |
 |------|--------|
-| **L1** 精致静态 | 优雅 hover + 柔和入场 |
-| **L2** 流畅交互 | 滚动 reveal、视差、导航变化 |
-| **L3** 沉浸体验 | 滚动驱动时间线、pin、光标跟随、转场 |
+| **L1** 精緻靜態 | 優雅 hover + 柔和入場 |
+| **L2** 流暢互動 | 滾動 reveal、視差、導航變化 |
+| **L3** 沉浸體驗 | 滾動驅動時間線、pin、游標跟隨、轉場 |
 
-L2 追问：reveal 风格（fadeInUp/scaleIn）、视差、导航变化
-L3 追问：section pin、光标效果、转场、是否允许 GSAP/ScrollTrigger/Lenis
+L2 追問：reveal 風格（fadeInUp/scaleIn）、視差、導航變化
+L3 追問：section pin、游標效果、轉場、是否允許 GSAP/ScrollTrigger/Lenis
 
-查阅 `references/interaction-patterns.md` 获取对应档位的完整代码。
+查閱 `references/interaction-patterns.md` 獲取對應檔位的完整程式碼。
 
-### A4. PRD 驱动（检测到项目级规范文件时）
+### A4. PRD 驅動（檢測到專案級規範檔案時）
 
-**启动时自动扫描项目根目录**，按优先级：
+**啟動時自動掃描專案根目錄**，按優先順序：
 1. `PRD.md` / `prd.md`
 2. `SPEC.md` / `spec.md`
-3. `README.md` 或任何 `.md` — 若含「产品定位 / Target Users / Pages / 核心页面」等关键字段
+3. `README.md` 或任何 `.md` — 若含「產品定位 / Target Users / Pages / 核心頁面」等關鍵欄位
 
-**不绑定特定工具或模板**。只要能从文档里抽到下列字段，就足以作为设计输入：
+**不繫結特定工具或模板**。只要能從文件里抽到下列欄位，就足以作為設計輸入：
 
-| 字段（中/英别名） | 用途 |
+| 欄位（中/英別名） | 用途 |
 |-------------------|------|
-| 产品名称 / Product / Name | Hero 文案 |
-| 一句话定位 / Tagline / Pitch | Hero 副标题、定调 |
-| 目标用户 / Target Users / Audience | 色彩温度、字体风格决策 |
-| 核心页面 / Pages / Screens | Phase C 生成清单 |
-| 竞品 / Competitors / References | Phase A 风格参考起点 |
-| 技术栈 / Tech Stack | Phase C 代码生成方案 |
-| 设计交接 / Design Notes / 调性 | 直接继承的硬约束 |
+| 產品名稱 / Product / Name | Hero 文案 |
+| 一句話定位 / Tagline / Pitch | Hero 副標題、定調 |
+| 目標使用者 / Target Users / Audience | 色彩溫度、字型風格決策 |
+| 核心頁面 / Pages / Screens | Phase C 生成清單 |
+| 競品 / Competitors / References | Phase A 風格參考起點 |
+| 技術棧 / Tech Stack | Phase C 程式碼生成方案 |
+| 設計交接 / Design Notes / 調性 | 直接繼承的硬約束 |
 
-**竞品风格分析**：
-- PRD 提到竞品 → 优先查 `references/design-systems/` 是否已有预置
-- 有预置 → 读取该品牌规范作为起点
-- 无预置 → 调用 `scripts/crawl_website.py` 抓取提取
-- PRD 没提 → 按产品类型 + 调性从 `references/style-seeds.md` 匹配最近种子
+**競品風格分析**：
+- PRD 提到競品 → 優先查 `references/design-systems/` 是否已有預置
+- 有預置 → 讀取該品牌規範作為起點
+- 無預置 → 呼叫 `scripts/crawl_website.py` 抓取提取
+- PRD 沒提 → 按產品型別 + 調性從 `references/style-seeds.md` 匹配最近種子
 
-**提取不到关键字段时**：不要瞎猜，回到对话引导（A2）补齐。
+**提取不到關鍵欄位時**：不要瞎猜，回到對話引導（A2）補齊。
 
-**与用户确认**（示例）：
-> 我从 `{文件名}` 读到了：
-> - 产品：{名称} — {一句话定位}
-> - 目标用户：{画像}
-> - 参考竞品：{列表 或 "无"}
-> - 建议的风格方向：{1-2 个候选，各附一句理由}
+**與使用者確認**（示例）：
+> 我從 `{檔名}` 讀到了：
+> - 產品：{名稱} — {一句話定位}
+> - 目標使用者：{畫像}
+> - 參考競品：{列表 或 "無"}
+> - 建議的風格方向：{1-2 個候選，各附一句理由}
 >
-> 这个方向对吗？
+> 這個方向對嗎？
 
-确认后进入 A3（交互档位），然后 Phase B。
-
----
-
-## Phase B: 输出 DESIGN.md（必走）
-
-**必须生成 DESIGN.md 文件。** 按 `references/design-md-template.md` 模板输出 9 个章节：
-
-1. **Visual Theme & Atmosphere** — 设计哲学、氛围关键词、一句话定调
-2. **Color Palette & Roles** — 完整 CSS 变量定义（含 RGB 辅助值）
-3. **Typography Rules** — 字体族、Google Fonts URL、字号层级表、禁止字体
-4. **Component Stylings** — 按钮/卡片/导航/链接/标签等完整 CSS（含所有状态）
-5. **Layout Principles** — 网格、间距梯度、容器宽度
-6. **Depth & Elevation** — 阴影体系
-7. **Animation & Interaction** — 动效档位、入场/滚动/悬停/特效的完整代码
-8. **Do's and Don'ts** — 设计护栏、Anti-Patterns（至少 8 条）
-9. **Responsive Behavior** — 断点、触摸目标、折叠策略
-
-**文字装饰规则**：生成 Color Palette 和 Typography 后，按 `references/text-decoration-rules.md` 决策表对标题逐级判断是否添加渐变/投影。
-
-**展示摘要给用户确认**，确认后保存 DESIGN.md 到项目目录，再进入 Phase C。
+確認後進入 A3（互動檔位），然後 Phase B。
 
 ---
 
-## Phase C: 生成项目代码（必走）
+## Phase B: 輸出 DESIGN.md（必走）
 
-### C1. 确认场景 + 收集内容
+**必須生成 DESIGN.md 檔案。** 按 `references/design-md-template.md` 模板輸出 9 個章節：
 
-问用户做什么页面，收集具体内容。查阅 `references/scene-defaults.md` 获取该场景的布局和组件基线。
+1. **Visual Theme & Atmosphere** — 設計哲學、氛圍關鍵詞、一句話定調
+2. **Color Palette & Roles** — 完整 CSS 變數定義（含 RGB 輔助值）
+3. **Typography Rules** — 字型族、Google Fonts URL、字號層級表、禁止字型
+4. **Component Stylings** — 按鈕/卡片/導航/連結/標籤等完整 CSS（含所有狀態）
+5. **Layout Principles** — 網格、間距梯度、容器寬度
+6. **Depth & Elevation** — 陰影體系
+7. **Animation & Interaction** — 動效檔位、入場/滾動/懸停/特效的完整程式碼
+8. **Do's and Don'ts** — 設計護欄、Anti-Patterns（至少 8 條）
+9. **Responsive Behavior** — 斷點、觸控目標、摺疊策略
 
-**常见场景的内容需求**：
+**文字裝飾規則**：生成 Color Palette 和 Typography 后，按 `references/text-decoration-rules.md` 決策表對標題逐級判斷是否新增漸變/投影。
 
-| 场景 | 需要收集 |
+**展示摘要給使用者確認**，確認后儲存 DESIGN.md 到專案目錄，再進入 Phase C。
+
+---
+
+## Phase C: 生成專案程式碼（必走）
+
+### C1. 確認場景 + 收集內容
+
+問使用者做什麼頁面，收集具體內容。查閱 `references/scene-defaults.md` 獲取該場景的佈局和元件基線。
+
+**常見場景的內容需求**：
+
+| 場景 | 需要收集 |
 |------|---------|
-| Landing Page | 标题、副标题、Feature 列表、CTA、Social proof |
-| 个人站 / Portfolio | 名字、头衔、项目列表、关于、联系方式、博客列表 |
-| Blog | 名称、文章列表/内容、作者信息、分类标签 |
-| 产品页 | 产品名、卖点、功能截图、定价、FAQ |
+| Landing Page | 標題、副標題、Feature 列表、CTA、Social proof |
+| 個人站 / Portfolio | 名字、頭銜、專案列表、關於、聯絡方式、部落格列表 |
+| Blog | 名稱、文章列表/內容、作者資訊、分類標籤 |
+| 產品頁 | 產品名、賣點、功能截圖、定價、FAQ |
 
-用户信息不全时主动问；用户说"你先做，内容我后面填"则用合理的占位内容。
+使用者資訊不全時主動問；使用者說"你先做，內容我後面填"則用合理的佔位內容。
 
-### C2. 设计框架 + 生成代码
+### C2. 設計框架 + 生成程式碼
 
-1. **检查项目环境**：框架、路由、样式方案、现有组件和 assets
-2. **框架决策**：有项目 → 沿用；无项目 → 最小可行方案
-3. **严格按 DESIGN.md 生成**：
-   - 所有颜色通过 CSS 变量引用
-   - 字体按 DESIGN.md 定义使用
-   - 交互按 DESIGN.md 指定档位实现
-   - 不违反 Do's and Don'ts
-4. **图片策略**：用户素材 > 项目 assets > 参考站 URL 占位 > Unsplash
-5. **图标策略**：项目现有库 > lucide-react > 内联 SVG（参考 `references/icon-library.md`）
+1. **檢查專案環境**：框架、路由、樣式方案、現有元件和 assets
+2. **框架決策**：有專案 → 沿用；無專案 → 最小可行方案
+3. **嚴格按 DESIGN.md 生成**：
+   - 所有顏色通過 CSS 變數引用
+   - 字型按 DESIGN.md 定義使用
+   - 互動按 DESIGN.md 指定檔位實現
+   - 不違反 Do's and Don'ts
+4. **圖片策略**：使用者素材 > 專案 assets > 參考站 URL 佔位 > Unsplash
+5. **圖示策略**：專案現有庫 > lucide-react > 內聯 SVG（參考 `references/icon-library.md`）
 
-### C3. 审计
+### C3. 審計
 
-- **DESIGN.md 合规检查**：代码是否严格遵循规范
-- **参考物差异审计**（有参考时）：Token / 版式 / 字体 / 交互 / 素材逐项比对
-- **响应式验证**：至少移动端 + 桌面端
-- **质量清单**：读 `references/quality-checklist.md` 逐项自检
+- **DESIGN.md 合規檢查**：程式碼是否嚴格遵循規範
+- **參考物差異審計**（有參考時）：Token / 版式 / 字型 / 互動 / 素材逐項比對
+- **響應式驗證**：至少移動端 + 桌面端
+- **質量清單**：讀 `references/quality-checklist.md` 逐項自檢
 
 ---
 
-## 首页爆点原则（Landing Page 专属）
+## 首頁爆點原則（Landing Page 專屬）
 
-一个 Web 平台最重要的是**落地页（首页）**。其他页面保持规范、风格统一即可，唯有首页必须满足下面两条硬性原则，不可妥协。
+一個 Web 平臺最重要的是**落地頁（首頁）**。其他頁面保持規範、風格統一即可，唯有首頁必須滿足下面兩條硬性原則，不可妥協。
 
-### 原则一：3 个「卧槽」爆点 + 1 个巧思
+### 原則一：3 個「臥槽」爆點 + 1 個巧思
 
-爆点位置**固定**，每个位置必须有一个让用户"卧槽"的视觉冲击：
+爆點位置**固定**，每個位置必須有一個讓使用者"臥槽"的視覺衝擊：
 
 | # | 位置 | 要求 | 典型招式 |
 |---|------|------|---------|
-| **1** | **首屏 / Hero** | 加载瞬间就被动态/3D/巨型渐变震住 | 卡片星座爆发、WebGL 3D 物体、巨型标题 mask reveal、鼠标跟随光斑、3D 卡片堆 |
-| **2** | **首次滑动** | 离开首屏的第一个 section 必须有"钩子"继续吸引 | 宣言横滚带（大字 marquee）、数字爆发、分屏切割、卡片汇聚转场、全屏视频 |
-| **3** | **列表 / 阵列 / 枚举 / 展示区** | 不能是普通等大 grid | Bento 不等大布局、SpotlightCard hover 跟踪光、3D 倾斜卡片、抽象艺术顶 |
+| **1** | **首屏 / Hero** | 載入瞬間就被動態/3D/巨型漸變震住 | 卡片星座爆發、WebGL 3D 物體、巨型標題 mask reveal、滑鼠跟隨光斑、3D 卡片堆 |
+| **2** | **首次滑動** | 離開首屏的第一個 section 必須有"鉤子"繼續吸引 | 宣言橫滾帶（大字 marquee）、數字爆發、分屏切割、卡片匯聚轉場、全屏影片 |
+| **3** | **列表 / 陣列 / 列舉 / 展示區** | 不能是普通等大 grid | Bento 不等大布局、SpotlightCard hover 跟蹤光、3D 傾斜卡片、抽象藝術頂 |
 
-**1 个巧思设计点**：一处"不注意就错过、一注意到就笑"的细节。候选：
-- 交互反馈微动画（复制后的 sparkle + tooltip）
+**1 個巧思設計點**：一處"不注意就錯過、一注意到就笑"的細節。候選：
+- 互動反饋微動畫（複製后的 sparkle + tooltip）
 - 彩蛋（Konami / Ctrl+K 命令面板）
-- Meta 梗（关键词 hover 弹 "这就是本页用到的规范 →"）
-- 滚动到底的小惊喜（如"你看到这里了，谢谢"）
+- Meta 梗（關鍵詞 hover 彈 "這就是本頁用到的規範 →"）
+- 滾動到底的小驚喜（如"你看到這裡了，謝謝"）
 
-### 原则二：流畅 · 滑动无阻（不可破）
+### 原則二：流暢 · 滑動無阻（不可破）
 
-以下是性能红线，与爆点设计**同等优先级**。爆点炸裂但卡顿 = 零分。
+以下是效能紅線，與爆點設計**同等優先順序**。爆點炸裂但卡頓 = 零分。
 
-- **3D / WebGL**：全页最多 1 处，且必须 IntersectionObserver 不可见时暂停
+- **3D / WebGL**：全頁最多 1 處，且必須 IntersectionObserver 不可見時暫停
 - **`filter: blur()` on moving elements**：禁止。用 opacity + scale 做景深代替
-- **`backdrop-filter: blur()`**：值 ≤ 14px，且不覆盖大面积滚动区
-- **Lenis / scroll-jacking**：仅当 pin-scrub 真正必要时启用；普通页面用原生 `scroll-behavior: smooth`
-- **ScrollTrigger pin**：单页 ≤ 2 处（doubao 级叙事才解锁）
-- **pointermove 监听**：必须 rAF 节流
-- **Custom cursor 全局替换**：仅在气质强烈的设计类/工具类站点用，普通 SaaS 禁用
+- **`backdrop-filter: blur()`**：值 ≤ 14px，且不覆蓋大面積滾動區
+- **Lenis / scroll-jacking**：僅當 pin-scrub 真正必要時啟用；普通頁面用原生 `scroll-behavior: smooth`
+- **ScrollTrigger pin**：單頁 ≤ 2 處（doubao 級敘事才解鎖）
+- **pointermove 監聽**：必須 rAF 節流
+- **Custom cursor 全域性替換**：僅在氣質強烈的設計類/工具類站點用，普通 SaaS 停用
 
-### 实现建议（性能友好的爆点配方）
+### 實現建議（效能友好的爆點配方）
 
-这些组合实测在中等配置设备可达 60fps：
+這些組合實測在中等配置裝置可達 60fps：
 
-| 爆点 | 实现 | 性能成本 |
+| 爆點 | 實現 | 效能成本 |
 |------|------|---------|
-| **鼠标聚光灯** | CSS var `--mx/--my` + `radial-gradient(at var(--mx) var(--my))` | ⭐ 极低（单次 repaint）|
-| **卡片爆发入场** | GSAP 一次性 timeline（load 时 stagger 1.5s，结束即释放）| ⭐⭐ 低（仅 1 次）|
-| **宣言横滚带** | 纯 CSS `transform: translateX` keyframes | ⭐ 极低 |
-| **SpotlightCard** | 每张卡 `--mx/--my` + `::before` radial-gradient（rAF 节流）| ⭐⭐ 低 |
-| **大字 mask reveal** | 纯 CSS `clip-path` 一次性动画 | ⭐ 极低 |
-| **关键字渐变流动** | `background-position` 动画 | ⭐ 极低 |
+| **滑鼠聚光燈** | CSS var `--mx/--my` + `radial-gradient(at var(--mx) var(--my))` | ⭐ 極低（單次 repaint）|
+| **卡片爆發入場** | GSAP 一次性 timeline（load 時 stagger 1.5s，結束即釋放）| ⭐⭐ 低（僅 1 次）|
+| **宣言橫滾帶** | 純 CSS `transform: translateX` keyframes | ⭐ 極低 |
+| **SpotlightCard** | 每張卡 `--mx/--my` + `::before` radial-gradient（rAF 節流）| ⭐⭐ 低 |
+| **大字 mask reveal** | 純 CSS `clip-path` 一次性動畫 | ⭐ 極低 |
+| **關鍵字漸變流動** | `background-position` 動畫 | ⭐ 極低 |
 
-避免的反面组合：
-- ❌ 12+ 元素同时带 `filter: blur()` + `will-change`（GPU 内存爆）
-- ❌ Lenis + 多个 pin-scrub + WebGL（主线程堵死）
-- ❌ Three.js 常驻渲染不暂停（即使离开视窗也吃 FPS）
+避免的反面組合：
+- ❌ 12+ 元素同時帶 `filter: blur()` + `will-change`（GPU 記憶體爆）
+- ❌ Lenis + 多個 pin-scrub + WebGL（主執行緒堵死）
+- ❌ Three.js 常駐渲染不暫停（即使離開視窗也吃 FPS）
 
 ---
 
-## 100 分质量底线（硬性验收）
+## 100 分質量底線（硬性驗收）
 
-DESIGN.md + 生成代码必须**同时**满足以下全部条件，任何一条不满足都算未完成。完整细项见 `references/quality-checklist.md`，这里是最核心的红线：
+DESIGN.md + 生成程式碼必須**同時**滿足以下全部條件，任何一條不滿足都算未完成。完整細項見 `references/quality-checklist.md`，這裡是最核心的紅線：
 
-### DESIGN.md 红线
-- 9 个章节都有实质内容，不是模板占位
-- 每个组件样式包含 default / hover / active / focus / disabled **全部状态**
-- 所有颜色定义为 CSS 变量，含 RGB 辅助值（便于 rgba）
-- 字体有 `@import` URL + fallback stack
-- 动效档位明确（L1/L2/L3），对应依赖声明完整
-- Do's and Don'ts ≥ 8 条，其中 Don'ts ≥ 5 条
-- L2+ 必须包含 `prefers-reduced-motion` 降级
-- 响应式至少覆盖 Desktop + Mobile
+### DESIGN.md 紅線
+- 9 個章節都有實質內容，不是模板佔位
+- 每個元件樣式包含 default / hover / active / focus / disabled **全部狀態**
+- 所有顏色定義為 CSS 變數，含 RGB 輔助值（便於 rgba）
+- 字型有 `@import` URL + fallback stack
+- 動效檔位明確（L1/L2/L3），對應依賴宣告完整
+- Do's and Don'ts ≥ 8 條，其中 Don'ts ≥ 5 條
+- L2+ 必須包含 `prefers-reduced-motion` 降級
+- 響應式至少覆蓋 Desktop + Mobile
 
-### 代码红线
-- 所有颜色通过 CSS 变量引用，**零硬编码 hex**
-- 字体严格按 DESIGN.md 的 Typography Rules 实现
-- 每个可交互元素有 hover + focus 态
-- 入场动画已实现（至少 L1 级 fadeIn）
-- L2+ 实现滚动 reveal + 导航滚动态 + 视差
-- L3 实现 pin / 光标跟随 / 转场
-- 图片**禁用纯色块占位**（参考站 URL / Unsplash / 用户素材）
-- 图标用项目库 / lucide-react / 内联 SVG（Playful 调性外禁 Emoji）
-- 未违反 DESIGN.md Do's and Don'ts 中的任何一条
-- 移动端 ≤ 600px 无横向溢出，触摸目标 ≥ 44×44px
+### 程式碼紅線
+- 所有顏色通過 CSS 變數引用，**零硬編碼 hex**
+- 字型嚴格按 DESIGN.md 的 Typography Rules 實現
+- 每個可互動元素有 hover + focus 態
+- 入場動畫已實現（至少 L1 級 fadeIn）
+- L2+ 實現滾動 reveal + 導航滾動態 + 視差
+- L3 實現 pin / 游標跟隨 / 轉場
+- 圖片**停用純色塊佔位**（參考站 URL / Unsplash / 使用者素材）
+- 圖示用專案庫 / lucide-react / 內聯 SVG（Playful 調性外禁 Emoji）
+- 未違反 DESIGN.md Do's and Don'ts 中的任何一條
+- 移動端 ≤ 600px 無橫向溢位，觸控目標 ≥ 44×44px
 
-### 签名动效红线（L2+ 强制，L3 加倍）
+### 簽名動效紅線（L2+ 強制，L3 加倍）
 
-**任何 L2 及以上页面必须包含以下 6 类动效，缺一不可**。优先从 [vue-bits / reactbits](https://github.com/DavidHDev/vue-bits) 目录挑（查 `references/motion-library.md`），能复用源码就不要自己写。
+**任何 L2 及以上頁面必須包含以下 6 類動效，缺一不可**。優先從 [vue-bits / reactbits](https://github.com/DavidHDev/vue-bits) 目錄挑（查 `references/motion-library.md`），能複用原始碼就不要自己寫。
 
-| 类别 | 数量 | 落点 |
+| 類別 | 數量 | 落點 |
 |------|------|------|
-| Text Animation — Hero H1 | ≥ 1 | 大标题入场或持续态（如 SplitText / ShinyText / GradientText） |
-| Text Animation — Section H2 | ≥ 1 | 章节标题滚动触发（如 ScrollFloat / BlurText） |
-| Text Animation — Body / Label | ≥ 1 | 正文、eyebrow、代码块（如 ScrollReveal / TextType / ScrambleText） |
-| Animation — 元素级 | ≥ 1 | CTA 磁吸 / 卡片 hover / 光标 / 点击反馈（如 Magnet / GlareHover / ClickSpark） |
-| Component — 交互构件 | ≥ 1 | 卡片栈 / 画廊 / 导航 / 3D 卡片（如 CardSwap / ScrollStack / SpotlightCard / MagicBento） |
-| Background — 氛围层 | ≥ 1 | Hero 或全局背景（如 Aurora / Silk / Grainient / Threads） |
+| Text Animation — Hero H1 | ≥ 1 | 大標題入場或持續態（如 SplitText / ShinyText / GradientText） |
+| Text Animation — Section H2 | ≥ 1 | 章節標題滾動觸發（如 ScrollFloat / BlurText） |
+| Text Animation — Body / Label | ≥ 1 | 正文、eyebrow、程式碼塊（如 ScrollReveal / TextType / ScrambleText） |
+| Animation — 元素級 | ≥ 1 | CTA 磁吸 / 卡片 hover / 游標 / 點選反饋（如 Magnet / GlareHover / ClickSpark） |
+| Component — 互動構件 | ≥ 1 | 卡片棧 / 畫廊 / 導航 / 3D 卡片（如 CardSwap / ScrollStack / SpotlightCard / MagicBento） |
+| Background — 氛圍層 | ≥ 1 | Hero 或全域性背景（如 Aurora / Silk / Grainient / Threads） |
 
-**L3 级别的累计 signature moments ≥ 6 个**，但一页不超过 10 个（会躁）。
+**L3 級別的累計 signature moments ≥ 6 個**，但一頁不超過 10 個（會躁）。
 
-### L3 电影级 scroll-story 硬性加码
+### L3 電影級 scroll-story 硬性加碼
 
-L3 页面（用户说"像 doubao / apple / stripe 那样"、"要有 3D"、"普通"、"要电影感"等）除上述 6 类动效外，**必须再至少覆盖 3/4 的 scroll-story 模式**，详细模板见 `references/scroll-story-patterns.md`：
+L3 頁面（使用者說"像 doubao / apple / stripe 那樣"、"要有 3D"、"普通"、"要電影感"等）除上述 6 類動效外，**必須再至少覆蓋 3/4 的 scroll-story 模式**，詳細模板見 `references/scroll-story-patterns.md`：
 
-| 模式 | 必备 | 说明 |
+| 模式 | 必備 | 說明 |
 |------|------|------|
-| Pin-Scrub 场景 | ≥ 1 | section pin + 滚动驱动内容形变/时间线 |
-| 左 pin / 右 swap 容器替换 | ≥ 1 | 左侧标题固定、右侧容器按滚动切换多场景（doubao 产品四连同款） |
-| 汇聚/散开转场 | ≥ 1 | 多元素从散落飞向合并 或 反之（doubao hero→次屏同款） |
-| WebGL / 真 3D 签名时刻 | ≥ 1 | Three.js / OGL / Babylon，不能只用 CSS 3D 充数 |
+| Pin-Scrub 場景 | ≥ 1 | section pin + 滾動驅動內容形變/時間線 |
+| 左 pin / 右 swap 容器替換 | ≥ 1 | 左側標題固定、右側容器按滾動切換多場景（doubao 產品四連同款） |
+| 匯聚/散開轉場 | ≥ 1 | 多元素從散落飛向合併 或 反之（doubao hero→次屏同款） |
+| WebGL / 真 3D 簽名時刻 | ≥ 1 | Three.js / OGL / Babylon，不能只用 CSS 3D 充數 |
 
-**黄金判据**：**每 1-2 屏必有一个 signature moment**。连续三屏只有 fade reveal 就不合格。
+**黃金判據**：**每 1-2 屏必有一個 signature moment**。連續三屏只有 fade reveal 就不合格。
 
-**性能底线**：
-- 单页 WebGL scene ≤ 1 个
-- 移动端自动降级（见 scroll-story-patterns.md 性能章节）
-- `prefers-reduced-motion` 必须有完整降级路径
+**效能底線**：
+- 單頁 WebGL scene ≤ 1 個
+- 移動端自動降級（見 scroll-story-patterns.md 效能章節）
+- `prefers-reduced-motion` 必須有完整降級路徑
 
-**风格适配**：严格参照 `references/motion-library.md` 的「按风格 × 场景推荐组合」——Dark Editorial 不要用 GlitchText，Playful 不要用 Aurora，调性一致比酷炫重要。
+**風格适配**：嚴格參照 `references/motion-library.md` 的「按風格 × 場景推荐組合」——Dark Editorial 不要用 GlitchText，Playful 不要用 Aurora，調性一致比酷炫重要。
 
-**性能底线**：
-- 单页重背景（WebGL）≤ 1 个
-- 移动端自动降级：重背景 → 静态渐变；3D 组件 → 2D
-- Cursor 效果仅在 `matchMedia('(hover: hover)')` 下启用
-- 所有效果必须有 `prefers-reduced-motion` 降级路径
+**效能底線**：
+- 單頁重背景（WebGL）≤ 1 個
+- 移動端自動降級：重背景 → 靜態漸變；3D 元件 → 2D
+- Cursor 效果僅在 `matchMedia('(hover: hover)')` 下啟用
+- 所有效果必須有 `prefers-reduced-motion` 降級路徑
 
-**致谢**：使用 vue-bits / reactbits 源码时，在页面 footer 或 README 注明 "Motion effects derived from [vue-bits](https://github.com/DavidHDev/vue-bits) by DavidHDev (MIT)"。
+**致謝**：使用 vue-bits / reactbits 原始碼時，在頁面 footer 或 README 註明 "Motion effects derived from [vue-bits](https://github.com/DavidHDev/vue-bits) by DavidHDev (MIT)"。
 
-### 参考物对齐审计（有参考时）
-- 已数清参考站 section 数量
-- 色板 / 字体 / 间距与参考数值对齐（或明确说明故意偏离的设计理由）
-- 参考站有滚动动效 → 必做 motion audit 并实现对应档位
-- 生成后显式做一次差异审计：列出哪些对齐、哪些故意不同
+### 參考物對齊審計（有參考時）
+- 已數清參考站 section 數量
+- 色板 / 字型 / 間距與參考數值對齊（或明確說明故意偏離的設計理由）
+- 參考站有滾動動效 → 必做 motion audit 並實現對應檔位
+- 生成后顯式做一次差異審計：列出哪些對齊、哪些故意不同
 
-**审计不是可选步骤**。Phase C 代码写完必须逐条过一遍，未过的就地修。
-
----
-
-## 技术栈原则
-
-- **框架**：沿用项目已有栈；无则最小可行方案（静态 HTML 或 Vite）
-- **样式**：沿用已有方案；不强行引入新依赖
-- **组件**：有库复用；无库手写语义化组件
-- **动画**：CSS 优先；L2 可用 IntersectionObserver；L3 允许 GSAP/ScrollTrigger/Lenis
-- **图片**：禁止纯色块占位；占位图在代码顶部 `const IMG` 统一管理
+**審計不是可選步驟**。Phase C 程式碼寫完必須逐條過一遍，未過的就地修。
 
 ---
 
-## 语言规则
+## 技術棧原則
 
-**默认跟随输入语言**，不强塞：
+- **框架**：沿用專案已有棧；無則最小可行方案（靜態 HTML 或 Vite）
+- **樣式**：沿用已有方案；不強行引入新依賴
+- **元件**：有庫複用；無庫手寫語義化元件
+- **動畫**：CSS 優先；L2 可用 IntersectionObserver；L3 允許 GSAP/ScrollTrigger/Lenis
+- **圖片**：禁止純色塊佔位；佔點陣圖在程式碼頂部 `const IMG` 統一管理
 
-| 输入信号 | 默认生成语言 |
+---
+
+## 語言規則
+
+**預設跟隨輸入語言**，不強塞：
+
+| 輸入訊號 | 預設生成語言 |
 |----------|--------------|
-| 参考 URL / 截图 / PRD 为中文 | 中文 |
-| 参考 URL / 截图 / PRD 为英文 | 英文 |
-| 用户对话语言 | 作为兜底判定 |
+| 參考 URL / 截圖 / PRD 為中文 | 中文 |
+| 參考 URL / 截圖 / PRD 為英文 | 英文 |
+| 使用者對話語言 | 作為兜底判定 |
 
-**多语言切换按需加**：
-- 仅当用户明确要求，或 PRD 说明产品面向多市场时才加 i18n
-- **不要默认往每个页面塞 locale 对象和语言切换器**——单语言产品里这是噪音
-- 需要 i18n 时：
-  - 文案集中到独立 locale 对象（`const messages = { zh: {...}, en: {...} }`），组件内 `t('hero.title')` 引用
-  - 切换即时生效，不要刷新
-  - 简单项目：顶层 locale + React state；Next.js：`next-intl` / `i18next`；纯 HTML：`<select>` + `data-lang`
+**多語言切換按需加**：
+- 僅當使用者明確要求，或 PRD 說明產品面向多市場時才加 i18n
+- **不要預設往每個頁面塞 locale 物件和語言切換器**——單語言產品里這是噪音
+- 需要 i18n 時：
+  - 文案集中到獨立 locale 物件（`const messages = { zh: {...}, en: {...} }`），元件內 `t('hero.title')` 引用
+  - 切換即時生效，不要重新整理
+  - 簡單專案：頂層 locale + React state；Next.js：`next-intl` / `i18next`；純 HTML：`<select>` + `data-lang`
 
-**中文页面专属要求**（生成中文内容时必守）：
-- 中文字体用 Noto Sans SC / Noto Serif SC / LXGW WenKai 等中文字族，禁止只配英文字体让系统回退
+**中文頁面專屬要求**（生成中文內容時必守）：
+- 中文字型用 Noto Sans SC / Noto Serif SC / LXGW WenKai 等中文字族，禁止只配英文字型讓系統回退
 - 行高 ≥ 1.7，字距 `letter-spacing: 0.02em`
-- 正文字号 ≥ 15px，长篇阅读 ≥ 16px
-- 中英混排：中文字族在前，英文字族（Inter / DM Sans）作为 fallback，靠 `font-family` 链接入
+- 正文字號 ≥ 15px，長篇閱讀 ≥ 16px
+- 中英混排：中文字族在前，英文字族（Inter / DM Sans）作為 fallback，靠 `font-family` 連結入
 
 ---
 
-## 参考文件索引
+## 參考檔案索引
 
-| 文件 | 内容 | 何时读取 |
+| 檔案 | 內容 | 何時讀取 |
 |------|------|----------|
-| `references/design-md-template.md` | DESIGN.md 输出模板（9 章节） | Phase B |
-| `references/interaction-patterns.md` | L1/L2/L3 三档交互代码库 | Phase A + B |
-| `references/motion-library.md` | vue-bits/reactbits 效果目录 + 按风格推荐组合 | Phase B（选型）+ Phase C（落地） |
-| `references/scroll-story-patterns.md` | L3 电影级 scroll-story 招式库（卡片星座 / 左pin右swap / 汇聚转场 / WebGL 签名） | Phase B（L3 判定后）+ Phase C |
-| `references/style-seeds.md` | 10 种风格种子 → Token 映射 | Phase A 对话时 |
-| `references/scene-defaults.md` | 7 种场景的布局/组件/交互基线 | Phase C |
-| `references/text-decoration-rules.md` | 文字渐变/投影决策表 | Phase B |
-| `references/icon-library.md` | lucide-react 图标速查 | Phase C |
-| `references/quality-checklist.md` | 质量检查清单 | Phase C 审计 |
-| `references/design-systems/INDEX.md` | 58 个品牌设计系统索引 | Phase A 用户提到品牌时 |
-| `references/design-systems/{name}.md` | 单个品牌完整设计规范 | 按需读取，禁止全量加载 |
-| `scripts/crawl_website.py` | Playwright 爬虫（截图 + Token + 结构） | Phase A 首选 |
-| `scripts/extract_design_tokens.py` | 轻量 Token 提取（静态站备选） | Phase A 备选 |
-| `scripts/fetch_unsplash_images.py` | 占位图候选 URL | Phase C |
+| `references/design-md-template.md` | DESIGN.md 輸出模板（9 章節） | Phase B |
+| `references/interaction-patterns.md` | L1/L2/L3 三檔互動程式碼庫 | Phase A + B |
+| `references/motion-library.md` | vue-bits/reactbits 效果目錄 + 按風格推荐組合 | Phase B（選型）+ Phase C（落地） |
+| `references/scroll-story-patterns.md` | L3 電影級 scroll-story 招式庫（卡片星座 / 左pin右swap / 匯聚轉場 / WebGL 簽名） | Phase B（L3 判定后）+ Phase C |
+| `references/style-seeds.md` | 10 种風格種子 → Token 對映 | Phase A 對話時 |
+| `references/scene-defaults.md` | 7 种場景的佈局/元件/互動基線 | Phase C |
+| `references/text-decoration-rules.md` | 文字漸變/投影決策表 | Phase B |
+| `references/icon-library.md` | lucide-react 圖示速查 | Phase C |
+| `references/quality-checklist.md` | 質量檢查清單 | Phase C 審計 |
+| `references/design-systems/INDEX.md` | 58 個品牌設計系統索引 | Phase A 使用者提到品牌時 |
+| `references/design-systems/{name}.md` | 單個品牌完整設計規範 | 按需讀取，禁止全量載入 |
+| `scripts/crawl_website.py` | Playwright 爬蟲（截圖 + Token + 結構） | Phase A 首選 |
+| `scripts/extract_design_tokens.py` | 輕量 Token 提取（靜態站備選） | Phase A 備選 |
+| `scripts/fetch_unsplash_images.py` | 佔點陣圖候選 URL | Phase C |

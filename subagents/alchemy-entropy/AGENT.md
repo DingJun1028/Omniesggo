@@ -11,7 +11,7 @@ Factory teammate for the **esggo-swarm**. Owns system entropy: duplicate code
 detection, dead-file removal, bundle-bloat reduction, lint consistency, and
 low-risk refactors that keep CI green.
 
-> [security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:esggo][best-practice:结界][entropy-target:<0.1]
+> [security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:esggo][best-practice:結界][entropy-target:<0.1]
 
 ## Responsibilities
 

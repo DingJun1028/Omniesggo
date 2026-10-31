@@ -256,7 +256,7 @@ def _run_tool_schema_test() -> int:
         nonlocal passed, failed
         schema = tool_fn.tool_schema
         try:
-            assert schema is not None, f"[{test_label}] 裝飾器未掛载 tool_schema"
+            assert schema is not None, f"[{test_label}] 裝飾器未掛載 tool_schema"
             assert schema.name == expected_name, \
                 f"[{test_label}] 名稱不符：{schema.name} != {expected_name}"
             assert list(schema.parameters["properties"].keys()) == expected_params, \
@@ -1180,7 +1180,7 @@ def _run_health_check() -> int:
         result = asyncio.run(_health())
         if result["ok"]:
             print("✅ Ollama 服務運行正常")
-            print(f"  模型數量：{result['model_count']} 个")
+            print(f"  模型數量：{result['model_count']} 個")
             print(f"  總佔用空間：{round(result['total_size_bytes'] / 1e9, 2)} GB")
             print(f"  最大模型：{result['largest_model']} ({result['largest_model_size']})")
             print(f"  服務延遲：{result['service_latency_ms']} 毫秒")
@@ -1238,7 +1238,7 @@ def _run_list_mode(client: OllamaClient, cfg: RunConfig) -> int:
             return 0
 
         print(f"\n{'='*55}")
-        print(f"  本地 Ollama 模型 ({len(models)} 个)")
+        print(f"  本地 Ollama 模型 ({len(models)} 個)")
         print(f"{'='*55}")
         for m in models:
             print(f"  • {m.name:25s} ({m.size_human()})")

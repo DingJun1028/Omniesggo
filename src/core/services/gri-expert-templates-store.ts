@@ -353,7 +353,7 @@ const _C02_P09: ExpertParagraph = {
   placeholders: ['company_name', 'report_year', 'board_awareness_program', 'director_training_topics', 'collective_awareness_score'],
   content: `<h3>董事會永續意識與集體認知</h3>
 <p>{{company_name}} 透過 {{board_awareness_program}} 持續提升董事會成員的永續意識與專業認知。{{report_year}} 年董事會永續訓練主題包括：{{director_training_topics}}。</p>
-<p>訓練方式包括：內部專家講座、外部講師專題演講、標竿企業參訪、案例研讨及線上課程等。{{report_year}} 年董事會每人平均永續訓練時數達 {{avg_sustainability_training_hours}} 小時，較法規要求 {{regulatory_training_hours}} 小時高出 {{training_excess_ratio}}%。</p>
+<p>訓練方式包括：內部專家講座、外部講師專題演講、標竿企業參訪、案例研討及線上課程等。{{report_year}} 年董事會每人平均永續訓練時數達 {{avg_sustainability_training_hours}} 小時，較法規要求 {{regulatory_training_hours}} 小時高出 {{training_excess_ratio}}%。</p>
 <p>為評估董事會對永續議題的認知程度，{{report_year}} 年執行 {{collective_awareness_score}} 董事會永續認知評量，結果顯示董事會對氣候風險、人權議題、生物多樣性等重大永續議題的認知度達 {{awareness_score}} 分（滿分 100），顯示董事會已具備充分的永續治理能量。</p>`,
   kpiIndicators: ['平均訓練時數', '認知評量分數', '訓練主題數'],
   chartTemplate: {

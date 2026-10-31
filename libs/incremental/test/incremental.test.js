@@ -6,7 +6,7 @@ import { APIGateway } from '../src/api-gateway';
 import { CacheManager } from '../src/cache-manager';
 import { ErrorHandler } from '../src/error-handler';
 import { hashLock, generateTraceableId } from '../src/stream-buffer';
-describe('5T 合規增量輸出架構 (圣典 §12.0/§12.1)', () => {
+describe('5T 合規增量輸出架構 (聖典 §12.0/§12.1)', () => {
     it('T1 Traceable: 事件帶 source 溯源標記', async () => {
         const bus = new EventBus();
         const id = await bus.publish('my-worker', { x: 1 });

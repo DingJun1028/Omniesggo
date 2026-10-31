@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Entropy audit runner for ESG GO (alchemy-entropy role)
-# [security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:esggo][best-practice:结界]
+# [security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:esggo][best-practice:結界]
 #
 # Re-runs the checks behind _analysis/entropy-audit/ENTROPY-AUDIT-2026-08-01.md
 # Usage: bash scripts/run-entropy-audit.sh [repo-root]

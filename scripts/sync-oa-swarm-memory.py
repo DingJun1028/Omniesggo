@@ -14,7 +14,7 @@ scripts/sync_oa_swarm_memory.py — OA-Team 蜂王↔蜂后 記憶狀態雙向�
 頻率：可異步（--cron N 每 N 秒 loop，或 once 單次）
 機制：scp + mtime 比較（只傳較新檔，不互相覆蓋，天然雙向收斂）
 
-[agent:01][squad:智庫聖所][lifecycle:active][p0][platform:vps][best-practice:结界]
+[agent:01][squad:智庫聖所][lifecycle:active][p0][platform:vps][best-practice:結界]
 """
 
 import os

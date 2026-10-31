@@ -20,7 +20,7 @@ export const marketAdaptationRune = defineRune({
     } else {
       adaptation_strategy = "強調財務重大性與投資者溝通。";
       rewritten_snippet = "我們聚焦於 ESG 對企業長期財務表現的影響，並對標 SASB 產業指標。";
-      cultural_nuance = "北美投資者關注重點在於風險缓解與機會捕捉。";
+      cultural_nuance = "北美投資者關注重點在於風險緩解與機會捕捉。";
     }
 
     return `[市場適配] 目標：${target_market}。策略：${adaptation_strategy}。建議文案片段：${rewritten_snippet}`;

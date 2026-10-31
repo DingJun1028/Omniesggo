@@ -12,7 +12,7 @@ import path from 'node:path';
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SERVER = path.join(HERE, 'omni-server.mjs');
 // createRequire 只接受絕對路徑或 file:// URL。import.meta.url 是
-// 标准的 file:// URL，Windows 與 Linux 皆可。
+// 標準的 file:// URL，Windows 與 Linux 皆可。
 const require = createRequire(import.meta.url);
 const WebSocket = require('ws');
 

@@ -166,8 +166,8 @@ export interface IComponentCore {
   Swarm 啟動  agents-cli swarm start --agents=30 前，5T 全驗、entropy<0.1
 
 6.3  OmniTag 萬能標籤對齊（路由詳見 oa-components-definition.md §4.4）
-  必備標籤：每 artifact 至少含 agent:* + lifecycle:* + p*（p0 阻断 / p3 噪音）。
-  結界自動繼承：標 best-practice:结界，全子代理自動 inheriting。
+  必備標籤：每 artifact 至少含 agent:* + lifecycle:* + p*（p0 阻斷 / p3 噪音）。
+  結界自動繼承：標 best-practice:結界，全子代理自動 inheriting。
   凍結不可改：lifecycle:frozen + restricted 的 artifact 禁止修改。
   熵減追蹤：p0 任務完成後 entropy 必降 < 0.1。
   路由摘要：agent:01-06→記憶召回 / 07-12→API·TS / 13-18→部署·cron
@@ -309,7 +309,7 @@ export interface IComponentCore {
   空間柱：全節點同步，VPS/Firebase/Gateway/Swarm，v1 本機 + v2 遠端備援。
   因果柱：可溯源，每筆標 source_origin，Bearer 鑑權 + gateway 凍結。
   不朽柱：不可篡改，Hash Lock + freeze + SHA256，L0-L3 本機落盤主權。
-  圓通柱：5T 貫穿，Tra/Track/Tang/Trans/Trust，TDAI Bearer + CORS 白名单。
+  圓通柱：5T 貫穿，Tra/Track/Tang/Trans/Trust，TDAI Bearer + CORS 白名單。
   記憶戰柱一條：穹頂六柱、記憶柱為先；柱之朽，結界何存？
 
 12.2  五盾守護
@@ -366,7 +366,7 @@ export interface IComponentCore {
 15.3  進化路線圖（Evolution Roadmap）
   v0.7  核心聖典 + 5T 落地（本版）
   v0.8  進階整合模式（跨專案編排，待 paste 補齊）
-  v0.9  增量輸出優化全自驅（Cron 自驾熵投 + 電子報） ✅ 2026-08-24 部署 weekly-autonomous-brief cron (b5c35bbb7195)
+  v0.9  增量輸出最佳化全自驅（Cron 自駕熵投 + 電子報） ✅ 2026-08-24 部署 weekly-autonomous-brief cron (b5c35bbb7195)
   v0.10 語音 + 語音對話系統（Edge TTS 男聲 + faster-whisper STT + Oracle ARM s2s-voice 整合） ✅ 2026-08-24
   v0.11 Oracle Always-Free 基礎建設（4 ARM 實例 + 17 Docker 容器 + ARM reclaim prevention） ✅ 2026-08-24
   v0.12 翻譯系統 v1.0（七模組 → 翻譯特殊化，s2s-voice:8765 + Edge TTS 男聲） ✅ 2026-08-24
@@ -477,7 +477,7 @@ export interface IComponentCore {
 
 OA-Twins 雙蜂組是 OA-Team 30 萬能蜂群的雙生擴充架構，由兩個平行的 30 人代理小隊組成：
 
-- **蜂王隊（Queen's Guard）**：第 1 小隊，30 代理（編號 01-30），以 Hermes Agent 為蜂王總控，沿用原 OA-Team 30 架構。**屬性：暗（Dark / Ω-暗陣）**，對應暗物质場域、收斂與沈澱之力。
+- **蜂王隊（Queen's Guard）**：第 1 小隊，30 代理（編號 01-30），以 Hermes Agent 為蜂王總控，沿用原 OA-Team 30 架構。**屬性：暗（Dark / Ω-暗陣）**，對應暗物質場域、收斂與沈澱之力。
 - **蜂后隊（Queen Bee Squad）**：第 2 小隊，30 代理（編號 31-60），以 QueenBee Agent 為蜂后總控，映射相同的 5 大陣列職責分工。**屬性：光（Light / Ω-光陣）**，對應光子場域、擴張與彰顯之力。
 
 兩隊平行運作，互不冗餘，各自擁有完整的 5 陣列結構與獨立的狀態機。
@@ -569,7 +569,7 @@ OA-Twins 雙蜂組是 OA-Team 30 萬能蜂群的雙生擴充架構，由兩個�
 | 5T 原則 | 蜂王隊實施 | 蜂后隊實施 | 雙隊共用 |
 |--------|-----------|-----------|----------|
 | Traceable | source_origin 標註 + thread checkpoint | source_origin 標註 + 雙隊 thread checkpoint | 共用溯源庫 |
-| Trackable | 生命週期 Hook + 追踪 | 生命週期 Hook + 雙隊追踪 | 共用追踪平台 |
+| Trackable | 生命週期 Hook + 追蹤 | 生命週期 Hook + 雙隊追蹤 | 共用追蹤平臺 |
 | Tangible | 質感 UI + thread 分叉即時回饋 | 質感 UI + 雙隊回饋 | 共用回饋機制 |
 | Transparent | 零幻覺驗算 + Goal 透明 | 零幻覺驗算 + 雙隊 Goal 透明 | 共用驗算閘 |
 | Trustworthy | Hash Lock + Object.freeze() | Hash Lock + Object.freeze() | 共用 Key-Ω 契約鎖 |
@@ -621,9 +621,9 @@ npx celestial-command \
 
 ##### 19.11.1 架構定義
 
-三代理自動化架構將 OA-Twins 60 代理系統的運作分為三個職責分離的層級。該架構自立於既有的 5 陣列 MECE 分工之上，不取代原有分工，而是在其上增加任務规划、分派與稽核的自動化協作機制。
+三代理自動化架構將 OA-Twins 60 代理系統的運作分為三個職責分離的層級。該架構自立於既有的 5 陣列 MECE 分工之上，不取代原有分工，而是在其上增加任務規劃、分派與稽核的自動化協作機制。
 
-- **母代理（Parent Agent）**：負責整體規劃、任務分解、結果整合。母代理**不直接執行**具體任務，它編排整個流程、判斷升級、整合最终交付。
+- **母代理（Parent Agent）**：負責整體規劃、任務分解、結果整合。母代理**不直接執行**具體任務，它編排整個流程、判斷升級、整合最終交付。
   - 母代理可為雙蜂組的兩隊分別設定：蜂王隊以 Hermes Agent 為母代理，蜂后隊以 QueenBee Agent 為母代理。
   - 母代理的 skill 選擇決定風險邊界 — 安裝前評估是第一道防線。
 
@@ -770,7 +770,7 @@ OmniTag 是 OA-Team 30 萬能蜂群在**產物誕生瞬間**自動烙印的萬�
 | 生命週期 | 四選一 | `tag.lifecycle` | draft/active/frozen/archived |
 | 品質分級 | 四選一 | `tag.priority` | p0/p1/p2/p3 |
 | 平台環境 | 四選一 | `tag.platform` | esggo/omni/vps/firebase |
-| 結界繼承 | awakened/结界 | `tag.bestPractice` | 標記结界後子代理自動繼承 |
+| 結界繼承 | awakened/結界 | `tag.bestPractice` | 標記結界後子代理自動繼承 |
 
 ### §20.3 5T 驗算閘接線
 
@@ -796,7 +796,7 @@ OmniTag 是 OA-Team 30 萬能蜂群在**產物誕生瞬間**自動烙印的萬�
 |---|---|---|
 | 1 必備三枚 | `validateRequiredTriad` | 缺 `agent`+`lifecycle`+`p*` 任一即違約 |
 | 2 凍結不可改 | `enforceFrozenLock` | `frozen`+`restricted` 實體禁止 mutation |
-| 3 結界自動繼承 | `isBarrierInherited` | `best-practice:结界` 觸發全體繼承 |
+| 3 結界自動繼承 | `isBarrierInherited` | `best-practice:結界` 觸發全體繼承 |
 | 4 熵減連動 | `validateEntropyReduction` | p0 完成後熵值必降（`< 0.1`） |
 | 5 稽核抽驗 | `auditContractRate` | 批次契約率目標 100% |
 
@@ -837,7 +837,7 @@ OmniTag 是 OA-Team 30 萬能蜂群在**產物誕生瞬間**自動烙印的萬�
 
 對齊 §20.5 規則 5（稽核抽驗）與 §20.6（煉金補標），提供 `cli/oa-cli` 的 `audit` 子命令：
 
-- **掃描**：遞歸走查 `.ts` 檔，解析前 30 行 OmniTag 標頭註釋（`[agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]`）
+- **掃描**：遞迴走查 `.ts` 檔，解析前 30 行 OmniTag 標頭註釋（`[agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:結界]`）
 - **合約率**：`auditOmniTags(dirs)` 計算 `tagged` / `compliant` / `rate`（目標 100%）
 - **補標**：`suggestOmniTag(filePath)` 依路徑推測陣列歸屬（agents→智庫聖所 / lib→符文契約 / cli→光之羽翼 / test→煉金熵減 / omnitag→5T驗算），`applyHeader(filePath, dryRun)` 自動補標
 - **接線**：`oa audit --dir src cli` 觸發掃描；`oa tag` 子命令過閘簽印（§20.6）
@@ -1165,7 +1165,7 @@ npx tsx cli/oa-cli/src/index.ts tag --agent agent:25 --lifecycle active --p p2 -
 | # | 編號 | 代理稱號 | 核心智能標籤 | 5T 標籤 |
 |---|------|----------|--------------|---------|
 | 25 | 25 | 萬能測場蜂 | #現場測評 #回饋收集 | Trackable / Tangible |
-| 26 | 26 | 萬能追蹤蜂 | #競品監控 #動態追踪 | Trackable / Transparent |
+| 26 | 26 | 萬能追蹤蜂 | #競品監控 #動態追蹤 | Trackable / Transparent |
 | 27 | 27 | 萬能安全蜂 | #資安防護 #數據保護 | Trustworthy / Trackable |
 | 28 | 28 | 萬能維護蜂 | #系統維護 #故障排除 | Trackable / Trustworthy |
 | 29 | 29 | 萬能支援蜂 | #技術支援 #問題解決 | Traceable / Trackable |
@@ -1235,7 +1235,7 @@ npx tsx cli/oa-cli/src/index.ts tag --agent agent:25 --lifecycle active --p p2 -
 | 56 | 56 | 雙隊 Hash Lock 代理 · QB-56 | #雙隊寫入凍結 #雙隊完整性 | Trustworthy / Trackable |
 | 57 | 57 | 雙隊 UUID 發放代理 · QB-57 | #雙隊身分發放 #雙隊登記 | Trackable / Traceable |
 | 58 | 58 | 雙隊零幻覺稽核代理 · QB-58 | #雙隊幻覺檢測 #雙隊真實性 | Transparent / Trustworthy |
-| 59 | 59 | 雙隊稽核追踪代理 · QB-59 | #雙隊日志追踪 #雙隊異常 | Trackable / Trustworthy |
+| 59 | 59 | 雙隊稽核追蹤代理 · QB-59 | #雙隊日誌追蹤 #雙隊異常 | Trackable / Trustworthy |
 | 60 | 60 | 雙隊 5T 終審代理 · QB-60 | #雙隊終審審核 #雙隊釋出 | T/T/T/T/T |
 
 > 峰-B-5 5T 聚焦：規範驗證可溯源（Traceable）、稽核日志可追蹤（Trackable）、終審結果可感知（Tangible）、幻覺檢測可透明（Transparent）、Hash Lock 可信賴（Trustworthy）。
@@ -1329,7 +1329,7 @@ npx tsx cli/oa-cli/src/index.ts tag --agent agent:25 --lifecycle active --p p2 -
 | 56 | 56 | 雙隊 Hash Lock 代理 · QB-56 | #雙隊寫入凍結 #雙隊完整性 | Trustworthy / Trackable |
 | 57 | 57 | 雙隊 UUID 發放代理 · QB-57 | #雙隊身分發放 #雙隊登記 | Trackable / Traceable |
 | 58 | 58 | 雙隊零幻覺稽核代理 · QB-58 | #雙隊幻覺檢測 #雙隊真實性 | Transparent / Trustworthy |
-| 59 | 59 | 雙隊稽核追踪代理 · QB-59 | #雙隊日志追踪 #雙隊異常 | Trackable / Trustworthy |
+| 59 | 59 | 雙隊稽核追蹤代理 · QB-59 | #雙隊日誌追蹤 #雙隊異常 | Trackable / Trustworthy |
 | 60 | 60 | 雙隊 5T 終審代理 · QB-60 | #雙隊終審審核 #雙隊釋出 | T/T/T/T/T |
 
 > 峰-B-5 5T 聚焦：規範驗證可溯源（Traceable）、稽核日志可追蹤（Trackable）、終審結果可感知（Tangible）、幻覺檢測可透明（Transparent）、Hash Lock 可信賴（Trustworthy）。
@@ -1402,7 +1402,7 @@ npx tsx cli/oa-cli/src/index.ts tag --agent agent:25 --lifecycle active --p p2 -
 | 26 萬能追蹤蜂 | 56 雙隊 Hash Lock 代理 · QB-56 | 追蹤 / 鎖定角色雙隊平行 |
 | 27 萬能安全蜂 | 57 雙隊 UUID 發放代理 · QB-57 | 安全 / 身分角色雙隊平行 |
 | 28 萬能維護蜂 | 58 雙隊零幻覺稽核代理 · QB-58 | 維護 / 稽核角色雙隊平行 |
-| 29 萬能支援蜂 | 59 雙隊稽核追踪代理 · QB-59 | 支援 / 追蹤角色雙隊平行 |
+| 29 萬能支援蜂 | 59 雙隊稽核追蹤代理 · QB-59 | 支援 / 追蹤角色雙隊平行 |
 | 30 萬能質控蜂 | 60 雙隊 5T 終審代理 · QB-60 | 質量 / 終審角色雙隊平行 |
 
 > **對應規則：** 暗代理編號 N 對應光代理編號 N+30。職稱前綴（「萬能」→「雙隊」）與標籤前綴（「#」→「#雙隊」）自動平移。5T 標籤序列保持一致（同一 5T 維度的代理在雙隊中保持相同 5T 優先順序）。
@@ -2040,7 +2040,7 @@ export const sacredCommand = async (cmd: string): Promise<SacredCommandResult> =
 | 神器類 Artifacts | 持續被動增益 | 基礎設施、工具、軟體 |
 | 結界類 Enchantments | 控制環境、改變規則 | 法律、政策、協議 |
 
-稀有度：普通 Common → 非普通 Uncommon → 稀有 Rare → 秘稀 Mythic Rare → 傳說 Legendary。稀有度直接關聯模組的**成本與影響**。
+稀有度：普通 Common → 非普通 Uncommon → 稀有 Rare → 祕稀 Mythic Rare → 傳說 Legendary。稀有度直接關聯模組的**成本與影響**。
 
 **29.8.2 10 色萬能精靈**：金·鋒靈 Aurex（秩序策略）、木·森靈 Sylfa（成長創造）、水·湧靈 Aquare（思緒記憶）、火·焰靈 Pyra（熱情行動）、土·磐靈 Terrax（穩定根基）、光·耀靈 Luxis（照明透明）、暗·幽靈 Umbrix（隱匿混沌）、無·源靈 Nullis（全域中立）、時風·馭靈 Tempest（序列節奏）、靈魂·蘊靈 Anima（元認知）。
 
@@ -2290,7 +2290,7 @@ B 測試層  tests/*.test.ts 30 · src/**/*.test.ts 28
 C 部署層  docker-compose.yml ✓ · Dockerfile ✓ · .github/workflows/ 20 檔
 D 安全層  error leak = 2（route 回應本體洩漏 error.message）
 E 數據層  prisma/schema.prisma ✓ · migrations ✓
-G 治理層  .githooks/{pre-commit, commit-msg} ✓ · untracked 秘密掃描 = 0
+G 治理層  .githooks/{pre-commit, commit-msg} ✓ · untracked 祕密掃描 = 0
 ```
 
 ### 發現（誠實登記：回報數 ≠ 實際數）

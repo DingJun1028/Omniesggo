@@ -1,11 +1,11 @@
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * src/lib/report-brand-theme.ts
  *
  * ESGGO 品牌一體化報告主題系統
  * - 深色 / 淺色主題
  * - 5T 色彩映射
- * - 统一字體/間距/邊界系統
+ * - 統一字型/間距/邊界系統
  */
 
 export interface ReportBrandTheme {

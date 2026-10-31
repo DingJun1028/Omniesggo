@@ -1,35 +1,35 @@
 # Scroll-Story Patterns
 
-L3 级别的"电影式" scroll 叙事招式库。参考标杆：doubao.com/about、apple.com/vision-pro、stripe.com、tome.app、readme.com、igloo.inc。
+L3 級別的"電影式" scroll 敘事招式庫。參考標杆：doubao.com/about、apple.com/vision-pro、stripe.com、tome.app、readme.com、igloo.inc。
 
-**触发条件**：以下任一满足时必走此级别，不再用"L2 reveal"兜底：
-- 用户明确要求"像 doubao / apple / stripe 那样的滚动效果"
-- 用户说"普通"、"单调"、"要有滚动驱动"、"要 3D"、"要电影感"
-- 页面定位是"方法论、品牌、产品宣言"而非纯信息型
+**觸發條件**：以下任一滿足時必走此級別，不再用"L2 reveal"兜底：
+- 使用者明確要求"像 doubao / apple / stripe 那樣的滾動效果"
+- 使用者說"普通"、"單調"、"要有滾動驅動"、"要 3D"、"要電影感"
+- 頁面定位是"方法論、品牌、產品宣言"而非純資訊型
 
 ---
 
-## L3 硬性要求（除 6 类基础动效外加码）
+## L3 硬性要求（除 6 類基礎動效外加碼）
 
-每个 L3 页面必须至少包含以下 4 种 scroll-story 模式中的 **3 种**：
+每個 L3 頁面必須至少包含以下 4 种 scroll-story 模式中的 **3 种**：
 
-| 模式 | 必备数量 |
+| 模式 | 必備數量 |
 |------|----------|
-| Pin-Scrub 场景（section 固定 + 滚动驱动内容形变） | ≥ 1 |
-| 容器替换（左 pin / 右 swap）叙事 | ≥ 1 |
-| 汇聚/散开转场（多元素飞入飞出合并） | ≥ 1 |
-| WebGL / 真 3D 签名时刻（非仅 CSS 3D） | ≥ 1 |
+| Pin-Scrub 場景（section 固定 + 滾動驅動內容形變） | ≥ 1 |
+| 容器替換（左 pin / 右 swap）敘事 | ≥ 1 |
+| 匯聚/散開轉場（多元素飛入飛出合併） | ≥ 1 |
+| WebGL / 真 3D 簽名時刻（非僅 CSS 3D） | ≥ 1 |
 
-共同原则：**每 1-2 屏必有一个 signature moment**。单调滑动三屏以上不被允许。
+共同原則：**每 1-2 屏必有一個 signature moment**。單調滑動三屏以上不被允許。
 
 ---
 
 ## Pattern 1 — Card Constellation Hero（卡片星座 Hero）
 
-**出处**：doubao.com/about 首屏
-**效果**：10-15 张内容样本卡（每张代表产品能力的一个实例）在 3D 空间里以不同 Z 深度、不同旋转角度、不同动态模糊度浮动，围绕中心的文字主张。鼠标移动驱动整体视差。
+**出處**：doubao.com/about 首屏
+**效果**：10-15 張內容樣本卡（每張代表產品能力的一個例項）在 3D 空間裡以不同 Z 深度、不同旋轉角度、不同動態模糊度浮動，圍繞中心的文字主張。滑鼠移動驅動整體視差。
 
-### 实现模板
+### 實現模板
 
 ```css
 .constellation {
@@ -49,7 +49,7 @@ L3 级别的"电影式" scroll 叙事招式库。参考标杆：doubao.com/about
   transition: filter 0.5s var(--ease-cinema);
   box-shadow: 0 20px 50px rgba(0,0,0,0.3);
 }
-/* 每张卡通过 inline style 或 data-attr 设置独立位置:
+/* 每張卡通過 inline style 或 data-attr 設定獨立位置:
    --x / --y / --z / --rx / --ry / --rz / --blur
 */
 .star-card {
@@ -66,10 +66,10 @@ L3 级别的"电影式" scroll 叙事招式库。参考标杆：doubao.com/about
 ```
 
 ```js
-// 12 张卡随机分布（或按设计指定）
+// 12 張卡隨機分佈（或按設計指定）
 const cards = document.querySelectorAll('.star-card');
 
-// 1. 基础浮动（每张卡各自的 idle 呼吸）
+// 1. 基礎浮動（每張卡各自的 idle 呼吸）
 cards.forEach((c, i) => {
   gsap.to(c, {
     y: `+=${gsap.utils.random(-16, 16)}`,
@@ -80,7 +80,7 @@ cards.forEach((c, i) => {
   });
 });
 
-// 2. 鼠标视差（整个 constellation 跟随）
+// 2. 滑鼠視差（整個 constellation 跟隨）
 const stage = document.querySelector('.constellation');
 stage.addEventListener('pointermove', (e) => {
   const cx = window.innerWidth / 2, cy = window.innerHeight / 2;
@@ -93,20 +93,20 @@ stage.addEventListener('pointermove', (e) => {
 });
 ```
 
-### 设计指南
-- Z 轴分布：近景 (z: 0 ~ 100) 清晰不模糊、中景 (z: -200 ~ -400) 轻微模糊 2-4px、远景 (z: -500 ~ -700) 模糊 6-10px
-- 旋转角度：|rx, ry, rz| ≤ 15°，超过会像碎纸
-- 卡片尺寸参差（180×220 到 320×400），构成视觉节奏
-- 卡片内容要"有意义"（产品样本、真实截图），避免占位符
+### 設計指南
+- Z 軸分佈：近景 (z: 0 ~ 100) 清晰不模糊、中景 (z: -200 ~ -400) 輕微模糊 2-4px、遠景 (z: -500 ~ -700) 模糊 6-10px
+- 旋轉角度：|rx, ry, rz| ≤ 15°，超過會像碎紙
+- 卡片尺寸參差（180×220 到 320×400），構成視覺節奏
+- 卡片內容要"有意義"（產品樣本、真實截圖），避免佔位符
 
 ---
 
-## Pattern 2 — Card Collapse Transition（卡片汇聚过渡）
+## Pattern 2 — Card Collapse Transition（卡片匯聚過渡）
 
-**出处**：doubao.com/about 从 Hero 过渡到 "文字创作能力"
-**效果**：Hero 里散开的卡片，在滚动到某阈值时整体飞向中心，合并为下一 section 的单一容器。
+**出處**：doubao.com/about 從 Hero 過渡到 "文字創作能力"
+**效果**：Hero 里散開的卡片，在滾動到某閾值時整體飛向中心，合併為下一 section 的單一容器。
 
-### 实现模板
+### 實現模板
 
 ```js
 gsap.timeline({
@@ -130,40 +130,40 @@ gsap.timeline({
 }, '-=0.4');
 ```
 
-### 设计指南
-- 汇聚终点应该是下一 section 的关键容器（不要凭空消失）
-- stagger 用 `from: 'random'`（更自然，避免整齐划一的波）
-- 汇聚距离要够长（跨 80-100vh 滚动）才有"风吹落"的感觉
+### 設計指南
+- 匯聚終點應該是下一 section 的關鍵容器（不要憑空消失）
+- stagger 用 `from: 'random'`（更自然，避免整齊劃一的波）
+- 匯聚距離要夠長（跨 80-100vh 滾動）才有"風吹落"的感覺
 
 ---
 
-## Pattern 3 — Left Pin / Right Swap Narrative（左 pin / 右 swap 叙事）
+## Pattern 3 — Left Pin / Right Swap Narrative（左 pin / 右 swap 敘事）
 
-**出处**：doubao 产品能力四连（撰写/绘制/知识/解答）、igloo.inc 多场景
-**效果**：section pin 住，左侧标题+描述+CTA 保持位置不动，右侧容器按滚动进度切换 3-4 个场景（产品截图/动画 demo/3D 模型）。
+**出處**：doubao 產品能力四連（撰寫/繪製/知識/解答）、igloo.inc 多場景
+**效果**：section pin 住，左側標題+描述+CTA 保持位置不動，右側容器按滾動進度切換 3-4 個場景（產品截圖/動畫 demo/3D 模型）。
 
-### 实现模板
+### 實現模板
 
 ```html
 <section class="pin-swap" data-scenes="4">
   <div class="pin-swap-inner">
     <div class="left">
-      <h2 class="pin-title">标题 1</h2>
+      <h2 class="pin-title">標題 1</h2>
       <p class="pin-body">描述 1</p>
-      <a class="pin-cta">立即体验</a>
+      <a class="pin-cta">立即體驗</a>
     </div>
     <div class="right">
-      <div class="scene scene-1">场景 1 内容</div>
-      <div class="scene scene-2">场景 2 内容</div>
-      <div class="scene scene-3">场景 3 内容</div>
-      <div class="scene scene-4">场景 4 内容</div>
+      <div class="scene scene-1">場景 1 內容</div>
+      <div class="scene scene-2">場景 2 內容</div>
+      <div class="scene scene-3">場景 3 內容</div>
+      <div class="scene scene-4">場景 4 內容</div>
     </div>
   </div>
 </section>
 ```
 
 ```css
-.pin-swap { height: 400vh; /* 每个场景 100vh */ }
+.pin-swap { height: 400vh; /* 每個場景 100vh */ }
 .pin-swap-inner { position: sticky; top: 0; height: 100vh; display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: center; }
 .scene { position: absolute; inset: 0; opacity: 0; }
 .scene:first-child { opacity: 1; }
@@ -171,7 +171,7 @@ gsap.timeline({
 
 ```js
 const scenes = gsap.utils.toArray('.scene');
-const titles = [/* 各场景文案对象数组 */];
+const titles = [/* 各場景文案物件陣列 */];
 
 ScrollTrigger.create({
   trigger: '.pin-swap',
@@ -182,36 +182,36 @@ ScrollTrigger.create({
     const progress = self.progress;
     const idx = Math.min(Math.floor(progress * scenes.length), scenes.length - 1);
 
-    // 切换场景（淡入淡出）
+    // 切換場景（淡入淡出）
     scenes.forEach((s, i) => {
       gsap.to(s, { opacity: i === idx ? 1 : 0, duration: 0.4, ease: 'power2.out' });
     });
 
-    // 切换左侧文案
+    // 切換左側文案
     document.querySelector('.pin-title').textContent = titles[idx].title;
     document.querySelector('.pin-body').textContent = titles[idx].body;
   },
 });
 ```
 
-### 设计指南
-- 场景切换点要让用户有"停顿"感（不能像翻书一样急促）
-- 右侧场景之间的差异要显著（不同产品/不同场景），不要只改文字
-- 左侧 CTA 可以不变，也可按场景变化（如改变链接目标）
+### 設計指南
+- 場景切換點要讓使用者有"停頓"感（不能像翻書一樣急促）
+- 右側場景之間的差異要顯著（不同產品/不同場景），不要只改文字
+- 左側 CTA 可以不變，也可按場景變化（如改變連結目標）
 
 ---
 
-## Pattern 4 — WebGL 3D Signature Moment（WebGL 3D 签名时刻）
+## Pattern 4 — WebGL 3D Signature Moment（WebGL 3D 簽名時刻）
 
-**出处**：doubao 的 Mobius / apple Vision Pro 的头显 / igloo.inc 的 3D 图标
-**效果**：section 居中一个 3D 物体（glass 材质、metallic、shader），随滚动旋转/变形，配合 orbital 粒子和光晕。
+**出處**：doubao 的 Mobius / apple Vision Pro 的頭顯 / igloo.inc 的 3D 圖示
+**效果**：section 居中一個 3D 物體（glass 材質、metallic、shader），隨滾動旋轉/變形，配合 orbital 粒子和光暈。
 
-### 实现模板（Three.js 最小可用）
+### 實現模板（Three.js 最小可用）
 
 ```html
 <section class="webgl-scene">
   <canvas class="webgl-canvas"></canvas>
-  <h2 class="webgl-title">章节标题</h2>
+  <h2 class="webgl-title">章節標題</h2>
 </section>
 ```
 
@@ -227,7 +227,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
 camera.position.z = 5;
 
-// 玻璃/iridescent 材质
+// 玻璃/iridescent 材質
 const geometry = new THREE.TorusKnotGeometry(1, 0.3, 180, 32);
 const material = new THREE.MeshPhysicalMaterial({
   transmission: 0.92,
@@ -241,12 +241,12 @@ const material = new THREE.MeshPhysicalMaterial({
 const mesh = new THREE.Mesh(geometry, material);
 scene.add(mesh);
 
-// 环境光 + 点光源（染色）
+// 環境光 + 點光源（染色）
 scene.add(new THREE.HemisphereLight(0xffffff, 0x202020, 1));
 const light1 = new THREE.PointLight(0x5EEAD4, 4, 20); light1.position.set(3, 3, 3); scene.add(light1);
 const light2 = new THREE.PointLight(0xFB923C, 4, 20); light2.position.set(-3, -2, 3); scene.add(light2);
 
-// ScrollTrigger 驱动旋转
+// ScrollTrigger 驅動旋轉
 gsap.to(mesh.rotation, {
   y: Math.PI * 2, x: Math.PI,
   scrollTrigger: {
@@ -258,7 +258,7 @@ gsap.to(mesh.rotation, {
 
 // 渲染
 function tick() {
-  mesh.rotation.z += 0.002; // 自转底噪
+  mesh.rotation.z += 0.002; // 自轉底噪
   renderer.render(scene, camera);
   requestAnimationFrame(tick);
 }
@@ -272,25 +272,25 @@ new ResizeObserver(() => {
 }).observe(canvas);
 ```
 
-### 设计指南
-- **单页不超过 1 个 WebGL scene**（多于 1 会撑爆 GPU，尤其移动端）
-- 几何体建议：TorusKnot / Möbius 带 / Shader 球 / BoxGeometry（看风格）
-- 材质：`MeshPhysicalMaterial` 的 `transmission + iridescence` 是 doubao 同款配方
-- 相机 FOV 40-55°，物体距相机 3-5（太近会鱼眼失真）
-- 粒子/光晕：在物体周围加 50-200 个小球（sprite），形成"尘埃"感
-- 移动端降级：检测 `navigator.hardwareConcurrency < 4` 或 `matchMedia('(max-width: 640px)')`，直接换成静态大图
+### 設計指南
+- **單頁不超過 1 個 WebGL scene**（多於 1 會撐爆 GPU，尤其移動端）
+- 幾何體建議：TorusKnot / Möbius 帶 / Shader 球 / BoxGeometry（看風格）
+- 材質：`MeshPhysicalMaterial` 的 `transmission + iridescence` 是 doubao 同款配方
+- 相機 FOV 40-55°，物體距相機 3-5（太近會魚眼失真）
+- 粒子/光暈：在物體周圍加 50-200 個小球（sprite），形成"塵埃"感
+- 移動端降級：檢測 `navigator.hardwareConcurrency < 4` 或 `matchMedia('(max-width: 640px)')`，直接換成靜態大圖
 
-### 依赖体量
+### 依賴體量
 - Three.js core: ~150KB gzipped
-- OGL（轻量替代）: ~15KB，但需要自己写 shader
-- 推荐走 Three.js，因为社区材质/loader 成熟
+- OGL（輕量替代）: ~15KB，但需要自己寫 shader
+- 推荐走 Three.js，因為社區材質/loader 成熟
 
 ---
 
-## Pattern 5 — Section Title Bloom / Ghost（大标题光晕/幽灵影）
+## Pattern 5 — Section Title Bloom / Ghost（大標題光暈/幽靈影）
 
-**出处**：doubao 的"研究领域"大标题
-**效果**：Section 大标题后面带一个模糊、偏移、低透明度的副本，形成视觉纵深。
+**出處**：doubao 的"研究領域"大標題
+**效果**：Section 大標題後面帶一個模糊、偏移、低透明度的副本，形成視覺縱深。
 
 ```css
 .ghost-title {
@@ -311,10 +311,10 @@ new ResizeObserver(() => {
 
 ---
 
-## Pattern 6 — Abstract Gradient Art Top（抽象渐变艺术顶）
+## Pattern 6 — Abstract Gradient Art Top（抽象漸變藝術頂）
 
-**出处**：doubao 研究领域三卡片（语音 / 大语言模型 / 多模态）
-**效果**：功能卡片上半部分是一块抽象艺术（渐变球/丝带/粒子），下半是文字。艺术部分可以是静态 PNG/SVG，也可以是 CSS mesh gradient。
+**出處**：doubao 研究領域三卡片（語音 / 大語言模型 / 多模態）
+**效果**：功能卡片上半部分是一塊抽象藝術（漸變球/絲帶/粒子），下半是文字。藝術部分可以是靜態 PNG/SVG，也可以是 CSS mesh gradient。
 
 ```css
 .art-card { background: var(--surface-1); border-radius: 16px; overflow: hidden; }
@@ -335,7 +335,7 @@ new ResizeObserver(() => {
 }
 ```
 
-加铆钉装饰（doubao 的卡片四角+四边都有小方块，仿照旧相纸/证件）：
+加鉚釘裝飾（doubao 的卡片四角+四邊都有小方塊，仿照舊相紙/證件）：
 
 ```css
 .art-card { position: relative; }
@@ -354,16 +354,16 @@ new ResizeObserver(() => {
 
 ---
 
-## 降级与性能
+## 降級與效能
 
-| 设备条件 | 降级策略 |
+| 裝置條件 | 降級策略 |
 |----------|----------|
-| `prefers-reduced-motion: reduce` | 所有 pin-scrub 改为简单 fade；关闭 WebGL |
-| `matchMedia('(max-width: 640px)')` | Constellation 降为 3-4 张静态卡；pin-swap 保留但简化为一次性入场；WebGL 换静态图 |
-| `navigator.hardwareConcurrency < 4` | 关闭 WebGL，关闭 blur filter，关闭 custom cursor |
-| Safari（性能偏差） | 若 FPS < 40 自动禁用 filter blur |
+| `prefers-reduced-motion: reduce` | 所有 pin-scrub 改為簡單 fade；關閉 WebGL |
+| `matchMedia('(max-width: 640px)')` | Constellation 降為 3-4 張靜態卡；pin-swap 保留但簡化為一次性入場；WebGL 換靜態圖 |
+| `navigator.hardwareConcurrency < 4` | 關閉 WebGL，關閉 blur filter，關閉 custom cursor |
+| Safari（效能偏差） | 若 FPS < 40 自動停用 filter blur |
 
-性能检测：
+效能檢測：
 
 ```js
 const perf = {
@@ -373,5 +373,5 @@ const perf = {
   noHover: !matchMedia('(hover: hover)').matches,
 };
 document.documentElement.dataset.perf = JSON.stringify(perf);
-// CSS 可通过 [data-perf*='"isMobile":true'] 做条件样式
+// CSS 可通過 [data-perf*='"isMobile":true'] 做條件樣式
 ```

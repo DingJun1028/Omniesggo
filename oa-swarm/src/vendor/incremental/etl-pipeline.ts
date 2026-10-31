@@ -1,5 +1,5 @@
 /**
- * 5T 合規數據管道 ETL (增量優化版) — 圣典 §12.1.3
+ * 5T 合規資料管道 ETL (增量最佳化版) — 聖典 §12.1.3
  * Traceable: 數據來源追蹤 | Trackable: 血統流式轉換
  * Trustworthy: 鎖定 | Transparent: 批量載入
  */

@@ -106,6 +106,6 @@ $ grep '"uuid"' package.json
 ## 七、待你裁示（非本次交付範圍）
 
 1. **PR #868** — CONFLICTING + 5 週停滯，rebase 或關閉重做屬政策選擇
-2. **JWT_SECRET 輪換** — 憑證已進 public repo git 歷史，須視為外洩；需你透過秘密管道處理
+2. **JWT_SECRET 輪換** — 憑證已進 public repo git 歷史，須視為外洩；需你透過祕密管道處理
 3. **Ollama 範圍 (b)** — 統一 3 份重複 `/api/generate` 實作，須保留環境變數向後相容以免 VPS 中斷
 4. **GitGuardian 紅燈** — 1 秒即失敗，屬 App 層授權問題

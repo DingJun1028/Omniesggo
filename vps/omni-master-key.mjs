@@ -4,7 +4,7 @@
 // ============================================================
 //
 // This is the management definition that GOVERNS the secret vault:
-//   1. 管理秘密倉庫裡的鑰匙密碼  → VAULT registry (every key/password)
+//   1. 管理祕密倉庫裡的鑰匙密碼  → VAULT registry (every key/password)
 //   2. 管各項認證              → AUTH resolvers (gateway / agent / db / cloud)
 //   3. 管各種邏輯              → LOGIC registry + cooperation/execution helpers
 //
