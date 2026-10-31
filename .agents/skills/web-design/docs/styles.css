@@ -769,7 +769,7 @@ html[data-lang="en"] .lang-toggle .lang-en { color: var(--accent-cool); }
   object-fit: cover;
   object-position: top center;  /* 展示首屏上半部分 */
   display: block;
-  background: var(--surface-1);  /* 图片未加载时的占位色 */
+  background: var(--surface-1);  /* 圖片未載入時的佔位色 */
   pointer-events: none;
 }
 .dome-card.sc-a { background: radial-gradient(circle at 30% 40%, #5EEAD4, transparent 50%), radial-gradient(circle at 70% 60%, #FB923C, transparent 45%), #111217; }

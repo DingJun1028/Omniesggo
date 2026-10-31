@@ -1,28 +1,28 @@
 #!/usr/bin/env python3
 """
-crawl_website.py — 使用 Playwright 无头浏览器爬取网站
+crawl_website.py — 使用 Playwright 無頭瀏覽器爬取網站
 
 功能：
-1. 真实浏览器渲染（绕过大部分反爬、支持 SPA）
-2. 模拟滚动到底部（触发懒加载、scroll-linked 动画）
-3. 截图（全页 + 每屏视口截图）
-4. 提取渲染后的 CSS 变量、计算样式、字体、颜色
-5. 提取页面结构（所有 section、img、外链 CSS）
+1. 真實瀏覽器渲染（繞過大部分反爬、支持 SPA）
+2. 模擬滾動到底部（觸發懶載入、scroll-linked 動畫）
+3. 截圖（全頁 + 每屏視口截圖）
+4. 提取渲染后的 CSS 變數、計算樣式、字型、顏色
+5. 提取頁面結構（所有 section、img、外鏈 CSS）
 
 用法：
   python3 crawl_website.py --url https://example.com --output ./output
   python3 crawl_website.py --url https://linear.app --output ./output --full-page
   python3 crawl_website.py --url https://vercel.com --output ./output --scroll-delay 800
 
-输出：
+輸出：
   output/
-  ├── full-page.png          全页截图
-  ├── viewport-001.png       第 1 屏截图
-  ├── viewport-002.png       第 2 屏截图
+  ├── full-page.png          全頁截圖
+  ├── viewport-001.png       第 1 屏截圖
+  ├── viewport-002.png       第 2 屏截圖
   ├── ...
-  ├── tokens.json            提取的设计 Token
-  ├── structure.json          页面结构（sections, images, css links）
-  └── styles.css             所有内联 <style> 和外链 CSS 合并
+  ├── tokens.json            提取的設計 Token
+  ├── structure.json          頁面結構（sections, images, css links）
+  └── styles.css             所有內聯 <style> 和外鏈 CSS 合併
 """
 
 import argparse

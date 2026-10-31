@@ -453,20 +453,20 @@ function initDomeGallery(root) {
   const palette = root.querySelector('.dome-palette');
   if (!main || !sphere || !palette) return;
 
-  // ---- geometry (原版 DomeGallery 同款参数) ----
-  const SEGMENTS = 35;        // segments 对半球的经纬切分
+  // ---- geometry (原版 DomeGallery 同款引數) ----
+  const SEGMENTS = 35;        // segments 對半球的經緯切分
   const TILE_SX = 2;
   const TILE_SY = 2;
   const MAX_VERT = 5;         // 原版 maxVerticalRotationDeg = 5
   const DRAG_SENS = 20;       // 原版 dragSensitivity = 20
   const DRAG_DAMP = 0.6;
-  const AUTO_SPIN = 0.035;    // 轻度自转：每帧 0.035deg ≈ 2.1 deg/s
+  const AUTO_SPIN = 0.035;    // 輕度自轉：每幀 0.035deg ≈ 2.1 deg/s
 
-  // 同步 CSS 变量（驱动 --rot-y / --rot-x / --item-width / --item-height）
+  // 同步 CSS 變數（驅動 --rot-y / --rot-x / --item-width / --item-height）
   root.style.setProperty('--segments-x', SEGMENTS);
   root.style.setProperty('--segments-y', SEGMENTS);
 
-  // 图片调色板（每张 <img> 都是一个 tile 的视觉源，JS 循环平铺到整个半球）
+  // 圖片調色盤（每張 <img> 都是一個 tile 的視覺源，JS 迴圈平鋪到整個半球）
   const paletteImgs = palette.content
     ? Array.from(palette.content.querySelectorAll('img.dome-img'))
     : Array.from(palette.querySelectorAll('img.dome-img'));
@@ -475,11 +475,11 @@ function initDomeGallery(root) {
     : Array.from(palette.querySelectorAll('img.dome-img'));
   if (!imgs.length) return;
 
-  // 生成交错网格坐标（和原版完全一致）
+  // 生成交錯網格座標（和原版完全一致）
   // xCols: [-34, -32, ..., 32, 34]  (35 列)
   // evenYs: [-4, -2, 0, 2, 4]; oddYs: [-3, -1, 1, 3, 5]
   const xCols = Array.from({ length: SEGMENTS }, (_, i) => -SEGMENTS - 1 + 2 * i + 1);
-  // 上面写法别扭，直接按原版来：-37 + i*2 会偏左，改成居中 2 格间隔
+  // 上面寫法彆扭，直接按原版來：-37 + i*2 會偏左，改成居中 2 格間隔
   const xColsCentered = [];
   const half = (SEGMENTS - 1);
   for (let i = 0; i < SEGMENTS; i++) xColsCentered.push((i * 2) - half);
@@ -501,7 +501,7 @@ function initDomeGallery(root) {
       const inner = document.createElement('div');
       inner.className = 'dome-tile-inner';
 
-      // 循环从调色板取图（同一张图会在球面上重复出现多次）
+      // 迴圈從調色盤取圖（同一張圖會在球面上重複出現多次）
       const srcImg = imgs[k % imgs.length];
       const imgNode = srcImg.cloneNode(true);
       imgNode.draggable = false;
@@ -513,7 +513,7 @@ function initDomeGallery(root) {
     });
   });
 
-  // ---- 旋转状态 ----
+  // ---- 旋轉狀態 ----
   const rot = { x: 0, y: 0 };
   const applyTransform = () => {
     sphere.style.transform =
@@ -521,7 +521,7 @@ function initDomeGallery(root) {
   };
   applyTransform();
 
-  // ---- 工具函数 ----
+  // ---- 工具函式 ----
   const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
   const wrapSigned = (d) => {
     const a = (((d + 180) % 360) + 360) % 360;
@@ -530,7 +530,7 @@ function initDomeGallery(root) {
 
   // ---- 拖拽 ----
   let dragging = false;
-  let autoPausedUntil = 0;      // 拖拽后暂停自转一段时间
+  let autoPausedUntil = 0;      // 拖拽后暫停自轉一段時間
   let startX = 0, startY = 0;
   let startRot = { x: 0, y: 0 };
   let lastMoveT = 0;
@@ -590,7 +590,7 @@ function initDomeGallery(root) {
     dragging = false;
     main.classList.remove('dragging');
     try { main.releasePointerCapture?.(e.pointerId); } catch {}
-    autoPausedUntil = performance.now() + 1500; // 松手 1.5s 后自转才恢复
+    autoPausedUntil = performance.now() + 1500; // 鬆手 1.5s 后自轉才恢復
     if (Math.abs(vX) > 0.1 || Math.abs(vY) > 0.1) startInertia();
   };
   main.addEventListener('pointerdown', onDown);
@@ -599,7 +599,7 @@ function initDomeGallery(root) {
   main.addEventListener('pointercancel', onUp);
   main.addEventListener('pointerleave', onUp);
 
-  // ---- 自动轻转（主循环） ----
+  // ---- 自動輕轉（主迴圈） ----
   let visible = true;
   const autoTick = () => {
     const now = performance.now();
@@ -612,7 +612,7 @@ function initDomeGallery(root) {
   };
   requestAnimationFrame(autoTick);
 
-  // ---- 离屏时暂停 ----
+  // ---- 離屏時暫停 ----
   if ('IntersectionObserver' in window) {
     new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
@@ -646,7 +646,7 @@ document.querySelectorAll('.copy-btn').forEach((btn) => {
     const label = btn.querySelector('.copy-label');
     const toast = btn.querySelector('.copy-toast');
     const lang = document.documentElement.dataset.lang || 'en';
-    const doneText = (lang === 'en') ? 'Copied ✓' : '已复制 ✓';
+    const doneText = (lang === 'en') ? 'Copied ✓' : '已複製 ✓';
     if (navigator.clipboard?.writeText) {
       navigator.clipboard.writeText(cmd).then(() => {
         btn.classList.add('is-copied');
@@ -744,76 +744,76 @@ const i18n = {
   zh: {
     brand: 'web-design',
     'hero.eyebrow': 'THE DESIGN SKILL FOR CLAUDE CODE',
-    'hero.before': '先出', 'hero.spec': '规范', 'hero.comma': '，',
-    'hero.before2': '再出', 'hero.code': '代码', 'hero.period': '。',
-    'hero.sub1': '输入 PRD、参考 URL 或截图，',
-    'hero.sub2': '先产出一份可读、可改、可传递的 <em>DESIGN.md</em>，',
-    'hero.sub3': '再基于规范生成 UI/UX、视觉、动效、响应式全部达标的 web 代码。',
-    'hero.cta1': '立即安装', 'hero.cta2': '为什么要这样 →',
-    'step.1': '输入 PRD / URL / 截图', 'step.2': '生成 DESIGN.md 规范', 'step.3': '输出 100 分代码',
-    'why.eyebrow': 'WHY DESIGN.MD', 'why.title': '为什么要有规范',
-    'why.sub': 'AI 直接撸代码 vs 先规范、再代码 — 结果不在一个量级。',
-    'why.bad.tag': 'AI 直接撸',
-    'why.bad.l1': '× 每次生成页面色值不一致',
-    'why.bad.l2': '× 字号字重靠 AI 当时记忆',
-    'why.bad.l3': '× 动效档位看心情',
-    'why.bad.l4': '× 换工具 / 换对话重来一遍',
-    'why.good.tag': '先 DESIGN.md，再代码',
+    'hero.before': '先出', 'hero.spec': '規範', 'hero.comma': '，',
+    'hero.before2': '再出', 'hero.code': '程式碼', 'hero.period': '。',
+    'hero.sub1': '輸入 PRD、參考 URL 或截圖，',
+    'hero.sub2': '先產出一份可讀、可改、可傳遞的 <em>DESIGN.md</em>，',
+    'hero.sub3': '再基於規範生成 UI/UX、視覺、動效、響應式全部達標的 web 程式碼。',
+    'hero.cta1': '立即安裝', 'hero.cta2': '為什麼要這樣 →',
+    'step.1': '輸入 PRD / URL / 截圖', 'step.2': '生成 DESIGN.md 規範', 'step.3': '輸出 100 分程式碼',
+    'why.eyebrow': 'WHY DESIGN.MD', 'why.title': '為什麼要有規範',
+    'why.sub': 'AI 直接擼程式碼 vs 先規範、再程式碼 — 結果不在一個量級。',
+    'why.bad.tag': 'AI 直接擼',
+    'why.bad.l1': '× 每次生成頁面色值不一致',
+    'why.bad.l2': '× 字號字重靠 AI 當時記憶',
+    'why.bad.l3': '× 動效檔位看心情',
+    'why.bad.l4': '× 換工具 / 換對話重來一遍',
+    'why.good.tag': '先 DESIGN.md，再程式碼',
     'why.good.l1': '✓ 色、字、距都有命名',
-    'why.good.l2': '✓ 跨页面一致',
-    'why.good.l3': '✓ 跨 AI 工具可延续',
-    'why.good.l4': '✓ 改一行 DESIGN.md，全站跟着变',
+    'why.good.l2': '✓ 跨頁面一致',
+    'why.good.l3': '✓ 跨 AI 工具可延續',
+    'why.good.l4': '✓ 改一行 DESIGN.md，全站跟著變',
     'inputs.eyebrow': 'THREE INPUTS · ONE OUTPUT',
-    'inputs.title': '任何起点都可以',
-    'inputs.sub': '一份 PRD、一个参考 URL、一张截图，或者三者任意混合——SKILL 自行判断从哪里抽取设计线索。',
-    'input.1.title': 'PRD 文档',
-    'input.1.desc': '从产品定位、目标用户、核心页面、竞品中，推导风格方向。',
-    'input.2.title': '参考 URL',
-    'input.2.desc': 'Playwright 爬虫抓取色板、字体、间距、动效，48 个 CSS token 秒级提取。',
-    'input.3.title': '截图 / 草稿',
-    'input.3.desc': '从视觉直接提炼气质、色温、密度、字体风格，降级兜底可靠。',
+    'inputs.title': '任何起點都可以',
+    'inputs.sub': '一份 PRD、一個參考 URL、一張截圖，或者三者任意混合——SKILL 自行判斷從哪裡抽取設計線索。',
+    'input.1.title': 'PRD 文件',
+    'input.1.desc': '從產品定位、目標使用者、核心頁面、競品中，推導風格方向。',
+    'input.2.title': '參考 URL',
+    'input.2.desc': 'Playwright 爬蟲抓取色板、字型、間距、動效，48 個 CSS token 秒級提取。',
+    'input.3.title': '截圖 / 草稿',
+    'input.3.desc': '從視覺直接提煉氣質、色溫、密度、字型風格，降級兜底可靠。',
     'wf.eyebrow': 'WORKFLOW · THREE PHASES',
     'wf.title': 'A → B → C 三段式',
-    'wf.sub': '不求一键出活，每一步都留给你审阅点。',
+    'wf.sub': '不求一鍵出活，每一步都留給你審閱點。',
     'wf.a.name': '理解需求',
-    'wf.a.desc': '从 PRD / URL / 截图 / 关键词 / 品牌名，提取设计线索；按降级链路兜底。',
-    'wf.a.o1': '· 调性关键词 × 5',
-    'wf.a.o2': '· 竞品 token × 48',
-    'wf.a.o3': '· 交互档位建议',
-    'wf.b.name': '输出 DESIGN.md',
-    'wf.b.desc': '9 章节完整规范。用户确认后落盘项目目录，跨项目复用、可手动修改。',
-    'wf.c.name': '生成代码',
-    'wf.c.desc': '严格按规范生成；100 分质量底线自检；有参考时做差异审计。',
-    'wf.c.o2': '✓ 全组件状态齐全',
-    'wf.c.o3': '✓ 响应式 + reduced-motion',
+    'wf.a.desc': '從 PRD / URL / 截圖 / 關鍵詞 / 品牌名，提取設計線索；按降級鏈路兜底。',
+    'wf.a.o1': '· 調性關鍵詞 × 5',
+    'wf.a.o2': '· 競品 token × 48',
+    'wf.a.o3': '· 互動檔位建議',
+    'wf.b.name': '輸出 DESIGN.md',
+    'wf.b.desc': '9 章節完整規範。使用者確認后落盤專案目錄，跨專案複用、可手動修改。',
+    'wf.c.name': '生成程式碼',
+    'wf.c.desc': '嚴格按規範生成；100 分質量底線自檢；有參考時做差異審計。',
+    'wf.c.o2': '✓ 全元件狀態齊全',
+    'wf.c.o3': '✓ 響應式 + reduced-motion',
     'inside.eyebrow': "WHAT'S INSIDE",
-    'inside.title': '一个完整的设计资产仓库',
-    'inside.sub': 'SKILL 自带的引用库——拖拽旋转，悬停暂停。',
-    'rolling.hint': '拖拽或滚轮旋转 · 悬停暂停',
-    'art.1.title': '58 个品牌预置',
+    'inside.title': '一個完整的設計資產倉庫',
+    'inside.sub': 'SKILL 自帶的引用庫——拖拽旋轉，懸停暫停。',
+    'rolling.hint': '拖拽或滾輪旋轉 · 懸停暫停',
+    'art.1.title': '58 個品牌預置',
     'art.1.body': 'Linear · Stripe · Apple · Supabase · Vercel · Figma · Cursor · …',
-    'art.2.title': '10 种风格种子',
-    'art.2.body': '奶油编辑 · 暗黑科技 · 极简克制 · 温暖商务 · 活泼创意 · 中文优雅 · 赛博朋克 · 自然有机 · 瑞士设计 · 玻璃拟态',
-    'art.3.title': '3 档交互层级',
-    'art.3.body': 'L1 精致静态 · L2 流畅交互 · L3 沉浸体验（pin + 3D + WebGL）',
-    'art.4.title': '7 种场景默认',
-    'art.4.body': 'Landing · Portfolio · Blog · Dashboard · 课件 · App UI · 邮件模板',
-    'art.5.title': 'Motion 库 · 124 项',
-    'art.5.body': 'Text 24 + Animations 29 + Components 32 + Backgrounds 40，按风格 × 场景推荐组合。',
-    'art.6.title': '爬虫 + 质检脚本',
-    'art.6.body': 'Playwright 爬虫 · 轻量静态 Token 提取 · 质量 checklist 自检。',
-    'showcase.eyebrow': 'BUILT WITH', 'showcase.title': '用它做出来的页面',
-    'ring.hint': '按住左右拖拽旋转',
+    'art.2.title': '10 种風格種子',
+    'art.2.body': '奶油編輯 · 暗黑科技 · 极簡剋制 · 溫暖商務 · 活潑創意 · 中文優雅 · 賽博朋克 · 自然有機 · 瑞士設計 · 玻璃擬態',
+    'art.3.title': '3 檔互動層級',
+    'art.3.body': 'L1 精緻靜態 · L2 流暢互動 · L3 沉浸體驗（pin + 3D + WebGL）',
+    'art.4.title': '7 种場景預設',
+    'art.4.body': 'Landing · Portfolio · Blog · Dashboard · 課件 · App UI · 郵件模板',
+    'art.5.title': 'Motion 庫 · 124 項',
+    'art.5.body': 'Text 24 + Animations 29 + Components 32 + Backgrounds 40，按風格 × 場景推荐組合。',
+    'art.6.title': '爬蟲 + 質檢指令碼',
+    'art.6.body': 'Playwright 爬蟲 · 輕量靜態 Token 提取 · 質量 checklist 自檢。',
+    'showcase.eyebrow': 'BUILT WITH', 'showcase.title': '用它做出來的頁面',
+    'ring.hint': '按住左右拖拽旋轉',
     'author.eyebrow': '作者',
-    'author.bio': '这是小普的一个 side project。如果它帮你省了时间，去 GitHub 点个 Star 就是最大的支持。',
+    'author.bio': '這是小普的一個 side project。如果它幫你省了時間，去 GitHub 點個 Star 就是最大的支持。',
     'install.eyebrow': "INSTALL · IT'S OPEN SOURCE",
-    'install.free': '免费', 'install.open': '开源', 'install.works': '就能用',
+    'install.free': '免費', 'install.open': '開源', 'install.works': '就能用',
     'install.sub': 'No account. No API key. No subscription.',
-    'install.copy': '复制', 'install.toast': '已装进剪贴板 →', 'install.req': 'Requires',
+    'install.copy': '複製', 'install.toast': '已裝進剪貼簿 →', 'install.req': 'Requires',
     'install.github': '在 GitHub 查看',
-    'footer.tag': 'Phase A → B → C · DESIGN.md 驱动',
-    'footer.credits': '开源致谢', 'footer.links': '链接',
-    'footer.top': '回到顶部', 'footer.install': '安装',
+    'footer.tag': 'Phase A → B → C · DESIGN.md 驅動',
+    'footer.credits': '開源致謝', 'footer.links': '連結',
+    'footer.top': '回到頂部', 'footer.install': '安裝',
   },
 };
 

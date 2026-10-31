@@ -36,7 +36,7 @@ metadata:
 
 ## 環境設定 (hermes 必須 — 讀此優先於一切 CLI)
 
-**唯一憑證來源 = 秘密聖櫃** `C:/Users/dingj/secret-vault/ENV20230818.env` (含 `NCBDB_*` / `NCB_*`，chmod 600)。**不要**用 `C:/Project/esggo/.env.local`——舊文件已過時。
+**唯一憑證來源 = 祕密聖櫃** `C:/Users/dingj/secret-vault/ENV20230818.env` (含 `NCBDB_*` / `NCB_*`，chmod 600)。**不要**用 `C:/Project/esggo/.env.local`——舊檔案已過時。
 
 hermes `config.yaml` 已設 `agent.env_file` 指向該 vault，故 hermes 內部 session 自動繼承 NCB 憑證；**terminal 子殼不繼承**，須顯式載入。
 
