@@ -110,7 +110,7 @@ const dotGet = (obj: any, path: string): any => {
 
 const SECRET_RE = /(api[_-]?key|secret|token|password)\s*[:=]\s*['"]?[A-Za-z0-9_\-]{12,}/gi;
 const RISK_TABLE: ReadonlyArray<[RegExp, number]> = Object.freeze([
-  [/罰款|裁罰|违规|penalty/i, 40],
+  [/罰款|裁罰|違規|penalty/i, 40],
   [/訴訟|litigation|訴訟風險/i, 50],
   [/泄漏|breach|外洩/i, 60],
   [/高碳排|超標|exceed/i, 30],

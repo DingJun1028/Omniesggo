@@ -205,7 +205,7 @@ export class OmniBlueprintHub {
       translatedText: translations,
       sourceOrigin, // 5T: Traceable 可溯源
       hash: payloadHash, // 5T: Trustworthy 不可篡改
-      timestamp // 5T: Trackable 可追踪
+      timestamp // 5T: Trackable 可追蹤
     };
 
     // 更新產品內部的動態流

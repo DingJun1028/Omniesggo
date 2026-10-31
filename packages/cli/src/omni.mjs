@@ -290,17 +290,17 @@ function isSensitive(key) {
 
 program
   .command('secret')
-  .description('查看秘密並同步到 Vercel（Omni 秘密管理）')
+  .description('檢視祕密並同步到 Vercel（Omni 祕密管理）')
   .addCommand(
     new (await import('commander')).Command('list')
-      .description('列出 .env 中所有秘密 key（不含值）')
+      .description('列出 .env 中所有祕密 key（不含值）')
       .action(() => {
         const { map, envPath } = loadEnvFile();
         if (map.size === 0) {
           console.log(`[secret] ${envPath} 無內容或不存在`);
           return;
         }
-        console.log(`[secret] ${map.size} 個秘密 (來源: ${envPath}):`);
+        console.log(`[secret] ${map.size} 個祕密 (來源: ${envPath}):`);
         for (const key of [...map.keys()].sort()) {
           const tag = isSensitive(key) ? '🔒' : '·';
           console.log(`  ${tag} ${key}`);
@@ -309,8 +309,8 @@ program
   )
   .addCommand(
     new (await import('commander')).Command('view')
-      .description('查看特定秘密（敏感值打碼）')
-      .argument('<key>', '秘密名稱')
+      .description('檢視特定祕密（敏感值打碼）')
+      .argument('<key>', '祕密名稱')
       .action((key) => {
         const { map } = loadEnvFile();
         if (!map.has(key)) {
@@ -327,7 +327,7 @@ program
   )
   .addCommand(
     new (await import('commander')).Command('sync')
-      .description('把 Firebase/Firestore 秘密同步到目標平台 (vercel | github)')
+      .description('把 Firebase/Firestore 祕密同步到目標平臺 (vercel | github)')
       .argument('<target>', 'vercel | github')
       .option('--env <name>', 'Vercel 環境 (production/preview/development)', 'production')
       .option('--yes', '非互動（跳過確認提示）')
@@ -339,7 +339,7 @@ program
           (k) => k.startsWith('FIREBASE') || k.startsWith('NEXT_PUBLIC_FIREBASE') || k.startsWith('FIRESTORE')
         );
         if (keys.length === 0) {
-          console.log('[secret] .env 中無 Firebase/Firestore 秘密可同步');
+          console.log('[secret] .env 中無 Firebase/Firestore 祕密可同步');
           return;
         }
         if (target === 'vercel') {
