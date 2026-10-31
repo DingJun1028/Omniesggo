@@ -8,7 +8,7 @@ name: Hermes Install Validation
 # Security: the official installer is downloaded over enforced HTTPS from the
 # vendor domain, sanity-checked (non-empty, shell script with shebang) and
 # then executed as a file; no unverified pipe-to-shell execution.
-# Branch includes main (known-flaky whitelist). CI retrigger 2.
+# Branch includes main (known-flaky whitelist). CI retrigger 3.
 on:
   push:
     branches: [ci/hermes-validation-run]
