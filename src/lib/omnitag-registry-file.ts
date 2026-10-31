@@ -8,7 +8,7 @@
  * 禁止被瀏覽器套件（five-t-protocol.ts 等）靜態匯入，使用者需自行在 Node 端
  * 動態或顯式匯入本檔後呼叫 FiveTOmniTagGate.setStore(new FileArtifactStore())。
  *
- * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]
+ * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:結界]
  */
 
 import { mkdirSync, existsSync, readFileSync, appendFileSync } from 'node:fs';

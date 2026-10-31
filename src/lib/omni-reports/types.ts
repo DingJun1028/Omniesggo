@@ -1,5 +1,5 @@
 import type { IComponentCore } from '../../types/core-contract';
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * OMNI ESG Reports Center — 萬能元件心核 (IComponentCore)
  * 對齊《OMNI ESG 萬能永續報告書 - 開發與架構對照書》v1.1.0-Universe
