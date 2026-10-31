@@ -5,7 +5,7 @@ description = "ESG-GO OA-Team 30 萬能代理小隊 — CrewAI 實作 (對應 so
 requires-python = ">=3.11,<3.14"
 dependencies = [
     "crewai[litellm]==1.15.30",
-    "crewai-tools==1.15.30",
+    "crewai-tools==1.15.32",
 ]
 
 [tool.crewai]
