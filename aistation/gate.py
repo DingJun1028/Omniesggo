@@ -54,7 +54,7 @@ GATE_PATTERNS: Final[dict[str, re.Pattern[str]]] = {
         re.IGNORECASE,
     ),
     "trackable": re.compile(
-        r"(202[5-9]|年度|期間|日期|追蹤|monitor|timestamp|生命周期|life-cycle|追踪)",
+        r"(202[5-9]|年度|期間|日期|追蹤|monitor|timestamp|生命週期|life-cycle|追蹤)",
         re.IGNORECASE,
     ),
 }

@@ -259,7 +259,7 @@
           "name": "萬能追蹤蜂",
           "tags": [
             "#競品監控",
-            "#動態追踪"
+            "#動態追蹤"
           ],
           "module": "storage/sqlite.py"
         },
