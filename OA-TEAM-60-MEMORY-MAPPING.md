@@ -38,7 +38,7 @@
 ## 蜂王 OA-LOCAL (01-30) — 暗系蜂王（umbra）
 
 > 暗系蜂王：以水色青 #00FFFF 為印記，主導本地 Windows 開發端的隱形治理。
-> 全 30 代理统一 umbra，MemoryHub 路由 /api/assets?tag=umbra。
+> 全 30 代理統一 umbra，MemoryHub 路由 /api/assets?tag=umbra。
 
 ### 智庫聖所 (01-06)
 
@@ -100,7 +100,7 @@
 ## 蜂后 OA-VPS (31-60) — 光系蜂后（lumen）
 
 > 光系蜂后：以永恆金 #FFD700 為印記，主導 VPS 生產端的啟示與創造。
-> 全 30 代理统一 lumen，MemoryHub 路由 /api/assets?tag=lumen。
+> 全 30 代理統一 lumen，MemoryHub 路由 /api/assets?tag=lumen。
 
 ### 智庫聖所 (31-36)
 

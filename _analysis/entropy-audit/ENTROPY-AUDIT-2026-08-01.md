@@ -1,6 +1,6 @@
 # Entropy Audit — ESG GO (2026-08-01)
 
-> [security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:esggo][best-practice:结界][entropy-target:<0.1]
+> [security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:esggo][best-practice:結界][entropy-target:<0.1]
 >
 > Auditor: `alchemy-entropy` factory teammate (esggo-swarm)
 > Scope: duplicate code, dead files, bundle bloat, lint drift

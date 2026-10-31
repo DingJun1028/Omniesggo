@@ -32,7 +32,7 @@ Required tags — each artifact must have **at least** `agent:*` + `lifecycle:*`
 | Lifecycle | `lifecycle:` | draft / active / frozen / archived |
 | Priority | `p0`–`p3` | p0=blocking, p1=high, p2=normal, p3=noise |
 | Platform | `platform:` | esggo / omni / vps / firebase / vercel / github |
-| Best-practice | `best-practice:` | awakened / 结界 / draft |
+| Best-practice | `best-practice:` | awakened / 結界 / draft |
 
 **Syntax**: `[security:internal][agent:07][squad:符文契約][lifecycle:active][p1][platform:esggo][best-practice:awakened]`
 
