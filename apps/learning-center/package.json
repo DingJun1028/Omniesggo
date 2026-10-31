@@ -15,14 +15,14 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
-    "lucide-react": "^1.61.0",
+    "lucide-react": "^1.63.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@vitejs/plugin-react": "^6.1.2",
-    "autoprefixer": "^10.6.1",
+    "autoprefixer": "^10.6.2",
     "eslint": "^10.13.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.1.1",
