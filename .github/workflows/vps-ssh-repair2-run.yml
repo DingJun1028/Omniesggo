@@ -1,0 +1,102 @@
+name: vps-ssh-repair2-run
+
+on:
+  push:
+    branches: [probe/vps-repair-20261031]
+    paths: [".github/workflows/vps-ssh-repair2-run.yml"]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  repair2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      R: /tmp/repair2-result.md
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: repair2
+        run: |
+          set -uo pipefail
+          say() { printf '%s\n' "$*" >> "$R"; printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; printf '%s\n' "$*"; }
+          say "## vps-ssh-repair2 $(date -u +%FT%TZ)"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key && chmod 600 ~/.ssh/vps_key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/dep_key && chmod 600 ~/.ssh/dep_key
+          VPS_OPTS="-i ~/.ssh/vps_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+
+          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" 'bash -s' <<'REMOTE'
+          set -uo pipefail
+          if command -v rsync >/dev/null 2>&1; then
+            echo "rsync:ALREADY_INSTALLED"
+          else
+            if sudo apt-get update -qq >/dev/null 2>&1 && sudo apt-get install -y rsync >/dev/null 2>&1; then
+              echo "rsync:INSTALLED_NOW"
+            else
+              echo "rsync:INSTALL_FAIL"
+            fi
+          fi
+          owner=$(stat -c '%U' /var/www/ftgtours 2>/dev/null || echo none)
+          echo "ftg_owner_before:$owner"
+          if [ "$owner" != ubuntu ]; then sudo chown -R ubuntu:ubuntu /var/www/ftgtours 2>/dev/null; echo "ftg_owner_after:$(stat -c '%U' /var/www/ftgtours 2>/dev/null || echo none)"; fi
+          echo "permitrootlogin:$(sudo sshd -T 2>/dev/null | grep -oE "^permitrootlogin .*" || echo NA)"
+          REMOTE
+          ) || out="REPAIR2_SSH_FAIL"
+          while IFS= read -r line; do [ -n "$line" ] && say "- $line"; done <<< "$out"
+
+      - name: setup-pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: deploy-ftg-canonical
+        run: |
+          set -uo pipefail
+          say() { printf '%s\n' "$*" >> "$R"; printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; printf '%s\n' "$*"; }
+          say "### FTG deploy retry (canonical pipeline)"
+          if ! (pnpm install >/dev/null 2>&1); then say "- pnpm install: FAIL"; exit 0; fi
+          say "- pnpm install: OK"
+          if ! (cd apps/ftg-tours-website && pnpm run build >/dev/null 2>&1); then say "- FTG build: FAIL"; exit 0; fi
+          say "- FTG build: OK"
+          DEP_OPTS="-i ~/.ssh/dep_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+          err=$(rsync -az --delete -e "ssh $DEP_OPTS" apps/ftg-tours-website/dist/ "ubuntu@${VPS_HOST}:/var/www/ftgtours/" 2>&1 >/dev/null); rc=$?
+          if [ $rc -eq 0 ]; then
+            say "- rsync to /var/www/ftgtours: OK"
+          else
+            say "- rsync to /var/www/ftgtours: FAIL (rc=$rc)"
+            say "- rsync error head: $(printf "%s" "$err" | head -2 | tr "
+" " " | cut -c1-120)"
+            exit 0
+          fi
+          if ssh $DEP_OPTS "ubuntu@${VPS_HOST}" 'sudo nginx -t && sudo nginx -s reload' >/dev/null 2>&1; then
+            say "- nginx reload: OK"
+          else
+            say "- nginx reload: FAIL"; exit 0
+          fi
+          sleep 3
+          say "- ftgtours.esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://ftgtours.esggo.co/ || echo ERR)"
+          say "- esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://esggo.co/ || echo ERR)"
+          say "- hermex.esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://hermex.esggo.co/ || echo ERR)"
+          say "- ftgtours content check: $(curl -s --max-time 20 https://ftgtours.esggo.co/ | grep -c 'html' || echo 0)"
+
+      - name: publish
+        run: |
+          set +e
+          cp "$R" repair2-result.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repair2-result.md
+          git commit -m "repair2 results snapshot" || true
+          git push || echo "git push failed"
+          echo
