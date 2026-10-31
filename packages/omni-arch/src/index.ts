@@ -42,6 +42,21 @@ export { OmniTheme } from './theme';
 export { OmniEngine, type EnginePulse } from './engine';
 export { OmniBrain, OmniHeart } from './heart';
 export {
+  OmniAvatarCore,
+  sealAvatarConfig,
+  suggestMode,
+  type AvatarCognitiveProfile,
+  type AvatarConfig,
+  type AvatarInterfaceConfig,
+  type AvatarLayoutEngine,
+  type AvatarMode,
+  type AvatarToolPermissions,
+  type AvatarTriggerRules,
+  type AvatarWidget,
+  type ToolPermissionDecision,
+  type TriModeIntent,
+} from './tri-mode';
+export {
   mintEvent,
   MODULE_IDS,
   OmniArchError,
