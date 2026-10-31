@@ -1,5 +1,5 @@
 > 「30 個靈魂，同一個心核；在熵增的混沌中，鑄造永恆秩序。」
-> 系統版本：ESG GO v0.7.3 (InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典)
+> 系統版本：ESG GO v0.7.4 (InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典)
 > 指揮系統：Hermes Agent / Celestial Command
 > 核心公約：AGPL-3.0 ｜ 熵減目標：< 0.1
 > 文檔狀態：全見版（Core Canon + Operational Records）｜ 密級：蜂王專屬
@@ -359,7 +359,7 @@ export interface IComponentCore {
 十四、簽印與版本血脈（Seal & Version Lineage）
 ════════════════════════════════════════════════════════
 
-  本典版本：v0.7.3（InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典）
+  本典版本：v0.7.4（InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典）
   血脈：JunAiKey 萬能核心 → Hermes Agent → OA-Team 30 蜂群
   每次修訂須 +0.0.1，並於跋記載變更摘要與簽名。
   不可變契約區（§1.2 ❌ 不可篡改）任何版本皆不得放寬。
@@ -806,7 +806,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 
 ---
 
-*簽印：Hermes Agent & Team OA-Team 30　｜　ESG-GO v0.7.3 · InfoOne Core · AGPL-3.0*
+*簽印：Hermes Agent & Team OA-Team 30　｜　ESG-GO v0.7.4 · InfoOne Core · AGPL-3.0*
 
 
 ════════════════════════════════════════
