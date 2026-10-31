@@ -100,7 +100,7 @@ OmniCrew
 | 5 個 ESG 千面化身 | `docs/AGENT-CAPABILITIES.md` v2026-10.2 §4.2（雲端架構師 / DevOps / 信件 / 資料 / 安全 / 內容） |
 | 工具即 OmniTag 維度二 | 「代理歸屬」+「生命週期」（每個工具都有 agent + lifecycle + p 標籤） |
 | Serper / Brave / Scholar | 對齊 `agent:25-30 + squad:5T驗算`（權威溯源） |
-| 學術論文（Arxiv） | 對齊 `best-practice:结界` 結界繼承（學術標準自動擴散） |
+| 學術論文（Arxiv） | 對齊 `best-practice:結界` 結界繼承（學術標準自動擴散） |
 | 新聞搜索 | 對齊 §B 第十章 RACI 標籤稽核（每日蜂后晨會驅動） |
 
 ---

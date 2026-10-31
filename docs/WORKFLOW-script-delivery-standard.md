@@ -1,5 +1,5 @@
 ---
-source_origin: 万能分身超觉醒 session (2026-09-28) / OmniAgentBus + Gateway WS auth CI 閉環
+source_origin: 萬能分身超覺醒 session (2026-09-28) / OmniAgentBus + Gateway WS auth CI 閉環
 created: 2026-09-28
 modified: 2026-09-28
 co_authors: [agent:01, agent:07, agent:11, agent:30]
