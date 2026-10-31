@@ -7,7 +7,7 @@ license: MIT
 platforms: [windows, linux, macos]
 metadata:
   hermes:
-    tags: [secrets, vault, bitwarden, credential, bridge, unified, omni-master-key, 萬能元鑰, 秘密聖櫃]
+    tags: [secrets, vault, bitwarden, credential, bridge, unified, omni-master-key, 萬能元鑰, 祕密聖櫃]
     related: [secret-vault-credential-ops, hermes-bitwarden-integration, credential-exposure-response]
 ---
 
@@ -321,15 +321,15 @@ sys.exit(0 if FAIL == 0 else 1)
 ## JunAikey 萬能元鑰 — Agent Growth Layer (代理成長層) + 萬能永憶
 
 > **層級位置**：`JunAikey` 在 `OmniKey` / `OmniMasterKey` 之上，為「代理成長層」。
-> 它**不取代**秘密庫；秘密庫管「憑證」，JunAikey 管「記憶、技能、進度、閉環」。
+> 它**不取代**祕密庫；祕密庫管「憑證」，JunAikey 管「記憶、技能、進度、閉環」。
 > 對外亦稱 **萬能永憶**（所有代理共同記憶層）。
 
 ```
    L0  JunAikey 萬能元鑰 / 萬能永憶
         │  永恆習得 / 被動自主 / 共享記憶 / 全自動閉環
         │  NCBDB primary + local fallback
-   L1  OmniKey              ← 最高憑證權威（萬能元鑰 秘密庫最高層）
-   L2  OmniMasterKey        ← 憑證存取層（萬能鑰匙 秘密庫管理）
+   L1  OmniKey              ← 最高憑證權威（萬能元鑰 祕密庫最高層）
+   L2  OmniMasterKey        ← 憑證存取層（萬能鑰匙 祕密庫管理）
    L3  SUMMON_LAYERS L2-L5  ← 標籤 → 同步 → 共鳴 → 糾纏
    L4  (已部署的代理與服務)
 ```
@@ -716,7 +716,7 @@ node /path/to/vps/junaikey.mjs reflect "task done" --learn=gotcha-1
 | | OmniKey / OmniMasterKey (本 skill 上半) | JunAikey / 萬能永憶 (本章) |
 |---|---|---|
 | 管 | 憑證（API key、密碼、token） | 記憶、技能、進度 |
-| 層 | L1/L2 秘密庫 | L0 代理成長 |
+| 層 | L1/L2 祕密庫 | L0 代理成長 |
 | 載體 | env vars + secret-vault + Bitwarden | **NCBDB (primary)** + filesystem (fallback) |
 | 風險 | 洩漏 = 立即資安事件 | 損壞 = 上下文遺失（可重建） |
 | 生命週期 | 短（rotate） | 長（accumulate） |

@@ -3,7 +3,7 @@
  *
  * 目的：使用者在本機以隱藏輸入方式建立 OneTimeSecret 一次性連結，
  *       密碼與通關密語永不進入對話與 shell history；代理讀取連結後，
- *       直接寫入秘密聖櫃（.env.secrets 或 Supabase vault 資料表），
+ *       直接寫入祕密聖櫃（.env.secrets 或 Supabase vault 資料表），
  *       全程不在 stdout / 對話中顯示密碼明文。
  *
  * API 版本：v2（v1 /api/v1/* 已於 us 區域實測 404/405，全面改用 v2）：
@@ -373,7 +373,7 @@ async function writeEnvFile(
   await fs.rename(tmp, abs);
 }
 
-/** 寫入 Supabase 秘密聖櫃資料表（須先建表，見檔尾附註）。 */
+/** 寫入 Supabase 祕密聖櫃資料表（須先建表，見檔尾附註）。 */
 async function writeSupabaseVault(
   keyName: string,
   secret: string

@@ -46,8 +46,8 @@ const REPLACEMENTS = {
     "蝺": "管",
     "蝻": "範",
     "蝽": "管",
-    "蝾": "範",
-    "螀": "績",
+    "蠑": "範",
+    "螿": "績",
     "螁": "編",
     "螄": "繼",
     "螇": "綜",
@@ -68,7 +68,7 @@ const REPLACEMENTS = {
     "餌": "次",
     "砍": "公",
     "": "司",
-    "終": "組", // sometimes 終 matches 组 in context
+    "終": "組", // sometimes 終 matches 組 in context
     "": "織",
     "嗆": "管",
     "祥": "理",
