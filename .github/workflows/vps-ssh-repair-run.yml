@@ -1,0 +1,130 @@
+name: vps-ssh-repair-run
+
+on:
+  push:
+    branches: [probe/vps-repair-20261031]
+    paths: [".github/workflows/vps-ssh-repair-run.yml"]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      R: /tmp/repair-result.md
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: repair
+        run: |
+          set -uo pipefail
+          say() { printf '%s\n' "$*" >> "$R"; printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; printf '%s\n' "$*"; }
+          say "## vps-ssh-repair $(date -u +%FT%TZ)"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key && chmod 600 ~/.ssh/vps_key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/dep_key && chmod 600 ~/.ssh/dep_key
+          DEP_PUB=$(ssh-keygen -y -f ~/.ssh/dep_key 2>/dev/null || true)
+          DEP_B64=$(printf '%s' "$DEP_PUB" | awk '{print $2}')
+          if [ -z "$DEP_B64" ]; then say "- dep key: UNPARSABLE, abort"; exit 1; fi
+          PDF_PUB='AAAAC3NzaC1lZDI1NTE5AAAAINesF8CPmT35T/cUyUE89UJd2v/9pP5MdL4SXxRC4DSY'
+          if [ "$DEP_B64" = "$PDF_PUB" ]; then say "- SSH_PRIVATE_KEY matches 2026-04 PDF root key: YES"; else say "- SSH_PRIVATE_KEY matches 2026-04 PDF root key: NO"; fi
+          VPS_OPTS="-i ~/.ssh/vps_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+          DEP_OPTS="-i ~/.ssh/dep_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+
+          say "### authorized_keys repair"
+          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" "DEP_B64='$DEP_B64' bash -s" <<'REMOTE')
+set -uo pipefail
+add_key() {
+  user=$1
+  if [ "$user" = root ]; then akdir=/root/.ssh; else akdir=/home/$user/.ssh; fi
+  akfile=$akdir/authorized_keys
+  line="ssh-ed25519 $DEP_B64 esggo-gha-deploy-20261031"
+  if sudo test -f "$akfile" 2>/dev/null && sudo grep -qF -- "$DEP_B64" "$akfile" 2>/dev/null; then
+    echo "$user:ALREADY_PRESENT"
+  else
+    sudo mkdir -p "$akdir"
+    printf '%s\n' "$line" | sudo tee -a "$akfile" >/dev/null
+    sudo chmod 700 "$akdir"; sudo chmod 600 "$akfile"
+    if [ "$user" = root ]; then sudo chown -R root:root "$akdir"; else sudo chown -R "$user:$user" "$akdir"; fi
+    echo "$user:ADDED"
+  fi
+}
+add_key ubuntu
+add_key root
+REMOTE
+) || out="REPAIR_SSH_FAIL"
+          while IFS= read -r line; do [ -n "$line" ] && say "- $line"; done <<< "$out"
+
+          say "### verify SSH_PRIVATE_KEY"
+          if ssh $DEP_OPTS "ubuntu@${VPS_HOST}" 'true' 2>/dev/null; then say "- dep key as ubuntu: SSH OK"; else say "- dep key as ubuntu: SSH FAIL"; fi
+          if ssh $DEP_OPTS "root@${VPS_HOST}" 'true' 2>/dev/null; then say "- dep key as root: SSH OK"; else say "- dep key as root: SSH FAIL"; fi
+
+          say "### server state"
+          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" 'bash -s' <<'REMOTE')
+set -uo pipefail
+echo "nginx:$(sudo systemctl is-active nginx 2>/dev/null || echo unknown)"
+echo "ftg_files:$(sudo ls /var/www/ftgtours 2>/dev/null | wc -l)"
+echo "esggo_app_dir:$(sudo test -d /opt/esggo-app && echo YES || echo NO)"
+echo "fail2ban_banned:$(sudo fail2ban-client status sshd 2>/dev/null | grep -oE 'Currently banned:[[:space:]]*[0-9]+' | grep -oE '[0-9]+' || echo NA)"
+echo "pm2_procs:$(sudo -u ubuntu pm2 jlist 2>/dev/null | jq 'length' 2>/dev/null || pm2 jlist 2>/dev/null | jq 'length' 2>/dev/null || echo NA)"
+REMOTE
+) || out="STATE_SSH_FAIL"
+          while IFS= read -r line; do [ -n "$line" ] && say "- $line"; done <<< "$out"
+
+      - name: setup-pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: deploy-ftg-canonical
+        run: |
+          set -uo pipefail
+          say() { printf '%s\n' "$*" >> "$R"; printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; printf '%s\n' "$*"; }
+          say "### FTG deploy (canonical pipeline, SSH_PRIVATE_KEY)"
+          if ! (pnpm install >/dev/null 2>&1); then say "- pnpm install: FAIL"; exit 0; fi
+          say "- pnpm install: OK"
+          if ! (cd apps/ftg-tours-website && pnpm run build >/dev/null 2>&1); then say "- FTG build: FAIL"; exit 0; fi
+          say "- FTG build: OK"
+          DEP_OPTS="-i ~/.ssh/dep_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+          if rsync -az --delete -e "ssh $DEP_OPTS" apps/ftg-tours-website/dist/ "ubuntu@${VPS_HOST}:/var/www/ftgtours/" >/dev/null 2>&1; then
+            say "- rsync to /var/www/ftgtours: OK"
+          else
+            say "- rsync to /var/www/ftgtours: FAIL"; exit 0
+          fi
+          if ssh $DEP_OPTS "ubuntu@${VPS_HOST}" 'sudo nginx -t && sudo nginx -s reload' >/dev/null 2>&1; then
+            say "- nginx reload: OK"
+          else
+            say "- nginx reload: FAIL"; exit 0
+          fi
+          sleep 3
+          say "- ftgtours.esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://ftgtours.esggo.co/ || echo ERR)"
+          say "- esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://esggo.co/ || echo ERR)"
+          say "- hermex.esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://hermex.esggo.co/ || echo ERR)"
+
+      - name: publish
+        run: |
+          set +e
+          cp "$R" repair-result.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repair-result.md
+          git commit -m "repair results snapshot" || true
+          git push || echo "git push failed"
+          BODY=$(jq -Rs '{body: .}' < "$R")
+          curl -s -X POST \
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/90/comments" \
+            -d "$BODY" | head -c 120
+          echo
