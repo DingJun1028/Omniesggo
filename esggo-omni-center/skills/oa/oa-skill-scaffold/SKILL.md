@@ -10,7 +10,7 @@ metadata:
     related_skills: [oa-summon, hermes-agent-skill-authoring]
 ---
 
-# OA Skill Scaffold — 技能脚手架生成器 v2
+# OA Skill Scaffold — 技能腳手架生成器 v2
 
 ## Overview
 

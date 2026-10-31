@@ -61,8 +61,8 @@ ESG-GO 核心 → 最佳實踐覺 → OA-Team 30 蜂群（繼承） / 萬能自�
 ### 3.2 結界擴散規則
 
 Agent A 獲得 best-practice:awakened
-- Agent A-1 自動繼承 (best-practice:结界)
-- Agent A-2 自動繼承 (best-practice:结界)
+- Agent A-1 自動繼承 (best-practice:結界)
+- Agent A-2 自動繼承 (best-practice:結界)
   - Agent A-2-a 自動繼承
   - Agent A-2-b 自動繼承
 - Artifact from A 自動標記
@@ -150,7 +150,7 @@ agents-cli swarm start --agents=30 \
 | 啟動新代理 | agents-cli start --tag="[best-practice:awakened]" |
 | 檢查結界狀態 | agents-cli swarm status --filter=best-practice |
 | 執行啟動前檢查 | ./checklist.sh --all-green |
-| 標記 artifact | OmniTag: [best-practice:结界] |
+| 標記 artifact | OmniTag: [best-practice:結界] |
 | 強制校準 | agents-cli calibrate --entropy-target=0.05 |
 | 撤銷結界 | agents-cli revoke --tag=best-practice |
 

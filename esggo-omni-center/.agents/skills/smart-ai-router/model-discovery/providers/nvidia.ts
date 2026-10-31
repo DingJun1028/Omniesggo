@@ -77,7 +77,7 @@ function inferNVIDIATags(id: string): string[] {
   if (lowerId.includes('instruct')) tags.push('instruction-following');
   if (lowerId.includes('70b')) tags.push('large-model');
   
-  tags.push('chat'); // 默认支援
+  tags.push('chat'); // 預設支援
   return tags;
 }
 
