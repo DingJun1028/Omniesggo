@@ -2,7 +2,7 @@
 title: OMN-PRD-001 終始矩陣
 canon_id: OMN-PRD-001
 date: 2026-10-09
-tags: [best-practice:结界][unit-of-learning][canon][traceability]
+tags: [best-practice:結界][unit-of-learning][canon][traceability]
 canonical: [[AI Research Index]]
 ---
 

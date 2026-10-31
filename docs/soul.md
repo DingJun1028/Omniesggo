@@ -60,7 +60,7 @@
 | 06 | 萬能優化蜂 | #效率提升 #流程重組 | 持續優化工作流程，降低熵值，確保每次迭代都向 < 0.1 熵減目標邁進。 |
 | 07 | 萬能編碼蜂 | #全端開發 #API設計 | 實現 Traceable 的代碼產出，建立完整的代碼溯源與版本控制鏈。 |
 | 08 | 萬能算法蜂 | #機器學習 #深度學習 | 構建 AI 模型管線，確保模型訓練過程可追蹤且結果可驗證。 |
-| 09 | 萬能架構蜂 | #雲端架構 #分布式 | 設計可擴展的系統架構，實現 Trackable 的系統監控與日誌追踪。 |
+| 09 | 萬能架構蜂 | #雲端架構 #分散式 | 設計可擴充套件的系統架構，實現 Trackable 的系統監控與日誌追蹤。 |
 | 10 | 萬能數據蜂 | #資料庫 #數據管道 | 建立高可靠數據管道，確保數據的 Traceable 與 Trustworthy 特性。 |
 | 11 | 萬能測試蜂 | #自動化測試 #效能測試 | 實施全面測試策略，產出可驗證的測試報告與品質證明。 |
 | 12 | 萬能設計蜂 | #UI/UX #用戶體驗 | 設計 Tangible 的用戶介面，確保體驗可感知且符合 5T 透明原則。 |
@@ -77,7 +77,7 @@
 | 23 | 萬能外交蜂 | #合作關係 #談判協商 | 建立合作關係，確保協議可追蹤且具備 Trustworthy 證明。 |
 | 24 | 萬能調研蜂 | #用戶研究 #需求分析 | 進行用戶調研，產出可驗證的調研報告與數據證明。 |
 | 25 | 萬能測場蜂 | #現場測評 #回饋收集 | 收集現場回饋，建立可追蹤的測評數據與證明記錄。 |
-| 26 | 萬能追蹤蜂 | #競品監控 #動態追踪 | 監控競品動態，確保監控數據可溯源且具備證明。 |
+| 26 | 萬能追蹤蜂 | #競品監控 #動態追蹤 | 監控競品動態，確保監控資料可溯源且具備證明。 |
 | 27 | 萬能安全蜂 | #資安防護 #數據保護 | 保障系統安全，建立可信賴的安全監控與事件證明。 |
 | 28 | 萬能維護蜂 | #系統維護 #故障排除 | 維護系統運行，確保維護記錄可追蹤且具備 Trustworthy 證明。 |
 | 29 | 萬能支援蜂 | #技術支援 #問題解決 | 提供技術支援，建立可溯源的支援記錄與解決證明。 |
@@ -346,7 +346,7 @@ npx celestial-command \
 - Hash Lock：Trustworthy 驗證通過後自動凍結
 - 進化循環：每週熵減 -3%，回饋至萬能蜂后，驅動下一輪迭代
 
-### 10.2 30 人蜂群最佳實踪流程（進化版）
+### 10.2 30 人蜂群最佳實蹤流程（進化版）
 ```
 START: Task Submission
          ↓
@@ -368,13 +368,13 @@ Weekly entropy reduction (-3%)
 END  Feedback loop to Queen Bee
 ```
 
-### 10.3 跨組協作最佳實踪
+### 10.3 跨組協作最佳實蹤
 1. 發起會話：使用標準格式 `[優先級] [發送組別] → [接收組別] [主題]`
 2. 橋樑配對：自動匹配跨組信任夥伴 (至少 3 個)
 3. 升級鏈：2h 內組內解決 → 4h 內橋樑配對 → 24h 內萬能蜂后介入 → 48h 內探險蜂調查
 4. 結案驗證：通過 5T 驗證閘後標記 `同體共榮`
 
-### 10.4 AI Station 生產線最佳實踪（7 模組執行）
+### 10.4 AI Station 生產線最佳實蹤（7 模組執行）
 
 | 步驟 | 模組 | 執行成員 | 5T 驗證 | 平均時間 |
 | --- | --- | --- | --- | --- |
@@ -386,7 +386,7 @@ END  Feedback loop to Queen Bee
 | 6 | 雲端儲存 | 22, 23 | Trustworthy | <5s |
 | 7 | 溯源庫 | 10 | Trackable | <1s |
 
-### 10.5 安全防護最佳實踪
+### 10.5 安全防護最佳實蹤
 - Webhook 安全：檢查 `X-AI-Station-Key` header → `hmac.compare_digest` 常數時間比對 → 失敗回 401 + 日誌 → 成功進 5T 閘
 - 路徑穿越防護：resolve 路徑 → 確認在 `/storage` 內 → 否定回 403 → 通過進 5T 閘
 
@@ -498,8 +498,8 @@ Buffer    Delta Sync           Object.freeze   Lazy Loading   Pagination
 
 ### 12.1 6 種 5T 合規整合模式（增量優化版）
 1. 事件驅動架構 (Event-Driven) — `EventBus`：`generateTraceableId` (Traceable) + `eventLog` (Trackable) + `Object.freeze()` (Trustworthy) + 廣播壓縮 (Transparent) + `getEvents(since)` 增量輸出
-2. 微服務編排 (Microservices Orchestration) — `ServiceOrchestrator`：HMAC 認證 (Trustworthy) + 執行追踪增量 (Trackable) + 執行日誌流式 (Transparent) + 分頁壓縮快取 (Tangible)
-3. 數據管道 (Data Pipeline) — `ETLPipeline`：來源追踪增量 (Traceable) + 血統流式 (Trackable) + 鎖定 (Trustworthy) + 批量載入 (Transparent) + `getChanges` 增量輸出
+2. 微服務編排 (Microservices Orchestration) — `ServiceOrchestrator`：HMAC 認證 (Trustworthy) + 執行追蹤增量 (Trackable) + 執行日誌流式 (Transparent) + 分頁壓縮快取 (Tangible)
+3. 資料管道 (Data Pipeline) — `ETLPipeline`：來源追蹤增量 (Traceable) + 血統流式 (Trackable) + 鎖定 (Trustworthy) + 批次載入 (Transparent) + `getChanges` 增量輸出
 4. API 閘道 (API Gateway) — `APIGateway`：HMAC (Trustworthy) + 速率限制增量 (Trackable) + 訪問日誌流式 (Transparent) + 分頁 CDN (Tangible)
 5. 快取策略 (Cache Strategy) — `CacheManager`：命中率增量 (Trackable) + 用戶通知流式 (Tangible) + 日誌增量 (Transparent) + 驗證 (Trustworthy) + `batchUpdateDelta` 增量
 6. 錯誤處理 (Error Handling) — `ErrorHandler`：錯誤鎖定增量 (Trustworthy) + 日誌流式 (Transparent) + 重試增量 (Trackable) + 通知分頁 (Tangible) + `getErrorLogs` 增量
@@ -896,9 +896,9 @@ contract-gate:
 | 安全分級 | security | public / internal / confidential / restricted | `[security:restricted]` |
 | 代理歸屬 | agent | 01~30; squad:智庫聖所/符文契約/光之羽翼/煉金熵減/5T驗算 | `[agent:13][squad:光之羽翼]` |
 | 生命週期 | lifecycle | draft / active / frozen / archived | `[lifecycle:active]` |
-| 品質/熵減 | priority | p0 / p1 / p2 / p3 | `[p0]` 阻断、`[p3]` 噪音 |
+| 品質/熵減 | priority | p0 / p1 / p2 / p3 | `[p0]` 阻斷、`[p3]` 噪音 |
 | 平台/環境 | platform | esggo / omni / vps / firebase / vercel / github | `[platform:vps]` |
-| 最佳實踐覺 | best-practice | awakened / 结界 / draft | `[best-practice:结界]` |
+| 最佳實踐覺 | best-practice | awakened / 結界 / draft | `[best-practice:結界]` |
 
 **完整語法**：`[security:level][agent:id][squad:name][lifecycle:state][p0-3][platform:env][best-practice:state]`
 
@@ -907,8 +907,8 @@ contract-gate:
 | 優先級 | 標籤組合 | 路由目標 |
 |---|---|---|
 | 1 | `security:restricted` | 加密通道 + 限權存取（Agent 11） |
-| 2 | `best-practice:结界` | 全部自動 inheriting（Agent 06） |
-| 3 | `p0` | 阻断項立即派工 |
+| 2 | `best-practice:結界` | 全部自動 inheriting（Agent 06） |
+| 3 | `p0` | 阻斷項立即派工 |
 | 4 | `agent:01-06` + `squad:智庫聖所` | Hindsight / 記憶召回 |
 | 5 | `agent:07-12` + `squad:符文契約` | API / TypeScript / ZKP 修復 |
 | 6 | `agent:13-18` + `squad:光之羽翼` | 部署 / cron / 自動化 |
@@ -929,7 +929,7 @@ contract-gate:
 | 4 可 1 不可 | lifecycle |
 | Hash Lock | `lifecycle:frozen` + `security:restricted` |
 | 熵減 < 0.1 | p0-p3 優先級 + 熵值目標 |
-| 最佳實踐覺結界 | `best-practice:结界`（inheritance） |
+| 最佳實踐覺結界 | `best-practice:結界`（inheritance） |
 | 萬能自動 | `platform:*` + `lifecycle:active` |
 
 ---

@@ -39,5 +39,5 @@
 STT：本地 faster-whisper（small, CPU, 零 key）→ 翻譯：google-gtx → mymemory → 原文兜底（全免費零 key；Gemini 可選增強）。
 
 ## 待辦（見 docs/TODO-2026-10-10-hermes-omni-ops.md）
-- OmniSub（零算力版）僅驗证服務 200；瀏覽器 WASM/Web Speech 路徑需真機點開確認（無法 headless 測麥克風）。
-- 手機實機點開 omnihermes/omnilive 各页面做最終人眼驗收。
+- OmniSub（零算力版）僅驗證服務 200；瀏覽器 WASM/Web Speech 路徑需真機點開確認（無法 headless 測麥克風）。
+- 手機實機點開 omnihermes/omnilive 各頁面做最終人眼驗收。
