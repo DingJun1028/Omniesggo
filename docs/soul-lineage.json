@@ -22,7 +22,7 @@
       "version": "0.7.4",
       "date": "2026-10-31",
       "summary": "全面繁中化修訂（OpenCC s2tw）— 全書殘留簡體字（结界/白名单/阻断等 11 行）校正為台灣正體中文；§1.2 不可篡改區逐字未變（MD5 不變）。簽印：Hermes Agent & Team OA-Team 30（代理 DingJun Hong）",
-      "commitSha": "PENDING-BACKFILL-AFTER-MERGE",
+      "commitSha": "28c7c8804df33d201f44507ffeb8a5ecc7e2fad0",
       "soulBlobSha": "efe281970d0d5ceb0714fbb6af906e1fcd01a694",
       "frozenZoneMd5": "4121840d2c12d6ee08d1308fc5d88b30",
       "previous": "0.7.3"
