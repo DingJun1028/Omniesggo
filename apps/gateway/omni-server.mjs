@@ -1187,7 +1187,7 @@ if (TELEGRAM_BOT_TOKEN) {
             '可直接在這裡交辦工作，Gateway 會排程並回報進度。\n\n' +
             '指令：\n' +
             '/task <描述> — 交辦新任務\n' +
-            '/status — 檢視在线狀態\n' +
+            '/status — 檢視線上狀態\n' +
             '/help — 說明');
           return;
         }

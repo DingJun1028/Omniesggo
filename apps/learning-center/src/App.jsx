@@ -200,7 +200,7 @@ const LayoutShell = ({ children, view, setView, t, lang, setLang, profileMenuRef
       <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
         <select value={lang} onChange={(e) => setLang(e.target.value)} className="bg-slate-100 border-none text-sm font-semibold text-[#003262] rounded-lg py-2 px-3 outline-none cursor-pointer hover:bg-slate-200 transition-colors">
           <option value="zh-TW">繁體中文</option>
-          <option value="zh-CN">简体中文</option>
+          <option value="zh-CN">簡體中文</option>
           <option value="en">English</option>
         </select>
         <div className="relative" ref={profileMenuRef}>

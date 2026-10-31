@@ -38,29 +38,29 @@ const translations = {
     types: { upload: '作業', booking: '預約', question: '提問', survey: '問卷' }
   },
   'zh-CN': {
-    heroTitle: '2026 柏克莱国际人才培育课程 学习中心',
-    f1: '学员资源区',
-    f2: '作业上传',
-    f3: '课程回放',
-    f4: '咨询预约',
-    f5: '提问提交',
-    f6: '满意调查',
-    records: '用户资源库',
+    heroTitle: '2026 柏克萊國際人才培育課程 學習中心',
+    f1: '學員資源區',
+    f2: '作業上傳',
+    f3: '課程回放',
+    f4: '諮詢預約',
+    f5: '提問提交',
+    f6: '滿意調查',
+    records: '使用者資源庫',
     admin: '管理后台',
-    myRecords: '我的纪录',
-    roleStudent: '🧑‍🎓 学员视角',
-    roleAdmin: '🛡️ 管理员视角',
-    back: '返回首页',
+    myRecords: '我的紀錄',
+    roleStudent: '🧑‍🎓 學員視角',
+    roleAdmin: '🛡️ 管理員視角',
+    back: '返回首頁',
     submit: '提交',
     saving: '保存中...',
     success: '提交成功！',
     footer: '2026 Berkeley ESG Strategy & Innovation Program',
     forms: {
-      upload: { title: '作业上传', file: '选择文件', desc: '备注说明 (选填)' },
-      booking: { title: '咨询预约', date: '预约日期', time: '预约时段', topic: '咨询主题' }
+      upload: { title: '作業上傳', file: '選擇檔案', desc: '備註說明 (選填)' },
+      booking: { title: '諮詢預約', date: '預約日期', time: '預約時段', topic: '諮詢主題' }
     },
-    table: { type: '类型', date: '提交时间', details: '内容细节', user: '用户ID' },
-    types: { upload: '作业', booking: '预约', question: '提问', survey: '问卷' }
+    table: { type: '型別', date: '提交時間', details: '內容細節', user: '使用者ID' },
+    types: { upload: '作業', booking: '預約', question: '提問', survey: '問卷' }
   },
   'en': {
     heroTitle: '2026 Berkeley International Talent Training Center',
@@ -586,7 +586,7 @@ export default function App() {
         <div className="flex items-center gap-3">
           <select value={lang} onChange={(e) => setLang(e.target.value)} className="bg-slate-100 border-none text-sm font-semibold text-[#003262] rounded-lg py-2 px-3 outline-none cursor-pointer hover:bg-slate-200 transition-colors">
             <option value="zh-TW">繁體中文</option>
-            <option value="zh-CN">简体中文</option>
+            <option value="zh-CN">簡體中文</option>
             <option value="en">English</option>
           </select>
 

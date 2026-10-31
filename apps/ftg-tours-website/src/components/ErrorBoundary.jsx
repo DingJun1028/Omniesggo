@@ -90,7 +90,7 @@ export default class ErrorBoundary extends React.Component {
     // 5T-Traceable: 保留可追溯的診斷資訊，不吞掉 stack。
     // 同時記下當下語系 —— 出錯後回報要能重現「使用者看到哪一種語言」。
     this.setState({ lang: detectLang() });
-    // TODO: 若之後接上 Sentry / Cloudflare Analytics，在此改為上报。
+    // TODO: 若之後接上 Sentry / Cloudflare Analytics，在此改為上報。
     console.error('[FTG] unhandled render error:', error, info?.componentStack);
   }
 

@@ -21,7 +21,7 @@
 - [ ] proxy 服務只包含 Oracle sidecar 程式碼，不必耦合前端 bundle。
 - [ ] `GET /health`：
   - 至少驗證 proxy service 存活；
-  - 建議另外暴露 readiness（OCI 連線測試）可作為 Chap 部署/探針，但不要洩露凭证細節。
+  - 建議另外暴露 readiness（OCI 連線測試）可作為 Chap 部署/探針，但不要洩露憑證細節。
 - [ ] `POST /exports`：
   - `body: { records, locale? }`
   - 回傳統一的 `{ status, data?, error? }`，避免直接暴露 stack trace。
@@ -44,7 +44,7 @@
  - `records.id` / `records.locale` / `records.createdAt` / status。
  - 任何 Oracle schema 變更，都要回到這份文件更新欄位說明。
 - [ ] 失敗重試：
- - 可重試的情況下保留幂等 `exportId` 或 `requestId`；
+ - 可重試的情況下保留冪等 `exportId` 或 `requestId`；
  - 不可重試的失敗要寫入 proxy log，並由後續批次補匯。
 
 ---
