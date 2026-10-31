@@ -4,6 +4,9 @@ name: Hermes Install Validation
 # official Hermes Agent install procedures (POSIX + Windows) and AutoSwarm
 # provider discovery on ephemeral runners, so the same one-liners can be run
 # on the dev machine / VPS with confidence. Manual dispatch only.
+# Security: the official installer is downloaded over enforced HTTPS from the
+# vendor domain, sanity-checked (non-empty, shell script with shebang) and
+# then executed as a file; no unverified pipe-to-shell execution.
 on:
   workflow_dispatch:
 
@@ -16,16 +19,21 @@ jobs:
     runs-on: \${{ matrix.os }}
     timeout-minutes: 25
     steps:
-      - name: Install Hermes (Linux)
+      - name: Download and verify Hermes installer (Linux)
         if: runner.os == 'Linux'
         run: |
-          curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive --skip-browser --skip-computer-use
-          echo "\${HOME}/.local/bin" >> \${GITHUB_PATH}
+          curl --proto '=https' --tlsv1.2 -fsSL https://hermes-agent.nousresearch.com/install.sh -o install.sh
+          test -s install.sh
+          head -n 1 install.sh | grep -q '^#!'
+      - name: Install Hermes (Linux)
+        if: runner.os == 'Linux'
+        run: bash install.sh --non-interactive --skip-browser --skip-computer-use
       - name: Install Hermes (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
           irm https://hermes-agent.nousresearch.com/install.ps1 -OutFile install.ps1
+          if (-not (Test-Path install.ps1) -or (Get-Item install.ps1).Length -eq 0) { throw 'installer download failed' }
           ./install.ps1 -NonInteractive -SkipBrowser -SkipComputerUse
           "\${env:LOCALAPPDATA}\hermes\bin" | Out-File -FilePath \${env:GITHUB_PATH} -Append
       - name: Clone AutoSwarm
