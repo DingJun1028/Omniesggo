@@ -4,6 +4,7 @@ name: Hermes Install Validation
 # official Hermes Agent install procedures (POSIX + Windows) and AutoSwarm
 # provider discovery on ephemeral runners, so the same one-liners can be run
 # on the dev machine / VPS with confidence. Manual dispatch only.
+# Note: if the SonarCloud quality-gate job polls a stale ERROR gate right after a push (re-index race), re-run it.
 # Security: the official installer is downloaded over enforced HTTPS from the
 # vendor domain, sanity-checked (non-empty, shell script with shebang) and
 # then executed as a file; no unverified pipe-to-shell execution.
