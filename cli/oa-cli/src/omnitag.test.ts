@@ -39,7 +39,7 @@ describe('§20.4/§20.5 OmniTag 契約閘 (oa-cli 自包含版)', () => {
   });
 
   it('routeOmniTag returns route + barrier flag', () => {
-    const r = routeOmniTag({ agent: 'agent:25', squad: '5T驗算', bestPractice: '结界' });
+    const r = routeOmniTag({ agent: 'agent:25', squad: '5T驗算', bestPractice: '結界' });
     expect(r.target?.routeKey).toBe('audit-lock');
     expect(r.barrierInherited).toBe(true);
     expect(r.consistent).toBe(true);

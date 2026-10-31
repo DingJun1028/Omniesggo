@@ -4,7 +4,7 @@
  * 對齊 src/lib/omnitag-contract.ts 與 src/lib/five-t-protocol.ts 的算法同構，
  * 但零外部依賴（僅 Node crypto），供 oa tag 子命令在 CLI 環境直接過閘。
  *
- * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]
+ * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:結界]
  */
 
 import { createHash } from 'crypto';
@@ -24,7 +24,7 @@ export interface OmniTagSet {
   lifecycle?: OmnitagLifecycle;
   priority?: OmnitagPriority;
   platform?: OmnitagPlatform;
-  bestPractice?: 'awakened' | '结界';
+  bestPractice?: 'awakened' | '結界';
 }
 
 export interface ContractCheck {
@@ -61,7 +61,7 @@ export function enforceFrozenLock(tag: OmniTagSet, attemptedMutation: boolean): 
 
 // ── §20.5 規則 3：結界自動繼承 ─────────────────────────────
 export function isBarrierInherited(tag: OmniTagSet): boolean {
-  return tag.bestPractice === '结界';
+  return tag.bestPractice === '結界';
 }
 
 // ── §20.4 自動路由 ─────────────────────────────────────────
