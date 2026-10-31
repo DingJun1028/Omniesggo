@@ -39,27 +39,27 @@ jobs:
           DEP_OPTS="-i ~/.ssh/dep_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
 
           say "### authorized_keys repair"
-          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" "DEP_B64='$DEP_B64' bash -s" <<'REMOTE')
-set -uo pipefail
-add_key() {
-  user=$1
-  if [ "$user" = root ]; then akdir=/root/.ssh; else akdir=/home/$user/.ssh; fi
-  akfile=$akdir/authorized_keys
-  line="ssh-ed25519 $DEP_B64 esggo-gha-deploy-20261031"
-  if sudo test -f "$akfile" 2>/dev/null && sudo grep -qF -- "$DEP_B64" "$akfile" 2>/dev/null; then
-    echo "$user:ALREADY_PRESENT"
-  else
-    sudo mkdir -p "$akdir"
-    printf '%s\n' "$line" | sudo tee -a "$akfile" >/dev/null
-    sudo chmod 700 "$akdir"; sudo chmod 600 "$akfile"
-    if [ "$user" = root ]; then sudo chown -R root:root "$akdir"; else sudo chown -R "$user:$user" "$akdir"; fi
-    echo "$user:ADDED"
-  fi
-}
-add_key ubuntu
-add_key root
-REMOTE
-) || out="REPAIR_SSH_FAIL"
+          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" "DEP_B64='$DEP_B64' bash -s" <<'REMOTE'
+          set -uo pipefail
+          add_key() {
+            user=$1
+            if [ "$user" = root ]; then akdir=/root/.ssh; else akdir=/home/$user/.ssh; fi
+            akfile=$akdir/authorized_keys
+            line="ssh-ed25519 $DEP_B64 esggo-gha-deploy-20261031"
+            if sudo test -f "$akfile" 2>/dev/null && sudo grep -qF -- "$DEP_B64" "$akfile" 2>/dev/null; then
+              echo "$user:ALREADY_PRESENT"
+            else
+              sudo mkdir -p "$akdir"
+              printf '%s\n' "$line" | sudo tee -a "$akfile" >/dev/null
+              sudo chmod 700 "$akdir"; sudo chmod 600 "$akfile"
+              if [ "$user" = root ]; then sudo chown -R root:root "$akdir"; else sudo chown -R "$user:$user" "$akdir"; fi
+              echo "$user:ADDED"
+            fi
+          }
+          add_key ubuntu
+          add_key root
+          REMOTE
+          ) || out="REPAIR_SSH_FAIL"
           while IFS= read -r line; do [ -n "$line" ] && say "- $line"; done <<< "$out"
 
           say "### verify SSH_PRIVATE_KEY"
@@ -67,15 +67,15 @@ REMOTE
           if ssh $DEP_OPTS "root@${VPS_HOST}" 'true' 2>/dev/null; then say "- dep key as root: SSH OK"; else say "- dep key as root: SSH FAIL"; fi
 
           say "### server state"
-          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" 'bash -s' <<'REMOTE')
-set -uo pipefail
-echo "nginx:$(sudo systemctl is-active nginx 2>/dev/null || echo unknown)"
-echo "ftg_files:$(sudo ls /var/www/ftgtours 2>/dev/null | wc -l)"
-echo "esggo_app_dir:$(sudo test -d /opt/esggo-app && echo YES || echo NO)"
-echo "fail2ban_banned:$(sudo fail2ban-client status sshd 2>/dev/null | grep -oE 'Currently banned:[[:space:]]*[0-9]+' | grep -oE '[0-9]+' || echo NA)"
-echo "pm2_procs:$(sudo -u ubuntu pm2 jlist 2>/dev/null | jq 'length' 2>/dev/null || pm2 jlist 2>/dev/null | jq 'length' 2>/dev/null || echo NA)"
-REMOTE
-) || out="STATE_SSH_FAIL"
+          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" 'bash -s' <<'REMOTE'
+          set -uo pipefail
+          echo "nginx:$(sudo systemctl is-active nginx 2>/dev/null || echo unknown)"
+          echo "ftg_files:$(sudo ls /var/www/ftgtours 2>/dev/null | wc -l)"
+          echo "esggo_app_dir:$(sudo test -d /opt/esggo-app && echo YES || echo NO)"
+          echo "fail2ban_banned:$(sudo fail2ban-client status sshd 2>/dev/null | grep -oE 'Currently banned:[[:space:]]*[0-9]+' | grep -oE '[0-9]+' || echo NA)"
+          echo "pm2_procs:$(sudo -u ubuntu pm2 jlist 2>/dev/null | jq 'length' 2>/dev/null || pm2 jlist 2>/dev/null | jq 'length' 2>/dev/null || echo NA)"
+          REMOTE
+          ) || out="STATE_SSH_FAIL"
           while IFS= read -r line; do [ -n "$line" ] && say "- $line"; done <<< "$out"
 
       - name: setup-pnpm
