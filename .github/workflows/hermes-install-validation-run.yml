@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-    runs-on: \${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 25
     steps:
       - name: Download and verify Hermes installer (Linux)
@@ -38,27 +38,28 @@ jobs:
           irm https://hermes-agent.nousresearch.com/install.ps1 -OutFile install.ps1
           if (-not (Test-Path install.ps1) -or (Get-Item install.ps1).Length -eq 0) { throw 'installer download failed' }
           ./install.ps1 -NonInteractive -SkipBrowser -SkipComputerUse
-          "\${env:LOCALAPPDATA}\hermes\bin" | Out-File -FilePath \${env:GITHUB_PATH} -Append
+          "${env:LOCALAPPDATA}\hermes\bin" | Out-File -FilePath ${env:GITHUB_PATH} -Append
       - name: Clone AutoSwarm
         run: git clone --depth 1 https://github.com/DingJun1028/AutoSwarm.git AutoSwarm
+
       - name: Hermes CLI version
         run: hermes --version
       - name: AutoSwarm provider discovery (Linux)
         if: runner.os == 'Linux'
         working-directory: AutoSwarm
         run: |
-          export HOME=\${RUNNER_TEMP}
-          PYTHONPATH=src python3 -m autoswarm --home "\${RUNNER_TEMP}/as-home" agents > agents.json
-          PYTHONPATH=src python3 -m autoswarm --home "\${RUNNER_TEMP}/as-home" doctor --agent hermes > doctor.json
+          export HOME=${RUNNER_TEMP}
+          PYTHONPATH=src python3 -m autoswarm --home "${RUNNER_TEMP}/as-home" agents > agents.json
+          PYTHONPATH=src python3 -m autoswarm --home "${RUNNER_TEMP}/as-home" doctor --agent hermes > doctor.json
           cat agents.json doctor.json
       - name: AutoSwarm provider discovery (Windows)
         if: runner.os == 'Windows'
         working-directory: AutoSwarm
         shell: bash
         run: |
-          export HOME=\${RUNNER_TEMP}
-          PYTHONPATH=src python -m autoswarm --home "\${RUNNER_TEMP}/as-home" agents > agents.json
-          PYTHONPATH=src python -m autoswarm --home "\${RUNNER_TEMP}/as-home" doctor --agent hermes > doctor.json
+          export HOME=${RUNNER_TEMP}
+          PYTHONPATH=src python -m autoswarm --home "${RUNNER_TEMP}/as-home" agents > agents.json
+          PYTHONPATH=src python -m autoswarm --home "${RUNNER_TEMP}/as-home" doctor --agent hermes > doctor.json
           cat agents.json doctor.json
       - name: Assert hermes discovery
         shell: bash
