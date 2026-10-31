@@ -23,7 +23,7 @@ export const evidenceVerificationRune = defineRune({
 
       const foundRecord = records.find(r => input.claim_text.includes(r.record_id));
       if (foundRecord) {
-        return `[憑證關聯成功] 發現對應凭證：${foundRecord.record_id}，Hash: ${foundRecord.hash.substring(0, 8)}...`;
+        return `[憑證關聯成功] 發現對應憑證：${foundRecord.record_id}，Hash: ${foundRecord.hash.substring(0, 8)}...`;
       }
 
       return `[驗證提醒] 敘述「${input.claim_text}」目前在證據金庫中查無直接對應數據，建議上傳相關單據。`;

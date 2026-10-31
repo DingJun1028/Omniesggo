@@ -285,7 +285,7 @@ jobs:
           # JWT_SECRET 傳遞 (2026-09-27 實測修): 下方 heredoc 是 <<'VPS' (引號)，
           #   遠端才展開變數 → GitHub secret 無法自動進遠端環境 → ftg 拒絕啟動。
           #   不能改成未引號 heredoc: 會讓 $PM2 / $FTG_SRC 等全部改為本地展開而壞掉。
-          #   走 stdin 傳輸而非 argv: 避免 secret 出現在 ssh 命令列 (ps 可见)。
+          #   走 stdin 傳輸而非 argv: 避免 secret 出現在 ssh 命令列 (ps 可見)。
           if [ -n "$FTG_JWT_SECRET" ]; then
             printf '%s' "$FTG_JWT_SECRET" | ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o ConnectTimeout=30 ${{ env.VPS_USER }}@${{ secrets.VPS_HOST }} 'cat > /tmp/ftg_jwt && chmod 600 /tmp/ftg_jwt'
             echo "[OK] JWT secret staged on VPS"

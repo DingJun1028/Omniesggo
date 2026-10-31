@@ -130,7 +130,7 @@ function generateReport(framework, companyData, year) {
     sections.push({
       id: 'CSRD-Environmental',
       title: '環境議題 (ESRS E1-E5)',
-      content: `## 環境議題\n\n- **氣候變遷 (E1)**：碳排管理\n- **污染 (E2)**：排放管理\n- **水資源 (E3)**：水資源管理\n- **生物多樣性 (E4)**：生態保育\n- **循环经济 (E5)**：資源循環`,
+      content: `## 環境議題\n\n- **氣候變遷 (E1)**：碳排管理\n- **汙染 (E2)**：排放管理\n- **水資源 (E3)**：水資源管理\n- **生物多樣性 (E4)**：生態保育\n- **迴圈經濟 (E5)**：資源迴圈`,
       kpis: [],
     });
   }

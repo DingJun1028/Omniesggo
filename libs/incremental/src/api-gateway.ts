@@ -1,5 +1,5 @@
 /**
- * 5T 合規 API 閘道 (增量優化版) — 圣典 §12.1.4
+ * 5T 合規 API 閘道 (增量最佳化版) — 聖典 §12.1.4
  * Trustworthy: HMAC 認證 | Trackable: 速率限制增量
  * Transparent: 訪問日誌 | Tangible: 分頁返回
  */
