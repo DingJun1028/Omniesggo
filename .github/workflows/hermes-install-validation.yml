@@ -8,7 +8,7 @@ name: Hermes Install Validation
 # Security: the official installer is downloaded over enforced HTTPS from the
 # vendor domain, sanity-checked (non-empty, shell script with shebang) and
 # then executed as a file; no unverified pipe-to-shell execution.
-# Branch history includes main via merge 998d31cb (known-flaky whitelist sync).
+# Branch history includes main via merge (known-flaky whitelist sync). CI retrigger.
 on:
   workflow_dispatch:
 
