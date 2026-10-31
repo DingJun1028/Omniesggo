@@ -1,4 +1,4 @@
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * Firebase 相容層 (Supabase Adapter) — GCP Firebase 已停用，改由 Supabase 接手。
  * 
