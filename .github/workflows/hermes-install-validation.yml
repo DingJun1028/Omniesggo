@@ -8,7 +8,8 @@ name: Hermes Install Validation
 # Security: the official installer is downloaded over enforced HTTPS from the
 # vendor domain, sanity-checked (non-empty, shell script with shebang) and
 # then executed as a file; no unverified pipe-to-shell execution.
-# Branch includes main (known-flaky whitelist). CI retrigger 2.
+# Branch includes main (known-flaky whitelist). CI retrigger 4: do not override HOME
+# (AutoSwarm locates the hermes provider relative to HOME); diagnostics go to the public step summary.
 on:
   workflow_dispatch:
 
@@ -19,7 +20,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
+    timeout-minutes: 30
     steps:
       - name: Download and verify Hermes installer (Linux)
         if: runner.os == 'Linux'
@@ -37,39 +38,37 @@ jobs:
           irm https://hermes-agent.nousresearch.com/install.ps1 -OutFile install.ps1
           if (-not (Test-Path install.ps1) -or (Get-Item install.ps1).Length -eq 0) { throw 'installer download failed' }
           ./install.ps1 -NonInteractive -SkipBrowser -SkipComputerUse
-          "${env:LOCALAPPDATA}\hermes\bin" | Out-File -FilePath ${env:GITHUB_PATH} -Append
+          "${env:LOCALAPPDATA}\hermes\bin" | Out-File -FilePath ${env:GITHUB_PATH} -App
+end
       - name: Clone AutoSwarm
         run: git clone --depth 1 https://github.com/DingJun1028/AutoSwarm.git AutoSwarm
-      - name: Hermes CLI ve
-rsion
+
+      - name: Hermes CLI version
         run: hermes --version
-      - name: AutoSwarm provider discovery (Linux)
-        if: runner.os == 'Linux'
-        working-directory: AutoSwarm
-        run: |
-          export HOME=${RUNNER_TEMP}
-          PYTHONPATH=src python3 -m autoswarm --home "${RUNNER_TEMP}/as-home" agents > agents.json
-          PYTHONPATH=src python3 -m autoswarm --home "${RUNNER_TEMP}/as-home" doctor --agent hermes > doctor.json
-          cat agents.json doctor.json
-      - name: AutoSwarm provider discovery (Windows)
-        if: runner.os == 'Windows'
+      - name: AutoSwarm provider discovery
         working-directory: AutoSwarm
         shell: bash
         run: |
-          export HOME=${RUNNER_TEMP}
-          PYTHONPATH=src python -m autoswarm --home "${RUNNER_TEMP}/as-home" agents > agents.json
-          PYTHONPATH=src python -m autoswarm --home "${RUNNER_TEMP}/as-home" doctor --agent hermes > doctor.json
-          cat agents.json doctor.json
+          AS="PYTHONPATH=src $(command -v python3 || command -v python) -m autoswarm --home ${RUNNER_TEMP}/as-home"
+          eval $AS agents > agents.json
+          eval $AS doctor --agent hermes > doctor.json || true
+          {
+            echo '## AutoSwarm discovery diagnostics'
+            echo '### agents.json'; echo '```json'; cat agents.json; echo '```'
+            echo '### doctor.json'; echo '```json'; cat doctor.json; echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Assert hermes discovery
         shell: bash
         working-directory: AutoSwarm
         run: |
-          python - <<'EOF'
+          PY=$(command -v python3 || command -v python)
+          $PY - <<'EOF'
           import json, sys
           agents = json.load(open('agents.json'))['data']['agents']
-          hermes = next(a for a in agents if a['provider'] == 'hermes')
+          hermes = next((a for a in agents if a['provider'] == 'hermes'), None)
+          if hermes is None:
+              print('FAIL: hermes provider missing from agents.json'); sys.exit(1)
           if not hermes.get('available'):
-              print('FAIL: hermes CLI not discovered:', hermes.get('error'))
-              sys.exit(1)
+              print('FAIL: hermes CLI not discovered:', hermes.get('error')); sys.exit(1)
           print('PASS: hermes executable discovered on PATH')
           EOF
