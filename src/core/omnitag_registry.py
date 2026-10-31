@@ -10,7 +10,7 @@ Hash Lock 使用 src/core/verification.py 的 generate_hash_lock (§18 跨語言
 
 零外部依賴（僅標準庫 json / os / hashlib 經 verification）。
 
-[agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]
+[agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:結界]
 """
 
 import json

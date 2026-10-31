@@ -376,7 +376,7 @@ const STEP_QUESTIONS: Record<GuideStep, GuideQuestion[]> = {
       type: 'text',
       question: '請描述您公司收集利害關係人意見的主要管道？',
       questionEn: 'What are the main channels for collecting stakeholder feedback?',
-      explanation: '常見的管道包括問卷調查、股東大會、客戶滿意度調查、員工座談会等。',
+      explanation: '常見的管道包括問卷調查、股東大會、客戶滿意度調查、員工座談會等。',
       explanationEn: 'Common channels include surveys, AGMs, customer satisfaction surveys, employee forums, etc.',
       placeholder: '例如：年度問卷調查、股東大會、客戶投訴熱線...',
       required: true,

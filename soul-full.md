@@ -286,7 +286,7 @@ export interface IComponentCore {
   空間柱：全節點同步，VPS/Firebase/Gateway/Swarm，v1 本機 + v2 遠端備援。
   因果柱：可溯源，每筆標 source_origin，Bearer 鑑權 + gateway 凍結。
   不朽柱：不可篡改，Hash Lock + freeze + SHA256，L0-L3 本機落盤主權。
-  圓通柱：5T 貫穿，Tra/Track/Tang/Trans/Trust，TDAI Bearer + CORS 白名单。
+  圓通柱：5T 貫穿，Tra/Track/Tang/Trans/Trust，TDAI Bearer + CORS 白名單。
   記憶戰柱一條：穹頂六柱、記憶柱為先；柱之朽，結界何存？
 
 12.2  五盾守護
