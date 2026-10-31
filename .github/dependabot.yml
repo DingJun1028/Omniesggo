@@ -74,6 +74,13 @@ updates:
       - dependency-name: "tailwindcss"
         update-types:
           - "version-update:semver-major"
+      # 2026-10-31 決策（PR #125）：傳遞依賴更新失敗噪音治理。
+      # minimatch / postcss-selector-parser 為 tailwind 3.x + postcss 鏈之
+      # 傳遞依賴，被直接依賴鎖定版本範圍，Dependabot 版本求解必失敗
+      # （每輪排程產生 failed run）。安全修補之正道為升級直接依賴
+      # （tailwindcss 3.x patch / CSS 工具鏈），該路徑保持啟用不變。
+      - dependency-name: "minimatch"
+      - dependency-name: "postcss-selector-parser"
 
   # === npm/pnpm (oa-swarm) ===
   - package-ecosystem: "npm"
@@ -87,6 +94,11 @@ updates:
     labels:
       - "dependencies"
       - "oa-swarm"
+    # 2026-10-31 決策（PR #125）：vite 為 vitest ^5.0.5 之傳遞依賴，
+    # vitest 直接鎖定 vite 版本範圍，傳遞更新版本求解必失敗。
+    # 安全修補之正道為升級 vitest（直接依賴），保持啟用不變。
+    ignore:
+      - dependency-name: "vite"
 
   # === npm/pnpm (my-worker) ===
   - package-ecosystem: "npm"
@@ -100,6 +112,30 @@ updates:
     labels:
       - "dependencies"
       - "my-worker"
+    # 2026-10-31 決策（PR #125）：undici 為 wrangler ^4 之傳遞依賴，
+    # wrangler 直接鎖定 undici 版本範圍，傳遞更新版本求解必失敗。
+    # 安全修補之正道為升級 wrangler（直接依賴），保持啟用不變；
+    # wrangler 每次升級即攜帶已修補之 undici。
+    ignore:
+      - dependency-name: "undici"
+
+  # === npm (/.github/worker-tools — omnigateway-ci-tools) ===
+  # 2026-10-31 新增（PR #125）：此目錄先前無 config 條目，Dependabot 安全更新
+  # 對 wrangler 之傳遞依賴 undici 之修補嘗試因版本鎖定必失敗（failed run 噪音）。
+  # 列管後以 ignore 消除噪音；typescript 5.9 / wrangler 直接依賴更新照常啟用。
+  - package-ecosystem: "npm"
+    directory: "/.github/worker-tools"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "worker-tools"
+    ignore:
+      - dependency-name: "undici"
 
   # === pip (oa-team-crewai) ===
   - package-ecosystem: "pip"
