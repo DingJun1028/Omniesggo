@@ -35,7 +35,7 @@
 服務由 `ecosystem.config.cjs` 的 `stt-whisper` 條目管理（pm2）。部署腳本：
 
 ```bash
-# 1. 建 venv + 裝依賴（首次，需联网下載 base 模型 ~140MB 到 ~/.cache/huggingface）
+# 1. 建 venv + 裝依賴（首次，需聯網下載 base 模型 ~140MB 到 ~/.cache/huggingface）
 cd /var/www/esggo/apps/stt
 python3 -m venv .venv
 . .venv/bin/activate

@@ -59,7 +59,7 @@ pnpm vitest run apps/mcp-gateway         # 契約測試（auth + Supabase 金鑰
 
 - [x] `pnpm -F @esggo/mcp-gateway typecheck` 通過（NodeNext 嚴格 tsc）
 - [x] 根 vitest 抓取本套件契約測試全綠（CI test job）
-- [x] fail-closed 行為有測試保證（未設 token → 503，不静默放行）
+- [x] fail-closed 行為有測試保證（未設 token → 503，不靜默放行）
 - [x] `scripts/start-intranet.sh` fail-fast 檢查 token，僅供內網
 - [ ] Dockerfile 映像建置（CI 不建置本映像；首次部署前須手動 `docker build -f apps/mcp-gateway/Dockerfile .` 驗證）
 - [ ] 真實 Supabase RLS/anon 權限實測（需專案金鑰，CI 無法驗證）

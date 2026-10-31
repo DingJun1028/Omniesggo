@@ -45,7 +45,7 @@ TENCENT_RTC_SECRET=<your-secret>
 
 ### 3.2 5T 驗證
 - Traceable：消息溯源
-- Trackable：連接狀態追踪
+- Trackable：連線狀態追蹤
 - Tangible：即時體驗
 - Transparent：連接日誌公開
 - Trustworthy：消息加密
