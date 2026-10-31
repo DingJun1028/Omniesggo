@@ -11,7 +11,13 @@ export {
   deterministicId,
 } from "./client";
 import { embed, ensureClass, upsertChunk, searchSimilar } from "./client";
-import type { RagClientConfig, RagChunk, RagIndexedEvent, SupabaseChunkRepo } from "./contracts";
+import type {
+  RagClientConfig,
+  RagChunk,
+  RagIndexedEvent,
+  RagSearchResult,
+  SupabaseChunkRepo,
+} from "./contracts";
 
 // rag.indexed 事件（冪等鍵 = docId，對接 OmniBus R4 冪等重放）
 export function buildIndexedEvent(
@@ -33,7 +39,7 @@ export async function indexDocument(
   config: RagClientConfig,
   repo: SupabaseChunkRepo,
   chunks: RagChunk[]
-): Promise<RaggedEventOrNever> {
+): Promise<RagIndexedEvent> {
   await ensureClass(config);
   for (const chunk of chunks) {
     const vector = await embed(config, chunk.content);
@@ -47,15 +53,13 @@ export async function indexDocument(
   );
 }
 
-type RaggedEventOrNever = RagIndexedEvent;
-
 // 端到端檢索：embed → searchSimilar（強制 ownerId 過濾，與 Supabase RLS 語義一致）
 export async function search(
   config: RagClientConfig,
   query: string,
   ownerId: string,
   limit = 10
-): Promise<import("./contracts").RagSearchResult[]> {
+): Promise<RagSearchResult[]> {
   const vector = await embed(config, query);
   return searchSimilar(config, vector, ownerId, limit);
 }
