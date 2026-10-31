@@ -1,0 +1,102 @@
+name: vps-ssh-repair3-run
+
+on:
+  push:
+    branches: [probe/vps-repair-20261031]
+    paths: [".github/workflows/vps-ssh-repair3-run.yml"]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  repair3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      R: /tmp/repair3-result.md
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: repair3
+        run: |
+          set -uo pipefail
+          set +e
+          say() { printf '%s\n' "$*" >> "$R"; printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; printf '%s\n' "$*"; }
+          say "## vps-ssh-repair3 $(date -u +%FT%TZ)"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key && chmod 600 ~/.ssh/vps_key
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/dep_key && chmod 600 ~/.ssh/dep_key
+          VPS_OPTS="-i ~/.ssh/vps_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+          DEP_OPTS="-i ~/.ssh/dep_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+
+          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" 'bash -s' <<'REMOTE'
+          set +e
+          if command -v rsync >/dev/null 2>&1; then
+            echo "rsync_remote:PRESENT"
+          else
+            if sudo apt-get update -qq >/dev/null 2>&1 && sudo apt-get install -y rsync >/dev/null 2>&1; then
+              echo "rsync_remote:INSTALLED_NOW"
+            else
+              echo "rsync_remote:INSTALL_FAIL"
+            fi
+          fi
+          echo "ftg_owner:$(stat -c '%U' /var/www/ftgtours 2>/dev/null || echo none)"
+          if [ "$(stat -c '%U' /var/www/ftgtours 2>/dev/null || echo none)" != ubuntu ]; then
+            sudo chown -R ubuntu:ubuntu /var/www/ftgtours 2>/dev/null
+            echo "ftg_owner_after:$(stat -c '%U' /var/www/ftgtours 2>/dev/null || echo none)"
+          fi
+          echo "ftg_writable:$(sudo -u ubuntu test -w /var/www/ftgtours && echo YES || echo NO)"
+          echo "permitrootlogin:$(sudo sshd -T 2>/dev/null | grep -oE "permitrootlogin .*" | head -1 || echo NA)"
+          REMOTE
+          ) || out="REPAIR3_SSH_FAIL"
+          while IFS= read -r line; do [ -n "$line" ] && say "- $line"; done <<< "$out"
+
+      - name: setup-pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: deploy-ftg-canonical
+        run: |
+          set -uo pipefail
+          set +e
+          say() { printf '%s\n' "$*" >> "$R"; printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; printf '%s\n' "$*"; }
+          say "### FTG deploy retry (canonical pipeline)"
+          pnpm install >/dev/null 2>&1; say "- pnpm install: rc=$?"
+          (cd apps/ftg-tours-website && pnpm run build >/dev/null 2>&1); say "- FTG build: rc=$?"
+          say "- dist entries: $(ls apps/ftg-tours-website/dist 2>/dev/null | wc -l)"
+          DEP_OPTS="-i ~/.ssh/dep_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+          err=$(rsync -az --delete -e "ssh $DEP_OPTS" apps/ftg-tours-website/dist/ "ubuntu@${VPS_HOST}:/var/www/ftgtours/" 2>&1 >/dev/null); rc=$?
+          err=${err//$VPS_HOST/VPS}
+          say "- rsync rc=$rc"
+          if [ $rc -ne 0 ]; then
+            say "- rsync err head: $(printf "%s" "$err" | head -3 | tr "\n" " " | cut -c1-160)"
+            exit 0
+          fi
+          say "- rsync to /var/www/ftgtours: OK"
+          ssh $DEP_OPTS "ubuntu@${VPS_HOST}" 'sudo nginx -t && sudo nginx -s reload' >/dev/null 2>&1; say "- nginx reload rc=$?"
+          sleep 3
+          say "- ftgtours.esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://ftgtours.esggo.co/)"
+          say "- esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://esggo.co/)"
+          say "- hermex.esggo.co: $(curl -s -o /dev/null -w '%{http_code}' --max-time 20 https://hermex.esggo.co/)"
+          say "- ftg_html_tags: $(curl -s --max-time 20 https://ftgtours.esggo.co/ | grep -c html)"
+
+      - name: publish
+        run: |
+          set +e
+          cp "$R" repair3-result.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repair3-result.md
+          git commit -m "repair3 results snapshot" || true
+          git push || echo "git push failed"
+          echo
