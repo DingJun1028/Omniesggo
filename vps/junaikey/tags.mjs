@@ -12,7 +12,7 @@ export const OMNITAG_DIMENSIONS = {
   lifecycle: ['draft', 'active', 'frozen', 'archived'],
   priority: ['p0', 'p1', 'p2', 'p3'],
   platform: ['esggo', 'omni', 'vps', 'firebase', 'vercel', 'github', 'cloudflare', 'ncb', 'hermes', 'ncndb'],
-  'best-practice': ['awakened', '结界', 'draft'],
+  'best-practice': ['awakened', '結界', 'draft'],
   // Superpowers 7 階段融合的 tag 維度 (key=id, value=superpowers:<id>)
   superpowers: [
     'brainstorming', 'worktrees', 'plans', 'subagent', 'tdd', 'codereview', 'finish5t',
@@ -167,7 +167,7 @@ export function aggregateTags(records) {
 //       結界可被顯式移除 (若 skills 沒帶結界)
 // 回傳: 需自動加結界的 skills 列表 (name + 原因)
 export function calculateBoundaryInheritance(allSkills) {
-  const awakened = allSkills.filter(s => Array.isArray(s.traits) && s.traits.includes('best-practice:结界'));
+  const awakened = allSkills.filter(s => Array.isArray(s.traits) && s.traits.includes('best-practice:結界'));
   if (!awakened.length) return [];
   // 收集所有 awakened 的 agent/squad
   const inheritedAgents = new Set();
@@ -179,10 +179,10 @@ export function calculateBoundaryInheritance(allSkills) {
       if (p && p.key === 'squad') inheritedSquads.add(p.value);
     }
   }
-  // 找出需要繼承的 skills (同 agent/squad 但沒有 best-practice:结界)
+  // 找出需要繼承的 skills (同 agent/squad 但沒有 best-practice:結界)
   const needsInherit = [];
   for (const s of allSkills) {
-    if (Array.isArray(s.traits) && s.traits.includes('best-practice:结界')) continue;  // 已有
+    if (Array.isArray(s.traits) && s.traits.includes('best-practice:結界')) continue;  // 已有
     const hasMatchAgent = (s.traits || []).some(t => {
       const p = parseTag(t);
       return p && p.key === 'agent' && inheritedAgents.has(p.value);
@@ -195,8 +195,8 @@ export function calculateBoundaryInheritance(allSkills) {
       needsInherit.push({
         name: s.name,
         reason: hasMatchAgent
-          ? `inherits 結界 from agent:* with best-practice:结界`
-          : `inherits 結界 from squad:* with best-practice:结界`,
+          ? `inherits 結界 from agent:* with best-practice:結界`
+          : `inherits 結界 from squad:* with best-practice:結界`,
       });
     }
   }

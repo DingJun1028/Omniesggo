@@ -11,7 +11,7 @@ mode: daily
 
 # 2026-09-03 每日 Web 補充洞察
 
-> Ollama 多筆記深度推理超时（120s），此為 web_search 補充。
+> Ollama 多筆記深度推理超時（120s），此為 web_search 補充。
 
 ## AI Agent 編排趨勢（Gartner/Deloitte/LinkedIn）
 

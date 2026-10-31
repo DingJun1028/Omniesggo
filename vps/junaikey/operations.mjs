@@ -290,7 +290,7 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
     for (const { name } of needs) {
       const s = byName.get(name);
       if (s) {
-        s.traits = [...new Set([...(s.traits || []), 'best-practice:结界'])];
+        s.traits = [...new Set([...(s.traits || []), 'best-practice:結界'])];
         s.updatedAt = new Date().toISOString();
       }
     }
@@ -452,7 +452,7 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
 
   async function autoTagFromLLM(text, { model = 'qwen2.5:3b-64k', maxTags = 5, ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434', autoFallback = true } = {}) {
     if (!text || text.length < 10) return { tags: [], reason: 'text too short' };
-    const prompt = `從以下中文/英文內容提取最多 ${maxTags} 個 OmniTag (格式: key:value)。OmniTag 維度: security(public/internal/confidential/restricted), agent(01-30), squad(智庫聖所/符文契約/光之羽翼/煉金熵減/5T驗算), lifecycle(draft/active/frozen/archived), priority(p0/p1/p2/p3), platform(esggo/omni/vps/ncb/hermes/cloudflare), best-practice(awakened/结界/draft)。
+    const prompt = `從以下中文/英文內容提取最多 ${maxTags} 個 OmniTag (格式: key:value)。OmniTag 維度: security(public/internal/confidential/restricted), agent(01-30), squad(智庫聖所/符文契約/光之羽翼/煉金熵減/5T驗算), lifecycle(draft/active/frozen/archived), priority(p0/p1/p2/p3), platform(esggo/omni/vps/ncb/hermes/cloudflare), best-practice(awakened/結界/draft)。
 
 內容:
 """
