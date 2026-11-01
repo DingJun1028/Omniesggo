@@ -53,6 +53,7 @@ export {
   type HiveWorker,
 } from './hive';
 export { OmniProphet, type ProphetOptions } from './prophet';
+export { bindProphetToAgent, type ForeseeIntent } from './prophet-bridge';
 export {
   OmniAvatarCore,
   sealAvatarConfig,
