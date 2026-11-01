@@ -3,8 +3,10 @@ FROM python:3.12-slim
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 
-COPY requirements.lock ./
-RUN pip install --no-cache-dir --only-binary=:all: -r requirements.lock
+# Locked resolved versions (verified on PyPI) + binary-only install.
+RUN pip install --no-cache-dir --only-binary=:all: \
+    mistralai-workflows==3.17.0 \
+    pydantic==2.12.5
 
 COPY ci_monitor.py worker.py ./
 
