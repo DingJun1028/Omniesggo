@@ -1,0 +1,66 @@
+name: vps-inventory-run
+
+on:
+  push:
+    branches: [probe/vps-repair-20261031]
+    paths: [".github/workflows/vps-inventory-run.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+      R: /tmp/inventory-result.md
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: inventory
+        run: |
+          set -uo pipefail
+          set +e
+          say() { printf '%s\n' "$*" >> "$R"; printf '%s\n' "$*" >> "$GITHUB_STEP_SUMMARY"; printf '%s\n' "$*"; }
+          say "## vps-inventory $(date -u +%FT%TZ)"
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key && chmod 600 ~/.ssh/vps_key
+          VPS_OPTS="-i ~/.ssh/vps_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=15 -o BatchMode=yes"
+
+          out=$(ssh $VPS_OPTS "ubuntu@${VPS_HOST}" 'bash -s' <<'REMOTE'
+          set +e
+          echo "hermex_api_code:$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://hermex.esggo.co/api/)"
+          echo "hermex_ws_code:$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://hermex.esggo.co/api/ws)"
+          echo "port9119_listeners:$(ss -ltn 2>/dev/null | grep -c ':9119')"
+          echo "port3000_listeners:$(ss -ltn 2>/dev/null | grep -c ':3000')"
+          echo "port8642_listeners:$(ss -ltn 2>/dev/null | grep -c ':8642')"
+          echo "hermes_serve_active:$(systemctl is-active hermes-serve 2>/dev/null || echo inactive)"
+          echo "nginx_sites:$(ls /etc/nginx/sites-enabled 2>/dev/null | tr '\n' ' ')"
+          echo "varwww:$(ls /var/www 2>/dev/null | tr '\n' ' ')"
+          echo "opt_dirs:$(ls /opt 2>/dev/null | tr '\n' ' ')"
+          echo "home_dirs:$(ls ~ 2>/dev/null | tr '\n' ' ')"
+          echo "esggo_services:$(systemctl list-units --type=service --state=running --no-legend 2>/dev/null | grep -Ei 'hermes|esggo|omni|pm2|node|next' | awk '{print $1}' | tr '\n' ' ')"
+          echo "root_ssh_dir_mode:$(sudo stat -c '%a %U' /root/.ssh 2>/dev/null || echo none)"
+          echo "root_ak_mode:$(sudo stat -c '%a %U' /root/.ssh/authorized_keys 2>/dev/null || echo none)"
+          echo "sshd_permitrootlogin:$(sudo sshd -T 2>/dev/null | grep -oE 'permitrootlogin [a-z-]*' | head -1)"
+          echo "sshd_pubkey:$(sudo sshd -T 2>/dev/null | grep -oE 'pubkeyauthentication [a-z]*' | head -1)"
+          echo "sshd_auth_methods:$(sudo sshd -T 2>/dev/null | grep -oE 'authenticationmethods [a-z,]*' | head -1)"
+          echo "root_ak_lines:$(sudo wc -l < /root/.ssh/authorized_keys 2>/dev/null || echo NA)"
+          echo "ubuntu_ak_lines:$(wc -l < ~/.ssh/authorized_keys 2>/dev/null || echo NA)"
+          echo "auth_log_recent:$(sudo journalctl -u ssh -n 200 --no-pager 2>/dev/null | grep -c 'Failed publickey')"
+          REMOTE
+          ) || out="INVENTORY_SSH_FAIL"
+          while IFS= read -r line; do [ -n "$line" ] && say "- $line"; done <<< "$out"
+
+      - name: publish
+        run: |
+          set +e
+          cp "$R" inventory-result.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add inventory-result.md
+          git commit -m "inventory results snapshot" || true
+          git push || echo "git push failed"
+          echo
