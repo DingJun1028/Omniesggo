@@ -129,6 +129,8 @@ export class OmniHive {
     if (active.length === 0) {
       throw new OmniArchError('E_HIVE_NO_BID', `任務 ${task.uuid} 全員棄標, 流標 fail-fast`);
     }
+    // SonarCloud Reliability 規則: reduce() 必須提供初始值, 否則空陣列會拋 TypeError。
+    // active 非空已由上方 E_HIVE_NO_BID 保證, 故以 active[0] 為初始值。
     const winner = active.reduce(
       (best, entry) => (entry.bid.score > best.bid.score ? entry : best),
       active[0]
