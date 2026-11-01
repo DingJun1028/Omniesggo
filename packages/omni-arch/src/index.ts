@@ -55,6 +55,11 @@ export {
 export { OmniProphet, type ProphetOptions } from './prophet';
 export { bindProphetToAgent, type ForeseeIntent } from './prophet-bridge';
 export {
+  invokeTrusted,
+  REQUIRED_TRUST_BY_MODE,
+  trustAwareToolPermission,
+} from './tool-trust-gate';
+export {
   OmniAvatarCore,
   sealAvatarConfig,
   suggestMode,
