@@ -1,0 +1,7 @@
+Using CPython 3.12.3 interpreter at: /usr/bin/python3
+error: No solution found when resolving dependencies for split (markers: python_full_version == '3.13.*')
+  cause: Because crewai-tools==1.15.32 depends on crewai==1.15.32 and your project depends on crewai[litellm]==1.15.30, we can conclude that crewai-tools==1.15.32 and your project are incompatible.
+         And because your project depends on crewai-tools==1.15.32, we can conclude that your project's requirements are unsatisfiable.
+
+hint: While the active Python version is 3.12, the resolution failed for other Python versions supported by your project. Consider limiting your project's supported Python versions using `requires-python`.
+uv lock rc=1
