@@ -1,0 +1,17 @@
+[project]
+name = "esg-swarm"
+version = "0.1.0"
+description = "Omniesggo ESG-GO agent swarm as durable Mistral AI Studio workflows"
+requires-python = ">=3.12"
+dependencies = [
+    "mistralai-workflows>=3.10",
+    "pydantic>=2.7",
+    "python-dotenv>=1.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["esg_swarm"]
