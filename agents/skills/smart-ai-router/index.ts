@@ -15,6 +15,7 @@ export * from './model-discovery/event-store';
 
 // ============ 核心類別導出 ============
 export { OmniAgentGateway, OAG } from './OmniAgentGateway';
+export * from './shared-memory';
 export { TimeRiftEngine, InMemoryEventStore, PostgresEventStore, EventStoreDBStore, createEventStore } from './model-discovery/event-store';
 export { SmartAIRouterWithTimeRift } from './integration/time-rift-integration';
 
