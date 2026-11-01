@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omni-note"
+version = "0.2.0"
+description = "萬能筆記 OmniNote — Obsidian 共享大腦 電腦/手機/Hermes 三向同步"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "AGPL-3.0" }
+authors = [{ name = "DingJun1028" }]
+dependencies = []  # 純標準庫
+
+[project.scripts]
+omni-note = "omni_note.cli:main"
+
+[tool.setuptools]
+packages = ["omni_note"]
