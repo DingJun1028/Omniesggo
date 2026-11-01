@@ -1,5 +1,6 @@
 export { OesgPulseEngine, type OesgPulseConfig } from './engine';
 export { createMemorySink, createNcbSink } from './sinks';
+export { createSweepWorker, tenderSweep, type SweepAward, type SweepBidder } from './hive';
 export {
   PulseError,
   type ActivityUnit,
