@@ -6,6 +6,8 @@
  * - 戒嚴廣播: OmniHealing 狀態變化 → bus 發佈 sys.martial_law,
  *   並由 OmniTheme 於 current()/set() 強制防護色。
  * - 契約執行: ensureContract 驗證 IComponentCore 形狀 + deepFreeze。
+ * - 下階段編排 (正典 §7): OmniHive (全知蜂巢競標) 與
+ *   OmniProphet (先知矩陣多重宇宙) 接入頂層, 得標軌跡上總線留痕。
  */
 import { deepFreeze } from '@esggo/omni-core';
 import { OmniArchError } from './types';
@@ -28,6 +30,8 @@ import { OmniUserRegistry } from './user-registry';
 import { OmniTheme } from './theme';
 import { OmniEngine } from './engine';
 import { OmniBrain, OmniHeart } from './heart';
+import { OmniHive } from './hive';
+import { OmniProphet } from './prophet';
 
 const TOPOLOGY: Readonly<Record<OmniDimension, readonly ModuleId[]>> = Object.freeze({
   physical: ['OmniBase', 'OmniMemory', 'OmniTime'],
@@ -57,6 +61,8 @@ export interface ArchWire {
   readonly engine: OmniEngine;
   readonly heart: OmniHeart;
   readonly brain: OmniBrain;
+  readonly hive: OmniHive;
+  readonly prophet: OmniProphet;
 }
 
 export class OmniArch {
@@ -97,6 +103,13 @@ export class OmniArch {
     const api = new OmniAPI();
     const seed = new OmniSeed();
     const userRegistry = new OmniUserRegistry();
+
+    // 全知蜂巢接線: 得標軌跡 → bus hive.awarded + time 裂縫留痕
+    const hive = new OmniHive((event) => {
+      void bus.publish(event);
+      time.append(event);
+    });
+    const prophet = new OmniProphet();
 
     const engine = new OmniEngine(healing, evolution, theme);
     const heart = new OmniHeart(
@@ -140,6 +153,8 @@ export class OmniArch {
       engine,
       heart,
       brain,
+      hive,
+      prophet,
     };
     return new OmniArch(wire);
   }

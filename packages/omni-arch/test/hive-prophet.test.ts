@@ -3,6 +3,7 @@ import { OmniHive } from '../src/hive';
 import { OmniProphet } from '../src/prophet';
 import { OmniArch } from '../src/arch';
 import { mintEvent, OmniArchError } from '../src/types';
+import type { BusEvent } from '../src/types';
 
 describe('OmniHive 全知蜂巢 (共享黑板 + 動態競標)', () => {
   it('黑板事實深凍結刻印, uuid 重複拒絕', () => {
@@ -15,14 +16,14 @@ describe('OmniHive 全知蜂巢 (共享黑板 + 動態競標)', () => {
   });
 
   it('入伍重複拒絕; 單輪競標最高分得標並執行', async () => {
-    const awards: BusEventLike[] = [];
+    const awards: BusEvent[] = [];
     const hive = new OmniHive((event) => {
       awards.push(event);
     });
     const low = {
       id: 'worker-low',
       bid: () => ({ score: 5, note: '低價試探' }),
-      execute: async (task: Readonly<BusEventLike>) => {
+      execute: async (task: Readonly<BusEvent>) => {
         await Promise.resolve(undefined);
         return `low-executed-${task.uuid}`;
       },
@@ -30,7 +31,7 @@ describe('OmniHive 全知蜂巢 (共享黑板 + 動態競標)', () => {
     const high = {
       id: 'worker-high',
       bid: () => ({ score: 10, note: '勝券在握' }),
-      execute: async (task: Readonly<BusEventLike>) => {
+      execute: async (task: Readonly<BusEvent>) => {
         await Promise.resolve(undefined);
         return `high-executed-${task.uuid}`;
       },
@@ -63,7 +64,7 @@ describe('OmniHive 全知蜂巢 (共享黑板 + 動態競標)', () => {
     };
     const counter = {
       id: 'worker-counter',
-      bid: (task: Readonly<BusEventLike>, board: readonly Readonly<BusEventLike>[], round: number) =>
+      bid: (task: Readonly<BusEvent>, board: readonly Readonly<BusEvent>[], round: number) =>
         round >= 2 ? { score: 12, note: '偵察後加價' } : { score: 6 },
       execute: async () => {
         await Promise.resolve(undefined);
@@ -102,7 +103,7 @@ describe('OmniHive 全知蜂巢 (共享黑板 + 動態競標)', () => {
     arch.wire.hive.enlist({
       id: 'OA-Carbon-1',
       bid: () => ({ score: 9 }),
-      execute: async (task: Readonly<BusEventLike>) => {
+      execute: async (task: Readonly<BusEvent>) => {
         const payload = task.payload as { kwh: number };
         return await Promise.resolve(payload.kwh * 0.509);
       },
