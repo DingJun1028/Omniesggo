@@ -61,7 +61,7 @@ class WorkflowStatus(BaseModel):
 
 class CiMonitorResult(BaseModel):
     branch: str
-    sha: Optional[str]
+    sha: Optional[str] = None
     all_green: bool
     checked: int
     statuses: "list[WorkflowStatus]"
