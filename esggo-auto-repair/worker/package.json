@@ -16,6 +16,6 @@
     "@types/node": "^26.6.6",
     "hono": "^4.13.14",
     "typescript": "^7.0.2",
-    "wrangler": "^4.155.0"
+    "wrangler": "^4.156.0"
   }
 }
