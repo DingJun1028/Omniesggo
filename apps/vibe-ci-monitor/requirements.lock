@@ -1,0 +1,3 @@
+# Locked resolved versions for the Omniesggo CI monitor worker.
+mistralai-workflows==3.17.0
+pydantic==2.12.5

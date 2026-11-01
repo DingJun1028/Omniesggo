@@ -3,8 +3,8 @@ FROM python:3.12-slim
 WORKDIR /app
 ENV PYTHONUNBUFFERED=1
 
-COPY pyproject.toml ./
-RUN pip install --no-cache-dir .
+COPY requirements.lock ./
+RUN pip install --no-cache-dir --only-binary=:all: -r requirements.lock
 
 COPY ci_monitor.py worker.py ./
 
