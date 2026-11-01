@@ -1,2 +1,40 @@
-# v2 both-bump
-[{"type":"text","text":"successfully downloaded text file (SHA: 9ff415dd62365a5a1b98b454ec97df6c7511621b)"},{"type":"resource","resource":{"uri":"repo://DingJun1028/Omniesggo/sha/4f507d7e5310ffc83dd287f4c589ce742bc9bbab/contents/.github/workflows/uv-relock.yml","mimeType":"text/plain; charset=utf-8","text":"name: uv-relock\n\non:\n  push:\n    branches:\n      - dependabot/pip/oa-team-crewai/crewai-1.15.32\n      - dependabot/pip/oa-team-crewai/crewai-tools-1.15.32\n    paths: [\".github/workflows/uv-relock.yml\"]\n\npermissions:\n  contents: write\n\njobs:\n  relock:\n    runs-on: ubuntu-latest\n    timeout-minutes: 20\n    steps:\n      - uses: actions/checkout@v4\n      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78\n        with:\n          version: \"0.13.5\"\n          enable-cache: false\n      - name: relock\n        run: |\n          set +e\n          cd oa-team-crewai\n          uv lock > /tmp/lock.log 2>&1; rc=$?\n          echo \"uv lock rc=$rc\" >> /tmp/lock.log\n          git config user.name \"github-actions[bot]\"\n          git config user.email \"41898282+github-actions[bot]@users.noreply.github.com\"\n          if [ $rc -ne 0 ]; then\n            cp /tmp/lock.log relock-fail.log\n            git add relock-fail.log\n            git commit -m \"chore: uv lock failed — diag log\"\n            git push\n            exit 1\n          fi\n          git add uv.lock\n          git commit -m \"chore: sync uv.lock with bumped crewai dependency\" || true\n          git push\n"}}]
+name: uv-relock
+
+on:
+  push:
+    branches:
+      - dependabot/pip/oa-team-crewai/crewai-1.15.32
+      - dependabot/pip/oa-team-crewai/crewai-tools-1.15.32
+    paths: [".github/workflows/uv-relock.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  relock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78
+        with:
+          version: "0.13.5"
+          enable-cache: false
+      - name: relock
+        run: |
+          set +e
+          cd oa-team-crewai
+          uv lock > /tmp/lock.log 2>&1; rc=$?
+          echo "uv lock rc=$rc" >> /tmp/lock.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ $rc -ne 0 ]; then
+            cp /tmp/lock.log relock-fail.log
+            git add relock-fail.log
+            git commit -m "chore: uv lock failed — diag log"
+            git push
+            exit 1
+          fi
+          git add uv.lock
+          git commit -m "chore: sync uv.lock with bumped crewai dependency" || true
+          git push
