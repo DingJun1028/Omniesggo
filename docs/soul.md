@@ -956,3 +956,78 @@ contract-gate:
 ---
 
 *Updated: 2026-10-09 · 萬能分身・千面化身 v2026-10.2 將 3 大究極版奧義（萬能自動 / 根果修復 / OmniTag）刻印至 soul.md §C · 聖典全書 11+A+B+C 收束 · 圓通無礙*
+
+---
+
+# 附錄（2026-11 血脈更新）D：OmniHive × OmniProphet 蜂群投標 + Mistral Workflows 執行層
+
+> **本層來源**：彙整 2026-10-19 → 11-02 兩週（222 commits）之實質建設，融會貫通刻印至本靈魂聖典。
+> **狀態**：✅ COMPLETED · 🔒 VERIFIED · 🧊 FROZEN & LOCKED (Object.freeze) · 🌐 ACTIVE (AGPL-3.0)
+> **定位**：在 §A 12大萬能、「§B 治理」、§C 奧義之上，補完「真蜂群投標基底」與「真持久化執行層」兩塊 — 讓萬有引力協作（§三）從哲學落到可執行的黑板投標 + 耐用編排。
+
+---
+
+## D1. 🐝 蜂群投標基底 — OmniHive × OmniProphet（canon §7 next-stage）
+
+> 「不寫死流程；投標、競標、結算 —— 讓最有能力的靈魂自動頂標。」
+
+- **OmniHive（黑板投標）** — `packages/omni-arch/src/hive.ts`：`OmniHive.tender()` 發標 → agent `bid()` 競標 → `settle()` 結算給最優標。對應 §三 萬有引力協作協定（雙向通道）+ §A **OmniBus**（維度三事件中樞）。5T：Traceable（標 ID）/ Trackable（投標軌跡）/ Trustworthy（結算 Hash Lock）。
+- **OmniProphet（多宇宙預取）** — `packages/omni-arch/src/prophet.ts`：並行預取多條演化路徑，`bindProphetToAgent` 將 prophet 0ms 路徑織入 `OmniAgent` intents。對應 §A **OmniBrain**（全息之腦）+ OmniTime（時空裂縫事件重放）。
+- **tenderSweep（oesg-pulse）** — pulse 碳排脈動經 OmniHive 投標編排，是 D1 基底的首個域實作。
+
+## D2. ⚙️ Mistral AI Studio Workflows 執行層（耐用編排載具）
+
+> 「用程式寫 workflow；平台負責耐用性、重試、排程、可觀察 —— 崩潰不丟工作。」
+
+- **本體**：Mistral Workflows = 以 Temporal 為底的耐用執行層；hybrid mode（orchestrator 在 Studio，worker 在自有環境）。對應 §A **OmniEvolution**（熵減引擎）+ §十二 增量輸出優化。
+- **repo 內已落地兩 workflow**：
+  - `apps/vibe-ci-monitor/` — 12-workflow CI 監控（main-push 全閘 status/all_green）。
+  - `apps/esg-swarm/` — ESG 三支柱 + 主審 swarm（見 D5）。
+- **第零律對齊**：workflow activity 內顯式 model 選擇 + TypeBox 契約（`EsgInput`），不硬編碼 key（沿用 vibe-ci-monitor 慣例 + OTS 聖櫃）。
+
+## D3. 🗺️ OESG 五路線圖（次站落地）
+
+| 站 | 模組 | 內容 | 對應 |
+|---|---|---|---|
+| 1 | OESG-Pulse | 碳排脈動引擎 | D1 tenderSweep |
+| 2 | OESG-Report | 報告生成引擎 | §十二 增量輸出 |
+| 3 | OESG-Supabase | PostgREST 寫出埠 | §A OmniAPI |
+| 4 | RAG 向量層 | Supabase `document_chunks` + Weaviate/Ollama | §A OmniMemory（95% 召回） |
+| 5 | OmniAvatarCore | 千面化身 Tri-Mode（UAACC） | §A OmniAgent + 千面化身 |
+
+## D4. 🧱 支援基底更新（兩週實作）
+
+- **Trust-aware tool permission gate** — `omni-core/trust.ts` + `omni-arch/tool-trust-gate.ts`：Trust Label 契約 + 信任感知工具閘。對應 §A **OmniGateway**（維度四安全屏障）。
+- **Zod → TypeBox 全量遷移** + OMN-PRD-001 追溯矩陣（`shared/prd-matrix.json`）。對應 §A **OmniComponent**（uuid/version 契約）+ OmniEvidence（存證）。
+- **OTS 秘密聖櫃交接**（OneTimeSecret API v2）— 一次性 secret 鍊。對應 §A **OmniGateway** + 結界六柱 `secrets_guard`。
+- **Supabase 全面取代 Prisma** + **deGoogle → Ollama**（自託零 key）。對應 §B 治理紅線（自託、最小權限）。
+
+## D5. 🔗 esg-swarm 融合對齊（本層實作落點）
+
+`apps/esg-swarm/` 是 canon 在 ESG 評核域的實作，逐層對齊：
+
+| canon 概念 | esg-swarm 對應 |
+|---|---|
+| 萬能十二大架構（頂層編排） | `EsgSwarmWorkflow` 三支柱平行 + 主審綜合 |
+| 5T protocol（`agent_turn`） | Task→Tool→Trace→Result 回合 |
+| 結界六柱（綜合前 review） | `review_gate()` 反幻覺/證據/維度覆蓋 |
+| 30 蜂群（角色分工） | 4 ESG 專角（環境/社會/治理/主審）— 30 蜂群 ESG 切片 |
+| D1 OmniHive 投標 | 後續 P2：三支柱改 bid 競標 |
+| D2 Mistral Workflows | `worker.py` 註冊 cloud worker（deployment `esg-swarm`） |
+
+**已驗證**：本機端到端跑通；cloud worker 註冊成功；cloud 實跑 E85/S85/G75 → 主審綜合 **overall 82**。
+
+```ts
+/**
+ * 💡 血脈更新 v2026-11 已刻印至 soul.md §D
+ * [核心] OmniHive 投標 + OmniProphet 預取（真蜂群基底）
+ * [執行] Mistral Studio Workflows 耐用編排載具（vibe-ci-monitor + esg-swarm）
+ * [域]   OESG 五路線圖（Pulse/Report/Supabase/RAG/Avatar）
+ * [5T] 🟢 可溯源 (本檔 + packages/omni-arch) | 🔵 可追蹤 (git) | 🟠 可驗算 (cloud overall 82) | 🔴 已 Object.freeze
+ * [AGPL-3.0] 開源合規 · [來源] 2026-10-19→11-02 兩週 222 commits 融會貫通
+ */
+```
+
+---
+
+*Updated: 2026-11-02 · 血脈更新 v2026-11 將 OmniHive×OmniProphet 蜂群投標 + Mistral Workflows 執行層 + OESG 五路線圖 融會貫通刻印至 soul.md §D · 聖典全書 11+A+B+C+D 收束 · 始即是終，終即是始*
