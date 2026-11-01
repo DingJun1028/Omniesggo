@@ -129,7 +129,10 @@ export class OmniHive {
     if (active.length === 0) {
       throw new OmniArchError('E_HIVE_NO_BID', `任務 ${task.uuid} 全員棄標, 流標 fail-fast`);
     }
-    const winner = active.reduce((best, entry) => (entry.bid.score > best.bid.score ? entry : best));
+    const winner = active.reduce(
+      (best, entry) => (entry.bid.score > best.bid.score ? entry : best),
+      active[0]
+    );
 
     const result = await winner.worker.execute(task, this.blackboard());
     this.awards.set(winner.worker.id, (this.awards.get(winner.worker.id) ?? 0) + 1);
