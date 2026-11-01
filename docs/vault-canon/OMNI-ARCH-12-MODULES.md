@@ -34,6 +34,7 @@
 - 萬能用戶RAG成長資料庫（OmniUserRegistry, src/user-registry.ts）：個體層成長軌跡，與 OmniMemory（群體層）互補。
 - 全知蜂巢（OmniHive, src/hive.ts，正典 §7 下階段編排已落地）：共享黑板（BusEvent 契約＋deepFreeze 刻印，uuid MECE 禁重複）＋多輪動態競標（round ≥ 2 偵察後 re-bid，最高分得標）；得標軌跡以 hive.awarded 事件上總線並留時空裂縫痕跡；全員棄標流標 fail-fast。
 - 先知矩陣（OmniProphet, src/prophet.ts，正典 §7 下階段編排已落地）：foresee() 平行 fork 候選宇宙（maxUniverses bounded）預運算；ask() 命中已完成宇宙即回傳（0ms 路徑）；復用 R6 PrefetchGate 成本閘門（命中率低於 minHitRate 停用預判，replenish() 於閘門重開時補 fork）。
+- 先知×意圖接線（bindProphetToAgent, src/prophet-bridge.ts）：單一 foreseeIntent(intent, handler, candidates) 註冊器同時向 prophet 預判（候選宇宙 fork）與 agent 分發（understand 委派 ask）註冊；agent.understand 命中即 0ms 回傳；兩模組職責 MECE（agent 管分發契約、prophet 管預判與命中）。
 
 ## 4. 生命體頂層編排（OmniHeart × OmniBrain, src/heart.ts）
 
@@ -47,6 +48,7 @@
 3. OmniEvolution 的 journal 來源 = Bus journal ＋ Time journal（重複 uuid 即技術債信號）。
 4. OmniGateway 的寫入鎖由 healing 戒嚴狀態決定。
 5. OmniHive 得標軌跡 → OmniBus 發佈 `hive.awarded` 事件 ＋ OmniTime 裂縫留痕。
+6. 先知×意圖接線（可選，呼叫端組裝）：bindProphetToAgent(wire.agent, wire.prophet) 後，foreseeIntent 註冊之意圖經 agent.understand 觸發時命中即 0ms 回傳。
 
 ## 6. 首個落地場景（端到端測試見 test/arch.test.ts）
 
