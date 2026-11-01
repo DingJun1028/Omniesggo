@@ -1,0 +1,20 @@
+## vps-inventory 2026-11-01T03:03:41Z
+- hermex_api_code:401
+- hermex_ws_code:401
+- port9119_listeners:1
+- port3000_listeners:1
+- port8642_listeners:1
+- hermes_serve_active:active
+- nginx_sites:aistation.esggo.co.conf app deer-flow.conf deerflow.esggo.co.conf fcc ftg-esggo ftg-journey ftgtours-esggo hermes-ui.conf hermes-ui.esggo.co.conf hermex.conf htb.esggo.co.conf journey-api.ftgtours.esggo.co journey.esggo.co live.esggo.co.conf memory.esggo.co.conf mpt.esggo.co.conf n8n.esggo.co.conf oa.esggo.co.conf omni-auto-video.esggo.co.conf omni.esggo.co.conf omniagent.esggo.co.conf omnilive.esggo.co.conf omnilivetranslation.esggo.co-ssl.conf omnisub.esggo.co.conf omnivoice.esggo.co.conf self-healing.esggo.co.conf station.esggo.co.conf translate.esggo.co.conf zoom-live.conf 
+- varwww:aistation certbot deerflow esggo esggo.orphan.1785654191 ftg-2.5 ftg-journey-server ftg-journey-web ftg-journey-web-map.tar.gz ftg-journey-web.bak.20261001-052749 ftg-tours ftg.esggo.co ftgtours ftgtours.bak.20261008-235415 htb.esggo.co htb.esggo.co.bak-20261011 htb.esggo.co.bak.20261008-155525 html journey omnisub seaweed 
+- opt_dirs:ai-station apps berkeley-edm containerd deer-flow deer-flow-patches esggo ftg-journey hermes-venv hermex minio n8n oa-swarm omni-auto-video oracle-keepalive scripts sonarqube unified-monitoring-agent vps-stack 
+- home_dirs:C: EXPERIENCE-HANDBOOK _ci_logs adb_pw.txt agent-reach-venv aistation aistation_output amazon_extract.py amazon_sample.html apps backup.sh bin cf_n8n.yml check-translate-health.sh crontab-backup.txt deploy-hermes-webui.sh deploy-scripts ecosystem.config.js esggo esggo-daily-report-2026-08-16.md ext_test.json ftg-tours-website hermes-oa-sync hermes-webui lib logs monitor.sh monitor.sh.bak-20261007 nltk_data oa-team-crewai obsidian-vault ollama_integration.py omni-auto omni-auto.esggo.co.conf omnishare oracle_safety.log oracle_safety.sh oracle_usage.log oracle_usage_monitor.sh permtest push-user-repo.sh scripts secret-vault self-healing server.js ut-backup-20260930 vps-disk-monitor-cron.log vps-disk-monitor.log vps-disk-monitor.sh wallet workspace zenrows-test { ~ 
+- esggo_services:esggo-gateway.service hermes-serve.service omni-sync.service tailscaled.service 
+- root_ssh_dir_mode:700 root
+- root_ak_mode:600 root
+- sshd_permitrootlogin:permitrootlogin without-password
+- sshd_pubkey:pubkeyauthentication yes
+- sshd_auth_methods:authenticationmethods any
+- root_ak_lines:NA
+- ubuntu_ak_lines:5
+- auth_log_recent:0
