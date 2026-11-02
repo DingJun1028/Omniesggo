@@ -325,3 +325,164 @@ awaken → skills loaded → recall 確認無重複 → grow（新技能）→ r
 ---
 
 究極版奧義 v1.1 | JunAikey Agent Growth Layer（正本合一 2026-10-14：封印條款併回 + env-file 修正 ENV20230818.env + superpowers 7 階段融合 + 完整 CLI 表）
+
+
+## 安裝與初始化
+
+### 1. 前置條件
+
+- 確保 `vps/junaikey.sh` 存在
+- 確保 `vps/junaikey.mjs` 存在
+- 確保 `secret-vault/ENV20230818.env` 已設定並權限 600
+- 確定 `NCBDB_API_TOKEN`、`NCBDB_PROJECT_ID`、`NCBDB_HOST` 已在 vault 中
+
+### 2. 初始化命令
+
+```bash
+# 1. 檢查前置條件
+bash vps/junaikey.sh check
+
+# 2. 初始化 NCBDB 連線
+bash vps/junaikey.sh awaken
+
+# 3. 驗證所有四個 tables 是否存在
+bash vps/junaikey.sh doctor
+```
+
+### 3. 手動初始化（不使用包裝器）
+
+```bash
+# 帶環境變數初始化
+node --env-file=C:/Users/dingj/secret-vault/ENV20230818.env vps/junaikey.mjs awaken
+
+# 檢查
+node --env-file=C:/Users/dingj/secret-vault/ENV20230818.env vps/junaikey.mjs doctor
+```
+
+### 4. 建立 4 個 NCB 資料表
+
+執行：
+
+```bash
+node vps/junaikey-setup.mjs spec-md   # 生成規格
+# 然後在 NCB Dashboard 手動建立 4 個 tables
+node vps/junaikey-setup.mjs check     # 驗證
+```
+
+---
+
+## 版本歷史
+
+| 版本 | 日期 | 說明 |
+|------|------|------|
+| 1.1.0 | 2026-10-14 | 封印條款併回 + env-file 修正 + superpowers 7 階段融合 + 完整 CLI 表 |
+| 1.0.1 | 2026-10-10 | 成長了真實踩到的技能：vacuum-wal-strand、vacuum-online-safe、drop-trigger-view-noop、vacuum-probe-fast、ncbd-verify-insert、reflect-string-learning-clobbers、ncb-writeskills-rebuilds-all |
+| 1.0.0 | 2026-10-05 | 初始版本，建立 junaikey 成長層 |
+
+---
+
+## 測試與驗證
+
+### 1. 基本驗證
+
+```bash
+# 1. 健康檢查
+bash vps/junaikey.sh doctor
+
+# 2. 後端檢查
+bash vps/junaikey.sh backend
+
+# 3. 技能清單
+bash vps/junaikey.sh query --limit=20
+
+# 4. 記憶檢查
+bash vps/junaikey.sh query --limit=10 --event=reflect
+```
+
+### 2. 閉環測試
+
+```bash
+# 1. 初始化
+bash vps/junaikey.sh awaken
+
+# 2. 成長新技能
+bash vps/junaikey.sh grow test-skill "測試技能" --traits=永恆
+
+# 3. 反思學習
+bash vps/junaikey.sh reflect "測試反思" --learn=test-skill
+
+# 4. 查詢驗證
+bash vps/junaikey.sh query --limit=10
+
+# 5. 驗證技能是否新增
+bash vps/junaikey.sh recall test-skill
+```
+
+### 3. 升級驗證
+
+```bash
+# 將技能升級至 L4
+bash vps/junaikey.sh promote test-skill L4 "測試升級"
+
+# 查詢驗證
+bash vps/junaikey.sh query --tag=superpowers
+```
+
+### 4. 進度追蹤測試
+
+```bash
+# 記錄進度
+bash vps/junaikey.sh progress "測試任務" "測試進度"
+
+# 查詢進度
+bash vps/junaikey.sh get-progress
+```
+
+---
+
+## 安全守則
+
+### 1. 憑證安全
+
+- 絕不在代碼中硬編碼 `NCBDB_API_TOKEN`、`NCB_TOKEN` 等憑證
+- 所有憑證來源 = `secret-vault/ENV20230818.env`（chmod 600）
+- 透過 `junaikey.sh` 包裝器傳遞 `--env-file=vault`
+
+### 2. 資料安全
+
+- `junaikey_memory` 為 append-only 備用記憶
+- `junaikey_journal` 為審計日誌，永遠保留
+- 禁止對 `junaikey_memory` 覆寫操作
+- 所有 `remember` / `reflect` 事件均需標記 `agent_id`、`timestamp`、`source_origin`
+
+### 3. 存取控制
+
+- 交叉代理共享記憶 → 僅限 `NCBDB` 專用專案
+- 本機備份 → 僅限 `local` backend
+- `JUNAKEY_BACKEND=auto` 時自動選擇，禁止手動覆寫
+
+### 4. 審計追蹤
+
+- 所有成長記錄必須帶 `agent_id`、`timestamp`、`source_origin`
+- `junaikey_journal` 全量保留，不可刪除
+- `doctor` 輸出當前狀態，作為每次 session 開始的審計入口
+
+---
+
+## 參數一致性
+
+- **doctor／backend 與 awaken 必須用同一組參數**：均需 `--env-file=vault`
+- **`stdin is not a tty`** 問題：經 `junaikey.sh` 包裝器導向 `</dev/null`
+- **NCB_TOKEN 未定義** 問題：非帶 `--env-file` 時會降級 local，導致技能分裂
+
+---
+
+## 關聯文件
+
+- `junaikey-ncb-spec.md` — NCB 4 個 tables 規格
+- `vps/junaikey.sh` — 防呆包裝器
+- `vps/junaikey.mjs` — 純 CLI 工具
+- `vps/junaikey-setup.mjs` — 初始化與驗證
+- `oa/junaikey-growth/VERSION` — 版號封印
+- `src/core/ai/skills/best-practices.ts` — 5T 驗證規範
+- `OMNITAG_INTEGRATION.md` — OmniTag 標籤關聯規則
