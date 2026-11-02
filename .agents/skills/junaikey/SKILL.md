@@ -486,3 +486,185 @@ bash vps/junaikey.sh get-progress
 - `oa/junaikey-growth/VERSION` — 版號封印
 - `src/core/ai/skills/best-practices.ts` — 5T 驗證規範
 - `OMNITAG_INTEGRATION.md` — OmniTag 標籤關聯規則
+
+
+## 自然語觸發 (Natural Language Trigger)
+
+### 1. 觸發關鍵字清單 (Trigger Keywords)
+
+> 系統會自動識別輸入中的自然語觸發詞，觸發對應的工具/技能/代理。
+
+#### 核心觸發詞 (Core Triggers)
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| 萬能元鑰 | JunAikey | 全體觸發入口 | 5.0 |
+| 萬能永憶 | OmniMemory | 記住當前內容 | 4.5 |
+| 覺醒 | Awaken | 啟動/喚醒系統 | 4.5 |
+| 反思 | Reflect | 反思學習 / 寫回記憶 | 4.0 |
+| 成長 | Grow | 建立/更新技能 | 3.5 |
+| 分享記憶 | Shared Memory | 跨代理共享記憶 | 3.0 |
+| 存檔 | Save | 保存目前狀態 | 3.0 |
+| 讀取 | Recall | 讀取技能/記憶 | 2.5 |
+| 查詢 | Query | 查詢記憶庫 | 2.0 |
+| 尋求幫助 | Help | 顯示協助資訊 | 1.0 |
+
+#### 進階觸發詞 (Advanced Triggers)
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| 指令 | Command | 執行 CLI 指令 | 4.0 |
+| 工具 | Tool | 自動使用工具 | 3.5 |
+| 自動執行 | Auto-run | 自動執行模式 | 3.0 |
+| 查詢工具 | Query Tool | 查詢資源 | 2.0 |
+| 重啟 | Restart | 重啟系統 | 3.0 |
+| 關閉 | Shutdown | 關閉系統 | 3.0 |
+| 反向 | Reverse | 逆向操作 | 2.0 |
+| 觀察 | Observe | 觀察系統狀態 | 2.5 |
+| 檢查 | Check | 健康檢查 | 2.5 |
+| 初始化 | Init | 系統初始化 | 3.0 |
+
+---
+
+### 2. 觸發規則 (Trigger Rules)
+
+#### 2.1 預設觸發機率 (Default Trigger Probability)
+
+| 觸發模式 | 權重 | 說明 |
+|---------|------|------|
+| 核心關鍵字 (萬能元鑰/覺醒/反思/成長) | 100% | 必然觸發 |
+| 進階關鍵字 (指令/工具/查詢) | 70% | 單一關鍵字即觸發 |
+| 其他自然語 | 30% | 隨機匹配，保留置信度分數 |
+| 歧義命中 | 15% | 需要用戶確認或上下文補充 |
+
+#### 2.2 機率加權 (Probability Weighting)
+
+觸發時機會算 = (關鍵字相關分數 × 頻率) + (上下文相似度 × 0.3) + 隨機種子 (0-0.2)
+
+- 單一高權重關鍵字：自動觸發，機率 = 1.0
+- 多關鍵字組合：權重加總，上限 1.0
+- 低權重命中 (< 0.3)：記錄至 `junaikey_journal`，需要用戶確認
+
+#### 2.3 自然語解析 (Natural Language Parsing)
+
+```typescript
+// 輸入："awaken 並成長編碼檢查技能"
+// 解析後：
+{
+  triggers: ["awaken", "grow skill"],
+  actions: ["awaken()", "growSkill('encoding-check')"],
+  priority: ["awaken", "grow"],
+  probability: 1.0
+}
+
+// 輸入："我今天學到新的編碼風格"
+// 解析後：
+{
+  triggers: ["growth", "memory"],
+  actions: ["recordLearning()", "remember('new-coding-style')"],
+  priority: ["memory"],
+  probability: 0.6
+}
+
+// 輸入："有沒有東西要我幫忙？"
+// 解析後：
+{
+  triggers: ["help", "query"],
+  actions: ["doctor()", "query()"],
+  priority: ["help", "query"],
+  probability: 0.8
+}
+```
+
+---
+
+### 3. 自動工具選擇 (Auto Tool Selection)
+
+#### 3.1 工具選擇權重表
+
+| 工具類別 | 典型關鍵字 | 預設權重 | 更新權重 |
+|---------|------------|---------|----------|
+| 記憶查詢 | recall, query, 查詢, 讀取 | 0.8 | 0.9 |
+| 技能成長 | grow, 成長, 建構 | 0.7 | 0.8 |
+| 反思與學習 | reflect, 學習, 記住 | 0.75 | 0.85 |
+| 系統初始化 | awaken, 啟動, 初始化 | 0.9 | 1.0 |
+| 共享記憶 | shared memory, share, 協作 | 0.65 | 0.75 |
+| 結界 inherit | inherits, 繼承 | 0.5 | 0.6 |
+
+#### 3.2 多工具並發觸發
+
+當輸入同時包含多個觸發關鍵字時：
+
+```typescript
+// 輸入："awaken 並成長新的編碼技能，並記住今天的學習"
+const triggers = {
+  awaken: { weight: 1.0 },
+  growSkill: { weight: 0.8, args: { name: "coding-style", body: "新學到的編碼風格" } },
+  remember: { weight: 0.9, event: "learning", summary: "今天學到新的編碼風格" }
+};
+
+// 執行順序：awaken → growSkill → remember
+// 每步權重：1.0 → 0.8 → 0.9
+```
+
+---
+
+### 4. 信心分數與反饋 (Confidence Score & Feedback)
+
+| 信心分數 | 處理方式 |
+|----------|----------|
+| >= 0.9 | 自動執行 |
+| 0.7 - 0.9 | 記錄後自動執行，若失敗則詢問 |
+| 0.4 - 0.7 | 詢問用戶確認 |
+| < 0.4 | 記錄至 `junaikey_journal`，不執行 |
+
+---
+
+### 5. 實際示例
+
+#### 5.1 簡短自然語
+
+**輸入**："awaken"
+**解析**：核心關鍵字 → 自動觸發
+**輸出**：執行 `awaken()`
+
+**輸入**："成長編碼檢查"
+**解析**：成長關鍵字 + 技能名稱
+**輸出**：`growSkill("coding-check", "所有 shell 指令前先驗證編碼")`
+
+**輸入**："記住今天學到的方法"
+**解析**：成長 + 記憶關鍵字
+**輸出**：`remember("learning", "今天學到的方法")`
+
+#### 5.2 複雜自然語
+
+**輸入**："我今天學到新編碼技巧，希望能跟其他代理分享並記住"
+**解析**：
+- 關鍵字：`growth`, `shared`, `memory`
+- 行動：`recordLearning()`, `recordMemory()`, `cross-agent sync`
+- 權重：0.75
+- 輸出：`growSkill()`, `remember()`, `tagSkill("share:active")`
+
+**輸入**："讓我反思一下昨天的學習"
+**解析**：反思關鍵字
+**輸出**：`reflect("昨天的學習")`, `query("reflect")` 確認
+
+---
+
+### 6. 參數一致性
+
+- **doctor／backend 與 awaken 必須用同一組參數**：均需 `--env-file=vault`
+- **`stdin is not a tty`** 問題：經 `junaikey.sh` 包裝器導向 `</dev/null`
+- **NCB_TOKEN 未定義** 問題：非帶 `--env-file` 即誤報 `activeBackend=local`
+
+---
+
+## 關聯文件
+
+- `junaikey-ncb-spec.md` — NCB 4 個 tables 規格
+- `vps/junaikey.sh` — 防呆包裝器
+- `vps/junaikey.mjs` — 純 CLI 工具
+- `vps/junaikey-setup.mjs` — 初始化與驗證
+- `oa/junaikey-growth/VERSION` — 版號封印
+- `src/core/ai/skills/best-practices.ts` — 5T 驗證規範
+- `OMNITAG_INTEGRATION.md` — OmniTag 標籤關聯規則
