@@ -130,8 +130,8 @@ C:\Users\Administrator\AppData\Local\hermes\tools\node-26.12.1-win32-x64\node.ex
    - 編輯範圍限定 `docs/vault-canon/` 筆記；**不改** `soul.md`、`docs/OMN-PRD-001.md`、`shared/prd-matrix.json` 與任何程式碼。
    - 結束編輯 → commit（訊息前綴 `docs(vault-canon):`）→ push。
 5. **手機端**（Obsidian Git 行動版 / Working Copy）
-   - 先 pull 後 push；與電腦共用**同一個 GitHub repo**。
-6. **安全鐵則**
+   - 前置 Sync-backend boundary：`docs/vault-canon/` 永遠只走 `obsidian-git`（git）；`ob`（Obsidian Sync）只用於另一個獨立的非共享 vault；詳見 `docs/OBSIDIAN-SYNC-BACKEND-BOUNDARY.md`。
+
    - `.git` 資料夾**嚴禁放進 iCloud**（會產生 `.icloud` / 衝突副本，足以損毀 git 歷史）。
    - iCloud 只放不帶 `.git` 的筆記匯出副本，二者不可混放。
 
