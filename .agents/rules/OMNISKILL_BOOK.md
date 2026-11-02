@@ -864,6 +864,7 @@ Deno.serve(async (req: Request) => {
 | `lhub-ai-routing`                           | AI model routing/offloading     |
 | `adk-boundary`                              | Agent Development Kit boundary  |
 | `global-healing` (alias of esggo-standards) | Global consistency              |
+| `secret-vault-credential-ops`               | Secrets vault + credential ops (Junaikey × OmniMasterKey) |
 ### 15.7 OpenCode Advanced Swarm Suite (10 Skills)
 
 | Skill | Description | Tier |
