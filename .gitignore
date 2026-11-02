@@ -429,3 +429,6 @@ apps/aistation/storage/
 # OA-Swarm runtime data
 oa-swarm/data/
 .worktrees/
+
+# 瀏覽器工具相關
+.github/worker-tools/node_modules/

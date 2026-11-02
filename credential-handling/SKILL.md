@@ -195,12 +195,15 @@ if result["found"]:
 > 適用場景：使用者透過 OneTimeSecret 連結分享機密值，需安全地上傳到 `secret-vault/`。
 
 1. **接收連結**：使用者提供 `https://us.onetimesecret.com/secret/<id>` 格式的連結
-2. **讀取連結**：透過瀏覽器開啟連結，等待頁面渲染（Vue.js 動態內容）
-3. **提取機密值**：在頁面上找到「机密内容」或「复制」按鈕，點擊後機密值會顯示
-4. **寫入聖櫃**：將機密值寫入 `secret-vault/ENV20230818.env`
+2. **打開連結**：使用 `browser_exec` 開啟連結，等待頁面載入
+3. **讀取內容**：頁面上會顯示「机密内容」區域，尋找可複製的機密值（如 GitHub PAT、API key 等）
+4. **點擊複製**：找到「复制」按鈕並點擊，將機密值複製到剪貼簿
+5. **寫入聖櫃**：將機密值寫入 `secret-vault/ENV20230818.env`
    - 環境變數名稱根據機密類型而定（如 `GITHUB_PAT_OMNIMOTE`）
    - 確保檔案權限為 `600`
-5. **查詢結果**：透過 `omni_get_secret()` 驗證是否成功載入
+6. **查詢結果**：透過 `omni_get_secret()` 驗證是否成功載入
+
+> **注意**：一次性密碼連結僅顯示一次，讀取後即失效。若未成功取得，需詢問使用者重新上傳可讀取的檔案。
 
 ### 步驟 7：安全檢查
 - [ ] 確認機密值未寫入程式碼
@@ -211,8 +214,48 @@ if result["found"]:
 - [ ] 確認程式結束時已清理
 
 ### 步驟 8：推送前檢查（重要）
-> 推送前，**必須**重新掃描工作樹中所有檔案，確認無機密值殘留。  
-> 若 `git push` 被 GitHub「secret-scanning」拒絕，代表仍有舊的機密值在「已提交過的 commit」中 → 需參照「【禁忌】GitHub secret-scanning 阻擋推送」處理。
+> 推送前，**必須**重新掃描工作樹中所有檔案，確認無機密值殘留。  \n> 若 `git push` 被 GitHub「secret-scanning」拒絕，代表仍有舊的機密值在「已提交過的 commit」中 → 需參照「【禁忌】GitHub secret-scanning 阻擋推送」處理。
+
+---
+
+## 🛠️ 工具安裝與設定
+
+### gh CLI 安裝（Windows）
+> `gh` CLI 為 GitHub 操作的官方 CLI，未安裝時需先安裝。
+
+1. 使用 `winget` 安裝：`winget install --id GitHub.cli -e --force`
+2. 若 `gh` 未在 PATH 中，手動加入環境變數：
+   - 路徑範例：`C:\Program Files\GitHub CLI\bin`
+   - 或從 GitHub 載入 `gh_2.103.3_windows_amd64.msi`
+3. 驗證安裝：`gh auth status`
+
+### pnpm 設定（Windows）
+> `pnpm` 未安裝或不在 PATH 時，需先設定。
+
+1. 確認 `pnpm` 版本：`pnpm --version`
+2. 若無效，嘗試：`npx pnpm@11.5.2` 或透過 `corepack` 啟用
+3. 專案使用 `pnpm@11.5.2`（見 `package.json` 的 `packageManager` 欄位）
+
+### 32-bit 環境限制
+> 32-bit node 環境無法執行某些原生模組（如 `typescript@7.0.2`、`vitest`/`rolldown` 原生綁定）。
+>
+> 解決方案：使用 **64-bit node**（例如 `C:\Users\Administrator\AppData\Local\hermes\tools\node-26.12.1-win32-x64\node.exe`）並配合 `@typescript/typescript-win32-x64` 安裝。
+
+---
+
+### 步驟 9：依賴漏洞掃描與修復（Dependabot）
+> 適用場景：GitHub Dependabot 發出漏洞警報（`gh api repos/<owner>/<repo>/dependabot/alerts`）。
+>
+> 流程：
+> 1. 查詢開放警報：`gh api repos/<owner>/<repo>/dependabot/alerts --jq 'map(select(.state=="open"))'`
+> 2. 取得每個警報的詳細資訊：`gh api repos/<owner>/<repo>/dependabot/alerts/<number>`
+> 3. 根據漏洞類型更新相關套件：
+>    - `minimatch` / `glob` → 升級 `pnpm-lock.yaml`
+>    - `undici` → 升級 `pnpm-lock.yaml` 或專案 `package.json`
+>    - `postcss-selector-parser` → 升級 `apps/*/pnpm-lock.yaml`
+> 4. 重新安裝依賴：`pnpm install --no-frozen-lockfile`
+> 5. 提交並推送至 `main` 分支
+> 6. 確認漏洞數已減少：`gh api repos/<owner>/<repo>/dependabot/alerts`
 
 ---
 
