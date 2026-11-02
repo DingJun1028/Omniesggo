@@ -475,6 +475,13 @@ bash vps/junaikey.sh get-progress
 - **`stdin is not a tty`** 問題：經 `junaikey.sh` 包裝器導向 `</dev/null`
 - **NCB_TOKEN 未定義** 問題：非帶 `--env-file` 時會降級 local，導致技能分裂
 
+
+### 7. 參數一致性
+
+- **doctor／backend 與 awaken 必須用同一組參數**：均需 `--env-file=vault`
+- **`stdin is not a tty`** 問題：經 `junaikey.sh` 包裝器導向 `</dev/null`
+- **NCB_TOKEN 未定義** 問題：非帶 `--env-file` 即誤報 `activeBackend=local`
+
 ---
 
 ## 關聯文件
@@ -651,7 +658,7 @@ const triggers = {
 
 ---
 
-### 6. 參數一致性
+## 6. 參數一致性
 
 - **doctor／backend 與 awaken 必須用同一組參數**：均需 `--env-file=vault`
 - **`stdin is not a tty`** 問題：經 `junaikey.sh` 包裝器導向 `</dev/null`
@@ -659,12 +666,16 @@ const triggers = {
 
 ---
 
-## 關聯文件
 
-- `junaikey-ncb-spec.md` — NCB 4 個 tables 規格
-- `vps/junaikey.sh` — 防呆包裝器
-- `vps/junaikey.mjs` — 純 CLI 工具
-- `vps/junaikey-setup.mjs` — 初始化與驗證
-- `oa/junaikey-growth/VERSION` — 版號封印
-- `src/core/ai/skills/best-practices.ts` — 5T 驗證規範
-- `OMNITAG_INTEGRATION.md` — OmniTag 標籤關聯規則
+- **doctor／backend 與 awaken 必須用同一組參數**：均需 `--env-file=vault`
+- **`stdin is not a tty`** 問題：經 `junaikey.sh` 包裝器導向 `</dev/null`
+- **NCB_TOKEN 未定義** 問題：非帶 `--env-file` 即誤報 `activeBackend=local`
+
+
+
+- **doctor／backend 與 awaken 必須用同一組參數**：均需 `--env-file=vault`
+- **`stdin is not a tty`** 問題：經 `junaikey.sh` 包裝器導向 `</dev/null`
+- **NCB_TOKEN 未定義** 問題：非帶 `--env-file` 即誤報 `activeBackend=local`
+
+---
+
