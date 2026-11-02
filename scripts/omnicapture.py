@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""OmniCapture — 万能擷取：自動將所有型別檔案做詳細文檔分析（Ollama 零算力）"""
+"""OmniCapture — 万能擷取：自動將所有型別檔案做詳細文檔分析（Groq / Ollama）"""
 import os, sys, json, subprocess, pathlib, datetime, hashlib
 
+# --- Provider selection ---
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "").strip()
+GROQ_BASE_URL = os.environ.get("GROQ_BASE_URL", "https://api.groq.com/openai/v1")
+GROQ_MODEL = os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile")
+
 OLLAMA = r"C:\Users\Administrator\AppData\Local\Programs\Ollama\ollama.exe"
-MODEL = "qwen2.5:3b"
-EMBED = "nomic-embed-text"
+OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "qwen2.5:3b")
 VAULT = pathlib.Path(r"C:\Users\Administrator\Documents\Project\Omniesggo\docs\vault-canon")
 INBOX = VAULT / "OmniCapture" / "inbox"
 ANALYSIS = VAULT / "OmniCapture" / "analysis"
@@ -17,9 +21,26 @@ for d in (INBOX, ANALYSIS, ARCHIVE, FAILED):
 def run_ollama(prompt: str) -> str:
     env = os.environ.copy()
     env["PATH"] = r"C:\Users\Administrator\AppData\Local\Programs\Ollama;" + env.get("PATH", "")
-    r = subprocess.run([OLLAMA, "run", MODEL], input=prompt, capture_output=True, text=True,
+    r = subprocess.run([OLLAMA, "run", OLLAMA_MODEL], input=prompt, capture_output=True, text=True,
                        encoding="utf-8", timeout=300, env=env)
     return r.stdout.strip()
+
+def run_groq(prompt: str) -> str:
+    import requests
+    url = f"{GROQ_BASE_URL.rstrip('/')}/chat/completions"
+    headers = {"Authorization": f"Bearer {GROQ_API_KEY}", "Content-Type": "application/json"}
+    payload = {"model": GROQ_MODEL, "messages": [{"role": "user", "content": prompt}], "temperature": 0.3}
+    r = requests.post(url, headers=headers, json=payload, timeout=120)
+    r.raise_for_status()
+    return r.json()["choices"][0]["message"]["content"].strip()
+
+def run_llm(prompt: str) -> tuple[str, str]:
+    if GROQ_API_KEY:
+        try:
+            return run_groq(prompt), f"groq:{GROQ_MODEL}"
+        except Exception as e:
+            print(f"[WARN] Groq failed, falling back to Ollama: {e}")
+    return run_ollama(prompt), f"ollama:{OLLAMA_MODEL}"
 
 def extract_text(path: pathlib.Path) -> str:
     suf = path.suffix.lower()
@@ -74,7 +95,7 @@ def analyze(path: pathlib.Path):
         "1. 一句話摘要\n2. 關鍵要點（3-7 條）\n3. 標籤（#tag 形式，5-10 個）\n4. 可能的應用場景\n"
         "文件內容：\n" + text
     )
-    summary = run_ollama(prompt)
+    summary, model_name = run_llm(prompt)
     cid = "OMN-CAP-" + hashlib.sha256(str(path).encode()).hexdigest()[:8]
     out = ANALYSIS / (path.stem + " — OmniCapture 分析.md")
     now = datetime.datetime.now().isoformat()
@@ -84,8 +105,8 @@ canon_id: {cid}
 source: {path}
 source_origin: omnicapture
 analyzed_at: {now}
-model: {MODEL}
-embed_model: {EMBED}
+model: {model_name}
+tags: [omnicapture, auto-analysis]
 ---
 
 # {path.name} — OmniCapture 分析

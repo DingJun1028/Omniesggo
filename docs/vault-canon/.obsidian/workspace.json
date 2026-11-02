@@ -195,11 +195,23 @@
       "templates:插入模板": false,
       "command-palette:開啟命令面板": false,
       "bases:建立新的 base": false,
-      "open-agent:Open agent": false
+      "open-agent:Open agent": false,
+      "unagent:Open UNagent": false
     }
   },
   "active": "b96d144adf4b27c5",
   "lastOpenFiles": [
+    "UNagent/evolved.json",
+    "UNagent/skills/set-cover/SKILL.md",
+    "UNagent/skills/set-cover",
+    "UNagent/skills",
+    "UNagent/user.md",
+    "UNagent/memory.md",
+    "UNagent/agent.md",
+    "UNagent",
+    "OmniCapture/archive/groq-test.txt",
+    "OmniCapture/analysis/groq-test — OmniCapture 分析.md",
+    "OmniCapture/inbox/groq-test.txt",
     "README.md",
     "OMN-PRD-001 終始矩陣.md",
     "未命名.base",

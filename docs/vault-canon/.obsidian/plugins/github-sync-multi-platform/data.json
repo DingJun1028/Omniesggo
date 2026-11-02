@@ -4,7 +4,7 @@
     "githubOwner": "DingJun1028",
     "githubRepo": "omninote-vault",
     "githubBranch": "main",
-    "githubToken": "***MASKED***",
+    "githubToken": "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",
     "lastSyncTime": 0,
     "vault": "defaultVault",
     "clipboardReadTip": ""
@@ -144,6 +144,21 @@
         "sha": "8025d4adc4b4360f3e5dfe517acced56fa09e385",
         "lastSync": 1793643854729,
         "hash": "8025d4adc4b4360f3e5dfe517acced56fa09e385"
+      },
+      "OmniCapture/archive/groq-test.txt": {
+        "sha": "ef371c7c56238d69a73d56d560be7f4298cc61f5",
+        "lastSync": 1793644743268,
+        "hash": "ef371c7c56238d69a73d56d560be7f4298cc61f5"
+      },
+      "UNagent/agent.md": {
+        "sha": "234e7c09e8564fb21bbdf16ccf58a378cbb1ff2d",
+        "lastSync": 1793645659852,
+        "hash": "234e7c09e8564fb21bbdf16ccf58a378cbb1ff2d"
+      },
+      "UNagent/memory.md": {
+        "sha": "355696b4a15bd09f3a237f9e0e948416affe6f3f",
+        "lastSync": 1793645661556,
+        "hash": "355696b4a15bd09f3a237f9e0e948416affe6f3f"
       }
     }
   }
