@@ -166,8 +166,19 @@
               "icon": "lucide-list",
               "title": "大綱"
             }
+          },
+          {
+            "id": "b96d144adf4b27c5",
+            "type": "leaf",
+            "state": {
+              "type": "open-agent-chat",
+              "state": {},
+              "icon": "bot",
+              "title": "Open agent"
+            }
           }
-        ]
+        ],
+        "currentTab": 5
       }
     ],
     "direction": "horizontal",
@@ -183,11 +194,14 @@
       "daily-notes:開啟今天的每日筆記": false,
       "templates:插入模板": false,
       "command-palette:開啟命令面板": false,
-      "bases:建立新的 base": false
+      "bases:建立新的 base": false,
+      "open-agent:Open agent": false
     }
   },
-  "active": "1fa7a1287f8ec5f8",
+  "active": "b96d144adf4b27c5",
   "lastOpenFiles": [
+    "OMN-PRD-001 終始矩陣.md",
+    "未命名.base",
     "ESG-GO 核心.md",
     "README.md",
     "未命名.md"
