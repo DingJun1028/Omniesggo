@@ -1,0 +1,8 @@
+# VPS .env.secrets write round6 result (OTS + Hermes)
+- date: 2026-11-02T08:02:50Z
+- OTS_API_TOKEN: WRITTEN fingerprint OK (33973bef297d)
+- OTS_CUSTOMER: WRITTEN fingerprint OK (51811b17dc63)
+- HERMES_API_SERVER_KEY: WRITTEN fingerprint OK (76823a1dc424)
+- outcome: COMMITTED (all fingerprints OK)
+- keys_after: GROQ_API_KEY,HERMES_API_SERVER_KEY,HERMES_DASHBOARD_SESSION_TOKEN,OTS_API_TOKEN,OTS_CUSTOMER,SONAR_TOKEN,VIBE_CLI_API_KEY,
+- stat: 600 ubuntu 451
