@@ -410,6 +410,77 @@ npx tsx scripts/omni-bitwarden.ts sync
 
 ---
 
+## 📖 最佳實踐做法
+
+### 1. 密碼權限管理
+
+| 場景 | 最佳實踐 |
+|------|----------|
+| 本機開發 | `.env.local`，已 `.gitignore` 忽略，權限 600 |
+| 生產環境 | `secret-vault/ENV20230818.env`，權限 600，目錄 700 |
+| 萬能金庫 | `omni-bitwarden/`，權限 700 |
+| 人對人分享 | OneTimeSecret，臨時鏈接，盡快失效 |
+
+### 2. 環境變數最佳實踐
+
+```bash
+# ✅ 正確：使用 .env.local（已 gitignore）
+export NCBDB_API_TOKEN=***MASKED***
+
+# ❌ 錯誤：寫入程式碼
+const token = "ghp_xxxxxxxxxxxx"
+```
+
+### 3. 記憶體清理
+
+```typescript
+// 程式結束時清理環境變數中的機密值
+process.on("exit", () => {
+  for (const key of Object.keys(process.env)) {
+    if (key.includes("TOKEN") || key.includes("KEY") || key.includes("SECRET")) {
+      delete process.env[key];
+    }
+  }
+});
+```
+
+### 4. 日誌記錄
+
+```typescript
+// ✅ 正確：輸出來源，不輸出值
+console.log(`Secret "${key}" loaded from ${result.source}`);
+
+// ❌ 錯誤：輸出真實值
+console.log(`Token: ${result.value}`);
+```
+
+### 5. 輪替策略
+
+| 金鑰類型 | 輪替頻率 | 備註 |
+|----------|----------|------|
+| 服務帳號 | 90 天 | 高風險 |
+| 開發者金鑰 | 180 天 | 中風險 |
+| 只讀金鑰 | 365 天 | 低風險 |
+
+### 6. 版本控制忽略
+
+確保 `.gitignore` 包含：
+
+```gitignore
+.env.local
+.env.*.local
+secret-vault/
+omni-bitwarden/config.yaml
+```
+
+### 7. 聯絡管道
+
+- 離職或離開團隊時，立即撤銷所有安全存取權限
+- 發現金鑰泄露時，立即輪替並記錄事件
+- 所有機密存取透過 `omni_get_secret()` 統一管理
+
+---
+
 ## ⚠️ 注意事項
 
 1. **金鑰輪替**：每 90 天輪替一次高風險金鑰
@@ -419,3 +490,15 @@ npx tsx scripts/omni-bitwarden.ts sync
 5. **安全教訓**：參考 `.security-lesson-20261102.md` 學習經驗
 6. **秘密聖櫃**：所有機密存取透過 `omni_get_secret()` 統一管理
 7. **金鑰離職**：離職時立即撤銷所有安全存取權限
+
+---
+
+## 📖 參考資源
+
+- [Bitwarden CLI Documentation](https://bitwarden.com/help/cli/)
+- [OmniMasterKey 系統設計](./omni-master-key/SKILL.md)
+- [Junaikey 成長層](./omni-master-key/SKILL.md)
+- [安全原則與密碼學](./OMNISKILL_BOOK.md#37-安全與密碼學原理)
+- [DingJun1028/server](https://github.com/DingJun1028/server)
+- [DingJun1028/clients](https://github.com/DingJun1028/clients)
+- [passwordless-nodejs](https://github.com/DingJun1028/passwordless-nodejs)

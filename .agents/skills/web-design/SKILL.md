@@ -380,3 +380,93 @@ L3 頁面（使用者說"像 doubao / apple / stripe 那樣"、"要有 3D"、"�
 | `scripts/crawl_website.py` | Playwright 爬蟲（截圖 + Token + 結構） | Phase A 首選 |
 | `scripts/extract_design_tokens.py` | 輕量 Token 提取（靜態站備選） | Phase A 備選 |
 | `scripts/fetch_unsplash_images.py` | 佔點陣圖候選 URL | Phase C |
+
+---
+
+## ✅ 最佳實踐做法
+
+### 1. 設計原則
+
+| 領域 | 核心原則 |
+|------|----------|
+| 基礎 | 清晰 > 複雜，一致 > 特色，簡潔 > 囉唆 |
+| 色彩 | 使用者友善 = 弱對比優先 + 語義通透 |
+| 間距 | 一致邊界 + 呼吸感，密集區補白 |
+| 觸發 | 80/20 法則：20% 核心操作承載 80% 流量 |
+| 照護 | 記得說明 + 反飽和 + 品牌專屬 |
+
+### 2. 響應式最佳實踐
+
+| 斷點 | 適用場景 | 測試重點 |
+|------|----------|----------|
+| ≤ 600px | 桌面側 | 橫向溢位、無觸控目標 |
+| 600–900px | 平板 | 單欄、觸控節流 |
+| 900–1200px | 平板、桌機 | 兩欄、網格 |
+| ≥ 1200px | 桌面 | 網格、觸控目標 |
+
+### 3. 動效最佳實踐
+
+| 檔位 | 要求 |
+|------|------|
+| L1 | 優雅 hover + 柔和入場 |
+| L2 | 滾動 reveal、視差、導航變化 |
+| L3 | scroll-story、pin、游標跟隨 |
+
+**性能紅線**
+- 單頁 WebGL ≤ 1 個
+- 移動端自動降級
+- `filter: blur()` on moving elements 禁止
+- `backdrop-filter: blur()` ≤ 14px
+- `prefers-reduced-motion` 降級路徑
+
+### 4. 性能最佳實踐
+
+- 3D/WebGL：load 時一次性 timeline，結束即釋放
+- 卡片爆發入場：GSAP 一次性 timeline
+- 圖片：禁止純色塊佔位；使用者素材 > 專案 assets > 參考站 URL > Unsplash
+- 圖示：專案庫 > lucide-react > 內聯 SVG
+- 字型：所有顏色通過 CSS 變數引用，零硬編碼 hex
+- 字型：字體檔案緩存、gzip、字型子集
+
+### 5. 可訪問性（a11y）最佳實踐
+
+- 每個可互動元素有 hover + focus 態
+- 觸控目標 ≥ 44×44px（移動端）
+- 標題層級：H1 → H2 → H3
+- 語義化 HTML：button、nav、main、article、footer
+- 顏色對比：符合 WCAG 2.1 AA
+- 鍵盤導航：所有功能可通過鍵盤完成
+
+### 6. 安全最佳實踐
+
+- 輸入驗證：所有使用者輸入均須驗證
+- 輸出轉義：防止 XSS
+- 授權檢查：每個請求前檢查權限
+- 敏感數據：在客戶端處理避免儲存
+- 安全標頭：Content-Security-Policy, X-Frame-Options
+
+### 7. 質量檢查清單（自動化）
+
+```bash
+# 響應式
+npm run test:e2e -- --screens desktop tablet mobile
+
+# 動效
+npm run test:animations
+
+# 訪問性
+npm run test:a11y
+
+# 性能
+npm run test:performance
+```
+
+---
+
+## 技術棧原則
+
+- **框架**：沿用專案已有棧；無則最小可行方案（靜態 HTML 或 Vite）
+- **樣式**：沿用已有方案；不強行引入新依賴
+- **元件**：有庫複用；無庫手寫語義化元件
+- **動畫**：CSS 優先；L2 可用 IntersectionObserver；L3 允許 GSAP/ScrollTrigger/Lenis
+- **圖片**：禁止純色塊佔位；佔點陣圖在程式碼頂部 `const IMG` 統一管理
