@@ -43,59 +43,6 @@ cd omni-bitwarden/scripts
 npm install
 ```
 
-### 2. 初始化萬能金庫
-```bash
-# 創建萬能金庫目錄
-mkdir -p omni-bitwarden
-
-# 複製配置模板
-cp omni-bitwarden.example/config.yaml omni-bitwarden/config.yaml
-
-# 配置金鑰
-# 修改 config.yaml 填入你的金鑰
-```
-
-### 3. 設定環境變數
-```bash
-# 在 .env.local 中添加
-OMNIBITWARDEN_ENABLED=true
-OMNIBITWARDEN_CONFIG=omni-bitwarden/config.yaml
-```
-
-### 4. 驗證安裝
-```bash
-# 執行驗證腳本
-npx tsx scripts/verify-omni-bitwarden.ts
-
-# 更新金鑰
-npx tsx scripts/omni-bitwarden-update.ts update NCBDB_API_TOKEN
-
-# 輪替金鑰
-npx tsx scripts/omni-bitwarden-update.ts rotate MISTRAL_API_KEY
-
-# 同步到 Bitwarden
-npx tsx scripts/omni-bitwarden.ts sync
-```
-
-### 2. 初始化萬能金庫
-```bash
-# 創建萬能金庫目錄
-mkdir -p omni-bitwarden
-
-# 複製配置模板
-cp omni-bitwarden.example/config.yaml omni-bitwarden/config.yaml
-
-# 配置金鑰
-# 修改 config.yaml 填入你的金鑰
-```
-
-### 3. 設定環境變數
-```bash
-# 在 .env.local 中添加
-OMNIBITWARDEN_ENABLED=true
-OMNIBITWARDEN_CONFIG=omni-bitwarden/config.yaml
-```
-
 ### 4. 驗證安裝
 ```bash
 # 執行驗證腳本
