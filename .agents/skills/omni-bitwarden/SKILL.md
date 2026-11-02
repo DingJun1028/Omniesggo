@@ -241,6 +241,70 @@ secrets:
 - [Junaikey 成長層](./omni-master-key/SKILL.md)
 - [安全原則與密碼學](./OMNISKILL_BOOK.md#37-安全與密碼學原則)
 
+## 🌐 引用資源（Bitwarden 相關專案）
+
+| 專案名稱 | 倉庫地址 | 說明 |
+|----------|----------|------|
+| **Bitwarden Server** | [DingJun1028/server](https://github.com/DingJun1028/server) | Bitwarden 後端基礎設施，包含 API、資料庫、Docker 配置等 |
+| **Bitwarden Clients** | [DingJun1028/clients](https://github.com/DingJun1028/clients) | Bitwarden 客戶端應用（Web、桌面、瀏覽器擴展、CLI） |
+| **Passwordless Node.js** | [DingJun1028/passwordless-nodejs](https://github.com/DingJun1028/passwordless-nodejs) | Bitwarden Passwordless.dev Node.js SDK，支援無密碼認證 |
+
+### 1. Bitwarden Server 參考
+
+Bitwarden 伺服器後端（C#、TypeScript、SQL Server）提供：
+
+- **API 伺服器**：REST API 與 WebSocket 連接
+- **資料庫**：SQL Server 架構與 migrations
+- **Docker**：容器化部署配置
+- **認證系統**：JWT、Refresh Token、OAuth 2.0
+
+### 2. Bitwarden Clients 參考
+
+Bitwarden 客戶端應用包含：
+
+- **Web 客戶端**：瀏覽器應用（TypeScript、React）
+- **桌面客戶端**：Electron 應用（TypeScript、Rust）
+- **瀏覽器擴展**：Chrome、Firefox、Edge 擴展
+- **CLI 工具**：命令列密碼管理工具
+
+### 3. Passwordless Node.js 參考
+
+無密碼認證 SDK：
+
+```bash
+npm i @passwordlessdev/passwordless-nodejs
+```
+
+```typescript
+import { PasswordlessClient } from '@passwordlessdev/passwordless-nodejs';
+
+const client = new PasswordlessClient(process.env.PASSWORDLESS_SECRET!, {
+  baseUrl: 'https://v4.passwordless.dev'
+});
+
+// 註冊
+const registerToken = await client.createRegisterToken({
+  userId: 'user-id',
+  username: 'user@example.com',
+  aliases: ['device-name']
+});
+
+// 登入驗證
+const verifiedUser = await client.verifyToken(token);
+```
+
+### 4. 整合方式
+
+```mermaid
+graph TD
+    A[使用者] --> B{認證方式}
+    B -->|密碼less| C[Passwordless.dev]
+    B -->|傳統密碼| D[Bitwarden Server]
+    C --> E[萬能金庫]
+    D --> E
+    E --> F[業務應用]
+```
+
 ## 🔐 密碼less 認證整合（參考）
 
 ### 1. Passwordless.dev Node.js SDK
