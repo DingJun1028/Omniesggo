@@ -1,0 +1,83 @@
+name: VPS env secrets write round5 (probe)
+on:
+  push:
+    paths: ['.github/workflows/vps-env5.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  write:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH key
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          printf '%s\n' "${VPS_SSH_KEY}" > /tmp/vps_key
+          chmod 600 /tmp/vps_key
+      - name: Write OTS/Hermes keys with fingerprint gate
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          OTS_API_TOKEN: ${{ secrets.OTS_API_TOKEN }}
+          OTS_CUSTOMER: ${{ secrets.OTS_CUSTOMER }}
+          HERMES_API_SERVER_KEY: ${{ secrets.HERMES_API_SERVER_KEY }}
+        run: |
+          set +e
+          : > /tmp/env5-result.md
+          echo "# VPS .env.secrets write round5 result (OTS + Hermes)" >> /tmp/env5-result.md
+          echo "- date: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /tmp/env5-result.md
+          SSHOPT="-i /tmp/vps_key -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20"
+          NG=0
+          NOTSET=0
+          ssh $SSHOPT "$VPS_USER@$VPS_HOST" 'cp -a /home/ubuntu/.env.secrets /home/ubuntu/.env.secrets.bak-20261102d 2>/dev/null; exit 0'
+          write_key() {
+            KEYNAME="$1"
+            KEYVAL="$2"
+            EXPECTED_FP="$3"
+            if [ -z "$KEYVAL" ]; then
+              echo "- $KEYNAME: secret NOT_SET in Actions Secrets" >> /tmp/env5-result.md
+              NOTSET=1
+              return
+            fi
+            printf '%s\n' "$KEYNAME=$KEYVAL" | ssh $SSHOPT "$VPS_USER@$VPS_HOST" "set +e; grep -v \"^$KEYNAME=\" /home/ubuntu/.env.secrets > /home/ubuntu/.env.secrets.tmp 2>/dev/null; cat >> /home/ubuntu/.env.secrets.tmp; chmod 600 /home/ubuntu/.env.secrets.tmp; chown ubuntu:ubuntu /home/ubuntu/.env.secrets.tmp; mv /home/ubuntu/.env.secrets.tmp /home/ubuntu/.env.secrets; exit 0"
+            FP=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "grep '^$KEYNAME=' /home/ubuntu/.env.secrets | head -1 | cut -d= -f2- | tr -d '\r\n' | sha256sum | cut -c1-12" 2>/dev/null)
+            if [ "$FP" = "$EXPECTED_FP" ]; then
+              echo "- $KEYNAME: WRITTEN fingerprint OK ($FP)" >> /tmp/env5-result.md
+            else
+              echo "- $KEYNAME: fingerprint NG ($FP vs $EXPECTED_FP)" >> /tmp/env5-result.md
+              NG=1
+            fi
+          }
+          write_key OTS_API_TOKEN "$OTS_API_TOKEN" "33973bef297d"
+          write_key OTS_CUSTOMER "$OTS_CUSTOMER" "51811b17dc63"
+          write_key HERMES_API_SERVER_KEY "$HERMES_API_SERVER_KEY" "76823a1dc424"
+          if [ "$NG" = "1" ]; then
+            ssh $SSHOPT "$VPS_USER@$VPS_HOST" 'cp -a /home/ubuntu/.env.secrets.bak-20261102d /home/ubuntu/.env.secrets; exit 0'
+            echo "- outcome: REVERTED (fingerprint gate failed)" >> /tmp/env5-result.md
+          elif [ "$NOTSET" = "1" ]; then
+            echo "- outcome: PARTIAL (some secrets NOT_SET; set keys kept, file not reverted)" >> /tmp/env5-result.md
+          else
+            echo "- outcome: COMMITTED (all fingerprints OK)" >> /tmp/env5-result.md
+          fi
+          KEYS_AFTER=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "cut -d= -f1 /home/ubuntu/.env.secrets 2>/dev/null | sort | tr '\n' ','" 2>/dev/null)
+          STAT=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "stat -c '%a %U %s' /home/ubuntu/.env.secrets" 2>/dev/null)
+          echo "- keys_after: $KEYS_AFTER" >> /tmp/env5-result.md
+          echo "- stat: $STAT" >> /tmp/env5-result.md
+          cat /tmp/env5-result.md >> "$GITHUB_STEP_SUMMARY"
+          echo "RESULT_BEGIN"
+          cat /tmp/env5-result.md
+          echo "RESULT_END"
+      - name: Commit result and self-remove
+        run: |
+          set +e
+          git config user.name "esggo-ci-bot"
+          git config user.email "action@github.com"
+          cp /tmp/env5-result.md env5-result.md
+          git add env5-result.md
+          git rm -q .github/workflows/vps-env5.yml
+          git commit -q -m "chore: env secrets round5 result (probe)"
+          git push -q
+          echo "PUSH_RC=$?"
