@@ -27,7 +27,7 @@
 #     OCI_API_FINGERPRINT, OCI_API_KEY (PEM 私鑰全文),
 #     OCI_BASTION_ID (ocid1.bastion...), OCI_TARGET_RESOURCE_ID (VPS compute instance OCID)
 #   兩者皆需 (應用程式 API key, 選填 — 若設則寫入 vps/.env):
-#     GROQ_API_KEY, OPENROUTER_API_KEY, GEMINI_API_KEY, SUPABASE_*, GATEWAY_API_KEY, ...
+#     GROQ_API_KEY, OPENROUTER_API_KEY, SUPABASE_*, GATEWAY_API_KEY, ...
 # =============================================================================
 
 name: Deploy to Oracle VPS

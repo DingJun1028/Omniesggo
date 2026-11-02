@@ -426,3 +426,4 @@ esggo-omni-center/.agents/
 apps/aistation/storage/
 # OA-Swarm runtime data
 oa-swarm/data/
+.worktrees/

@@ -20,7 +20,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-VAULT_DIR = Path(r"C:\Users\dingj\secret-vault")
+VAULT_DIR = Path(r"C:\Users\Administrator\Documents\Project\Omniesggo\secret-vault")
 VAULT_PRIMARY = VAULT_DIR / "ENV20230818.env"
 _KEY_RE = re.compile(r"^([A-Z][A-Z0-9_]*)=(.*)$")
 _BW_TIMEOUT = 15
