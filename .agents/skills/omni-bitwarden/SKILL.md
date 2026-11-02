@@ -241,6 +241,71 @@ secrets:
 - [Junaikey 成長層](./omni-master-key/SKILL.md)
 - [安全原則與密碼學](./OMNISKILL_BOOK.md#37-安全與密碼學原則)
 
+## 🔐 密碼less 認證整合（參考）
+
+### 1. Passwordless.dev Node.js SDK
+
+[passwordless-nodejs](https://github.com/DingJun1028/passwordless-nodejs) 是 Bitwarden 官方的 Passwordless.dev Node.js SDK，提供無密碼認證功能（Magic Link / 密碼less 登入）。
+
+#### 套件安裝
+
+```bash
+npm i @passwordlessdev/passwordless-nodejs
+```
+
+#### 基本用法
+
+```typescript
+import { PasswordlessClient } from '@passwordlessdev/passwordless-nodejs';
+
+// 創建 PasswordlessClient 實例
+const options: PasswordlessOptions = {
+  baseUrl: 'https://v4.passwordless.dev'
+};
+const passwordlessClient = new PasswordlessClient(process.env.PASSWORDLESS_SECRET!, options);
+
+// 註冊
+const registerOptions = new RegisterOptions();
+registerOptions.userId = userId;
+registerOptions.username = username;
+registerOptions.aliases = [deviceName];
+registerOptions.discoverable = true;
+
+const token = await passwordlessClient.createRegisterToken(registerOptions);
+
+// 登入驗證
+const verifiedUser = await passwordlessClient.verifyToken(token);
+if (verifiedUser.success) {
+  // 使用 JWT 建立用戶 session
+}
+```
+
+#### 環境變數配置
+
+| 變數名稱 | 範例值 | 說明 | 必填 |
+|----------|--------|------|------|
+| `PASSWORDLESS_API` | `https://v4.passwordless.dev` | Passwordless.dev 後端基礎網址 | 否 |
+| `PASSWORDLESS_SECRET` | `demo:secret:f831e39c29e64b77aba547478a4b3ec6` | 從 AdminConsole 取得的 Secret | 是 |
+
+### 2. 密碼less 與傳統密碼管理結合
+
+```mermaid
+graph TD
+    A[使用者登入] --> B{認證方式}
+    B -->|密碼less| C[Passwordless.dev]
+    B -->|密碼認證| D[傳統登入]
+    C --> E[萬能金庫存取]
+    D --> E
+    E --> F[業務邏輯]
+```
+
+### 3. 安全原則
+
+- **不硬編碼**：`PASSWORDLESS_SECRET` 必須存放在環境變數或密碼管理系統
+- **Masked 輸出**：任何取得的值都必須遮蔽輸出
+- **最小權限**：密碼less 認證僅用於驗證身分，不存取敏感數據
+- **輪替機制**：定期輪替 `PASSWORDLESS_SECRET`
+
 ---
 
 ## ⚠️ 注意事項
