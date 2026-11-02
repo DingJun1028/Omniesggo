@@ -13,7 +13,7 @@ metadata:
   version: "1.0.0"
   category: operations
 uuid: "476fc5b5-338c-44d3-9215-6673a61c84be"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -23,7 +23,7 @@ title: render-scaling
 
 ---
 
-# Render Scaling
+1.0.0# Render Scaling
 
 This skill covers how to scale **Web Services**, **Private Services**, and **Background Workers** on Render: manual instance counts, **Professional+** autoscaling, plan (instance type) choices, and platform limits. Deeper tables and tuning guidance live under `references/`.
 

@@ -2,14 +2,14 @@
 name: eslint-optimizer
 description: Configure ESLint for Next.js/React/TypeScript projects with optimal rule settings. Balances strictness with CI pass rate. Use when setting up ESLint, tuning rules, or reducing lint noise while keeping code quality.
 uuid: "b2c3d4e5-f6a7-8901-bcde-f12345678901"
-version: "1.0.0"
+version: 1.0.0
 title: ESLint 優化
 category: eslint-optimizer
 title: ESLint 優化
 category: eslint-optimizer
 ---
 
-# ESLint Optimizer Skill
+1.0.0# ESLint Optimizer Skill
 
 Configure ESLint for maximum CI pass rate with minimum code quality loss.
 

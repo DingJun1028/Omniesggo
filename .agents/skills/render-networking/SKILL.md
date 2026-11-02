@@ -13,7 +13,7 @@ metadata:
   version: "1.0.0"
   category: networking
 uuid: "ed1255f6-1d43-465d-ab19-aa4ea2ed5e69"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -23,7 +23,7 @@ title: render-networking
 
 ---
 
-# Render private networking
+1.0.0# Render private networking
 
 Render’s **private network** lets services talk to each other without exposing traffic on the public internet. Use this skill when users need internal connectivity, discovery across scaled instances, or correct URL/port behavior for Blueprints and the Dashboard.
 

@@ -4,11 +4,7 @@ description: Guidelines for identifying and resolving missing Google Cloud authe
   and Application Default Credentials (ADC). Use this skill if `gcloud`, `bq`, `dataform`,
   or Python libraries return authentication errors.
 license: Apache-2.0
-metadata:
-  version: v1
-  publisher: google
-uuid: "1bf0c529-32e4-4fb9-a703-a4635168a5e9"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -20,7 +16,7 @@ title: GCP 認證驗證
 category: gcloud-auth-verification
 ---
 
-# Handling Authentication Issues
+1.0.0# Handling Authentication Issues
 
 ## Common Error Messages
 

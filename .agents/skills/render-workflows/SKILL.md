@@ -8,7 +8,7 @@ metadata:
   version: "1.0.0"
   category: workflows
 uuid: "24a7eece-ce41-4001-9f92-c27b57569afd"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -18,7 +18,7 @@ title: render-workflows
 
 ---
 
-# Render Workflows
+1.0.0# Render Workflows
 
 Render Workflows rapidly distribute computational work across multiple independent instances.
 Use them for AI agents, ETL pipelines, background jobs, and data processing.

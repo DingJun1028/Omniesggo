@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: operations
 uuid: "e05eb2b3-4737-46e7-b3f8-a4e438918f33"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-cli
 
 ---
 
-# Render CLI
+1.0.0# Render CLI
 
 The Render CLI manages services, databases, and deployments from the terminal. Supports interactive use, non-interactive scripting, and CI/CD automation.
 

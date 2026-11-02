@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: storage
 uuid: "dc61a8d4-32cd-4de9-985a-ae020a553fff"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-disks
 
 ---
 
-# Render Persistent Disks
+1.0.0# Render Persistent Disks
 
 Persistent disks are high-performance SSDs you attach to a Render service to preserve filesystem changes across deploys and restarts. Without a disk, services have an **ephemeral filesystem**—all local file changes are lost on every deploy.
 

@@ -2,14 +2,14 @@
 name: github-actions-fixer
 description: Diagnose and fix GitHub Actions CI/CD workflow failures. Covers ESLint, pytest, ruff, TypeScript, pnpm, Node.js, Python dependency issues, and deploy pipeline debugging. Use when CI fails, workflows error, or deployments break.
 uuid: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
-version: "1.0.0"
+version: 1.0.0
 title: GitHub Actions 修復
 category: github-actions-fixer
 title: GitHub Actions 修復
 category: github-actions-fixer
 ---
 
-# GitHub Actions Fixer Skill
+1.0.0# GitHub Actions Fixer Skill
 
 Systematically diagnose and fix GitHub Actions workflow failures.
 

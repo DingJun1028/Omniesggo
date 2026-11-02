@@ -5,11 +5,7 @@ description: Automated data quality and transformation capabilities for Dataform
   best practices for data ingestion, movement, schema mapping, and comprehensive data
   cleaning.
 license: Apache-2.0
-metadata:
-  version: v1
-  publisher: google
-uuid: "ced9a4fc-1116-4b8e-b86b-ae1cf44490c1"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -21,7 +17,7 @@ title: 資料自動清理
 category: data-autocleaning
 ---
 
-# Data Autocleaning Skill
+1.0.0# Data Autocleaning Skill
 
 Automated data profiling, quality assessment, and transformation for data
 sourced from **BigQuery** or **Google Cloud Storage (GCS)**.

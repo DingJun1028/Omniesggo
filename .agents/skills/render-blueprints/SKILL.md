@@ -18,7 +18,7 @@ metadata:
   version: "1.0.0"
   category: configuration
 uuid: "c05fc21a-9822-4832-a4fe-7ff053733b5d"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -28,7 +28,7 @@ title: render-blueprints
 
 ---
 
-# Render Blueprints (render.yaml)
+1.0.0# Render Blueprints (render.yaml)
 
 Blueprints define Render infrastructure as YAML (commonly `render.yaml` at the repo root). This skill focuses on **authoring**, **wiring**, **projects/environments**, **previews**, **validation**, and **immutable fields**. Heavy detail lives under `references/`.
 

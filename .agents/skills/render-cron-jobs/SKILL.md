@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: compute
 uuid: "1bac50ae-4f18-4a84-ad25-bbdf2b908aab"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-cron-jobs
 
 ---
 
-# Render Cron Jobs
+1.0.0# Render Cron Jobs
 
 This skill covers **Cron Job** services on Render: how schedules run, what the platform guarantees, and how they differ from workers and workflows. Pair it with Blueprint and deploy skills when authoring `render.yaml` or Dashboard settings.
 

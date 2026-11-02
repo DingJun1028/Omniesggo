@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: compute
 uuid: "c9fd5a28-ff51-4e22-9b01-348bfa9e09d9"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-private-services
 
 ---
 
-# Render Private Services
+1.0.0# Render Private Services
 
 Private services are identical to web services except they have **no public URL**. They are reachable only by other Render services on the same **private network** (same region + workspace). Use them for internal APIs, microservices, gRPC servers, sidecar processes, and anything that should never face the internet.
 

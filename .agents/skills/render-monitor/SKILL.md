@@ -8,7 +8,7 @@ metadata:
   version: "1.0.0"
   category: monitoring
 uuid: "fdddd079-db8f-4fd4-8dfd-21ca3756283b"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -18,7 +18,7 @@ title: render-monitor
 
 ---
 
-# Monitor Render Services
+1.0.0# Monitor Render Services
 
 Real-time monitoring of Render services including health checks, performance metrics, and logs.
 

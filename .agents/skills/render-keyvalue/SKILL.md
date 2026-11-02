@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: data
 uuid: "7ea8fd76-5e45-48cd-8b86-2c4c921db581"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-keyvalue
 
 ---
 
-# Render Key Value
+1.0.0# Render Key Value
 
 Render Key Value provides low-latency, Redis-compatible in-memory storage running **Valkey 8**. Use it as a shared cache, session store, or job queue backend. Compatible with virtually all Redis client libraries.
 

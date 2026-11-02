@@ -16,7 +16,7 @@ metadata:
   version: "1.0.0"
   category: deployment
 uuid: "96ac8945-d127-41b2-9dee-8d5d2307120d"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -26,7 +26,7 @@ title: render-docker
 
 ---
 
-# Render Docker Deployments
+1.0.0# Render Docker Deployments
 
 Render uses **BuildKit** for Docker builds. All compute service types that support custom runtimes can use **`runtime: docker`** (build from a Dockerfile in the repo) or **`runtime: image`** (pull a prebuilt image; no Dockerfile build on Render). Deeper patterns and copy-paste templates live under `references/`.
 

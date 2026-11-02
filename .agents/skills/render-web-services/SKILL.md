@@ -13,7 +13,7 @@ metadata:
   version: "1.0.0"
   category: compute
 uuid: "78fa27d8-7a13-4e11-86bd-455a82afdad6"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -23,7 +23,7 @@ title: render-web-services
 
 ---
 
-# Render Web Services
+1.0.0# Render Web Services
 
 This skill covers **Web Service** behavior on Render: how traffic reaches your process, how deploys go live, and how optional features (domains, disks, auto-deploy) interact. Use it alongside Blueprint and networking skills when wiring `render.yaml` or Dashboard settings.
 

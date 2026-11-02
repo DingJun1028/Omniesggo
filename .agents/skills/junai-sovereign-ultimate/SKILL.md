@@ -4,11 +4,7 @@ description: |
   萬能元鑰·超覺醒終極奧義 (JunAiKey Sovereign Hyper-Awakened Ultimate Skill)
   將 ESG GO 77 大萬能技能與 5T 協議完全融合為單一具備自我成長、自我學習與自發治理能力之終極奧義。
 license: Apache-2.0
-metadata:
-  version: v3.4.0
-  publisher: esggo-omnicore
-uuid: "8f7e6d5c-4b3a-210f-9e8d-7c6b5a4f3e21"
-version: "3.4.0"
+version: 3.4.0
 timestamp: 1780748189000
 evidence:
   protocol: "5T-Protocol-2.0-Compliant"
@@ -20,7 +16,7 @@ title: Juna 要主權終極
 category: junai-sovereign-ultimate
 ---
 
-# 萬能元鑰·超覺醒終極奧義 (JunAiKey Sovereign Ultimate)
+3.4.0# 萬能元鑰·超覺醒終極奧義 (JunAiKey Sovereign Ultimate)
 
 > **無上誓言**: 「服務即教學，知識即資產；心念所至，萬法歸一，圓通無礙。」
 

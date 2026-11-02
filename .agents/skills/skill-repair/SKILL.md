@@ -5,11 +5,7 @@ description: |
   This skill provides the necessary context and permissions to surgically update
   the `manifest.json` after a fix has been applied.
 license: Apache-2.0
-metadata:
-  version: v1
-  publisher: google
-uuid: "a522fb1d-26e5-42a8-89ab-2c4f3581e5d3"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -21,7 +17,7 @@ title: 技能修復
 category: skill-repair
 ---
 
-# Skill Repair Assistant
+1.0.0# Skill Repair Assistant
 
 You have been tasked with fixing a broken agent skill. After you have modified
 the skill's source files to address the reported error, you MUST update the

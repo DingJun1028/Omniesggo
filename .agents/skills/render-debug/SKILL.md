@@ -8,7 +8,7 @@ metadata:
   version: "1.1.0"
   category: debugging
 uuid: "d8b3388e-d402-4873-806b-c2b82c9da747"
-version: "1.0.0"
+version: 1.1.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -18,7 +18,7 @@ title: render-debug
 
 ---
 
-# Debug Render Deployments
+1.1.0# Debug Render Deployments
 
 Analyze deployment failures using logs, metrics, and database queries. Identify root causes and apply fixes.
 

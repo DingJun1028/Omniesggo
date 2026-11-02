@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: data
 uuid: "dd56171f-ddee-4f2b-b5ca-38dac7c3ab73"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-postgres
 
 ---
 
-# Render Managed PostgreSQL
+1.0.0# Render Managed PostgreSQL
 
 This skill covers **Managed Postgres on Render**: how to connect, what cannot change after creation, storage behavior, limits, HA, replicas, and safe deletion. Deep dives live under `references/`.
 

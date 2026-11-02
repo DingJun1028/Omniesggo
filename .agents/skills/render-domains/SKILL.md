@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: networking
 uuid: "06474eac-b256-4322-9f8f-dd31a26fb177"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-domains
 
 ---
 
-# Render Custom Domains
+1.0.0# Render Custom Domains
 
 Render automatically provisions and renews TLS certificates (via Let's Encrypt and Google Trust Services) for all custom domains. All HTTP traffic is redirected to HTTPS. Custom domains work on **web services** and **static sites** only.
 

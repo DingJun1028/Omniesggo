@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: compute
 uuid: "b8e07037-35ff-4e45-8b9a-114493aad39b"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-background-workers
 
 ---
 
-# Render Background Workers
+1.0.0# Render Background Workers
 
 This skill explains **worker** services on Render: processes that **consume jobs from a queue** instead of serving HTTP. Pair with **render-blueprints**, **render-env-vars**, and **render-networking** when wiring `render.yaml` and private connectivity.
 

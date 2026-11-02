@@ -12,11 +12,7 @@ description: |
     5. Generating Python code that includes `import` statements for third-party libraries.
     6. Before executing Python scripts via the terminal to ensure the correct virtual environment is active.
 license: Apache-2.0
-metadata:
-  version: v1
-  publisher: google
-uuid: "d5c8862d-dbfb-4fd2-8fc2-e3a24677e96f"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -28,7 +24,7 @@ title: Python 依賴管理
 category: managing-python-dependencies
 ---
 
-# Python Dependency Management Rule
+1.0.0# Python Dependency Management Rule
 
 > [!CAUTION] **BEFORE any `pip install`**: You MUST first detect the project's
 > existing dependency manager and use it correctly. Do NOT override the

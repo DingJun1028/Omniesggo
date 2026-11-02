@@ -14,7 +14,7 @@ title: Supabase PostgreSQL 最佳實踐
 category: supabase-postgres-best-practices
 ---
 
-# Supabase Postgres Best Practices
+1.1.1# Supabase Postgres Best Practices
 
 Comprehensive performance optimization guide for Postgres, maintained by Supabase. Contains rules across 8 categories, prioritized by impact to guide automated query optimization and schema design.
 

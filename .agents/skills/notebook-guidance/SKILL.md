@@ -8,11 +8,7 @@ description: |-
     3. You are creating, editing, or executing cells in a Jupyter notebook.
     4. You need to query BigQuery from within a notebook. DO NOT use the Python BigQuery client library; instead, you MUST use the `%%bqsql` magics explained in this skill.
 license: Apache-2.0
-metadata:
-  version: v5
-  publisher: google
-uuid: "84074c35-9bc6-4084-8113-fa872160d30e"
-version: "1.0.0"
+version: 5.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -24,7 +20,7 @@ title: 筆記指引
 category: notebook-guidance
 ---
 
-# Notebook Guidance
+5.0.0# Notebook Guidance
 
 ## When to Use a Notebook
 

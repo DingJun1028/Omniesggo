@@ -14,11 +14,7 @@ description: |
 
   SQL/BigQuery ML HANDOFF: If the user requires a SQL solution, use this skill to dictate the ANALYSIS STEPS (e.g., markdown analysis cells, visualization logic), but defer to `bigquery` for all SQL syntax.
 license: Apache-2.0
-metadata:
-  version: v1
-  publisher: google
-uuid: "206ee01b-0ad2-4a57-960a-066dd6da0b21"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -30,7 +26,7 @@ title: 機器學習最佳實踐
 category: ml-best-practices
 ---
 
-# ML Best Practices
+1.0.0# ML Best Practices
 
 I want to read a story about the data, not just run code. Ensure every code cell
 is followed by a markdown cell analyzing the results. End the notebook with a

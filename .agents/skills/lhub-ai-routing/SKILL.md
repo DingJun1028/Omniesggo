@@ -5,7 +5,7 @@ description: >
   長文本整理等明顯適合外包的任務時，調用 L-Hub MCP 工具輔助完成。
   主模型仍負責溝通、判斷和最終交付。
 uuid: "d13826ee-eb7c-4717-9d45-eb18d17c985f"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -17,7 +17,7 @@ title: LHUB AI 路由
 category: lhub-ai-routing
 ---
 
-<!-- L-Hub Skill Schema: 2026-04-default-v1 -->
+1.0.0<!-- L-Hub Skill Schema: 2026-04-default-v1 -->
 > [!NOTE]
 > **L-Hub 路由矩陣**
 > L-Hub 控制檯已生成以下任務分流規則。處理相關任務時，請先遵循這些默認分配；但如果目標模型沒有 Key、未連通或任務上下文過長，請回到主模型處理，不要硬調外部模型。

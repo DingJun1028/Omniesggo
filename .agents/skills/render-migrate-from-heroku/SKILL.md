@@ -8,7 +8,7 @@ metadata:
   version: "1.5.0"
   category: migration
 uuid: "ed074b8d-9eb5-4cdd-83bc-0625cb2040a6"
-version: "1.0.0"
+version: 1.5.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -18,7 +18,7 @@ title: render-migrate-from-heroku
 
 ---
 
-# Heroku to Render Migration
+1.5.0# Heroku to Render Migration
 
 Migrate from Heroku to Render by reading local project files first, then optionally enriching with live Heroku data via MCP.
 

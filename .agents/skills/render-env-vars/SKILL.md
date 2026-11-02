@@ -12,7 +12,7 @@ metadata:
   version: "1.0.0"
   category: configuration
 uuid: "3d501696-a053-43c2-948c-63f1ccd0a424"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -22,7 +22,7 @@ title: render-env-vars
 
 ---
 
-# Environment Variables on Render
+1.0.0# Environment Variables on Render
 
 Render exposes configuration to services as **environment variables**. Values are always **strings** at the platform layer—applications must parse numbers, booleans, and structured data explicitly.
 

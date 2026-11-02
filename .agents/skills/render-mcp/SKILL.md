@@ -15,7 +15,7 @@ metadata:
   version: "1.0.0"
   category: operations
 uuid: "96d51ce2-c826-497f-bbb7-98a36efd0fb3"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -25,7 +25,7 @@ title: render-mcp
 
 ---
 
-# Render MCP Server
+1.0.0# Render MCP Server
 
 The Render MCP server lets AI coding tools manage Render services, databases, deploys, logs, and metrics directly. This skill covers **setup**, **authentication**, **workspace selection**, the **tool catalog**, and **troubleshooting**.
 

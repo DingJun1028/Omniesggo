@@ -8,7 +8,7 @@ metadata:
   version: "1.1.0"
   category: deployment
 uuid: "d4bd0e57-db07-4975-b077-335161986321"
-version: "1.0.0"
+version: 1.1.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -18,7 +18,7 @@ title: render-deploy
 
 ---
 
-# Deploy to Render
+1.1.0# Deploy to Render
 
 Render supports **Git-backed** services and **prebuilt Docker image** services.
 

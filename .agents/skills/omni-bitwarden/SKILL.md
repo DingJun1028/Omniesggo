@@ -154,7 +154,7 @@ pnpm install || npm install
 
 ---
 
-## 🔐 安全守則
+## 🔐 安全守則（嵌入用戶偏好）
 
 1. **絕不硬編碼**：任何 API 金鑰、密碼、機密資料均不得寫入程式碼
 2. **環境變數**：本地開發使用 `.env.local`（已 `.gitignore` 忽略）
@@ -166,6 +166,14 @@ pnpm install || npm install
 8. **禁止顯示真實值**：對話過程中任何機密值都必須遮罩（`***MASKED***`）
 9. **金鑰輪替**：每 90 天輪替一次高風險金鑰
 10. **最小權限**：僅授予必要的服務存取權限
+11. **語言限制**：繁體中文（zh-hant）only。Cannot use Japanese.
+12. **TypeBox 為合約正本**：TypeBox schema 為合約正本（source of truth），前端/後端皆由 schema 生成
+13. **直推 main 已核准**：2026-11-03 起，功能分支 PR 規則已放棄，實際以「直推 main」方式完成
+14. **5T 提交格式**：`5T: source_origin=<domain> <topic>`、`5T-Traceable: <trace>`、`5T-Trustworthy: <trust>`
+15. **Ossidian Sync 邊界**：`docs/vault-canon/` 永遠只走 `obsidian-git`（git）。`ob`（Obsidian Sync）只用於另一個獨立非共享 vault，禁止寫入 `vault-canon`。
+16. **Tesseract OCR**：`TESSDATA_PREFIX` 必須指向包含 `tessdata` 資料夾的上層目錄（`C:\Program Files\Tesseract-OCR`），或以 `--tessdata-dir` 參數指定。空格路徑需用雙引號包住。命令列格式：`tesseract.exe <input.png> stdout [<lang>|--tessdata-dir=<path>] [<lang>]`
+17. **Linux 32-bit build**：`apps/omnilive`/`apps/omnlive` 同名 → `EDUPLICATEWORKSPACE`。`typescript@7.0.2` 不提供 ia32 原生二進位。`vitest`/rolldown 原生綁定（wasm32-wasi）不可用。**解決方案：使用 64-bit node + `@typescript/typescript-win32-x64`**。
+18. **Shell history**：終端機 shell history 已 `history -c` 清除。
 
 ## 🏗️ 系統整合
 

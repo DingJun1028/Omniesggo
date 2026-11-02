@@ -2,7 +2,7 @@
 name: global-healing
 description: 全域痊癒 (Global Healing) - Enforces the ESG GO project standards: English Standard (英標繁博), End-to-End Matrix (終始永續矩陣), Full-stack Bidirectional TypeScript, Next.js, and Global UIUX with Google Stitch. Apply globally to ensure "Global Healing" (consistency and quality) across all workspaces.
 uuid: "de51276f-bfc5-4c3e-86ae-3cf86a8d29dc"
-version: "1.0.0"
+version: 1.0.0
 timestamp: 1780748189000
 evidence:
   protocol: "ISO-14064-1-compliant-emulation"
@@ -14,7 +14,7 @@ title: ESG-GO 標準
 category: esggo-standards
 ---
 
-# Global Healing Skill (全域痊癒)
+1.0.0# Global Healing Skill (全域痊癒)
 
 This global skill ensures that all development activities across all workspaces
 and agents adhere to the core architectural and linguistic principles of the
