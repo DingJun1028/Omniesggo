@@ -1,0 +1,54 @@
+name: VPS env secrets revert (probe)
+on:
+  push:
+    paths: ['.github/workflows/vps-env-revert.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  revert:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH key
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          printf '%s\n' "${VPS_SSH_KEY}" > /tmp/vps_key
+          chmod 600 /tmp/vps_key
+      - name: Test stale GROQ validity then revert .env.secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          set +e
+          : > /tmp/env-revert-result.md
+          echo "# VPS .env.secrets revert result" >> /tmp/env-revert-result.md
+          echo "- date: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /tmp/env-revert-result.md
+          GROQ_HTTP=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $GROQ_API_KEY" https://api.groq.com/openai/v1/models)
+          echo "- actions_groq_validity_http: $GROQ_HTTP" >> /tmp/env-revert-result.md
+          SSHOPT="-i /tmp/vps_key -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20"
+          ssh $SSHOPT "$VPS_USER@$VPS_HOST" 'cp -a /home/ubuntu/.env.secrets /home/ubuntu/.env.secrets.stale-written-20261102 2>/dev/null; cp -a /home/ubuntu/.env.secrets.bak-20261102 /home/ubuntu/.env.secrets; exit 0'
+          rc=$?
+          KEYS_AFTER=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "cut -d= -f1 /home/ubuntu/.env.secrets 2>/dev/null | sort | tr '\n' ','" 2>/dev/null)
+          STAT=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "stat -c '%a %U %s' /home/ubuntu/.env.secrets" 2>/dev/null)
+          echo "- revert_rc: $rc" >> /tmp/env-revert-result.md
+          echo "- keys_after: $KEYS_AFTER" >> /tmp/env-revert-result.md
+          echo "- stat: $STAT" >> /tmp/env-revert-result.md
+          cat /tmp/env-revert-result.md >> "$GITHUB_STEP_SUMMARY"
+          echo "RESULT_BEGIN"
+          cat /tmp/env-revert-result.md
+          echo "RESULT_END"
+      - name: Commit result and self-remove
+        run: |
+          set +e
+          git config user.name "esggo-ci-bot"
+          git config user.email "action@github.com"
+          cp /tmp/env-revert-result.md env-revert-result.md
+          git add env-revert-result.md
+          git rm -q .github/workflows/vps-env-revert.yml
+          git commit -q -m "chore: env secrets revert result (probe)"
+          git push -q
+          echo "PUSH_RC=$?"
