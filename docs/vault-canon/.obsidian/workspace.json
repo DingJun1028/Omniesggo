@@ -11,10 +11,14 @@
             "id": "1fa7a1287f8ec5f8",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "OMN-PRD-001 終始矩陣.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新分頁"
+              "title": "OMN-PRD-001 終始矩陣"
             }
           }
         ]
@@ -172,6 +176,7 @@
   },
   "left-ribbon": {
     "hiddenItems": {
+      "github-sync-multi-platform:Obsidian-Github-Sync-Multi-Platform: 同步全部筆記": false,
       "switcher:開啟快速切換": false,
       "graph:查看關聯圖": false,
       "canvas:建立新畫布": false,
@@ -182,5 +187,9 @@
     }
   },
   "active": "1fa7a1287f8ec5f8",
-  "lastOpenFiles": []
+  "lastOpenFiles": [
+    "ESG-GO 核心.md",
+    "README.md",
+    "未命名.md"
+  ]
 }
