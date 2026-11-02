@@ -1,0 +1,15 @@
+# VPS .env.secrets full audit round7
+- date: 2026-11-02T08:07:57Z
+- GROQ_API_KEY: fp OK (00a855874393)
+- VIBE_CLI_API_KEY: fp OK (6012863e3f07)
+- SONAR_TOKEN: fp OK (aab1f7090195)
+- OTS_API_TOKEN: fp OK (33973bef297d)
+- OTS_CUSTOMER: fp OK (51811b17dc63)
+- HERMES_API_SERVER_KEY: fp OK (76823a1dc424)
+- HERMES_DASHBOARD_SESSION_TOKEN: present_count 1
+- live_ots_http: 200 (conceal test; probe secret burned)
+- live_groq_http: 200
+- live_mistral_http: 200
+- stat: 600 ubuntu 451
+- key_count: 7
+- outcome: ALL_OK
