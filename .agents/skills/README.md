@@ -22,7 +22,6 @@
 | [global-healing](global-healing/) | 全域治理 | ✅ |
 | [junai-sovereign-ultimate](junai-sovereign-ultimate/) | 集體智慧 | ✅ |
 | [junaikey](junaikey/) | 開發者金鑰 | ✅ |
-| [/junaikey](junaikey/) | 開發者金鑰 | ✅ |
 | [lhub-ai-routing](lhub-ai-routing/) | 路由 | ✅ |
 | [managing-python-dependencies](managing-python-dependencies/) | Python 管理 | ✅ |
 | [ml-best-practices](ml-best-practices/) | ML 最佳實踐 | ✅ |
