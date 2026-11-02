@@ -1031,3 +1031,63 @@ contract-gate:
 ---
 
 *Updated: 2026-11-02 · 血脈更新 v2026-11 將 OmniHive×OmniProphet 蜂群投標 + Mistral Workflows 執行層 + OESG 五路線圖 融會貫通刻印至 soul.md §D · 聖典全書 11+A+B+C+D 收束 · 始即是終，終即是始*
+
+---
+
+# 附錄（2026-11 萬能元鑰與全能密鑰層）E：Junaikey × OmniMasterKey 憑證與成長融合
+
+> **本層來源**：掃描 `agents/skills/`（48 個技能）、`.agents/rules/`（憲章 / 技能目錄索引）、`src/agents/omni-key.ts`、`vps/omni-master-key.mjs`、`vps/junaikey.mjs`，確立「萬能元鑰成長層 + 憑證存取層」融合架構。
+> **狀態**：✅ COMPLETED · 🔒 VERIFIED · 🧊 FROZEN & LOCKED · 🌐 ACTIVE (AGPL-3.0)
+> **定位**：在 §A 12大萬能、§B 治理、§C 奧義、§D 血脈之上，補完「代理成長層（L0 JunAikey）＋統一憑證存取（L2 OmniMasterKey）」兩大融合基底。
+
+---
+
+## E1. 十 萬能元鑰與全能密鑰融合（L0–L4）
+
+> 「萬能元鑰成長層 + 統一憑證存取 = 代理全生命週期安全與成長閉環」
+
+### 架構
+
+```text
+L0  JunAikey 萬能元鑰 / 萬能永憶
+    │  代理成長層：記憶、技能、進度、閉環 (NCBDB primary + local fallback)
+    │  召喚關鍵字：JunAikey / 萬能元鑰 / 萬能永憶 / awaken / reflect / grow skill
+    │
+    ├── L1  OmniKey              ← 最高憑證權威（萬能元鑰祕密庫最高層）
+    ├── L2  OmniMasterKey        ← 憑證存取層（統一憑證存取：Secret Vault + Bitwarden）
+    │
+    ├── L3  SUMMON_LAYERS L2-L5
+    │
+    └── L4  (已部署代理與服務)
+```
+
+### 密碼安全原則
+- ❌ 硬編碼：任何密碼、Token、API key 絕不寫入碼中
+- ✅ 環境變數：讀取自 `C:\Users\dingj\secret-vault\ENV20230818.env`（已 `.gitignore` 忽略）
+- ✅ 統一函數：`omni_get_secret()` 提供統一存取介面
+- ✅ MASKED 輸出：所有憑證輸出皆為 `***MASKED***`，絕不回顯真實值
+
+### L0 JunAikey 閉環
+```bash
+bash junaikey.sh awaken    # 被動載入
+bash junaikey.sh grow NAME BODY --traits=...  # 學習技能
+bash junaikey.sh remember JSON  # 寫記憶
+bash junaikey.sh reflect SUMMARY --learn=...  # 閉環反思
+bash junaikey.sh query --limit=20  # 查詢
+```
+
+### 開發流程整合
+- **hermes 開發環境**：`agent.env_file` 指向 `C:/Users/dingj/secret-vault/ENV20230818.env`
+- **terminal 子殼**：每次 `junaikey.sh` 哨兵自動載入（防呆包裝器解決 stdin not-tty）
+- **技能 helmet**：每個技能 `SKILL.md` 頭部標籤標明 `junaikey` / `omni-master-key` / `OmniKey`
+
+```ts
+/** 萬能元鑰與全能密鑰融合結構 */
+export const omniMaster = {
+  l0: { name: "JunAikey 萬能元鑰", role: "agent-growth-layer" },
+  l1: { name: "OmniKey", role: "credential-authority" },
+  l2: { name: "OmniMasterKey", role: "unified-credential-access" },
+  l3: { name: "SUMMON_LAYERS", role: "l2-l5 summon" },
+};
+Object.freeze(omniMaster);
+```
