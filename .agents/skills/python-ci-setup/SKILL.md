@@ -3,6 +3,10 @@ name: python-ci-setup
 description: Set up Python packages, test infrastructure, and CI configuration for Next.js/full-stack projects. Covers pyproject.toml, esggo/ package creation, ruff config, pytest setup, and build-backend compatibility. Use when Python CI fails or needs initialization.
 uuid: "d4e5f6a7-b8c9-0123-defa-234567890123"
 version: "1.0.0"
+title: Python CI 設定
+category: python-ci-setup
+title: Python CI 設定
+category: python-ci-setup
 ---
 
 # Python CI Setup Skill

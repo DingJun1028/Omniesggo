@@ -14,6 +14,10 @@ evidence:
   protocol: "5T-Protocol-2.0-Compliant"
   verification: "Zero-Hallucination-Validated"
   source_origin: "JunAiKey_Sovereign_Core"
+title: Juna 要主權終極
+category: junai-sovereign-ultimate
+title: Juna 要主權終極
+category: junai-sovereign-ultimate
 ---
 
 # 萬能元鑰·超覺醒終極奧義 (JunAiKey Sovereign Ultimate)

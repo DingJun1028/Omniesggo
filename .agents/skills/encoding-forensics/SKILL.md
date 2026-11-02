@@ -4,6 +4,10 @@ category: debugging
 description: 根因分析 · 果因消除 · 亂碼修復（Encoding Forensics）究極版奧義 — 從亂碼跡象逆向推斷編碼路徑，精準定位根因並消除，一次性修復不復發
 tags: encoding, forensics, debugging, root-cause, utf8, remediation
 load: on_match
+title: 編碼取證
+version: 1.0.0
+title: 編碼取證
+version: 1.0.0
 ---
 
 # 根因分析 · 果因消除 · 亂碼修復 — 究極版奧義

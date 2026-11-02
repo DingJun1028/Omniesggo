@@ -14,6 +14,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/gcloud-auth-verification"
+title: GCP 認證驗證
+category: gcloud-auth-verification
+title: GCP 認證驗證
+category: gcloud-auth-verification
 ---
 
 # Handling Authentication Issues

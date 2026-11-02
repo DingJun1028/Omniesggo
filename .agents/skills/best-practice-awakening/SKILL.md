@@ -4,6 +4,10 @@ category: governance
 description: 最佳實踐覺（Best Practice Awakening）究極版奧義 — 系統啟動即為最佳實踐，無作妙德、圓通無礙、永恆覺醒結界 inheritance
 tags: governance, best-practice, esggo, awakening, 結界, entropy
 load: on_match
+title: 最佳實踐覺醒
+version: 1.0.0
+title: 最佳實踐覺醒
+version: 1.0.0
 ---
 
 # 最佳實踐覺（Best Practice Awakening）— 究極版奧義

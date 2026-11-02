@@ -12,6 +12,8 @@ metadata:
   hermes:
     tags: [agent-growth, shared-memory, ncbd, persistence, cross-agent, 萬能元鑰, 萬能永憶, growth, closed-loop]
     related: [omni-master-key, best-practice-awakening, omnitag]
+title: junaikey
+
 ---
 
 # JunAikey 萬能元鑰 / 萬能永憶 — Agent Growth Layer

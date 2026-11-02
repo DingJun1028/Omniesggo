@@ -1,3 +1,27 @@
+---
+title: ESG GO Omniskill
+name: esggo-omniskill
+description: ESG GO 技能集合，強制實施全球治理標準
+category: esggo
+version: 1.0.0
+author: Hermes Agent
+license: AGPL-3.0
+platforms:
+  - windows
+  - linux
+  - macos
+metadata:
+  hermes:
+    tags:
+      - esggo
+      - global-healing
+      - omniskill
+    category: skill
+    related_skills:
+      - esggo-standards
+      - global-healing
+---
+
 # ESG GO Omniskill
 
 This skill package enforces the Global Healing standards across all ESG GO project implementations.

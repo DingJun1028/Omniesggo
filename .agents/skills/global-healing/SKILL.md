@@ -1,3 +1,27 @@
+---
+title: 無作妙德 | 圓通無礙
+name: global-healing
+description: 系統長時期運作的自我修復與無阻流轉境界
+category: global-healing
+version: 1.0.0
+author: Hermes Agent
+license: AGPL-3.0
+platforms:
+  - windows
+  - linux
+  - macos
+metadata:
+  hermes:
+    tags:
+      - global-healing
+      - entropy
+      - self-healing
+    category: skill
+    related_skills:
+      - omnibase-global-healing
+      - esggo-standards
+---
+
 # 無作妙德 | 圓通無礙
 
 ## 屬性

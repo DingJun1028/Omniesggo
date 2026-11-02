@@ -18,6 +18,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/notebook-guidance"
+title: 筆記指引
+category: notebook-guidance
+title: 筆記指引
+category: notebook-guidance
 ---
 
 # Notebook Guidance

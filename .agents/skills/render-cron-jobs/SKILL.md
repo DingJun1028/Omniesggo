@@ -21,6 +21,8 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/render-cron-jobs"
+title: render-cron-jobs
+
 ---
 
 # Render Cron Jobs

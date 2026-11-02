@@ -19,6 +19,8 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/render-web-services"
+title: render-web-services
+
 ---
 
 # Render Web Services

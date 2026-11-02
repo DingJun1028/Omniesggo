@@ -8,6 +8,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/omni-sync-memory"
+title: Omni 同步記憶
+category: omni-sync-memory
+title: Omni 同步記憶
+category: omni-sync-memory
 ---
 
 # Omni-Sync Memory Protocol (Flat Architecture v2.0)

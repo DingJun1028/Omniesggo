@@ -11,7 +11,12 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/lhub-ai-routing"
+title: LHUB AI 路由
+category: lhub-ai-routing
+title: LHUB AI 路由
+category: lhub-ai-routing
 ---
+
 <!-- L-Hub Skill Schema: 2026-04-default-v1 -->
 > [!NOTE]
 > **L-Hub 路由矩陣**

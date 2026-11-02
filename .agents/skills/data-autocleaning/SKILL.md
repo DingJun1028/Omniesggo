@@ -15,6 +15,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/data-autocleaning"
+title: 資料自動清理
+category: data-autocleaning
+title: 資料自動清理
+category: data-autocleaning
 ---
 
 # Data Autocleaning Skill

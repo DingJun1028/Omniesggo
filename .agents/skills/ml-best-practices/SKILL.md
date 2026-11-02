@@ -24,6 +24,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/ml-best-practices"
+title: 機器學習最佳實踐
+category: ml-best-practices
+title: 機器學習最佳實踐
+category: ml-best-practices
 ---
 
 # ML Best Practices

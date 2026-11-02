@@ -1,6 +1,12 @@
 ---
 name: web-design
 description: Web 視覺設計 SKILL。輸入 PRD / 參考 URL / 截圖 / 關鍵詞（任意組合），先產出一份標準化 DESIGN.md 設計規範，使用者確認后據此生成 UI/UX、視覺、動效、響應式全部達標的 web 程式碼。專攻 web 端：Landing Page、Portfolio、產品頁、部落格、個人站、SaaS 介紹頁等。當使用者說"幫我做個網站""設計一個頁面""參考 XX 做一個""把這個截圖/PRD 做成網頁""做一個 landing page""出一份 design 規範"時觸發。不用於後端、資料庫、純邏輯 bug 修復。
+title: Web 設計
+category: web-design
+version: 1.0.0
+title: Web 設計
+category: web-design
+version: 1.0.0
 ---
 
 # Web Design

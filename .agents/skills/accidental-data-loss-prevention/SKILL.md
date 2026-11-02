@@ -18,6 +18,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/accidental-data-loss-prevention"
+title: 意外資料損失防範
+category: accidental-data-loss-prevention
+title: 意外資料損失防範
+category: accidental-data-loss-prevention
 ---
 
 # Accidental Data Loss Prevention

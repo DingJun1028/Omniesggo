@@ -4,6 +4,10 @@ category: autonomous-ai-agents
 description: 🐝 OA-Team 30 萬能蜂群 究極版奧義 — ESG-GO 生態完整融合，含 5T Protocol、OmniTag、最佳實踐覺結界、熵減治理、VPS/Docker/CI 實戰範本
 tags: swarm, esggo, best-practice, omnitag, entropy, vps, ci-cd
 load: always  # 核心技能，預設載入
+title: OA 蜂群
+version: 1.0.0
+title: OA 蜂群
+version: 1.0.0
 ---
 
 # 🐝 OA-Team 30 萬能蜂群 — 究極版奧義

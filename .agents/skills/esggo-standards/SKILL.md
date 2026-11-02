@@ -8,6 +8,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/esggo-standards"
+title: ESG-GO 標準
+category: esggo-standards
+title: ESG-GO 標準
+category: esggo-standards
 ---
 
 # Global Healing Skill (全域痊癒)

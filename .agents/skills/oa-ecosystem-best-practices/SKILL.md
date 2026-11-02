@@ -8,6 +8,10 @@ platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [oa, crewai, oab, tailscale, ollama, best-practices, swarm]
+title: OA 生態最佳實踐
+category: oa-ecosystem-best-practices
+title: OA 生態最佳實踐
+category: oa-ecosystem-best-practices
 ---
 
 # OA Ecosystem Best Practices

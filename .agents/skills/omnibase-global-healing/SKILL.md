@@ -1,3 +1,27 @@
+---
+title: OmniBase 全域痊癒
+name: omnibase-global-healing
+description: ESG GO 平臺 v5 功能完善與架構重構
+category: omnibase
+version: 1.0.0
+author: Hermes Agent
+license: AGPL-3.0
+platforms:
+  - windows
+  - linux
+  - macos
+metadata:
+  hermes:
+    tags:
+      - omnibase
+      - global-healing
+      - architecture
+    category: skill
+    related_skills:
+      - global-healing
+      - esggo-standards
+---
+
 # Skill: omnibase-global-healing
 
 # OmniBase 全域痊癒 — ESG GO v5 功能完善與架構重構

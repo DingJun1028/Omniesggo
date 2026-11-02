@@ -4,6 +4,10 @@ category: taxonomy
 description: OmniTag 萬能標籤系統 究極版奧義 — ESG-GO 統一標籤分類、安全分級、自動路由、熵減治理、最佳實踐覺結界 inheritance
 tags: tagging, taxonomy, esggo, routing, governance, classification
 load: on_match
+title: Omni Tag
+version: 1.0.0
+title: Omni Tag
+version: 1.0.0
 ---
 
 # OmniTag 萬能標籤系統 — 究極版奧義

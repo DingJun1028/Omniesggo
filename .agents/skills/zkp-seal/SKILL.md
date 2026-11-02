@@ -2,6 +2,10 @@
 name: zkp-seal
 description: "Use this skill to perform Zero-Knowledge Proof (ZKP) cryptographic sealing on evidence documents and records within the ESG GO platform."
 version: 1.0.0
+title: ZKP 封印
+category: zkp-seal
+title: ZKP 封印
+category: zkp-seal
 ---
 
 # ZKP Seal Skill (稽覈與封印技能)

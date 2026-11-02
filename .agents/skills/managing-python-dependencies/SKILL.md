@@ -22,6 +22,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/managing-python-dependencies"
+title: Python 依賴管理
+category: managing-python-dependencies
+title: Python 依賴管理
+category: managing-python-dependencies
 ---
 
 # Python Dependency Management Rule

@@ -15,6 +15,10 @@ evidence:
   protocol: "ISO-14064-1-compliant-emulation"
   verification: "Zero-Hallucination-Validated"
   source_origin: "infoone://skills/skill-repair"
+title: 技能修復
+category: skill-repair
+title: 技能修復
+category: skill-repair
 ---
 
 # Skill Repair Assistant

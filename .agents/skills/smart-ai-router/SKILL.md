@@ -1,3 +1,27 @@
+---
+title: Smart AI Router
+name: smart-ai-router
+description: ESG 領域任務的 AI 模型路由，3 級降級鏈
+category: ai-router
+version: 2.0.0-beta.1
+author: Hermes Agent
+license: AGPL-3.0
+platforms:
+  - windows
+  - linux
+  - macos
+metadata:
+  hermes:
+    tags:
+      - ai-router
+      - smart-router
+      - fallback
+    category: skill
+    related_skills:
+      - smart-ai-router
+      - ai-routing
+---
+
 # Smart AI Router Skill
 
 **版本：2.0.0-beta.1（測試版）**

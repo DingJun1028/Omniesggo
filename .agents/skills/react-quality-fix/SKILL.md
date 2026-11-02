@@ -3,6 +3,10 @@ name: react-quality-fix
 description: Fix React code patterns that fail ESLint and React Compiler rules. Covers hooks ordering, ref usage, purity, immutability, and useEffect patterns. Use when fixing lint errors in React/Next.js components.
 uuid: "c3d4e5f6-a7b8-9012-cdef-123456789012"
 version: "1.0.0"
+title: React 品質修復
+category: react-quality-fix
+title: React 品質修復
+category: react-quality-fix
 ---
 
 # React Quality Fix Skill
