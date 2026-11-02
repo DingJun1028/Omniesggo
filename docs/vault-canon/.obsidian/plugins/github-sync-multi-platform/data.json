@@ -37,9 +37,9 @@
         "hash": "fb104464fdf6c14c8795b23036e62e69ed512715"
       },
       "ESG GO Sacred Pipeline CI-CD.md": {
-        "sha": "aa23b97ec4fa5dfbda3d4ee2c05505232d330426",
-        "lastSync": 1793640022779,
-        "hash": "aa23b97ec4fa5dfbda3d4ee2c05505232d330426"
+        "sha": "04b5b652672ebaff9dbfa21922e48d0c9fe15e8b",
+        "lastSync": 1793642476412,
+        "hash": "04b5b652672ebaff9dbfa21922e48d0c9fe15e8b"
       },
       "ESG-GO 核心.md": {
         "sha": "38763b16862cedea0f2c92d87af35c371c8eb3ea",
@@ -62,9 +62,9 @@
         "hash": "ea5223bba3c94b3d368ae6cb991383e588988d57"
       },
       "OMN-PRD-001 終始矩陣.md": {
-        "sha": "4459f82f5c40de264d0f7e16c7709b4497a0b173",
-        "lastSync": 1793640987705,
-        "hash": "4459f82f5c40de264d0f7e16c7709b4497a0b173"
+        "sha": "97d8572cf754c9b86765f3b3c4005195a333c154",
+        "lastSync": 1793642475806,
+        "hash": "97d8572cf754c9b86765f3b3c4005195a333c154"
       },
       "OMN-PRD-001-SCHEMA-TRACEABILITY.md": {
         "sha": "3db4bd790a83bc1eb05cf02aa36be09c206b020b",
@@ -121,11 +121,6 @@
         "lastSync": 1793638874175,
         "hash": "3b6d8298e312aa8602e7f139e1b03f022438e21b"
       },
-      "README.md": {
-        "sha": "8025d4adc4b4360f3e5dfe517acced56fa09e385",
-        "lastSync": 1793638874179,
-        "hash": "8025d4adc4b4360f3e5dfe517acced56fa09e385"
-      },
       "VIBE-CLI-INTEGRATION.md": {
         "sha": "82da9ce2e1be397c6a122caa446b695753d3cc61",
         "lastSync": 1793638874187,
@@ -145,10 +140,10 @@
         "sha": "284ee9214ea4723e7d803e4389bf017fafae666b",
         "lastSync": 1793638875047
       },
-      "未命名.base": {
-        "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
-        "lastSync": 1793640986289,
-        "hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+      "README.md": {
+        "sha": "8025d4adc4b4360f3e5dfe517acced56fa09e385",
+        "lastSync": 1793643854729,
+        "hash": "8025d4adc4b4360f3e5dfe517acced56fa09e385"
       }
     }
   }
