@@ -11,7 +11,7 @@
     "sync": "tsx scripts/omni-bitwarden.ts sync"
   },
   "dependencies": {
-    "typebox": "^0.30.12"
+    "@sinclair/typebox": "^0.34.52"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
