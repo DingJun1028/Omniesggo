@@ -1,0 +1,74 @@
+name: VPS .env.secrets full audit round7 (probe)
+on:
+  push:
+    paths: ['.github/workflows/vps-audit7.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare SSH key
+        env:
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          printf '%s\n' "${VPS_SSH_KEY}" > /tmp/vps_key
+          chmod 600 /tmp/vps_key
+      - name: Audit all keys fingerprint + live validity
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          VIBE_CLI_API_KEY: ${{ secrets.VIBE_CLI_API_KEY }}
+          OTS_API_TOKEN: ${{ secrets.OTS_API_TOKEN }}
+          OTS_CUSTOMER: ${{ secrets.OTS_CUSTOMER }}
+        run: |
+          set +e
+          : > /tmp/audit7-result.md
+          echo "# VPS .env.secrets full audit round7" >> /tmp/audit7-result.md
+          echo "- date: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> /tmp/audit7-result.md
+          SSHOPT="-i /tmp/vps_key -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20"
+          declare -A EXP=( [GROQ_API_KEY]=00a855874393 [VIBE_CLI_API_KEY]=6012863e3f07 [SONAR_TOKEN]=aab1f7090195 [OTS_API_TOKEN]=33973bef297d [OTS_CUSTOMER]=51811b17dc63 [HERMES_API_SERVER_KEY]=76823a1dc424 )
+          NG=0
+          for KEY in GROQ_API_KEY VIBE_CLI_API_KEY SONAR_TOKEN OTS_API_TOKEN OTS_CUSTOMER HERMES_API_SERVER_KEY; do
+            FP=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "grep '^$KEY=' /home/ubuntu/.env.secrets | head -1 | cut -d= -f2- | tr -d '\r\n' | sha256sum | cut -c1-12" 2>/dev/null)
+            if [ "$FP" = "${EXP[$KEY]}" ]; then
+              echo "- $KEY: fp OK ($FP)" >> /tmp/audit7-result.md
+            else
+              echo "- $KEY: fp MISMATCH ($FP vs ${EXP[$KEY]})" >> /tmp/audit7-result.md
+              NG=1
+            fi
+          done
+          HDST=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "grep -c '^HERMES_DASHBOARD_SESSION_TOKEN=' /home/ubuntu/.env.secrets" 2>/dev/null)
+          echo "- HERMES_DASHBOARD_SESSION_TOKEN: present_count $HDST" >> /tmp/audit7-result.md
+          GROQ_HTTP=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $GROQ_API_KEY" https://api.groq.com/openai/v1/models)
+          VIBE_HTTP=$(curl -s -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $VIBE_CLI_API_KEY" https://api.mistral.ai/v1/models)
+          CONCEAL_HTTP=$(curl -s -o /tmp/conceal.json -w '%{http_code}' -X POST -u "$OTS_CUSTOMER:$OTS_API_TOKEN" -H "Content-Type: application/json" -d '{"secret":{"kind":"conceal","secret":"audit-probe-disposable","ttl":300}}' https://us.onetimesecret.com/api/v2/secret/conceal)
+          RECEIPT=$(python3 -c "import json;print(json.load(open('/tmp/conceal.json'))['record']['receipt']['identifier'])" 2>/dev/null)
+          [ -n "$RECEIPT" ] && curl -s -o /dev/null -X POST -u "$OTS_CUSTOMER:$OTS_API_TOKEN" -H "Content-Type: application/json" https://us.onetimesecret.com/api/v2/receipt/$RECEIPT/burn
+          echo "- live_ots_http: $CONCEAL_HTTP (conceal test; probe secret burned)" >> /tmp/audit7-result.md
+          echo "- live_groq_http: $GROQ_HTTP" >> /tmp/audit7-result.md
+          echo "- live_mistral_http: $VIBE_HTTP" >> /tmp/audit7-result.md
+          STAT=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "stat -c '%a %U %s' /home/ubuntu/.env.secrets" 2>/dev/null)
+          NKEYS=$(ssh $SSHOPT "$VPS_USER@$VPS_HOST" "grep -c '=' /home/ubuntu/.env.secrets" 2>/dev/null)
+          echo "- stat: $STAT" >> /tmp/audit7-result.md
+          echo "- key_count: $NKEYS" >> /tmp/audit7-result.md
+          echo "- outcome: $([ "$NG" = "0" ] && echo ALL_OK || echo NG)" >> /tmp/audit7-result.md
+          cat /tmp/audit7-result.md >> "$GITHUB_STEP_SUMMARY"
+          echo "RESULT_BEGIN"
+          cat /tmp/audit7-result.md
+          echo "RESULT_END"
+      - name: Commit result and self-remove
+        run: |
+          set +e
+          git config user.name "esggo-ci-bot"
+          git config user.email "action@github.com"
+          cp /tmp/audit7-result.md audit7-result.md
+          git add audit7-result.md
+          git rm -q .github/workflows/vps-audit7.yml
+          git commit -q -m "chore: env secrets audit round7 result (probe)"
+          git push -q
+          echo "PUSH_RC=$?"
