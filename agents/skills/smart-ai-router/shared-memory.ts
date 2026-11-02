@@ -1,3 +1,5 @@
+import { writeFile, readFile } from 'fs/promises';
+
 /**
  * SharedMemoryLayer — 多代理共同記憶層（Multi-Agent Shared Memory）
  * ------------------------------------------------------------------
@@ -156,6 +158,52 @@ export class SharedMemoryLayer {
     }
     out.sort((a, b) => b.timestamp - a.timestamp);
     return Object.freeze(out);
+  }
+
+  /** 序列化快照為 JSON 字串（供 OmniNote / 文件存證 / 跨端傳輸） */
+  toJson(): string {
+    const entries = this.snapshot().map((e) => ({
+      id: e.id,
+      agentId: e.agentId,
+      topic: e.topic,
+      content: e.content,
+      tags: e.tags,
+      traceId: e.traceId,
+      timestamp: e.timestamp,
+      ttlMs: e.ttlMs,
+      lifecyclePath: e.lifecyclePath,
+    }));
+    return JSON.stringify(entries, null, 2);
+  }
+
+  /** 從 JSON 字串還原快照並寫回黑板 */
+  fromJson(jsonString: string): MemoryEntry[] {
+    const parsed = JSON.parse(jsonString);
+    const entries = parsed.map((p: Record<string, unknown>) => ({
+      id: String(p.id),
+      agentId: String(p.agentId),
+      topic: String(p.topic),
+      content: p.content,
+      tags: Array.isArray(p.tags) ? p.tags : [],
+      traceId: p.traceId,
+      timestamp: Number(p.timestamp),
+      ttlMs: Number(p.ttlMs),
+      lifecyclePath: Array.isArray(p.lifecyclePath) ? p.lifecyclePath : [],
+    }));
+    this.restore(entries);
+    return entries;
+  }
+
+  /** 寫入快照到文件（UTF-8 JSON，供 Python OmniNote 端讀取） */
+  async saveSnapshotToFile(path: string): Promise<void> {
+    const json = this.toJson();
+    await writeFile(path, json, 'utf-8');
+  }
+
+  /** 從文件載入快照並還原黑板 */
+  async loadSnapshotFromFile(path: string): Promise<MemoryEntry[]> {
+    const text = await readFile(path, 'utf-8');
+    return this.fromJson(text);
   }
 
   topics(): readonly string[] { return [...this.board.keys()]; }
