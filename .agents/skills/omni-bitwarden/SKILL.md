@@ -1,17 +1,17 @@
 ---
 title: 萬能金庫系統（OmniBitwarden）
 name: omni-bitwarden
-description: 萬能金庫系統（OmniBitwarden）— 融合 Bitwarden 的通用憑證存取與安全金鑰管理，適用於 Omniesggo 專案。
+description: 萬能金庫系統（OmniBitwarden）— 融合 Bitwarden 的通用憑證存取與安全金鑰管理，適用於 Omniesggo 專案。支援自動輪替、多層架構、環境隔離與全端雙向同步。
 category: secret-handling
-version: 1.0.0
+version: 2.0.0
 author: Hermes Agent
 license: AGPL-3.0
 platforms: [windows, linux, macos]
 metadata:
   hermes:
-    tags: [secret-handling, environment, api-keys, vault, bitwarden]
+    tags: [secret-handling, environment, api-keys, vault, bitwarden, credential-management]
     category: security
-    related_skills: [credential-handling, omni-master-key, omniskill-book]
+    related_skills: [credential-handling, omni-master-key, omniskill-book, global-rule]
 ---
 
 # 🌐 萬能金庫系統（OmniBitwarden）
@@ -111,34 +111,45 @@ graph TD
 
 ---
 
-## 🛠️ 安裝指南
+## 🛠️ 安裝與初始化
 
 ### 1. 安裝 OpenBountyman 或類似工具
+
 ```bash
 # 根據你的密碼管理系統安裝 CLI
-# 例如：1Password CLI, Bitwarden CLI, Vault CLI 等
+# 例如：Bitwarden CLI, 1Password CLI, Vault CLI 等
 
 # 檢查安裝
 bitwarden --version
 ```
 
-### 2. 初始化萬能金庫
+### 2. 初始化万能金庫
+
 ```bash
-# 創建萬能金庫目錄
+# 創建万能金庫目錄
 mkdir -p omni-bitwarden
 
 # 複製配置模板
-cp omni-bitwarden.example/config.yaml omni-bitwarden/config.yaml
+cp .agents/skills/omni-bitwarden/configs/omni-bitwarden.example.yaml \
+   omni-bitwarden/config.yaml
 
 # 配置金鑰
 # 修改 config.yaml 填入你的金鑰
 ```
 
 ### 3. 設定環境變數
+
 ```bash
 # 在 .env.local 中添加
 OMNIBITWARDEN_ENABLED=true
 OMNIBITWARDEN_CONFIG=omni-bitwarden/config.yaml
+```
+
+### 4. 安裝 TypeScript 依賴
+
+```bash
+cd .agents/skills/omni-bitwarden/scripts
+pnpm install || npm install
 ```
 
 ---
@@ -148,13 +159,13 @@ OMNIBITWARDEN_CONFIG=omni-bitwarden/config.yaml
 1. **絕不硬編碼**：任何 API 金鑰、密碼、機密資料均不得寫入程式碼
 2. **環境變數**：本地開發使用 `.env.local`（已 `.gitignore` 忽略）
 3. **機密聖櫃**：生產環境使用 `secret-vault/` 目錄
-4. **統一存取**：透過 `omni_get_secret()` 函數存取
+4. **万能金庫**：統一存取介面，透過 `omni_get_secret()` 函數存取
 5. **MASKED 輸出**：所有憑證查詢結果均以 `***MASKED***` 顯示
 6. **權限控制**：`secret-vault/` 目錄權限 600，僅所有者可讀寫
 7. **出口清理**：程式結束時清理環境變數中的機密值
 8. **禁止顯示真實值**：對話過程中任何機密值都必須遮罩（`***MASKED***`）
-
----
+9. **金鑰輪替**：每 90 天輪替一次高風險金鑰
+10. **最小權限**：僅授予必要的服務存取權限
 
 ## 🏗️ 系統整合
 
@@ -372,6 +383,33 @@ graph TD
 
 ---
 
+## 🖥️ 命令列工具
+
+```bash
+# 驗證系統狀態
+npx tsx scripts/omni-bitwarden.ts verify
+
+# 更新金鑰值
+npx tsx scripts/omni-bitwarden.ts update <金鑰名> [scope]
+
+# 輪替金鑰
+npx tsx scripts/omni-bitwarden.ts rotate <金鑰名> [scope]
+
+# 向 Bitwarden 同步
+npx tsx scripts/omni-bitwarden.ts sync
+```
+
+---
+
+## 📝 版本歷史
+
+| 版本 | 日期 | 說明 |
+|------|------|------|
+| 2.0.0 | 2026-11-03 | 重寫為完整技能文件，新增命令列工具與安全守則 |
+| 1.0.0 | 2026-11-02 | 初始版本，基礎整合 |
+
+---
+
 ## ⚠️ 注意事項
 
 1. **金鑰輪替**：每 90 天輪替一次高風險金鑰
@@ -379,3 +417,5 @@ graph TD
 3. **最小權限**：僅授予必要的服務存取權限
 4. **密碼輪替**：定期輪替敏感密碼
 5. **安全教訓**：參考 `.security-lesson-20261102.md` 學習經驗
+6. **秘密聖櫃**：所有機密存取透過 `omni_get_secret()` 統一管理
+7. **金鑰離職**：離職時立即撤銷所有安全存取權限
