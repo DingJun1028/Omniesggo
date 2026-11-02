@@ -249,6 +249,8 @@ ki-esg-2026-001.md
 
 # SQL / data dumps
 *.sql
+# Supabase migrations (NOT data dumps)
+!db/migrations/*.sql
 logic_registry*.db
 
 # Config variants (keep next.config.js only)
