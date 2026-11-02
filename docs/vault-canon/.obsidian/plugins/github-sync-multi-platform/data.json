@@ -4,7 +4,7 @@
     "githubOwner": "DingJun1028",
     "githubRepo": "omninote-vault",
     "githubBranch": "main",
-    "githubToken": "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",
+    "githubToken": "***MASKED***",
     "lastSyncTime": 0,
     "vault": "defaultVault",
     "clipboardReadTip": ""
@@ -37,9 +37,9 @@
         "hash": "fb104464fdf6c14c8795b23036e62e69ed512715"
       },
       "ESG GO Sacred Pipeline CI-CD.md": {
-        "sha": "04b5b652672ebaff9dbfa21922e48d0c9fe15e8b",
-        "lastSync": 1793638874077,
-        "hash": "04b5b652672ebaff9dbfa21922e48d0c9fe15e8b"
+        "sha": "aa23b97ec4fa5dfbda3d4ee2c05505232d330426",
+        "lastSync": 1793640022779,
+        "hash": "aa23b97ec4fa5dfbda3d4ee2c05505232d330426"
       },
       "ESG-GO 核心.md": {
         "sha": "38763b16862cedea0f2c92d87af35c371c8eb3ea",
@@ -62,9 +62,9 @@
         "hash": "ea5223bba3c94b3d368ae6cb991383e588988d57"
       },
       "OMN-PRD-001 終始矩陣.md": {
-        "sha": "97d8572cf754c9b86765f3b3c4005195a333c154",
-        "lastSync": 1793638874108,
-        "hash": "97d8572cf754c9b86765f3b3c4005195a333c154"
+        "sha": "4459f82f5c40de264d0f7e16c7709b4497a0b173",
+        "lastSync": 1793640987705,
+        "hash": "4459f82f5c40de264d0f7e16c7709b4497a0b173"
       },
       "OMN-PRD-001-SCHEMA-TRACEABILITY.md": {
         "sha": "3db4bd790a83bc1eb05cf02aa36be09c206b020b",
@@ -82,14 +82,14 @@
         "hash": "26411c73828a6f0cd2b11494ba5b0461d0df535f"
       },
       "OMNITAG/Root Cause × Effect Elimination.md": {
-        "sha": "d79cf80665baac13e366f1e6d19317a365b2777a",
-        "lastSync": 1793638874124,
-        "hash": "d79cf80665baac13e366f1e6d19317a365b2777a"
+        "sha": "530f717f7708d003e279bded2282bace31212890",
+        "lastSync": 1793640023858,
+        "hash": "530f717f7708d003e279bded2282bace31212890"
       },
       "OMNITAG/Universal Automation 萬能自動.md": {
-        "sha": "e4f8f0c27a49349d86a1bdf2a4722c2ed2308092",
-        "lastSync": 1793638874133,
-        "hash": "e4f8f0c27a49349d86a1bdf2a4722c2ed2308092"
+        "sha": "2ef6ce4c2c0bb1bd3e708a7bd1fdc9dd6969212d",
+        "lastSync": 1793640025756,
+        "hash": "2ef6ce4c2c0bb1bd3e708a7bd1fdc9dd6969212d"
       },
       "Obsidian Shared Brain x-callback-url Protocol.md": {
         "sha": "2c8bb9c282f58242f5c23772d827de93b1d69e69",
@@ -97,9 +97,9 @@
         "hash": "2c8bb9c282f58242f5c23772d827de93b1d69e69"
       },
       "OmniCapture/OmniCapture — 万能擷取 · 自動詳細文檔分析.md": {
-        "sha": "cf8c46cd2d3b61718e0a3dce0ff1749a8c625a4b",
-        "lastSync": 1793638874154,
-        "hash": "cf8c46cd2d3b61718e0a3dce0ff1749a8c625a4b"
+        "sha": "e3d838d2946549707ce46a62cccf87f377e586f7",
+        "lastSync": 1793640024893,
+        "hash": "e3d838d2946549707ce46a62cccf87f377e586f7"
       },
       "OmniESGgo 系統架構 功能設定 成果交付 終始矩陣 設計規劃書.md": {
         "sha": "20d157d81d5d26ac242adc3d23c9f86d061cec0a",
@@ -144,6 +144,11 @@
       ".obsidian/sync-stats.json": {
         "sha": "284ee9214ea4723e7d803e4389bf017fafae666b",
         "lastSync": 1793638875047
+      },
+      "未命名.base": {
+        "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "lastSync": 1793640986289,
+        "hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
       }
     }
   }
