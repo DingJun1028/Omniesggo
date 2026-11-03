@@ -1,0 +1,19 @@
+[2026-11-03 14:19:05] --- 開始輪替 (API_SERVER_KEY) ---
+[2026-11-03 14:19:06] ✓ 已寫入 vault (管理員可讀寫)
+[2026-11-03 14:19:06]   [模擬] 已「同步」至 VPS: 161.118.248.180:/opt/esggo/apps/tencentdb-memory/admin-key
+[2026-11-03 14:19:06]     映象: echo "API_SERVER_KEY=44b917ZIcdDdZVoGJsJ5xfp5YrrhDNEtz740U7aoLwM" | sudo tee '/opt/esggo/apps/tencentdb-memory/admin-key'
+[2026-11-03 14:19:06] ⚠ 舊鍵已標記為失效（正式環境請吊銷/輪轉帳號）
+[2026-11-03 14:19:06]   失效清單：舊鍵（已輪替）
+[2026-11-03 14:19:06] --- 驗證 ---
+[2026-11-03 14:19:07] ✓ 本地 vault 驗證通過
+[2026-11-03 14:19:07]   [模擬] VPS 端檢查（無實際連線）
+---
+timestamp: 2026-11-03T06:19:07Z
+action: rotate-api-server-key
+status: completed
+new_key_masked: 44b9...[43 chars]
+old_key_rendered: replaced
+notes: 依 .security-lesson-20261102.md 輪替
+status_file: /c/Users/Administrator/Documents/Project/Omniesggo/rotation-log/rotate-api-server-key-20261103-141905.log
+[2026-11-03 14:19:07] ✓ 輪替紀錄已寫入: rotation-log/rotate-api-server-key-20261103-141905.log
+[2026-11-03 14:19:07] --- 輪替完成 ---

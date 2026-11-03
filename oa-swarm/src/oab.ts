@@ -47,8 +47,9 @@ export class OABClient {
   async publish(msg: OABMessage): Promise<boolean> {
     try {
       const p = msg.payload as Record<string, unknown>;
+      // 寫入時同步鎖定: 5T Trustworthy 的 hash_lock 與 task 必須落庫, 供雙蜂隊（VPS/本地）跨節點檢索
       const content = (p._content as string | undefined)
-        ?? JSON.stringify({ hash: p.hash ?? '', task: String(p.task ?? '').slice(0, 200) });
+        ?? JSON.stringify({ hash_lock: p.hash ?? '', task: String(p.task ?? '').slice(0, 200) });
       const r = await fetch(`${this.base}/v3/conversation/add`, {
         method: 'POST',
         headers: {
@@ -61,7 +62,10 @@ export class OABClient {
           user_id: 'default',
           agent_id: String(msg.from),
           role: 'user',
-          messages: [{ role: 'user', content }],
+          content,
+          // 5T 信任: 將 task / hash_lock 作為第一級欄位送出, 供 query 直接取用
+          task: p.task ?? '',
+          hash_lock: p.hash ?? '',
         }),
       });
       if (!r.ok) { console.error('[OAB] add failed', r.status); return false; }
@@ -86,13 +90,21 @@ export class OABClient {
         body: JSON.stringify({ query: '*', limit }),
       });
       if (!r.ok) return [];
-      const j = await r.json() as { code?: number; data?: { messages?: Array<{ content: string; timestamp: string }> } };
+      // 擴展型別: 服務端可能回傳 task / hash_lock 為第一級欄位
+      const j = await r.json() as { code?: number; data?: { messages?: Array<{ content: string; task?: string; hash_lock?: string; timestamp: string }> } };
       if (j.code !== 0) return [];
       return (j.data?.messages || []).map((m) => {
         try {
           const c = JSON.parse(m.content);
-          return { hash: c.hash_lock || '', task: c.task || '', ts: m.timestamp };
-        } catch { return { hash: m.content, task: '', ts: m.timestamp }; }
+          return {
+            // 優先取 service-level task / hash_lock (寫入時已同步), 其次 content 內的
+            hash: m.hash_lock || c.hash_lock || '',
+            task: m.task || c.task || '',
+            ts: m.timestamp,
+          };
+        } catch {
+          return { hash: m.content, task: m.task || '', ts: m.timestamp };
+        }
       });
     } catch (e) {
       console.error('[OAB] query error', (e as Error).message);
