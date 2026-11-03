@@ -1,0 +1,27 @@
+{
+  "name": "@esggo/omninote-unified",
+  "version": "0.1.0",
+  "description": "OmniNote: Unified — 全生命週期流式筆記核心庫（TypeBox 契約 × Block-CRDT × 5T 治理）",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build": "tsc",
+    "test": "node --experimental-transform-types --test test/",
+    "bench": "node --experimental-transform-types bench/bench.ts"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
