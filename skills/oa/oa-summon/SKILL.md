@@ -45,6 +45,7 @@ OmniAgent (OA) 系統的統一入口。根據用戶意圖路由到正確技能�
 | 代理訓練 | 訓練、優化、基準測試 | `oa-agent-trainer` |
 | VPS 閘道 | VPS、閘道、Telegram、Nginx | `oa-vps-gateway` |
 | UI 設計系統 | 設計系統、OmniBase、OmniTheme | `oa-ui-design-system` |
+| 桌面操作 | 點擊、輸入、文件對話框、繼承同意、開啟應用、滾動 | `oa-computer-use` |
 | 技能建立 | 建立技能、新技能、scaffold | `oa-skill-scaffold` |
 
 ## Routing Logic
