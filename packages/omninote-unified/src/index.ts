@@ -2,6 +2,7 @@ export * from "./core-types.js";
 export { UnifiedMatrixEngine, sha256, canonicalStringify, computeUUID, nodeLockPayload, computeNodeLockHash } from "./matrix-engine.js";
 export { LocalMarkdownHomomorphicCodec, type FileSystemArtifact } from "./codec.js";
 export { SemanticVectorStore, type VectorEntry } from "./vector-store.js";
+export { ZeroComputeEmbedder, type ZeroComputeEmbedderOptions } from "./ollama-embedder.js";
 export { OmniStorageAdapter, NodeFileSystemDriver, IndexedDBDriver, type IStorageDriver } from "./storage-adapter.js";
 export { EvidenceAuditBundleExporter, type AuditProofManifest } from "./audit-exporter.js";
 export { sealWithStructuralSharing, Float32ArrayPool } from "./perf.js";
