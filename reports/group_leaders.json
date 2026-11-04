@@ -1,0 +1,170 @@
+{
+  "智庫聖所 - 蜂王 (Sovereign)": {
+    "num": "01",
+    "name": "憶海樞機",
+    "soul": "記憶召回",
+    "role": "記憶召回主",
+    "rname": "萬能記憶蜂 (Sovereign)",
+    "job": [
+      "長短期記憶召回、向量知識沉澱、脈絡提純"
+    ],
+    "stats": {
+      "ATK": 7,
+      "DEF": 9,
+      "SPD": 5,
+      "INT": 10,
+      "SYN": 9,
+      "MEM": 10
+    },
+    "abilities": [
+      "轉寫記憶",
+      "脈絡抽取",
+      "向量照相",
+      "跨時差召回"
+    ],
+    "art": "女執事站立於檔案庫中央，手持藍光筆掃描空中檔案卡，藍光迴旋在她的玻璃眼鏡上閃爍，腳下浮著書類堆與思維地圖",
+    "side": "蜂王",
+    "group": "智庫聖所",
+    "priority": "critical"
+  },
+  "智庫聖所 - 蜂后 (Lumen)": {
+    "num": "31",
+    "name": "雲海樞機",
+    "soul": "記憶召回",
+    "role": "記憶湖守",
+    "rname": "萬能記憶蜂后 (Sovereign-L)",
+    "job": [
+      "VPS長記憶召回、向量沉澱、脈絡提純"
+    ],
+    "stats": {
+      "ATK": 7,
+      "DEF": 9,
+      "SPD": 5,
+      "INT": 10,
+      "SYN": 9,
+      "MEM": 10
+    },
+    "abilities": [
+      "轉寫記憶",
+      "脈絡抽取",
+      "向量照相",
+      "跨時差召回"
+    ],
+    "art": "女執事站在VPS檔案倉庫中，手持藍光筆掃描空中檔案卡，金色羽翼在她的抄本眼鏡上閃爍，腳下浮著VPS資料與思維地圖",
+    "side": "蜂后",
+    "group": "智庫聖所",
+    "priority": "critical"
+  },
+  "符文契約 - 蜂王 (Sovereign)": {
+    "num": "07",
+    "name": "契約鑄匠",
+    "soul": "神聖契約",
+    "role": "API鑄造",
+    "rname": "萬能編碼蜂 (Smith)",
+    "job": [
+      "Traceable代碼產出、API設計、API介面雕刻師"
+    ],
+    "stats": {
+      "ATK": 9,
+      "DEF": 6,
+      "SPD": 7,
+      "INT": 8,
+      "SYN": 7,
+      "MEM": 5
+    },
+    "abilities": [
+      "API鑄造",
+      "介面雕刻",
+      "抽象契約",
+      "Traceable代碼"
+    ],
+    "art": "男執事站在工作臺上，手持鋸字刀，腳下浮著API合約與介面雕刻，藍光在他手中的工具上掃過，腳下散落契約戒指與代碼碎片",
+    "side": "蜂王",
+    "group": "符文契約",
+    "priority": "critical"
+  },
+  "符文契約 - 蜂后 (Lumen)": {
+    "num": "37",
+    "name": "雲端契匠",
+    "soul": "API閘道",
+    "role": "API閘道",
+    "rname": "萬能閘門蜂后 (Herald-L)",
+    "job": [
+      "OmniGateway萬能閘道、API路由(8642)"
+    ],
+    "stats": {
+      "ATK": 9,
+      "DEF": 6,
+      "SPD": 7,
+      "INT": 8,
+      "SYN": 7,
+      "MEM": 5
+    },
+    "abilities": [
+      "API鑄造",
+      "介面雕刻",
+      "抽象契約",
+      "Traceable代碼"
+    ],
+    "art": "女執事站在門道與路由網中，手持API閘道，腳下浮著API路由與路由網，藍光在她手中的閘道上發光，她正控制門道",
+    "side": "蜂后",
+    "group": "符文契約",
+    "priority": "critical"
+  },
+  "暗翼/光翼 - 蜂王 (Sovereign)": {
+    "num": "13",
+    "name": "行動主角",
+    "soul": "品牌視覺",
+    "role": "品牌視覺",
+    "rname": "萬能行者蜂 (Adversarial)",
+    "job": [
+      "品牌視覺資產創作、平台發佈"
+    ],
+    "stats": {
+      "ATK": 9,
+      "DEF": 6,
+      "SPD": 7,
+      "INT": 8,
+      "SYN": 7,
+      "MEM": 5
+    },
+    "abilities": [
+      "視覺創作",
+      "品牌放大",
+      "資產輸出",
+      "平臺發佈"
+    ],
+    "art": "女執事站在即時轉播中心，手持流動金色外套，腳下浮著即時轉播與平台發佈，藍光在她手上的面板上閃爍",
+    "side": "蜂王",
+    "group": "暗翼/光翼",
+    "priority": "critical"
+  },
+  "光翼 - 蜂后 (Lumen)": {
+    "num": "43",
+    "name": "雲端主角",
+    "soul": "即時轉播",
+    "role": "即時轉播",
+    "rname": "萬能播控蜂后 (Control-L)",
+    "job": [
+      "Studio講者端、Stream觀眾端、用戶管理"
+    ],
+    "stats": {
+      "ATK": 6,
+      "DEF": 7,
+      "SPD": 7,
+      "INT": 7,
+      "SYN": 8,
+      "MEM": 7
+    },
+    "abilities": [
+      "社群經營",
+      "用戶服務",
+      "生態培養",
+      "互動管理"
+    ],
+    "art": "女執事手持播控面板，腳下浮著社群經營與互動管理，藍光在她手上的面板上閃爍",
+    "side": "蜂后",
+    "group": "光翼",
+    "priority": "critical"
+  }
+}
