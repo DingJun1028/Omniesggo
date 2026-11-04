@@ -122,6 +122,7 @@ async function fetchIssues(args, token, qualities) {
       impactSoftwareQualities: q,
       ps: MAX_ISSUES,
       s: "SEVERITY",
+      asc: false,
     }, token);
     for (const it of data?.issues ?? []) {
       issues.push({

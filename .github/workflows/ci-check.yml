@@ -124,6 +124,7 @@ jobs:
               },
               timeout=30,
           )
+          responses.raise_for_status()
           print(f"=== 發佈檢查：{summary} ===")
           print(f"  信心度={metrics.get('conf', '?')} 延遲={metrics.get('latency_ms', '?')}ms 覆蓋率={metrics.get('coverage', '?')}")
           PY
