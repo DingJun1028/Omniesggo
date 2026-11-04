@@ -11,10 +11,14 @@
       "default": "./dist/index.js"
     }
   },
-  "files": ["dist"],
+  "bin": {
+    "omninote-server": "./bin/omninote-server.ts"
+  },
+  "files": ["dist", "bin"],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
+    "serve": "node --experimental-transform-types bin/omninote-server.ts",
     "test": "node --experimental-transform-types --test test/",
     "bench": "node --experimental-transform-types bench/bench.ts"
   },
