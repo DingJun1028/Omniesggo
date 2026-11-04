@@ -181,3 +181,106 @@ sudo cat /opt/esggo/apps/tencentdb-memory/admin-key
 - [ ] 報告已同步到團隊（已於此處）
 
 *5T: source_origin=key-rotation-workflow*
+
+---
+
+## 五、PR 提交模板
+
+```markdown
+---
+name: 鍵輪替門檻 workflow (API_SERVER_KEY)
+...
+
+## 變更內容
+
+1. **CI/CD 門檻**：新增 `.github/workflows/key-rotation.yml`
+   - 支援手動觸發（workflow_dispatch）與定時觸發（cron: "0 2 * * *"）
+   - 流程：檢查 SSH 金鑰 → 生成新键 → 寫入本地 Vault → 模擬同步 VPS → 本地驗證 → 寫入輪替紀錄
+
+2. **機密治理**：`secret-vault/ENV20230818.env` 已加入 `.gitignore`
+   - 避免 plaintext secret 進入版本控管
+   - 所有真實值僅存於本機唾液（600 權限）
+
+3. **本地鍵輪替腳本**：`rotate-api-server-key.sh`
+   - 含 DRY_RUN 模擬模式
+   - 支援完整流程：生成新键 → 寫入 Vault → 模擬同步 → 本地驗證 → 寫入紀錄
+
+## 風險與處理
+
+| 風險 | 處理 |
+|---|---|
+| 平文金鑰進入版本庫 | 已透過 .gitignore 排除 |
+| SSH 金鑰洩漏 | 僅透過 GitHub Secrets 提供，workflows 引用 secrets |
+| 歷史殘留 | 已確認舊鍵已輪替，正式環境請吊銷 |
+
+## 驗證清單
+
+- [ ] 本地執行 `bash rotate-api-server-key.sh`（DRY_RUN=true）通過
+- [ ] 建立 PR 至 main，檢查 CI 通過
+- [ ] GitHub environment `key-rotation` 綁定 SSH 金鑰
+- [ ] 手動執行 workflow，確認流程完整
+
+---
+
+*生成於：2026-11-04*  
+*5T: source_origin=key-rotation-workflow*
+```
+
+---
+
+## 六、 GitHub 環境設定步驟
+
+### 步驟 1：建立 Repository Secrets
+
+1. 進入：`GitHub > 你的專案 > Settings > Secrets and variables > Actions`
+2. 點選 **New repository secret**
+3. 填入：
+   - **Name**: `VPS_SSH_KEY`
+   - **Value**: 複製 `~/.ssh/esggo_vps` 檔案的完整內容（含 `-----BEGIN OPENSSH PRIVATE KEY-----` 至 `-----END OPENSSH PRIVATE KEY-----`）
+
+### 步驟 2：建立環境
+
+1. 進入：`Settings > Environments`
+2. 點選 **New environment**
+3. 填入：
+   - **Environment name**: `key-rotation`
+4. 展開 **Environment secrets**，點 **Add secret**：
+   - **Name**: `VPS_SSH_KEY`
+   - **Value**: 與步驟 1 相同的私鑰內容
+5. 展開 **Rules**（可選）：
+   - 啟用「Required reviewers」
+   - 加入需要審核的使用者
+
+### 步驟 3 驗證
+
+```bash
+# 本機測試 SSH 連線
+ssh -i ~/.ssh/esggo_vps -o StrictHostKeyChecking=no ubuntu@161.118.248.180 'echo OK'
+```
+
+---
+
+## 七、輪替排障清單
+
+| 訊號 | 原因 | 處理 |
+|---|---|---|
+| `SSH KEY MISSING` | GitHub Secrets 未設定 `VPS_SSH_KEY` | 檢查 Secrets 是否已設定 |
+| `Permission denied (publickey)` | SSH 連線失敗 | 確認私鑰權限 600、VPS 已允許連線 |
+| `pnpm install --frozen-lockfile` 失敗 | lockfile 版本不一致 | 執行 `pnpm install --no-frozen-lockfile` |
+| `vitest` 超時 | 本地無 tsc/vitest | 僅需 CI 驗證，跳過 |
+| Workflow 卡在 `等待使用者輸入` | 需要使用者輸入 | 檢查 workflow_dispatch 輸入參數 |
+| 鍵輪替失敗但本地流程正常 | VPS 連線或權限問題 | 檢查 VPS 磁碟空間、SELinux、防火牆 |
+| 附近相關：`CI/CD` 門檻未通過 | 工作流程執行失敗 | 檢查 Workflow 執行日誌 |
+
+---
+
+## 八、附錄：快速參考
+
+| 文件 | 位置 |
+|---|---|
+| 鍵輪替腳本 | `rotate-api-server-key.sh` |
+| 本地 Vault | `secret-vault/ENV20230818.env` |
+| 工作流程 | `.github/workflows/key-rotation.yml` |
+| 輪替紀錄 | `rotation-log/` |
+
+*5T: source_origin=key-rotation-workflow*
