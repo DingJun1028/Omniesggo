@@ -2,7 +2,7 @@
  * ============================================================================
  * OmniNoteLocalApiServer — 本機回環 REST API（零依賴 node:http）
  * 供 CLI 工具、機器人與小工具直接將筆記寫入 OmniNote 儲存庫：
- *   捕獲（capture）、讀取、追加區塊、語意搜尋、刪除。
+ *   捕獲（capture）、讀取、追加區塊、語意搜尋、刪除、匯入匯出。
  * 零外流承諾：僅綁定 127.0.0.1 / localhost / ::1，違者建構即拒絕。
  * ============================================================================
  */
@@ -13,6 +13,7 @@ import { sealWithStructuralSharing } from "./perf.js";
 import { OmniStorageAdapter, NodeFileSystemDriver } from "./storage-adapter.js";
 import { SemanticVectorStore } from "./vector-store.js";
 import type { ZeroComputeEmbedder } from "./ollama-embedder.js";
+import { exportNotesArchive, serializeArchive, parseArchive, importNotesArchive } from "./import-export.js";
 
 export interface OmniNoteApiOptions {
   /** 筆記儲存根目錄（Markdown 同態儲存庫） */
@@ -230,6 +231,44 @@ export class OmniNoteLocalApiServer {
       const vec = await this.embedder.embed(query);
       if (vec === null) return sendJson(res, 200, { ok: true, results: [], degraded: true, reason: "EMBEDDER_FALLBACK" });
       return sendJson(res, 200, { ok: true, results: this.vectorStore.queryTopK(Array.from(vec), topK, threshold), degraded: false });
+    }
+
+    if (method === "GET" && url === "/api/export") {
+      const uuids = await this.storage.listUuids();
+      const nodes: UnifiedNode[] = [];
+      for (const uuid of uuids) {
+        const node = await this.storage.read(uuid);
+        if (node !== null) nodes.push(node);
+      }
+      let archive;
+      try {
+        archive = await exportNotesArchive(nodes);
+      } catch (err) {
+        return sendJson(res, 409, { ok: false, error: "ARCHIVE_INTEGRITY_FAILURE", detail: (err as Error).message });
+      }
+      const body = serializeArchive(archive);
+      res.writeHead(200, {
+        "Content-Type": "application/json; charset=utf-8",
+        "Content-Disposition": 'attachment; filename="omninote-export.json"',
+        "Content-Length": Buffer.byteLength(body),
+      });
+      return res.end(body);
+    }
+
+    if (method === "POST" && url === "/api/import") {
+      const raw = await readBody(req, this.maxBodyBytes);
+      let archive;
+      try {
+        archive = parseArchive(raw.toString("utf-8"));
+      } catch {
+        return sendJson(res, 422, { ok: false, error: "INVALID_ARCHIVE" });
+      }
+      const conflict = (req.url ?? "").includes("conflict=overwrite") ? "overwrite" : "skip";
+      const report = await importNotesArchive(this.storage, archive, { conflict });
+      if (this.embedder !== undefined) {
+        for (const node of archive.nodes) await this.embedder.registerNodeBlocks(this.vectorStore, node);
+      }
+      return sendJson(res, 200, { ok: true, conflict, report });
     }
 
     return sendJson(res, 404, { ok: false, error: "NOT_FOUND" });
