@@ -1,46 +1,47 @@
 /**
- * GET /api/notes — Fetch all notes from Firestore (server-side)
- * Used by Sustain Write to reference notes in report generation
+ * /api/notes — Universal Notes API
+ * GET  /api/notes   list notes (newest first, max 100)
+ * POST /api/notes   create a note { title, content, tags }
+ *
+ * Storage: Supabase table `notes` (src/lib/notes-store.ts); local JSON file
+ * fallback when Supabase env is not configured.
  */
 import { jsonResponse, jsonError } from '@lib/api-utils';
+import { listNotes, createNote, type NoteData } from '@/lib/notes-store';
 
-export interface NoteData {
-  id: string;
-  title: string;
-  content: string;
-  tags: string[];
-  fiveTGate?: string;
-  createdAt: number;
-}
+export type { NoteData };
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 export async function GET() {
+  const result = await listNotes();
+  if (!result.ok) {
+    return jsonError(result.code, result.message, result.code === 'NOT_FOUND' ? 404 : 500);
+  }
+  return jsonResponse(result.value);
+}
+
+export async function POST(req: Request) {
   try {
-    const { adminDb } = await import('@/lib/firebase-admin');
+    const body = await req.json();
+    const title = String(body?.title ?? '').trim();
+    const content = String(body?.content ?? '');
+    const tags = Array.isArray(body?.tags)
+      ? body.tags.map((t: unknown) => String(t).trim()).filter(Boolean)
+      : [];
 
-    if (!adminDb) {
-      return jsonError('INTERNAL_ERROR', 'Firebase Admin not configured', 503);
+    if (!title) {
+      return jsonError('INVALID_PARAMS', 'title is required', 400);
     }
 
-    const notesCol = adminDb.collection('notes');
-    if (!notesCol) {
-      return jsonError('INTERNAL_ERROR', 'Firestore collection unavailable', 503);
+    const result = await createNote({ title, content, tags });
+    if (!result.ok) {
+      return jsonError(result.code, result.message, result.code === 'NOT_FOUND' ? 404 : 500);
     }
-
-    const snapshot = await notesCol
-      .orderBy('createdAt', 'desc')
-      .limit(100)
-      .get();
-
-    const notes: NoteData[] = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as NoteData[];
-
-    return jsonResponse({ notes, total: notes.length });
+    return jsonResponse({ note: result.value }, 201);
   } catch (err) {
-    console.error('[API] /api/notes GET error:', err);
-    return jsonError('INTERNAL_ERROR', 'Failed to fetch notes', 500);
+    console.error('[API] /api/notes POST error:', err);
+    return jsonError('INTERNAL_ERROR', 'Failed to create note', 500);
   }
 }
