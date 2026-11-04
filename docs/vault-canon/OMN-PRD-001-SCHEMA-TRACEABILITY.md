@@ -41,6 +41,7 @@
 
 | TypeBox 定義檔 | Type.Object 定義數 | 掛需求編號 |
 | --- | --- | --- |
+| `.agents/skills/omni-bitwarden/scripts/omni-bitwarden.ts` | 11 | — |
 | `app/api/tags/pair/route.ts` | 2 | FR-03 |
 | `apps/gateway/sync/schema.ts` | 6 | FR-02 |
 | `lib/runes/aesthetic-rune.ts` | 1 | — |
@@ -67,7 +68,7 @@
 | `src/lib/omni-reports/jules-validator.ts` | 4 | FR-07 |
 | `src/lib/zod-validation.ts` | 3 | — |
 
-小計：定義檔 25 個；已掛需求編號 11 個；未掛需求編號 14 個（如實標示，後續以 PR 逐檔補標註）。
+小計：定義檔 26 個；已掛需求編號 11 個；未掛需求編號 15 個（如實標示，後續以 PR 逐檔補標註）。
 
 ## JunAiKey 唯讀共享大腦（skillCoverage，唯讀納入）
 
