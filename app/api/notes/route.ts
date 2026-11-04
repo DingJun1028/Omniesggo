@@ -1,21 +1,26 @@
 /**
  * /api/notes — Universal Notes API
- * GET  /api/notes   list notes (newest first, max 100)
+ * GET  /api/notes   list notes (newest first, max 100) — requires Bearer token when Supabase is configured
  * POST /api/notes   create a note { title, content, tags }
  *
- * Storage: Supabase table `notes` (src/lib/notes-store.ts); local JSON file
- * fallback when Supabase env is not configured.
+ * Storage: Supabase table `notes` with RLS (src/lib/notes-store.ts, per-user
+ * client from the Bearer token); local JSON file fallback when Supabase env
+ * is absent.
  */
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { listNotes, createNote, type NoteData } from '@/lib/notes-store';
+import { listNotes, createNote, resolveRequestClient, type NoteData } from '@/lib/notes-store';
 
 export type { NoteData };
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-export async function GET() {
-  const result = await listNotes();
+export async function GET(req: Request) {
+  const resolved = await resolveRequestClient(req);
+  if ('error' in resolved) {
+    return jsonError(resolved.error.code, resolved.error.message, 401);
+  }
+  const result = await listNotes(resolved.sb);
   if (!result.ok) {
     return jsonError(result.code, result.message, result.code === 'NOT_FOUND' ? 404 : 500);
   }
@@ -24,6 +29,11 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
+    const resolved = await resolveRequestClient(req);
+    if ('error' in resolved) {
+      return jsonError(resolved.error.code, resolved.error.message, 401);
+    }
+
     const body = await req.json();
     const title = String(body?.title ?? '').trim();
     const content = String(body?.content ?? '');
@@ -35,7 +45,7 @@ export async function POST(req: Request) {
       return jsonError('INVALID_PARAMS', 'title is required', 400);
     }
 
-    const result = await createNote({ title, content, tags });
+    const result = await createNote(resolved.sb, resolved.userId, { title, content, tags });
     if (!result.ok) {
       return jsonError(result.code, result.message, result.code === 'NOT_FOUND' ? 404 : 500);
     }

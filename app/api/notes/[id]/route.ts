@@ -3,12 +3,12 @@
  * PUT    /api/notes/[id]   update { title?, content?, tags?, fiveTGate? }
  * DELETE /api/notes/[id]   delete a note
  *
- * Storage: Supabase table `notes` (src/lib/notes-store.ts); local JSON file
- * fallback when Supabase env is not configured.
+ * Storage: Supabase table `notes` with RLS (per-user client from the Bearer
+ * token); local JSON file fallback when Supabase env is absent.
  */
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { updateNote, deleteNote } from '@/lib/notes-store';
+import { updateNote, deleteNote, resolveRequestClient } from '@/lib/notes-store';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,6 +21,11 @@ export async function PUT(
     const { id } = await params;
     if (!id) {
       return jsonError('INVALID_PARAMS', 'Note ID is required', 400);
+    }
+
+    const resolved = await resolveRequestClient(request);
+    if ('error' in resolved) {
+      return jsonError(resolved.error.code, resolved.error.message, 401);
     }
 
     const body = await request.json();
@@ -41,7 +46,7 @@ export async function PUT(
     }
     if (body?.fiveTGate !== undefined) patch.fiveTGate = String(body.fiveTGate);
 
-    const result = await updateNote(id, patch);
+    const result = await updateNote(resolved.sb, id, patch);
     if (!result.ok) {
       return jsonError(result.code, result.message, result.code === 'NOT_FOUND' ? 404 : 500);
     }
@@ -53,7 +58,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -62,7 +67,12 @@ export async function DELETE(
       return jsonError('INVALID_PARAMS', 'Note ID is required', 400);
     }
 
-    const result = await deleteNote(id);
+    const resolved = await resolveRequestClient(request);
+    if ('error' in resolved) {
+      return jsonError(resolved.error.code, resolved.error.message, 401);
+    }
+
+    const result = await deleteNote(resolved.sb, id);
     if (!result.ok) {
       return jsonError(result.code, result.message, result.code === 'NOT_FOUND' ? 404 : 500);
     }
