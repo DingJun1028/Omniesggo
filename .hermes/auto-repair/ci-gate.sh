@@ -42,8 +42,15 @@ fetch_checks_raw() {
 }
 
 fetch_checks() {
-  local body rc
-  body="$(fetch_checks_raw 2>/dev/null)"; rc=$?
+  local body rc attempt
+  # Tolerate transient API errors (502/500/rate-limit) with a few retries;
+  # still fail closed if every attempt fails.
+  for attempt in 1 2 3 4 5; do
+    body="$(fetch_checks_raw 2>/dev/null)"; rc=$?
+    [ "$rc" -eq 0 ] && break
+    echo "CIGATE: check-runs fetch attempt $attempt failed (rc=$rc), retrying..." >&2
+    sleep 5
+  done
   if [ "$rc" -ne 0 ]; then
     # A body that is JSON (starts with { or [) is the API error envelope.
     case "$body" in
