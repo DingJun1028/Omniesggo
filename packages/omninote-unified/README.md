@@ -12,9 +12,10 @@ OmniNote: Unified — 全生命週期流式筆記核心庫。融合 Omni-Notes�
 | \`src/codec.ts\` | Markdown 同態編解碼器：UnifiedNode ↔ YAML Frontmatter + 正文 + \`.svg\` 附件，區塊權威清單（\`blocks_meta\`）保證零資訊損失，含竄改偵測（\`tampered\`） |
 | \`src/vector-store.ts\` | 語意向量儲存：L2 歸一化 Float32Array × 純 CPU 點積 Top-K 檢索（Ollama 零算力端點解耦） |
 | \`src/ollama-embedder.ts\` | 零算力邊緣嵌入：本機 Ollama（127.0.0.1:11434 / nomic-embed-text）端點，回環限定（零外流承諾）、3.5s AbortController 道閘、Graceful Fallback（raw 保留、不註冊向量） |
-| \`src/api-server.ts\` | 本機回環 REST API（零依賴 node:http）：捕獲、讀取、追加區塊、語意搜尋、刪除、匯入匯出 — CLI 工具、機器人與小工具之標準接入口 |
+| \`src/api-server.ts\` | 本機回環 REST API（零依賴 node:http）：捕獲、讀取、追加區塊、語意搜尋、刪除、匯入匯出、草稿自動存 — CLI 工具、機器人與小工具之標準接入口 |
 | \`bin/omninote-server.ts\` | API 伺服器 CLI 入口（OMNINOTE_HOME / PORT / TOKEN / EMBED 環境變數） |
 | \`src/import-export.ts\` | OmniNote Archive 匯入匯出：匯出逐節點 lock_hash 驗算（零竄改外流）、解析雙重驗證、匯入衝突策略（skip / overwrite）與逐項計數報告 |
+| \`src/draft-store.ts\` | 隨時進度草稿自動儲存：冪等 upsert（revision 遞增）、防抖自動存（DraftAutoSaver）、晉升（promote）轉正式 ALPHA 節點 |
 | \`src/storage-adapter.ts\` | \`IStorageDriver\` 抽象：Node \`node:fs\` 真實磁碟雙寫（.md + attachments/*.svg）與瀏覽器 IndexedDB 雙軌 |
 | \`src/audit-exporter.ts\` | 5T 稽核憑證匯出：\`PASSED\` / \`COMPROMISED\` 終局驗算清單 |
 
@@ -35,7 +36,7 @@ pnpm test        # node --experimental-transform-types --test test/
 pnpm bench       # node --experimental-transform-types bench/bench.ts
 \`\`\`
 
-已驗證（核心 17/17 通過；API 層 6 項與匯入匯出層 8 項測試待 CI 首跑驗證）：
+已驗證（核心 17/17 通過；API 層 6 項、匯入匯出層 8 項與草稿層 7 項測試待 CI 首跑驗證）：
 
 1. ALPHA → SIGMA → OMEGA → REVERSE 全鏈躍遷與深層凍結不可變性。
 2. Block-Level LWW：Lamport 優先、同值比 \`peer_id\` 字典序、\`deleted\` 過濾。
@@ -55,7 +56,7 @@ pnpm bench       # node --experimental-transform-types bench/bench.ts
 16. 嵌入成功路徑註冊入向量儲存；畸形回應與 HTTP 500 降級。
 17. \`registerNodeBlocks\`：成功區塊註冊、\`sketch_vector\` 略過、端點降級時 raw 保留且儲存不受污染。
 
-API 契約測試（\`test/api.test.ts\`，6 項）：健康檢查與非回環位址建構即拒絕、捕獲正規管道落地讀回、追加區塊證據鏈延伸與 lock_hash 重算、Token 道閘 401、刪除後 404、嵌入不可用時搜尋降級零結果。匯入匯出測試（\`test/import-export.test.ts\`，8 項）：匯出解析 Round-Trip、匯出竄改拒絕、空庫匯入、skip / overwrite 衝突策略、匯入竄改計數、解析道閘、API 匯出匯入復原。此 14 項因開發環境不具原生執行能力，以 CI 首跑為權威驗證。
+API 契約測試（\`test/api.test.ts\`，6 項）：健康檢查與非回環位址建構即拒絕、捕獲正規管道落地讀回、追加區塊證據鏈延伸與 lock_hash 重算、Token 道閘 401、刪除後 404、嵌入不可用時搜尋降級零結果。匯入匯出測試（\`test/import-export.test.ts\`，8 項）：匯出解析 Round-Trip、匯出竄改拒絕、空庫匯入、skip / overwrite 衝突策略、匯入竄改計數、解析道閘、API 匯出匯入復原。草稿測試（\`test/draft-store.test.ts\`，7 項）：冪等 upsert 與 revision 遞增、draft_id 道閘、刪除、晉升正規管道與草稿移除、晉升不存在草稿、防抖自動存與 flush、API 草稿端點全流程。此 21 項因開發環境不具原生執行能力，以 CI 首跑為權威驗證。
 
 實測基準（開發機環境，相對比較用途；正式數據以 CI runner 為準）：
 
@@ -85,13 +86,18 @@ node --experimental-transform-types bin/omninote-server.ts /path/to/notes
 
 | 方法 | 路徑 | 說明 |
 | --- | --- | --- |
-| GET | /health | 健康檢查（節點數、向量數）；無須 Token |
+| GET | /health | 健康檢查（節點數、向量數、草稿數）；無須 Token |
 | POST | /api/notes | 捕獲筆記：\`{ text, origin_tag?, tags? }\` → 201 + 完整節點 |
 | GET | /api/notes | 列出所有節點 UUID |
 | GET | /api/notes/:uuid | 讀取單一節點（404 若不存在） |
 | POST | /api/notes/:uuid/blocks | 追加區塊：\`{ type, content }\`（type 為六種 CRDT 區塊型別之一；422 若非法） |
 | DELETE | /api/notes/:uuid | 刪除節點 |
 | POST | /api/search | 語意搜尋：\`{ query, top_k?, threshold? }\`；嵌入不可用時 \`degraded: true\` 且零結果（503 若未啟用嵌入器） |
+| POST | /api/drafts | 隨時進度草稿存檔：\`{ draft_id, content, origin_tag?, tags? }\` 冪等 upsert（重複呼叫覆寫且 revision 遞增） |
+| GET | /api/drafts | 列出全部草稿 |
+| GET | /api/drafts/:id | 讀取單一草稿（404 若不存在） |
+| DELETE | /api/drafts/:id | 刪除草稿 |
+| POST | /api/drafts/:id/promote | 晉升草稿為正式 ALPHA 節點（201 + 節點；草稿隨即移除） |
 | GET | /api/export | 全量匯出歸檔（attachment：omninote-export.json）；儲存庫含竄改節點時回 409 |
 | POST | /api/import?conflict=overwrite | 匯入歸檔（主體為歸檔 JSON；預設 conflict=skip）；回傳計數報告 |
 
@@ -106,6 +112,25 @@ curl -s -X POST http://127.0.0.1:52710/api/notes \\
 \`\`\`
 
 機器人與小工具只需對 \`http://127.0.0.1:52710\` 發 HTTP 請求即可將筆記寫入 OmniNote 同態 Markdown 儲存庫（Obsidian / Git 原生相容）。
+
+## 隨時進度草稿自動儲存
+
+\`src/draft-store.ts\`：草稿為正式捕獲前之暫存進度（不進 UnifiedNode 契約），持久化於 \`rootDir/omni-drafts/<draft_id>.json\`。
+
+- \`DraftStore.save(draftId, { content, origin_tag?, tags? })\`：冪等 upsert，同一 draft_id 重複呼叫即覆寫、revision 遞增、created_at 保留 — CLI 與機器人隨時重複呼叫即為進度存檔。
+- \`DraftAutoSaver\`：防抖自動存（預設 800ms）— 高頻 touch 僅於閒置後落盤一次，\`flush()\` 立即全量落盤（關閉前、晉升前呼叫）；供 UI 打字場景接線。
+- \`DraftStore.promote(draftId, storage, embedder?, vectorStore?)\`：晉升走引擎正規管道（spawnAlphaOrigin → computeNodeLockHash → 結構共享封印 → 落地 → 向量註冊），成功後刪除草稿。
+- draft_id 道閘：僅接受 1-64 字元英數、底線與連字號（杜絕路徑竄改）。
+
+\`\`\`bash
+# 隨時存進度（重複呼叫僅覆寫）
+curl -s -X POST http://127.0.0.1:52710/api/drafts \\
+  -H "Content-Type: application/json" -H "Authorization: Bearer my-secret" \\
+  -d '{"draft_id":"bot-progress","content":"寫到一半的長文…"}'
+# 晉升為正式筆記
+curl -s -X POST http://127.0.0.1:52710/api/drafts/bot-progress/promote \\
+  -H "Authorization: Bearer my-secret"
+\`\`\`
 
 ## 匯入匯出（OmniNote Archive）
 

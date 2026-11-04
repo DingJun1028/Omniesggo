@@ -2,7 +2,7 @@
  * ============================================================================
  * OmniNoteLocalApiServer — 本機回環 REST API（零依賴 node:http）
  * 供 CLI 工具、機器人與小工具直接將筆記寫入 OmniNote 儲存庫：
- *   捕獲（capture）、讀取、追加區塊、語意搜尋、刪除、匯入匯出。
+ *   捕獲（capture）、讀取、追加區塊、語意搜尋、刪除、匯入匯出、草稿自動存。
  * 零外流承諾：僅綁定 127.0.0.1 / localhost / ::1，違者建構即拒絕。
  * ============================================================================
  */
@@ -14,6 +14,7 @@ import { OmniStorageAdapter, NodeFileSystemDriver } from "./storage-adapter.js";
 import { SemanticVectorStore } from "./vector-store.js";
 import type { ZeroComputeEmbedder } from "./ollama-embedder.js";
 import { exportNotesArchive, serializeArchive, parseArchive, importNotesArchive } from "./import-export.js";
+import { DraftStore, type DraftRecord } from "./draft-store.js";
 
 export interface OmniNoteApiOptions {
   /** 筆記儲存根目錄（Markdown 同態儲存庫） */
@@ -44,6 +45,7 @@ const BLOCK_TYPES: ReadonlySet<string> = new Set([
   "audio_transcript",
   "object_attribute_card",
 ]);
+const DRAFT_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 
 function bumpPatch(version: string): string {
   const parts = version.split(".");
@@ -75,6 +77,7 @@ async function readBody(req: IncomingMessage, maxBytes: number): Promise<Buffer>
 export class OmniNoteLocalApiServer {
   readonly storage: OmniStorageAdapter;
   readonly vectorStore: SemanticVectorStore;
+  readonly drafts: DraftStore;
   private readonly host: string;
   private readonly port: number;
   private readonly token: string | undefined;
@@ -94,6 +97,7 @@ export class OmniNoteLocalApiServer {
     this.maxBodyBytes = options.maxBodyBytes ?? 2 * 1024 * 1024;
     this.storage = new OmniStorageAdapter(new NodeFileSystemDriver(options.rootDir));
     this.vectorStore = new SemanticVectorStore();
+    this.drafts = new DraftStore(options.rootDir);
   }
 
   /** 啟動監聽；port 為 0 時回傳實際分配之埠 */
@@ -132,7 +136,12 @@ export class OmniNoteLocalApiServer {
     const method = req.method ?? "GET";
 
     if (url === "/health") {
-      return sendJson(res, 200, { ok: true, nodes: (await this.storage.listUuids()).length, vectors: this.vectorStore.size });
+      return sendJson(res, 200, {
+        ok: true,
+        nodes: (await this.storage.listUuids()).length,
+        vectors: this.vectorStore.size,
+        drafts: (await this.drafts.list()).length,
+      });
     }
 
     if (url.startsWith("/api/")) {
@@ -231,6 +240,42 @@ export class OmniNoteLocalApiServer {
       const vec = await this.embedder.embed(query);
       if (vec === null) return sendJson(res, 200, { ok: true, results: [], degraded: true, reason: "EMBEDDER_FALLBACK" });
       return sendJson(res, 200, { ok: true, results: this.vectorStore.queryTopK(Array.from(vec), topK, threshold), degraded: false });
+    }
+
+    if (method === "POST" && url === "/api/drafts") {
+      const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+      if (body === null) return;
+      const draftId = typeof body.draft_id === "string" ? body.draft_id : "";
+      if (!DRAFT_ID_PATTERN.test(draftId)) return sendJson(res, 422, { ok: false, error: "INVALID_DRAFT_ID" });
+      if (typeof body.content !== "string") return sendJson(res, 422, { ok: false, error: "CONTENT_REQUIRED" });
+      const patch: { content: string; origin_tag?: string; tags?: string[] } = { content: body.content };
+      if (typeof body.origin_tag === "string") patch.origin_tag = body.origin_tag;
+      if (Array.isArray(body.tags) && body.tags.every((t) => typeof t === "string")) patch.tags = body.tags as string[];
+      const record = await this.drafts.save(draftId, patch);
+      return sendJson(res, 200, { ok: true, draft: record });
+    }
+
+    if (method === "GET" && url === "/api/drafts") {
+      return sendJson(res, 200, { ok: true, drafts: await this.drafts.list() });
+    }
+
+    if (segments[1] === "drafts" && segments.length === 3) {
+      if (method === "GET") {
+        const draft: DraftRecord | null = await this.drafts.get(segments[2]!);
+        if (draft === null) return sendJson(res, 404, { ok: false, error: "DRAFT_NOT_FOUND" });
+        return sendJson(res, 200, { ok: true, draft });
+      }
+      if (method === "DELETE") {
+        const deleted = await this.drafts.delete(segments[2]!);
+        if (!deleted) return sendJson(res, 404, { ok: false, error: "DRAFT_NOT_FOUND" });
+        return sendJson(res, 200, { ok: true, deleted: segments[2] });
+      }
+    }
+
+    if (method === "POST" && segments.length === 4 && segments[1] === "drafts" && segments[3] === "promote") {
+      const node = await this.drafts.promote(segments[2]!, this.storage, this.embedder, this.vectorStore);
+      if (node === null) return sendJson(res, 404, { ok: false, error: "DRAFT_NOT_FOUND" });
+      return sendJson(res, 201, { ok: true, node });
     }
 
     if (method === "GET" && url === "/api/export") {
