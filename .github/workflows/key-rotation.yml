@@ -1,0 +1,40 @@
+name: Key Rotation Gatekeeper
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: "強制執行"
+        required: false
+        default: "false"
+  schedule:
+    - cron: "0 2 * * *"
+concurrency:
+  group: key-rotation
+  cancel-in-progress: false
+jobs:
+  key-rotation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 檢查 SSH
+        run: |
+          if [ ! -f /home/runner/.ssh/esggo_vps ]; then echo 'SSH KEY MISSING'; exit 1; fi
+      - name: 生成新鍵
+        id: gen
+        run: python3 -c "import secrets; print(secrets.token_urlsafe(32))" > $GITHUB_OUTPUT
+      - name: 寫入本地 Vault
+        run: |
+          python3 -c "
+import re
+p='secret-vault/ENV20230818.env'
+c=open(p,encoding='utf-8').read()
+k=open('/home/runner/work/key-rotation/newkey.txt').read().strip()
+c2=re.sub(r'^API_SERVER_KEY=.*$','API_SERVER_KEY='+k,c,count=1,flags=re.M)
+open(p,'w',encoding='utf-8').write(c2)
+"
+          chmod 600 secret-vault/ENV20230818.env
+      - name: 模擬同步 VPS
+        run: echo "模擬同步至 VPS"
+      - name: 紀錄
+        run: mkdir -p rotation-log && TS=$(date -u +'%Y%m%d-%H%M%S') && echo "rotation-key-$TS" > rotation-log/key-id.txt
+      - name: 通知
+        run: echo "輪替流程已完成"

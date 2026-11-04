@@ -330,6 +330,9 @@ Omni-Sanctuary/Artifacts/keys/*.json
 Omni-Sanctuary/Artifacts/keys/*.env
 tencentdb-memory/.env
 apps/tencentdb-memory/.env
+# 機密聖櫃 (real secrets, never commit)
+secret-vault/ENV20230818.env
+secret-vault/ENV20230818.env.bak
 
 # CLI node_modules
 cli/*/node_modules/
