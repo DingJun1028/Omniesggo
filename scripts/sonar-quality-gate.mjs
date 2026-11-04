@@ -121,7 +121,7 @@ async function fetchIssues(args, token, qualities) {
       ...(args.pullRequest != null ? { pullRequest: args.pullRequest } : { branch: args.branch }),
       impactSoftwareQualities: q,
       ps: MAX_ISSUES,
-      s: "ISSUE_KEY",
+      s: "SEVERITY",
     }, token);
     for (const it of data?.issues ?? []) {
       issues.push({
