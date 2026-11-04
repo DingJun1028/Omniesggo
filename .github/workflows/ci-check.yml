@@ -65,6 +65,8 @@ jobs:
 
       - name: 統計並發佈檢查結果
         id: check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           source .venv/bin/activate
           python - <<'PY'
@@ -95,7 +97,8 @@ jobs:
 
           # 發佈檢查結果
           import requests
-          token = "{{ secrets.GITHUB_TOKEN }}"
+          import os
+          token = os.environ["GITHUB_TOKEN"]
           sha = open(".git/HEAD", "r").read().strip().split(" ")[-1] if False else "self"
           # 簡化的 commit sha
           import subprocess
