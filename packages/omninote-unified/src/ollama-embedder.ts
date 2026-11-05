@@ -34,7 +34,7 @@ export class ZeroComputeEmbedder {
 
   constructor(options: ZeroComputeEmbedderOptions = {}) {
     const endpoint = options.endpoint ?? "http://127.0.0.1:11434";
-    if (!/^https?:\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/.test(endpoint)) {
+    if (!/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(:\d+)?$/.test(endpoint)) {
       throw new Error("[ZeroComputeEmbedder] 僅接受本機回環端點（127.0.0.1/localhost），零外流承諾不可違反");
     }
     this.endpoint = endpoint;

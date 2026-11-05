@@ -23,12 +23,25 @@ export class NodeFileSystemDriver implements IStorageDriver {
   }
 
   async write(node: Readonly<UnifiedNode>): Promise<void> {
-    const { mkdir, writeFile } = await import("node:fs/promises");
+    const { mkdir, writeFile, readdir, readFile, rm } = await import("node:fs/promises");
     await mkdir(this.rootDir + "/attachments", { recursive: true });
     const artifact = await LocalMarkdownHomomorphicCodec.serialize(node);
     await writeFile(this.artifactPath(artifact), artifact.markdownFileContent, "utf-8");
     for (const svg of artifact.attachmentSvgs) {
       await writeFile(`${this.rootDir}/${svg.filename}`, svg.svgContent, "utf-8");
+    }
+    // 同一節點因 matrix_phase／entity_type 變化可能殘留舊檔名：寫入後清理同 uuid 之過時檔案，
+    // 否則 read() 將依目錄順序誤讀舊版本（檔案系統即資料庫之單調不變量）。
+    const short = node.uuid.slice(0, 8);
+    for (const f of await readdir(this.rootDir)) {
+      if (!f.endsWith(".md") || !f.includes(short) || f === artifact.relativePath) continue;
+      try {
+        const content = await readFile(`${this.rootDir}/${f}`, "utf-8");
+        const { extractFrontmatterAndBody } = LocalMarkdownHomomorphicCodec;
+        const { frontmatterRaw } = extractFrontmatterAndBody(content);
+        const meta = JSON.parse(frontmatterRaw || "{}");
+        if (meta.omni_uuid === node.uuid) await rm(`${this.rootDir}/${f}`);
+      } catch { /* 略過無法解析之檔案 */ }
     }
   }
 
@@ -87,7 +100,7 @@ export class IndexedDBDriver implements IStorageDriver {
       if (typeof indexedDB === "undefined") { reject(new Error("[IndexedDBDriver] 瀏覽器環境限定")); return; }
       const req = indexedDB.open(this.dbName, 1);
       req.onupgradeneeded = () => {
-        if (!req.result.objectStoreNames.contains(this.storeName)) req.result.createObjectStore(this.storeName, { keyPath: "uuid" });
+        if (!req.result.objectStoreNames.contains(this.storeName)) req.result.createObjectStore({ keyPath: "uuid" } as never);
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);

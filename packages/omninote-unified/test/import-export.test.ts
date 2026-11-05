@@ -39,7 +39,7 @@ test("IE-1 匯出與解析 Round-Trip：格式標頭、節點數、lock_hash 全
 });
 
 test("IE-2 匯出稽核：lock_hash 遭竄改之節點即刻拒絕匯出", async () => {
-  await withStorage(async () => {
+  await withStorage(async (storage) => {
     const a = await UnifiedMatrixEngine.spawnAlphaOrigin("正規節點", "test");
     const tamperedNode = JSON.parse(JSON.stringify(a)) as typeof a;
     tamperedNode.lock_hash = "0".repeat(64);
@@ -104,7 +104,11 @@ test("IE-6 匯入稽核：竄改節點計入 tampered 且不落地", async () =>
     const report = await importNotesArchive(storage, archive);
     assert.equal(report.imported, 1);
     assert.equal(report.tampered, 1);
-    assert.equal(await storage.read(tamperedNode.uuid), null);
+    // 竄改節點與正規節點同 uuid：竄改版本不得落地，磁碟應保留正規節點（lock_hash 與 a 一致）。
+    const onDiskAfterTamper = await storage.read(tamperedNode.uuid);
+    assert.notEqual(onDiskAfterTamper, null);
+    assert.equal(onDiskAfterTamper!.lock_hash, a.lock_hash);
+    assert.notEqual(onDiskAfterTamper!.lock_hash, tamperedNode.lock_hash);
   });
 });
 
