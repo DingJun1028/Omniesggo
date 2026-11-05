@@ -1,0 +1,56 @@
+=== pnpm --version ===
+11.28.11
+
+=== pnpm install --no-frozen-lockfile ===
+apps/learning-center                     | [WARN] The field "resolutions" was found in /home/runner/work/Omniesggo/Omniesggo/apps/learning-center/package.json. This will not take effect. Configure dependency overrides in pnpm-workspace.yaml using the "overrides" field instead.
+Scope: all 48 workspace projects
+[WARN] The settings in apps/learning-center/pnpm-workspace.yaml do not apply, because apps/learning-center is a project of this workspace. pnpm reads settings only from the pnpm-workspace.yaml at the workspace root. Move the settings there, or add "!apps/learning-center" to the root's "packages" to keep that project a separate workspace.
+? Verifying lockfile against supply-chain policies (1638 entries)...
+✓ Lockfile passes supply-chain policies (1638 entries in 8.6s)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 1487, reused 0, downloaded 32, added 0
+Progress: resolved 1487, reused 0, downloaded 64, added 0
+Progress: resolved 1487, reused 0, downloaded 69, added 0
+Progress: resolved 1487, reused 0, downloaded 96, added 0
+Progress: resolved 1487, reused 0, downloaded 184, added 0
+Progress: resolved 1487, reused 0, downloaded 420, added 0
+Progress: resolved 1487, reused 0, downloaded 484, added 0
+Progress: resolved 1487, reused 0, downloaded 554, added 0
+Progress: resolved 1487, reused 0, downloaded 855, added 0
+Progress: resolved 1487, reused 0, downloaded 1063, added 0
+Progress: resolved 1487, reused 0, downloaded 1360, added 0
+[ERROR] Cannot use 'in' operator to search for 'directory' in undefined
+
+pnpm: Cannot use 'in' operator to search for 'directory' in undefined
+    at addPkgToGraph (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:203164:38)
+    at buildGraphFromPackages (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:203148:19)
+    at lockfileToDepGraph2 (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:203331:73)
+    at createHeadlessDepGraph (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:215193:151)
+    at async installFromLockfile (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:217600:20)
+    at async headlessInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:217586:12)
+    at async runHeadlessInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:237114:36)
+    at async materializeFrozenLockfile (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:237077:12)
+    at async runMutations (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:237190:31)
+nofrozen_exit_code=1
+
+=== pnpm install --frozen-lockfile ===
+apps/learning-center                     | [WARN] The field "resolutions" was found in /home/runner/work/Omniesggo/Omniesggo/apps/learning-center/package.json. This will not take effect. Configure dependency overrides in pnpm-workspace.yaml using the "overrides" field instead.
+Scope: all 48 workspace projects
+[WARN] The settings in apps/learning-center/pnpm-workspace.yaml do not apply, because apps/learning-center is a project of this workspace. pnpm reads settings only from the pnpm-workspace.yaml at the workspace root. Move the settings there, or add "!apps/learning-center" to the root's "packages" to keep that project a separate workspace.
+✓ Lockfile passes supply-chain policies (verified 12s ago)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+[ERROR] Cannot use 'in' operator to search for 'directory' in undefined
+
+pnpm: Cannot use 'in' operator to search for 'directory' in undefined
+    at addPkgToGraph (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:203164:38)
+    at buildGraphFromPackages (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:203148:19)
+    at lockfileToDepGraph2 (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:203331:73)
+    at createHeadlessDepGraph (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:215193:151)
+    at async installFromLockfile (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:217600:20)
+    at async headlessInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:217586:12)
+    at async runHeadlessInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:237114:36)
+    at async materializeFrozenLockfile (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:237077:12)
+    at async runMutations (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.28.11/node_modules/pnpm/dist/pnpm.mjs:237190:31)
+frozen_exit_code=1
