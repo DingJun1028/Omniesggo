@@ -11,5 +11,3 @@ pytest-cov>=5.0.0
 # 報告生成
 markdown>=3.5.0
 
-# CI 檢查步驟（ci-check.yml）以 requests 對 GitHub API 發佈檢查結果
-requests>=2.31.0
