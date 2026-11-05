@@ -8,7 +8,7 @@ import { UnifiedNodeSchema, type GraphTopologyLink, type UnifiedNode } from "./c
 import { computeNodeLockHash, sha256 } from "./matrix-engine.js";
 
 const FM_DELIM = "---";
-const WIKILINK_REGEX = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
+const WIKILINK_REGEX = /\[\[([^\[\]]+)\]\]/g;
 const EMBED_SKETCH_REGEX = /!\[\[attachments\/sketch_[a-zA-Z0-9_-]+\.svg\]\]/g;
 
 export interface FileSystemArtifact {
@@ -19,7 +19,7 @@ export interface FileSystemArtifact {
 
 export class LocalMarkdownHomomorphicCodec {
   /** 序列化：UnifiedNode → .md（JSON-YAML Frontmatter）+ .svg 附件 */
-  static async serialize(node: Readonly<UnifiedNode>): Promise<FileSystemArtifact> {
+  static serialize(node: Readonly<UnifiedNode>): FileSystemArtifact {
     if (!Value.Check(UnifiedNodeSchema, node)) {
       throw new Error("[HomomorphicCodec] 節點未通過 TypeBox 契約校驗，禁止磁碟序列化");
     }
@@ -77,13 +77,18 @@ export class LocalMarkdownHomomorphicCodec {
     const outlinks: GraphTopologyLink[] = [];
     let m: RegExpExecArray | null;
     WIKILINK_REGEX.lastIndex = 0;
-    while ((m = WIKILINK_REGEX.exec(bodyRaw)) !== null) {
+    const matches: RegExpExecArray[] = [];
+    while ((m = WIKILINK_REGEX.exec(bodyRaw)) !== null) matches.push(m);
+    // 內層管式語法 [[目標|別名]]：以第一個 | 切分，別名不容許出現 ]；無回溯風險。
+    const targets = await Promise.all(matches.map((mm) => this.resolveTargetUuid(mm[1]!.split("|")[0]!.trim())));
+    matches.forEach((mm, i) => {
+      const parts = mm[1]!.split("|");
       outlinks.push({
-        target_uuid: await this.resolveTargetUuid(m[1]!.trim()),
-        wikilink_alias: (m[2] || m[1])!.trim(),
+        target_uuid: targets[i]!,
+        wikilink_alias: (parts.length > 1 ? parts.slice(1).join("|") : parts[0])!.trim(),
         resolved: true,
       });
-    }
+    });
 
     const metaBlocks: Array<{ block_id: string; type: string; content?: string; lamport_ts: number; peer_id: string; deleted: boolean }> =
       Array.isArray(meta.blocks_meta) ? meta.blocks_meta : [];
@@ -101,7 +106,7 @@ export class LocalMarkdownHomomorphicCodec {
             deleted: prev.deleted,
           }))
         : segments.map((seg) => {
-            const sk = seg.match(/^!\[\[attachments\/sketch_([a-zA-Z0-9-]+)\.svg\]\]$/);
+            const sk = /^!\[\[attachments\/sketch_([a-zA-Z0-9-]+)\.svg\]\]$/.exec(seg);
             return {
               block_id: sk ? sk[1]! : crypto.randomUUID(),
               type: (sk ? "sketch_vector" : "paragraph") as UnifiedNode["blocks"][number]["type"],
@@ -115,13 +120,16 @@ export class LocalMarkdownHomomorphicCodec {
     if (sketchResolver) {
       let em: RegExpExecArray | null;
       EMBED_SKETCH_REGEX.lastIndex = 0;
-      while ((em = EMBED_SKETCH_REGEX.exec(bodyRaw)) !== null) {
-        const svg = await sketchResolver(em[0].slice(3, -3));
+      const embeds: RegExpExecArray[] = [];
+      while ((em = EMBED_SKETCH_REGEX.exec(bodyRaw)) !== null) embeds.push(em);
+      const svgs = await Promise.all(embeds.map((e) => sketchResolver(e[0].slice(3, -3))));
+      embeds.forEach((e, i) => {
+        const svg = svgs[i];
         const p = svg && /<path d="([^"]+)"/.exec(svg);
-        const id = em[0].split("_")[1]?.replace(".svg", "");
+        const id = e[0].split("_")[1]?.replace(".svg", "");
         const target = blocks.find((b) => b.block_id === id);
         if (target && p) target.content = p[1]!;
-      }
+      });
     }
 
     const reconstructed: UnifiedNode = {

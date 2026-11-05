@@ -12,7 +12,7 @@ export interface VectorEntry {
 }
 
 export class SemanticVectorStore {
-  private index = new Map<string, VectorEntry & { poolBuf?: Float32Array }>();
+  private readonly index = new Map<string, VectorEntry & { poolBuf?: Float32Array }>();
   private pool = new Float32ArrayPool(0, 0);
 
   registerVector(nodeUuid: string, blockId: string | undefined, rawEmbedding: number[]): void {
@@ -42,10 +42,10 @@ export class SemanticVectorStore {
       let dot = 0;
       const len = Math.min(entry.vector.length, q.length);
       for (let i = 0; i < len; i++) dot += entry.vector[i]! * q[i]!;
-      if (dot >= threshold) results.push({ nodeUuid: entry.nodeUuid, blockId: entry.blockId, score: parseFloat(dot.toFixed(4)) });
+      if (dot >= threshold) results.push({ nodeUuid: entry.nodeUuid, blockId: entry.blockId, score: Number.parseFloat(dot.toFixed(4)) });
     }
     if (this.pool.dim === queryEmbedding.length) this.pool.release(q);
-    return results.sort((a, b) => b.score - a.score).slice(0, topK);
+    return results.toSorted((a, b) => b.score - a.score).slice(0, topK);
   }
 
   get size(): number { return this.index.size; }

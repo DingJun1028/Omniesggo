@@ -24,7 +24,7 @@ export async function sha256(source: string): Promise<HashSHA256> {
 export function canonicalStringify(value: unknown): string {
   if (value === null || typeof value !== "object") return JSON.stringify(value);
   if (Array.isArray(value)) return "[" + value.map(canonicalStringify).join(",") + "]";
-  return "{" + Object.keys(value).sort().map((k) => JSON.stringify(k) + ":" + canonicalStringify((value as never)[k])).join(",") + "}";
+  return "{" + Object.keys(value).sort((a, b) => a.localeCompare(b)).map((k) => JSON.stringify(k) + ":" + canonicalStringify((value as never)[k])).join(",") + "}";
 }
 
 export function computeUUID(): string {
@@ -208,7 +208,7 @@ export class UnifiedMatrixEngine {
       return { ...l, resolved };
     });
     const total = outlinks.length || 1;
-    const entropy = parseFloat(((broken / total) * 0.5 + Math.min(node.blocks.length / 100, 0.5) * 0.5).toFixed(4));
+    const entropy = Number.parseFloat(((broken / total) * 0.5 + Math.min(node.blocks.length / 100, 0.5) * 0.5).toFixed(4));
     const next: UnifiedNode = {
       ...node,
       topology: { ...node.topology, outlinks },

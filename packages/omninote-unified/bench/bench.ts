@@ -87,4 +87,4 @@ async function main(): Promise<void> {
   console.log("池化承租-歸還             : %s ms（池內復用 %d 次，零新增配置於穩態）", pooledAllocMs.toFixed(1), reused);
 }
 
-main();
+await main();

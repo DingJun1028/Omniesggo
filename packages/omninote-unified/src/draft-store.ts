@@ -82,13 +82,15 @@ export class DraftStore {
   async list(): Promise<DraftRecord[]> {
     try {
       const files = await readdir(this.dir);
+      const jsonFiles = files.filter((f) => f.endsWith(".json"));
+      const contents = await Promise.all(jsonFiles.map((f) => readFile(join(this.dir, f), "utf-8").catch(() => null)));
       const records: DraftRecord[] = [];
-      for (const f of files) {
-        if (!f.endsWith(".json")) continue;
+      contents.forEach((content) => {
+        if (content === null) return;
         try {
-          records.push(JSON.parse(await readFile(join(this.dir, f), "utf-8")) as DraftRecord);
+          records.push(JSON.parse(content) as DraftRecord);
         } catch { /* 略過無法解析之檔案 */ }
-      }
+      });
       return records.sort((a, b) => b.saved_at.localeCompare(a.saved_at));
     } catch {
       return [];
@@ -161,9 +163,7 @@ export class DraftAutoSaver {
 
   /** 立即落盤全部待存草稿（關閉前、晉升前呼叫） */
   async flush(): Promise<void> {
-    for (const draftId of [...this.pending.keys()]) {
-      await this.flushKey(draftId);
-    }
+    await Promise.all(Array.from(this.pending.keys(), (draftId) => this.flushKey(draftId)));
   }
 
   get pendingIds(): string[] {

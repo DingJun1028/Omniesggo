@@ -40,11 +40,13 @@ function assertValidNode(node: unknown, context: string): asserts node is Unifie
 
 /** 匯出：逐節點重算 lock_hash 稽核，任何竄改即刻拒絕（零竄改外流承諾） */
 export async function exportNotesArchive(nodes: readonly UnifiedNode[]): Promise<OmniNoteArchive> {
-  const tampered: string[] = [];
-  for (const node of nodes) {
-    assertValidNode(node, "匯出來源");
-    if ((await computeNodeLockHash(node)) !== node.lock_hash) tampered.push(node.uuid);
-  }
+  const hashOk = await Promise.all(
+    nodes.map(async (node) => {
+      assertValidNode(node, "匯出來源");
+      return (await computeNodeLockHash(node)) === node.lock_hash ? null : node.uuid;
+    }),
+  );
+  const tampered = hashOk.filter((u): u is string => u !== null);
   if (tampered.length > 0) {
     throw new Error("[OmniNoteArchive] 拒絕匯出：lock_hash 驗算不符（竄改或損毀）之節點：" + tampered.join(", "));
   }
@@ -52,7 +54,7 @@ export async function exportNotesArchive(nodes: readonly UnifiedNode[]): Promise
     format: "omninote-archive",
     format_version: "1.0.0",
     exported_at: new Date().toISOString(),
-    nodes: nodes.map((n) => JSON.parse(JSON.stringify(n)) as UnifiedNode),
+    nodes: nodes.map((n) => structuredClone(n) as UnifiedNode),
   };
 }
 
@@ -76,7 +78,7 @@ export function parseArchive(json: string): OmniNoteArchive {
     throw new Error("[OmniNoteArchive] 缺少 format / format_version 標頭");
   }
   if (!Array.isArray(candidate.nodes)) {
-    throw new Error("[OmniNoteArchive] 缺少 nodes 陣列");
+    throw new TypeError("[OmniNoteArchive] 缺少 nodes 陣列");
   }
   for (let i = 0; i < candidate.nodes.length; i++) {
     assertValidNode(candidate.nodes[i], "nodes[" + String(i) + "]");
@@ -96,27 +98,32 @@ export async function importNotesArchive(
   options: ImportOptions = {},
 ): Promise<ImportReport> {
   const conflict: ImportConflictStrategy = options.conflict ?? "skip";
+  const verified = await Promise.all(
+    archive.nodes.map(async (node) => {
+      assertValidNode(node, "匯入來源");
+      return (await computeNodeLockHash(node)) === node.lock_hash ? node : null;
+    }),
+  );
+  const validNodes = verified.filter((n): n is UnifiedNode => n !== null);
+  const tampered = archive.nodes.length - validNodes.length; // 竄改或損毀：保留既有資料，不落地
+  const existingNodes = await Promise.all(validNodes.map((node) => storage.read(node.uuid)));
+  const toWrite: UnifiedNode[] = [];
   let imported = 0;
   let skipped = 0;
   let overwritten = 0;
-  let tampered = 0;
-  for (const node of archive.nodes) {
-    assertValidNode(node, "匯入來源");
-    if ((await computeNodeLockHash(node)) !== node.lock_hash) {
-      tampered++; // 竄改或損毀：保留既有資料，不落地
-      continue;
-    }
-    const existing = await storage.read(node.uuid);
+  validNodes.forEach((node, i) => {
+    const existing = existingNodes[i];
     if (existing !== null && existing.lock_hash === node.lock_hash) {
       skipped++; // 完全相同：零動作
-      continue;
+      return;
     }
     if (existing !== null && conflict === "skip") {
       skipped++;
-      continue;
+      return;
     }
-    await storage.write(node);
+    toWrite.push(node);
     if (existing !== null) overwritten++; else imported++;
-  }
+  });
+  await Promise.all(toWrite.map((node) => storage.write(node)));
   return { total: archive.nodes.length, imported, skipped, overwritten, tampered };
 }

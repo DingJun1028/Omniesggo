@@ -22,20 +22,25 @@ function sealNode(value: any, seen: Map<unknown, unknown>): any {
     seen.set(value, value);
     return value;
   }
+  if (Array.isArray(value)) return sealArray(value, seen);
+  return sealObject(value, seen);
+}
 
-  if (Array.isArray(value)) {
-    const out: unknown[] = [];
-    let changed = !Object.isFrozen(value);
-    for (let i = 0; i < value.length; i++) {
-      const sealedChild = sealNode(value[i], seen);
-      out.push(sealedChild);
-      if (sealedChild !== value[i]) changed = true;
-    }
-    const result = changed || !Object.isFrozen(value) ? Object.freeze(out) : value;
-    deepSealedRegistry.add(result);
-    seen.set(value, result);
-    return result;
+function sealArray(value: readonly unknown[], seen: Map<unknown, unknown>): any {
+  const out: unknown[] = [];
+  let changed = !Object.isFrozen(value);
+  for (const child of value) {
+    const sealedChild = sealNode(child, seen);
+    out.push(sealedChild);
+    if (sealedChild !== child) changed = true;
   }
+  const result = changed || !Object.isFrozen(value) ? Object.freeze(out) : value;
+  deepSealedRegistry.add(result);
+  seen.set(value, result);
+  return result;
+}
+
+function sealObject(value: any, seen: Map<unknown, unknown>): any {
 
   const keys = Object.keys(value);
   const sealedEntries: Record<string, unknown> = {};

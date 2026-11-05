@@ -12,7 +12,7 @@ export const UUIDv4Schema = Type.String({
 
 export const HashSHA256Schema = Type.String({ pattern: "^[a-fA-F0-9]{64}$" });
 
-export const SemVerSchema = Type.String({ pattern: "^\\d+\\.\\d+\\.\\d+$" });
+export const SemVerSchema = Type.String({ pattern: String.raw`^\d+\.\d+\.\d+$` });
 
 export const EvidenceEntrySchema = Type.Object(
   {

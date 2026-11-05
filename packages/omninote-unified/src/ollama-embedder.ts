@@ -84,15 +84,15 @@ export class ZeroComputeEmbedder {
    * 任一區塊嵌入失敗 → 該區塊保留 raw（不註冊），不中斷整體流程。
    */
   async registerNodeBlocks(store: SemanticVectorStore, node: Readonly<UnifiedNode>): Promise<number> {
+    // 向量圖層與已刪除區塊不做語意嵌入；其餘區塊並行嵌入（本機回環 Ollama 自行排隊）。
+    const embeddable = node.blocks.filter((b) => !b.deleted && b.type !== "sketch_vector");
+    const vectors = await Promise.all(embeddable.map((b) => this.embed(b.content)));
     let registered = 0;
-    for (const block of node.blocks) {
-      if (block.deleted) continue;
-      if (block.type === "sketch_vector") continue; // 向量圖層不做語意嵌入
-      const vec = await this.embed(block.content);
-      if (vec === null) continue; // Graceful Fallback：raw 保留
-      store.registerVector(node.uuid, block.block_id, Array.from(vec));
+    vectors.forEach((vec, i) => {
+      if (vec === null) return; // Graceful Fallback：raw 保留
+      store.registerVector(node.uuid, embeddable[i]!.block_id, Array.from(vec));
       registered++;
-    }
+    });
     return registered;
   }
 }

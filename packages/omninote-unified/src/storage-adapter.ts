@@ -27,22 +27,24 @@ export class NodeFileSystemDriver implements IStorageDriver {
     await mkdir(this.rootDir + "/attachments", { recursive: true });
     const artifact = await LocalMarkdownHomomorphicCodec.serialize(node);
     await writeFile(this.artifactPath(artifact), artifact.markdownFileContent, "utf-8");
-    for (const svg of artifact.attachmentSvgs) {
-      await writeFile(`${this.rootDir}/${svg.filename}`, svg.svgContent, "utf-8");
-    }
+    await Promise.all(artifact.attachmentSvgs.map((svg) => writeFile(`${this.rootDir}/${svg.filename}`, svg.svgContent, "utf-8")));
     // 同一節點因 matrix_phase／entity_type 變化可能殘留舊檔名：寫入後清理同 uuid 之過時檔案，
     // 否則 read() 將依目錄順序誤讀舊版本（檔案系統即資料庫之單調不變量）。
     const short = node.uuid.slice(0, 8);
-    for (const f of await readdir(this.rootDir)) {
-      if (!f.endsWith(".md") || !f.includes(short) || f === artifact.relativePath) continue;
+    const staleCandidates = (await readdir(this.rootDir)).filter(
+      (f) => f.endsWith(".md") && f.includes(short) && f !== artifact.relativePath,
+    );
+    const staleContents = await Promise.all(
+      staleCandidates.map((f) => readFile(`${this.rootDir}/${f}`, "utf-8").catch(() => null)),
+    );
+    const staleFiles = staleCandidates.filter((f, i) => {
+      if (staleContents[i] === null) return false;
       try {
-        const content = await readFile(`${this.rootDir}/${f}`, "utf-8");
-        const { extractFrontmatterAndBody } = LocalMarkdownHomomorphicCodec;
-        const { frontmatterRaw } = extractFrontmatterAndBody(content);
-        const meta = JSON.parse(frontmatterRaw || "{}");
-        if (meta.omni_uuid === node.uuid) await rm(`${this.rootDir}/${f}`);
-      } catch { /* 略過無法解析之檔案 */ }
-    }
+        const { frontmatterRaw } = LocalMarkdownHomomorphicCodec.extractFrontmatterAndBody(staleContents[i]!);
+        return JSON.parse(frontmatterRaw || "{}").omni_uuid === node.uuid;
+      } catch { /* 略過無法解析之檔案 */ return false; }
+    });
+    await Promise.all(staleFiles.map((f) => rm(`${this.rootDir}/${f}`)));
   }
 
   async read(nodeUuid: string): Promise<UnifiedNode | null> {
@@ -73,17 +75,17 @@ export class NodeFileSystemDriver implements IStorageDriver {
 
   async listUuids(): Promise<string[]> {
     const { readdir, readFile } = await import("node:fs/promises");
+    const files = (await readdir(this.rootDir)).filter((f) => f.endsWith(".md"));
+    const contents = await Promise.all(files.map((f) => readFile(`${this.rootDir}/${f}`, "utf-8").catch(() => null)));
     const uuids: string[] = [];
-    for (const f of await readdir(this.rootDir)) {
-      if (!f.endsWith(".md")) continue;
+    contents.forEach((content) => {
+      if (content === null) return;
       try {
-        const content = await readFile(`${this.rootDir}/${f}`, "utf-8");
-        const { extractFrontmatterAndBody } = LocalMarkdownHomomorphicCodec;
-        const { frontmatterRaw } = extractFrontmatterAndBody(content);
+        const { frontmatterRaw } = LocalMarkdownHomomorphicCodec.extractFrontmatterAndBody(content);
         const meta = JSON.parse(frontmatterRaw || "{}");
         if (typeof meta.omni_uuid === "string") uuids.push(meta.omni_uuid);
       } catch { /* 略過無法解析之檔案 */ }
-    }
+    });
     return uuids;
   }
 }
@@ -103,7 +105,7 @@ export class IndexedDBDriver implements IStorageDriver {
         if (!req.result.objectStoreNames.contains(this.storeName)) req.result.createObjectStore(this.storeName, { keyPath: "uuid" });
       };
       req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
+      req.onerror = () => reject(req.error ?? new Error("[IndexedDBDriver] IndexedDB 請求失敗"));
     });
   }
 
@@ -113,13 +115,13 @@ export class IndexedDBDriver implements IStorageDriver {
       const tx = db.transaction(this.storeName, mode);
       const req = run(tx.objectStore(this.storeName));
       req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
+      req.onerror = () => reject(req.error ?? new Error("[IndexedDBDriver] IndexedDB 請求失敗"));
       tx.oncomplete = () => db.close();
     });
   }
 
   async write(node: Readonly<UnifiedNode>): Promise<void> {
-    await this.tx("readwrite", (store) => store.put(JSON.parse(JSON.stringify(node))));
+    await this.tx("readwrite", (store) => store.put(structuredClone(node)));
   }
 
   async read(nodeUuid: string): Promise<UnifiedNode | null> {
@@ -133,7 +135,8 @@ export class IndexedDBDriver implements IStorageDriver {
 
   async listUuids(): Promise<string[]> {
     const keys = await this.tx("readonly", (store) => store.getAllKeys() as unknown as IDBRequest<IDBValidKey[]>);
-    return keys.map((k) => String(k));
+    // 鍵一律為 uuid 字串；非字串鍵（不應存在）一律剔除以避免 [object Object] 汙染。
+    return keys.filter((k): k is string => typeof k === "string");
   }
 }
 
@@ -141,7 +144,7 @@ export class IndexedDBDriver implements IStorageDriver {
 export class OmniStorageAdapter {
   private constructor(public readonly driver: IStorageDriver) {}
 
-  static async selectDriver(rootDir?: string): Promise<OmniStorageAdapter> {
+  static selectDriver(rootDir?: string): OmniStorageAdapter {
     const isNode = typeof process !== "undefined" && Boolean(process.versions?.node) && typeof indexedDB === "undefined";
     if (isNode && rootDir) return new OmniStorageAdapter(new NodeFileSystemDriver(rootDir));
     return new OmniStorageAdapter(new IndexedDBDriver());
