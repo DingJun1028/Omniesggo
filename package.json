@@ -2,7 +2,7 @@
   "name": "esggo",
   "version": "5.1.0",
   "private": true,
-  "packageManager": "pnpm@11.5.2",
+  "packageManager": "pnpm@12.16.1",
   "bin": {
     "esggo": "./packages/cli/src/omni.mjs"
   },
@@ -112,7 +112,7 @@
   },
   "engines": {
     "node": ">=20",
-    "pnpm": "11.5.2"
+    "pnpm": "12.16.1"
   },
   "omnilules": {
     "enabled": true,

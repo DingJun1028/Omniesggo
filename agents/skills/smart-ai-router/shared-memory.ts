@@ -26,7 +26,7 @@ export interface MemoryContent {
   readonly traceId?: string;
 }
 
-export interface MemoryEntry {
+export interface SharedMemoryEntry {
   readonly id: string;
   readonly agentId: string;
   readonly topic: string;
@@ -48,12 +48,12 @@ export interface QueryFilter {
 
 export interface SharedMemoryStore {
   /** 持久化整個黑板快照（可為 no-op） */
-  save(snapshot: ReadonlyArray<MemoryEntry>): Promise<void> | void;
+  save(snapshot: ReadonlyArray<SharedMemoryEntry>): Promise<void> | void;
   /** 還原黑板快照（可回空陣列） */
-  load(): Promise<ReadonlyArray<MemoryEntry>> | ReadonlyArray<MemoryEntry>;
+  load(): Promise<ReadonlyArray<SharedMemoryEntry>> | ReadonlyArray<SharedMemoryEntry>;
 }
 
-type Subscriber = (entry: MemoryEntry) => void;
+type Subscriber = (entry: SharedMemoryEntry) => void;
 
 export interface SharedMemoryConfig {
   readonly defaultTtlMs?: number;   // 預設存活 (ms)，0 = 永不過期
@@ -62,7 +62,7 @@ export interface SharedMemoryConfig {
 }
 
 export class SharedMemoryLayer {
-  private readonly board = new Map<string, MemoryEntry[]>();
+  private readonly board = new Map<string, SharedMemoryEntry[]>();
   private readonly subscribers = new Map<string, Set<Subscriber>>();
   private readonly defaultTtlMs: number;
   private readonly cap: number;
@@ -75,10 +75,10 @@ export class SharedMemoryLayer {
   }
 
   /** 發佈一笔共同記憶 */
-  publish(agentId: string, mem: MemoryContent, opts: { ttlMs?: number } = {}): MemoryEntry {
+  publish(agentId: string, mem: MemoryContent, opts: { ttlMs?: number } = {}): SharedMemoryEntry {
     const now = Date.now();
     const ttlMs = opts.ttlMs ?? this.defaultTtlMs;
-    const entry: MemoryEntry = Object.freeze({
+    const entry: SharedMemoryEntry = Object.freeze({
       id: `mem.${agentId}.${now.toString(36)}.${Math.random().toString(36).slice(2, 6)}`,
       agentId,
       topic: mem.topic,
@@ -99,14 +99,14 @@ export class SharedMemoryLayer {
   }
 
   /** 讀取某 topic 的記憶（最近優先，已剔除過期） */
-  read(topic: string): readonly MemoryEntry[] {
+  read(topic: string): readonly SharedMemoryEntry[] {
     return this.live(topic).slice().reverse();
   }
 
   /** 條件查詢 */
-  query(filter: QueryFilter = {}): readonly MemoryEntry[] {
+  query(filter: QueryFilter = {}): readonly SharedMemoryEntry[] {
     const now = Date.now();
-    let out: MemoryEntry[] = [];
+    let out: SharedMemoryEntry[] = [];
     for (const [topic, list] of this.board) {
       if (filter.topic && topic !== filter.topic) continue;
       for (const e of list) {
@@ -122,7 +122,7 @@ export class SharedMemoryLayer {
   }
 
   /** 召回 top-k（時間衰減評分，對應 OmniMemory 95% 召回意圖） */
-  recall(topic: string, k = 5, agentId?: string): readonly MemoryEntry[] {
+  recall(topic: string, k = 5, agentId?: string): readonly SharedMemoryEntry[] {
     const now = Date.now();
     const scored = this.live(topic)
       .filter((e) => !agentId || e.agentId === agentId)
@@ -143,16 +143,16 @@ export class SharedMemoryLayer {
     set.add(handler);
     return () => set?.delete(handler);
   }
-  private notify(topic: string, entry: MemoryEntry): void {
+  private notify(topic: string, entry: SharedMemoryEntry): void {
     for (const h of this.subscribers.get(topic) ?? []) {
       try { h(entry); } catch { /* 訂閱者錯誤不污染發佈 */ }
     }
   }
 
   /** 凍結快照（供存證 / 匯出） */
-  snapshot(): readonly MemoryEntry[] {
+  snapshot(): readonly SharedMemoryEntry[] {
     const now = Date.now();
-    const out: MemoryEntry[] = [];
+    const out: SharedMemoryEntry[] = [];
     for (const list of this.board.values()) {
       for (const e of list) if (now - e.timestamp <= e.ttlMs) out.push(e);
     }
@@ -177,7 +177,7 @@ export class SharedMemoryLayer {
   }
 
   /** 從 JSON 字串還原快照並寫回黑板 */
-  fromJson(jsonString: string): MemoryEntry[] {
+  fromJson(jsonString: string): SharedMemoryEntry[] {
     const parsed = JSON.parse(jsonString);
     const entries = parsed.map((p: Record<string, unknown>) => ({
       id: String(p.id),
@@ -201,7 +201,7 @@ export class SharedMemoryLayer {
   }
 
   /** 從文件載入快照並還原黑板 */
-  async loadSnapshotFromFile(path: string): Promise<MemoryEntry[]> {
+  async loadSnapshotFromFile(path: string): Promise<SharedMemoryEntry[]> {
     const text = await readFile(path, 'utf-8');
     return this.fromJson(text);
   }
@@ -209,7 +209,7 @@ export class SharedMemoryLayer {
   topics(): readonly string[] { return [...this.board.keys()]; }
 
   /** 還原（啟動時由 store.load() 回灌） */
-  restore(entries: readonly MemoryEntry[]): void {
+  restore(entries: readonly SharedMemoryEntry[]): void {
     for (const e of entries) {
       const list = this.board.get(e.topic) ?? [];
       list.push(e);
@@ -217,7 +217,7 @@ export class SharedMemoryLayer {
     }
   }
 
-  private live(topic: string): MemoryEntry[] {
+  private live(topic: string): SharedMemoryEntry[] {
     const now = Date.now();
     return (this.board.get(topic) ?? []).filter((e) => now - e.timestamp <= e.ttlMs);
   }
