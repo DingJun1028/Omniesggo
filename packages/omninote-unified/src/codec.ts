@@ -8,7 +8,7 @@ import { UnifiedNodeSchema, type GraphTopologyLink, type UnifiedNode } from "./c
 import { computeNodeLockHash, sha256 } from "./matrix-engine.js";
 
 const FM_DELIM = "---";
-const WIKILINK_REGEX = /\[\[([^\[\]]+)\]\]/g;
+const WIKILINK_REGEX = /\[\[([^\][]+)\]\]/g;
 const EMBED_SKETCH_REGEX = /!\[\[attachments\/sketch_[a-zA-Z0-9_-]+\.svg\]\]/g;
 
 export interface FileSystemArtifact {

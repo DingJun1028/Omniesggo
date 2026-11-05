@@ -26,8 +26,10 @@ export class NodeFileSystemDriver implements IStorageDriver {
     const { mkdir, writeFile, readdir, readFile, rm } = await import("node:fs/promises");
     await mkdir(this.rootDir + "/attachments", { recursive: true });
     const artifact = await LocalMarkdownHomomorphicCodec.serialize(node);
-    await writeFile(this.artifactPath(artifact), artifact.markdownFileContent, "utf-8");
-    await Promise.all(artifact.attachmentSvgs.map((svg) => writeFile(`${this.rootDir}/${svg.filename}`, svg.svgContent, "utf-8")));
+    await Promise.all([
+      writeFile(this.artifactPath(artifact), artifact.markdownFileContent, "utf-8"),
+      ...artifact.attachmentSvgs.map((svg) => writeFile(`${this.rootDir}/${svg.filename}`, svg.svgContent, "utf-8")),
+    ]);
     // 同一節點因 matrix_phase／entity_type 變化可能殘留舊檔名：寫入後清理同 uuid 之過時檔案，
     // 否則 read() 將依目錄順序誤讀舊版本（檔案系統即資料庫之單調不變量）。
     const short = node.uuid.slice(0, 8);

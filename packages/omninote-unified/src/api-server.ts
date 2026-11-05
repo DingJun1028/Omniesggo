@@ -75,6 +75,18 @@ async function readBody(req: IncomingMessage, maxBytes: number): Promise<Buffer>
  * OmniStorageAdapter 正規管道落地，與桌面端共用同一套契約與稽核鏈。
  */
 export class OmniNoteLocalApiServer {
+  /** 靜態路由表：方法 + 完整路徑 → 處理函式 */
+  private static readonly FIXED_ROUTES: Readonly<
+    Record<string, (self: OmniNoteLocalApiServer, req: IncomingMessage, res: ServerResponse) => Promise<void>>
+  > = {
+    "GET /api/notes": (self, _req, res) => self.respondNotesList(res),
+    "POST /api/notes": (self, req, res) => self.handleNoteCreate(req, res),
+    "POST /api/search": (self, req, res) => self.handleSearch(req, res),
+    "POST /api/drafts": (self, req, res) => self.handleDraftSave(req, res),
+    "GET /api/drafts": (self, _req, res) => self.respondDraftsList(res),
+    "GET /api/export": (self, _req, res) => self.respondExport(res),
+    "POST /api/import": (self, req, res) => self.handleImport(req, res),
+  };
   readonly storage: OmniStorageAdapter;
   readonly vectorStore: SemanticVectorStore;
   readonly drafts: DraftStore;
@@ -131,7 +143,7 @@ export class OmniNoteLocalApiServer {
     return header === "Bearer " + this.token;
   }
 
-  /** 路由分派：各端點拆分至獨立處理方法，單一方法認知複雜度受控 */
+  /** 路由分派：靜態路由表 + 動態段路由，單一方法認知複雜度受控 */
   private async handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const url = (req.url ?? "/").split("?")[0] ?? "/";
     const method = req.method ?? "GET";
@@ -140,24 +152,39 @@ export class OmniNoteLocalApiServer {
     if (!url.startsWith("/api/")) return sendJson(res, 404, { ok: false, error: "NOT_FOUND" });
     if (!this.authorized(req)) return sendJson(res, 401, { ok: false, error: "UNAUTHORIZED" });
 
-    const segments = url.split("/").filter((s) => s.length > 0);
+    const fixed = OmniNoteLocalApiServer.FIXED_ROUTES[method + " " + url];
+    if (fixed !== undefined) return fixed(this, req, res);
 
-    if (method === "GET" && url === "/api/notes") return this.respondNotesList(res);
-    if (method === "POST" && url === "/api/notes") return this.handleNoteCreate(req, res);
-    if (method === "GET" && segments.length === 3 && segments[1] === "notes") return this.respondNoteRead(res, segments[2]!);
-    if (method === "POST" && segments.length === 4 && segments[1] === "notes" && segments[3] === "blocks") return this.handleBlockAppend(req, res, segments[2]!);
-    if (method === "DELETE" && segments.length === 3 && segments[1] === "notes") return this.respondNoteDelete(res, segments[2]!);
-    if (method === "POST" && url === "/api/search") return this.handleSearch(req, res);
-    if (method === "POST" && url === "/api/drafts") return this.handleDraftSave(req, res);
-    if (method === "GET" && url === "/api/drafts") return this.respondDraftsList(res);
-    if (segments[1] === "drafts" && segments.length === 3 && (method === "GET" || method === "DELETE")) {
-      return this.respondDraftGetOrDelete(res, method, segments[2]!);
-    }
-    if (method === "POST" && segments.length === 4 && segments[1] === "drafts" && segments[3] === "promote") return this.respondDraftPromote(res, segments[2]!);
-    if (method === "GET" && url === "/api/export") return this.respondExport(res);
-    if (method === "POST" && url === "/api/import") return this.handleImport(req, res);
+    const segments = url.split("/").filter((s) => s.length > 0);
+    const dynamic = this.routeDynamic(method, segments, req, res);
+    if (dynamic !== undefined) return dynamic;
 
     return sendJson(res, 404, { ok: false, error: "NOT_FOUND" });
+  }
+
+  /** 動態段路由（notes/:id、notes/:id/blocks、drafts/:id、drafts/:id/promote） */
+  private routeDynamic(
+    method: string,
+    segments: string[],
+    req: IncomingMessage,
+    res: ServerResponse,
+  ): Promise<void> | undefined {
+    const resource = segments[1];
+    const id = segments[2];
+    if (resource === "notes" && id !== undefined && segments.length === 3) {
+      if (method === "GET") return this.respondNoteRead(res, id);
+      if (method === "DELETE") return this.respondNoteDelete(res, id);
+    }
+    if (method === "POST" && resource === "notes" && segments.length === 4 && segments[3] === "blocks") {
+      return this.handleBlockAppend(req, res, id!);
+    }
+    if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
+      return this.respondDraftGetOrDelete(res, method, id);
+    }
+    if (method === "POST" && resource === "drafts" && segments.length === 4 && segments[3] === "promote") {
+      return this.respondDraftPromote(res, id!);
+    }
+    return undefined;
   }
 
   private async respondHealth(res: ServerResponse): Promise<void> {
@@ -311,7 +338,6 @@ export class OmniNoteLocalApiServer {
       "Content-Length": Buffer.byteLength(body),
     });
     res.end(body);
-    return;
   }
 
   private async handleImport(req: IncomingMessage, res: ServerResponse): Promise<void> {
