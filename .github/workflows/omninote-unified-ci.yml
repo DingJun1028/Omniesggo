@@ -39,10 +39,10 @@ jobs:
           node-version: '22'
         timeout-minutes: 5
 
-      - name: Setup pnpm 11.5.2
+      - name: Setup pnpm 11.28.11
         uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
         with:
-          version: 11.5.2
+          version: 11.28.11
         timeout-minutes: 3
 
       - name: Install dependencies (frozen 優先；lockfile 同步前允許降級)
