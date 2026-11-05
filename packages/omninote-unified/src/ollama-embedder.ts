@@ -59,8 +59,8 @@ export class ZeroComputeEmbedder {
       });
       if (!res.ok) { this.endpointErrors++; this.fallbacks++; return null; }
       const data: unknown = await res.json();
-      const emb = (data as { embeddings?: unknown } | { embedding?: unknown } | null)?.embedding
-        ?? (data as { embeddings?: unknown[] } | null)?.embeddings?.[0];
+      const payload = (data ?? {}) as { embedding?: unknown; embeddings?: unknown };
+      const emb = payload.embedding ?? (Array.isArray(payload.embeddings) ? payload.embeddings[0] : undefined);
       if (!Array.isArray(emb) || emb.length === 0 || emb.some((v) => typeof v !== "number")) {
         this.endpointErrors++;
         this.fallbacks++;

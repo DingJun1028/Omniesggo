@@ -19,7 +19,7 @@
     "typecheck": "tsc --noEmit",
     "build": "tsc",
     "serve": "node --experimental-transform-types bin/omninote-server.ts",
-    "test": "node --experimental-transform-types --test test/",
+    "test": "node --experimental-transform-types --test \"test/*.test.ts\"",
     "bench": "node --experimental-transform-types bench/bench.ts"
   },
   "dependencies": {

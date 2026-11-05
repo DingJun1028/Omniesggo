@@ -27,7 +27,13 @@ export class SemanticVectorStore {
     for (let i = 0; i < rawEmbedding.length; i++) buf[i] = norm === 0 ? 0 : rawEmbedding[i]! / norm;
     const existing = this.index.get(key);
     if (existing?.poolBuf) this.pool.release(existing.poolBuf);
-    this.index.set(key, { nodeUuid, blockId, vector: buf, poolBuf: buf });
+    const entry: VectorEntry & { poolBuf?: Float32Array } = {
+      nodeUuid,
+      ...(blockId !== undefined ? { blockId } : {}),
+      vector: buf,
+      poolBuf: buf,
+    };
+    this.index.set(key, entry);
   }
 
   /** Top-K 近似語意檢索：L2 歸一化後餘弦相似度簡化為純 CPU 點積 */
@@ -42,10 +48,17 @@ export class SemanticVectorStore {
       let dot = 0;
       const len = Math.min(entry.vector.length, q.length);
       for (let i = 0; i < len; i++) dot += entry.vector[i]! * q[i]!;
-      if (dot >= threshold) results.push({ nodeUuid: entry.nodeUuid, blockId: entry.blockId, score: Number.parseFloat(dot.toFixed(4)) });
+      if (dot >= threshold) {
+        const hit: { nodeUuid: string; blockId?: string; score: number } = {
+          nodeUuid: entry.nodeUuid,
+          score: Number.parseFloat(dot.toFixed(4)),
+        };
+        if (entry.blockId !== undefined) hit.blockId = entry.blockId;
+        results.push(hit);
+      }
     }
     if (this.pool.dim === queryEmbedding.length) this.pool.release(q);
-    return results.toSorted((a, b) => b.score - a.score).slice(0, topK);
+    return results.slice().sort((a, b) => b.score - a.score).slice(0, topK);
   }
 
   get size(): number { return this.index.size; }

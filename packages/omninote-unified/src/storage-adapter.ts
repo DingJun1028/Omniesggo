@@ -37,7 +37,7 @@ export class NodeFileSystemDriver implements IStorageDriver {
     const staleContents = await Promise.all(
       staleCandidates.map((f) => readFile(`${this.rootDir}/${f}`, "utf-8").catch(() => null)),
     );
-    const staleFiles = staleCandidates.filter((f, i) => {
+    const staleFiles = staleCandidates.filter((_f, i) => {
       if (staleContents[i] === null) return false;
       try {
         const { frontmatterRaw } = LocalMarkdownHomomorphicCodec.extractFrontmatterAndBody(staleContents[i]!);

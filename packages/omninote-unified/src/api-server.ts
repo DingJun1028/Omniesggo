@@ -10,7 +10,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import type { CRDTBlock, UnifiedNode } from "./core-types.js";
 import { UnifiedMatrixEngine, computeNodeLockHash, sha256 } from "./matrix-engine.js";
 import { sealWithStructuralSharing } from "./perf.js";
-import { OmniStorageAdapter, NodeFileSystemDriver } from "./storage-adapter.js";
+import { OmniStorageAdapter } from "./storage-adapter.js";
 import { SemanticVectorStore } from "./vector-store.js";
 import type { ZeroComputeEmbedder } from "./ollama-embedder.js";
 import { exportNotesArchive, serializeArchive, parseArchive, importNotesArchive } from "./import-export.js";
@@ -95,7 +95,7 @@ export class OmniNoteLocalApiServer {
     this.token = options.token;
     this.embedder = options.embedder;
     this.maxBodyBytes = options.maxBodyBytes ?? 2 * 1024 * 1024;
-    this.storage = new OmniStorageAdapter(new NodeFileSystemDriver(options.rootDir));
+    this.storage = OmniStorageAdapter.selectDriver(options.rootDir);
     this.vectorStore = new SemanticVectorStore();
     this.drafts = new DraftStore(options.rootDir);
   }
@@ -310,7 +310,8 @@ export class OmniNoteLocalApiServer {
       "Content-Disposition": 'attachment; filename="omninote-export.json"',
       "Content-Length": Buffer.byteLength(body),
     });
-    return res.end(body);
+    res.end(body);
+    return;
   }
 
   private async handleImport(req: IncomingMessage, res: ServerResponse): Promise<void> {

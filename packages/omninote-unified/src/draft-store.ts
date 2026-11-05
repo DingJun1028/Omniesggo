@@ -158,7 +158,12 @@ export class DraftAutoSaver {
       void this.flushKey(draftId);
     }, this.debounceMs);
     timer.unref?.();
-    this.pending.set(draftId, { content: patch.content, origin_tag: patch.origin_tag, tags: patch.tags, timer });
+    this.pending.set(draftId, {
+      content: patch.content,
+      ...(patch.origin_tag !== undefined ? { origin_tag: patch.origin_tag } : {}),
+      ...(patch.tags !== undefined ? { tags: patch.tags } : {}),
+      timer,
+    });
   }
 
   /** 立即落盤全部待存草稿（關閉前、晉升前呼叫） */

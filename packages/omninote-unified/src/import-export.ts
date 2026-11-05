@@ -112,7 +112,7 @@ export async function importNotesArchive(
   let skipped = 0;
   let overwritten = 0;
   validNodes.forEach((node, i) => {
-    const existing = existingNodes[i];
+    const existing = existingNodes[i] ?? null;
     if (existing !== null && existing.lock_hash === node.lock_hash) {
       skipped++; // 完全相同：零動作
       return;
