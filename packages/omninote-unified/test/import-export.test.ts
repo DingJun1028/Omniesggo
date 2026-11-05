@@ -39,7 +39,7 @@ test("IE-1 匯出與解析 Round-Trip：格式標頭、節點數、lock_hash 全
 });
 
 test("IE-2 匯出稽核：lock_hash 遭竄改之節點即刻拒絕匯出", async () => {
-  await withStorage(async (storage) => {
+  await withStorage(async () => {
     const a = await UnifiedMatrixEngine.spawnAlphaOrigin("正規節點", "test");
     const tamperedNode = JSON.parse(JSON.stringify(a)) as typeof a;
     tamperedNode.lock_hash = "0".repeat(64);

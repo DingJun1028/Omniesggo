@@ -100,7 +100,7 @@ export class IndexedDBDriver implements IStorageDriver {
       if (typeof indexedDB === "undefined") { reject(new Error("[IndexedDBDriver] 瀏覽器環境限定")); return; }
       const req = indexedDB.open(this.dbName, 1);
       req.onupgradeneeded = () => {
-        if (!req.result.objectStoreNames.contains(this.storeName)) req.result.createObjectStore({ keyPath: "uuid" } as never);
+        if (!req.result.objectStoreNames.contains(this.storeName)) req.result.createObjectStore(this.storeName, { keyPath: "uuid" });
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);
