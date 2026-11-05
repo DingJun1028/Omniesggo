@@ -1,0 +1,45 @@
+=== pnpm --version ===
+11.5.2
+
+=== pnpm install --no-frozen-lockfile ===
+apps/learning-center                     | [WARN] The field "resolutions" was found in /home/runner/work/Omniesggo/Omniesggo/apps/learning-center/package.json. This will not take effect. Configure dependency overrides in pnpm-workspace.yaml using the "overrides" field instead.
+Scope: all 48 workspace projects
+? Verifying lockfile against supply-chain policies (1638 entries)...
+✓ Lockfile passes supply-chain policies (1638 entries in 5.2s)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Progress: resolved 1487, reused 0, downloaded 112, added 0
+[ERROR] Cannot use 'in' operator to search for 'directory' in undefined
+
+pnpm: Cannot use 'in' operator to search for 'directory' in undefined
+    at file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:153567:42
+    at buildGraphFromPackages (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:153647:7)
+    at lockfileToDepGraph2 (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:153500:73)
+    at headlessInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:159634:288)
+    at async tryFrozenInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:162980:56)
+    at async _install (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:162720:33)
+    at async mutateModules (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:162596:19)
+    at async recursive (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:168527:124)
+    at async recursiveInstallThenUpdateWorkspaceState (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:169185:27)
+    at async installDeps (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:168984:7)
+nofrozen_exit_code=1
+
+=== pnpm install --frozen-lockfile ===
+apps/learning-center                     | [WARN] The field "resolutions" was found in /home/runner/work/Omniesggo/Omniesggo/apps/learning-center/package.json. This will not take effect. Configure dependency overrides in pnpm-workspace.yaml using the "overrides" field instead.
+Scope: all 48 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+[ERROR] Cannot use 'in' operator to search for 'directory' in undefined
+
+pnpm: Cannot use 'in' operator to search for 'directory' in undefined
+    at file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:153567:42
+    at buildGraphFromPackages (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:153647:7)
+    at lockfileToDepGraph2 (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:153500:73)
+    at headlessInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:159634:288)
+    at async tryFrozenInstall (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:162980:56)
+    at async _install (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:162720:33)
+    at async mutateModules (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:162596:19)
+    at async recursive (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:168527:124)
+    at async recursiveInstallThenUpdateWorkspaceState (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:169185:27)
+    at async installDeps (file:///home/runner/setup-pnpm/node_modules/.pnpm/pnpm@11.5.2/node_modules/pnpm/dist/pnpm.mjs:168984:7)
+frozen_exit_code=1
