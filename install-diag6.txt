@@ -1,0 +1,333 @@
+=== pnpm --version ===
+12.16.1
+=== node --version ===
+v22.23.4
+
+=== pnpm install --frozen-lockfile ===
+[WARN] The "workspaces" field in package.json differs from "packages" in pnpm-workspace.yaml. pnpm uses pnpm-workspace.yaml.
+Scope: all 48 workspace projects
+[WARN] The settings in apps/learning-center/pnpm-workspace.yaml do not apply, because apps/learning-center is a project of this workspace. pnpm reads settings only from the pnpm-workspace.yaml at the workspace root. Move the settings there, or add "!apps/learning-center" to the root's "packages" to keep that project a separate workspace.
+? Verifying lockfile against supply-chain policies (1638 entries)...
+Packages are hard linked from the content-addressable store to the virtual store.
+  Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+  Virtual store is at:             node_modules/.pnpm
+Downloading googleapis@137.1.0: 0.00 B/11.20 MB
+Downloading tesseract.js-core@7.0.0: 0.00 B/16.93 MB
+Downloading @next/swc-linux-x64-gnu@16.4.3: 0.00 B/35.23 MB
+Downloading @cloudflare/workerd-linux-64@1.20261023.1: 0.00 B/42.46 MB
+Downloading @napi-rs/canvas-linux-x64-gnu@0.1.80: 0.00 B/12.92 MB
+Downloading cloudflare@7.3.0: 0.00 B/7.13 MB
+Downloading simple-icons@16.34.0: 0.00 B/6.51 MB
+Downloading @turbo/linux-64@2.11.10: 0.00 B/19.62 MB
+Downloading @img/sharp-libvips-linux-x64@1.3.4: 0.00 B/8.21 MB
+Downloading pdfjs-dist@6.4.299: 0.00 B/8.53 MB
+Downloading next@16.4.3: 0.00 B/43.60 MB
+Downloading @everworker/oneringai@1.2.1: 0.00 B/9.87 MB
+Downloading @napi-rs/canvas-linux-x64-gnu@1.0.10: 0.00 B/14.21 MB
+Downloading @rolldown/binding-linux-x64-gnu@1.2.15: 0.00 B/8.30 MB
+Downloading @typescript/typescript-linux-x64@7.0.2: 0.00 B/9.66 MB
+✓ Lockfile passes supply-chain policies (1638 entries in 3.6s)
+Lockfile is up to date, resolution step is skipped
+Downloading @cloudflare/workerd-linux-64@1.20261023.1: 42.46 MB/42.46 MB, done
+Progress: resolved 1488, reused 0, downloaded 718, added 735
+Progress: resolved 1488, reused 0, downloaded 927, added 945
+Progress: resolved 1488, reused 0, downloaded 1077, added 1101
+Progress: resolved 1488, reused 0, downloaded 1154, added 1171
+Progress: resolved 1488, reused 0, downloaded 1328, added 1346
+Progress: resolved 1488, reused 0, downloaded 1443, added 1466
+Progress: resolved 1488, reused 0, downloaded 1455, added 1479
+Packages: +1488
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1488, reused 0, downloaded 1462, added 1488, done
+.../core-js@3.50.0/node_modules/core-js postinstall$ node -e "try{require('./postinstall')}catch(e){}"
+.../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+.../node_modules/tesseract.js postinstall$ opencollective-postinstall || true
+.../core-js@3.50.0/node_modules/core-js postinstall: Done
+.../node_modules/tesseract.js postinstall: Done
+.../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+. prepare$ node scripts/setup-hooks.mjs || true
+. prepare: [setup-hooks] OK - core.hooksPath = .githooks
+. prepare: [setup-hooks] encoding-check pre-commit is now active.
+. prepare: Done
+
+dependencies:
++ @esggo/errors <- packages/errors
++ @esggo/shared <- packages/shared
++ @esggo/ui <- packages/ui
++ @grpc/grpc-js 1.14.6
++ @grpc/proto-loader 0.8.1
++ @notionhq/client 5.28.0
++ @notionhq/workers 0.9.5
++ @sinclair/typebox 0.34.52
++ @supabase/supabase-js 2.118.0
++ @tailwindcss/typography 0.5.20
++ @upstash/redis 1.40.0
++ cheerio 1.2.0
++ commander 15.0.0
++ exceljs 4.4.0
++ framer-motion 14.9.0
++ glob 14.0.2
++ ioredis 6.0.0
++ isomorphic-dompurify 4.6.0
++ jose 6.2.13
++ jspdf 4.2.1
++ lucide-react 1.65.0
++ minimatch 11.0.1
++ ollama 0.6.4
++ pdf-parse 2.4.5
++ pg 8.23.1
++ pino 10.4.0
++ react 19.3.1
++ react-dom 19.3.1
++ react-markdown 10.1.0
++ react-server-dom-webpack 19.3.1
++ tsx 4.23.15
++ uuid 14.0.3
++ xss 1.0.17
++ zenrows 2.5.0
+
+devDependencies:
++ @cloudflare/vite-plugin 1.66.0
++ @cloudflare/workers-types 5.20261031.1
++ @next/eslint-plugin-next 16.4.3
++ @types/node 26.6.6
++ @types/react 19.3.0
++ @types/react-dom 19.3.0
++ @typescript-eslint/eslint-plugin 8.72.1
++ @vinext/cloudflare 1.3.0
++ @vitejs/plugin-rsc 0.5.38
++ @vitest/coverage-v8 5.0.5
++ cross-env 10.1.0
++ dotenv 18.0.9
++ eslint 9.39.5
++ eslint-config-next 16.4.3
++ eslint-plugin-import 2.32.0
++ eslint-plugin-jsx-a11y 6.10.2
++ eslint-plugin-react 7.37.5
++ eslint-plugin-react-hooks 7.1.1
++ globals 17.13.0
++ next 16.4.3
++ pino-pretty 13.2.0
++ postcss 8.5.31
++ prettier 3.9.10
++ tailwindcss 3.4.19
++ ts-node 10.9.2
++ turbo 2.11.10
++ typescript 5.9.3
++ typescript-eslint 8.72.1
++ vinext 1.4.0
++ vite 8.3.5
++ vitest 4.1.11
++ wrangler 4.155.0
+
+Done in 15.1s using pnpm v12.16.1
+install_exit_code=0
+
+=== contract tests (38) full output ===
+$ node --experimental-transform-types --test "test/*.test.ts"
+TAP version 13
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/api-server.js' imported from /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/api.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/api-server.js'
+# }
+# Node.js v22.23.4
+# Subtest: test/api.test.ts
+not ok 1 - test/api.test.ts
+  ---
+  duration_ms: 501.756423
+  type: 'test'
+  location: '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/api.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/codec.js' imported from /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/codec.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/codec.js'
+# }
+# Node.js v22.23.4
+# Subtest: test/codec.test.ts
+not ok 2 - test/codec.test.ts
+  ---
+  duration_ms: 318.083353
+  type: 'test'
+  location: '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/codec.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/draft-store.js' imported from /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/draft-store.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/draft-store.js'
+# }
+# Node.js v22.23.4
+# Subtest: test/draft-store.test.ts
+not ok 3 - test/draft-store.test.ts
+  ---
+  duration_ms: 346.407934
+  type: 'test'
+  location: '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/draft-store.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/matrix-engine.js' imported from /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/import-export.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/matrix-engine.js'
+# }
+# Node.js v22.23.4
+# Subtest: test/import-export.test.ts
+not ok 4 - test/import-export.test.ts
+  ---
+  duration_ms: 118.542841
+  type: 'test'
+  location: '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/import-export.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/matrix-engine.js' imported from /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/matrix.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/matrix-engine.js'
+# }
+# Node.js v22.23.4
+# Subtest: test/matrix.test.ts
+not ok 5 - test/matrix.test.ts
+  ---
+  duration_ms: 86.611126
+  type: 'test'
+  location: '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/matrix.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/ollama-embedder.js' imported from /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/ollama.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/ollama-embedder.js'
+# }
+# Node.js v22.23.4
+# Subtest: test/ollama.test.ts
+not ok 6 - test/ollama.test.ts
+  ---
+  duration_ms: 91.236149
+  type: 'test'
+  location: '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/ollama.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# node:internal/modules/esm/resolve:275
+#     throw new ERR_MODULE_NOT_FOUND(
+#           ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/vector-store.js' imported from /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/system.test.ts
+#     at finalizeResolution (node:internal/modules/esm/resolve:275:11)
+#     at moduleResolve (node:internal/modules/esm/resolve:865:10)
+#     at defaultResolve (node:internal/modules/esm/resolve:989:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:747:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:724:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:320:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND',
+#   url: 'file:///home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/src/vector-store.js'
+# }
+# Node.js v22.23.4
+# Subtest: test/system.test.ts
+not ok 7 - test/system.test.ts
+  ---
+  duration_ms: 76.779367
+  type: 'test'
+  location: '/home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/system.test.ts:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 0
+# fail 7
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 540.141464
+[ELIFECYCLE] Test failed. See above for more details.
+Error: ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL
+
+  × "pnpm recursive run" failed in /home/runner/work/Omniesggo/Omniesggo/
+  │ packages/omninote-unified
+
+test_exit_code=1
