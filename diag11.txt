@@ -1,0 +1,1064 @@
+=== D0 pnpm install --frozen-lockfile ===
+Error: ERR_PNPM_FROZEN_LOCKFILE_WITH_OUTDATED_LOCKFILE
+
+  × resolve package manager dependencies
+  ╰─▶ Cannot update packageManagerDependencies with "frozen-lockfile" because
+      the lockfile is not up to date
+
+D0_exit=1
+
+=== D1a node scripts/encoding-check.mjs ===
+[encoding-check] ✓ All files clean — no encoding issues
+D1a_exit=0
+
+=== D1b npx tsc --noEmit (root tsconfig.json, tail 400) ===
+npm error code EOVERRIDE
+npm error Override for @grpc/grpc-js@^1.14.6 conflicts with direct dependency
+npm error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-11-05T12_47_01_700Z-debug-0.log
+D1b_exit=1
+
+=== D1c pnpm run check (tail 300) ===
+[WARN] The "workspaces" field in package.json differs from "packages" in pnpm-workspace.yaml. pnpm uses pnpm-workspace.yaml.
+Scope: all 48 workspace projects
+[WARN] The settings in apps/learning-center/pnpm-workspace.yaml do not apply, because apps/learning-center is a project of this workspace. pnpm reads settings only from the pnpm-workspace.yaml at the workspace root. Move the settings there, or add "!apps/learning-center" to the root's "packages" to keep that project a separate workspace.
+? Verifying lockfile against supply-chain policies (1638 entries)...
+Packages are hard linked from the content-addressable store to the virtual store.
+  Content-addressable store is at: /home/runner/setup-pnpm/node_modules/.bin/store/v11
+  Virtual store is at:             node_modules/.pnpm
+Downloading @next/swc-linux-x64-gnu@16.4.3: 0.00 B/35.23 MB
+Downloading @typescript/typescript-linux-x64@7.0.2: 0.00 B/9.66 MB
+Downloading @rolldown/binding-linux-x64-gnu@1.2.15: 0.00 B/8.30 MB
+Downloading simple-icons@16.34.0: 0.00 B/6.51 MB
+Downloading @everworker/oneringai@1.2.1: 0.00 B/9.87 MB
+Downloading @cloudflare/workerd-linux-64@1.20261023.1: 0.00 B/42.46 MB
+Downloading @turbo/linux-64@2.11.10: 0.00 B/19.62 MB
+Downloading googleapis@137.1.0: 0.00 B/11.20 MB
+Downloading cloudflare@7.3.0: 0.00 B/7.13 MB
+Downloading pdfjs-dist@6.4.299: 0.00 B/8.53 MB
+Downloading @napi-rs/canvas-linux-x64-gnu@0.1.80: 0.00 B/12.92 MB
+Downloading tesseract.js-core@7.0.0: 0.00 B/16.93 MB
+Downloading @napi-rs/canvas-linux-x64-gnu@1.0.10: 0.00 B/14.21 MB
+Downloading next@16.4.3: 0.00 B/43.60 MB
+Downloading @img/sharp-libvips-linux-x64@1.3.4: 0.00 B/8.21 MB
+✓ Lockfile passes supply-chain policies (1638 entries in 4.1s)
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1488, reused 0, downloaded 961, added 981
+Progress: resolved 1488, reused 0, downloaded 1105, added 1112
+Progress: resolved 1488, reused 0, downloaded 1215, added 1238
+Progress: resolved 1488, reused 0, downloaded 1377, added 1395
+Progress: resolved 1488, reused 0, downloaded 1413, added 1438
+Downloading next@16.4.3: 43.60 MB/43.60 MB, done
+Progress: resolved 1488, reused 0, downloaded 1462, added 1487
+Packages: +1488
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1488, reused 0, downloaded 1462, added 1488, done
+.../node_modules/tesseract.js postinstall$ opencollective-postinstall || true
+.../core-js@3.50.0/node_modules/core-js postinstall$ node -e "try{require('./postinstall')}catch(e){}"
+.../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+.../node_modules/tesseract.js postinstall: Done
+.../core-js@3.50.0/node_modules/core-js postinstall: Done
+.../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+. prepare$ node scripts/setup-hooks.mjs || true
+. prepare: [setup-hooks] OK - core.hooksPath = .githooks
+. prepare: [setup-hooks] encoding-check pre-commit is now active.
+. prepare: Done
+
+dependencies:
++ @esggo/errors <- packages/errors
++ @esggo/shared <- packages/shared
++ @esggo/ui <- packages/ui
++ @grpc/grpc-js 1.14.6
++ @grpc/proto-loader 0.8.1
++ @notionhq/client 5.28.0
++ @notionhq/workers 0.9.5
++ @sinclair/typebox 0.34.52
++ @supabase/supabase-js 2.118.0
++ @tailwindcss/typography 0.5.20
++ @upstash/redis 1.40.0
++ cheerio 1.2.0
++ commander 15.0.0
++ exceljs 4.4.0
++ framer-motion 14.9.0
++ glob 14.0.2
++ ioredis 6.0.0
++ isomorphic-dompurify 4.6.0
++ jose 6.2.13
++ jspdf 4.2.1
++ lucide-react 1.65.0
++ minimatch 11.0.1
++ ollama 0.6.4
++ pdf-parse 2.4.5
++ pg 8.23.1
++ pino 10.4.0
++ react 19.3.1
++ react-dom 19.3.1
++ react-markdown 10.1.0
++ react-server-dom-webpack 19.3.1
++ tsx 4.23.15
++ uuid 14.0.3
++ xss 1.0.17
++ zenrows 2.5.0
+
+devDependencies:
++ @cloudflare/vite-plugin 1.66.0
++ @cloudflare/workers-types 5.20261031.1
++ @next/eslint-plugin-next 16.4.3
++ @types/node 26.6.6
++ @types/react 19.3.0
++ @types/react-dom 19.3.0
++ @typescript-eslint/eslint-plugin 8.72.1
++ @vinext/cloudflare 1.3.0
++ @vitejs/plugin-rsc 0.5.38
++ @vitest/coverage-v8 5.0.5
++ cross-env 10.1.0
++ dotenv 18.0.9
++ eslint 9.39.5
++ eslint-config-next 16.4.3
++ eslint-plugin-import 2.32.0
++ eslint-plugin-jsx-a11y 6.10.2
++ eslint-plugin-react 7.37.5
++ eslint-plugin-react-hooks 7.1.1
++ globals 17.13.0
++ next 16.4.3
++ pino-pretty 13.2.0
++ postcss 8.5.31
++ prettier 3.9.10
++ tailwindcss 3.4.19
++ ts-node 10.9.2
++ turbo 2.11.10
++ typescript 5.9.3
++ typescript-eslint 8.72.1
++ vinext 1.4.0
++ vite 8.3.5
++ vitest 4.1.11
++ wrangler 4.155.0
+
+Done in 12.6s using pnpm v12.16.1
+$ pnpm run typecheck && vitest run src/impl/__tests__/core.test.ts src/agents/twelve-omni/__tests__
+$ tsc -p tsconfig.core.json
+[33m(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - ESM syntax in a file loaded as CommonJS (vitest.config.ts:1:1). Use a `.mjs` extension or set `"type": "module"` in the closest package.json
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.[39m
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/home/runner/work/Omniesggo/Omniesggo[39m
+
+ [32m✓[39m src/agents/twelve-omni/__tests__/omni-bus-v2.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/agents/twelve-omni/__tests__/omni-api.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+[90mstdout[2m | src/impl/__tests__/core.test.ts[2m > [22m[2mOmniAgent core[2m > [22m[2mclones an OA when backpressure threshold is exceeded for data.clean
+[22m[39m[Ecosystem] Cloned OA root-1 -> 9b6b46c6-119a-4016-9487-417db59253d4 for topic "data.clean"
+
+[90mstdout[2m | src/impl/__tests__/core.test.ts[2m > [22m[2mOmniAgent core[2m > [22m[2mhand-warms enough synthetic agents to allow deterministic cluster cloning
+[22m[39m[Ecosystem] Cloned OA seed-0 -> 8f95734d-58da-4405-a49d-3be9b96d3026 for topic "data.clean"
+
+[90mstderr[2m | src/impl/__tests__/core.test.ts[2m > [22m[2mOmniAgentGateway ingress/egress[2m > [22m[2mingress rejects invalid event and publishes sys.martial_law
+[22m[39m[OAG] MARTIAL LAW ACTIVATED – evidence mismatch
+
+[90mstderr[2m | src/impl/__tests__/core.test.ts[2m > [22m[2mOmniAgentGateway ingress/egress[2m > [22m[2megress rejects invalid event and publishes sys.martial_law
+[22m[39m[OAG] MARTIAL LAW ACTIVATED – egress evidence mismatch
+
+[90mstdout[2m | src/impl/__tests__/core.test.ts[2m > [22m[2mOmniCoreEcosystem modules[2m > [22m[2mheals from seed vault
+[22m[39m[OmniHealing] MARTIAL LAW LIFTED
+
+ [32m✓[39m src/impl/__tests__/core.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 30[2mms[22m[39m
+ [32m✓[39m src/agents/twelve-omni/__tests__/omni-gateway-v2.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m4 passed[39m[22m[90m (4)[39m
+[2m      Tests [22m [1m[32m24 passed[39m[22m[90m (24)[39m
+[2m   Start at [22m 12:47:19
+[2m   Duration [22m 517ms[2m (transform 244ms, setup 82ms, import 309ms, tests 52ms, environment 0ms)[22m
+
+D1c_exit=0
+
+=== D1d node scripts/omni-snapshot.mjs --verify ===
+[omni-snapshot] 🚀 Starting 5T System Integrity Verification...
+[omni-snapshot] ⚠️ Database connection unconfigured/offline, generating local memory snapshot fallback.
+[omni-snapshot] Found 5T Records:
+  - Materiality Assessments: 0
+  - Net-Zero Roadmaps:       0
+  - Supply Chain Vendors:    0
+  - Data Bridge Uploads:     0
+
+[omni-snapshot] 🔒 Master SHA-256 Hash Lock: 629f2ebd88e2c7827ea7bef3239d2545f91bec2d4407f87dfc72ce50d7c3a673
+[omni-snapshot] ✓ 5T Cryptographic Integrity Verification PASSED. Zero tampered records.
+D1d_exit=0
+
+=== D2a pnpm lint (celestial-gate, tail 200) ===
+
+/home/runner/work/Omniesggo/Omniesggo/src/app/api/supply-chain/seal/route.ts
+  54:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/app/design-system/page.tsx
+  53:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/app/materiality/page.tsx
+   5:27  warning  'Download' is defined but never used            @typescript-eslint/no-unused-vars
+   5:37  warning  'SlidersHorizontal' is defined but never used   @typescript-eslint/no-unused-vars
+   5:70  warning  'TrendingUp' is defined but never used          @typescript-eslint/no-unused-vars
+   5:82  warning  'AlertTriangle' is defined but never used       @typescript-eslint/no-unused-vars
+  31:18  warning  'setTopics' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/app/omni-factory/page.tsx
+  4:37  warning  'Search' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/app/omni-memory/page.tsx
+  5:37  warning  'Target' is defined but never used       @typescript-eslint/no-unused-vars
+  7:24  warning  'X' is defined but never used            @typescript-eslint/no-unused-vars
+  7:27  warning  'ChevronDown' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/app/omni/page.tsx
+   6:36  warning  'FileText' is defined but never used              @typescript-eslint/no-unused-vars
+   6:46  warning  'CheckCircle2' is defined but never used          @typescript-eslint/no-unused-vars
+  95:7   warning  'MOCK_EVENTS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/app/supply-chain/page.tsx
+  5:27  warning  'AlertTriangle' is defined but never used  @typescript-eslint/no-unused-vars
+  6:37  warning  'Filter' is defined but never used         @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/omni-base/OmniCard.tsx
+  14:31  warning  'variant' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/omni/FacilitiesSpecModal.tsx
+  4:48  warning  'ExternalLink' is defined but never used  @typescript-eslint/no-unused-vars
+  4:62  warning  'CheckCircle2' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/omni/reports/ESGReportsCenter.tsx
+   3:27  warning  'useId' is defined but never used                  @typescript-eslint/no-unused-vars
+   6:13  warning  'Download' is defined but never used               @typescript-eslint/no-unused-vars
+   7:3   warning  'Building' is defined but never used               @typescript-eslint/no-unused-vars
+   7:13  warning  'Leaf' is defined but never used                   @typescript-eslint/no-unused-vars
+   7:19  warning  'Users' is defined but never used                  @typescript-eslint/no-unused-vars
+   7:26  warning  'ShieldAlert' is defined but never used            @typescript-eslint/no-unused-vars
+   7:39  warning  'Sliders' is defined but never used                @typescript-eslint/no-unused-vars
+   8:3   warning  'LayoutGrid' is defined but never used             @typescript-eslint/no-unused-vars
+   8:20  warning  'Edit3' is defined but never used                  @typescript-eslint/no-unused-vars
+  10:10  warning  'OmniCard' is defined but never used               @typescript-eslint/no-unused-vars
+  10:20  warning  'OmniCardHeader' is defined but never used         @typescript-eslint/no-unused-vars
+  10:36  warning  'OmniCardTitle' is defined but never used          @typescript-eslint/no-unused-vars
+  10:51  warning  'OmniCardContent' is defined but never used        @typescript-eslint/no-unused-vars
+  50:10  warning  'activeTab' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  50:21  warning  'setActiveTab' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx
+   4:21  warning  'Sparkles' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  39:16  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx:39:16
+  37 |
+  38 |     const userMsg: ChatMessage = {
+> 39 |       id: `u-${Date.now()}`,
+     |                ^^^^^^^^^^ Cannot call impure function
+  40 |       sender: 'user',
+  41 |       text: textToSend,
+  42 |       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),                                                                   react-hooks/purity
+  67:21  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx:67:21
+  65 |       if (json.success) {
+  66 |         const aiMsg: ChatMessage = {
+> 67 |           id: `ai-${Date.now()}`,
+     |                     ^^^^^^^^^^ Cannot call impure function
+  68 |           sender: 'ai',
+  69 |           text: json.answer,
+  70 |           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),                  react-hooks/purity
+  80:20  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx:80:20
+  78 |     } catch (err) {
+  79 |       const errorMsg: ChatMessage = {
+> 80 |         id: `err-${Date.now()}`,
+     |                    ^^^^^^^^^^ Cannot call impure function
+  81 |         sender: 'ai',
+  82 |         text: `⚠️ 分析過程發生錯誤: ${(err as Error).message}`,
+  83 |         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  react-hooks/purity
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/carbon-calculator-panel.tsx
+  4:53  warning  'Truck' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/junai-ultimate-panel.tsx
+  9:10  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/ui.jsx
+   1:10  warning  'pillars' is defined but never used                                       @typescript-eslint/no-unused-vars
+   1:19  warning  'activities' is defined but never used                                    @typescript-eslint/no-unused-vars
+   1:31  warning  'tasks' is defined but never used                                         @typescript-eslint/no-unused-vars
+   1:38  warning  'tags' is defined but never used                                          @typescript-eslint/no-unused-vars
+   1:44  warning  'documents' is defined but never used                                     @typescript-eslint/no-unused-vars
+  15:55  warning  'accent' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/verifier/printable-certificate.tsx
+   4:39  warning  'Hash' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   4:75  warning  'Download' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  13:28  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  35:33  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/verifier/printable-certificate.tsx:35:33
+  33 |   const sealedDateStr = typeof data.sealedAt === 'number' 
+  34 |     ? new Date(data.sealedAt).toLocaleString('zh-TW') 
+> 35 |     : new Date(data.sealedAt || Date.now()).toLocaleString('zh-TW');
+     |                                 ^^^^^^^^^^ Cannot call impure function
+  36 |
+  37 |   return (
+  38 |     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">  react-hooks/purity
+
+/home/runner/work/Omniesggo/Omniesggo/src/core/services/async-task-manager.ts
+   86:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  172:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/core/tags/oracle-sync-matrix.ts
+  82:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/__tests__/zenrows-client.test.ts
+  12:20  warning  A `require()` style import is forbidden         @typescript-eslint/no-require-imports
+  12:20  warning  Require statement not part of import statement  @typescript-eslint/no-var-requires
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/auth.ts
+  19:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/firebase.ts
+  55:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/genai.ts
+   4:15  warning  'options' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+   4:24  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   6:18  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   9:31  warning  'model' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+   9:50  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  30:28  warning  'model' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+  30:47  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  48:29  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/omni-core/ecosystem.ts
+  61:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/omni-core/omni-function.ts
+  149:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/omni-reports/jules-validator.ts
+  66:7  warning  'SEMVER_RE' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/supabase-sync-engine.ts
+    5:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/zod-validation.ts
+  24:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  48:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/repositories/auth.repository.js
+   13:10  warning  'ncbQuery' is defined but never used                                        @typescript-eslint/no-unused-vars
+  200:46  warning  'password' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  288:7   warning  'isConfigComplete' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+  423:53  warning  'id' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+  566:9   warning  'payload' is assigned a value but never used                                @typescript-eslint/no-unused-vars
+  637:9   warning  'payload' is assigned a value but never used                                @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/views/Dashboard.jsx
+  2:10  warning  'StatCard' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/views/Knowledge.jsx
+  2:27  warning  'pillarMeta' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 97 problems (0 errors, 97 warnings)
+
+✅ 核心目錄通過熵境門檻，遺留路徑已被隔離。
+(node:3045) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/Omniesggo/Omniesggo/scripts/celestial-gate.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/runner/work/Omniesggo/Omniesggo/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+D2a_exit=0
+
+=== D2b pnpm typecheck (tsc -p tsconfig.core.json, tail 400) ===
+$ tsc -p tsconfig.core.json
+D2b_exit=0
+
+=== D3 node tools/ts-matrix/verify.mjs ===
+=== 終始矩陣雙向驗證閘 (v1.3.0 全域 + 基線棘輪 + Trustworthy lock) ===
+Forward (全域規範 23 檔提供 282 個 export): ✓
+Reverse (全域 1271 檔受檢 | 治理排除 衍生 4 / 第三方 0): ✗ | shadowed=1 | 基線=0 | 新增=1 | 已收斂=0
+Trustworthy SHA256 lock: 154933a0ee87726415b26d9e...
+
+⛔ 新增 drift（不在基線內）:
+  ✗ MemoryEntry shadowed in agents/skills/smart-ai-router/shared-memory.ts (scope=agents)
+  → 請收斂重複定義；若確屬既有債務，人工確認後執行 --update-baseline
+
+Report: tools/ts-matrix/drift-report.json
+D3_exit=1
+
+=== D3 drift-report.json (new drift entries, head 200) ===
+{
+  "pass": false,
+  "baseline": {
+    "file": "tools/ts-matrix/baseline.json",
+    "total": 0,
+    "newDriftCount": 1,
+    "newDrift": [
+      {
+        "type": "MemoryEntry",
+        "shadowedIn": "agents/skills/smart-ai-router/shared-memory.ts",
+        "pkg": "agents"
+      }
+    ],
+    "resolvedCount": 0,
+    "resolved": []
+  },
+  "shadowed": 1
+}
+{"timestamp":"2026-11-05T12:47:38.465Z","version":"1.3.0","matrix":"esggo-ts-matrix","forward":{"scope":"global","sharedPaths":["packages/shared/src/types","src/types","shared","types"],"canonicalFileCount":23,"exportCount":282,"exports":[{"name":"OmniChartProof","from":"./esg-charts","kind":"interface"},{"name":"ChartDataPoint","from":"./esg-charts","kind":"interface"},{"name":"BaseOmniChartProps","from":"./esg-charts","kind":"interface"},{"name":"OmniBarChartProps","from":"./esg-charts","kind":"interface"},{"name":"OmniPieChartProps","from":"./esg-charts","kind":"interface"},{"name":"ESGChartKnowledge","from":"./esg-charts","kind":"interface"},{"name":"OmniDataAnalyticsConfig","from":"./esg-charts","kind":"interface"},{"name":"Locale","from":"./i18n","kind":"type"},{"name":"DictKey","from":"./i18n","kind":"type"},{"name":"Dictionary","from":"./i18n","kind":"type"},{"name":"I18nBundle","from":"./i18n","kind":"interface"},{"name":"LOCALES","from":"./i18n","kind":"const"},{"name":"KEYS","from":"./i18n","kind":"const"},{"name":"EXPECTED_KEY_COUNT","from":"./i18n","kind":"const"},{"name":"IBusEvent","from":"src/types/bus-event.ts","kind":"decl"},{"name":"DelegationPermission","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationRestrictionType","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationRestriction","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"ICompleteDelegationScope","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DecisionContext","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DecisionOption","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DecisionConstraint","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"AutonomousDecision","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationResult","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationReport","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationAnomaly","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationMonitorStatus","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"ICompleteDelegationAgent","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"IAutonomousDecisionEngine","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"ICompleteDelegationManager","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationEventNames","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"DelegationTopics","from":"src/types/complete-delegation.ts","kind":"decl"},{"name":"IComponentCore","from":"src/types/core-contract.ts","kind":"decl"},{"name":"LifecycleStage","from":"src/types/core-contract.ts","kind":"decl"},{"name":"ITaskSpec","from":"src/types/core-contract.ts","kind":"decl"},{"name":"ITaskResult","from":"src/types/core-contract.ts","kind":"decl"},{"name":"IOmniAgent","from":"src/types/core-contract.ts","kind":"decl"},{"name":"IOmniAgentBus","from":"src/types/core-contract.ts","kind":"decl"},{"name":"IOmniAgentGateway","from":"src/types/core-contract.ts","kind":"decl"},{"name":"ITimeTravelRegistry","from":"src/types/core-contract.ts","kind":"decl"},{"name":"IMartialLawEvent","from":"src/types/core-contract.ts","kind":"decl"},{"name":"NoteType","from":"src/types/notes.ts","kind":"decl"},{"name":"NoteSource","from":"src/types/notes.ts","kind":"decl"},{"name":"RelationType","from":"src/types/notes.ts","kind":"decl"},{"name":"EntityType","from":"src/types/notes.ts","kind":"decl"},{"name":"Note","from":"src/types/notes.ts","kind":"decl"},{"name":"CreateNoteInput","from":"src/types/notes.ts","kind":"decl"},{"name":"UpdateNoteInput","from":"src/types/notes.ts","kind":"decl"},{"name":"Tag","from":"src/types/notes.ts","kind":"decl"},{"name":"CreateTagInput","from":"src/types/notes.ts","kind":"decl"},{"name":"Attachment","from":"src/types/notes.ts","kind":"decl"},{"name":"CreateAttachmentInput","from":"src/types/notes.ts","kind":"decl"},{"name":"NoteRelation","from":"src/types/notes.ts","kind":"decl"},{"name":"NoteEmbedding","from":"src/types/notes.ts","kind":"decl"},{"name":"ESGEntity","from":"src/types/notes.ts","kind":"decl"},{"name":"SearchQuery","from":"src/types/notes.ts","kind":"decl"},{"name":"SearchResult","from":"src/types/notes.ts","kind":"decl"},{"name":"ClassificationResult","from":"src/types/notes.ts","kind":"decl"},{"name":"SummaryOptions","from":"src/types/notes.ts","kind":"decl"},{"name":"ActionItem","from":"src/types/notes.ts","kind":"decl"},{"name":"ApiResponse","from":"src/types/notes.ts","kind":"decl"},{"name":"PaginatedResponse","from":"src/types/notes.ts","kind":"decl"},{"name":"NCBConfig","from":"src/types/notes.ts","kind":"decl"},{"name":"NoteWithTags","from":"src/types/notes.ts","kind":"decl"},{"name":"NoteWithRelations","from":"src/types/notes.ts","kind":"decl"},{"name":"IFlowSnapshot","from":"src/types/omni-agent.ts","kind":"decl"},{"name":"KeyTier","from":"src/types/omni-key.ts","kind":"decl"},{"name":"KeyCapability","from":"src/types/omni-key.ts","kind":"decl"},{"name":"KeyImprint","from":"src/types/omni-key.ts","kind":"decl"},{"name":"IOmniKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"OmniKeyConfig","from":"src/types/omni-key.ts","kind":"decl"},{"name":"KeyEventType","from":"src/types/omni-key.ts","kind":"decl"},{"name":"KeyEvent","from":"src/types/omni-key.ts","kind":"decl"},{"name":"QuantumEntanglementKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"TemporalRiftKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"ChaosDecryptionKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"EternalLockKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"EntropyReductionKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"OmniConnectivityKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"SecretArtKey","from":"src/types/omni-key.ts","kind":"decl"},{"name":"SeedStatus","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"SeedCoordinate","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"SeedEvolutionStage","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"IOmniSeed","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"SeedEvolutionEvent","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"IOmniSeedController","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"OmniSeedConfig","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"SeedEventType","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"SeedEvent","from":"src/types/omni-seed.ts","kind":"decl"},{"name":"SingularityState","from":"src/types/omni-singularity.ts","kind":"decl"},{"name":"SingularityDimension","from":"src/types/omni-singularity.ts","kind":"decl"},{"name":"SingularityResonance","from":"src/types/omni-singularity.ts","kind":"decl"},{"name":"IOmniSingularity","from":"src/types/omni-singularity.ts","kind":"decl"},{"name":"OmniSingularityConfig","from":"src/types/omni-singularity.ts","kind":"decl"},{"name":"SingularityEventType","from":"src/types/omni-singularity.ts","kind":"decl"},{"name":"SingularityEvent","from":"src/types/omni-singularity.ts","kind":"decl"},{"name":"SoulAwakeningState","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"SemanticVector","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"GovernanceAlignment","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"SoulDecision","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"IOmniSoul","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"OmniSoulConfig","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"SoulEventType","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"SoulEvent","from":"src/types/omni-soul.ts","kind":"decl"},{"name":"PoolClient","from":"src/types/pg.d.ts","kind":"decl"},{"name":"Pool","from":"src/types/pg.d.ts","kind":"decl"},{"name":"Client","from":"src/types/pg.d.ts","kind":"decl"},{"name":"IVerificationResult","from":"
+
+=== D4a pnpm --filter @esggo/oa-framework typecheck (tail 200) ===
+$ tsc -p tsconfig.json --noEmit
+D4a_exit=0
+
+=== D4b pnpm --filter @esggo/oa-framework build (tail 200) ===
+$ tsc -p tsconfig.json
+D4b_exit=0
+
+=== D4c oa-framework smoke test (tail 200) ===
+ALL_10_REGISTRATIONS_AND_30_SWARM_NODES_OK
+D4c_exit=0
+
+=== D5a pnpm run lint (tail 150) ===
+  10:36  warning  'OmniCardTitle' is defined but never used          @typescript-eslint/no-unused-vars
+  10:51  warning  'OmniCardContent' is defined but never used        @typescript-eslint/no-unused-vars
+  50:10  warning  'activeTab' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  50:21  warning  'setActiveTab' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx
+   4:21  warning  'Sparkles' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  39:16  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx:39:16
+  37 |
+  38 |     const userMsg: ChatMessage = {
+> 39 |       id: `u-${Date.now()}`,
+     |                ^^^^^^^^^^ Cannot call impure function
+  40 |       sender: 'user',
+  41 |       text: textToSend,
+  42 |       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),                                                                   react-hooks/purity
+  67:21  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx:67:21
+  65 |       if (json.success) {
+  66 |         const aiMsg: ChatMessage = {
+> 67 |           id: `ai-${Date.now()}`,
+     |                     ^^^^^^^^^^ Cannot call impure function
+  68 |           sender: 'ai',
+  69 |           text: json.answer,
+  70 |           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),                  react-hooks/purity
+  80:20  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/ai-data-chat-panel.tsx:80:20
+  78 |     } catch (err) {
+  79 |       const errorMsg: ChatMessage = {
+> 80 |         id: `err-${Date.now()}`,
+     |                    ^^^^^^^^^^ Cannot call impure function
+  81 |         sender: 'ai',
+  82 |         text: `⚠️ 分析過程發生錯誤: ${(err as Error).message}`,
+  83 |         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),  react-hooks/purity
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/carbon-calculator-panel.tsx
+  4:53  warning  'Truck' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/sustain-center/junai-ultimate-panel.tsx
+  9:10  warning  'loading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/ui.jsx
+   1:10  warning  'pillars' is defined but never used                                       @typescript-eslint/no-unused-vars
+   1:19  warning  'activities' is defined but never used                                    @typescript-eslint/no-unused-vars
+   1:31  warning  'tasks' is defined but never used                                         @typescript-eslint/no-unused-vars
+   1:38  warning  'tags' is defined but never used                                          @typescript-eslint/no-unused-vars
+   1:44  warning  'documents' is defined but never used                                     @typescript-eslint/no-unused-vars
+  15:55  warning  'accent' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/verifier/printable-certificate.tsx
+   4:39  warning  'Hash' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   4:75  warning  'Download' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
+  13:28  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  35:33  warning  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/home/runner/work/Omniesggo/Omniesggo/src/components/verifier/printable-certificate.tsx:35:33
+  33 |   const sealedDateStr = typeof data.sealedAt === 'number' 
+  34 |     ? new Date(data.sealedAt).toLocaleString('zh-TW') 
+> 35 |     : new Date(data.sealedAt || Date.now()).toLocaleString('zh-TW');
+     |                                 ^^^^^^^^^^ Cannot call impure function
+  36 |
+  37 |   return (
+  38 |     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">  react-hooks/purity
+
+/home/runner/work/Omniesggo/Omniesggo/src/core/services/async-task-manager.ts
+   86:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  172:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/core/tags/oracle-sync-matrix.ts
+  82:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/__tests__/zenrows-client.test.ts
+  12:20  warning  A `require()` style import is forbidden         @typescript-eslint/no-require-imports
+  12:20  warning  Require statement not part of import statement  @typescript-eslint/no-var-requires
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/auth.ts
+  19:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/firebase.ts
+  55:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/genai.ts
+   4:15  warning  'options' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+   4:24  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   6:18  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   9:31  warning  'model' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+   9:50  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  30:28  warning  'model' is defined but never used. Allowed unused args must match /^_/u    @typescript-eslint/no-unused-vars
+  30:47  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  48:29  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/omni-core/ecosystem.ts
+  61:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/omni-core/omni-function.ts
+  149:26  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/omni-reports/jules-validator.ts
+  66:7  warning  'SEMVER_RE' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/supabase-sync-engine.ts
+    5:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  159:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/lib/zod-validation.ts
+  24:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  24:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  25:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  26:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  27:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  36:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  38:68  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  48:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/runner/work/Omniesggo/Omniesggo/src/repositories/auth.repository.js
+   13:10  warning  'ncbQuery' is defined but never used                                        @typescript-eslint/no-unused-vars
+  200:46  warning  'password' is defined but never used. Allowed unused args must match /^_/u  @typescript-eslint/no-unused-vars
+  288:7   warning  'isConfigComplete' is assigned a value but never used                       @typescript-eslint/no-unused-vars
+  423:53  warning  'id' is defined but never used. Allowed unused args must match /^_/u        @typescript-eslint/no-unused-vars
+  566:9   warning  'payload' is assigned a value but never used                                @typescript-eslint/no-unused-vars
+  637:9   warning  'payload' is assigned a value but never used                                @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/views/Dashboard.jsx
+  2:10  warning  'StatCard' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/runner/work/Omniesggo/Omniesggo/src/views/Knowledge.jsx
+  2:27  warning  'pillarMeta' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 97 problems (0 errors, 97 warnings)
+
+✅ 核心目錄通過熵境門檻，遺留路徑已被隔離。
+(node:3327) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///home/runner/work/Omniesggo/Omniesggo/scripts/celestial-gate.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /home/runner/work/Omniesggo/Omniesggo/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+D5a_exit=0
+
+=== D5b pnpm vitest run (tail 250) ===
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":0}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":1}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":2}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":3}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":4}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":5}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":6}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":7}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":8}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":9}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":10}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":11}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":12}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891962,"i":13}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":14}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":15}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":16}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":17}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":18}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":19}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":20}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":21}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":22}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":23}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mtruncates only when maxEntries (>0) is explicitly set
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891963,"i":24}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mforwards every entry to the sink (full-volume persistence)
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891964,"i":0}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mforwards every entry to the sink (full-volume persistence)
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891965,"i":1}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mforwards every entry to the sink (full-volume persistence)
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891965,"i":2}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mforwards every entry to the sink (full-volume persistence)
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891965,"i":3}
+
+[90mstdout[2m | tests/audit-logger.test.ts[2m > [22m[2mAuditLogger full-volume persistence[2m > [22m[2mforwards every entry to the sink (full-volume persistence)
+[22m[39m[AuditLogger] TEST: {"type":"TEST","timestamp":1793882891965,"i":4}
+
+ [32m✓[39m tests/audit-logger.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 141[2mms[22m[39m
+[90mstdout[2m | tests/omni-seed.test.ts[2m > [22m[2mOmniSeed Core Contract & Hook[2m > [22m[2mshould successfully awaken when placed at #同心圓中心
+[22m[39m[OmniSeed] 🌱 萬能種子於 #同心圓中心 觸發超永恆覺醒。
+
+[90mstdout[2m | tests/omni-seed.test.ts[2m > [22m[2mOmniSeed Core Contract & Hook[2m > [22m[2mshould successfully awaken when placed at #記憶聖所
+[22m[39m[OmniSeed] 🌱 萬能種子於 #記憶聖所 觸發超永恆覺醒。
+
+[90mstdout[2m | tests/omni-seed.test.ts[2m > [22m[2mOmniSeed Core Contract & Hook[2m > [22m[2mshould prevent modifications to any fields after hyper-eternal awakening
+[22m[39m[OmniSeed] 🌱 萬能種子於 #同心圓中心 觸發超永恆覺醒。
+
+ [32m✓[39m tests/omni-seed.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+[90mstderr[2m | tests/json-error-internal.test.ts[2m > [22m[2mjsonErrorInternal — 不洩漏內部錯誤訊息[2m > [22m[2m應將原始 error.message 攔截，不在回應中暴露
+[22m[39m[api] INTERNAL_ERROR: Error: DB connection refused at 10.0.0.5:5432/user=admin
+    at [90m/home/runner/work/Omniesggo/Omniesggo/[39mtests/json-error-internal.test.ts:12:20
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2956:64
+
+ [32m✓[39m src/lib/__tests__/cross-lang-hashlock.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+[90mstderr[2m | tests/json-error-internal.test.ts[2m > [22m[2mjsonErrorInternal — 不洩漏內部錯誤訊息[2m > [22m[2m預設使用 INTERNAL_ERROR 錯誤碼且 status 500
+[22m[39m[api] INTERNAL_ERROR: Error: boom
+    at [90m/home/runner/work/Omniesggo/Omniesggo/[39mtests/json-error-internal.test.ts:23:35
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2956:64
+
+[90mstderr[2m | tests/json-error-internal.test.ts[2m > [22m[2mjsonErrorInternal — 不洩漏內部錯誤訊息[2m > [22m[2m允許指定自訂 errorKey 與 status
+[22m[39m[api] RAG_QUERY_FAILED: Error: x
+    at [90m/home/runner/work/Omniesggo/Omniesggo/[39mtests/json-error-internal.test.ts:30:35
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:302:11
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:1903:26
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2326:20
+    at new Promise (<anonymous>)
+    at runWithCancel [90m(file:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2323:10[90m)[39m
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2305:20
+    at new Promise (<anonymous>)
+    at runWithTimeout [90m(file:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2272:10[90m)[39m
+    at [90mfile:///home/runner/work/Omniesggo/Omniesggo/[39mnode_modules/[4m.pnpm[24m/@vitest+runner@4.1.11/node_modules/[4m@vitest/runner[24m/dist/chunk-artifact.js:2956:64
+
+ [32m✓[39m tests/json-error-internal.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 16[2mms[22m[39m
+ [32m✓[39m src/incremental-output/__tests__/cross-lang.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/bus.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+[90mstdout[2m | src/impl/__tests__/celestial-core-processor.test.ts[2m > [22m[2mCelestialCoreProcessor[2m > [22m[2mshadowTestIngress returns undefined (void)
+[22m[39m[Lifecycle Hook] shadowTestIngress invoked
+
+[90mstderr[2m | src/impl/__tests__/celestial-core-processor.test.ts[2m > [22m[2mCelestialCoreProcessor[2m > [22m[2minjectChaos returns undefined (void)
+[22m[39m[Chaos Forge] Injected disturbance into component: agent-123
+
+ [32m✓[39m src/impl/__tests__/celestial-core-processor.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/zkp-service.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m src/components/omni/reports/__tests__/DynamicFormEngine.test.tsx [2m([22m[2m3 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/rag-query-behavior.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tpx/tests/state-machine.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/user-subscription-behavior.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 13[2mms[22m[39m
+[90mstderr[2m | src/lib/__tests__/zenrows-client.test.ts
+[22m[39mZENROWS_API_KEY is not set; zenrows client will fail until configured.
+
+ [32m✓[39m src/lib/__tests__/zenrows-client.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m src/agents/twelve-omni/__tests__/omni-gateway-v2.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m apps/ftg-tours-website/src/__tests__/basic.test.jsx [2m([22m[2m1 test[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m src/middleware.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/rag-ingest-behavior.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 11[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 8 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m packages/omninote-unified/test/api.test.ts[2m [ packages/omninote-unified/test/api.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/api.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/omninote-unified/test/codec.test.ts[2m [ packages/omninote-unified/test/codec.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/codec.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/omninote-unified/test/draft-store.test.ts[2m [ packages/omninote-unified/test/draft-store.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/draft-store.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/omninote-unified/test/import-export.test.ts[2m [ packages/omninote-unified/test/import-export.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/import-export.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/omninote-unified/test/matrix.test.ts[2m [ packages/omninote-unified/test/matrix.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/matrix.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/omninote-unified/test/ollama.test.ts[2m [ packages/omninote-unified/test/ollama.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/ollama.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m packages/omninote-unified/test/system.test.ts[2m [ packages/omninote-unified/test/system.test.ts ][22m
+[31m[1mError[22m: No test suite found in file /home/runner/work/Omniesggo/Omniesggo/packages/omninote-unified/test/system.test.ts[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m .agents/skills/omni-bitwarden/tests/omni-bitwarden.test.ts[2m [ .agents/skills/omni-bitwarden/tests/omni-bitwarden.test.ts ][22m
+[31m[1mError[22m: Cannot find package 'yaml' imported from /home/runner/work/Omniesggo/Omniesggo/.agents/skills/omni-bitwarden/scripts/omni-bitwarden.ts[39m
+[36m [2m❯[22m .agents/skills/omni-bitwarden/scripts/omni-bitwarden.ts:[2m5:1[22m[39m
+    [90m  3|[39m [90m// 融合 Bitwarden 的通用憑證存取與安全金鑰管理系統，專為 Omniesggo 設計[39m
+    [90m  4|[39m
+    [90m  5|[39m [35mimport[39m [33mYAML[39m [35mfrom[39m [32m'yaml'[39m[33m;[39m
+    [90m   |[39m [31m^[39m
+    [90m  6|[39m [35mimport[39m fs [35mfrom[39m [32m'fs'[39m[33m;[39m
+    [90m  7|[39m [35mimport[39m path [35mfrom[39m [32m'path'[39m[33m;[39m
+[90m [2m❯[22m .agents/skills/omni-bitwarden/tests/omni-bitwarden.test.ts:[2m7:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯[22m[39m
+
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/lib/rag/rag.test.ts[2m > [22mdeterministic idempotency（R4 冪等重放）[2m > [22m兩次寫入同一 chunk 產生相同 Weaviate 物件 UUID
+[31m[1mError[22m: OLLAMA_EMBED_EMPTY: 回應缺少 embedding[39m
+[36m [2m❯[22m embed src/lib/rag/client.ts:[2m57:11[22m[39m
+    [90m 55|[39m   [35mconst[39m data [33m=[39m ([35mawait[39m res[33m.[39m[34mjson[39m()) [35mas[39m { embedding[33m?[39m[33m:[39m number[] }[33m;[39m
+    [90m 56|[39m   [35mif[39m ([33m![39m[33mArray[39m[33m.[39m[34misArray[39m(data[33m.[39membedding) [33m||[39m data[33m.[39membedding[33m.[39mlength [33m===[39m [34m0[39m) {
+    [90m 57|[39m     [35mthrow[39m [35mnew[39m [33mError[39m([32m"OLLAMA_EMBED_EMPTY: 回應缺少 embedding"[39m)[33m;[39m
+    [90m   |[39m           [31m^[39m
+    [90m 58|[39m   }
+    [90m 59|[39m   [35mreturn[39m data[33m.[39membedding[33m;[39m
+[90m [2m❯[22m indexDocument src/lib/rag/index.ts:[2m45:20[22m[39m
+[90m [2m❯[22m src/lib/rag/rag.test.ts:[2m94:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m src/lib/rag/rag.test.ts[2m > [22mindexDocument[2m > [22m依序呼叫 schema → ollama → weaviate → repo，並發射 rag.indexed
+[31m[1mError[22m: OLLAMA_EMBED_EMPTY: 回應缺少 embedding[39m
+[36m [2m❯[22m embed src/lib/rag/client.ts:[2m57:11[22m[39m
+    [90m 55|[39m   [35mconst[39m data [33m=[39m ([35mawait[39m res[33m.[39m[34mjson[39m()) [35mas[39m { embedding[33m?[39m[33m:[39m number[] }[33m;[39m
+    [90m 56|[39m   [35mif[39m ([33m![39m[33mArray[39m[33m.[39m[34misArray[39m(data[33m.[39membedding) [33m||[39m data[33m.[39membedding[33m.[39mlength [33m===[39m [34m0[39m) {
+    [90m 57|[39m     [35mthrow[39m [35mnew[39m [33mError[39m([32m"OLLAMA_EMBED_EMPTY: 回應缺少 embedding"[39m)[33m;[39m
+    [90m   |[39m           [31m^[39m
+    [90m 58|[39m   }
+    [90m 59|[39m   [35mreturn[39m data[33m.[39membedding[33m;[39m
+[90m [2m❯[22m indexDocument src/lib/rag/index.ts:[2m45:20[22m[39m
+[90m [2m❯[22m src/lib/rag/rag.test.ts:[2m113:19[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/10]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m9 failed[39m[22m[2m | [22m[1m[32m109 passed[39m[22m[2m | [22m[33m4 skipped[39m[90m (122)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1199 passed[39m[22m[2m | [22m[33m21 skipped[39m[90m (1222)[39m
+[2m   Start at [22m 12:47:59
+[2m   Duration [22m 14.54s[2m (transform 3.70s, setup 999ms, import 10.08s, tests 9.01s, environment 17ms)[22m
+
+
+::error file=/home/runner/work/Omniesggo/Omniesggo/src/lib/rag/client.ts,title=src/lib/rag/rag.test.ts > deterministic idempotency（R4 冪等重放） > 兩次寫入同一 chunk 產生相同 Weaviate 物件 UUID,line=57,column=11::Error: OLLAMA_EMBED_EMPTY: 回應缺少 embedding%0A ❯ embed src/lib/rag/client.ts:57:11%0A ❯ indexDocument src/lib/rag/index.ts:45:20%0A ❯ src/lib/rag/rag.test.ts:94:7%0A%0A
+
+::error file=/home/runner/work/Omniesggo/Omniesggo/src/lib/rag/client.ts,title=src/lib/rag/rag.test.ts > indexDocument > 依序呼叫 schema → ollama → weaviate → repo，並發射 rag.indexed,line=57,column=11::Error: OLLAMA_EMBED_EMPTY: 回應缺少 embedding%0A ❯ embed src/lib/rag/client.ts:57:11%0A ❯ indexDocument src/lib/rag/index.ts:45:20%0A ❯ src/lib/rag/rag.test.ts:113:19%0A%0A
+
+::error file=/home/runner/work/Omniesggo/Omniesggo/.agents/skills/omni-bitwarden/scripts/omni-bitwarden.ts,title=.agents/skills/omni-bitwarden/tests/omni-bitwarden.test.ts,line=5,column=1::Error: Cannot find package 'yaml' imported from /home/runner/work/Omniesggo/Omniesggo/.agents/skills/omni-bitwarden/scripts/omni-bitwarden.ts%0A ❯ .agents/skills/omni-bitwarden/scripts/omni-bitwarden.ts:5:1%0A ❯ .agents/skills/omni-bitwarden/tests/omni-bitwarden.test.ts:7:1%0A%0A⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯%0ASerialized Error: { code: 'ERR_MODULE_NOT_FOUND' }%0A
+D5b_exit=1
+
+=== D6a python venv + pip install -e apps/omni-note ===
+Requirement already satisfied: pip in ./.venv/lib/python3.14/site-packages (25.1.1)
+Collecting pip
+  Downloading pip-26.3-py3-none-any.whl.metadata (4.6 kB)
+Downloading pip-26.3-py3-none-any.whl (2.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 111.3 MB/s eta 0:00:00
+Installing collected packages: pip
+  Attempting uninstall: pip
+    Found existing installation: pip 25.1.1
+    Uninstalling pip-25.1.1:
+      Successfully uninstalled pip-25.1.1
+Successfully installed pip-26.3
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+  /tmp/pip-build-env-l6ods815/overlay/lib/python3.14/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+Building wheels for collected packages: omni-note
+  Building editable for omni-note (pyproject.toml): started
+  Building editable for omni-note (pyproject.toml): finished with status 'done'
+  /tmp/pip-build-env-l6ods815/overlay/lib/python3.14/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  /tmp/pip-build-env-l6ods815/overlay/lib/python3.14/site-packages/setuptools/command/editable_wheel.py:354: BuildBackendWarning: Editable installation.
+  !!
+  
+          ********************************************************************************
+          Please be careful with folders in your working directory with the same
+          name as your package as they may take precedence during imports.
+          ********************************************************************************
+  
+  !!
+    with strategy, WheelFile(wheel_path, "w") as wheel_obj:
+  Created wheel for omni-note: filename=omni_note-0.2.0-0.editable-py3-none-any.whl size=5272 sha256=96797e758537ce487811198d817688e92a958b4f584fa0082603acd8e870d99d
+  Stored in directory: /tmp/pip-ephem-wheel-cache-g2ric0jv/wheels/27/71/fc/204175a390e978e944b9cb893ff30bd5628899eb2ef26ef77d
+Successfully built omni-note
+Installing collected packages: omni-note
+Successfully installed omni-note-0.2.0
+D6a_exit=0
+
+=== D6b verification.py --verify (tail 150) ===
+=== 驗證完成：Omniesggo ===
+  統計: 22 packages / 4 apps / 48 skills
+  ESG-Swarm: ok
+  OmniNote: ok, demo_rc=2
+  OmniAgent: ok
+  報告已寫入: /home/runner/work/Omniesggo/Omniesggo/verification_report.md
+D6b_exit=0
+
+=== D6c esg-swarm help ===
+/home/runner/work/Omniesggo/Omniesggo/.venv/bin/python: Error while finding module specification for 'apps.esg_swarm.workflow' (ModuleNotFoundError: No module named 'apps.esg_swarm')
+D6c_exit=0
+
+=== D6d run_demo.py (tail 20) ===
+   ⚠ ESG 邊界議題  (id=be8ec28dd98e)
+
+================================================================
+⑥ 多代理共享記憶層 → OmniNote 彙整摘要
+================================================================
+   寫入 🧠 共享記憶彙整：範圍3排放  (id=sm-範圍3排放-demo, origin=shared-memory://aggregate)
+   寫入 📋 共享記憶摘要：範圍3排放  (id=sm-範圍3排放-summary-demo, origin=shared-memory://summary)
+   寫入 🧠 共享記憶彙整：人權政策  (id=sm-人權政策-demo, origin=shared-memory://aggregate)
+   寫入 📋 共享記憶摘要：人權政策  (id=sm-人權政策-summary-demo, origin=shared-memory://summary)
+
+================================================================
+⑦ 5T 對齊
+================================================================
+   Traceable   : 每筆 source_origin = omninote://<endpoint>/<id>
+   Trackable   : events.jsonl 記錄每次同步結果
+   Tangible    : 每筆 .md 可讀、衝突標記可見
+   Transparent : 同步邏輯全開源（本檔 + sync.py）
+   Trustworthy : content_hash + base_hash 3-way merge 決定期權
+
+   demo 產出於 /home/runner/work/Omniesggo/Omniesggo/apps/omni-note/_demo
+D6d_exit=0
+
+=== D6e metrics step (as ci-check.yml) ===
+report_len= 7905
+D6e_exit=0
+
+=== D7a pip install -e '.[dev]' (tail 60) ===
+  Downloading et_xmlfile-2.0.0-py3-none-any.whl.metadata (2.7 kB)
+Collecting cfgv>=2.0.0 (from pre-commit>=3.6.0->esggo-python==5.1.0)
+  Downloading cfgv-3.5.0-py2.py3-none-any.whl.metadata (8.9 kB)
+Collecting identify>=1.0.0 (from pre-commit>=3.6.0->esggo-python==5.1.0)
+  Downloading identify-2.6.20-py2.py3-none-any.whl.metadata (4.4 kB)
+Collecting nodeenv>=0.11.1 (from pre-commit>=3.6.0->esggo-python==5.1.0)
+  Downloading nodeenv-1.12.0-py3-none-any.whl.metadata (49 kB)
+Requirement already satisfied: pyyaml>=5.1 in /usr/lib/python3/dist-packages (from pre-commit>=3.6.0->esggo-python==5.1.0) (6.0.3)
+Collecting virtualenv>=20.10.0 (from pre-commit>=3.6.0->esggo-python==5.1.0)
+  Downloading virtualenv-21.15.5-py3-none-any.whl.metadata (4.1 kB)
+Collecting iniconfig>=2 (from pytest>=8.0->esggo-python==5.1.0)
+  Downloading iniconfig-2.3.1-py3-none-any.whl.metadata (2.8 kB)
+Requirement already satisfied: packaging>=24 in /usr/lib/python3/dist-packages (from pytest>=8.0->esggo-python==5.1.0) (26.0)
+Collecting pluggy<2,>=1.6 (from pytest>=8.0->esggo-python==5.1.0)
+  Downloading pluggy-1.7.0-py3-none-any.whl.metadata (5.0 kB)
+Requirement already satisfied: pygments>=2.15 in /usr/lib/python3/dist-packages (from pytest>=8.0->esggo-python==5.1.0) (2.19.2)
+Collecting coverage>=7.10.6 (from coverage[toml]>=7.10.6->pytest-cov>=5.0->esggo-python==5.1.0)
+  Downloading coverage-7.17.2-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl.metadata (8.1 kB)
+Collecting distlib<1,>=0.4.3 (from virtualenv>=20.10.0->pre-commit>=3.6.0->esggo-python==5.1.0)
+  Downloading distlib-0.4.4-py2.py3-none-any.whl.metadata (5.3 kB)
+Requirement already satisfied: filelock<5,>=3.24.2 in /usr/local/lib/python3.14/dist-packages (from virtualenv>=20.10.0->pre-commit>=3.6.0->esggo-python==5.1.0) (4.2.4)
+Collecting packaging>=24 (from pytest>=8.0->esggo-python==5.1.0)
+  Using cached packaging-26.3-py3-none-any.whl.metadata (3.5 kB)
+Requirement already satisfied: platformdirs<5,>=4.4 in /usr/local/lib/python3.14/dist-packages (from virtualenv>=20.10.0->pre-commit>=3.6.0->esggo-python==5.1.0) (4.13.5)
+Collecting python-discovery>=1.6.1 (from virtualenv>=20.10.0->pre-commit>=3.6.0->esggo-python==5.1.0)
+  Downloading python_discovery-1.9.4-py3-none-any.whl.metadata (4.2 kB)
+Downloading mypy-2.4.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (15.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.4/15.4 MB 238.5 MB/s eta 0:00:00
+Downloading ast_serialize-0.13.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.3 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 72.6 MB/s eta 0:00:00
+Downloading librt-0.16.0-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (523 kB)
+Downloading mypy_extensions-1.2.0-py3-none-any.whl (5.1 kB)
+Downloading openpyxl-3.1.5-py2.py3-none-any.whl (250 kB)
+Downloading pathspec-1.1.1-py3-none-any.whl (57 kB)
+Downloading pre_commit-4.7.0-py2.py3-none-any.whl (226 kB)
+Downloading cfgv-3.5.0-py2.py3-none-any.whl (7.4 kB)
+Downloading identify-2.6.20-py2.py3-none-any.whl (99 kB)
+Downloading nodeenv-1.12.0-py3-none-any.whl (39 kB)
+Downloading pytest-9.2.0-py3-none-any.whl (411 kB)
+Downloading pluggy-1.7.0-py3-none-any.whl (27 kB)
+Downloading iniconfig-2.3.1-py3-none-any.whl (7.6 kB)
+Downloading pytest_cov-7.1.0-py3-none-any.whl (22 kB)
+Downloading coverage-7.17.2-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (262 kB)
+Downloading ruff-0.17.3-py3-none-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (10.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.6/10.6 MB 326.6 MB/s eta 0:00:00
+Downloading virtualenv-21.15.5-py3-none-any.whl (5.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.7/5.7 MB 329.4 MB/s eta 0:00:00
+Downloading distlib-0.4.4-py2.py3-none-any.whl (472 kB)
+Using cached packaging-26.3-py3-none-any.whl (129 kB)
+Downloading python_discovery-1.9.4-py3-none-any.whl (44 kB)
+Downloading et_xmlfile-2.0.0-py3-none-any.whl (18 kB)
+Building wheels for collected packages: esggo-python
+  Building editable for esggo-python (pyproject.toml): started
+  Building editable for esggo-python (pyproject.toml): finished with status 'done'
+  Created wheel for esggo-python: filename=esggo_python-5.1.0-0.editable-py3-none-any.whl size=29271 sha256=b8a7290b3e5c9d41a0f8ec0608cf0793d4a4586b41a345f3385bc08df78e4287
+  Stored in directory: /tmp/pip-ephem-wheel-cache-umlmtv8w/wheels/e1/2b/ad/223b4027ed2c4c18901566ed76f9a113dcb3f3f71951aa5205
+Successfully built esggo-python
+Installing collected packages: distlib, ruff, python-discovery, pluggy, pathspec, packaging, nodeenv, mypy_extensions, librt, iniconfig, identify, et-xmlfile, coverage, cfgv, ast-serialize, virtualenv, pytest, openpyxl, mypy, pytest-cov, pre-commit, esggo-python
+
+Successfully installed ast-serialize-0.13.1 cfgv-3.5.0 coverage-7.17.2 distlib-0.4.4 esggo-python-5.1.0 et-xmlfile-2.0.0 identify-2.6.20 iniconfig-2.3.1 librt-0.16.0 mypy-2.4.1 mypy_extensions-1.2.0 nodeenv-1.12.0 openpyxl-3.1.5 packaging-26.3 pathspec-1.1.1 pluggy-1.7.0 pre-commit-4.7.0 pytest-9.2.0 pytest-cov-7.1.0 python-discovery-1.9.4 ruff-0.17.3 virtualenv-21.15.5
+D7a_exit=0
+
+=== D7b pytest (tail 250) ===
+============================= test session starts ==============================
+platform linux -- Python 3.14.4, pytest-9.2.0, pluggy-1.7.0
+rootdir: /home/runner/work/Omniesggo/Omniesggo
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0, platformdirs-4.13.5, typeguard-4.4.4
+collected 81 items
+
+tests/test_config.py .........                                           [ 11%]
+tests/test_escape.py ................                                    [ 30%]
+tests/test_functions.py .....................................            [ 76%]
+tests/test_omnitag_registry.py .......                                   [ 85%]
+tests/test_verification.py ....                                          [ 90%]
+tests/test_verify_sync_closure.py ........                               [100%]
+
+=============================== warnings summary ===============================
+tests/test_functions.py::TestCountChars::test_empty_string
+  /home/runner/.local/lib/python3.14/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Module-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'count_chars' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/test_functions.py::TestZkpHash::test_deterministic
+  /home/runner/.local/lib/python3.14/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Module-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'zkp_hash' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+tests/test_functions.py::TestToCamelCase::test_empty_string
+  /home/runner/.local/lib/python3.14/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Module-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'to_camel_case' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 81 passed, 3 warnings in 1.55s ========================
+D7b_exit=0
