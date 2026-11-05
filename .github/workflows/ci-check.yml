@@ -77,7 +77,7 @@ jobs:
           for line in report.split("\n"):
               m = re.search(r"\|\s*信心度\s*\|\s*([\d.]+)\s*\|", line)
               if m: metrics["conf"] = float(m.group(1))
-              m = re.search(r"\|\s*延遲\s*\|\s*([\d.]+)\s*\|", line)
+              m = re.search(r"\|\s*延遲\s*\|\s*([\d.]+)", line)
               if m: metrics["latency_ms"] = float(m.group(1))
               m = re.search(r"\|\s*覆蓋率\s*\|\s*([\d.]+)\s*\|", line)
               if m: metrics["coverage"] = float(m.group(1))
