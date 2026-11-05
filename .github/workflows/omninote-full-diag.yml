@@ -1,0 +1,181 @@
+# =============================================================================
+# OmniNote: Unified — 一次性診斷 v11（PR #161 剩餘紅項根因捕獲）
+# 復刻六個失敗 check 之實際指令（omnicore-verification / Code Quality /
+# TS Matrix Drift / oa-framework-offline / verify(ci-check) / build /
+# entropy-reduction），擷取完整輸出至 diag11.txt。自刪本檔。
+# =============================================================================
+name: Omninote Full Diag v11 (one-shot)
+
+on:
+  push:
+    branches: [feat/omninote-unified-package]
+    paths: ['.github/workflows/omninote-full-diag.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: omninote-full-diag
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    name: Capture failing jobs output
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 12.16.1
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: D0 install (frozen)
+        run: |
+          set +e
+          {
+            echo "=== D0 pnpm install --frozen-lockfile ==="
+            pnpm install --frozen-lockfile
+            echo "D0_exit=$?"
+          } > diag11.txt 2>&1
+        timeout-minutes: 30
+
+      - name: D1 omnicore-verification steps
+        run: |
+          set +e
+          {
+            echo; echo "=== D1a node scripts/encoding-check.mjs ==="
+            node scripts/encoding-check.mjs
+            echo "D1a_exit=$?"
+            echo; echo "=== D1b npx tsc --noEmit (root tsconfig.json, tail 400) ==="
+            npx tsc --noEmit 2>&1 | tail -400
+            echo "D1b_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D1c pnpm run check (tail 300) ==="
+            pnpm run check 2>&1 | tail -300
+            echo "D1c_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D1d node scripts/omni-snapshot.mjs --verify ==="
+            node scripts/omni-snapshot.mjs --verify
+            echo "D1d_exit=$?"
+          } >> diag11.txt 2>&1
+        timeout-minutes: 60
+
+      - name: D2 Code Quality typecheck (tsconfig.core)
+        run: |
+          set +e
+          {
+            echo; echo "=== D2a pnpm lint (celestial-gate, tail 200) ==="
+            pnpm lint 2>&1 | tail -200
+            echo "D2a_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D2b pnpm typecheck (tsc -p tsconfig.core.json, tail 400) ==="
+            pnpm typecheck 2>&1 | tail -400
+            echo "D2b_exit=${PIPESTATUS[0]}"
+          } >> diag11.txt 2>&1
+        timeout-minutes: 40
+
+      - name: D3 TS Matrix drift
+        run: |
+          set +e
+          {
+            echo; echo "=== D3 node tools/ts-matrix/verify.mjs ==="
+            node tools/ts-matrix/verify.mjs
+            echo "D3_exit=$?"
+            echo; echo "=== D3 drift-report.json (new drift entries, head 200) ==="
+            node -e "const r=require('./tools/ts-matrix/drift-report.json'); console.log(JSON.stringify({pass:r.pass, baseline:r.reverse&&r.reverse.baseline, shadowed:r.reverse&&r.reverse.shadowedCount}, null, 2)); const s=JSON.stringify(r); console.log(s.slice(0, 8000));" 2>&1 | head -200
+          } >> diag11.txt 2>&1
+        timeout-minutes: 20
+
+      - name: D4 oa-framework-offline steps
+        run: |
+          set +e
+          {
+            echo; echo "=== D4a pnpm --filter @esggo/oa-framework typecheck (tail 200) ==="
+            pnpm --filter @esggo/oa-framework typecheck 2>&1 | tail -200
+            echo "D4a_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D4b pnpm --filter @esggo/oa-framework build (tail 200) ==="
+            pnpm --filter @esggo/oa-framework build 2>&1 | tail -200
+            echo "D4b_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D4c oa-framework smoke test (tail 200) ==="
+            pnpm --filter @esggo/oa-framework exec tsx test/registration.smoke.ts 2>&1 | tail -200
+            echo "D4c_exit=${PIPESTATUS[0]}"
+          } >> diag11.txt 2>&1
+        timeout-minutes: 40
+
+      - name: D5 entropy-reduction steps
+        run: |
+          set +e
+          {
+            echo; echo "=== D5a pnpm run lint (tail 150) ==="
+            pnpm run lint 2>&1 | tail -150
+            echo "D5a_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D5b pnpm vitest run (tail 250) ==="
+            pnpm vitest run 2>&1 | tail -250
+            echo "D5b_exit=${PIPESTATUS[0]}"
+          } >> diag11.txt 2>&1
+        timeout-minutes: 50
+
+      - name: D6 verify (ci-check) python steps
+        run: |
+          set +e
+          {
+            echo; echo "=== D6a python venv + pip install -e apps/omni-note ==="
+            python3 -m venv .venv
+            source .venv/bin/activate
+            pip install --upgrade pip
+            pip install -e apps/omni-note 2>&1 | tail -60
+            echo "D6a_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D6b verification.py --verify (tail 150) ==="
+            python tools/capability-explorer/verification.py --verify 2>&1 | tail -150
+            echo "D6b_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D6c esg-swarm help ==="
+            python -m apps.esg_swarm.workflow --help 2>&1 | tail -20
+            echo "D6c_exit=$?"
+            echo; echo "=== D6d run_demo.py (tail 20) ==="
+            python apps/omni-note/run_demo.py 2>&1 | tail -20
+            echo "D6d_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D6e metrics step (as ci-check.yml) ==="
+            python - <<'PY'
+import json, re
+report = open("verification_report.md", encoding="utf-8").read()
+print("report_len=", len(report))
+PY
+            echo "D6e_exit=$?"
+          } >> diag11.txt 2>&1
+        timeout-minutes: 40
+
+      - name: D7 build.yml python steps
+        run: |
+          set +e
+          {
+            echo; echo "=== D7a pip install -e '.[dev]' (tail 60) ==="
+            pip install -e ".[dev]" 2>&1 | tail -60
+            echo "D7a_exit=${PIPESTATUS[0]}"
+            echo; echo "=== D7b pytest (tail 250) ==="
+            pytest 2>&1 | tail -250
+            echo "D7b_exit=${PIPESTATUS[0]}"
+          } >> diag11.txt 2>&1
+        timeout-minutes: 50
+
+      - name: Commit diagnostics and remove this workflow (self-cleaning, always)
+        if: always()
+        run: |
+          git config user.name "omninote-ci-bot"
+          git config user.email "actions@github.com"
+          # 保留頭尾各 3000 行，避免超長 tsc/vitest 輸出撐爆 commit
+          LINES=$(wc -l < diag11.txt)
+          if [ "$LINES" -gt 6000 ]; then
+            head -3000 diag11.txt > diag11.tmp
+            echo "... [truncated $((LINES - 6000)) middle lines] ..." >> diag11.tmp
+            tail -3000 diag11.txt >> diag11.tmp
+            mv diag11.tmp diag11.txt
+          fi
+          git add diag11.txt
+          git rm .github/workflows/omninote-full-diag.yml
+          git commit -m "chore(omninote): capture failing-jobs diagnostics (v11)"
+          git push
+        timeout-minutes: 5
