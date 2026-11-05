@@ -14,19 +14,23 @@
   "bin": {
     "omninote-server": "./bin/omninote-server.ts"
   },
-  "files": ["dist", "bin"],
+  "files": [
+    "dist",
+    "bin"
+  ],
   "scripts": {
     "typecheck": "tsc --noEmit",
     "build": "tsc",
-    "serve": "node --experimental-transform-types bin/omninote-server.ts",
-    "test": "node --experimental-transform-types --test \"test/*.test.ts\"",
-    "bench": "node --experimental-transform-types bench/bench.ts"
+    "serve": "tsx bin/omninote-server.ts",
+    "test": "tsx --test test/*.test.ts",
+    "bench": "tsx bench/bench.ts"
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.0"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
     "typescript": "^5.9.3"
   },
   "engines": {
