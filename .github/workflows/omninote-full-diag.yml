@@ -139,11 +139,7 @@ jobs:
             python apps/omni-note/run_demo.py 2>&1 | tail -20
             echo "D6d_exit=${PIPESTATUS[0]}"
             echo; echo "=== D6e metrics step (as ci-check.yml) ==="
-            python - <<'PY'
-import json, re
-report = open("verification_report.md", encoding="utf-8").read()
-print("report_len=", len(report))
-PY
+            python -c "report = open('verification_report.md', encoding='utf-8').read(); print('report_len=', len(report))"
             echo "D6e_exit=$?"
           } >> diag11.txt 2>&1
         timeout-minutes: 40
