@@ -3,17 +3,7 @@
  * 負責執行具體任務、回報結果
  */
 
-export interface SubAgentState {
-  id: string;
-  name: string;
-  status: 'idle' | 'running' | 'completed' | 'failed';
-  parentId: string;
-  payload: any;
-  result?: any;
-  error?: string;
-  executedAt: number;
-  duration: number;
-}
+import { SubAgentState } from './shared_types';
 
 export class SubAgent {
   private id: string;

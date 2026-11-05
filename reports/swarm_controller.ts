@@ -5,29 +5,7 @@
 
 import { MotherAgent } from './mother_agent';
 import { SubAgent } from './sub_agent';
-
-export interface SwarmTask {
-  id: string;
-  priority: 'critical' | 'normal' | 'low';
-  payload: any;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-  createdAt: number;
-}
-
-export interface SwarmState {
-  motherAgent: {
-    id: string;
-    name: string;
-    status: 'idle' | 'monitoring' | 'triggering' | 'done';
-    taskQueue: string[];
-    subAgentCount: number;
-    totalTriggered: number;
-    lastTriggerTime: number;
-  };
-  subAgents: Map<string, any>;
-  swarmState: 'idle' | 'running' | 'paused';
-  triggerProbability: number;
-}
+import { SwarmControllerConfig, SwarmTask, SwarmState, MotherAgentState } from './shared_types';
 
 export class SwarmController {
   private motherAgent: MotherAgent;

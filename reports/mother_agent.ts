@@ -3,23 +3,8 @@
  * 負責監控任務隊列、決定觸發子代理、管理資源
  */
 
-export interface MotherTask {
-  id: string;
-  priority: 'critical' | 'normal' | 'low';
-  payload: any;
-  status: 'pending' | 'running' | 'completed' | 'failed';
-  createdAt: number;
-}
-
-export interface MotherAgentState {
-  id: string;
-  name: string;
-  status: 'idle' | 'monitoring' | 'triggering' | 'done';
-  taskQueue: MotherTask[];
-  subAgentCount: number;
-  totalTriggered: number;
-  lastTriggerTime: number;
-}
+import { MotherAgentState, MotherTask } from './shared_types';
+import { SubAgent } from './sub_agent';
 
 export class MotherAgent {
   private id: string;
