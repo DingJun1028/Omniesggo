@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { OmniApiNode } from "@/lib/api";
 
 export interface PaletteAction {
@@ -17,15 +17,16 @@ export function CommandPalette({
   actions,
   notes,
   onSelectNote,
-}: {
+}: Readonly<{
   open: boolean;
   onClose: () => void;
   actions: PaletteAction[];
   notes: OmniApiNode[];
   onSelectNote: (uuid: string) => void;
-}) {
+}>) {
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -57,6 +58,11 @@ export function CommandPalette({
     if (!open) setQuery("");
   }, [open]);
 
+  // 以程式化聚焦取代 autoFocus，避免 S9379 可及性議題。
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
+
   if (!open) return null;
 
   function runAt(index: number): void {
@@ -69,14 +75,22 @@ export function CommandPalette({
   return (
     <div
       className="fixed inset-0 z-50 flex items-start justify-center bg-slate-950/60 pt-24 backdrop-blur-sm"
-      onClick={onClose}
+      role="button"
+      tabIndex={-1}
+      aria-label="關閉指令面板"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
     >
-      <div className="glass w-full max-w-lg p-4" onClick={(e) => e.stopPropagation()}>
+      <div className="glass w-full max-w-lg p-4">
         <input
+          ref={inputRef}
           className="field"
           placeholder="輸入動作或筆記關鍵字…（↑↓ 選擇 · Enter 執行 · Esc 關閉）"
           value={query}
-          autoFocus
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "ArrowDown") {
