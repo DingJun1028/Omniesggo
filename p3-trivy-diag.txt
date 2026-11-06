@@ -1,0 +1,56 @@
+
+Report Summary
+
+┌──────────────────────────────────────────────────────────────────────────────────┬───────┬─────────────────┬─────────┐
+│                                      Target                                      │ Type  │ Vulnerabilities │ Secrets │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ .agents/skills/xcode-project-setup/scripts/xcode_spm_setup/Package.resolved      │ swift │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ .github/actionlint/go.mod                                                        │ gomod │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ agents/skills/xcode-project-setup/scripts/xcode_spm_setup/Package.resolved       │ swift │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ apps/stt/requirements.txt                                                        │  pip  │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ apps/universal-translator/package-lock.json                                      │  npm  │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ apps/universal-translator/requirements.txt                                       │  pip  │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ esggo-omni-center/.agents/skills/xcode-project-setup/scripts/xcode_spm_setup/Pa- │ swift │        0        │    -    │
+│ ckage.resolved                                                                   │       │                 │         │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ my-worker/pnpm-lock.yaml                                                         │ pnpm  │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ oa-team-crewai/uv.lock                                                           │  uv   │        1        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ pnpm-lock.yaml                                                                   │ pnpm  │        0        │    -    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ .hermes/desktop-attachments/tokens.tok                                           │ text  │        -        │    0    │
+├──────────────────────────────────────────────────────────────────────────────────┼───────┼─────────────────┼─────────┤
+│ hermes/desktop-attachments/tokens.tok                                            │ text  │        -        │    0    │
+└──────────────────────────────────────────────────────────────────────────────────┴───────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+For OSS Maintainers: VEX Notice
+--------------------------------
+If you're an OSS maintainer and Trivy has detected vulnerabilities in your project that you believe are not actually exploitable, consider issuing a VEX (Vulnerability Exploitability eXchange) statement.
+VEX allows you to communicate the actual status of vulnerabilities in your project, improving security transparency and reducing false positives for your users.
+Learn more and start using VEX: https://trivy.dev/docs/v0.76/guide/supply-chain/vex/repo#publishing-vex-documents
+
+To disable this notice, set the TRIVY_DISABLE_VEX_NOTICE environment variable.
+
+
+oa-team-crewai/uv.lock (uv)
+===========================
+Total: 1 (HIGH: 1, CRITICAL: 0)
+
+┌──────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬───────────────────────────────────────────────────────────┐
+│ Library  │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                           Title                           │
+├──────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼───────────────────────────────────────────────────────────┤
+│ oauthlib │ CVE-2026-49272 │ HIGH     │ fixed  │ 4.0.0             │ 4.0.1         │ OAuthLib: Bearer token can be retrieved as long as client │
+│          │                │          │        │                   │               │ knows a...                                                │
+│          │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-49272                │
+└──────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴───────────────────────────────────────────────────────────┘
