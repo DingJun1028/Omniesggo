@@ -1,47 +1,72 @@
 // OmniNote Web — 本機回環 REST API 客戶端（零依賴 fetch）
 // 對接 packages/omninote-unified 之 OmniNoteLocalApiServer（預設 127.0.0.1:52710）。
+// 回應形狀嚴格對齊引擎實作（api-server.ts 之 sendJson 信封）。
 // 型別名稱一律加 OmniApi 前綴，避免與終始矩陣正典（src/types 等）遮蔽。
+
+export interface OmniApiBlock {
+  block_id: string;
+  type: string;
+  content: string;
+  lamport_ts: number;
+  peer_id: string;
+  deleted: boolean;
+}
+
+export interface OmniApiEvidence {
+  source_origin: string;
+  captured_at: string;
+  content_hash: string;
+  hook_lifecycle: string;
+  audit_formula: string;
+}
+
+export interface OmniApiNode {
+  uuid: string;
+  version: string;
+  timestamp: number;
+  matrix_phase: "ALPHA_ORIGIN_CAPTURE" | "SIGMA_GRAPH_SYNTHESIS" | "OMEGA_OBJECT_CRYSTAL";
+  entity_type: string;
+  blocks: OmniApiBlock[];
+  topology: { outlinks: Array<{ target?: string }>; tags: string[] };
+  properties: Record<string, unknown>;
+  evidence: OmniApiEvidence[];
+  lock_hash: string;
+  entropy_score?: number;
+}
 
 export interface OmniApiHealth {
   ok: boolean;
-  notes: number;
+  nodes: number;
+  vectors: number;
   drafts: number;
-  embedding_enabled: boolean;
-}
-
-export interface OmniApiBlock {
-  type: string;
-  content: string;
-}
-
-export interface OmniApiNote {
-  omni_uuid: string;
-  entity_type: string;
-  origin_tag: string;
-  tags: string[];
-  blocks: OmniApiBlock[];
-  created_at: string;
 }
 
 export interface OmniApiDraft {
   draft_id: string;
+  content: string;
+  origin_tag: string;
+  tags: string[];
   revision: number;
-  text: string;
   created_at: string;
-  updated_at: string;
+  saved_at: string;
 }
 
-export interface OmniApiSearchResponse {
-  results: Array<{ omni_uuid: string; score: number; origin_tag: string; preview: string }>;
-  degraded: boolean;
+export interface OmniApiSearchResult {
+  nodeUuid: string;
+  blockId?: string;
+  score: number;
 }
 
-export interface OmniApiImportReport {
-  imported: number;
-  skipped: number;
-  overwritten: number;
-  tampered: number;
-}
+export const OMNI_BLOCK_TYPES = [
+  "paragraph",
+  "heading",
+  "checklist_item",
+  "sketch_vector",
+  "audio_transcript",
+  "object_attribute_card",
+] as const;
+
+export type OmniBlockType = (typeof OMNI_BLOCK_TYPES)[number];
 
 const API_BASE: string =
   process.env.NEXT_PUBLIC_OMNINOTE_API ?? "http://127.0.0.1:52710";
@@ -77,26 +102,53 @@ export async function fetchHealth(): Promise<OmniApiHealth> {
   return request<OmniApiHealth>("/health");
 }
 
-export async function fetchNotes(): Promise<OmniApiNote[]> {
-  return request<OmniApiNote[]>("/api/notes");
+/** 引擎僅回 uuid 清單；逐讀完整節點（本機回環，量級可控）。 */
+export async function fetchNotes(): Promise<OmniApiNode[]> {
+  const list = await request<{ ok: boolean; uuids: string[] }>("/api/notes");
+  const nodes = await Promise.all(
+    list.uuids.map((uuid) =>
+      request<{ ok: boolean; node: OmniApiNode }>(`/api/notes/${uuid}`)
+        .then((r) => r.node)
+        .catch(() => null),
+    ),
+  );
+  return nodes.filter((n): n is OmniApiNode => n !== null);
 }
 
-export async function captureNote(text: string, tags: string[]): Promise<OmniApiNote> {
-  return request<OmniApiNote>("/api/notes", {
+export async function fetchNote(uuid: string): Promise<OmniApiNode | null> {
+  const r = await request<{ ok: boolean; node: OmniApiNode } | { ok: false }>(`/api/notes/${uuid}`);
+  return "node" in r ? r.node : null;
+}
+
+export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",
     body: JSON.stringify({ text, tags }),
   });
+  return r.node;
 }
 
-export async function appendBlock(uuid: string, block: OmniApiBlock): Promise<OmniApiNote> {
-  return request<OmniApiNote>(`/api/notes/${uuid}/blocks`, {
+export async function appendBlock(
+  uuid: string,
+  type: OmniBlockType,
+  content: string,
+): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(`/api/notes/${uuid}/blocks`, {
     method: "POST",
-    body: JSON.stringify(block),
+    body: JSON.stringify({ type, content }),
   });
+  return r.node;
 }
 
 export async function deleteNote(uuid: string): Promise<void> {
-  await request<{ ok: boolean }>(`/api/notes/${uuid}`, { method: "DELETE" });
+  await request<{ ok: boolean; deleted: string }>(`/api/notes/${uuid}`, { method: "DELETE" });
+}
+
+export interface OmniApiSearchResponse {
+  ok: boolean;
+  results: OmniApiSearchResult[];
+  degraded: boolean;
+  reason?: string;
 }
 
 export async function semanticSearch(query: string): Promise<OmniApiSearchResponse> {
@@ -107,29 +159,44 @@ export async function semanticSearch(query: string): Promise<OmniApiSearchRespon
 }
 
 export async function fetchDrafts(): Promise<OmniApiDraft[]> {
-  return request<OmniApiDraft[]>("/api/drafts");
+  const r = await request<{ ok: boolean; drafts: OmniApiDraft[] }>("/api/drafts");
+  return r.drafts;
 }
 
-export async function saveDraft(draftId: string, text: string): Promise<OmniApiDraft> {
-  return request<OmniApiDraft>("/api/drafts", {
+export async function saveDraft(draftId: string, content: string): Promise<OmniApiDraft> {
+  const r = await request<{ ok: boolean; draft: OmniApiDraft }>("/api/drafts", {
     method: "POST",
-    body: JSON.stringify({ draft_id: draftId, text }),
+    body: JSON.stringify({ draft_id: draftId, content }),
   });
+  return r.draft;
 }
 
-export async function promoteDraft(draftId: string): Promise<OmniApiNote> {
-  return request<OmniApiNote>(`/api/drafts/${draftId}/promote`, { method: "POST" });
+export async function promoteDraft(draftId: string): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(`/api/drafts/${draftId}/promote`, {
+    method: "POST",
+  });
+  return r.node;
 }
 
 export async function deleteDraft(draftId: string): Promise<void> {
-  await request<{ ok: boolean }>(`/api/drafts/${draftId}`, { method: "DELETE" });
+  await request<{ ok: boolean; deleted: string }>(`/api/drafts/${draftId}`, { method: "DELETE" });
 }
 
 export function buildExportUrl(): string {
   return `${API_BASE}/api/export`;
 }
 
-export async function importArchive(file: File, conflict: "skip" | "overwrite"): Promise<OmniApiImportReport> {
+export interface OmniApiImportReport {
+  imported: number;
+  skipped: number;
+  overwritten: number;
+  tampered: number;
+}
+
+export async function importArchive(
+  file: File,
+  conflict: "skip" | "overwrite",
+): Promise<OmniApiImportReport> {
   let res: Response;
   try {
     res = await fetch(`${API_BASE}/api/import?conflict=${conflict}`, {
@@ -143,5 +210,6 @@ export async function importArchive(file: File, conflict: "skip" | "overwrite"):
   if (!res.ok) {
     throw new OmniApiError(res.status, `匯入失敗 HTTP ${res.status}`);
   }
-  return (await res.json()) as OmniApiImportReport;
+  const r = (await res.json()) as { ok: boolean; report: OmniApiImportReport };
+  return r.report;
 }

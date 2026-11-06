@@ -1,8 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import type { OmniApiDraft, OmniApiNote } from "@/lib/api";
-import { buildExportUrl, deleteDraft, deleteNote, promoteDraft, semanticSearch } from "@/lib/api";
+import type { OmniApiDraft, OmniApiNode } from "@/lib/api";
+import {
+  buildExportUrl,
+  deleteDraft,
+  deleteNote,
+  promoteDraft,
+  semanticSearch,
+} from "@/lib/api";
 
 const PHASE_CLASS: Record<string, string> = {
   ALPHA_ORIGIN_CAPTURE: "phase-alpha",
@@ -12,13 +18,15 @@ const PHASE_CLASS: Record<string, string> = {
 
 export function NotesBoard({
   notes,
+  selectedUuid,
+  onSelect,
   onChanged,
 }: {
-  notes: OmniApiNote[];
+  notes: OmniApiNode[];
+  selectedUuid: string | null;
+  onSelect: (uuid: string) => void;
   onChanged: () => void;
 }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
-
   return (
     <div className="glass p-5">
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">筆記結晶板</h2>
@@ -28,43 +36,45 @@ export function NotesBoard({
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {notes.map((note) => (
             <article
-              key={note.omni_uuid}
-              className={`glass glass-hover p-4 ${PHASE_CLASS[note.entity_type] ?? ""}`}
+              key={note.uuid}
+              className={`glass glass-hover p-4 ${PHASE_CLASS[note.matrix_phase] ?? ""} ${
+                selectedUuid === note.uuid ? "border-omni-alpha/60" : ""
+              }`}
             >
               <div className="flex items-center gap-2">
                 <span className="phase-dot" aria-hidden />
-                <span className="text-[11px] text-slate-400">{note.entity_type}</span>
+                <span className="text-[11px] text-slate-400">{note.matrix_phase}</span>
                 <button
                   type="button"
                   className="ml-auto text-[11px] text-slate-500 transition hover:text-rose-300"
-                  onClick={() => void deleteNote(note.omni_uuid).then(onChanged).catch(() => undefined)}
+                  onClick={() => void deleteNote(note.uuid).then(onChanged).catch(() => undefined)}
                   aria-label="刪除筆記"
                 >
                   刪除
                 </button>
               </div>
-              <p className="mt-2 line-clamp-3 text-sm text-slate-100">
-                {note.blocks.map((b) => b.content).join(" ") || "（空）"}
-              </p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {note.tags.map((t) => (
-                  <span key={t} className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[10px] text-slate-300">
-                    #{t}
-                  </span>
-                ))}
-              </div>
               <button
                 type="button"
-                className="mt-2 text-[11px] text-slate-400 underline-offset-2 transition hover:text-omni-alpha"
-                onClick={() => setExpanded(expanded === note.omni_uuid ? null : note.omni_uuid)}
+                className="mt-2 block w-full text-left"
+                onClick={() => onSelect(note.uuid)}
               >
-                {expanded === note.omni_uuid ? "收起" : "檢視證據鏈"}
+                <p className="line-clamp-3 text-sm text-slate-100">
+                  {note.blocks.map((b) => b.content).join(" ") || "（空）"}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {note.topology.tags.map((t) => (
+                    <span
+                      key={t}
+                      className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[10px] text-slate-300"
+                    >
+                      #{t}
+                    </span>
+                  ))}
+                </div>
+                <span className="mt-2 inline-block text-[11px] text-slate-400 underline-offset-2 transition hover:text-omni-alpha">
+                  檢視詳情
+                </span>
               </button>
-              {expanded === note.omni_uuid && (
-                <pre className="mt-2 max-h-40 overflow-auto rounded-lg bg-slate-950/70 p-2 text-[10px] leading-4 text-slate-400">
-                  {JSON.stringify(note, null, 2)}
-                </pre>
-              )}
             </article>
           ))}
         </div>
@@ -76,7 +86,8 @@ export function NotesBoard({
 export function SearchPanel({ onJump }: { onJump: (uuid: string) => void }) {
   const [query, setQuery] = useState("");
   const [degraded, setDegraded] = useState(false);
-  const [results, setResults] = useState<Array<{ omni_uuid: string; score: number; preview: string }>>([]);
+  const [reason, setReason] = useState<string | null>(null);
+  const [results, setResults] = useState<Array<{ nodeUuid: string; score: number }>>([]);
   const [message, setMessage] = useState<string | null>(null);
 
   async function run(): Promise<void> {
@@ -86,8 +97,9 @@ export function SearchPanel({ onJump }: { onJump: (uuid: string) => void }) {
     try {
       const res = await semanticSearch(q);
       setDegraded(res.degraded);
+      setReason(res.degraded ? (res.reason ?? "嵌入引擎未啟用") : null);
       setResults(res.results);
-      if (res.degraded) setMessage("嵌入引擎未啟用 — 已回退零結果（零算力降級）");
+      if (res.degraded) setMessage("已回退零結果（零算力降級）");
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "搜尋失敗");
     }
@@ -114,18 +126,23 @@ export function SearchPanel({ onJump }: { onJump: (uuid: string) => void }) {
           熔合
         </button>
       </div>
-      {message !== null && <p className="mt-2 text-xs text-amber-300/90">{message}</p>}
+      {message !== null && (
+        <p className="mt-2 text-xs text-amber-300/90">
+          {message}
+          {reason !== null && ` — ${reason}`}
+        </p>
+      )}
       {results.length > 0 && !degraded && (
         <ul className="mt-3 space-y-1.5">
           {results.map((r) => (
-            <li key={r.omni_uuid}>
+            <li key={r.nodeUuid}>
               <button
                 type="button"
                 className="w-full rounded-lg border border-slate-500/15 px-3 py-2 text-left text-xs text-slate-300 transition hover:border-omni-omega/50"
-                onClick={() => onJump(r.omni_uuid)}
+                onClick={() => onJump(r.nodeUuid)}
               >
                 <span className="text-omni-omega">{(r.score * 100).toFixed(1)}%</span>{" "}
-                {r.preview.slice(0, 72)}
+                {r.nodeUuid.slice(0, 8)}…
               </button>
             </li>
           ))}
@@ -147,7 +164,7 @@ export function DraftsPanel({
   async function crystallize(id: string): Promise<void> {
     try {
       await promoteDraft(id);
-      setMessage(`草稿 ${id} 已結晶成 Omega 實體 ✓`);
+      setMessage(`草稿已結晶成實體 ✓`);
       onChanged();
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "結晶失敗");
@@ -177,8 +194,10 @@ export function DraftsPanel({
                 <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[10px] text-slate-300">
                   r{d.revision}
                 </span>
-                <span className="truncate text-xs text-slate-300">{d.text.slice(0, 48) || "（空白）"}</span>
-                <span className="ml-auto flex gap-2">
+                <span className="truncate text-xs text-slate-300">
+                  {d.content.slice(0, 48) || "（空白）"}
+                </span>
+                <span className="ml-auto flex shrink-0 gap-2">
                   <button
                     type="button"
                     className="text-[11px] text-omni-omega transition hover:text-omni-omegaGlow"

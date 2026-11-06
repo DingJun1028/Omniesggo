@@ -27,9 +27,9 @@ export function HealthPanel({
         <p className="mt-3 text-xs leading-5 text-rose-300/90">{error}</p>
       ) : (
         <div className="mt-4 grid grid-cols-3 gap-3">
-          <Stat label="筆記" value={health?.notes ?? "…"} />
+          <Stat label="節點" value={health?.nodes ?? "…"} />
+          <Stat label="向量" value={health?.vectors ?? "…"} />
           <Stat label="草稿" value={health?.drafts ?? "…"} />
-          <Stat label="嵌入" value={health?.embedding_enabled ? "啟用" : "零算力"} />
         </div>
       )}
     </div>
