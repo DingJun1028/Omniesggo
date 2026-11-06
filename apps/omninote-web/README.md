@@ -4,12 +4,14 @@
 
 ## 功能
 
-- 速記捕獲：一句話寫入 Alpha 原點（POST /api/notes），支援標籤與 ⌘/Ctrl+Enter 快捷。
+- 速記捕獲：一句話寫入 Alpha 原點（POST /api/notes → 201 { ok, node }），支援標籤與 ⌘/Ctrl+Enter 快捷。
 - 塗鴉速寫：原生 SVG 向量描繪，封存為 sketch_vector 區塊（POST /api/notes/:uuid/blocks）。
 - 雙鏈熔合檢索：語意搜尋（POST /api/search），嵌入未啟用時如實顯示零算力降級。
 - 結晶：草稿一鍵晉升為 Omega 實體（POST /api/drafts/:id/promote）。
 - 封印：稽核導出（GET /api/export，attachment 下載）。
-- 引擎健康面板：30 秒輪詢 /health（筆記數、草稿數、嵌入狀態）。
+- 引擎健康面板：30 秒輪詢 /health（節點數、向量數、草稿數）。
+- 節點詳情：區塊清單（型別徽章）、六種 CRDT 區塊型別追加（ON_API_APPEND 證據入鏈、lock_hash 重算）、證據鏈檢視。
+- 雙鏈熔合圖譜：解析區塊內容之 [[雙鏈]]，環形佈局 SVG 圖譜，三態品牌色著色，點擊節點開啟詳情。
 
 ## 啟動
 

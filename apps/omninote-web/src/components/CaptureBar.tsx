@@ -90,10 +90,11 @@ export function SketchBar({ onCaptured }: { onCaptured: () => void }) {
     try {
       const stamp = new Date().toISOString();
       const note = await captureNote(`sketch ${stamp}`, ["sketch"]);
-      await appendBlock(note.omni_uuid, {
-        type: "sketch_vector",
-        content: `![[sketch_${note.omni_uuid.slice(0, 8)}.svg]] ${sketchPath(points)}`,
-      });
+      await appendBlock(
+        note.uuid,
+        "sketch_vector",
+        `![[sketch_${note.uuid.slice(0, 8)}.svg]] ${sketchPath(points)}`,
+      );
       setPoints([]);
       setMessage("塗鴉已封存 ✓");
       onCaptured();

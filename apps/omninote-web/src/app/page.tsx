@@ -1,17 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { OmniApiDraft, OmniApiHealth, OmniApiNote } from "@/lib/api";
+import type { OmniApiDraft, OmniApiHealth, OmniApiNode } from "@/lib/api";
 import { fetchDrafts, fetchHealth, fetchNotes } from "@/lib/api";
 import { CaptureBar, SketchBar } from "@/components/CaptureBar";
 import { HealthPanel } from "@/components/HealthPanel";
 import { DraftsPanel, NotesBoard, SearchPanel } from "@/components/Panels";
+import { NoteDetail } from "@/components/NoteDetail";
+import { FusionGraph } from "@/components/FusionGraph";
 
 export default function HomePage() {
   const [health, setHealth] = useState<OmniApiHealth | null>(null);
-  const [notes, setNotes] = useState<OmniApiNote[]>([]);
+  const [notes, setNotes] = useState<OmniApiNode[]>([]);
   const [drafts, setDrafts] = useState<OmniApiDraft[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
 
   const refresh = useCallback(async (): Promise<void> => {
     try {
@@ -31,6 +34,13 @@ export default function HomePage() {
     return () => clearInterval(timer);
   }, [refresh]);
 
+  const selected =
+    selectedUuid === null ? null : (notes.find((n) => n.uuid === selectedUuid) ?? null);
+
+  function updateNode(next: OmniApiNode): void {
+    setNotes((prev) => prev.map((n) => (n.uuid === next.uuid ? next : n)));
+  }
+
   return (
     <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6">
       <header className="mb-6 flex flex-wrap items-center gap-3">
@@ -43,21 +53,48 @@ export default function HomePage() {
       </header>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <section className="lg:col-span-2 space-y-4">
+        <section className="space-y-4 lg:col-span-2">
           <CaptureBar onCaptured={() => void refresh()} />
           <SketchBar onCaptured={() => void refresh()} />
         </section>
         <section className="space-y-4">
           <HealthPanel health={health} error={error} />
-          <SearchPanel onJump={() => undefined} />
+          <SearchPanel
+            onJump={(uuid) => {
+              setSelectedUuid(uuid);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
         </section>
       </div>
 
+      {selected !== null && (
+        <div className="mt-4">
+          <NoteDetail
+            note={selected}
+            onClose={() => setSelectedUuid(null)}
+            onUpdated={updateNode}
+          />
+        </div>
+      )}
+
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <section className="lg:col-span-2">
-          <NotesBoard notes={notes} onChanged={() => void refresh()} />
+        <section className="space-y-4 lg:col-span-2">
+          <NotesBoard
+            notes={notes}
+            selectedUuid={selectedUuid}
+            onSelect={setSelectedUuid}
+            onChanged={() => void refresh()}
+          />
         </section>
-        <section>
+        <section className="space-y-4">
+          <FusionGraph
+            notes={notes}
+            onSelect={(uuid) => {
+              setSelectedUuid(uuid);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
           <DraftsPanel drafts={drafts} onChanged={() => void refresh()} />
         </section>
       </div>
