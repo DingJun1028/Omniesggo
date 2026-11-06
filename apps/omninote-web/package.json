@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "description": "萬能筆記 OmniNote: Unified — 液態玻璃 Web 控制台（Next.js 16 + React 19），對接本機回環 REST API",
-  "type": "module",
   "scripts": {
     "dev": "next dev -p 52720",
     "build": "next build",
