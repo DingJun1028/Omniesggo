@@ -1,0 +1,37 @@
+▲ Next.js 16.4.3 (Turbopack)
+✓ Running next.config.mjs took 21ms
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+
+  Creating an optimized production build ...
+Turbopack build encountered 2 warnings:
+./apps/omninote-web/postcss.config.js
+Warning: Specified module format (EcmaScript Modules) is not matching the module format of the source code (CommonJs)
+The EcmaScript module format was specified in the package.json that is affecting this source file or by using an special extension, but it looks like that CommonJs syntax is used in the source code.
+Exports made by CommonJs syntax will lead to a runtime error, since the module is in EcmaScript mode. Either change the "type" field in the package.json or replace CommonJs syntax with EcmaScript import/export syntax in the source file.
+
+
+./apps/omninote-web/tailwind.config.js
+Warning: Specified module format (EcmaScript Modules) is not matching the module format of the source code (CommonJs)
+The EcmaScript module format was specified in the package.json that is affecting this source file or by using an special extension, but it looks like that CommonJs syntax is used in the source code.
+Exports made by CommonJs syntax will lead to a runtime error, since the module is in EcmaScript mode. Either change the "type" field in the package.json or replace CommonJs syntax with EcmaScript import/export syntax in the source file.
+
+
+
+> Build error occurred
+Error: Turbopack build failed with 1 error:
+./apps/omninote-web/src/app/globals.css
+Error: Error evaluating Node.js code
+Error: Failed to load external module file:///home/runner/work/Omniesggo/Omniesggo/apps/omninote-web/postcss.config.js: ReferenceError: module is not defined in ES module scope
+This file is being treated as an ES module because it has a '.js' file extension and '/home/runner/work/Omniesggo/Omniesggo/apps/omninote-web/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.
+    at Context.externalImport [as y] (turbopack:///[turbopack]/shared-node/base-externals-utils.ts:16:11) [/home/runner/work/Omniesggo/Omniesggo/apps/omninote-web/.next/build/chunks/[turbopack]_runtime.js:797:15]
+    [at process.processTicksAndRejections (node:internal/process/task_queues:103:5)]
+    at async (apps/omninote-web/postcss.config.js_.loader.mjs:9:13) [/home/runner/work/Omniesggo/Omniesggo/apps/omninote-web/.next/build/chunks/[root-of-the-server]__1pm_7i9dnws18._.js:20:13]
+
+Import trace:
+  Client Component Browser:
+    ./apps/omninote-web/src/app/globals.css [Client Component Browser]
+    ./apps/omninote-web/src/app/layout.tsx [Server Component]
+
+
+    at Context.externalImport [as y] (turbopack:///[turbopack]/shared-node/base-externals-utils.ts:16:11) [/home/runner/work/Omniesggo/Omniesggo/apps/omninote-web/.next/build/chunks/[turbopack]_runtime.js:797:15])
+exit_code=1
