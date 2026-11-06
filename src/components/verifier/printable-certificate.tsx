@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { ShieldCheck, Award, Printer, Hash, CheckCircle2, Lock, Sparkles, Download } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { ShieldCheck, Award, Printer, CheckCircle2, Lock, Sparkles } from 'lucide-react';
 
 export interface ICertificateData {
   uuid: string;
@@ -10,7 +10,7 @@ export interface ICertificateData {
   hashLock: string;
   sealedAt: string | number;
   specVersion?: string;
-  metrics?: Record<string, any>;
+  metrics?: Record<string, unknown>;
   fiveTProtocolSeals?: {
     truth?: { verified: boolean; sourceOrigin: string };
     goodness?: { verified: boolean; standard: string };
@@ -30,9 +30,13 @@ export function PrintableCertificate({ data, onClose }: Props) {
     window.print();
   };
 
-  const sealedDateStr = typeof data.sealedAt === 'number' 
-    ? new Date(data.sealedAt).toLocaleString('zh-TW') 
-    : new Date(data.sealedAt || Date.now()).toLocaleString('zh-TW');
+  const sealedDateStr = useMemo(
+    () =>
+      typeof data.sealedAt === 'number'
+        ? new Date(data.sealedAt).toLocaleString('zh-TW')
+        : new Date(data.sealedAt || Date.now()).toLocaleString('zh-TW'),
+    [data.sealedAt]
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
