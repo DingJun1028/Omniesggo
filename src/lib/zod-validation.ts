@@ -24,7 +24,7 @@ import { NextRequest, NextResponse } from 'next/server';
 function applyDefaults(schema: TSchema, data: unknown): unknown {
   if (schema && 'default' in schema && schema.default !== undefined) return schema.default;
   if (schema && Array.isArray((schema as { anyOf?: unknown }).anyOf)) {
-    for (const sub of (schema as { anyOf: Array<{ default?: unknown }> }).anyOf) {
+    for (const sub of (schema as unknown as { anyOf: Array<{ default?: unknown }> }).anyOf) {
       if (sub.default !== undefined) return sub.default;
     }
   }
