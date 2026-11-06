@@ -1,0 +1,45 @@
+name: p3-sonar-diag
+
+# 一次性診斷工作流（自動自刪）：擷取 SonarCloud PR #177 品質閘門狀態、議題與熱點。
+
+on:
+  push:
+    branches: [feat/omninote-web-phase3]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  diag:
+    if: github.repository == 'DingJun1028/Omniesggo'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Query SonarCloud
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          set +e
+          {
+            echo "=== gate status ==="
+            curl -sS -H "Authorization: Bearer ${SONAR_TOKEN}" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=DingJun1028_Omniesggo&pullRequest=177"
+            echo
+            echo "=== issues ==="
+            curl -sS -H "Authorization: Bearer ${SONAR_TOKEN}" "https://sonarcloud.io/api/issues/search?projects=DingJun1028_Omniesggo&pullRequest=177&ps=100"
+            echo
+            echo "=== hotspots ==="
+            curl -sS -H "Authorization: Bearer ${SONAR_TOKEN}" "https://sonarcloud.io/api/hotspots/search?projectKey=DingJun1028_Omniesggo&pullRequest=177&ps=100"
+            echo
+          } > sonar-diag.txt 2>&1
+
+      - name: Commit diagnostics and remove this workflow
+        run: |
+          git config user.name "omninote-ci-bot"
+          git config user.email "actions@github.com"
+          git add sonar-diag.txt
+          git rm --quiet .github/workflows/p3-sonar-diag.yml
+          git commit -m "chore(omninote): capture sonar diagnostics"
+          git push
