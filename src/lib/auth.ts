@@ -16,7 +16,14 @@ export interface LocalUser {
 
 export type User = LocalUser;
 
-function mapSupabaseUser(user: any): LocalUser | null {
+type SupabaseUserLike = {
+  id: string;
+  email?: string | null;
+  user_metadata?: { full_name?: string | null } | null;
+  [key: string]: unknown;
+};
+
+function mapSupabaseUser(user: SupabaseUserLike | null | undefined): LocalUser | null {
   if (!user) return null;
   return {
     uid: user.id,

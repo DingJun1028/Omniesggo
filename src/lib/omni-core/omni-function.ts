@@ -146,7 +146,7 @@ export function omni(req: OmniRequest): OmniResult {
           kind: 'component',
           id: comp.uuid,
           data: comp,
-          hash: (comp as any).hash,
+          hash: comp.hash,
           registered: shouldRegister,
         };
       }
