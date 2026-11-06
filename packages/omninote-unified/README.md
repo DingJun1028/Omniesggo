@@ -91,6 +91,8 @@ node --experimental-transform-types bin/omninote-server.ts /path/to/notes
 | GET | /api/notes | 列出所有節點 UUID |
 | GET | /api/notes/:uuid | 讀取單一節點（404 若不存在） |
 | POST | /api/notes/:uuid/blocks | 追加區塊：\`{ type, content }\`（type 為六種 CRDT 區塊型別之一；422 若非法） |
+| PATCH | /api/notes/:uuid/blocks/:blockId | 區塊編輯：\`{ content }\`（LWW 就地更新、Lamport 遞增、outlinks 熔合重建；404 若節點/區塊不存在或區塊已墓碑化） |
+| DELETE | /api/notes/:uuid/blocks/:blockId | 區塊軟刪除（CRDT tombstone：\`deleted=true\` 保留原文與 block_id；outlinks 熔合重建排除墓碑貢獻；重刪 404 \`BLOCK_TOMBSTONED\`） |
 | DELETE | /api/notes/:uuid | 刪除節點 |
 | POST | /api/search | 語意搜尋：\`{ query, top_k?, threshold? }\`；嵌入不可用時 \`degraded: true\` 且零結果（503 若未啟用嵌入器） |
 | POST | /api/drafts | 隨時進度草稿存檔：\`{ draft_id, content, origin_tag?, tags? }\` 冪等 upsert（重複呼叫覆寫且 revision 遞增） |
