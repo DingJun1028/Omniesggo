@@ -1,0 +1,100 @@
+count	98
+file	line	rule	severity	message
+src/agents/secure-utils.ts	38	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/agents/secure-utils.ts	57	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/agents/secure-utils.ts	62	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/app/api/esg-report/seal/route.ts	49	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/app/api/materiality/assess/route.ts	50	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/app/api/omni-trace/route.ts	22	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/app/api/omni-trace/route.ts	44	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/app/api/supply-chain/seal/route.ts	54	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/app/design-system/page.tsx	53	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/app/materiality/page.tsx	5	@typescript-eslint/no-unused-vars	1	'Download' is defined but never used.
+src/app/materiality/page.tsx	5	@typescript-eslint/no-unused-vars	1	'SlidersHorizontal' is defined but never used.
+src/app/materiality/page.tsx	5	@typescript-eslint/no-unused-vars	1	'TrendingUp' is defined but never used.
+src/app/materiality/page.tsx	5	@typescript-eslint/no-unused-vars	1	'AlertTriangle' is defined but never used.
+src/app/materiality/page.tsx	31	@typescript-eslint/no-unused-vars	1	'setTopics' is assigned a value but never used.
+src/app/omni-factory/page.tsx	4	@typescript-eslint/no-unused-vars	1	'Search' is defined but never used.
+src/app/omni-memory/page.tsx	5	@typescript-eslint/no-unused-vars	1	'Target' is defined but never used.
+src/app/omni-memory/page.tsx	7	@typescript-eslint/no-unused-vars	1	'X' is defined but never used.
+src/app/omni-memory/page.tsx	7	@typescript-eslint/no-unused-vars	1	'ChevronDown' is defined but never used.
+src/app/omni/page.tsx	6	@typescript-eslint/no-unused-vars	1	'FileText' is defined but never used.
+src/app/omni/page.tsx	6	@typescript-eslint/no-unused-vars	1	'CheckCircle2' is defined but never used.
+src/app/omni/page.tsx	95	@typescript-eslint/no-unused-vars	1	'MOCK_EVENTS' is assigned a value but never used.
+src/app/supply-chain/page.tsx	5	@typescript-eslint/no-unused-vars	1	'AlertTriangle' is defined but never used.
+src/app/supply-chain/page.tsx	6	@typescript-eslint/no-unused-vars	1	'Filter' is defined but never used.
+src/components/omni-base/OmniCard.tsx	14	@typescript-eslint/no-unused-vars	1	'variant' is defined but never used. Allowed unused args must match /^_/u.
+src/components/omni/FacilitiesSpecModal.tsx	4	@typescript-eslint/no-unused-vars	1	'ExternalLink' is defined but never used.
+src/components/omni/FacilitiesSpecModal.tsx	4	@typescript-eslint/no-unused-vars	1	'CheckCircle2' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	3	@typescript-eslint/no-unused-vars	1	'useId' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	6	@typescript-eslint/no-unused-vars	1	'Download' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	7	@typescript-eslint/no-unused-vars	1	'Building' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	7	@typescript-eslint/no-unused-vars	1	'Leaf' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	7	@typescript-eslint/no-unused-vars	1	'Users' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	7	@typescript-eslint/no-unused-vars	1	'ShieldAlert' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	7	@typescript-eslint/no-unused-vars	1	'Sliders' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	8	@typescript-eslint/no-unused-vars	1	'LayoutGrid' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	8	@typescript-eslint/no-unused-vars	1	'Edit3' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	10	@typescript-eslint/no-unused-vars	1	'OmniCard' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	10	@typescript-eslint/no-unused-vars	1	'OmniCardHeader' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	10	@typescript-eslint/no-unused-vars	1	'OmniCardTitle' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	10	@typescript-eslint/no-unused-vars	1	'OmniCardContent' is defined but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	50	@typescript-eslint/no-unused-vars	1	'activeTab' is assigned a value but never used.
+src/components/omni/reports/ESGReportsCenter.tsx	50	@typescript-eslint/no-unused-vars	1	'setActiveTab' is assigned a value but never used.
+src/components/sustain-center/ai-data-chat-panel.tsx	4	@typescript-eslint/no-unused-vars	1	'Sparkles' is defined but never used.
+src/components/sustain-center/ai-data-chat-panel.tsx	39	react-hooks/purity	1	Error: Cannot call impure function during render
+src/components/sustain-center/ai-data-chat-panel.tsx	67	react-hooks/purity	1	Error: Cannot call impure function during render
+src/components/sustain-center/ai-data-chat-panel.tsx	80	react-hooks/purity	1	Error: Cannot call impure function during render
+src/components/sustain-center/carbon-calculator-panel.tsx	4	@typescript-eslint/no-unused-vars	1	'Truck' is defined but never used.
+src/components/sustain-center/junai-ultimate-panel.tsx	9	@typescript-eslint/no-unused-vars	1	'loading' is assigned a value but never used.
+src/components/ui.jsx	1	@typescript-eslint/no-unused-vars	1	'pillars' is defined but never used.
+src/components/ui.jsx	1	@typescript-eslint/no-unused-vars	1	'activities' is defined but never used.
+src/components/ui.jsx	1	@typescript-eslint/no-unused-vars	1	'tasks' is defined but never used.
+src/components/ui.jsx	1	@typescript-eslint/no-unused-vars	1	'tags' is defined but never used.
+src/components/ui.jsx	1	@typescript-eslint/no-unused-vars	1	'documents' is defined but never used.
+src/components/ui.jsx	15	@typescript-eslint/no-unused-vars	1	'accent' is defined but never used. Allowed unused args must match /^_/u.
+src/components/verifier/printable-certificate.tsx	4	@typescript-eslint/no-unused-vars	1	'Hash' is defined but never used.
+src/components/verifier/printable-certificate.tsx	4	@typescript-eslint/no-unused-vars	1	'Download' is defined but never used.
+src/components/verifier/printable-certificate.tsx	13	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/components/verifier/printable-certificate.tsx	35	react-hooks/purity	1	Error: Cannot call impure function during render
+src/core/services/async-task-manager.ts	86	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/core/services/async-task-manager.ts	172	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/core/tags/oracle-sync-matrix.ts	82	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/__tests__/zenrows-client.test.ts	12	@typescript-eslint/no-require-imports	1	A `require()` style import is forbidden.
+src/lib/__tests__/zenrows-client.test.ts	12	@typescript-eslint/no-var-requires	1	Require statement not part of import statement.
+src/lib/auth.ts	19	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/db/prisma-compat.ts	316	prefer-const	2	'q' is never reassigned. Use 'const' instead.
+src/lib/firebase.ts	55	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/genai.ts	4	@typescript-eslint/no-unused-vars	1	'options' is defined but never used. Allowed unused args must match /^_/u.
+src/lib/genai.ts	4	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/genai.ts	6	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/genai.ts	9	@typescript-eslint/no-unused-vars	1	'model' is defined but never used. Allowed unused args must match /^_/u.
+src/lib/genai.ts	9	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/genai.ts	30	@typescript-eslint/no-unused-vars	1	'model' is defined but never used. Allowed unused args must match /^_/u.
+src/lib/genai.ts	30	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/genai.ts	48	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/omni-core/ecosystem.ts	61	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/omni-core/omni-function.ts	149	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/omni-reports/jules-validator.ts	66	@typescript-eslint/no-unused-vars	1	'SEMVER_RE' is assigned a value but never used.
+src/lib/supabase-sync-engine.ts	5	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/supabase-sync-engine.ts	159	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	24	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	24	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	25	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	25	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	26	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	27	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	34	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	34	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	34	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	36	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	38	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/lib/zod-validation.ts	48	@typescript-eslint/no-explicit-any	1	Unexpected any. Specify a different type.
+src/repositories/auth.repository.js	13	@typescript-eslint/no-unused-vars	1	'ncbQuery' is defined but never used.
+src/repositories/auth.repository.js	200	@typescript-eslint/no-unused-vars	1	'password' is defined but never used. Allowed unused args must match /^_/u.
+src/repositories/auth.repository.js	288	@typescript-eslint/no-unused-vars	1	'isConfigComplete' is assigned a value but never used.
+src/repositories/auth.repository.js	423	@typescript-eslint/no-unused-vars	1	'id' is defined but never used. Allowed unused args must match /^_/u.
+src/repositories/auth.repository.js	566	@typescript-eslint/no-unused-vars	1	'payload' is assigned a value but never used.
+src/repositories/auth.repository.js	637	@typescript-eslint/no-unused-vars	1	'payload' is assigned a value but never used.
+src/views/Dashboard.jsx	2	@typescript-eslint/no-unused-vars	1	'StatCard' is defined but never used.
+src/views/Knowledge.jsx	2	@typescript-eslint/no-unused-vars	1	'pillarMeta' is defined but never used.
