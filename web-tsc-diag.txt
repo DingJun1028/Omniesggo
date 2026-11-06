@@ -1,5 +1,0 @@
-src/app/page.tsx(70,78): error TS2353: Object literal may only specify known properties, and 'bottom' does not exist in type 'ScrollToOptions'.
-src/app/page.tsx(71,78): error TS2353: Object literal may only specify known properties, and 'bottom' does not exist in type 'ScrollToOptions'.
-src/components/Panels.tsx(78,20): error TS6133: 'setDegrad' is declared but its value is never read.
-src/components/Panels.tsx(88,7): error TS2552: Cannot find name 'setDegraded'. Did you mean 'setDegrad'?
-exit_code=2
