@@ -22,6 +22,8 @@ interface GraphNode {
 interface GraphEdge {
   from: number;
   to: number;
+  kind: "wikilink" | "outlink";
+  resolved: boolean;
 }
 
 /** 由全部筆記之區塊內容解析 [[雙鏈]]，組裝環形佈局圖譜。 */
@@ -45,12 +47,20 @@ export function buildFusionGraph(notes: OmniApiNode[]): { nodes: GraphNode[]; ed
   for (const note of notes) {
     const source = index.get(note.uuid);
     if (source === undefined) continue;
+    // 拓撲權威：topology.outlinks（引擎維護之雙鏈圖）
+    for (const link of note.topology.outlinks) {
+      const target = index.get(link.target_uuid);
+      if (target !== undefined) {
+        edges.push({ from: source, to: target, kind: "outlink", resolved: link.resolved });
+      }
+    }
+    // 內容投影：區塊正文之 [[雙鏈]]（含未解析標的）
     for (const block of note.blocks) {
       for (const match of block.content.matchAll(WIKILINK_RE)) {
         const target = match[1].trim();
         if (target.length === 0) continue;
         if (index.has(target)) {
-          edges.push({ from: source, to: index.get(target) as number });
+          edges.push({ from: source, to: index.get(target) as number, kind: "wikilink", resolved: true });
         } else {
           linkTargets.push(target);
         }
@@ -94,6 +104,9 @@ export function FusionGraph({
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">
         雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結）
       </h2>
+      <p className="mt-1 text-[10px] text-slate-500">
+        實線=拓撲 outlinks（未解析虛線）· 灰線=內容 [[雙鏈]] 投影
+      </p>
       {graph.nodes.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">尚無節點可繪製。</p>
       ) : (
@@ -108,8 +121,9 @@ export function FusionGraph({
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke="rgba(148,163,184,0.35)"
-                strokeWidth={1.2}
+                stroke={e.kind === "outlink" ? "rgba(0,168,150,0.55)" : "rgba(148,163,184,0.35)"}
+                strokeWidth={e.kind === "outlink" ? 1.8 : 1.2}
+                strokeDasharray={e.resolved ? undefined : "4 3"}
               />
             );
           })}

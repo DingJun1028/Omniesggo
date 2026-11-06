@@ -36,6 +36,7 @@ export function CaptureBar({ onCaptured }: { onCaptured: () => void }) {
   return (
     <div className="glass p-5">
       <textarea
+        id="omni-capture"
         className="field min-h-[76px] resize-none"
         placeholder={CAPTURE_PLACEHOLDER}
         value={text}

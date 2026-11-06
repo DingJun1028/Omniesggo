@@ -20,6 +20,12 @@ export interface OmniApiEvidence {
   audit_formula: string;
 }
 
+export interface OmniApiOutlink {
+  target_uuid: string;
+  wikilink_alias: string;
+  resolved: boolean;
+}
+
 export interface OmniApiNode {
   uuid: string;
   version: string;
@@ -27,7 +33,7 @@ export interface OmniApiNode {
   matrix_phase: "ALPHA_ORIGIN_CAPTURE" | "SIGMA_GRAPH_SYNTHESIS" | "OMEGA_OBJECT_CRYSTAL";
   entity_type: string;
   blocks: OmniApiBlock[];
-  topology: { outlinks: Array<{ target?: string }>; tags: string[] };
+  topology: { outlinks: OmniApiOutlink[]; tags: string[] };
   properties: Record<string, unknown>;
   evidence: OmniApiEvidence[];
   lock_hash: string;

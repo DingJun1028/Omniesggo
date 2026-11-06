@@ -73,7 +73,16 @@ export function NoteDetail({
             <span className="shrink-0 rounded bg-omni-sigma/25 px-1.5 py-0.5 text-[10px] text-omni-sigma">
               {TYPE_LABEL[b.type] ?? b.type}
             </span>
-            <span className="break-all text-xs text-slate-200">{b.content}</span>
+            <span
+              className={`break-all text-xs ${
+                b.deleted ? "text-slate-500 line-through" : "text-slate-200"
+              }`}
+            >
+              {b.content}
+            </span>
+            {b.deleted && (
+              <span className="ml-auto shrink-0 text-[10px] text-slate-500">已刪除（CRDT tombstone）</span>
+            )}
           </li>
         ))}
       </ol>
