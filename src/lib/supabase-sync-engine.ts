@@ -181,7 +181,9 @@ export class SupabaseSyncEngine {
    * 執行實際的 Supabase API 呼叫
    */
   private async executeTask(task: SyncTask) {
-    const { table, operation, payload } = task;
+    const { table, operation } = task;
+    // payload 於佇列/離線快照中以泛用 JSON 形式保存，使用點以 record 形式窄化
+    const payload = task.payload as Record<string, unknown>;
     let response;
 
     switch (operation) {
