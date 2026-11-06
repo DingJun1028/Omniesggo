@@ -173,6 +173,100 @@ export class UnifiedMatrixEngine {
     return [...map.values()].filter((b) => !b.deleted);
   }
 
+  /**
+   * 熔合投影：由未刪除區塊之 [[雙鏈]] 重建 topology.outlinks。
+   * 僅收錄 UUIDv4 形式之標的（文字別名屬內容投影層，不入拓撲權威）；
+   * resolved 由 universe（現存節點 uuid 集）判定，去重以 target_uuid 為準。
+   */
+  static deriveOutlinks(
+    blocks: readonly CRDTBlock[],
+    universe: ReadonlySet<string>
+  ): UnifiedNode["topology"]["outlinks"] {
+    const WIKILINK_RE = /\[\[([^|\]]+)(?:\|([^\]]*))?\]\]/g;
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+    const seen = new Set<string>();
+    const outlinks: UnifiedNode["topology"]["outlinks"] = [];
+    for (const block of blocks) {
+      if (block.deleted) continue;
+      for (const match of block.content.matchAll(WIKILINK_RE)) {
+        const target = match[1]?.trim() ?? "";
+        if (!UUID_RE.test(target) || seen.has(target)) continue;
+        seen.add(target);
+        outlinks.push({ target_uuid: target, wikilink_alias: match[2]?.trim() ?? "", resolved: universe.has(target) });
+      }
+    }
+    return outlinks;
+  }
+
+  /** 區塊編輯（LWW 就地更新）：內容置換、Lamport 遞增、outlinks 熔合重建、證據鏈 ON_BLOCK_EDIT */
+  static async editBlock(
+    node: UnifiedNode,
+    blockId: string,
+    content: string,
+    universe: ReadonlySet<string>
+  ): Promise<Readonly<UnifiedNode>> {
+    const index = node.blocks.findIndex((b) => b.block_id === blockId);
+    if (index === -1) throw new Error("BLOCK_NOT_FOUND");
+    const target = node.blocks[index]!;
+    if (target.deleted) throw new Error("BLOCK_TOMBSTONED");
+    const block: CRDTBlock = { ...target, content, lamport_ts: target.lamport_ts + 1 };
+    return this.rewriteBlock(node, index, block, universe, {
+      source_origin: "BLOCK_EDIT_ENGINE",
+      hook_lifecycle: "ON_BLOCK_EDIT",
+      audit_formula: "LWW-Element-Set(edit)",
+    });
+  }
+
+  /** 區塊軟刪除（CRDT tombstone）：deleted=true 保留原文與 block_id，outlinks 熔合重建（不含墓碑） */
+  static async softDeleteBlock(
+    node: UnifiedNode,
+    blockId: string,
+    universe: ReadonlySet<string>
+  ): Promise<Readonly<UnifiedNode>> {
+    const index = node.blocks.findIndex((b) => b.block_id === blockId);
+    if (index === -1) throw new Error("BLOCK_NOT_FOUND");
+    const target = node.blocks[index]!;
+    if (target.deleted) throw new Error("BLOCK_TOMBSTONED");
+    const block: CRDTBlock = { ...target, deleted: true, lamport_ts: target.lamport_ts + 1 };
+    return this.rewriteBlock(node, index, block, universe, {
+      source_origin: "BLOCK_TOMBSTONE_ENGINE",
+      hook_lifecycle: "ON_BLOCK_TOMBSTONE",
+      audit_formula: "LWW-Element-Set(tombstone)",
+    });
+  }
+
+  /** 區塊重寫共用落地：版本 patch 遞增、outlinks 熔合、證據鏈、lock_hash 重算、結構共享封印 */
+  private static async rewriteBlock(
+    node: UnifiedNode,
+    index: number,
+    block: CRDTBlock,
+    universe: ReadonlySet<string>,
+    evidenceMeta: { source_origin: string; hook_lifecycle: string; audit_formula: string }
+  ): Promise<Readonly<UnifiedNode>> {
+    const blocks = [...node.blocks];
+    blocks[index] = block;
+    const parts = node.version.split(".");
+    const next: UnifiedNode = {
+      ...node,
+      version: `${parts[0]}.${parts[1]}.${Number(parts[2]) + 1}`,
+      timestamp: Date.now(),
+      blocks,
+      topology: { ...node.topology, outlinks: UnifiedMatrixEngine.deriveOutlinks(blocks, universe) },
+      evidence: [
+        ...node.evidence,
+        {
+          source_origin: evidenceMeta.source_origin,
+          captured_at: new Date().toISOString(),
+          content_hash: await sha256(block.content),
+          hook_lifecycle: evidenceMeta.hook_lifecycle,
+          audit_formula: evidenceMeta.audit_formula,
+        },
+      ],
+    };
+    next.lock_hash = await computeNodeLockHash(next);
+    return this.sealNode(next);
+  }
+
   static generateSyncDelta(
     sourceNode: UnifiedNode,
     toPhase: MatrixPhase,

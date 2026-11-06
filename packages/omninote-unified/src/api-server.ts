@@ -178,6 +178,10 @@ export class OmniNoteLocalApiServer {
     if (method === "POST" && resource === "notes" && segments.length === 4 && segments[3] === "blocks") {
       return this.handleBlockAppend(req, res, id!);
     }
+    if (resource === "notes" && id !== undefined && segments.length === 5 && segments[3] === "blocks") {
+      if (method === "PATCH") return this.handleBlockEdit(req, res, id, segments[4]!);
+      if (method === "DELETE") return this.respondBlockSoftDelete(res, id, segments[4]!);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -211,6 +215,7 @@ export class OmniNoteLocalApiServer {
       : ["#inbox"];
     const spawned = await UnifiedMatrixEngine.spawnAlphaOrigin(text, originTag);
     const node: UnifiedNode = { ...spawned, topology: { ...spawned.topology, tags } };
+    node.topology = { ...node.topology, outlinks: UnifiedMatrixEngine.deriveOutlinks(node.blocks, await this.buildUniverse()) };
     node.lock_hash = await computeNodeLockHash(node);
     const sealed = sealWithStructuralSharing(node) as Readonly<UnifiedNode>;
     await this.storage.write(sealed);
@@ -246,6 +251,7 @@ export class OmniNoteLocalApiServer {
       version: bumpPatch(existing.version),
       timestamp: Date.now(),
       blocks: [...existing.blocks, block],
+      topology: { ...existing.topology, outlinks: UnifiedMatrixEngine.deriveOutlinks([...existing.blocks, block], await this.buildUniverse()) },
       evidence: [
         ...existing.evidence,
         {
@@ -269,6 +275,59 @@ export class OmniNoteLocalApiServer {
     if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
     await this.storage.delete(nodeUuid);
     return sendJson(res, 200, { ok: true, deleted: nodeUuid });
+  }
+
+  /** 拓撲宇宙：現存節點 uuid 集合，供 outlinks 熔合重建時判定 resolved */
+  private async buildUniverse(): Promise<ReadonlySet<string>> {
+    return new Set(await this.storage.listUuids());
+  }
+
+  private async handleBlockEdit(req: IncomingMessage, res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    if (typeof body.content !== "string") return sendJson(res, 422, { ok: false, error: "CONTENT_REQUIRED" });
+    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe) =>
+      UnifiedMatrixEngine.editBlock(node, blockId, body.content as string, universe),
+    );
+    if (updated === null) return;
+    return this.persistBlockOp(res, updated);
+  }
+
+  private async respondBlockSoftDelete(res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe) =>
+      UnifiedMatrixEngine.softDeleteBlock(node, blockId, universe),
+    );
+    if (updated === null) return;
+    return this.persistBlockOp(res, updated);
+  }
+
+  /** 引擎區塊操作統一道閘：BLOCK_NOT_FOUND / BLOCK_TOMBSTONED 對應 404，其餘 500 */
+  private async applyBlockOp(
+    res: ServerResponse,
+    node: UnifiedNode,
+    _blockId: string,
+    op: (node: UnifiedNode, universe: ReadonlySet<string>) => Promise<Readonly<UnifiedNode>>,
+  ): Promise<Readonly<UnifiedNode> | null> {
+    try {
+      return await op(node, await this.buildUniverse());
+    } catch (err) {
+      const message = (err as Error).message;
+      if (message === "BLOCK_NOT_FOUND" || message === "BLOCK_TOMBSTONED") {
+        sendJson(res, 404, { ok: false, error: message });
+        return null;
+      }
+      throw err;
+    }
+  }
+
+  private async persistBlockOp(res: ServerResponse, updated: Readonly<UnifiedNode>): Promise<void> {
+    await this.storage.write(updated);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, updated);
+    return sendJson(res, 200, { ok: true, node: updated });
   }
 
   private async handleSearch(req: IncomingMessage, res: ServerResponse): Promise<void> {
