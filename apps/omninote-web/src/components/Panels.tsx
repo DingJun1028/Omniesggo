@@ -110,6 +110,7 @@ export function SearchPanel({ onJump }: { onJump: (uuid: string) => void }) {
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">雙鏈熔合檢索</h2>
       <div className="mt-3 flex gap-2">
         <input
+          id="omni-search"
           className="field"
           placeholder="語意搜尋既有筆記…"
           value={query}

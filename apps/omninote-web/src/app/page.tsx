@@ -2,12 +2,13 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { OmniApiDraft, OmniApiHealth, OmniApiNode } from "@/lib/api";
-import { fetchDrafts, fetchHealth, fetchNotes } from "@/lib/api";
+import { buildExportUrl, fetchDrafts, fetchHealth, fetchNotes } from "@/lib/api";
 import { CaptureBar, SketchBar } from "@/components/CaptureBar";
 import { HealthPanel } from "@/components/HealthPanel";
 import { DraftsPanel, NotesBoard, SearchPanel } from "@/components/Panels";
 import { NoteDetail } from "@/components/NoteDetail";
 import { FusionGraph } from "@/components/FusionGraph";
+import { CommandPalette, type PaletteAction } from "@/components/CommandPalette";
 
 export default function HomePage() {
   const [health, setHealth] = useState<OmniApiHealth | null>(null);
@@ -15,6 +16,7 @@ export default function HomePage() {
   const [drafts, setDrafts] = useState<OmniApiDraft[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [selectedUuid, setSelectedUuid] = useState<string | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
 
   const refresh = useCallback(async (): Promise<void> => {
     try {
@@ -37,9 +39,28 @@ export default function HomePage() {
   const selected =
     selectedUuid === null ? null : (notes.find((n) => n.uuid === selectedUuid) ?? null);
 
+  const paletteActions: PaletteAction[] = [
+    { id: "capture", label: "聚焦速記欄", hint: "⌘↵ 捕獲", run: () => focusById("omni-capture") },
+    { id: "search", label: "聚焦熔合檢索", hint: "語意搜尋", run: () => focusById("omni-search") },
+    { id: "refresh", label: "重新整理全部資料", hint: "30s 自動輪詢", run: () => void refresh() },
+    { id: "export", label: "封印導出（稽核封存）", hint: "GET /api/export", run: () => window.open(buildExportUrl(), "_blank") },
+    { id: "bottom", label: "跳至圖譜與草稿區", hint: "結晶/封印", run: () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" }) },
+  ];
+
   function updateNode(next: OmniApiNode): void {
     setNotes((prev) => prev.map((n) => (n.uuid === next.uuid ? next : n)));
   }
+
+  useEffect(() => {
+    function onKey(e: KeyboardEvent): void {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-6">
@@ -50,7 +71,25 @@ export default function HomePage() {
         <p className="text-xs text-slate-400">
           全生命週期流式筆記 — 速記 · 塗鴉 · 雙鏈熔合 · 結晶 · 封印
         </p>
+        <button
+          type="button"
+          className="ml-auto rounded-lg border border-slate-500/30 px-3 py-1.5 text-xs text-slate-300 transition hover:border-omni-alpha/60 hover:text-slate-100"
+          onClick={() => setPaletteOpen(true)}
+        >
+          ⌘K 指令面板
+        </button>
       </header>
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        actions={paletteActions}
+        notes={notes}
+        onSelectNote={(uuid) => {
+          setSelectedUuid(uuid);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
+      />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <section className="space-y-4 lg:col-span-2">
@@ -123,4 +162,10 @@ function NavButton({ label, hint, onClick }: { label: string; hint: string; onCl
       <span className="text-[10px] text-slate-500">{hint}</span>
     </button>
   );
+}
+
+function focusById(id: string): void {
+  const el = document.getElementById(id);
+  el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  el?.focus();
 }

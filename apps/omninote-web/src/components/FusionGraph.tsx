@@ -22,6 +22,87 @@ interface GraphNode {
 interface GraphEdge {
   from: number;
   to: number;
+  kind: "wikilink" | "outlink";
+  resolved: boolean;
+}
+
+function noteToGraphNode(note: OmniApiNode): GraphNode {
+  return {
+    id: note.uuid,
+    label: (note.blocks[0]?.content ?? note.uuid.slice(0, 8)).slice(0, 14),
+    phase: note.matrix_phase,
+    x: 0,
+    y: 0,
+    isNote: true,
+  };
+}
+
+/** 拓撲權威：topology.outlinks（引擎維護之雙鏈圖）投影為邊。 */
+function collectOutlinkEdges(
+  note: OmniApiNode,
+  index: Map<string, number>,
+  edges: GraphEdge[]
+): void {
+  const source = index.get(note.uuid);
+  if (source === undefined) return;
+  for (const link of note.topology.outlinks) {
+    const target = index.get(link.target_uuid);
+    if (target !== undefined) {
+      edges.push({ from: source, to: target, kind: "outlink", resolved: link.resolved });
+    }
+  }
+}
+
+/** 內容投影：區塊正文之 [[雙鏈]]（未解析標的收集為懸浮節點）。 */
+function collectWikilinkEdges(
+  note: OmniApiNode,
+  index: Map<string, number>,
+  edges: GraphEdge[],
+  unresolvedTargets: string[]
+): void {
+  const source = index.get(note.uuid);
+  if (source === undefined) return;
+  for (const block of note.blocks) {
+    for (const match of block.content.matchAll(WIKILINK_RE)) {
+      const target = match[1].trim();
+      if (target.length === 0) continue;
+      const to = index.get(target);
+      if (to !== undefined) {
+        edges.push({ from: source, to, kind: "wikilink", resolved: true });
+      } else {
+        unresolvedTargets.push(target);
+      }
+    }
+  }
+}
+
+function appendUnresolvedNodes(
+  uniqueTargets: string[],
+  nodes: GraphNode[],
+  index: Map<string, number>
+): void {
+  for (const target of uniqueTargets) {
+    index.set(target, nodes.length);
+    nodes.push({ id: target, label: target.slice(0, 14), phase: "LINK", x: 0, y: 0, isNote: false });
+    // 未解析之鏈結標的無法連回具體節點邊；僅呈現為懸浮節點。
+  }
+}
+
+function applyCircularLayout(nodes: GraphNode[]): void {
+  const R = 150;
+  const CX = 190;
+  const CY = 170;
+  const n = nodes.length;
+  if (n === 0) return;
+  if (n === 1) {
+    nodes[0].x = CX;
+    nodes[0].y = CY;
+    return;
+  }
+  for (let i = 0; i < n; i++) {
+    nodes[i].x = Math.round(CX + R * Math.cos((2 * Math.PI * i) / n));
+    nodes[i].y = Math.round(CY + R * Math.sin((2 * Math.PI * i) / n));
+  }
 }
 
 /** 由全部筆記之區塊內容解析 [[雙鏈]]，組裝環形佈局圖譜。 */
@@ -29,54 +110,18 @@ export function buildFusionGraph(notes: OmniApiNode[]): { nodes: GraphNode[]; ed
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];
   const index = new Map<string, number>();
+  const unresolvedTargets: string[] = [];
 
   for (const note of notes) {
     index.set(note.uuid, nodes.length);
-    nodes.push({
-      id: note.uuid,
-      label: (note.blocks[0]?.content ?? note.uuid.slice(0, 8)).slice(0, 14),
-      phase: note.matrix_phase,
-      x: 0,
-      y: 0,
-      isNote: true,
-    });
+    nodes.push(noteToGraphNode(note));
   }
-  const linkTargets: string[] = [];
   for (const note of notes) {
-    const source = index.get(note.uuid);
-    if (source === undefined) continue;
-    for (const block of note.blocks) {
-      for (const match of block.content.matchAll(WIKILINK_RE)) {
-        const target = match[1].trim();
-        if (target.length === 0) continue;
-        if (index.has(target)) {
-          edges.push({ from: source, to: index.get(target) as number });
-        } else {
-          linkTargets.push(target);
-        }
-      }
-    }
+    collectOutlinkEdges(note, index, edges);
+    collectWikilinkEdges(note, index, edges, unresolvedTargets);
   }
-  const uniqueTargets = [...new Set(linkTargets)];
-  for (const target of uniqueTargets) {
-    index.set(target, nodes.length);
-    nodes.push({ id: target, label: target.slice(0, 14), phase: "LINK", x: 0, y: 0, isNote: false });
-    // 未解析之鏈結標的無法連回具體節點邊；僅呈現為懸浮節點。
-  }
-  // 環形佈局
-  const R = 150;
-  const CX = 190;
-  const CY = 170;
-  const n = nodes.length;
-  if (n === 1) {
-    nodes[0].x = CX;
-    nodes[0].y = CY;
-  } else {
-    for (let i = 0; i < n; i++) {
-      nodes[i].x = Math.round(CX + R * Math.cos((2 * Math.PI * i) / n));
-      nodes[i].y = Math.round(CY + R * Math.sin((2 * Math.PI * i) / n));
-    }
-  }
+  appendUnresolvedNodes([...new Set(unresolvedTargets)], nodes, index);
+  applyCircularLayout(nodes);
   return { nodes, edges };
 }
 
@@ -94,6 +139,9 @@ export function FusionGraph({
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">
         雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結）
       </h2>
+      <p className="mt-1 text-[10px] text-slate-500">
+        實線=拓撲 outlinks（未解析虛線）· 灰線=內容 [[雙鏈]] 投影
+      </p>
       {graph.nodes.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">尚無節點可繪製。</p>
       ) : (
@@ -108,8 +156,9 @@ export function FusionGraph({
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                stroke="rgba(148,163,184,0.35)"
-                strokeWidth={1.2}
+                stroke={e.kind === "outlink" ? "rgba(0,168,150,0.55)" : "rgba(148,163,184,0.35)"}
+                strokeWidth={e.kind === "outlink" ? 1.8 : 1.2}
+                strokeDasharray={e.resolved ? undefined : "4 3"}
               />
             );
           })}
