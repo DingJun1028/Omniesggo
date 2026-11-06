@@ -1,0 +1,51 @@
+name: omninote-web-lockfile-sync
+
+# 一次性工作流（自動自刪）：
+#   以 packageManager 指定之 pnpm 12.16.1 執行 --no-frozen-lockfile 安裝，
+#   將 apps/omninote-web importer 寫入 pnpm-lock.yaml，驗證 frozen 安裝可
+#   通過後，以 GITHUB_TOKEN 提交 lockfile 並刪除本工作流。
+
+on:
+  push:
+    branches: [feat/omninote-web-ui]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lockfile-sync:
+    if: github.repository == 'DingJun1028/Omniesggo'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm (packageManager pinned)
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 22
+
+      - name: Regenerate lockfile (add omninote-web importer)
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Verify frozen install now passes
+        run: pnpm install --frozen-lockfile
+
+      - name: Commit lockfile and remove this workflow
+        run: |
+          git config user.name "omninote-ci-bot"
+          git config user.email "actions@github.com"
+          git add pnpm-lock.yaml
+          git rm --quiet .github/workflows/omninote-web-lockfile-sync.yml
+          if git diff --cached --quiet; then
+            echo "No lockfile change needed"
+            exit 0
+          fi
+          git commit -m "chore(omninote): sync pnpm-lock.yaml for apps/omninote-web importer"
+          git push
