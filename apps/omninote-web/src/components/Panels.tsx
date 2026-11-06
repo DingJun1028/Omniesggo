@@ -75,7 +75,7 @@ export function NotesBoard({
 
 export function SearchPanel({ onJump }: { onJump: (uuid: string) => void }) {
   const [query, setQuery] = useState("");
-  const [degraded, setDegrad] = useState(false);
+  const [degraded, setDegraded] = useState(false);
   const [results, setResults] = useState<Array<{ omni_uuid: string; score: number; preview: string }>>([]);
   const [message, setMessage] = useState<string | null>(null);
 

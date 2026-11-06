@@ -67,8 +67,8 @@ export default function HomePage() {
           <NavButton label="速記" hint="⌘↵ 一句捕獲" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
           <NavButton label="塗鴉" hint="向量速寫" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
           <NavButton label="熔合" hint="語意檢索" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
-          <NavButton label="結晶" hint="草稿晉升" onClick={() => window.scrollTo({ bottom: 0, behavior: "smooth" })} />
-          <NavButton label="封印" hint="稽核導出" onClick={() => window.scrollTo({ bottom: 0, behavior: "smooth" })} />
+          <NavButton label="結晶" hint="草稿晉升" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })} />
+          <NavButton label="封印" hint="稽核導出" onClick={() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" })} />
         </nav>
       </footer>
     </main>
