@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import type { PointerEvent } from "react";
 import { appendBlock, captureNote } from "@/lib/api";
 
 const CAPTURE_PLACEHOLDER = "靈感碎片… 一句話捕獲，Alpha 起點";
@@ -77,7 +78,7 @@ export function SketchBar({ onCaptured }: { onCaptured: () => void }) {
   const [message, setMessage] = useState<string | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  function locate(e: React.PointerEvent<SVGSVGElement>): SketchPoint {
+  function locate(e: PointerEvent<SVGSVGElement>): SketchPoint {
     const rect = svgRef.current?.getBoundingClientRect();
     if (rect === undefined) return [0, 0];
     return [Math.round(e.clientX - rect.left), Math.round(e.clientY - rect.top)];
