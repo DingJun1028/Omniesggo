@@ -21,6 +21,7 @@ jobs:
           OCI_REGION: ${{ secrets.OCI_REGION }}
           OCI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
           OCI_KEY: ${{ secrets.OCI_API_KEY }}
+          VPS_HOST_TARGET: ${{ secrets.VPS_HOST }}
         run: |
           mkdir -p ~/.oci
           cat > ~/.oci/config <<EOF
@@ -57,8 +58,6 @@ jobs:
             echo "## ERROR: no instance matches VPS_HOST public IP" >> $R
           fi
           cat $R
-        env:
-          VPS_HOST_TARGET: ${{ secrets.VPS_HOST }}
       - name: Wait for SSH and repair services
         env:
           VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
