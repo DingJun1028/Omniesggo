@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { OmniApiNode, OmniBlockType } from "@/lib/api";
-import { appendBlock, OMNI_BLOCK_TYPES } from "@/lib/api";
+import { appendBlock, editBlock, softDeleteBlock, OMNI_BLOCK_TYPES } from "@/lib/api";
 
 const TYPE_LABEL: Record<string, string> = {
   paragraph: "段落",
@@ -26,6 +26,8 @@ export function NoteDetail({
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [draft, setDraft] = useState("");
 
   async function append(): Promise<void> {
     const trimmed = content.trim();
@@ -39,6 +41,41 @@ export function NoteDetail({
       onUpdated(next);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "追加失敗");
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMessage(null), 2800);
+    }
+  }
+
+  async function saveEdit(blockId: string): Promise<void> {
+    const trimmed = draft.trim();
+    if (trimmed.length === 0 || busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const next = await editBlock(note.uuid, blockId, trimmed);
+      setEditingId(null);
+      setDraft("");
+      setMessage("區塊已編輯（ON_BLOCK_EDIT 證據入鏈、outlinks 熔合重建）✓");
+      onUpdated(next);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "編輯失敗");
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMessage(null), 2800);
+    }
+  }
+
+  async function removeBlock(blockId: string): Promise<void> {
+    if (busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const next = await softDeleteBlock(note.uuid, blockId);
+      setMessage("區塊已軟刪除（CRDT tombstone、ON_BLOCK_TOMBSTONE 證據入鏈）✓");
+      onUpdated(next);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "刪除失敗");
     } finally {
       setBusy(false);
       setTimeout(() => setMessage(null), 2800);
@@ -73,15 +110,75 @@ export function NoteDetail({
             <span className="shrink-0 rounded bg-omni-sigma/25 px-1.5 py-0.5 text-[10px] text-omni-sigma">
               {TYPE_LABEL[b.type] ?? b.type}
             </span>
-            <span
-              className={`break-all text-xs ${
-                b.deleted ? "text-slate-500 line-through" : "text-slate-200"
-              }`}
-            >
-              {b.content}
-            </span>
-            {b.deleted && (
-              <span className="ml-auto shrink-0 text-[10px] text-slate-500">已刪除（CRDT tombstone）</span>
+            {editingId === b.block_id ? (
+              <span className="flex flex-1 flex-wrap items-center gap-1.5">
+                <input
+                  className="field min-w-[140px] flex-1"
+                  value={draft}
+                  aria-label="編輯區塊內容"
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void saveEdit(b.block_id);
+                    if (e.key === "Escape") {
+                      setEditingId(null);
+                      setDraft("");
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  className="shrink-0 rounded-lg bg-omni-alpha/90 px-2 py-1 text-[10px] text-slate-950 transition hover:bg-omni-alpha disabled:opacity-50"
+                  disabled={busy || draft.trim().length === 0}
+                  onClick={() => void saveEdit(b.block_id)}
+                >
+                  儲存
+                </button>
+                <button
+                  type="button"
+                  className="shrink-0 rounded-lg bg-slate-700/60 px-2 py-1 text-[10px] text-slate-200 transition hover:bg-slate-700"
+                  onClick={() => {
+                    setEditingId(null);
+                    setDraft("");
+                  }}
+                >
+                  取消
+                </button>
+              </span>
+            ) : (
+              <>
+                <span
+                  className={`break-all text-xs ${
+                    b.deleted ? "text-slate-500 line-through" : "text-slate-200"
+                  }`}
+                >
+                  {b.content}
+                </span>
+                {b.deleted ? (
+                  <span className="ml-auto shrink-0 text-[10px] text-slate-500">已刪除（CRDT tombstone）</span>
+                ) : (
+                  <span className="ml-auto flex shrink-0 gap-1">
+                    <button
+                      type="button"
+                      className="rounded-lg bg-slate-700/60 px-2 py-1 text-[10px] text-slate-200 transition hover:bg-slate-700"
+                      disabled={busy}
+                      onClick={() => {
+                        setEditingId(b.block_id);
+                        setDraft(b.content);
+                      }}
+                    >
+                      編輯
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-lg bg-omni-omega/25 px-2 py-1 text-[10px] text-omni-omega transition hover:bg-omni-omega/40 disabled:opacity-50"
+                      disabled={busy}
+                      onClick={() => void removeBlock(b.block_id)}
+                    >
+                      刪除
+                    </button>
+                  </span>
+                )}
+              </>
             )}
           </li>
         ))}

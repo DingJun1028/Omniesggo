@@ -14,6 +14,7 @@
 - 雙鏈熔合圖譜：拓撲權威 outlinks（target_uuid/wikilink_alias/resolved）實線投影（未解析虛線）＋區塊內容 [[雙鏈]] 灰線投影，環形佈局 SVG，三態品牌色，點擊節點開啟詳情。
 - ⌘K 指令面板：全域動作（聚焦速記/檢索、重新整理、封印導出）與筆記全文跳轉，鍵盤導航（↑↓ Enter Esc）。
 - 區塊 soft-delete 顯示：CRDT tombstone（deleted）以刪除線與「已刪除」標記如實呈現。
+- 區塊編輯與軟刪除操作：非墓碑區塊行內編輯（PATCH /api/notes/:uuid/blocks/:blockId，ON_BLOCK_EDIT 證據入鏈、outlinks 熔合重建）與軟刪除按鈕（DELETE 同路徑，CRDT tombstone、ON_BLOCK_TOMBSTONE 證據入鏈）。
 
 ## 啟動
 
