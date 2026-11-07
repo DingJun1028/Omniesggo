@@ -15,6 +15,7 @@
 - ⌘K 指令面板：全域動作（聚焦速記/檢索、重新整理、封印導出）與筆記全文跳轉，鍵盤導航（↑↓ Enter Esc）。
 - 區塊 soft-delete 顯示：CRDT tombstone（deleted）以刪除線與「已刪除」標記如實呈現。
 - 區塊編輯與軟刪除操作：非墓碑區塊行內編輯（PATCH /api/notes/:uuid/blocks/:blockId，ON_BLOCK_EDIT 證據入鏈、outlinks 熔合重建）與軟刪除按鈕（DELETE 同路徑，CRDT tombstone、ON_BLOCK_TOMBSTONE 證據入鏈）。
+- 熵減淨化：節點詳情「淨化」按鈕觸發 POST /api/notes/:uuid/purify，對現存宇宙重標註死鏈並顯示 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈）。
 
 ## 啟動
 

@@ -188,3 +188,32 @@ test("BLOCK-5 API：追加區塊觸發 outlinks 熔合更新", async () => {
     assert.equal(appended.topology.outlinks[0]!.resolved, true);
   });
 });
+
+test("BLOCK-6 API：淨化端點重標註死鏈並計算 entropy_score", async () => {
+  await withServer(async ({ port }) => {
+    const resB = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "標的筆記" }),
+    });
+    const uuidB = ((await resB.json()) as { node: UnifiedNode }).node.uuid;
+    const resA = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: `指向 [[${uuidB}]] 的來源筆記` }),
+    });
+    const uuidA = ((await resA.json()) as { node: UnifiedNode }).node.uuid;
+    // 標的被硬刪除後，outlink 成為死鏈
+    await fetch(`${base(port)}/api/notes/${uuidB}`, { method: "DELETE" });
+    const resPurify = await fetch(`${base(port)}/api/notes/${uuidA}/purify`, { method: "POST" });
+    assert.equal(resPurify.status, 200);
+    const purified = ((await resPurify.json()) as { node: UnifiedNode }).node;
+    assert.equal(purified.topology.outlinks.length, 1);
+    assert.equal(purified.topology.outlinks[0]!.resolved, false);
+    assert.ok(purified.entropy_score !== undefined && purified.entropy_score > 0);
+    assert.equal(purified.evidence[purified.evidence.length - 1]!.hook_lifecycle, "ON_ENTROPY_PURIFICATION");
+    // 不存在之節點 → 404
+    const res404 = await fetch(`${base(port)}/api/notes/9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d/purify`, { method: "POST" });
+    assert.equal(res404.status, 404);
+  });
+});
