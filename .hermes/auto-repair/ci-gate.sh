@@ -47,12 +47,12 @@ fetch_checks() {
   # still fail closed if every attempt fails.
   for attempt in 1 2 3 4 5; do
     body="$(fetch_checks_raw 2>/dev/null)"; rc=$?
-    [[ "$rc" -eq 0 ]] && break
+    [ "$rc" -eq 0 ] && break
     echo "CIGATE: check-runs fetch attempt $attempt failed (rc=$rc), retrying..." >&2
     # Honor GitHub's rate-limit cooldown: after repeated failures, wait at
     # least 60s instead of hammering the API (secondary limits require a
     # minimum one-minute pause).
-    if [[ "$attempt" -ge 3 ]]; then sleep 60; else sleep 5; fi
+    if [ "$attempt" -ge 3 ]; then sleep 60; else sleep 5; fi
   done
   if [ "$rc" -ne 0 ]; then
     # A body that is JSON (starts with { or [) is the API error envelope.
