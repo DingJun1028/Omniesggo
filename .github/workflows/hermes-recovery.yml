@@ -77,6 +77,7 @@ jobs:
         run: |
           set +e
           report "SSH unreachable - querying OCI"
+          export SUPPRESS_LABEL_WARNING=True
           COMPARTMENTS=$(jq -n --arg t "$OCI_TENANCY" '[$t]')
           oci iam compartment list --compartment-id "$OCI_TENANCY" --all > /tmp/compartments.json 2>/tmp/oci-err1.txt
           if [ -s /tmp/compartments.json ]; then
@@ -84,7 +85,7 @@ jobs:
               COMPARTMENTS=$(echo "$COMPARTMENTS" | jq --arg c "$c" '. + [$c]')
             done
           else
-            report "compartment list error: $(head -c 400 /tmp/oci-err1.txt | tr '\n' ' ')"
+            report "compartment list error: $(head -c 2000 /tmp/oci-err1.txt | tr '\n' ' )"
           fi
           report "compartments to scan: $(echo "$COMPARTMENTS" | jq '. | length')"
           FOUND=""
@@ -119,7 +120,7 @@ jobs:
                 FOUND=yes
               done
             else
-              report "instance list error: $(head -c 300 /tmp/oci-err2.txt | tr '\n' ' ')"
+              report "instance list error: $(head -c 2000 /tmp/oci-err2.txt | tr '\n' ' ')"
             fi
           done
           [ -z "$FOUND" ] && report "NO_INSTANCES_FOUND check tenancy/secrets"
@@ -129,7 +130,7 @@ jobs:
           rm -f ~/.ssh/deploy_key
           exit 0
       - name: If SSH was up - collect diagnostics
-        if: steps.sshprobe.outputs.up == 'true'
+          if: steps.sshprobe.outputs.up == 'true'
         run: |
           set +e
           mkdir -p ~/.ssh
