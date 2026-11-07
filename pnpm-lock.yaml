@@ -926,7 +926,6 @@ importers:
       '@esggo/oesg-audit':
         specifier: workspace:*
         version: link:../oesg-audit
-    dependencies:
       '@esggo/oesg-pulse':
         specifier: workspace:*
         version: link:../oesg-pulse
