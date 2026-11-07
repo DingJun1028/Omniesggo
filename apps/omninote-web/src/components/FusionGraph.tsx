@@ -24,6 +24,7 @@ interface GraphEdge {
   to: number;
   kind: "wikilink" | "outlink";
   resolved: boolean;
+  alias?: string;
 }
 
 function noteToGraphNode(note: OmniApiNode): GraphNode {
@@ -48,7 +49,13 @@ function collectOutlinkEdges(
   for (const link of note.topology.outlinks) {
     const target = index.get(link.target_uuid);
     if (target !== undefined) {
-      edges.push({ from: source, to: target, kind: "outlink", resolved: link.resolved });
+      edges.push({
+        from: source,
+        to: target,
+        kind: "outlink",
+        resolved: link.resolved,
+        alias: link.wikilink_alias.trim(),
+      });
     }
   }
 }
@@ -140,7 +147,7 @@ export function FusionGraph({
         雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結）
       </h2>
       <p className="mt-1 text-[10px] text-slate-500">
-        實線=拓撲 outlinks（未解析虛線）· 灰線=內容 [[雙鏈]] 投影
+        實線=拓撲 outlinks（未解析虛線，邊中點標示 wikilink 別名）· 灰線=內容 [[雙鏈]] 投影
       </p>
       {graph.nodes.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">尚無節點可繪製。</p>
@@ -149,17 +156,38 @@ export function FusionGraph({
           {graph.edges.map((e, i) => {
             const a = graph.nodes[e.from];
             const b = graph.nodes[e.to];
+            const alias = e.alias ?? "";
+            const mx = Math.round((a.x + b.x) / 2);
+            const my = Math.round((a.y + b.y) / 2);
             return (
-              <line
-                key={i}
-                x1={a.x}
-                y1={a.y}
-                x2={b.x}
-                y2={b.y}
-                stroke={e.kind === "outlink" ? "rgba(0,168,150,0.55)" : "rgba(148,163,184,0.35)"}
-                strokeWidth={e.kind === "outlink" ? 1.8 : 1.2}
-                strokeDasharray={e.resolved ? undefined : "4 3"}
-              />
+              <g key={i}>
+                <line
+                  x1={a.x}
+                  y1={a.y}
+                  x2={b.x}
+                  y2={b.y}
+                  stroke={e.kind === "outlink" ? "rgba(0,168,150,0.55)" : "rgba(148,163,184,0.35)"}
+                  strokeWidth={e.kind === "outlink" ? 1.8 : 1.2}
+                  strokeDasharray={e.resolved ? undefined : "4 3"}
+                >
+                  <title>
+                    {e.kind === "outlink" && alias.length > 0
+                      ? `雙鏈別名：${alias}（${a.label} → ${b.label}）`
+                      : `${a.label} → ${b.label}`}
+                  </title>
+                </line>
+                {e.kind === "outlink" && alias.length > 0 && (
+                  <text
+                    x={mx}
+                    y={my - 3}
+                    textAnchor="middle"
+                    fontSize={7}
+                    fill="rgba(0,168,150,0.85)"
+                  >
+                    {alias.length > 12 ? `${alias.slice(0, 12)}…` : alias}
+                  </text>
+                )}
+              </g>
             );
           })}
           {graph.nodes.map((node) => (
