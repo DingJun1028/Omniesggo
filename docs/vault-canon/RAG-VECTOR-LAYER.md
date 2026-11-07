@@ -57,5 +57,9 @@
 1. 使用者於 console.weaviate.io 以 email 註冊（免信用卡）。
 2. 建立 Sandbox 叢集（免費方案），取得叢集 URL 與 API key。
 3. 依「代理密碼交接工作流」以 OneTimeSecret 交付 URL 與 API key（兩行：WEAVIATE_URL=... 與 WEAVIATE_API_KEY=...）。
-4. 代理兌換後寫入 Supabase vault_secrets 與部署環境 .env.secrets，並以 curl 對 `{WEAVIATE_URL}/v1/.well-known/ready` 與端到端寫入/查詢驗證。
+4. 代理兌換後寫入 Supabase vault_secrets 與部署環境 .env.secrets，並以 `scripts/verify-weaviate-cloud.mjs` 驗證（子命令：ready / meta / schema / e2e；e2e 建立缺席之 OmniChunk、寫入明確向量測試物件、nearVector 檢索尋回後清理，不留殘留）：
+   ```
+   WEAVIATE_URL=... WEAVIATE_API_KEY=... node scripts/verify-weaviate-cloud.mjs e2e
+   ```
+   全過通過時輸出 `E2E_ALL_PASS`。
 5. 升級路徑：免費沙箱可原地升級 pay-as-you-go，無需遷移。
