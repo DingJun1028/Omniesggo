@@ -6,7 +6,7 @@ import type { IUltimateAwakeningState } from '@/lib/junaikey/ultimate-awakening'
 
 export function JunAiUltimatePanel() {
   const [state, setState] = useState<IUltimateAwakeningState | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [, setLoading] = useState(false);
   const [executing, setExecuting] = useState(false);
   const [trace, setTrace] = useState<string[]>([]);
   const [intentInput, setIntentInput] = useState('');

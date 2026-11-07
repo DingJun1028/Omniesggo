@@ -38,6 +38,30 @@ token 傳遞方式（擇一）：`Authorization: Bearer <token>` 或 `X-Omni-Tok
 | `SUPABASE_SERVICE_ROLE_KEY` | 選配（回退） | 僅私有網路可用；anon 未設時回退，並於程式中如實標示 scope |
 | `PORT` | 選配 | 監聽埠（預設 8787） |
 
+## Weaviate Query Agent 唯讀代理（v0.4.0）
+
+`src/query-agent.ts` 以零新依賴之最小 MCP Streamable HTTP 客戶端（JSON-RPC：initialize → tools/call），將 Weaviate 官方遠端 MCP 伺服器之兩個唯讀工具接入本閘道：
+
+| 端點 | 對應工具 | 說明 |
+| --- | --- | --- |
+| `POST /agent/ask` | `query_agent_ask` | 自然語言問答（Ask Mode）；`resultEvaluation: "llm"` 時附 isPartialAnswer / missingInformation / sources |
+| `POST /agent/search` | `query_agent_search` | 語意搜尋（Search Mode）；支援 limit / offset / effort / filtering / diversityWeight |
+
+| 環境變數 | 必要 | 用途 |
+| --- | --- | --- |
+| `WEAVIATE_API_KEY` | 必要 | Weaviate Cloud 叢集 API 金鑰（與 rag_search 共用；密文永不入 repo） |
+| `WEAVIATE_URL` | 必要 | 叢集 URL（映射為 X-Weaviate-Cluster-Url 標頭） |
+| `QUERY_AGENT_MCP_URL` | 選配 | 覆寫 MCP 端點（預設 `https://api.agents.weaviate.io/mcp`） |
+| `QUERY_AGENT_TIMEOUT_MS` | 選配 | 單一請求逾時（預設 30000，代理工具屬雲端 AI 服務，較 rag 檢索為長） |
+
+如實揭露（與 rag_search 之關鍵差異）：
+
+1. `rag_search` 強制 ownerId 過濾（where Equal），絕不回傳跨 owner 資料；Query Agent 以叢集層級運作，無法強制 ownerId 過濾。資料可見範圍完全由 `WEAVIATE_API_KEY` 之角色權限界定，呼叫端應使用受角色限制之金鑰。
+2. 需於 Weaviate Cloud 控制台啟用 Agents 功能，且 MCP 伺服器與 client libraries 共用 Query Agent 配額；WCD 免費沙箱之每日 2000 嵌入請求等額度限制同樣適用。
+3. 不支援 multi-tenant 集合與多 named vector 集合（官方 MCP 限制）。
+4. 缺 `WEAVIATE_API_KEY` 或 `WEAVIATE_URL` 時端點回 503 優雅降級（與 rag_search 同模式）。
+5. 端到端真實叢集驗證待 WCD 憑證交付後執行（`scripts/verify-weaviate-cloud.mjs` 為資料層驗收；本代理工具層驗收待憑證解鎖）。
+
 ## 執行
 
 ```bash

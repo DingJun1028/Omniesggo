@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Building2, ShieldCheck, AlertTriangle, Leaf, 
-  Users, CheckCircle2, Copy, Check, Filter, Search,
+  Building2, ShieldCheck, Leaf, 
+  Users, CheckCircle2, Copy, Check, Search,
   TrendingUp, Download
 } from 'lucide-react';
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '@/components/omni-base/OmniCard';

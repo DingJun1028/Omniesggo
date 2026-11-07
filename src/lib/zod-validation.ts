@@ -21,21 +21,21 @@ import { NextRequest, NextResponse } from 'next/server';
 // ─── Helpers ────────────────────────────────────────────────────────
 
 /** 對缺少之欄位套用 schema 宣告之 default（行為對齊 zod .default()） */
-function applyDefaults(schema: TSchema, data: any): any {
-  if (schema && (schema as any).default !== undefined) return (schema as any).default;
-  if (schema && Array.isArray((schema as any).anyOf)) {
-    for (const sub of (schema as any).anyOf) {
+function applyDefaults(schema: TSchema, data: unknown): unknown {
+  if (schema && 'default' in schema && schema.default !== undefined) return schema.default;
+  if (schema && Array.isArray((schema as { anyOf?: unknown }).anyOf)) {
+    for (const sub of (schema as unknown as { anyOf: Array<{ default?: unknown }> }).anyOf) {
       if (sub.default !== undefined) return sub.default;
     }
   }
   return data;
 }
 
-function parseWithDefaults(schema: any, raw: any): any {
+function parseWithDefaults(schema: TSchema | undefined, raw: unknown): unknown {
   if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return raw;
-  const out: any = { ...raw };
-  const props = schema?.properties ?? {};
-  for (const [key, sub] of Object.entries(props) as Array<[string, any]>) {
+  const out: Record<string, unknown> = { ...(raw as Record<string, unknown>) };
+  const props = (schema?.properties as Record<string, TSchema> | undefined) ?? {};
+  for (const [key, sub] of Object.entries(props) as Array<[string, TSchema]>) {
     if (!(key in out)) {
       const d = applyDefaults(sub, undefined);
       if (d !== undefined) out[key] = d;
@@ -45,7 +45,7 @@ function parseWithDefaults(schema: any, raw: any): any {
 }
 
 function issuesFrom(schema: TSchema, raw: unknown): Array<{ path: string; message: string }> {
-  return [...Value.Errors(schema, raw)].map((e: any) => ({
+  return [...Value.Errors(schema, raw)].map((e: { path?: unknown; message?: unknown }) => ({
     path: String(e.path ?? ''),
     message: String(e.message ?? 'Invalid value'),
   }));

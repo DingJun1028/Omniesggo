@@ -35,7 +35,7 @@ on:
 
 env:
   NODE_VERSION: '22'
-  PNPM_VERSION: '11.5.2'
+  PNPM_VERSION: '12.16.1'
 
 jobs:
   # ─── Security Scanning ─────────────────────────────────────────

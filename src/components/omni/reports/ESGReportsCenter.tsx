@@ -1,13 +1,12 @@
 'use client';
 
-import React, { useState, useId } from 'react';
+import React, { useState } from 'react';
 import { 
-  FileText, ShieldCheck, CheckCircle2, 
-  Sparkles, Download, Printer, Copy, Check,
-  Building, Leaf, Users, ShieldAlert, Sliders, Sun, Moon,
-  LayoutGrid, Eye, Edit3
+  FileText, ShieldCheck, CheckCircle2, Printer, Copy, Check,
+  Sun, Moon,
+  Eye
 } from 'lucide-react';
-import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../omni-base/OmniCard';
+
 import { OmniButton } from '../../omni-base/OmniButton';
 import { OmniBadge } from '../../omni-base/OmniBadge';
 import DynamicFormEngine from './DynamicFormEngine';
@@ -47,7 +46,6 @@ const INITIAL_CHAPTERS: ReportChapter[] = [
 
 export default function ESGReportsCenter() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [editorMode, setEditorMode] = useState<'standard' | 'karma'>('standard');
   const [selectedChapterId, setSelectedChapterId] = useState<string>('chap-2');
   const [chapters, setChapters] = useState<ReportChapter[]>(INITIAL_CHAPTERS);

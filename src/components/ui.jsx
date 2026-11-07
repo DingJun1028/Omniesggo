@@ -1,4 +1,4 @@
-import { pillars, activities, tasks, tags, documents, pillarMeta } from '../data/seed.js'
+import { pillarMeta } from '../data/seed.js'
 
 // Small shared UI atoms used across views.
 
@@ -12,7 +12,7 @@ export function PillarBadge({ id, size = 'sm' }) {
   )
 }
 
-export function StatCard({ label, value, unit, trend, accent }) {
+export function StatCard({ label, value, unit, trend, accent: _accent }) {
   const up = trend >= 0
   return (
     <div className="stat-card">
