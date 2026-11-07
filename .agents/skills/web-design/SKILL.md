@@ -1,6 +1,12 @@
 ---
 name: web-design
 description: Web 視覺設計 SKILL。輸入 PRD / 參考 URL / 截圖 / 關鍵詞（任意組合），先產出一份標準化 DESIGN.md 設計規範，使用者確認后據此生成 UI/UX、視覺、動效、響應式全部達標的 web 程式碼。專攻 web 端：Landing Page、Portfolio、產品頁、部落格、個人站、SaaS 介紹頁等。當使用者說"幫我做個網站""設計一個頁面""參考 XX 做一個""把這個截圖/PRD 做成網頁""做一個 landing page""出一份 design 規範"時觸發。不用於後端、資料庫、純邏輯 bug 修復。
+title: Web 設計
+category: web-design
+version: 1.0.0
+title: Web 設計
+category: web-design
+version: 1.0.0
 ---
 
 # Web Design
@@ -380,3 +386,222 @@ L3 頁面（使用者說"像 doubao / apple / stripe 那樣"、"要有 3D"、"�
 | `scripts/crawl_website.py` | Playwright 爬蟲（截圖 + Token + 結構） | Phase A 首選 |
 | `scripts/extract_design_tokens.py` | 輕量 Token 提取（靜態站備選） | Phase A 備選 |
 | `scripts/fetch_unsplash_images.py` | 佔點陣圖候選 URL | Phase C |
+
+---
+
+## ✅ 最佳實踐做法
+
+### 1. 設計原則
+
+| 領域 | 核心原則 |
+|------|----------|
+| 基礎 | 清晰 > 複雜，一致 > 特色，簡潔 > 囉唆 |
+| 色彩 | 使用者友善 = 弱對比優先 + 語義通透 |
+| 間距 | 一致邊界 + 呼吸感，密集區補白 |
+| 觸發 | 80/20 法則：20% 核心操作承載 80% 流量 |
+| 照護 | 記得說明 + 反飽和 + 品牌專屬 |
+
+### 2. 響應式最佳實踐
+
+| 斷點 | 適用場景 | 測試重點 |
+|------|----------|----------|
+| ≤ 600px | 桌面側 | 橫向溢位、無觸控目標 |
+| 600–900px | 平板 | 單欄、觸控節流 |
+| 900–1200px | 平板、桌機 | 兩欄、網格 |
+| ≥ 1200px | 桌面 | 網格、觸控目標 |
+
+### 3. 動效最佳實踐
+
+| 檔位 | 要求 |
+|------|------|
+| L1 | 優雅 hover + 柔和入場 |
+| L2 | 滾動 reveal、視差、導航變化 |
+| L3 | scroll-story、pin、游標跟隨 |
+
+**性能紅線**
+- 單頁 WebGL ≤ 1 個
+- 移動端自動降級
+- `filter: blur()` on moving elements 禁止
+- `backdrop-filter: blur()` ≤ 14px
+- `prefers-reduced-motion` 降級路徑
+
+### 4. 性能最佳實踐
+
+- 3D/WebGL：load 時一次性 timeline，結束即釋放
+- 卡片爆發入場：GSAP 一次性 timeline
+- 圖片：禁止純色塊佔位；使用者素材 > 專案 assets > 參考站 URL > Unsplash
+- 圖示：專案庫 > lucide-react > 內聯 SVG
+- 字型：所有顏色通過 CSS 變數引用，零硬編碼 hex
+- 字型：字體檔案緩存、gzip、字型子集
+
+### 5. 可訪問性（a11y）最佳實踐
+
+- 每個可互動元素有 hover + focus 態
+- 觸控目標 ≥ 44×44px（移動端）
+- 標題層級：H1 → H2 → H3
+- 語義化 HTML：button、nav、main、article、footer
+- 顏色對比：符合 WCAG 2.1 AA
+- 鍵盤導航：所有功能可通過鍵盤完成
+
+### 6. 安全最佳實踐
+
+- 輸入驗證：所有使用者輸入均須驗證
+- 輸出轉義：防止 XSS
+- 授權檢查：每個請求前檢查權限
+- 敏感數據：在客戶端處理避免儲存
+- 安全標頭：Content-Security-Policy, X-Frame-Options
+
+### 7. 質量檢查清單（自動化）
+
+```bash
+# 響應式
+npm run test:e2e -- --screens desktop tablet mobile
+
+# 動效
+npm run test:animations
+
+# 訪問性
+npm run test:a11y
+
+# 性能
+npm run test:performance
+```
+
+---
+
+## 技術棧原則
+
+- **框架**：沿用專案已有棧；無則最小可行方案（靜態 HTML 或 Vite）
+- **樣式**：沿用已有方案；不強行引入新依賴
+- **元件**：有庫複用；無庫手寫語義化元件
+- **動畫**：CSS 優先；L2 可用 IntersectionObserver；L3 允許 GSAP/ScrollTrigger/Lenis
+- **圖片**：禁止純色塊佔位；佔點陣圖在程式碼頂部 `const IMG` 統一管理
+
+
+## 自然語觸發自動工具使用的機率 (Natural Language Auto-Tool Trigger)
+
+### 1. 觸發關鍵字清單 (Trigger Keywords)
+
+> 系統會自動識別輸入中的自然語觸發詞，觸發對應的工具/技能/代理。
+
+#### 核心觸發詞
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| web-design | auto | 觸發本技能 | 5.0 |
+| 觸發 | trigger | 觸發工具使用 | 4.5 |
+| 自動 | auto | 自動執行 | 4.0 |
+| 幫助 | help | 顯示說明 | 3.0 |
+| 查詢 | query | 查詢資訊 | 3.0 |
+| 記錄 | record | 記錄數據 | 2.5 |
+| 執行 | run | 執行操作 | 3.0 |
+| 檢查 | check | 檢查狀態 | 2.5 |
+| 初始化 | init | 初始化系統 | 3.0 |
+
+#### 進階觸發詞
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| 指令 | command | 執行指令 | 4.0 |
+| 工具 | tool | 使用工具 | 3.5 |
+| 自動 | auto | 自動執行 | 3.0 |
+| 查詢 | query | 查詢 | 2.5 |
+| 記錄 | record | 記錄 | 2.0 |
+| 反思 | reflect | 反思 | 2.5 |
+| 重啟 | restart | 重啟 | 2.5 |
+| 關閉 | shutdown | 關閉 | 2.5 |
+
+---
+
+### 2. 觸發規則
+
+#### 2.1 預設觸發機率
+
+| 模式 | 權重 | 說明 |
+|------|------|------|
+| 核心關鍵字 | 100% | 必然觸發 |
+| 進階關鍵字 | 70% | 單一關鍵字即觸發 |
+| 其他自然語 | 30% | 隨機匹配 |
+| 歧義命中 | 15% | 需要確認 |
+
+#### 2.2 機率加權
+
+觸發機率 = (關鍵字分數 × 頻率) + (上下文相似度 × 0.3) + 隨機種子 (0-0.2)
+
+- 單一高權重關鍵字：自動觸發 (1.0)
+- 多關鍵字組合：權重加總，上限 1.0
+- 低權重 (< 0.3)：記錄，不自動執行
+
+#### 2.3 自然語解析範例
+
+```typescript
+// 輸入：web-design 並查詢目前狀態
+{
+  triggers: ["web-design", "query"],
+  actions: ["awaken()", "query()"],
+  priority: ["web-design", "query"],
+  probability: 1.0
+}
+```
+
+---
+
+### 3. 工具選擇權重
+
+| 工具類別 | 關鍵字 | 權重 |
+|----------|--------|------|
+| 記憶查詢 | query, 查詢, 讀取 | 0.8 |
+| 技能成長 | web-design, grow | 0.7 |
+| 反思 | reflect, 學習 | 0.75 |
+| 系統初始化 | web-design, start | 0.9 |
+| 協作 | share, 協作 | 0.65 |
+| 結界 | inherit, 繼承 | 0.5 |
+
+---
+
+### 4. 信心分數與反饋
+
+| 信心分數 | 處理方式 |
+|----------|----------|
+| >= 0.9 | 自動執行 |
+| 0.7 - 0.9 | 記錄後自動執行 |
+| 0.4 - 0.7 | 詢問用戶 |
+| < 0.4 | 記錄不執行 |
+
+---
+
+### 5. 實際示例
+
+#### 5.1 單一自然語
+
+**輸入**：web-design
+**解析**：核心關鍵字
+**輸出**：`awaken()`
+
+**輸入**："查詢 web-design 狀態"
+**解析**：查詢 + 技能
+**輸出**：`query()`, `doctor()`
+
+#### 5.2 複雜自然語
+
+**輸入**："我今天學到新東西，幫我記住並分享"
+**解析**：
+- 關鍵字：`growth`, `share`, `memory`
+- 行動：`recordLearning()`, `recordMemory()`, `cross-agent sync`
+- 權重：0.75
+- 輸出：`growSkill()`, `remember()`, `tagSkill("share:active")`
+
+**輸入**："讓我檢查一下 web-design 狀態"
+**解析**：檢查
+**輸出**：`doctor()`, `backend()`
+
+---
+
+### 6. 參數一致性
+
+此技能的默認配置：
+- **doctor／backend 與 awaken 必須用同一組參數**
+- **所有憑證來源 = `secret-vault/ENV20230818.env`**
+- **絕不在代碼中硬編碼憑證**
+- **NCBDB 為主，local 為備份**
+- **所有成長記錄必須帶 `agent_id`、`timestamp`、`source_origin`**

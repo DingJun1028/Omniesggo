@@ -1,0 +1,11 @@
+2026-11-02T18:54:12.131Z	onload:start prev-unload-mark=none
+2026-11-02T18:54:12.131Z	diag:ua Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) obsidian/1.15.0 Chrome/150.0.7871.250 Electron/43.8.4 Safar
+2026-11-02T18:54:12.310Z	diag:console [UNagent] onload crashed (plugin stays enabled): Attempting to register an existing view type "UNagent-chat"
+2026-11-02T18:54:12.313Z	onload:after-loadSettings
+2026-11-02T18:54:12.313Z	onload:before-evolveStorage
+2026-11-02T18:54:12.313Z	onload:tools-registered
+2026-11-02T18:54:12.313Z	onload:before-registerView
+2026-11-02T18:54:12.313Z	onload:CRASH Attempting to register an existing view type "UNagent-chat"
+2026-11-02T18:54:13.537Z	onload:after-evolveStorage
+2026-11-02T18:54:13.538Z	onload:before-undoHydrate
+2026-11-02T18:54:13.611Z	onload:after-undoHydrate

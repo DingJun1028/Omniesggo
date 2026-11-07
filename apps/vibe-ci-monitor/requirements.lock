@@ -1,0 +1,3 @@
+# Dependency pins live in the Dockerfile RUN line (inline, analyzer-visible).
+# mistralai-workflows==3.17.0
+# pydantic==2.12.5

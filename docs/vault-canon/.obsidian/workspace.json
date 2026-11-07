@@ -1,0 +1,221 @@
+{
+  "main": {
+    "id": "c5946075ab919a27",
+    "type": "split",
+    "children": [
+      {
+        "id": "a50290b134f21baf",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1fa7a1287f8ec5f8",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "OMN-PRD-001 終始矩陣.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "OMN-PRD-001 終始矩陣"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "021e0dbab361db5d",
+    "type": "split",
+    "children": [
+      {
+        "id": "37165a88e6f20c30",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b0fe57882360c7b5",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-folder-closed",
+              "title": "檔案瀏覽器"
+            }
+          },
+          {
+            "id": "502a94d69df2bd19",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "搜尋"
+            }
+          },
+          {
+            "id": "33c3b1a12a1cdb6c",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-bookmark",
+              "title": "書籤"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "7694f7db933575c5",
+    "type": "split",
+    "children": [
+      {
+        "id": "f55a29e4d1fd78a6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "aa0b015d31dc37de",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "反向連結"
+            }
+          },
+          {
+            "id": "05dec5ce640c063e",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "對外連結"
+            }
+          },
+          {
+            "id": "0cfbef156e4bc4d4",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "標籤"
+            }
+          },
+          {
+            "id": "9cde2606e43f407e",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "所有屬性"
+            }
+          },
+          {
+            "id": "cdb4bcf6b8e48938",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "大綱"
+            }
+          },
+          {
+            "id": "b96d144adf4b27c5",
+            "type": "leaf",
+            "state": {
+              "type": "open-agent-chat",
+              "state": {},
+              "icon": "bot",
+              "title": "Open agent"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "github-sync-multi-platform:Obsidian-Github-Sync-Multi-Platform: 同步全部筆記": false,
+      "switcher:開啟快速切換": false,
+      "graph:查看關聯圖": false,
+      "canvas:建立新畫布": false,
+      "daily-notes:開啟今天的每日筆記": false,
+      "templates:插入模板": false,
+      "command-palette:開啟命令面板": false,
+      "bases:建立新的 base": false,
+      "open-agent:Open agent": false,
+      "unagent:Open UNagent": false
+    }
+  },
+  "active": "b96d144adf4b27c5",
+  "lastOpenFiles": [
+    "UNagent/evolved.json",
+    "UNagent/skills/set-cover/SKILL.md",
+    "UNagent/skills/set-cover",
+    "UNagent/skills",
+    "UNagent/user.md",
+    "UNagent/memory.md",
+    "UNagent/agent.md",
+    "UNagent",
+    "OmniCapture/archive/groq-test.txt",
+    "OmniCapture/analysis/groq-test — OmniCapture 分析.md",
+    "OmniCapture/inbox/groq-test.txt",
+    "README.md",
+    "OMN-PRD-001 終始矩陣.md",
+    "未命名.base",
+    "ESG-GO 核心.md",
+    "未命名.md"
+  ]
+}
