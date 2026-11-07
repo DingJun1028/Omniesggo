@@ -1,0 +1,115 @@
+name: One-shot branch sync (vibe/hermes-connect-page-016227)
+
+on:
+  push:
+    branches: [vibe/hermes-connect-page-016227]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: vibe/hermes-connect-page-016227
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config core.autocrlf false
+          git config core.filemode false
+
+      - name: Normalize line endings then merge main
+        run: |
+          set +e
+          git fetch origin main
+          git checkout origin/main -- .gitattributes
+          git add --renormalize .
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: normalize line endings to LF per .gitattributes"
+          fi
+          git checkout -f HEAD
+          ST="$(git status --porcelain)"
+          if [ -n "$ST" ]; then
+            echo "$ST" > /tmp/status.txt
+            echo "DIRTY=1" >> "$GITHUB_ENV"
+            exit 1
+          fi
+          git -c core.autocrlf=false merge FETCH_HEAD --no-edit > /tmp/merge.log 2>&1
+          RC=$?
+          cat /tmp/merge.log
+          if [ $RC -eq 0 ]; then
+            echo "MERGED=clean" >> "$GITHUB_ENV"
+          else
+            git checkout --theirs pnpm-lock.yaml || true
+            git add pnpm-lock.yaml || true
+            git checkout --theirs uv.lock || true
+            git add uv.lock || true
+            UNRESOLVED="$(git diff --name-only --diff-filter=U | grep -v -E '^(pnpm-lock\.yaml|uv\.lock)$' || true)"
+            if [ -n "$UNRESOLVED" ]; then
+              echo "MERGED=unresolvable" >> "$GITHUB_ENV"
+              echo "$UNRESOLVED" > /tmp/unresolved.txt
+              exit 1
+            fi
+            echo "MERGED=conflict" >> "$GITHUB_ENV"
+          fi
+
+      - name: Setup pnpm
+        if: env.MERGED == 'clean' || env.MERGED == 'conflict'
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        if: env.MERGED == 'clean' || env.MERGED == 'conflict'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Regenerate root lockfile
+        if: env.MERGED == 'clean' || env.MERGED == 'conflict'
+        run: pnpm install --lockfile-only --no-frozen-lockfile
+
+      - name: Commit merge resolution
+        if: env.MERGED == 'clean' || env.MERGED == 'conflict'
+        run: |
+          git add pnpm-lock.yaml uv.lock 2>/dev/null || git add pnpm-lock.yaml
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync branch with main (regenerate pnpm-lock.yaml)"
+          else
+            if [ -f .git/MERGE_HEAD ]; then
+              git commit --no-edit
+            fi
+          fi
+
+      - name: Publish diagnostics, remove one-shot workflow, push
+        if: always()
+        run: |
+          mkdir -p .conflict-reports
+          {
+            echo "MERGED=${MERGED:-aborted}"
+            echo "DIRTY=${DIRTY:-0}"
+            echo ""
+            echo "## git status (porcelain)"
+            echo '```'
+            cat /tmp/status.txt 2>/dev/null || echo "(clean)"
+            echo '```'
+            echo ""
+            echo "## Unresolved conflicts"
+            echo '```'
+            cat /tmp/unresolved.txt 2>/dev/null || echo "(none)"
+            echo '```'
+            echo ""
+            echo "## Merge log"
+            echo '```'
+            cat /tmp/merge.log 2>/dev/null || echo "(no merge attempted)"
+            echo '```'
+          } > .conflict-reports/186-sync.md
+          git add .conflict-reports
+          git rm -qf .github/workflows/branch-sync-186.yml || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: publish sync diagnostics and remove one-shot workflow"
+          fi
+          git push origin vibe/hermes-connect-page-016227
