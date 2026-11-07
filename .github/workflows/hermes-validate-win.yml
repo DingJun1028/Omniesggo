@@ -1,0 +1,44 @@
+name: Hermes install validation (Windows)
+on:
+  push:
+    branches: [probe/hermes-validation-20261107]
+    paths: [.github/workflows/hermes-validate-win.yml]
+permissions:
+  contents: write
+jobs:
+  validate:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Download and verify installer
+        shell: pwsh
+        run: |
+          irm https://hermes-agent.nousresearch.com/install.ps1 -OutFile install.ps1
+          if (-not (Test-Path install.ps1) -or (Get-Item install.ps1).Length -eq 0) { throw 'installer download failed' }
+          "installer bytes: $((Get-Item install.ps1).Length)"
+      - name: Install Hermes (Windows)
+        shell: pwsh
+        run: |
+          ./install.ps1 -NonInteractive -SkipBrowser -SkipComputerUse
+          "${env:LOCALAPPDATA}\hermes\bin" | Out-File -FilePath ${env:GITHUB_PATH} -Append
+      - name: Verify CLI
+        shell: pwsh
+        run: |
+          hermes --version
+      - name: Publish result
+        shell: pwsh
+        run: |
+          $log = Join-Path $env:LOCALAPPDATA 'hermes\logs\install.log'
+          $result = "result\hermes-win-validation-result.md"
+          New-Item -ItemType Directory -Force -Path (Split-Path -Parent $result) | Out-Null
+          "# Hermes install validation (windows-latest) $(Get-Date).ToUniversalString()" | Out-File $result
+          "`n## hermes --version" | Add-Content $result
+          try { (hermes --version 2>&1 | Out-String) | Add-Content $result } catch { "version check failed" | Add-Content $result }
+          "`n## install.log tail (last 120 lines)" | Add-Content $result
+          if (Test-Path $log) { Get-Content $log -Tail 120 | Add-Content $result } else { "install.log not found at $log" | Add-Content $result }
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $result
+          git rm -q .github/workflows/hermes-validate-win.yml
+          git commit -m "hermes win validation result"
+          git push
