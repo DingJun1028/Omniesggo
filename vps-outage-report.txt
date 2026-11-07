@@ -1,4 +1,4 @@
-report updated Sat Nov  7 07:43:13 UTC 2026
+report updated Sat Nov  7 07:43:14 UTC 2026
 run started v7
 SSH probe: DOWN
 SSH unreachable - querying OCI
@@ -7,3 +7,4 @@ INST_ERR comp=ocid1.tenancy.oc1..aaaaaaaadof5rgb76zexk24q6fnhopqjnrqaxwmeuxunoyn
 NO_INSTANCES_FOUND check tenancy/secrets
 post-repair SSH probe
 POST_RECOVERY SSH_STILL_DOWN
+run finished Sat Nov  7 07:43:14 UTC 2026
