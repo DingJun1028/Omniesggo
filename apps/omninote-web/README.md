@@ -16,6 +16,7 @@
 - 區塊 soft-delete 顯示：CRDT tombstone（deleted）以刪除線與「已刪除」標記如實呈現。
 - 區塊編輯與軟刪除操作：非墓碑區塊行內編輯（PATCH /api/notes/:uuid/blocks/:blockId，ON_BLOCK_EDIT 證據入鏈、outlinks 熔合重建）與軟刪除按鈕（DELETE 同路徑，CRDT tombstone、ON_BLOCK_TOMBSTONE 證據入鏈）。
 - 熵減淨化：節點詳情「淨化」按鈕觸發 POST /api/notes/:uuid/purify，對現存宇宙重標註死鏈並顯示 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈）。
+- 三態躍遷操作：非 OMEGA 節點可「熔合 SIGMA」（POST /api/notes/:uuid/sigma，區塊長文熔煉）與「結晶 OMEGA」（POST /api/notes/:uuid/crystallize，實體型別輸入框注入 entity_type）；OMEGA 節點可「逆向投影 ALPHA」（POST /api/notes/:uuid/reverse）。證據鏈 ON_SIGMA_SYNTHESIS / ON_OMEGA_CRYSTALLIZE / ON_REVERSE_PROJECT 如實入鏈。
 
 ## 啟動
 

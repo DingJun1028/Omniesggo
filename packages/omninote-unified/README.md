@@ -93,6 +93,9 @@ node --experimental-transform-types bin/omninote-server.ts /path/to/notes
 | POST | /api/notes/:uuid/blocks | 追加區塊：\`{ type, content }\`（type 為六種 CRDT 區塊型別之一；422 若非法） |
 | PATCH | /api/notes/:uuid/blocks/:blockId | 區塊編輯：\`{ content }\`（LWW 就地更新、Lamport 遞增、outlinks 熔合重建；404 若節點/區塊不存在或區塊已墓碑化） |
 | DELETE | /api/notes/:uuid/blocks/:blockId | 區塊軟刪除（CRDT tombstone：\`deleted=true\` 保留原文與 block_id；outlinks 熔合重建排除墓碑貢獻；重刪 404 \`BLOCK_TOMBSTONED\`） |
+| POST | /api/notes/:uuid/sigma | ALPHA → SIGMA 躍遷：非墓碑區塊內容熔合為單一長文、outlinks 熔合重建（ON_SIGMA_SYNTHESIS 證據入鏈；422 若無活躍區塊） |
+| POST | /api/notes/:uuid/crystallize | SIGMA → OMEGA 躍遷：`{ entity_type, properties? }` 強型別結晶（ON_OMEGA_CRYSTALLIZE 證據入鏈；422 若缺 entity_type） |
+| POST | /api/notes/:uuid/reverse | OMEGA → ALPHA 逆向投影（ON_REVERSE_PROJECT 證據入鏈） |
 | POST | /api/notes/:uuid/purify | 熵減自癒：對現存宇宙重標註死鏈（resolved=false）並計算 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈） |
 | DELETE | /api/notes/:uuid | 刪除節點 |
 | POST | /api/search | 語意搜尋：\`{ query, top_k?, threshold? }\`；嵌入不可用時 \`degraded: true\` 且零結果（503 若未啟用嵌入器） |

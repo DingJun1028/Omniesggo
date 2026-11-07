@@ -217,3 +217,56 @@ test("BLOCK-6 API：淨化端點重標註死鏈並計算 entropy_score", async (
     assert.equal(res404.status, 404);
   });
 });
+
+test("PHASE-1/2/3 API：三態躍遷 sigma → crystallize → reverse 全流程與 422/404 道閘", async () => {
+  await withServer(async ({ port }) => {
+    const resA = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "第一段碎片" }),
+    });
+    const uuid = ((await resA.json()) as { node: UnifiedNode }).node.uuid;
+    await fetch(`${base(port)}/api/notes/${uuid}/blocks`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: "paragraph", content: "第二段碎片" }),
+    });
+    // PHASE-1 ALPHA → SIGMA：非墓碑區塊熔合為長文
+    const resSigma = await fetch(`${base(port)}/api/notes/${uuid}/sigma`, { method: "POST" });
+    assert.equal(resSigma.status, 200);
+    const sigma = ((await resSigma.json()) as { node: UnifiedNode }).node;
+    assert.equal(sigma.matrix_phase, "SIGMA_GRAPH_SYNTHESIS");
+    assert.equal(sigma.entity_type, "note.synthesized");
+    assert.equal(sigma.version, "1.1.0");
+    assert.equal(sigma.blocks[0]!.content, "第一段碎片\n\n第二段碎片");
+    assert.equal(sigma.evidence[sigma.evidence.length - 1]!.hook_lifecycle, "ON_SIGMA_SYNTHESIS");
+    // PHASE-2 SIGMA → OMEGA：結晶
+    const resOmega = await fetch(`${base(port)}/api/notes/${uuid}/crystallize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entity_type: "project", properties: { status: "active" } }),
+    });
+    assert.equal(resOmega.status, 200);
+    const omega = ((await resOmega.json()) as { node: UnifiedNode }).node;
+    assert.equal(omega.matrix_phase, "OMEGA_OBJECT_CRYSTAL");
+    assert.equal(omega.entity_type, "project");
+    assert.equal((omega.properties as Record<string, unknown>).status, "active");
+    assert.equal(omega.version, "2.0.0");
+    assert.equal(omega.evidence[omega.evidence.length - 1]!.hook_lifecycle, "ON_OMEGA_CRYSTALLIZE");
+    // PHASE-3 OMEGA → ALPHA：逆向投影
+    const resReverse = await fetch(`${base(port)}/api/notes/${uuid}/reverse`, { method: "POST" });
+    assert.equal(resReverse.status, 200);
+    const reversed = ((await resReverse.json()) as { node: UnifiedNode }).node;
+    assert.equal(reversed.matrix_phase, "ALPHA_ORIGIN_CAPTURE");
+    assert.equal(reversed.evidence[reversed.evidence.length - 1]!.hook_lifecycle, "ON_REVERSE_PROJECT");
+    // 道閘：crystallize 缺 entity_type → 422；不存在節點 → 404
+    const res422 = await fetch(`${base(port)}/api/notes/${uuid}/crystallize`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    assert.equal(res422.status, 422);
+    const res404 = await fetch(`${base(port)}/api/notes/9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d/sigma`, { method: "POST" });
+    assert.equal(res404.status, 404);
+  });
+});
