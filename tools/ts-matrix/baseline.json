@@ -2,6 +2,12 @@
   "note": "終始矩陣基線棘輪 — 既有重複定義清單（只減不增）。收斂後執行 `node tools/ts-matrix/verify.mjs --update-baseline` 重寫縮減基線，需人工確認。",
   "generatedBy": "tools/ts-matrix/verify.mjs",
   "version": "1.3.0",
-  "total": 0,
-  "entries": []
+  "total": 1,
+  "entries": [
+    {
+      "type": "MemoryEntry",
+      "shadowedIn": "agents/skills/smart-ai-router/shared-memory.ts",
+      "pkg": "agents"
+    }
+  ]
 }
