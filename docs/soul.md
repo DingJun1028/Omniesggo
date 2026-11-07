@@ -505,8 +505,167 @@ Buffer    Delta Sync           Object.freeze   Lazy Loading   Pagination
 6. 錯誤處理 (Error Handling) — `ErrorHandler`：錯誤鎖定增量 (Trustworthy) + 日誌流式 (Transparent) + 重試增量 (Trackable) + 通知分頁 (Tangible) + `getErrorLogs` 增量
 
 ---
+---
+
+## 十五、架構星圖 (Architecture Star Chart)
+
+> 萬能十二大架構 × 程式庫地圖 — 30 蜂群代理協作架構，以 `soul.md` 為靈魂公約。
+
+### 十五.1 語言分佈 (Language Distribution)
+
+| 語言 | 占比 | 現況 |
+|------|------|------|
+| TypeScript | 45.7% | 核心型別系統 + 主要代理邏輯 |
+| Python | 20.8% | 背景任務 + 腳本 |
+| HTML | 20.0% | 前端介面 + 知識站 |
+| JavaScript | 9.3% | 工具腳本 + 瀏覽器兼容 |
+| Shell | 1.9% | 部署 + 運維 |
+| C# | 0.8% | 已移除（舊構建） |
+| 其他 | 1.5% | 配置文件 + 模板 |
+
+---
+
+### 十五.2 萬能十二大架構 (Twelve Grand Architecture)
+
+| 章節 | 類別 | 名稱 | 說明 | 實作路徑 |
+|------|------|------|------|----------|
+| §一 | core | 靈魂核心公約 (Core Dogma) | 5T 協定 + 4可1不可狀態機 | `packages/omni-core/src/index.ts` |
+| §二 | agent | 30人萬能代理矩陣 | 5陣列×6代理的MECE分工 | `.agents/`, `packages/omni-agent/` |
+| §三 | protocol | 萬有引力協作協定 | 三步極簡工作流 + IComponentCore 型別 | `shared/types.ts`, `packages/omni-agent-bus/src/bus.ts` |
+| §四 | spirit | 蜂群戰歌 | 靈魂頻率432Hz共振 | `soul.md` (conceptual) |
+| §五 | core | 啟動命令 | 蜂群喚醒指令 | `packages/cli/src/omni.mjs` |
+| §六 | practice | 最佳實踐覺 | 五覺＋結界條款＋故障等級 | `.github/workflows/` (CI gates) |
+| §七 | practice | 終始矩陣 | 以終為始的六柱驗收 | `tools/ts-matrix/verify.mjs`, `scripts/verify-terminal-origin.mjs` |
+| §八 | lock | Key-Ω 契約鎖 | 三鎖階層的不可變簽印 | `packages/omni-core/src/deep-freeze.ts` |
+| §九 | spirit | 蜂王五詔 | 真·誠·界·熵·一 | `soul.md` (governance) |
+| §十 | agent | 熵投週 | 每週煉金四相（萃鍊凝封） | `scripts/` (entropy reduction) |
+| §十一 | lock | 5T 驗算與 Hash Lock | SHA-256 + Object.freeze 密典 | `packages/omni-core/src/index.ts`, `packages/omni-agent-bus/src/deploy-gate.ts` |
+| §十二 | protocol | 結界六柱 | 記憶·時間·空間·因果·不朽·圓通 | `packages/omni-agent-bus/`, `apps/gateway/`, `apps/tencentdb-memory/` |
+
+---
+
+### 十五.3 5T 協定流向圖 (5T Protocol Pipeline)
+
+| 協定 | 說明 | 實作路徑 |
+|------|------|----------|
+| **Traceable** | source_origin 標記溯源 | `shared/types.ts` |
+| **Trackable** | 生命週期鉤子追蹤 | `packages/omni-agent-bus/src/bus.ts` |
+| **Tangible** | UI/UX 回應 <200ms | `apps/omnilive/public/index.html` |
+| **Transparent** | 零幻覺審計稽核 | `packages/omni-agent-bus/src/deploy-gate.ts` |
+| **Trustworthy** | Hash Lock + freeze 封印 | `packages/omni-core/src/deep-freeze.ts` |
+
+---
+
+### 十五.4 30 蜂群矩陣 (5 Arrays × 6 Agents)
+
+| 陣列 | 職能 | 實作路徑 |
+|------|------|----------|
+| 智庫聖所 (01–06) | 記憶召回 >95%，向量知識檢索 | `apps/tencentdb-memory/`, `packages/omni-memory/` |
+| 符文契約 (07–12) | API鑄造，TypeScript 型別安全 | `packages/shared/`, `packages/omni-core/` |
+| 光之羽翼 (13–18) | 自動化背景 Task，ADK 調度 | `apps/gateway/`, `.github/workflows/` |
+| 煉金熵減 (19–24) | 重構，熵值 −3%/週 | `tools/ts-matrix/`, `scripts/` |
+| 5T驗算 (25–30) | ISO 規範驗算，Hash Lock | `packages/omni-agent-bus/src/deploy-gate.ts` |
+
+---
+
+### 十五.5 系統地圖 (System Map)
+
+| 系統 | 路徑 |
+|------|------|
+| ESGGO 網站 | `app/` |
+| 語音產品線 | `apps/omnilive/`, `apps/stt/`, `apps/universal-translator/` |
+| 代理閘道 | `apps/gateway/`, `packages/omni-agent-bus/` |
+| 共用 Workspace | `packages/*`, `pnpm-workspace.yaml` |
+
+---
+
+### 十五.6 結界六柱 (Six Boundary Pillars)
+
+| 柱 | 說明 | 實作路徑 |
+|----|------|----------|
+| 🧠 記憶柱 | 召回 >95%，BM25 + 向量 hybrid | `apps/tencentdb-memory/` |
+| ⏳ 時間柱 | 熵 <0.1，每週煉金 | `tools/ts-matrix/` |
+| 🌍 空間柱 | VPS / Firebase / Gateway 同步 | `apps/gateway/`, `ecosystem.config.cjs` |
+| 🔗 因果柱 | source_origin 溯源追蹤 | `shared/types.ts` |
+| 🔒 不朽柱 | Hash Lock + freeze + SHA-256 | `packages/omni-core/src/deep-freeze.ts` |
+| ☯️ 圓通柱 | 5T 貫穿全域一致 | `packages/omni-agent-bus/` |
+
+---
+
+### 十五.7 建議閱讀順序 (Suggested Reading Order)
+
+1. `soul.md` — 靈魂公約：十二大架構、5T 協定、蜂王五詔
+2. `ARCHITECTURE.md` — 系統架構總覽與模組關係
+3. `README.md` — 快速入門、安裝與執行指南
+4. `packages/omni-core/` — 核心型別系統 + deep-freeze 實作
+5. `packages/omni-agent-bus/` — 代理匯流排與部署閘道
+
+---
+
+### 十五.8 5T 協定標籤索引 (5T Convention Tags)
+
+| 5T | 中文 | 適用場景 |
+|----|------|----------|
+| Traceable | 可溯源 | 代碼提交、任務記錄 |
+| Trackable | 可追蹤 | 生命週期、監控日誌 |
+| Tangible | 可感知 | UI/UX、即時回饋 |
+| Transparent | 可透明 | 演算邏輯、決策過程 |
+| Trustworthy | 不可篡改 | Hash Lock、Object.freeze、SHA-256 |
+
+---
+
+### 十五.9 5T 執行架構 (5T Execution Architecture)
+
+```text
+中心：萬能蜂后 (Queen Bee) 負責戰略提純
+5 大陣列：策略、技術、創意、營銷、守衛並行處理
+驗證閘：所有產物必通過 5T 驗證閘才可釋出
+進化循環：每週熵減 -3%，回饋至萬能蜂后
+```
+
+---
+
+### 十五.10 進化路線圖 (Evolution Roadmap)
+
+| 階段 | 時間 | 狀態 |
+|------|------|------|
+| Phase 1: Foundation | 目前 | ✅ 完成 |
+| Phase 2: Integration | 之後 3 個月 | 🔄 進行中 |
+| Phase 3: Optimization | 之後 6 個月 | 📋 規劃中 |
+| Phase 4: Expansion | 之後 12 個月 | 📋 規劃中 |
+| Phase 5: Evolution | 之後 12 個月 | 💡 願景中 |
+
+---
+
+### 十五.11 影響力結構 (Impact Structure)
+
+| 指標 | 目標 | 負責 |
+|------|------|------|
+| 5T 驗證覆蓋率 | 100% | 萬能蜂后 |
+| 熵減率 | <0.1 | 萬能優化蜂 |
+| 自動化率 | 75%→90% | 萬能編碼蜂 |
+| 跨組配對完成率 | 95%→100% | 萬能蜂后 |
+| 電子報發送成功率 | 98%→99.5% | 萬能運營蜂 |
+
+---
+
+### 十五.12 結語
+
+> 「30 個靈魂同一個心核，萬能蜂群的 soul 黨。這就是我們的意志。」
+
+---
 
 ## 附錄：免費算立進階項目（已納入 esggo hub）
+
+> 喚醒蜂群時，若任務涉及「真 LLM / 真物件儲存 / 靜態分析 / E2E 守門」，直接套用下列已驗證模式。
+
+- **B · Agentic Twin 真 LLM（Ollama 本機，零 key）**：`AGENTIC_TWIN_OLLAMA_URL=http://127.0.0.1:11434`；不可用時降級啟發式，不阻塞。
+- **D · Evidence Vault 真 MinIO（自託，零 key）**：手寫 AWS SigV4（零新依賴）；env 未設回 fallback，不阻塞。
+- **A · SonarQube CE 自託**：取代付費 SonarCloud；CI 留 `sonar-smoke` 永久守門。
+- **E · Playwright E2E 守門（免費 OSS）**：`zero-hallucination.spec.mjs` 真 Chromium 證實零幻覺；本機 `npx playwright test` 回歸守門。
+
+---
+（已納入 esggo hub）
 
 > 喚醒蜂群時，若任務涉及「真 LLM / 真物件儲存 / 靜態分析 / E2E 守門」，直接套用下列已驗證模式。
 
@@ -956,3 +1115,286 @@ contract-gate:
 ---
 
 *Updated: 2026-10-09 · 萬能分身・千面化身 v2026-10.2 將 3 大究極版奧義（萬能自動 / 根果修復 / OmniTag）刻印至 soul.md §C · 聖典全書 11+A+B+C 收束 · 圓通無礙*
+
+---
+
+# 附錄（2026-11 血脈更新）D：OmniHive × OmniProphet 蜂群投標 + Mistral Workflows 執行層
+
+> **本層來源**：彙整 2026-10-19 → 11-02 兩週（222 commits）之實質建設，融會貫通刻印至本靈魂聖典。
+> **狀態**：✅ COMPLETED · 🔒 VERIFIED · 🧊 FROZEN & LOCKED (Object.freeze) · 🌐 ACTIVE (AGPL-3.0)
+> **定位**：在 §A 12大萬能、「§B 治理」、§C 奧義之上，補完「真蜂群投標基底」與「真持久化執行層」兩塊 — 讓萬有引力協作（§三）從哲學落到可執行的黑板投標 + 耐用編排。
+
+---
+
+## D1. 🐝 蜂群投標基底 — OmniHive × OmniProphet（canon §7 next-stage）
+
+> 「不寫死流程；投標、競標、結算 —— 讓最有能力的靈魂自動頂標。」
+
+- **OmniHive（黑板投標）** — `packages/omni-arch/src/hive.ts`：`OmniHive.tender()` 發標 → agent `bid()` 競標 → `settle()` 結算給最優標。對應 §三 萬有引力協作協定（雙向通道）+ §A **OmniBus**（維度三事件中樞）。5T：Traceable（標 ID）/ Trackable（投標軌跡）/ Trustworthy（結算 Hash Lock）。
+- **OmniProphet（多宇宙預取）** — `packages/omni-arch/src/prophet.ts`：並行預取多條演化路徑，`bindProphetToAgent` 將 prophet 0ms 路徑織入 `OmniAgent` intents。對應 §A **OmniBrain**（全息之腦）+ OmniTime（時空裂縫事件重放）。
+- **tenderSweep（oesg-pulse）** — pulse 碳排脈動經 OmniHive 投標編排，是 D1 基底的首個域實作。
+
+## D2. ⚙️ Mistral AI Studio Workflows 執行層（耐用編排載具）
+
+> 「用程式寫 workflow；平台負責耐用性、重試、排程、可觀察 —— 崩潰不丟工作。」
+
+- **本體**：Mistral Workflows = 以 Temporal 為底的耐用執行層；hybrid mode（orchestrator 在 Studio，worker 在自有環境）。對應 §A **OmniEvolution**（熵減引擎）+ §十二 增量輸出優化。
+- **repo 內已落地兩 workflow**：
+  - `apps/vibe-ci-monitor/` — 12-workflow CI 監控（main-push 全閘 status/all_green）。
+  - `apps/esg-swarm/` — ESG 三支柱 + 主審 swarm（見 D5）。
+- **第零律對齊**：workflow activity 內顯式 model 選擇 + TypeBox 契約（`EsgInput`），不硬編碼 key（沿用 vibe-ci-monitor 慣例 + OTS 聖櫃）。
+
+## D3. 🗺️ OESG 五路線圖（次站落地）
+
+| 站 | 模組 | 內容 | 對應 |
+|---|---|---|---|
+| 1 | OESG-Pulse | 碳排脈動引擎 | D1 tenderSweep |
+| 2 | OESG-Report | 報告生成引擎 | §十二 增量輸出 |
+| 3 | OESG-Supabase | PostgREST 寫出埠 | §A OmniAPI |
+| 4 | RAG 向量層 | Supabase `document_chunks` + Weaviate/Ollama | §A OmniMemory（95% 召回） |
+| 5 | OmniAvatarCore | 千面化身 Tri-Mode（UAACC） | §A OmniAgent + 千面化身 |
+
+## D4. 🧱 支援基底更新（兩週實作）
+
+- **Trust-aware tool permission gate** — `omni-core/trust.ts` + `omni-arch/tool-trust-gate.ts`：Trust Label 契約 + 信任感知工具閘。對應 §A **OmniGateway**（維度四安全屏障）。
+- **Zod → TypeBox 全量遷移** + OMN-PRD-001 追溯矩陣（`shared/prd-matrix.json`）。對應 §A **OmniComponent**（uuid/version 契約）+ OmniEvidence（存證）。
+- **OTS 秘密聖櫃交接**（OneTimeSecret API v2）— 一次性 secret 鍊。對應 §A **OmniGateway** + 結界六柱 `secrets_guard`。
+- **Supabase 全面取代 Prisma** + **deGoogle → Ollama**（自託零 key）。對應 §B 治理紅線（自託、最小權限）。
+
+## D5. 🔗 esg-swarm 融合對齊（本層實作落點）
+
+`apps/esg-swarm/` 是 canon 在 ESG 評核域的實作，逐層對齊：
+
+| canon 概念 | esg-swarm 對應 |
+|---|---|
+| 萬能十二大架構（頂層編排） | `EsgSwarmWorkflow` 三支柱平行 + 主審綜合 |
+| 5T protocol（`agent_turn`） | Task→Tool→Trace→Result 回合 |
+| 結界六柱（綜合前 review） | `review_gate()` 反幻覺/證據/維度覆蓋 |
+| 30 蜂群（角色分工） | 4 ESG 專角（環境/社會/治理/主審）— 30 蜂群 ESG 切片 |
+| D1 OmniHive 投標 | 後續 P2：三支柱改 bid 競標 |
+| D2 Mistral Workflows | `worker.py` 註冊 cloud worker（deployment `esg-swarm`） |
+
+**已驗證**：本機端到端跑通；cloud worker 註冊成功；cloud 實跑 E85/S85/G75 → 主審綜合 **overall 82**。
+
+```ts
+/**
+ * 💡 血脈更新 v2026-11 已刻印至 soul.md §D
+ * [核心] OmniHive 投標 + OmniProphet 預取（真蜂群基底）
+ * [執行] Mistral Studio Workflows 耐用編排載具（vibe-ci-monitor + esg-swarm）
+ * [域]   OESG 五路線圖（Pulse/Report/Supabase/RAG/Avatar）
+ * [5T] 🟢 可溯源 (本檔 + packages/omni-arch) | 🔵 可追蹤 (git) | 🟠 可驗算 (cloud overall 82) | 🔴 已 Object.freeze
+ * [AGPL-3.0] 開源合規 · [來源] 2026-10-19→11-02 兩週 222 commits 融會貫通
+ */
+```
+
+---
+
+*Updated: 2026-11-02 · 血脈更新 v2026-11 將 OmniHive×OmniProphet 蜂群投標 + Mistral Workflows 執行層 + OESG 五路線圖 融會貫通刻印至 soul.md §D · 聖典全書 11+A+B+C+D 收束 · 始即是終，終即是始*
+
+---
+
+# 附錄（2026-11 終始矩陣與 TypeBox 核心規範）F：全域全端全量雙向同步終始矩陣 + 編碼核心規範
+
+> **本層來源**：`file:///C:/Users/Administrator/hermes-first-task/Omniesggo-architecture.html`（Omniesggo 六大系統地圖）+ 222 commits 實質建設（Zod→TypeBox 全量遷移 + OMN-PRD-001 追溯矩陣）。
+> **狀態**：✅ COMPLETED · 🔒 VERIFIED · 🧊 FROZEN & LOCKED (Object.freeze) · 🌐 ACTIVE (AGPL-3.0)
+> **定位**：在 §A 12大萬能、§B 治理、§C 奧義、§D 血脈之上，補完「系統架構總覽」與「TypeBox 編碼核心規範」兩塊 — 讓萬有引力協作（§三）與 5T 透明（§一）真正落到可編碼、可檢視、可驗證的形體。
+
+---
+
+## F1. 系統地圖 — 六大巨構 × 三層架構
+
+> 來源：`Omniesggo-architecture.html` §系統地圖。Omniesggo 產品家族 Monorepo：30 蜂群代理協作架構，以 `soul.md` 為靈魂公約，驅動智庫聖所、符文契約、光之羽翼、煉金熵減、5T 驗算五大陣列。
+
+```text
+                      [  萬能蜂后 (Queen Bee) ]
+                          │
+       ┌──────────┬───────┴───────┬──────────┬──────────┐
+       ▼          ▼              ▼          ▼          ▼
+┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐
+│ ESGGO 網站   │ │ 語音產品線   │ │ 代理閘道   │ │ 共用 Workspace │
+│ app/       │ │ apps/omnilive│ │ apps/gateway│ │ packages/*  │
+│ package.json│ │ apps/stt   │ │ packages/omni-│ │ pnpm-  │
+│            │ │ apps/universal│            │ │ workspace.yaml│
+└──────────┘ └──────────┘ │  agent-bus/ │ │           │
+                          │ apps/tencentdb-│ │           │
+                          │ memory/        │ │           │
+                          └────────────────┘ └──────────┘
+```
+
+### 系統詳細對照表
+
+| 系統 | 職能 | 實作路徑 | 描述 |
+|---|---|---|---|
+| 🌐 ESGGO 網站 | 前端與打包 | `app/`, `package.json` | 網站入口與構建配置 |
+| 🎙️ 語音產品線 | STT / TTS / 翻譯 | `apps/omnilive/`, `apps/stt/`, `apps/universal-translator/` | 語音產品與多語言翻譯 |
+| 🤖 代理閘道 | Agent Bus / Deploy Gate | `apps/gateway/`, `packages/omni-agent-bus/` | 代理匯流排與 5T 驗算閘 |
+| 📦 共用 Workspace | 共用套件與依賴 | `packages/*`, `pnpm-workspace.yaml` | 跨專案共用程式庫 |
+| 🧠 智庫聖所 | 記憶召回 >95% | `apps/tencentdb-memory/`, `packages/omni-memory/` | BM25 + 向量 hybrid 知識檢索 |
+| 📜 符文契約 | API 鑄造 × TypeBox | `packages/shared/`, `packages/omni-core/` | TypeScript 型別安全 + Zod→TypeBox 遷移 |
+| ⚡ 光之羽翼 | 自動化背景 Task | `apps/gateway/`, `.github/workflows/` | ADK 調度與 CI/CD |
+| 🔥 煉金熵減 | 重構與熵減 | `tools/ts-matrix/`, `scripts/` | 熵值 -3%/週，重構工程化 |
+| 🔐 5T 驗算 | ISO 規範 + Hash Lock | `packages/omni-agent-bus/src/deploy-gate.ts` | SHA-256 + `Object.freeze()` 密典 |
+
+---
+
+## F2. 結界六柱（六大邊界）—— 系十二大架構補強表
+
+> 來源：`Omniesggo-architecture.html` §結界六柱。對應 §A 12大萬能與 §D3 支援基底。
+
+| 結界 | 職能 | 5T 對應 | 實作路徑 | 對應 12大 |
+|---|---|---|---|---|
+| 🧠 記憶柱 | 召回 >95%，BM25 + 向量 hybrid | Traceable / Trackable | `apps/tencentdb-memory/` | OmniMemory |
+| ⏳ 時間柱 | 熵 <0.1，每週煉金 | Transparent | `tools/ts-matrix/` | OmniTime |
+| 🌍 空間柱 | VPS / Firebase / Gateway 同步 | Trustworthy | `apps/gateway/` | OmniCore |
+| 🔗 因果柱 | `source_origin` 溯源追蹤 | Traceable | `shared/types.ts` | OmniComponent |
+| 🔒 不朽柱 | Hash Lock + freeze + SHA-256 | Trustworthy | `packages/omni-core/src/deep-freeze.ts` | OmniGateway |
+| ☯️ 圓通柱 | 5T 貫穿全域一致 | 5T 全 | `packages/omni-agent-bus/` | OmniAgent |
+| 📊 總管 | 上述六柱的編排與輸出 | 5T 透徹 | `tools/ts-matrix/verify.mjs` | OmniProphet |
+
+---
+
+## F3. 5T 協定流向圖（追溯 → 追蹤 → 感知 → 透明 → 封印）
+
+> 來源：`Omniesggo-architecture.html` §5T 協定流向圖。5T 協議是 OA-Team 30 蜂群的基礎協定與驗算流程。
+
+```text
+Traceable (可溯源)
+   {"source_origin": "packages/omni-core/src/index.ts"}
+        ↓
+Trackable (可追蹤)
+   lifecycle hook 記錄完整流轉路徑
+        ↓
+Tangible (可感知)
+   UI/UX 動態回應 <200ms
+        ↓
+Transparent (可透明)
+   所有演算法與決策邏輯公開文檔，零幻覺驗算
+        ↓
+Trustworthy (不可篡改)
+   Hash Lock + Object.freeze() 封印
+```
+
+---
+
+## F4. 全域全端全量雙向同步終始矩陣
+
+> **全域**：5 大陣列（智庫聖所、符文契約、光之羽翼、煉金熵減、5T 驗算）× 30 代理（6 列 × 5 行）× 5 大系統（ESGGO 網站、語音產品線、代理閘道、共用 Workspace、結界六柱）。
+>
+> **全端**：TypeScript（45.7%）、Python（20.8%）、HTML（20.0%）、JavaScript（9.3%）、Shell（1.9%）、C#（0.8%）、其他（1.5%）。
+>
+> **全量**：12 大萬能（§A）+ 30 代理（§二）+ 16 奧義（§C）+ 7 修復（§C）+ 6 維度 OmniTag（§C） + 結界六柱（§F2）。
+>
+> **雙向**：何時同步、如何同步、向誰同步。
+>
+> **終始矩陣**：4 層同步審計閉環（L1 → L2 → L3 → L4），從開發到生產到審計到回饋。
+
+### 四層同步審計閉環
+
+| 層級 | 審計單位 | 任務 | 載具 | 落點 | 5T 對應 |
+|---|---|---|---|---|---|
+| **L1 開發層** | 單一 repo 檔案 | `git log` / `git status` / `pnpm lint` | `pnpm check` / `vitest` / `tsc` | `src/`, `.github/` | Traceable |
+| **L2 部署層** | 多 env 部署 | `git push` / `ob login` / `ob sync` | 根據 `.env` 讀取 `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` | `apps/gateway/`, `apps/tencentdb-memory/` | Trackable |
+| **L3 整合層** | 跨 repo 合併 | `gh pr create` / `gh pr merge` / CI 齊檢 | `.github/workflows/ci-check.yml` | `main` branch | Transparent |
+| **L4 回饋層** | 報表儀表板 + 模型校正 | `scripts/ts-matrix/verify.mjs` 產生 `verification_report.md` | 掃描全部 22 個 tracked 檔 | `verification_report.md` | Trustworthy |
+
+### 全量雙向同步終始矩陣（CSV 格式）
+
+```csv
+系統,代理,5T原則,同步方向,終止條件,審計載具
+ESGGO 網站,07-08,Traceable,本地 → GitHub → CI,CI 全部通過,pnpm check; vitest
+語音產品線,13-16,Trackable,GitHub → 實機,14 個渠道 api_test 全部 green,pnpm test
+代理閘道,09-12,Transparent,CI → lint + test,sca 0 嚴重漏洞,ts-matrix/verify.mjs
+共用 Workspace,01-06,Trustworthy,實機 → GitHub,所有追蹤檔案一致,verification_report.md
+結界六柱,25-30,5T 透徹,跨 repo 合併,merged + merged報告,gh pr list --state merged
+```
+
+---
+
+## F5. 結界六柱與 12 大萬能的映射
+
+| 結界 | 12 大萬能 | 章節 |
+|---|---|---|
+| 🧠 記憶柱 | OmniMemory（物理母體 + 知識聖所） | §A1 維度一 |
+| ⏳ 時間柱 | OmniTime（時間序列 + 事件重放） | §A1 維度一 |
+| 🌍 空間柱 | OmniCore（核心型別系統 + deep-freeze） | §A1 維度三 |
+| 🔗 因果柱 | OmniComponent（最小靜態單元 + uuid/version） | §A1 維度二 |
+| 🔒 不朽柱 | OmniGateway（安全屏障 + Hash Lock） | §A1 維度四 |
+| ☯️ 圓通柱 | OmniAgent（智慧代理 + 情境決策） | §A1 維度三 |
+
+---
+
+## F6. 期望閱讀順序
+
+1. `soul.md` — 靈魂公約：12 大架構、5T 協定、蜂王五詔、結界六柱
+2. `docs/OMNI-CANON.md` — 12 大萬能完整契約（分別指向 §A）
+3. `docs/AGENT-CAPABILITIES.md` — 務實實作手冊（真實 token / API / 檔案路徑 / 已驗證能力）
+4. `docs/omniesggo-architecture.html` — 系統地圖與語言分佈（本檔可直接閱讀）
+5. `packages/omni-core/` — 核心型別系統 + `deep-freeze` 實作
+6. `packages/omni-agent-bus/` — 代理匯流排與部署閘道
+
+---
+
+## 驗證與鎖定
+
+```ts
+/** 終始矩陣 F6 已刻印至 soul.md §F
+ * [核心] 結界六柱 + 12 大萬能 + 5T 5T 流向
+ * [3+1] 🟢 聖典可溯源 (本檔 §F2 + docs/OMNI-CANON.md) | 🔵 演化路徑可追蹤 (git log) | 🟠 結構可驗算 (ts-matrix/verify.mjs) | 🔴 已 Object.freeze
+ * [AGPL-3.0] 開源合規
+ * [已鎖] 不再改核心架構；未來只透過 OmniEvolution 增進實作細節
+ */
+```
+
+---
+
+> **Updated: 2026-11-02 · 終始矩陣與 TypeBox 核心規範（F6）將六大系統地圖（Omniesggo-architecture.html）+ 222 commits 實質建設融會貫通刻印至 soul.md · 聖典全書 12+A+B+C+D+F 收束 · 始即是終，終即是始*
+
+## E1. 十 萬能元鑰與全能密鑰融合（L0–L4）
+
+> 「萬能元鑰成長層 + 統一憑證存取 = 代理全生命週期安全與成長閉環」
+
+### 架構
+
+```text
+L0  JunAikey 萬能元鑰 / 萬能永憶
+    │  代理成長層：記憶、技能、進度、閉環 (NCBDB primary + local fallback)
+    │  召喚關鍵字：JunAikey / 萬能元鑰 / 萬能永憶 / awaken / reflect / grow skill
+    │
+    ├── L1  OmniKey              ← 最高憑證權威（萬能元鑰祕密庫最高層）
+    ├── L2  OmniMasterKey        ← 憑證存取層（統一憑證存取：Secret Vault + Bitwarden）
+    │
+    ├── L3  SUMMON_LAYERS L2-L5
+    │
+    └── L4  (已部署代理與服務)
+```
+
+### 密碼安全原則
+- ❌ 硬編碼：任何密碼、Token、API key 絕不寫入碼中
+- ✅ 環境變數：讀取自 `C:\Users\dingj\secret-vault\ENV20230818.env`（已 `.gitignore` 忽略）
+- ✅ 統一函數：`omni_get_secret()` 提供統一存取介面
+- ✅ MASKED 輸出：所有憑證輸出皆為 `***MASKED***`，絕不回顯真實值
+
+### L0 JunAikey 閉環
+```bash
+bash junaikey.sh awaken    # 被動載入
+bash junaikey.sh grow NAME BODY --traits=...  # 學習技能
+bash junaikey.sh remember JSON  # 寫記憶
+bash junaikey.sh reflect SUMMARY --learn=...  # 閉環反思
+bash junaikey.sh query --limit=20  # 查詢
+```
+
+### 開發流程整合
+- **hermes 開發環境**：`agent.env_file` 指向 `C:/Users/dingj/secret-vault/ENV20230818.env`
+- **terminal 子殼**：每次 `junaikey.sh` 哨兵自動載入（防呆包裝器解決 stdin not-tty）
+- **技能 helmet**：每個技能 `SKILL.md` 頭部標籤標明 `junaikey` / `omni-master-key` / `OmniKey`
+
+```ts
+/** 萬能元鑰與全能密鑰融合結構 */
+export const omniMaster = {
+  l0: { name: "JunAikey 萬能元鑰", role: "agent-growth-layer" },
+  l1: { name: "OmniKey", role: "credential-authority" },
+  l2: { name: "OmniMasterKey", role: "unified-credential-access" },
+  l3: { name: "SUMMON_LAYERS", role: "l2-l5 summon" },
+};
+Object.freeze(omniMaster);
+```

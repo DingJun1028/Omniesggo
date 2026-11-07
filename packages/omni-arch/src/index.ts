@@ -12,6 +12,9 @@
  *
  * 復用 @esggo/omni-core 已落地之 R1–R7:
  *   deepFreeze / egressLock / EntropyLedger / PrefetchGate / LearningLoop / ChaosEngine
+ *
+ * 下階段編排 (正典 §7, 已落地):
+ *   OmniHive 全知蜂巢 (共享黑板 + 動態競標) / OmniProphet 先知矩陣 (多重宇宙並行)
  */
 export { OmniArch, type ArchWire } from './arch';
 export { OmniBase, type Lifecycle } from './base';
@@ -41,6 +44,21 @@ export { OmniUserRegistry, type GrowthEntry } from './user-registry';
 export { OmniTheme } from './theme';
 export { OmniEngine, type EnginePulse } from './engine';
 export { OmniBrain, OmniHeart } from './heart';
+export {
+  OmniHive,
+  type HiveAwardRecord,
+  type HiveBid,
+  type HiveTask,
+  type HiveTenderOptions,
+  type HiveWorker,
+} from './hive';
+export { OmniProphet, type ProphetOptions } from './prophet';
+export { bindProphetToAgent, type ForeseeIntent } from './prophet-bridge';
+export {
+  invokeTrusted,
+  REQUIRED_TRUST_BY_MODE,
+  trustAwareToolPermission,
+} from './tool-trust-gate';
 export {
   OmniAvatarCore,
   sealAvatarConfig,

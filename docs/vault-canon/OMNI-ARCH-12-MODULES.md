@@ -32,6 +32,9 @@
 - 萬能主題（OmniTheme, src/theme.ts）：LiquidGlass／MartialLock／CelestialGlow；戒嚴期間全域 UI 強制防護色。
 - 萬能種子（OmniSeed, src/seed.ts）：germinateAgent／germinateComponent 細胞分裂母體；世代計數＋血脈 parentUuid，子代各自新 uuid（天生快照隔離）。
 - 萬能用戶RAG成長資料庫（OmniUserRegistry, src/user-registry.ts）：個體層成長軌跡，與 OmniMemory（群體層）互補。
+- 全知蜂巢（OmniHive, src/hive.ts，正典 §7 下階段編排已落地）：共享黑板（BusEvent 契約＋deepFreeze 刻印，uuid MECE 禁重複）＋多輪動態競標（round ≥ 2 偵察後 re-bid，最高分得標）；得標軌跡以 hive.awarded 事件上總線並留時空裂縫痕跡；全員棄標流標 fail-fast。
+- 先知矩陣（OmniProphet, src/prophet.ts，正典 §7 下階段編排已落地）：foresee() 平行 fork 候選宇宙（maxUniverses bounded）預運算；ask() 命中已完成宇宙即回傳（0ms 路徑）；復用 R6 PrefetchGate 成本閘門（命中率低於 minHitRate 停用預判，replenish() 於閘門重開時補 fork）。
+- 先知×意圖接線（bindProphetToAgent, src/prophet-bridge.ts）：單一 foreseeIntent(intent, handler, candidates) 註冊器同時向 prophet 預判（候選宇宙 fork）與 agent 分發（understand 委派 ask）註冊；agent.understand 命中即 0ms 回傳；兩模組職責 MECE（agent 管分發契約、prophet 管預判與命中）。
 
 ## 4. 生命體頂層編排（OmniHeart × OmniBrain, src/heart.ts）
 
@@ -44,6 +47,8 @@
 2. OmniTheme 以 healing.isLocked() 為鎖源，戒嚴強制 MartialLock。
 3. OmniEvolution 的 journal 來源 = Bus journal ＋ Time journal（重複 uuid 即技術債信號）。
 4. OmniGateway 的寫入鎖由 healing 戒嚴狀態決定。
+5. OmniHive 得標軌跡 → OmniBus 發佈 `hive.awarded` 事件 ＋ OmniTime 裂縫留痕。
+6. 先知×意圖接線（可選，呼叫端組裝）：bindProphetToAgent(wire.agent, wire.prophet) 後，foreseeIntent 註冊之意圖經 agent.understand 觸發時命中即 0ms 回傳。
 
 ## 6. 首個落地場景（端到端測試見 test/arch.test.ts）
 
@@ -52,6 +57,6 @@
 ## 7. 如實揭露（未於本套件實作項）
 
 - 九大奇效之「時空裂縫事件重放」完整版與「冪等重放 journal」在 @esggo/omni-agent-bus（R4）；本套件 OmniTime 為模組級事件流，不重複。
-- 「全知蜂巢（Blackboard／動態競標）」與「先知矩陣（多重宇宙並行）」僅接入 PrefetchGate 成本閘門語義，蜂巢競標編排屬下階段。
+- 「全知蜂巢（Blackboard／動態競標）」與「先知矩陣（多重宇宙並行）」已落地（OmniHive／OmniProphet，見 §3）；「集體免疫」廣播語義由 OmniHealing sys.martial_law 承擔。
 - OmniComponent 為 UI 無關契約，液態玻璃渲染屬前端框架層（apps/）。
 - OmniGateway 為模組級邊界；部署級信任邊界（API-key 閘）在 apps/gateway（:8642）。

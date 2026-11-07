@@ -1,0 +1,660 @@
+{
+  "repo": "Omniesggo",
+  "generated": "2026-11-02 07:10",
+  "counts": {
+    "packages": 21,
+    "apps": 34,
+    "skills": 47,
+    "agents": 30,
+    "arch": 15,
+    "workflows": 2
+  },
+  "packages": [
+    {
+      "name": "@esggo/capacities",
+      "pkg": "capacities",
+      "desc": "Capacities API client + OA-Team knowledge garden sync (Bearer / OAuth PKCE)",
+      "modules": [
+        "client",
+        "oa-knowledge-sync"
+      ],
+      "module_count": 2
+    },
+    {
+      "name": "@esggo/cli",
+      "pkg": "cli",
+      "desc": "",
+      "modules": [],
+      "module_count": 0
+    },
+    {
+      "name": "@esggo/errors",
+      "pkg": "errors",
+      "desc": "",
+      "modules": [
+        "api",
+        "index"
+      ],
+      "module_count": 2
+    },
+    {
+      "name": "@esggo/i18n",
+      "pkg": "i18n",
+      "desc": "",
+      "modules": [
+        "canon.d"
+      ],
+      "module_count": 1
+    },
+    {
+      "name": "@esggo/oa-framework",
+      "pkg": "oa-framework",
+      "desc": "OA 萬能分身元框架 — 整合 ADK + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶",
+      "modules": [
+        "index"
+      ],
+      "module_count": 1
+    },
+    {
+      "name": "@esggo/oesg-pulse",
+      "pkg": "oesg-pulse",
+      "desc": "OESG-Pulse 碳排脈動引擎 — OESG 五路線圖首站（Pulse→Report→Audit→Exchange→DAO），複用 12大萬能模組管線：意圖→符文→總線→記憶→驗算→心跳",
+      "modules": [
+        "engine",
+        "hive",
+        "index",
+        "sinks",
+        "types"
+      ],
+      "module_count": 5
+    },
+    {
+      "name": "@esggo/oesg-report",
+      "pkg": "oesg-report",
+      "desc": "OESG-Report 報告生成引擎 — OESG 五路線圖次站（Pulse→Report→Audit→Exchange→DAO），訂閱 oesg.pulse.tick 彙整期報告，驗算後廣播 oesg.report.draft 供第三站 Audit 稽核",
+      "modules": [
+        "engine",
+        "index",
+        "sinks",
+        "types"
+      ],
+      "module_count": 4
+    },
+    {
+      "name": "@esggo/oesg-supabase",
+      "pkg": "oesg-supabase",
+      "desc": "OESG Supabase 寫出埠 — OESG-Pulse/Report 之 PostgREST sink adapter（原生 fetch 零依賴，憑證由呼叫端注入，De-Google 政策相容）",
+      "modules": [
+        "index",
+        "sinks"
+      ],
+      "module_count": 2
+    },
+    {
+      "name": "@esggo/ollama-mcp",
+      "pkg": "ollama-mcp",
+      "desc": "Ollama MCP Server for local zero-cost AI inference",
+      "modules": [],
+      "module_count": 0
+    },
+    {
+      "name": "@esggo/omni-agent",
+      "pkg": "omni-agent",
+      "desc": "OmniJules 5T Gate Verification Engine — 5T 閘道驗證核心 (traceable/transparent/tangible/trustworthy/trackable)",
+      "modules": [
+        "gates",
+        "index",
+        "types"
+      ],
+      "module_count": 3
+    },
+    {
+      "name": "@esggo/omni-agent-bus",
+      "pkg": "omni-agent-bus",
+      "desc": "OmniAgentBus — OA 萬能代理總線 (事件/訊息骨幹), 串接 oa-framework 7 子框架 + omni-agent 5T Gate + TencentDB Team Memory",
+      "modules": [
+        "bus",
+        "deploy-gate",
+        "idempotent-replay",
+        "index",
+        "oa-bridge",
+        "state-snapshot",
+        "types"
+      ],
+      "module_count": 7
+    },
+    {
+      "name": "@esggo/omni-arch",
+      "pkg": "omni-arch",
+      "desc": "12大萬能架構 — 12大萬能模組 + OmniHeart × OmniBrain 生命體頂層編排（TypeScript 契約實作）",
+      "modules": [
+        "agent",
+        "api",
+        "arch",
+        "base",
+        "bus",
+        "component",
+        "engine",
+        "evidence",
+        "evolution",
+        "gateway",
+        "healing",
+        "heart",
+        "hive",
+        "index",
+        "memory",
+        "prophet-bridge",
+        "prophet",
+        "seed",
+        "tag",
+        "theme",
+        "time",
+        "tool-trust-gate",
+        "tri-mode",
+        "types",
+        "user-registry"
+      ],
+      "module_count": 25
+    },
+    {
+      "name": "@esggo/omni-bridge",
+      "pkg": "omni-bridge",
+      "desc": "OmniBridge v1.0 — 跨平台符文 API + 事件匯流排 (Trackable lifecycle)",
+      "modules": [
+        "index"
+      ],
+      "module_count": 1
+    },
+    {
+      "name": "@esggo/omni-core",
+      "pkg": "omni-core",
+      "desc": "IComponentCore 心核介面 + sealComponentCore Hash Lock 刻印",
+      "modules": [
+        "deep-freeze",
+        "egress",
+        "evolution",
+        "index",
+        "trust"
+      ],
+      "module_count": 5
+    },
+    {
+      "name": "@esggo/omni-db",
+      "pkg": "omni-db",
+      "desc": "OmniDB v1.0 — Knowledge Pyramid L1-L4 + 5 algorithms + Provenance Chain",
+      "modules": [
+        "index"
+      ],
+      "module_count": 1
+    },
+    {
+      "name": "@esggo/omni-forge",
+      "pkg": "omni-forge",
+      "desc": "OmniForge v1.0 — 熵減煉金 + 合約 Linter + 不可篡改刻印 (Trust Object.freeze)",
+      "modules": [
+        "index"
+      ],
+      "module_count": 1
+    },
+    {
+      "name": "@esggo/omni-memory",
+      "pkg": "omni-memory",
+      "desc": "OmniMemory v1.0 — L0-L3 4 層記憶 + 3 軸持久化 (TencentDB / GBrain / Obsidian Vault)",
+      "modules": [
+        "index",
+        "tencentdb-adapter"
+      ],
+      "module_count": 2
+    },
+    {
+      "name": "@esggo/omni-tag",
+      "pkg": "omni-tag",
+      "desc": "OmniTag v1.0 — 6 維度標籤系統 + routing rules (Truth source_origin)",
+      "modules": [
+        "index"
+      ],
+      "module_count": 1
+    },
+    {
+      "name": "@esggo/omni-ui",
+      "pkg": "omni-ui",
+      "desc": "OmniUI v1.0 — Liquid Glass Renderer + Floating Core + Metric Visualizer (Beauty)",
+      "modules": [
+        "index"
+      ],
+      "module_count": 1
+    },
+    {
+      "name": "@esggo/shared",
+      "pkg": "shared",
+      "desc": "",
+      "modules": [
+        "auth",
+        "config",
+        "database",
+        "health",
+        "i18n-runtime",
+        "index",
+        "redis"
+      ],
+      "module_count": 7
+    },
+    {
+      "name": "@esggo/ui",
+      "pkg": "ui",
+      "desc": "",
+      "modules": [
+        "index"
+      ],
+      "module_count": 1
+    }
+  ],
+  "apps": [
+    {
+      "name": "agent_mesh",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "aistation",
+      "kind": "Python",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "cf-tunnel-manager",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "cloudflare-deepseek-v4-pro",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "esg-swarm",
+      "kind": "Python",
+      "mistral_workflow": true,
+      "has_cli": false
+    },
+    {
+      "name": "evolution-engine",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-1.5",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-2.0",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-2.9",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-3.0",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-journey-server",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-journey-web",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-tools",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "ftg-tours-website",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "gateway",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "htb-b2b",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "htb-esggo-co",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "knowledge-lifeform",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "learning-center",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "mcp-gateway",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "omni-api",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "omni-blueprint-hub",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "omni-cli",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "omni-factory",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "omnilive",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "omnisub",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "omnlive",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "oneringai",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "self-healing",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "stt",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "tencentdb-memory",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "universal-translator",
+      "kind": "TS",
+      "mistral_workflow": false,
+      "has_cli": false
+    },
+    {
+      "name": "vibe-ci-monitor",
+      "kind": "Python",
+      "mistral_workflow": true,
+      "has_cli": false
+    },
+    {
+      "name": "zoom-live-caption",
+      "kind": "?",
+      "mistral_workflow": false,
+      "has_cli": false
+    }
+  ],
+  "skills": [
+    {
+      "name": "accidental-data-loss-prevention",
+      "desc": "|"
+    },
+    {
+      "name": "best-practice-awakening",
+      "desc": "最佳實踐覺（Best Practice Awakening）究極版奧義 — 系統啟動即為最佳實踐，無作妙德、圓通無礙、永恆覺醒結界 inheritance"
+    },
+    {
+      "name": "data-autocleaning",
+      "desc": "Automated data quality and transformation capabilities for Dataform/dbt/BigQuery"
+    },
+    {
+      "name": "esggo-omniskill",
+      "desc": ""
+    },
+    {
+      "name": "esggo-standards",
+      "desc": "全域痊癒 (Global Healing) - Enforces the ESG GO project standards: English Standard (英標繁博), En"
+    },
+    {
+      "name": "eslint-optimizer",
+      "desc": "Configure ESLint for Next.js/React/TypeScript projects with optimal rule settings. Balance"
+    },
+    {
+      "name": "gcloud-auth-verification",
+      "desc": "Guidelines for identifying and resolving missing Google Cloud authentication"
+    },
+    {
+      "name": "github-actions-fixer",
+      "desc": "Diagnose and fix GitHub Actions CI/CD workflow failures. Covers ESLint, pytest, ruff, Type"
+    },
+    {
+      "name": "global-healing",
+      "desc": ""
+    },
+    {
+      "name": "junai-sovereign-ultimate",
+      "desc": "|"
+    },
+    {
+      "name": "lhub-ai-routing",
+      "desc": ">"
+    },
+    {
+      "name": "managing-python-dependencies",
+      "desc": "|"
+    },
+    {
+      "name": "ml-best-practices",
+      "desc": "|"
+    },
+    {
+      "name": "notebook-guidance",
+      "desc": "|-"
+    },
+    {
+      "name": "oa-ecosystem-best-practices",
+      "desc": "\"OA 蜂群/CrewAI/OAB/Tailscale 建置除錯的實戰陷阱與對策。建 OA 時載入。\""
+    },
+    {
+      "name": "oa-team-bee-colony",
+      "desc": "🐝 OA-Team 30 萬能蜂群 究極版奧義 — ESG-GO 生態完整融合，含 5T Protocol、OmniTag、最佳實踐覺結界、熵減治理、VPS/Docker/CI 實"
+    },
+    {
+      "name": "omni-sync-memory",
+      "desc": "[GLOBAL MANDATORY HOOK] This enforces the primary AI memory layer. All AI agents must use "
+    },
+    {
+      "name": "omnibase-global-healing",
+      "desc": ""
+    },
+    {
+      "name": "omnitag",
+      "desc": "OmniTag 萬能標籤系統 究極版奧義 — ESG-GO 統一標籤分類、安全分級、自動路由、熵減治理、最佳實踐覺結界 inheritance"
+    },
+    {
+      "name": "python-ci-setup",
+      "desc": "Set up Python packages, test infrastructure, and CI configuration for Next.js/full-stack p"
+    },
+    {
+      "name": "react-quality-fix",
+      "desc": "Fix React code patterns that fail ESLint and React Compiler rules. Covers hooks ordering, "
+    },
+    {
+      "name": "render-background-workers",
+      "desc": ">-"
+    },
+    {
+      "name": "render-blueprints",
+      "desc": ">-"
+    },
+    {
+      "name": "render-cli",
+      "desc": ">-"
+    },
+    {
+      "name": "render-cron-jobs",
+      "desc": ">-"
+    },
+    {
+      "name": "render-debug",
+      "desc": "Debug failed Render deployments by analyzing logs, metrics, and database state. Identifies"
+    },
+    {
+      "name": "render-deploy",
+      "desc": "Deploy applications to Render by analyzing codebases, generating render.yaml Blueprints, a"
+    },
+    {
+      "name": "render-disks",
+      "desc": ">-"
+    },
+    {
+      "name": "render-docker",
+      "desc": ">-"
+    },
+    {
+      "name": "render-domains",
+      "desc": ">-"
+    },
+    {
+      "name": "render-env-vars",
+      "desc": ">-"
+    },
+    {
+      "name": "render-keyvalue",
+      "desc": ">-"
+    },
+    {
+      "name": "render-mcp",
+      "desc": ">-"
+    },
+    {
+      "name": "render-migrate-from-heroku",
+      "desc": "\"Migrate from Heroku to Render by reading local project files and generating equivalent Re"
+    },
+    {
+      "name": "render-monitor",
+      "desc": "Monitor Render services in real-time. Check health, performance metrics, logs, and resourc"
+    },
+    {
+      "name": "render-networking",
+      "desc": ">-"
+    },
+    {
+      "name": "render-postgres",
+      "desc": ">-"
+    },
+    {
+      "name": "render-private-services",
+      "desc": ">-"
+    },
+    {
+      "name": "render-scaling",
+      "desc": ">-"
+    },
+    {
+      "name": "render-static-sites",
+      "desc": ">-"
+    },
+    {
+      "name": "render-web-services",
+      "desc": ">-"
+    },
+    {
+      "name": "render-workflows",
+      "desc": "Sets up, develops, tests, and deploys Render Workflows. Covers first-time scaffolding (via"
+    },
+    {
+      "name": "skill-repair",
+      "desc": "|"
+    },
+    {
+      "name": "smart-ai-router",
+      "desc": ""
+    },
+    {
+      "name": "supabase-postgres-best-practices",
+      "desc": "Postgres performance optimization and best practices from Supabase. Use this skill when wr"
+    },
+    {
+      "name": "xcode-project-setup",
+      "desc": "Safely modifies Xcode projects (.pbxproj) to add Swift Packages and link files. Use this s"
+    },
+    {
+      "name": "zkp-seal",
+      "desc": "\"Use this skill to perform Zero-Knowledge Proof (ZKP) cryptographic sealing on evidence do"
+    }
+  ],
+  "workflows": [
+    {
+      "name": "esg-swarm",
+      "app": "esg-swarm",
+      "registered": false
+    },
+    {
+      "name": "vibe-ci-monitor",
+      "app": "vibe-ci-monitor",
+      "registered": false
+    }
+  ]
+}

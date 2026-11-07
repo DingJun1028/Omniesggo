@@ -1,0 +1,165 @@
+{
+  "settings": {
+    "syncEnabled": true,
+    "githubOwner": "DingJun1028",
+    "githubRepo": "omninote-vault",
+    "githubBranch": "main",
+    "githubToken": "***MASKED***",
+    "lastSyncTime": 0,
+    "vault": "defaultVault",
+    "clipboardReadTip": ""
+  },
+  "syncData": {
+    "files": {
+      "12大萬能 OMNI-CANON.md": {
+        "sha": "d293276822cd8b50e73f6bb07303f0b5867d866f",
+        "lastSync": 1793638874033,
+        "hash": "d293276822cd8b50e73f6bb07303f0b5867d866f"
+      },
+      "5T Protocol.md": {
+        "sha": "0d1837d660db5c5512da12a786f6b6b171c9a99e",
+        "lastSync": 1793638874047,
+        "hash": "0d1837d660db5c5512da12a786f6b6b171c9a99e"
+      },
+      "AGENT-SHARED-KNOWLEDGE.md": {
+        "sha": "5ec6f925b31182900933fa5643ef8e76a3621793",
+        "lastSync": 1793638874059,
+        "hash": "5ec6f925b31182900933fa5643ef8e76a3621793"
+      },
+      "AI Research Index.md": {
+        "sha": "75e3fb3b12cc6c1431cb37f168c87d28df5d43ec",
+        "lastSync": 1793638874066,
+        "hash": "75e3fb3b12cc6c1431cb37f168c87d28df5d43ec"
+      },
+      "Dependabot Security Sweep 2026-10.md": {
+        "sha": "fb104464fdf6c14c8795b23036e62e69ed512715",
+        "lastSync": 1793638874073,
+        "hash": "fb104464fdf6c14c8795b23036e62e69ed512715"
+      },
+      "ESG GO Sacred Pipeline CI-CD.md": {
+        "sha": "04b5b652672ebaff9dbfa21922e48d0c9fe15e8b",
+        "lastSync": 1793642476412,
+        "hash": "04b5b652672ebaff9dbfa21922e48d0c9fe15e8b"
+      },
+      "ESG-GO 核心.md": {
+        "sha": "38763b16862cedea0f2c92d87af35c371c8eb3ea",
+        "lastSync": 1793638874081,
+        "hash": "38763b16862cedea0f2c92d87af35c371c8eb3ea"
+      },
+      "FTG Contact Form Pipeline.md": {
+        "sha": "b640db4eff329888b9299275167e015f0467dcfd",
+        "lastSync": 1793638874084,
+        "hash": "b640db4eff329888b9299275167e015f0467dcfd"
+      },
+      "Hermes × Obsidian 生態掃描 2026-10.md": {
+        "sha": "724041a2e33124967959d95e44976bd9e8e118ab",
+        "lastSync": 1793638874101,
+        "hash": "724041a2e33124967959d95e44976bd9e8e118ab"
+      },
+      "OBSIDIAN-SHARED-BRAIN-SYNC.md": {
+        "sha": "ea5223bba3c94b3d368ae6cb991383e588988d57",
+        "lastSync": 1793638874105,
+        "hash": "ea5223bba3c94b3d368ae6cb991383e588988d57"
+      },
+      "OMN-PRD-001 終始矩陣.md": {
+        "sha": "97d8572cf754c9b86765f3b3c4005195a333c154",
+        "lastSync": 1793642475806,
+        "hash": "97d8572cf754c9b86765f3b3c4005195a333c154"
+      },
+      "OMN-PRD-001-SCHEMA-TRACEABILITY.md": {
+        "sha": "3db4bd790a83bc1eb05cf02aa36be09c206b020b",
+        "lastSync": 1793638874112,
+        "hash": "3db4bd790a83bc1eb05cf02aa36be09c206b020b"
+      },
+      "OMNI-ARCH-12-MODULES.md": {
+        "sha": "0ef4b46e3af484288efbbf3d802b07bc4d3007b8",
+        "lastSync": 1793638874116,
+        "hash": "0ef4b46e3af484288efbbf3d802b07bc4d3007b8"
+      },
+      "OMNITAG/Best Practice Awakening.md": {
+        "sha": "26411c73828a6f0cd2b11494ba5b0461d0df535f",
+        "lastSync": 1793638874120,
+        "hash": "26411c73828a6f0cd2b11494ba5b0461d0df535f"
+      },
+      "OMNITAG/Root Cause × Effect Elimination.md": {
+        "sha": "530f717f7708d003e279bded2282bace31212890",
+        "lastSync": 1793640023858,
+        "hash": "530f717f7708d003e279bded2282bace31212890"
+      },
+      "OMNITAG/Universal Automation 萬能自動.md": {
+        "sha": "2ef6ce4c2c0bb1bd3e708a7bd1fdc9dd6969212d",
+        "lastSync": 1793640025756,
+        "hash": "2ef6ce4c2c0bb1bd3e708a7bd1fdc9dd6969212d"
+      },
+      "Obsidian Shared Brain x-callback-url Protocol.md": {
+        "sha": "2c8bb9c282f58242f5c23772d827de93b1d69e69",
+        "lastSync": 1793638874145,
+        "hash": "2c8bb9c282f58242f5c23772d827de93b1d69e69"
+      },
+      "OmniCapture/OmniCapture — 万能擷取 · 自動詳細文檔分析.md": {
+        "sha": "e3d838d2946549707ce46a62cccf87f377e586f7",
+        "lastSync": 1793640024893,
+        "hash": "e3d838d2946549707ce46a62cccf87f377e586f7"
+      },
+      "OmniESGgo 系統架構 功能設定 成果交付 終始矩陣 設計規劃書.md": {
+        "sha": "20d157d81d5d26ac242adc3d23c9f86d061cec0a",
+        "lastSync": 1793638874158,
+        "hash": "20d157d81d5d26ac242adc3d23c9f86d061cec0a"
+      },
+      "OmniNote/OmniNote — 万能筆記 · 第二共享大腦.md": {
+        "sha": "2bcf44ec719e2925d073411fb3e01379e0380812",
+        "lastSync": 1793638874167,
+        "hash": "2bcf44ec719e2925d073411fb3e01379e0380812"
+      },
+      "OmniTag Universal Labeling Contract.md": {
+        "sha": "45847025f1819ca43e5e10a0d5caab9f897d5d93",
+        "lastSync": 1793638874172,
+        "hash": "45847025f1819ca43e5e10a0d5caab9f897d5d93"
+      },
+      "RAG-VECTOR-LAYER.md": {
+        "sha": "3b6d8298e312aa8602e7f139e1b03f022438e21b",
+        "lastSync": 1793638874175,
+        "hash": "3b6d8298e312aa8602e7f139e1b03f022438e21b"
+      },
+      "VIBE-CLI-INTEGRATION.md": {
+        "sha": "82da9ce2e1be397c6a122caa446b695753d3cc61",
+        "lastSync": 1793638874187,
+        "hash": "82da9ce2e1be397c6a122caa446b695753d3cc61"
+      },
+      "創世實錄 — 萬能開發 奧義 v2026-10.md": {
+        "sha": "662550d58accf8689f4cf8fbe05d6983f332ad04",
+        "lastSync": 1793638874192,
+        "hash": "662550d58accf8689f4cf8fbe05d6983f332ad04"
+      },
+      "萬能永憶主體 JunAiKey.md": {
+        "sha": "f32e8b39e0ee3e9535794188e721626ecb7d8609",
+        "lastSync": 1793638874195,
+        "hash": "f32e8b39e0ee3e9535794188e721626ecb7d8609"
+      },
+      ".obsidian/sync-stats.json": {
+        "sha": "284ee9214ea4723e7d803e4389bf017fafae666b",
+        "lastSync": 1793638875047
+      },
+      "README.md": {
+        "sha": "8025d4adc4b4360f3e5dfe517acced56fa09e385",
+        "lastSync": 1793643854729,
+        "hash": "8025d4adc4b4360f3e5dfe517acced56fa09e385"
+      },
+      "OmniCapture/archive/groq-test.txt": {
+        "sha": "ef371c7c56238d69a73d56d560be7f4298cc61f5",
+        "lastSync": 1793644743268,
+        "hash": "ef371c7c56238d69a73d56d560be7f4298cc61f5"
+      },
+      "UNagent/agent.md": {
+        "sha": "234e7c09e8564fb21bbdf16ccf58a378cbb1ff2d",
+        "lastSync": 1793645659852,
+        "hash": "234e7c09e8564fb21bbdf16ccf58a378cbb1ff2d"
+      },
+      "UNagent/memory.md": {
+        "sha": "355696b4a15bd09f3a237f9e0e948416affe6f3f",
+        "lastSync": 1793645661556,
+        "hash": "355696b4a15bd09f3a237f9e0e948416affe6f3f"
+      }
+    }
+  }
+}

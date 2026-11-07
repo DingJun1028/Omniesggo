@@ -4,18 +4,20 @@
   "private": true,
   "type": "module",
   "description": "OA-Team 30 萬能蜂群桌面背景 AI App — 5T 合規、可佈署 VPS",
-  "main": "dist/index.js",
+  "main": "dist/oa-sw-arm/src/index.js",
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/index.js",
+    "start": "node dist/oa-sw-arm/src/index.js",
     "dev": "tsx watch src/index.ts",
-    "desktop": "node dist/index.js --desktop",
+    "desktop": "node dist/oa-sw-arm/src/index.js --desktop",
     "test": "vitest run",
     "sync:types": "node C:/Project/esggo/scripts/export-shared-types.js",
     "check:types-sync": "node scripts/check-oa-types-sync.mjs",
     "typecheck": "tsc -p tsconfig.ut.json"
   },
   "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@typescript/typescript-win32-x64": "7.0.2",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.5"

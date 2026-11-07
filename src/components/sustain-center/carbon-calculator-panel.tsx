@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Calculator, ShieldCheck, Zap, Fuel, Plane, Truck, RefreshCw, Hash, CheckCircle2 } from 'lucide-react';
+import { Calculator, ShieldCheck, Zap, Fuel, Plane, RefreshCw, Hash, CheckCircle2 } from 'lucide-react';
 
 interface CalculationResult {
   success: boolean;

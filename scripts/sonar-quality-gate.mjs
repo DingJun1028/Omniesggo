@@ -10,18 +10,27 @@
  * is read exclusively from the SONAR_TOKEN environment variable and is never
  * printed, logged, or persisted.
  *
+ * Stale-verdict settle window: right after a synchronize push, the
+ * SonarCloud API keeps serving the PREVIOUS analysis result until the new
+ * Automatic Analysis is indexed, so an immediately observed verdict can
+ * belong to the prior head (false ERROR and false OK alike). Verdicts
+ * observed before the settle window elapses are therefore recorded but not
+ * accepted; polling continues until a verdict is observed at or after the
+ * settle deadline. Set --settle 0 to disable.
+ *
  * Usage:
  *   SONAR_TOKEN=... node scripts/sonar-quality-gate.mjs \
  *     --organization dingjun1028 \
  *     --project DingJun1028_Omniesggo \
  *     [--pull-request 123 | --branch main] \
- *     [--timeout 600] [--interval 20] [--verbose]
+ *     [--timeout 600] [--interval 20] [--settle 120] [--verbose]
  *
  * Exit codes: 0 = gate PASSED, 1 = gate FAILED, 2 = timeout / API error.
  */
 
 const DEFAULT_TIMEOUT_SECONDS = 600;
 const DEFAULT_INTERVAL_SECONDS = 20;
+const DEFAULT_SETTLE_SECONDS = 120;
 const MAX_ISSUES = 50;
 
 function parseArgs(argv) {
@@ -32,6 +41,7 @@ function parseArgs(argv) {
     branch: null,
     timeout: DEFAULT_TIMEOUT_SECONDS,
     interval: DEFAULT_INTERVAL_SECONDS,
+    settle: DEFAULT_SETTLE_SECONDS,
     verbose: false,
   };
   for (let i = 0; i < argv.length; i++) {
@@ -47,6 +57,7 @@ function parseArgs(argv) {
       case "--branch": args.branch = next(); break;
       case "--timeout": args.timeout = Number(next()); break;
       case "--interval": args.interval = Number(next()); break;
+      case "--settle": args.settle = Number(next()); break;
       case "--verbose": args.verbose = true; break;
       case "--help": case "-h":
         console.log("See header comment for usage."); process.exit(0); break;
@@ -58,7 +69,10 @@ function parseArgs(argv) {
     args.branch = null; // PR context takes precedence over an explicit branch.
   }
   if (args.interval < 5) fail("--interval must be >= 5 seconds");
-  if (args.timeout < args.interval) fail("--timeout must be >= --interval");
+  if (!Number.isFinite(args.settle) || args.settle < 0) fail("--settle must be >= 0 seconds");
+  if (args.timeout < args.interval + args.settle) {
+    fail("--timeout must be >= --interval + --settle (settle window must fit inside the poll budget)");
+  }
   return args;
 }
 
@@ -107,7 +121,7 @@ async function fetchIssues(args, token, qualities) {
       ...(args.pullRequest != null ? { pullRequest: args.pullRequest } : { branch: args.branch }),
       impactSoftwareQualities: q,
       ps: MAX_ISSUES,
-      s: "ISSUE_KEY",
+      s: "FILE_LINE", // SonarCloud issues/search 允許之排序值（ISSUE_KEY 非法，回 400）
     }, token);
     for (const it of data?.issues ?? []) {
       issues.push({
@@ -148,14 +162,22 @@ async function pollOnce(args, token) {
 }
 
 async function pollGate(args, token) {
-  const deadline = Date.now() + args.timeout * 1000;
+  const startedAt = Date.now();
+  const settleDeadline = startedAt + args.settle * 1000;
+  const overallDeadline = startedAt + args.timeout * 1000;
   let lastStatus = null;
-  while (Date.now() < deadline) {
+  while (Date.now() < overallDeadline) {
     const t0 = Date.now();
     const projectStatus = await pollOnce(args, token);
     if (projectStatus) {
       lastStatus = projectStatus;
-      if (projectStatus.status !== "UNKNOWN") break;
+      const settled = Date.now() >= settleDeadline;
+      const verdictKnown = projectStatus.status !== "UNKNOWN";
+      if (verdictKnown && settled) break;
+      if (verdictKnown && !settled && args.verbose) {
+        const waitMs = Math.max(0, settleDeadline - Date.now());
+        console.log(`  ...verdict ${projectStatus.status} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
+      }
     }
     const elapsed = Date.now() - t0;
     await new Promise((r) => setTimeout(r, Math.max(0, args.interval * 1000 - elapsed)));
@@ -192,9 +214,10 @@ async function main() {
   if (!auth?.valid) fail("SONAR_TOKEN was rejected by SonarCloud (authentication/validate).");
 
   const where = args.pullRequest != null ? `PR #${args.pullRequest}` : `branch "${args.branch}"`;
-  console.log(`SonarCloud quality gate: ${args.project} @ ${where} — polling up to ${args.timeout}s.`);
+  console.log(`SonarCloud quality gate: ${args.project} @ ${where} — polling up to ${args.timeout}s (settle ${args.settle}s).`);
 
-  // 2. Poll the gate until the Automatic Analysis has finished computing it.
+  // 2. Poll the gate until the Automatic Analysis has finished computing it,
+  //    trusting only verdicts observed after the stale-verdict settle window.
   const lastStatus = await pollGate(args, token);
   if (!lastStatus || lastStatus.status === "UNKNOWN") {
     fail(`quality gate not computed within ${args.timeout}s for ${where}.`);

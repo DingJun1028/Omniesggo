@@ -44,7 +44,7 @@ export interface OmniCoreComponentCore {
   /** 證據佐證庫 (可變, 用於鏈式追加) */
   evidence: Evidence[];
 }
-// ts-matrix: 對外相容別名 (API 不變)
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
 export type { OmniCoreComponentCore as IComponentCore };
 
 /**
@@ -157,3 +157,6 @@ export {
   type EntropyMetrics,
   type RepairTemplate,
 } from './evolution';
+
+// ── §20 Trust Label 契約 (2026-11-01 下沉至套件層, 供 MECE 復用) ──
+export { trustGate, trustScore, TRUST_LEVEL_SCORE, type TrustLevel } from './trust';

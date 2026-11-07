@@ -1,0 +1,137 @@
+# OmniBitwarden 配置文件
+# 萬能金庫系統配置
+# 合併自 Bitwarden 伺服器與 Omniesggo 需求
+
+vault:
+  name: OmniBitwarden
+  type: bitwarden
+  enabled: true
+  endpoint: https://vault.esggo.co
+
+# ── 認證設定 ──
+auth:
+  type: bitwarden
+  token: ${OMNIBITWARDEN_TOKEN}
+  organization: esggo-co
+  team: core
+
+# ── 存取範圍 ──
+scopes:
+  development:
+    path: .env.local
+    auto_rotate: false
+  production:
+    path: secret-vault/ENV20230818.env
+    auto_rotate: true
+  ci:
+    path: .github/scripts/ci-secrets.yaml
+    auto_rotate: false
+
+# ── 密鑰管理 ──
+secrets:
+  # LLM 提供者
+  - name: NCBDB_API_TOKEN
+    scope: production
+    auto_rotate: true
+  - name: MISTRAL_API_KEY
+    scope: development
+    auto_rotate: false
+  - name: GROQ_API_KEY
+    scope: development
+    auto_rotate: false
+  - name: MISTRAL_WORKFLOW_KEY
+    scope: development
+    auto_rotate: false
+  - name: OPENAI_API_KEY
+    scope: development
+    auto_rotate: false
+
+  # 雲端服務
+  - name: CLOUDFLARE_API_TOKEN
+    scope: production
+    auto_rotate: false
+  - name: VITE_CLOUDFLARE_ACCOUNT_ID
+    scope: production
+    auto_rotate: false
+
+  # 資料庫
+  - name: SUPABASE_ANON_KEY
+    scope: production
+    auto_rotate: false
+  - name: SUPABASE_SERVICE_ROLE_KEY
+    scope: production
+    auto_rotate: false
+  - name: DATABASE_URL
+    scope: production
+    auto_rotate: false
+  - name: SUPABASE_URL
+    scope: production
+    auto_rotate: false
+
+  # 平台憑證
+  - name: OMNIMASTER_KEY
+    scope: production
+    auto_rotate: true
+  - name: CONDUIT_PASSWORD
+    scope: production
+    auto_rotate: true
+  - name: JWT_SECRET
+    scope: production
+    auto_rotate: true
+  - name: REFRESH_TOKEN_SECRET
+    scope: production
+    auto_rotate: true
+
+  # 測試/開發
+  - name: FIREBASE_API_KEY
+    scope: development
+    auto_rotate: false
+  - name: FIREBASE_AUTH_DOMAIN
+    scope: development
+    auto_rotate: false
+  - name: FIREBASE_PROJECT_ID
+    scope: development
+    auto_rotate: false
+
+# ── 安全設定 ──
+security:
+  mask_output: true
+  mask_length: 8
+
+  # 儲存權限
+  vault_dir: omni-bitwarden
+  file_permissions: "600"
+
+  # 輪替設定
+  rotation:
+    enabled: true
+    interval_days: 90
+    last_rotate: null
+
+  # 敏感資料模式
+  sensitive_patterns:
+    - "sk-ant-"
+    - "gsk_"
+    - "mstrl_"
+    - "xoxb-"
+    - "xoxa-"
+    - "xoxc-"
+    - "xoxd-"
+    - "sqlnet-"
+    - "keybase-"
+    - "hf_"
+    - "ghp_"
+    - "gho_"
+    - "github_pat_"
+
+# ── 整合設定 ──
+integrations:
+  - name: bitwarden
+    type: bitwarden
+    version: 2026.10.1
+  - name: esggo
+    type: omniesggo
+    version: 5.1.0
+  - name: omniskill
+    type: omniskill
+    version: 2.0.0

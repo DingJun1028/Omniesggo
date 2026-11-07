@@ -1,4 +1,4 @@
-import type { ArrayKey, HiveSide } from '../../shared/types';
+import type { ArrayKey, HiveSide } from '../../shared/types.js';
 /// <reference path="../types/generated/esggo-shared.d.ts" />
 /**
  * OA-Team 雙蜂戰隊 60 員矩陣 (Dual-Hive 60 Colony)

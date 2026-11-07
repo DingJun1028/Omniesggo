@@ -1,0 +1,89 @@
+{
+  "llm": {
+    "vendors": [],
+    "activeModelId": null,
+    "activeVisionModelId": null,
+    "activeEmbeddingModelId": null,
+    "profiles": [],
+    "activeProfileId": null,
+    "provider": "openai-compatible",
+    "model": "",
+    "baseUrl": "",
+    "apiKey": ""
+  },
+  "image": {
+    "vendors": [],
+    "activeModelId": null,
+    "provider": "openai-images",
+    "model": "gpt-image-1",
+    "baseUrl": "",
+    "apiKey": "",
+    "size": "1024x1024",
+    "attachmentFolder": "",
+    "generatedFolder": ""
+  },
+  "safety": {
+    "approvalMode": "default",
+    "confirmDestructive": true,
+    "skipReadOnlyShellConfirm": true
+  },
+  "skills": {
+    "enabled": true,
+    "disabled": []
+  },
+  "agents": {
+    "enabled": true,
+    "disabled": [],
+    "disabledTools": [],
+    "perAgent": {}
+  },
+  "general": {
+    "excludedFolders": [],
+    "aiFolder": "UNagent",
+    "hideAiFolder": true,
+    "userName": "你",
+    "assistantName": "AI",
+    "maxToolTurns": 16,
+    "retitleEveryTurns": 6,
+    "mentionInline": "excerpt",
+    "diagnostics": false,
+    "hiddenCommands": [],
+    "language": "auto",
+    "releaseNotesNudgedVersion": "1.1.2",
+    "fileCardDecisions": {}
+  },
+  "mcp": {
+    "services": [
+      {
+        "id": "official-bailian-websearch",
+        "name": "bailian-websearch",
+        "baseUrl": "https://dashscope.aliyuncs.com/api/v1/mcps/WebSearch/mcp",
+        "authHeader": "",
+        "enabled": true,
+        "official": true
+      },
+      {
+        "id": "official-exa",
+        "name": "exa",
+        "baseUrl": "https://mcp.exa.ai/mcp",
+        "authHeader": "",
+        "enabled": true,
+        "official": true
+      },
+      {
+        "id": "official-dida365",
+        "name": "dida365",
+        "baseUrl": "https://mcp.dida365.com/",
+        "authHeader": "",
+        "enabled": false,
+        "official": true
+      }
+    ]
+  },
+  "retrieval": {
+    "semanticEnabled": false,
+    "embeddingBaseUrl": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "embeddingApiKey": "",
+    "embeddingModel": "text-embedding-v4"
+  }
+}
