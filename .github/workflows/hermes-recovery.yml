@@ -38,7 +38,7 @@ jobs:
           git push origin HEAD:fix/hermes-serve-recovery || true
           EOS
           chmod +x /usr/local/bin/report
-          report "OUTAGE_RECOVERY run started"
+          report "OUTAGE_RECOVERY run started v2"
       - name: SSH probe
         id: sshprobe
         timeout-minutes: 3
@@ -47,28 +47,30 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" 'echo SSH_OK; uptime; free -m | head -2; systemctl is-active cloudflared nginx hermes-serve hermes-dashboard 2>&1' 2>&1 | tee /tmp/sshprobe.out
-          if grep -q SSH_OK /tmp/sshprobe.out; then echo "up=true" >> $GITHUB_OUTPUT; else echo "up=false" >> $GITHUB_OUTPUT; fi
+          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" 'echo SSH_OK; uptime' 2>&1 | tee /tmp/sshprobe.out
+          if grep -q SSH_OK /tmp/sshprobe.out; then echo "up=true" >> $GITHUB_OUTPUT; report "SSH probe: UP"; else echo "up=false" >> $GITHUB_OUTPUT; report "SSH probe: DOWN"; fi
       - name: Install OCI CLI
         if: steps.sshprobe.outputs.up != 'true'
         run: |
-          sudo apt-get update -qq
-          curl -L -o /tmp/oci-cli.zip https://download.oracle.com/otn_scripts/linux/instantclient/oci-cli/oci-cli-3.45.0.zip
-          unzip -q /tmp/oci-cli.zip -d /tmp/oci
-          sudo /tmp/oci/oci-cli/install.sh -b /usr/local/bin
+          python3 -m venv /tmp/ocivenv
+          /tmp/ocivenv/bin/pip install -q --upgrade pip
+          /tmp/ocivenv/bin/pip install -q oci-cli
+          sudo ln -sf /tmp/ocivenv/bin/oci /usr/local/bin/oci
           oci --version
       - name: Configure OCI
         if: steps.sshprobe.outputs.up != 'true'
         run: |
           mkdir -p ~/.oci
-          cat > ~/.oci/config <<EOFCONF
+          cat > ~/.oci/config <<'EOFCONF'
           [DEFAULT]
-          user=$OCI_USER
-          tenancy=$OCI_TENANCY
-          region=$OCI_REGION
+          user=OCI_USER_VALUE
+          tenancy=OCI_TENANCY_VALUE
+          region=OCI_REGION_VALUE
           key_file=/tmp/oci_key.pem
-          fingerprint=$OCI_FINGERPRINT
+          fingerprint=OCI_FINGERPRINT_VALUE
           EOFCONF
+          sed -i "s|OCI_USER_VALUE|$OCI_USER|;s|OCI_TENANCY_VALUE|$OCI_TENANCY|;s|OCI_REGION_VALUE|$OCI_REGION|;s|OCI_FINGERPRINT_VALUE|$OCI_FINGERPRINT|" ~/.oci/config
+          chmod 600 ~/.oci/config
           printf '%s' "$OCI_KEY" > /tmp/oci_key.pem
           chmod 600 /tmp/oci_key.pem
       - name: Inspect and repair instance
@@ -77,7 +79,7 @@ jobs:
         run: |
           set +e
           report "SSH unreachable - querying OCI"
-          INSTANCES=$(oci compute instance list --compartment-id "$OCI_TENANCY" --all --query 'data[].{id:id,state:"lifecycle-state",ip:"display-name"}' --output json 2>/dev/null)
+          INSTANCES=$(oci compute instance list --compartment-id "$OCI_TENANCY" --all --query 'data[].{id:id,state:"lifecycle-state"}' --output json 2>/dev/null)
           if [ -z "$INSTANCES" ] || [ "$INSTANCES" = "[]" ]; then
             for c in $(oci iam compartment list --compartment-id "$OCI_TENANCY" --all --query 'data[?"lifecycle-state"==\'ACTIVE\'].id' --raw-output 2>/dev/null); do
               INSTANCES=$(oci compute instance list --compartment-id "$c" --all --query 'data[].{id:id,state:"lifecycle-state"}' --output json 2>/dev/null)
@@ -101,47 +103,16 @@ jobs:
               else
                 report "still unreachable - issuing RESET"
                 oci compute instance action --instance-id "$iid" --action RESET --wait-for-state RUNNING --max-wait-seconds 480 >/dev/null 2>&1
-                report "RESET issued, waiting 90s"
-                sleep 90
+                report "RESET issued, waiting 120s"
+                sleep 120
               fi
             fi
           done
           report "post-repair SSH probe"
-          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" 'echo SSH_OK; uptime; systemctl is-active cloudflared nginx hermes-serve hermes-dashboard 2>&1' > /tmp/post.out 2>&1
+          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" 'echo SSH_OK; uptime' > /tmp/post.out 2>&1
           if grep -q SSH_OK /tmp/post.out; then report "POST_RECOVERY SSH_OK"; cat /tmp/post.out | while IFS= read -r l; do report "R| $l"; done; else report "POST_RECOVERY SSH_STILL_DOWN"; fi
-          rm -f ~/.ssh/deploy_key
-      - name: If SSH was up - collect diagnostics
-        if: steps.sshprobe.outputs.up == 'true'
-        run: |
-          set +e
-          mkdir -p ~/.ssh
-          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          timeout 120 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22 "$VPS_USER@$VPS_HOST" 'sudo bash -s' <<'VPS' > /tmp/diag.out 2>&1
-            echo "uptime: $(uptime)"
-            echo "last: $(last reboot | head -3)"
-            free -m | head -2
-            systemctl --failed --no-legend
-            journalctl -p err -n 15 --no-pager | tail -15
-            curl -s -m 8 -o /dev/null -w 'local hermex 8795: %{http_code}' http://127.0.0.1:8795/_uptime
-            echo
-            curl -s -m 8 -o /dev/null -w 'providers via edge: %{http_code}' https://hermex.esggo.co/api/auth/providers
-            echo
-          VPS
-          n=0
-          while IFS= read -r l; do n=$((n+1)); [ $n -le 60 ] && report "R| $l"; done < /tmp/diag.out || true
           rm -f ~/.ssh/deploy_key
       - name: Final report
         if: always()
         run: |
-          set +e
-          {
-            echo "run_url=https://github.com/DingJun1028/Omniesggo/actions/runs/$GITHUB_RUN_ID"
-            date -u
-            cat /tmp/recovery.log
-          } > vps-outage-report.txt
-          git config user.name "hermes-recovery-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add vps-outage-report.txt
-          git commit -m "chore: vps outage report"
-          git push origin HEAD:fix/hermes-serve-recovery
+          report "run finished $(date -u)"
