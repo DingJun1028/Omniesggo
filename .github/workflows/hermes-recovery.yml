@@ -38,7 +38,7 @@ jobs:
           git push origin HEAD:fix/hermes-serve-recovery || true
           EOS
           chmod +x /usr/local/bin/report
-          report "run started v7"
+          report "run started v8"
       - name: SSH probe
         id: sshprobe
         timeout-minutes: 3
@@ -82,6 +82,17 @@ jobs:
           chmod 600 ~/.oci/config
           printf '%s' "$OCI_KEY" > /tmp/oci_key.pem
           chmod 600 /tmp/oci_key.pem
+          KFP=$(openssl rsa -pubout -outform DER -in /tmp/oci_key.pem 2>/dev/null \
+            | openssl md5 | awk '{print $2}' | tr -d ':')
+          if [ "$KFP" = "$OCI_FINGERPRINT" ]; then
+            report "key/fingerprint MATCH"
+          else
+            report "key/fingerprint MISMATCH"
+          fi
+          if [ -z "$OCI_USER" ] || [ -z "$OCI_TENANCY" ] || [ -z "$OCI_REGION" ] \
+            || [ -z "$OCI_FINGERPRINT" ] || [ ! -s /tmp/oci_key.pem ]; then
+            report "EMPTY_OR_MISSING_SECRET present"
+          fi
       - name: Inspect and repair instance
         if: steps.sshprobe.outputs.up != 'true'
         timeout-minutes: 22
@@ -138,7 +149,7 @@ jobs:
                 fi
               done
             else
-              report "INST_ERR comp=$c: $(cat /tmp/oci-err2.txt | tr '\n' ' ' | head -c 2000)"
+              report "INST_ERR: $(cat /tmp/oci-err2.txt | tr '\n' ' ' | head -c 2000)"
             fi
           done
           [ -z "$FOUND" ] && report "NO_INSTANCES_FOUND check tenancy/secrets"
