@@ -10,7 +10,6 @@
 
 import { supabase } from '../lib/supabase-client';
 import { getUserProfile, upsertUserProfile } from './profile.repository';
-import { ncbQuery } from '../lib/ncb-client';
 import { isNcbEnabled } from '../lib/ncb-client';
 
 // ── 模擬版 (未設定任何外部憑證時回退) ────────────────────────────────
@@ -197,7 +196,7 @@ export const signInWithGoogle = async () => {
 /**
  * 本地模式 Email 登入 — 模擬真實需求，但直接回傳用戶物件。
  */
-export const signInWithEmail = async (email, password) => {
+export const signInWithEmail = async (email, _password) => {
   const mockUser = {
     uid: `local-user-${Date.now()}`,
     displayName: `本地用戶_${Date.now()}`,
@@ -285,15 +284,6 @@ export let useFirebase = false;
 
 // ── 初始化 ────────────────────────────────────────────────────────────
 
-const isConfigComplete = () =>
-  !!(
-    app &&
-    app.options &&
-    app.options.apiKey &&
-    app.options.projectId &&
-    app.options.appId &&
-    String(app.options.apiKey).indexOf('xxxx') === -1
-  );
 
 /**
  * 初始化 Firebase 的替代 (在無外部憑證時跳過, 使 useFirebase=false)。
@@ -420,7 +410,7 @@ export const uploadFiles = async (files) => {
 
 // ── 資料保存 (Firestore + localStorage + NCBDB 三路) ──────────────────
 
-function toDocumentPayload(submission, attachments, id) {
+function toDocumentPayload(submission, attachments, _id) {
   if (!submission?.userId) {
     throw DataError.UNAUTHENTICATED;
   }
@@ -534,14 +524,6 @@ export const clearLocal = (confirm = false) => {
 const profileRef = (uid) => doc(db, 'platforms', APP_ID, 'profiles', uid);
 const profileLocalStorageKey = (uid) => `${LOCAL_PROFILE_PREFIX}${uid}`;
 
-const defaultProfile = () => ({
-  displayName: '',
-  email: '',
-  role: 'student',
-  org: '',
-  status: 'active',
-  updatedAt: new Date().toISOString(),
-});
 
 /**
  * 匯入用戶物件 (來自 auth 或原始資料).
@@ -563,7 +545,6 @@ export const importUser = (user) => {
  * 更新人員資料.
  */
 export const upsertProfile = async (uid, updates = {}) => {
-  const payload = defaultProfile();
   let current = null;
 
   if (useFirebase && db) {
@@ -622,19 +603,11 @@ const LOCAL_TA_PREFIX = `berkeley_ta_${APP_ID}_`;
 const taRef = (uid) => doc(db, 'platforms', APP_ID, 'tas', uid);
 const taLocalStorageKey = (uid) => `${LOCAL_TA_PREFIX}${uid}`;
 
-const defaultTA = () => ({
-  isTA: false,
-  bio: '',
-  slots: [],
-  assignedStudents: [],
-  updatedAt: new Date().toISOString(),
-});
 
 /**
  * 建立或更新 TA 資料.
  */
 export const upsertTAProfile = async (uid, updates = {}) => {
-  const payload = defaultTA();
   let current = null;
 
   if (useFirebase && db) {
