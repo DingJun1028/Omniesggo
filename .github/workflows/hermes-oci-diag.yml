@@ -1,0 +1,77 @@
+name: Hermes OCI diagnostic
+on:
+  push:
+    branches: [probe/hermes-oci-diag-20261107]
+    paths: [.github/workflows/hermes-oci-diag.yml]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OCI CLI
+        run: pip3 install --quiet --disable-pip-version-check oci-cli
+      - name: Diagnose
+        env:
+          OCI_USER: ${{ secrets.OCI_USER_OCID }}
+          OCI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+          OCI_REGION: ${{ secrets.OCI_REGION }}
+          OCI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+          OCI_KEY: ${{ secrets.OCI_API_KEY }}
+          VPS_HOST_TARGET: ${{ secrets.VPS_HOST }}
+        run: |
+          mkdir -p ~/.oci
+          cat > ~/.oci/config <<EOF
+          [DEFAULT]
+          user=$OCI_USER
+          tenancy=$OCI_TENANCY
+          region=$OCI_REGION
+          key_file=/tmp/oci_key.pem
+          fingerprint=$OCI_FINGERPRINT
+          EOF
+          printf '%s' "$OCI_KEY" > /tmp/oci_key.pem
+          chmod 600 /tmp/oci_key.pem ~/.oci/config
+          set +e
+          R=/tmp/r2.md
+          mask() { sed -E 's/ocid1\.[a-zA-Z0-9.]+/ocid.MASKED/g' | sed -E "s/${VPS_HOST_TARGET}/VPS_IP_MASKED/g"; }
+          echo "# Hermes OCI diagnostic $(date -u +%FT%TZ)" > $R
+          echo "## Cred sanity (availability domains)" >> $R
+          oci iam availability-domain list 2>&1 | mask | jq -r '.data[].name' >> $R
+          echo "## Compartments" >> $R
+          oci iam compartment list --compartment-id "$OCI_TENANCY" --all 2>&1 | mask | jq -r '.data[] | .name' >> $R
+          echo "## Instances in tenancy root" >> $R
+          oci compute instance list --compartment-id "$OCI_TENANCY" --all 2>&1 | mask > /tmp/i_root.json
+          jq -r '.data[] | .\"display-name\" + " : " + .\"lifecycle-state\"' /tmp/i_root.json >> $R 2>&1 || head -20 /tmp/i_root.json | mask >> $R
+          echo "## Instances per subcompartment" >> $R
+          for c in $(oci iam compartment list --compartment-id "$OCI_TENANCY" --all 2>/dev/null | jq -r '.data[].id'); do
+            cname=$(oci iam compartment get --compartment-id "$c" 2>/dev/null | jq -r '.data.name')
+            echo "--- compartment $cname" >> $R
+            oci compute instance list --compartment-id "$c" --all 2>&1 | mask > /tmp/i_c.json
+            jq -r '.data[] | .\"display-name\" + " : " + .\"lifecycle-state\"' /tmp/i_c.json >> $R 2>&1 || head -10 /tmp/i_c.json | mask >> $R
+          done
+          echo "## Vnic public IP match check" >> $R
+          for c in "$OCI_TENANCY" $(oci iam compartment list --compartment-id "$OCI_TENANCY" --all 2>/dev/null | jq -r '.data[].id'); do
+            for inst in $(oci compute instance list --compartment-id "$c" --all 2>/dev/null | jq -r '.data[].id'); do
+              ip=$(oci compute instance list-vnics --instance-id "$inst" 2>/dev/null | jq -r '.data[0]."public-ip" // "none"')
+              dname=$(oci compute instance get --instance-id "$inst" 2>/dev/null | jq -r '.data."display-name"')
+              if [ "$ip" = "$VPS_HOST_TARGET" ]; then
+                echo "MATCH: $dname state=$(oci compute instance get --instance-id "$inst" 2>/dev/null | jq -r '.data."lifecycle-state"')" >> $R
+              else
+                echo "no-match: $dname (ip != VPS_HOST)" >> $R
+              fi
+            done
+          done
+          echo "## End" >> $R
+          cat $R
+      - name: Publish result
+        run: |
+          cp /tmp/r2.md hermes-oci-diag-result.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add hermes-oci-diag-result.md
+          git rm -q .github/workflows/hermes-oci-diag.yml
+          git commit -qm "oci diag result"
+          git push
