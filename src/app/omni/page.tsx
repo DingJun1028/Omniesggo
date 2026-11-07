@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Eye, Cpu, Activity, Shield, BrainCircuit, Heart,
-  Sun, Moon, RefreshCcw, Database, FileText, CheckCircle2,
+  Sun, Moon, RefreshCcw, Database,
   AlertCircle, ShieldCheck, Download, Copy, Zap
 } from 'lucide-react';
 
@@ -91,8 +91,6 @@ interface TraceEvent {
   type: 'seal' | 'metabolism' | 'error';
   agent: string;
 }
-
-const MOCK_EVENTS: TraceEvent[] = [];
 
 export default function OmniCenterPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');

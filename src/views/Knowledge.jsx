@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { tags, documents, pillarMeta } from '../data/seed.js'
+import { tags, documents } from '../data/seed.js'
 import { SectionHeader, TagChip, EmptyState } from '../components/ui.jsx'
 
 export default function Knowledge() {

@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
-  Brain, Database, Sparkles, Clock, Target,
-  Trash2, Search, Plus, Sun, Moon, Shield,
-  Activity, RefreshCw, X, ChevronDown, Lock
+  Brain, Database, Sparkles, Clock, Trash2, Search, Plus, Sun, Moon, Shield,
+  Activity, RefreshCw, Lock
 } from "lucide-react";
 import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from "@/components/omni-base/OmniCard";
 import { OmniButton } from "@/components/omni-base/OmniButton";
