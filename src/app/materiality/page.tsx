@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Sun, Moon, ShieldCheck, Download, SlidersHorizontal, Info, Target, TrendingUp, AlertTriangle, Crosshair, Settings2, FileText
+  Sun, Moon, ShieldCheck, Info, Target, Crosshair, Settings2, FileText
 } from 'lucide-react';
 
 // ── 核心模型定義 ───────────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ const INITIAL_TOPICS: MaterialityTopic[] = [
 export default function MaterialityPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [threshold, setThreshold] = useState<number>(3.5);
-  const [topics, setTopics] = useState<MaterialityTopic[]>(INITIAL_TOPICS);
+  const [topics] = useState<MaterialityTopic[]>(INITIAL_TOPICS);
   const [selectedTopic, setSelectedTopic] = useState<MaterialityTopic | null>(null);
   const [isSealing, setIsSealing] = useState(false);
   const [hashLock, setHashLock] = useState<string | null>(null);

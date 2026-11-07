@@ -178,6 +178,22 @@ export class OmniNoteLocalApiServer {
     if (method === "POST" && resource === "notes" && segments.length === 4 && segments[3] === "blocks") {
       return this.handleBlockAppend(req, res, id!);
     }
+    if (resource === "notes" && id !== undefined && segments.length === 5 && segments[3] === "blocks") {
+      if (method === "PATCH") return this.handleBlockEdit(req, res, id, segments[4]!);
+      if (method === "DELETE") return this.respondBlockSoftDelete(res, id, segments[4]!);
+    }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "purify") {
+      return this.respondNotePurify(res, id);
+    }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "sigma") {
+      return this.respondNoteSigmaFuse(res, id);
+    }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "crystallize") {
+      return this.handleNoteCrystallize(req, res, id);
+    }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "reverse") {
+      return this.respondNoteReverseProject(res, id);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -211,6 +227,10 @@ export class OmniNoteLocalApiServer {
       : ["#inbox"];
     const spawned = await UnifiedMatrixEngine.spawnAlphaOrigin(text, originTag);
     const node: UnifiedNode = { ...spawned, topology: { ...spawned.topology, tags } };
+    node.topology = {
+      ...node.topology,
+      outlinks: UnifiedMatrixEngine.deriveOutlinks(node.blocks, await this.buildUniverse(), await this.buildAliasIndex()),
+    };
     node.lock_hash = await computeNodeLockHash(node);
     const sealed = sealWithStructuralSharing(node) as Readonly<UnifiedNode>;
     await this.storage.write(sealed);
@@ -246,6 +266,14 @@ export class OmniNoteLocalApiServer {
       version: bumpPatch(existing.version),
       timestamp: Date.now(),
       blocks: [...existing.blocks, block],
+      topology: {
+        ...existing.topology,
+        outlinks: UnifiedMatrixEngine.deriveOutlinks(
+          [...existing.blocks, block],
+          await this.buildUniverse(),
+          await this.buildAliasIndex(),
+        ),
+      },
       evidence: [
         ...existing.evidence,
         {
@@ -269,6 +297,130 @@ export class OmniNoteLocalApiServer {
     if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
     await this.storage.delete(nodeUuid);
     return sendJson(res, 200, { ok: true, deleted: nodeUuid });
+  }
+
+  /** 拓撲宇宙：現存節點 uuid 集合，供 outlinks 熔合重建時判定 resolved */
+  private async buildUniverse(): Promise<ReadonlySet<string>> {
+    return new Set(await this.storage.listUuids());
+  }
+
+  /** 別名索引：以各節點第一個非墓碑文字區塊之完整內容為標題別名（同題先建者優先），供 [[文字別名]] → uuid 解析 */
+  private async buildAliasIndex(): Promise<ReadonlyMap<string, string>> {
+    const uuids = await this.storage.listUuids();
+    const nodes = (await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))).filter(
+      (n): n is UnifiedNode => n !== null,
+    );
+    const index = new Map<string, string>();
+    for (const node of nodes) {
+      const first = node.blocks.find((b) => !b.deleted && (b.type === "paragraph" || b.type === "heading"));
+      const alias = first?.content.trim();
+      if (alias !== undefined && alias.length > 0 && !index.has(alias)) index.set(alias, node.uuid);
+    }
+    return index;
+  }
+
+  /** 熵減自癒：對現存宇宙重標註死鏈並計算 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈） */
+  private async respondNotePurify(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const purified = await UnifiedMatrixEngine.purifyAndReduceEntropy(existing, await this.buildUniverse());
+    await this.storage.write(purified);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, purified);
+    return sendJson(res, 200, { ok: true, node: purified });
+  }
+
+  /** ALPHA → SIGMA 躍遷：非墓碑區塊內容熔合為單一長文，outlinks 同步熔合重建 */
+  private async respondNoteSigmaFuse(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const active = existing.blocks.filter((b) => !b.deleted);
+    if (active.length === 0) return sendJson(res, 422, { ok: false, error: "NO_ACTIVE_BLOCKS" });
+    const universe = await this.buildUniverse();
+    const mergedMarkdown = active.map((b) => b.content).join("\n\n");
+    const sigma = await UnifiedMatrixEngine.transitionToSigmaGraph(
+      existing,
+      UnifiedMatrixEngine.deriveOutlinks(existing.blocks, universe, await this.buildAliasIndex()),
+      mergedMarkdown,
+    );
+    await this.storage.write(sigma);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, sigma);
+    return sendJson(res, 200, { ok: true, node: sigma });
+  }
+
+  /** SIGMA → OMEGA 躍遷：強型別物件結晶（entity_type 注入 + 屬性併入） */
+  private async handleNoteCrystallize(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const entityType = typeof body.entity_type === "string" ? body.entity_type.trim() : "";
+    if (entityType.length === 0) return sendJson(res, 422, { ok: false, error: "ENTITY_TYPE_REQUIRED" });
+    const properties =
+      typeof body.properties === "object" && body.properties !== null && !Array.isArray(body.properties)
+        ? (body.properties as Record<string, unknown>)
+        : {};
+    const omega = await UnifiedMatrixEngine.crystallizeToOmegaObject(existing, entityType, properties);
+    await this.storage.write(omega);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, omega);
+    return sendJson(res, 200, { ok: true, node: omega });
+  }
+
+  /** OMEGA → ALPHA 逆向投影：結晶實體回流為捕獲態 */
+  private async respondNoteReverseProject(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const reversed = await UnifiedMatrixEngine.projectReverseToCapture(existing);
+    await this.storage.write(reversed);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, reversed);
+    return sendJson(res, 200, { ok: true, node: reversed });
+  }
+
+  private async handleBlockEdit(req: IncomingMessage, res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    if (typeof body.content !== "string") return sendJson(res, 422, { ok: false, error: "CONTENT_REQUIRED" });
+    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe, aliasIndex) =>
+      UnifiedMatrixEngine.editBlock(node, blockId, body.content as string, universe, aliasIndex),
+    );
+    if (updated === null) return;
+    return this.persistBlockOp(res, updated);
+  }
+
+  private async respondBlockSoftDelete(res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe, aliasIndex) =>
+      UnifiedMatrixEngine.softDeleteBlock(node, blockId, universe, aliasIndex),
+    );
+    if (updated === null) return;
+    return this.persistBlockOp(res, updated);
+  }
+
+  /** 引擎區塊操作統一道閘：BLOCK_NOT_FOUND / BLOCK_TOMBSTONED 對應 404，其餘 500 */
+  private async applyBlockOp(
+    res: ServerResponse,
+    node: UnifiedNode,
+    _blockId: string,
+    op: (node: UnifiedNode, universe: ReadonlySet<string>, aliasIndex: ReadonlyMap<string, string>) => Promise<Readonly<UnifiedNode>>,
+  ): Promise<Readonly<UnifiedNode> | null> {
+    try {
+      return await op(node, await this.buildUniverse(), await this.buildAliasIndex());
+    } catch (err) {
+      const message = (err as Error).message;
+      if (message === "BLOCK_NOT_FOUND" || message === "BLOCK_TOMBSTONED") {
+        sendJson(res, 404, { ok: false, error: message });
+        return null;
+      }
+      throw err;
+    }
+  }
+
+  private async persistBlockOp(res: ServerResponse, updated: Readonly<UnifiedNode>): Promise<void> {
+    await this.storage.write(updated);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, updated);
+    return sendJson(res, 200, { ok: true, node: updated });
   }
 
   private async handleSearch(req: IncomingMessage, res: ServerResponse): Promise<void> {

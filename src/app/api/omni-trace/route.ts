@@ -19,9 +19,9 @@ export async function GET(req: Request) {
     });
     
     return NextResponse.json({ success: true, data: traces });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API /omni-trace Error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
 
@@ -41,8 +41,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, data: trace });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API /omni-trace POST Error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
