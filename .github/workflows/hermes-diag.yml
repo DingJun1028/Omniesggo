@@ -4,6 +4,8 @@ on:
     branches: [probe/hermes-diag-20261107]
     paths: [.github/workflows/hermes-diag.yml]
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   diag:
     runs-on: ubuntu-latest
