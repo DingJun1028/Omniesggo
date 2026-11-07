@@ -30,6 +30,8 @@ export class LocalMarkdownHomomorphicCodec {
       phase: node.matrix_phase,
       entity_type: node.entity_type,
       tags: node.topology.tags,
+      // 拓撲權威清單：引擎維護之 outlinks 隨節點落地；反序列化時以此為權威，正文 [[雙鏈]] 僅為顯示投影。
+      outlinks: node.topology.outlinks,
       properties: node.properties,
       evidence: node.evidence,
       lock_hash: node.lock_hash,
@@ -89,6 +91,13 @@ export class LocalMarkdownHomomorphicCodec {
         resolved: true,
       });
     });
+    // 拓撲權威：manifest 有 outlinks 清單時以其為準（引擎維護之拓撲跨磁碟往返零損失）；
+    // 無 manifest（外部匯入 .md）時降級為正文 [[雙鏈]] 確定性 UUID 推導（既有行為）。
+    const manifestOutlinks: unknown = meta.outlinks;
+    const authoritativeOutlinks: GraphTopologyLink[] =
+      Array.isArray(manifestOutlinks) && manifestOutlinks.every((l) => this.isValidTopologyLink(l))
+        ? (manifestOutlinks as GraphTopologyLink[])
+        : outlinks;
 
     const metaBlocks: Array<{ block_id: string; type: string; content?: string; lamport_ts: number; peer_id: string; deleted: boolean }> =
       Array.isArray(meta.blocks_meta) ? meta.blocks_meta : [];
@@ -139,7 +148,7 @@ export class LocalMarkdownHomomorphicCodec {
       matrix_phase: meta.phase || "SIGMA_GRAPH_SYNTHESIS",
       entity_type: meta.entity_type || "note.raw",
       blocks,
-      topology: { outlinks, tags: Array.isArray(meta.tags) ? meta.tags : [] },
+      topology: { outlinks: authoritativeOutlinks, tags: Array.isArray(meta.tags) ? meta.tags : [] },
       properties: meta.properties || {},
       evidence: Array.isArray(meta.evidence) ? meta.evidence : [],
       lock_hash: "0".repeat(64),
@@ -168,5 +177,16 @@ export class LocalMarkdownHomomorphicCodec {
   static async resolveTargetUuid(identifier: string): Promise<string> {
     const h = await sha256(identifier);
     return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+  }
+
+  /** 拓撲權威清單項之最小形狀驗證（完整契約由 UnifiedNodeSchema Value.Check 把關） */
+  private static isValidTopologyLink(value: unknown): value is GraphTopologyLink {
+    if (typeof value !== "object" || value === null) return false;
+    const link = value as Record<string, unknown>;
+    return (
+      typeof link.target_uuid === "string" &&
+      typeof link.wikilink_alias === "string" &&
+      typeof link.resolved === "boolean"
+    );
   }
 }

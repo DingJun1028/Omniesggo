@@ -227,7 +227,10 @@ export class OmniNoteLocalApiServer {
       : ["#inbox"];
     const spawned = await UnifiedMatrixEngine.spawnAlphaOrigin(text, originTag);
     const node: UnifiedNode = { ...spawned, topology: { ...spawned.topology, tags } };
-    node.topology = { ...node.topology, outlinks: UnifiedMatrixEngine.deriveOutlinks(node.blocks, await this.buildUniverse()) };
+    node.topology = {
+      ...node.topology,
+      outlinks: UnifiedMatrixEngine.deriveOutlinks(node.blocks, await this.buildUniverse(), await this.buildAliasIndex()),
+    };
     node.lock_hash = await computeNodeLockHash(node);
     const sealed = sealWithStructuralSharing(node) as Readonly<UnifiedNode>;
     await this.storage.write(sealed);
@@ -263,7 +266,14 @@ export class OmniNoteLocalApiServer {
       version: bumpPatch(existing.version),
       timestamp: Date.now(),
       blocks: [...existing.blocks, block],
-      topology: { ...existing.topology, outlinks: UnifiedMatrixEngine.deriveOutlinks([...existing.blocks, block], await this.buildUniverse()) },
+      topology: {
+        ...existing.topology,
+        outlinks: UnifiedMatrixEngine.deriveOutlinks(
+          [...existing.blocks, block],
+          await this.buildUniverse(),
+          await this.buildAliasIndex(),
+        ),
+      },
       evidence: [
         ...existing.evidence,
         {
@@ -294,6 +304,21 @@ export class OmniNoteLocalApiServer {
     return new Set(await this.storage.listUuids());
   }
 
+  /** 別名索引：以各節點第一個非墓碑文字區塊之完整內容為標題別名（同題先建者優先），供 [[文字別名]] → uuid 解析 */
+  private async buildAliasIndex(): Promise<ReadonlyMap<string, string>> {
+    const uuids = await this.storage.listUuids();
+    const nodes = (await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))).filter(
+      (n): n is UnifiedNode => n !== null,
+    );
+    const index = new Map<string, string>();
+    for (const node of nodes) {
+      const first = node.blocks.find((b) => !b.deleted && (b.type === "paragraph" || b.type === "heading"));
+      const alias = first?.content.trim();
+      if (alias !== undefined && alias.length > 0 && !index.has(alias)) index.set(alias, node.uuid);
+    }
+    return index;
+  }
+
   /** 熵減自癒：對現存宇宙重標註死鏈並計算 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈） */
   private async respondNotePurify(res: ServerResponse, nodeUuid: string): Promise<void> {
     const existing = await this.storage.read(nodeUuid);
@@ -314,7 +339,7 @@ export class OmniNoteLocalApiServer {
     const mergedMarkdown = active.map((b) => b.content).join("\n\n");
     const sigma = await UnifiedMatrixEngine.transitionToSigmaGraph(
       existing,
-      UnifiedMatrixEngine.deriveOutlinks(existing.blocks, universe),
+      UnifiedMatrixEngine.deriveOutlinks(existing.blocks, universe, await this.buildAliasIndex()),
       mergedMarkdown,
     );
     await this.storage.write(sigma);
@@ -356,8 +381,8 @@ export class OmniNoteLocalApiServer {
     const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
     if (body === null) return;
     if (typeof body.content !== "string") return sendJson(res, 422, { ok: false, error: "CONTENT_REQUIRED" });
-    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe) =>
-      UnifiedMatrixEngine.editBlock(node, blockId, body.content as string, universe),
+    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe, aliasIndex) =>
+      UnifiedMatrixEngine.editBlock(node, blockId, body.content as string, universe, aliasIndex),
     );
     if (updated === null) return;
     return this.persistBlockOp(res, updated);
@@ -366,8 +391,8 @@ export class OmniNoteLocalApiServer {
   private async respondBlockSoftDelete(res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {
     const existing = await this.storage.read(nodeUuid);
     if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
-    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe) =>
-      UnifiedMatrixEngine.softDeleteBlock(node, blockId, universe),
+    const updated = await this.applyBlockOp(res, existing, blockId, (node, universe, aliasIndex) =>
+      UnifiedMatrixEngine.softDeleteBlock(node, blockId, universe, aliasIndex),
     );
     if (updated === null) return;
     return this.persistBlockOp(res, updated);
@@ -378,10 +403,10 @@ export class OmniNoteLocalApiServer {
     res: ServerResponse,
     node: UnifiedNode,
     _blockId: string,
-    op: (node: UnifiedNode, universe: ReadonlySet<string>) => Promise<Readonly<UnifiedNode>>,
+    op: (node: UnifiedNode, universe: ReadonlySet<string>, aliasIndex: ReadonlyMap<string, string>) => Promise<Readonly<UnifiedNode>>,
   ): Promise<Readonly<UnifiedNode> | null> {
     try {
-      return await op(node, await this.buildUniverse());
+      return await op(node, await this.buildUniverse(), await this.buildAliasIndex());
     } catch (err) {
       const message = (err as Error).message;
       if (message === "BLOCK_NOT_FOUND" || message === "BLOCK_TOMBSTONED") {

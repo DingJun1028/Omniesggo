@@ -157,3 +157,8 @@ curl -s -X POST "http://127.0.0.1:52710/api/import?conflict=overwrite" \\
 ## 型別檢查與 CI
 
 本庫以 \`tsc --noEmit\` 為權威型別檢查（CI 執行）；測試以 \`node --experimental-transform-types --test test/\` 直跑。併入 workspace 後，lockfile 同步（\`pnpm install\`）為必要前置步驟。
+
+## 拓撲權威與別名解析
+
+- 拓撲權威：topology.outlinks 由引擎於每次寫入時熔合重建；codec 將 outlinks manifest 隨 frontmatter 落地，反序列化以 manifest 為權威（正文 [[雙鏈]] 為顯示投影；外部匯入 .md 無 manifest 時降級為正文推導）。
+- 別名解析：[[文字標的]] 以各節點第一個非墓碑文字區塊之完整內容為標題別名（同題先建者優先），解析為真實 uuid 後入拓撲；無法解析者不入拓撲。
