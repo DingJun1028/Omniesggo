@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Connect to existing Hermes — Omniesggo</title>
+<style>
+  :root {
+    --bg: #1a1a1a;
+    --card: #202020;
+    --text: #ffffff;
+    --muted: #d4d4d4;
+    --faint: #a3a3a3;
+    --accent: #06b6d4;
+    --accent-hover: #22d3ee;
+    --danger: #f87171;
+    --ok: #4ade80;
+    --line: rgba(255, 255, 255, 0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "DM Sans", "Noto Sans TC", system-ui, -apple-system, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+  }
+  .card {
+    width: 80%;
+    max-width: 880px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 40px;
+  }
+  .avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .avatar svg { width: 24px; height: 24px; stroke: #1a1a1a; }
+  h1 {
+    margin-top: 24px;
+    font-size: 30px;
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--text);
+    text-align: left;
+  }
+  .desc {
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  form { margin-top: 32px; }
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  input[type="url"] {
+    width: 100%;
+    background: #e8e8e8;
+    color: #111111;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    outline: none;
+  }
+  input[type="url"]:focus { box-shadow: 0 0 0 2px var(--accent); }
+  .helper {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--faint);
+  }
+  .msg {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    display: none;
+  }
+  .msg.error { display: block; color: var(--danger); }
+  .msg.ok { display: block; color: var(--ok); }
+  .msg.testing { display: block; color: var(--faint); }
+  .actions {
+    margin-top: 32px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+  button {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+  .btn-ghost:hover { border-color: rgba(255, 255, 255, 0.5); background: rgba(255, 255, 255, 0.06); }
+  .btn-primary {
+    background: var(--accent);
+    color: #ffffff;
+    border: 1px solid var(--accent);
+  }
+  .btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button:disabled { opacity: 0.6; cursor: default; }
+  @media (max-width: 640px) {
+    body { padding: 12px; align-items: flex-start; }
+    .card { width: 100%; padding: 24px; }
+    h1 { font-size: 24px; }
+    .actions { justify-content: stretch; }
+    .actions button { flex: 1 1 auto; }
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="avatar" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="8" width="16" height="12" rx="3"></rect>
+        <path d="M12 8V4"></path>
+        <circle cx="12" cy="3" r="1"></circle>
+        <circle cx="9" cy="13" r="1" fill="#1a1a1a"></circle>
+        <circle cx="15" cy="13" r="1" fill="#1a1a1a"></circle>
+        <path d="M9 17h6"></path>
+      </svg>
+    </div>
+
+    <h1>Connect to existing Hermes</h1>
+    <p class="desc">Enter your gateway URL. Hermes Desktop will detect whether it needs a token or browser sign-in.</p>
+
+    <form id="connect-form" novalidate>
+      <label for="gateway-url">Gateway URL</label>
+      <input id="gateway-url" name="gatewayUrl" type="url" value="https://gateway.omniesggo.co/hermes" autocomplete="off" spellcheck="false" />
+      <p class="helper">Use the base URL of the Hermes gateway, including https:// when remote.</p>
+      <p id="msg" class="msg" role="alert"></p>
+    </form>
+
+    <div class="actions">
+      <button type="button" class="btn-ghost" id="btn-back">Back</button>
+      <button type="button" class="btn-ghost" id="btn-test">Test connection</button>
+      <button type="button" class="btn-primary" id="btn-apply">Apply and reconnect</button>
+    </div>
+  </main>
+
+<script>
+(function () {
+  var input = document.getElementById('gateway-url');
+  var msg = document.getElementById('msg');
+  var btnBack = document.getElementById('btn-back');
+  var btnTest = document.getElementById('btn-test');
+  var btnApply = document.getElementById('btn-apply');
+
+  var saved = null;
+  try { saved = localStorage.getItem('hermesGatewayUrl'); } catch (e) {}
+  if (saved) input.value = saved;
+
+  function setMsg(kind, text) {
+    msg.className = 'msg ' + kind;
+    msg.textContent = text;
+  }
+
+  function hostOf(url) {
+    try { return new URL(url).hostname; } catch (e) { return url; }
+  }
+
+  function unreachableDetail(err) {
+    var host = hostOf(input.value.trim());
+    var detail = (err && err.message) ? err.message : '';
+    if (!/ENOTFOUND|ECONNREFUSED|ETIMEDOUT|ERR_NAME/i.test(detail)) {
+      detail = 'getaddrinfo ENOTFOUND ' + host;
+    }
+    return detail;
+  }
+
+  function test() {
+    var url = input.value.trim();
+    if (!url) { setMsg('error', "Enter a gateway URL first."); return Promise.resolve(false); }
+    btnTest.disabled = true;
+    setMsg('testing', 'Testing connection…');
+    return fetch(url.replace(/\/$/, '') + '/status', { mode: 'no-cors', cache: 'no-store' })
+      .then(function () {
+        setMsg('ok', 'Gateway answered at ' + hostOf(url) + ' — sign-in options appear once it answers.');
+        return true;
+      })
+      .catch(function (err) {
+        setMsg('error', "Hermes can't reach that address. Check the URL and that the other computer is running Hermes — sign-in options appear once it answers. " + unreachableDetail(err));
+        return false;
+      })
+      .finally(function () { btnTest.disabled = false; });
+  }
+
+  function apply() {
+    var url = input.value.trim();
+    if (!url) { setMsg('error', 'Enter a gateway URL first.'); return; }
+    try { localStorage.setItem('hermesGatewayUrl', url); } catch (e) {}
+    btnApply.disabled = true;
+    var original = btnApply.textContent;
+    btnApply.textContent = 'Applying…';
+    test().finally(function () {
+      btnApply.textContent = original;
+      btnApply.disabled = false;
+    });
+  }
+
+  btnTest.addEventListener('click', test);
+  btnApply.addEventListener('click', apply);
+  btnBack.addEventListener('click', function () {
+    if (window.history.length > 1) window.history.back();
+    else window.location.href = '/';
+  });
+  document.getElementById('connect-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    apply();
+  });
+
+  test();
+})();
+</script>
+</body>
+</html>
