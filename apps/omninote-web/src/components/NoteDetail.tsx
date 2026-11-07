@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { OmniApiNode, OmniBlockType } from "@/lib/api";
-import { appendBlock, editBlock, softDeleteBlock, OMNI_BLOCK_TYPES } from "@/lib/api";
+import { appendBlock, editBlock, softDeleteBlock, purifyNote, OMNI_BLOCK_TYPES } from "@/lib/api";
 
 const TYPE_LABEL: Record<string, string> = {
   paragraph: "段落",
@@ -82,6 +82,26 @@ export function NoteDetail({
     }
   }
 
+  async function purify(): Promise<void> {
+    if (busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const next = await purifyNote(note.uuid);
+      setMessage(
+        `淨化完成（ON_ENTROPY_PURIFICATION 證據入鏈）✓ 熵值 ${
+          next.entropy_score !== undefined ? next.entropy_score.toFixed(4) : "未計算"
+        }`,
+      );
+      onUpdated(next);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "淨化失敗");
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMessage(null), 2800);
+    }
+  }
+
   return (
     <div className="glass p-5">
       <div className="flex flex-wrap items-center gap-2">
@@ -92,6 +112,19 @@ export function NoteDetail({
         <span className="text-[10px] text-slate-500">
           v{note.version} · {note.entity_type} · {new Date(note.timestamp).toLocaleString()}
         </span>
+        {note.entropy_score !== undefined && (
+          <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[10px] text-slate-300">
+            熵 {note.entropy_score.toFixed(4)}
+          </span>
+        )}
+        <button
+          type="button"
+          className="rounded-lg bg-omni-omega/25 px-2 py-1 text-[10px] text-omni-omega transition hover:bg-omni-omega/40 disabled:opacity-50"
+          disabled={busy}
+          onClick={() => void purify()}
+        >
+          淨化
+        </button>
         <button
           type="button"
           className="ml-auto text-xs text-slate-400 transition hover:text-slate-200"

@@ -168,6 +168,14 @@ export async function softDeleteBlock(uuid: string, blockId: string): Promise<Om
   return r.node;
 }
 
+/** 熵減自癒（POST /api/notes/:uuid/purify）：重標註死鏈並計算 entropy_score。 */
+export async function purifyNote(uuid: string): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(`/api/notes/${uuid}/purify`, {
+    method: "POST",
+  });
+  return r.node;
+}
+
 export async function deleteNote(uuid: string): Promise<void> {
   await request<{ ok: boolean; deleted: string }>(`/api/notes/${uuid}`, { method: "DELETE" });
 }

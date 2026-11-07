@@ -182,6 +182,9 @@ export class OmniNoteLocalApiServer {
       if (method === "PATCH") return this.handleBlockEdit(req, res, id, segments[4]!);
       if (method === "DELETE") return this.respondBlockSoftDelete(res, id, segments[4]!);
     }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "purify") {
+      return this.respondNotePurify(res, id);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -280,6 +283,16 @@ export class OmniNoteLocalApiServer {
   /** 拓撲宇宙：現存節點 uuid 集合，供 outlinks 熔合重建時判定 resolved */
   private async buildUniverse(): Promise<ReadonlySet<string>> {
     return new Set(await this.storage.listUuids());
+  }
+
+  /** 熵減自癒：對現存宇宙重標註死鏈並計算 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈） */
+  private async respondNotePurify(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const purified = await UnifiedMatrixEngine.purifyAndReduceEntropy(existing, await this.buildUniverse());
+    await this.storage.write(purified);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, purified);
+    return sendJson(res, 200, { ok: true, node: purified });
   }
 
   private async handleBlockEdit(req: IncomingMessage, res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {
