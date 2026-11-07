@@ -21,7 +21,7 @@ permissions:
 
 env:
   NODE_VERSION: "22"
-  PNPM_VERSION: "11.5.2"
+  PNPM_VERSION: "12.16.1"
   REPAIR_BRANCH_PREFIX: "auto-repair/"
   TRACKER_ID: "OA-TWINS-AUTO-REPAIR"
 
