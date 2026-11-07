@@ -19,40 +19,47 @@ jobs:
       - name: Configure git identity
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config core.autocrlf false
           git config core.filemode false
 
-      - name: Normalize line endings then merge main
+      - name: Normalize and merge main (logged)
         run: |
           set +e
-          git fetch origin main
-          git checkout origin/main -- .gitattributes
-          git add --renormalize .
+          LOG=/tmp/sync.log
+          echo "=== fetch main ===" > $LOG
+          git fetch origin main >> $LOG 2>&1
+          echo "=== ensure .gitattributes from main ===" >> $LOG
+          git show origin/main:.gitattributes > .gitattributes 2>>$LOG
+          git add .gitattributes
+          echo "=== renormalize ===" >> $LOG
+          git add --renormalize . >> $LOG 2>&1
           if ! git diff --cached --quiet; then
-            git commit -m "chore: normalize line endings to LF per .gitattributes"
+            git commit -m "chore: normalize line endings to LF per .gitattributes" >> $LOG 2>&1
           fi
-          git checkout -f HEAD
-          ST="$(git status --porcelain)"
-          if [ -n "$ST" ]; then
-            echo "$ST" > /tmp/status.txt
+          echo "=== hard refresh worktree ===" >> $LOG
+          git checkout -f HEAD >> $LOG 2>&1
+          git status --porcelain > /tmp/status.txt 2>>$LOG
+          echo "=== status ===" >> $LOG
+          cat /tmp/status.txt >> $LOG
+          if [ -s /tmp/status.txt ]; then
             echo "DIRTY=1" >> "$GITHUB_ENV"
             exit 1
           fi
-          git -c core.autocrlf=false merge FETCH_HEAD --no-edit > /tmp/merge.log 2>&1
+          echo "=== merge ===" >> $LOG
+          git -c core.autocrlf=false merge FETCH_HEAD --no-edit >> $LOG 2>&1
           RC=$?
-          cat /tmp/merge.log
           if [ $RC -eq 0 ]; then
             echo "MERGED=clean" >> "$GITHUB_ENV"
           else
-            git checkout --theirs pnpm-lock.yaml || true
-            git add pnpm-lock.yaml || true
-            git checkout --theirs uv.lock || true
-            git add uv.lock || true
-            UNRESOLVED="$(git diff --name-only --diff-filter=U | grep -v -E '^(pnpm-lock\.yaml|uv\.lock)$' || true)"
-            if [ -n "$UNRESOLVED" ]; then
+            git checkout --theirs pnpm-lock.yaml >> $LOG 2>&1
+            git add pnpm-lock.yaml >> $LOG 2>&1
+            git checkout --theirs uv.lock >> $LOG 2>&1
+            git add uv.lock >> $LOG 2>&1
+            git diff --name-only --diff-filter=U > /tmp/unresolved.txt 2>>$LOG
+            UNRES="$(grep -v -E '^(pnpm-lock\\.yaml|uv\\.lock)$' /tmp/unresolved.txt 2>/dev/null || true)"
+            if [ -n "$UNRES" ]; then
               echo "MERGED=unresolvable" >> "$GITHUB_ENV"
-              echo "$UNRESOLVED" > /tmp/unresolved.txt
               exit 1
             fi
             echo "MERGED=conflict" >> "$GITHUB_ENV"
@@ -84,9 +91,13 @@ jobs:
             fi
           fi
 
-      - name: Publish diagnostics, remove one-shot workflow, push
+      - name: Publish diagnostics and push
         if: always()
         run: |
+          set +e
+          if [ -f .git/MERGE_HEAD ]; then
+            git merge --abort 2>/dev/null
+          fi
           mkdir -p .conflict-reports
           {
             echo "MERGED=${MERGED:-aborted}"
@@ -94,17 +105,17 @@ jobs:
             echo ""
             echo "## git status (porcelain)"
             echo '```'
-            cat /tmp/status.txt 2>/dev/null || echo "(clean)"
+            [ -s /tmp/status.txt ] && cat /tmp/status.txt || echo "(clean)"
             echo '```'
             echo ""
             echo "## Unresolved conflicts"
             echo '```'
-            cat /tmp/unresolved.txt 2>/dev/null || echo "(none)"
+            [ -s /tmp/unresolved.txt ] && grep -v -E '^(pnpm-lock\\.yaml|uv\\.lock)$' /tmp/unresolved.txt || echo "(none)"
             echo '```'
             echo ""
-            echo "## Merge log"
+            echo "## Full sync log"
             echo '```'
-            cat /tmp/merge.log 2>/dev/null || echo "(no merge attempted)"
+            [ -f /tmp/sync.log ] && tail -80 /tmp/sync.log || echo "(no log)"
             echo '```'
           } > .conflict-reports/186-sync.md
           git add .conflict-reports
