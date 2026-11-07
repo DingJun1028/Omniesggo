@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { X, ShieldCheck, ArrowRight, BookOpen, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { X, ShieldCheck, ArrowRight, BookOpen } from 'lucide-react';
 import { OmniButton } from '../omni-base/OmniButton';
 import { OmniBadge } from '../omni-base/OmniBadge';
 

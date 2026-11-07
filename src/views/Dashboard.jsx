@@ -1,5 +1,5 @@
 import { pillars, activities, tasks } from '../data/seed.js'
-import { StatCard, SectionHeader, PillarBadge, ActivityIcon } from '../components/ui.jsx'
+import { SectionHeader, PillarBadge, ActivityIcon } from '../components/ui.jsx'
 
 export default function Dashboard({ onNavigate }) {
   return (

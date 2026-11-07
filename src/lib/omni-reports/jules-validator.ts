@@ -63,7 +63,6 @@ function formatIssues(issues: Array<{ path: string; message: string }>): Record<
 // ─── 核心介面實作：萬能元件心核 (IComponentCore) ──────────────────────
 
 const URL_RE = /^(https?):\/\/[^\s/$.?#].[^\s]*$/i;
-const SEMVER_RE = /^\d+\.\d+\.\d+(-[a-zA-Z0-9]+)?$/;
 
 const coreRefine: RefineFn<{ evidence: unknown }> = (data) => {
   const issues: Array<{ path: string; message: string }> = [];

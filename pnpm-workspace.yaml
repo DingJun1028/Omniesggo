@@ -117,6 +117,8 @@ overrides:
   "postcss-selector-parser": ">=7.1.6 <8"
 
 allowBuilds:
+  'cpu-features': false
+  'ssh2': false
   '@firebase/util': false
   '@google/genai': false
   core-js: true
@@ -173,3 +175,11 @@ minimumReleaseAgeExclude:
 onlyBuiltDependencies:
   - tesseract.js
   - sqlite3
+
+# ssh2 → cpu-features 為選用之原生加速（純 JS fallback 完整可用）；
+# CI 不需其 postinstall 產物，明示略過以消除 ERR_PNPM_IGNORED_BUILDS（exit 1）。
+# 2026-11-05 實證（install-diag）：pnpm 11.5.2 對未宣告建置腳本之依賴
+# cpu-features@0.0.10、ssh2@1.17.0 報 ERR_PNPM_IGNORED_BUILDS，連帶全倉 CI 紅。
+ignoredBuiltDependencies:
+  - cpu-features
+  - ssh2

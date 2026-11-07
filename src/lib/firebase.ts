@@ -52,7 +52,7 @@ class QueryBuilder {
       return new QuerySnapshot([]);
     }
 
-    return new QuerySnapshot((data || []).map((row: any) => ({
+    return new QuerySnapshot((data || []).map((row: { id: string; [key: string]: unknown }) => ({
       id: row.id,
       data: () => row
     })));

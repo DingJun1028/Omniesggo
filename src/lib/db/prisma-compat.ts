@@ -313,7 +313,7 @@ async function attachIncludes(
         for (const r of rows) r[relKey] = null;
         continue;
       }
-      let q = supa.from(relTable).select('*').in('id', fks);
+      const q = supa.from(relTable).select('*').in('id', fks);
       const { data, error } = await q;
       if (error || !data) {
         for (const r of rows) r[relKey] = null;

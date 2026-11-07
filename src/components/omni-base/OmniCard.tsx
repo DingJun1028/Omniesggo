@@ -11,7 +11,7 @@ interface OmniCardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 export const OmniCard = forwardRef<HTMLDivElement, OmniCardProps>(
-  ({ className, glow = false, variant, children, ...props }, ref) => {
+  ({ className, glow = false, variant: _variant, children, ...props }, ref) => {
     return (
       <div
         ref={ref}
