@@ -14,6 +14,7 @@
  * - E_UPSTREAM_UNVERIFIED: report.verified = false (上游零幻覺攔截已標記)
  * - E_EMPTY_PERIOD: tick_count < 1
  */
+import { randomUUID } from 'node:crypto';
 import { computeHash } from '@esggo/omni-core';
 import { mintEvent, OmniArchError, type ArchWire } from '@esggo/omni-arch';
 import type { OesgReportEngine } from '@esggo/oesg-report';
@@ -142,7 +143,7 @@ export class OesgAuditEngine {
 
     // [合] 判定結晶 (稽核軌跡 Hash Lock, 供 Exchange/DAO 及 SLL 第三方追溯)
     const verdict: AuditVerdict = {
-      uuid: `oesg-audit.${Date.now()}.${Math.random().toString(36).slice(2, 8)}`,
+      uuid: `oesg-audit.${randomUUID()}`,
       version: '1.0.0',
       timestamp: Date.now(),
       source_origin: this.sourceOrigin,
