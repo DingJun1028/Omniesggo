@@ -19,8 +19,9 @@
   ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
-  "description": "OESG Supabase 寫出埠 — OESG-Pulse/Report 之 PostgREST sink adapter（原生 fetch 零依賴，憑證由呼叫端注入，De-Google 政策相容）",
+  "description": "OESG Supabase 寫出埠 — OESG-Pulse/Report/Audit 之 PostgREST sink adapter（原生 fetch 零依賴，憑證由呼叫端注入，De-Google 政策相容）",
   "dependencies": {
+    "@esggo/oesg-audit": "workspace:*",
     "@esggo/oesg-pulse": "workspace:*",
     "@esggo/oesg-report": "workspace:*"
   },

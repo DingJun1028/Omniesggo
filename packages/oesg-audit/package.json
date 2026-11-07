@@ -1,0 +1,32 @@
+{
+  "name": "@esggo/oesg-audit",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "oesg",
+    "audit",
+    "greenwashing",
+    "esggo",
+    "iso-14064-1",
+    "5t-protocol"
+  ],
+  "author": "ESG GO Team",
+  "license": "UNLICENSED",
+  "description": "OESG-Audit 漂綠稽核引擎 — OESG 五路線圖第三站（Pulse→Report→Audit→Exchange→DAO），訂閱 oesg.report.draft 獨立複核期報告，判定 clean/flagged 並廣播 oesg.audit.verdict",
+  "dependencies": {
+    "@esggo/oesg-report": "workspace:*",
+    "@esggo/omni-arch": "workspace:*",
+    "@esggo/omni-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": ">=4.1.11 <5"
+  }
+}
