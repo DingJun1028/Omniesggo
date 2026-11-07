@@ -7,7 +7,7 @@ name: ci-check
 #   3. 執行 OmniNote 實驗驗證（含 3-way merge 與 5T 標籤）
 #   4. 檢查 OmniAgent 技術生命週期（OllamaFreeCompute + SharedMemoryLayer）
 #   5. 計算關鍵指標：95% 信心度 / < 1.5s 延遲 / 85% 覆蓋率
-#   6. 將結果上傳為 GitHub Check + 生成驗證報告
+#   6. 判定關鍵指標門檻並寫入步驟摘要 + 生成驗證報告
 #
 # Usage: 由 GitHub Actions 自動執行，或本地用 `act` 測試。
 
@@ -39,7 +39,6 @@ jobs:
           python3 -m venv .venv
           source .venv/bin/activate
           pip install --upgrade pip
-          pip install --only-binary :all: requests==2.32.5
           # 需要的套件
           pip install -e apps/omni-note
           # 驗證報告工具
@@ -63,14 +62,12 @@ jobs:
           python apps/omni-note/run_demo.py 2>&1 | tail -5 || \
           echo "⚠️  OmniNote 演示因無實體同步環境跳過"
 
-      - name: 統計並發佈檢查結果
+      - name: 統計檢查結果
         id: check
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           source .venv/bin/activate
           python - <<'PY'
-          import json, re
+          import re, os
 
           # 讀取驗證報告
           report = open("verification_report.md", encoding="utf-8").read()
@@ -80,7 +77,7 @@ jobs:
           for line in report.split("\n"):
               m = re.search(r"\|\s*信心度\s*\|\s*([\d.]+)\s*\|", line)
               if m: metrics["conf"] = float(m.group(1))
-              m = re.search(r"\|\s*延遲\s*\|\s*([\d.]+)\s*\|", line)
+              m = re.search(r"\|\s*延遲\s*\|\s*([\d.]+)", line)
               if m: metrics["latency_ms"] = float(m.group(1))
               m = re.search(r"\|\s*覆蓋率\s*\|\s*([\d.]+)\s*\|", line)
               if m: metrics["coverage"] = float(m.group(1))
@@ -93,40 +90,20 @@ jobs:
           coverage_pass = metrics.get("coverage", 0) >= 0.85
           all_pass = conf_pass and latency_pass and coverage_pass
 
-          summary = f"✅ すべて合格" if all_pass else f"❌ 部分不通過 (conf={conf_pass}, latency={latency_pass}, coverage={coverage_pass})"
-
-          # 發佈檢查結果
-          import requests
-          import os
-          token = os.environ["GITHUB_TOKEN"]
-          sha = open(".git/HEAD", "r").read().strip().split(" ")[-1] if False else "self"
-          # 簡化的 commit sha
-          import subprocess
-          sha = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
-
-          responses = requests.post(
-              "https://api.github.com/repos/{owner}/{repo}/check-runs".format(
-                  owner="DingJun1028", repo="Omniesggo"),
-              headers={
-                  "Authorization": f"token {token}",
-                  "Accept": "application/vnd.github.v3+json",
-              },
-              json={
-                  "name": "ESG-GO 技術驗證",
-                  "head_sha": sha,
-                  "status": "completed",
-                  "conclusion": "success" if all_pass else "failure",
-                  "output": {
-                      "title": "驗證結果",
-                      "summary": summary,
-                      "text": report[-2000:],
-                  },
-              },
-              timeout=30,
-          )
-          responses.raise_for_status()
-          print(f"=== 發佈檢查：{summary} ===")
+          summary = "✅ すべて合格" if all_pass else f"❌ 部分不通過 (conf={conf_pass}, latency={latency_pass}, coverage={coverage_pass})"
+          print(f"=== 檢查結果：{summary} ===")
           print(f"  信心度={metrics.get('conf', '?')} 延遲={metrics.get('latency_ms', '?')}ms 覆蓋率={metrics.get('coverage', '?')}")
+
+          # 結果寫入工作流步驟摘要（GitHub Actions 本身即以 verify check run 呈現結論）
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary_path:
+              with open(summary_path, "a", encoding="utf-8") as f:
+                  f.write("## ci-check 驗證結果\n\n")
+                  f.write(f"{summary}\n\n")
+                  f.write(f"信心度={metrics.get('conf', '?')} / 延遲={metrics.get('latency_ms', '?')}ms / 覆蓋率={metrics.get('coverage', '?')}\n\n")
+
+          if not all_pass:
+              raise SystemExit(1)
           PY
 
       - name: 生成並上傳驗證報告
