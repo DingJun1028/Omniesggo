@@ -121,7 +121,7 @@ async function fetchIssues(args, token, qualities) {
       ...(args.pullRequest != null ? { pullRequest: args.pullRequest } : { branch: args.branch }),
       impactSoftwareQualities: q,
       ps: MAX_ISSUES,
-      s: "ISSUE_KEY",
+      s: "FILE_LINE", // SonarCloud issues/search 允許之排序值（ISSUE_KEY 非法，回 400）
     }, token);
     for (const it of data?.issues ?? []) {
       issues.push({

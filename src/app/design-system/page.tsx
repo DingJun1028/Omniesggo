@@ -50,7 +50,7 @@ export default function DesignSystemPage() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as 'components' | 'colors' | 'typography')}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-all border-b-2 ${
                 activeTab === tab.id 
                   ? 'border-cyan-400 text-cyan-400 bg-cyan-500/5' 

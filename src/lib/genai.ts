@@ -1,12 +1,12 @@
 import ollama from 'ollama';
 
 export class GoogleGenAI {
-  constructor(options: any) {}
+  constructor(_options: unknown) {}
 
-  [key: string]: any; // Allow arbitrary extensions like interactions
+  [key: string]: unknown; // Allow arbitrary extensions like interactions
 
   models = {
-    generateContent: async ({ model, contents }: any) => {
+    generateContent: async ({ model: _model, contents }: { model: string; contents: unknown }) => {
       let text = '';
       if (typeof contents === 'string') {
         text = contents;
@@ -27,7 +27,7 @@ export class GoogleGenAI {
         return { text: 'Ollama local inference failed' };
       }
     },
-    embedContent: async ({ model, contents }: any) => {
+    embedContent: async ({ model: _model, contents }: { model: string; contents: unknown }) => {
       try {
         const text = Array.isArray(contents) ? contents.join('\n') : String(contents);
         const response = await ollama.embeddings({
@@ -45,7 +45,7 @@ export class GoogleGenAI {
   // Interactions API support (used by village/trends route when USE_INTERACTIONS_API=true)
   // Default implementation throws — override with real Gemini Interactions API when needed.
   interactions = {
-    create: async (_params: any): Promise<{ steps?: Array<{ type?: string; content?: Array<{ parts?: Array<{ text?: string }> }> }> }> => {
+    create: async (_params: unknown): Promise<{ steps?: Array<{ type?: string; content?: Array<{ parts?: Array<{ text?: string }> }> }> }> => {
       throw new Error('Interactions API not implemented. Use models.generateContent instead.');
     }
   };

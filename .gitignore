@@ -249,6 +249,8 @@ ki-esg-2026-001.md
 
 # SQL / data dumps
 *.sql
+# Supabase migrations (NOT data dumps)
+!db/migrations/*.sql
 logic_registry*.db
 
 # Config variants (keep next.config.js only)
@@ -429,3 +431,6 @@ apps/aistation/storage/
 # OA-Swarm runtime data
 oa-swarm/data/
 .worktrees/
+
+# 瀏覽器工具相關
+.github/worker-tools/node_modules/

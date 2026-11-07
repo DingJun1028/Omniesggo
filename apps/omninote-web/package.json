@@ -1,0 +1,26 @@
+{
+  "name": "@esggo/omninote-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "萬能筆記 OmniNote: Unified — 液態玻璃 Web 控制台（Next.js 16 + React 19），對接本機回環 REST API",
+  "scripts": {
+    "dev": "next dev -p 52720",
+    "build": "next build",
+    "start": "next start -p 52720",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "^16.4.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.1.16",
+    "@types/react-dom": "^19.1.9",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.19",
+    "typescript": "^5.9.3"
+  }
+}
