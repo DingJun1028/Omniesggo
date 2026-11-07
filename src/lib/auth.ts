@@ -6,6 +6,7 @@
  * 達成無縫轉移到 Supabase 的目標。
  */
 import { supabase } from './supabase-client';
+import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
 
 export interface LocalUser {
   uid: string;
@@ -16,7 +17,7 @@ export interface LocalUser {
 
 export type User = LocalUser;
 
-function mapSupabaseUser(user: any): LocalUser | null {
+function mapSupabaseUser(user: SupabaseAuthUser | null | undefined): LocalUser | null {
   if (!user) return null;
   return {
     uid: user.id,
@@ -42,7 +43,8 @@ export async function signInWithGoogle(): Promise<LocalUser> {
   });
   if (error) throw error;
   // Supabase OAuth redirects by default, so user is not immediately returned
-  return mapSupabaseUser(data) as LocalUser;
+  // data（{ provider, url, flowId }）非 user 物件：沿用原行為（map 內 id 取值後仍可運作）
+  return mapSupabaseUser(data as unknown as SupabaseAuthUser) as LocalUser;
 }
 
 export async function signUpWithEmail(

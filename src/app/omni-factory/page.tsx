@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { readdirSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { Factory, Shield, Activity, Search, BrainCircuit, ChevronRight } from 'lucide-react';
+import { Factory, Shield, Activity, BrainCircuit, ChevronRight } from 'lucide-react';
 
 interface ModuleSpec {
   id: string;
