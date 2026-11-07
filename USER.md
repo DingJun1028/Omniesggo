@@ -33,6 +33,8 @@
 - **Maintainance 模式**：唯當維護有明確目的時才進入，無明確目的不要強行進入
 
 ## 機器人協作偏好
-- 不會在對話中透露真實 API 金鑰/密碼
-- 所有密碼值均使用 `***MASKED***` 遮罩
-- 與多個 AI 代理開發協同（Kilo 工程師、Hermes、Devin、Jules、Kilo）
+- 技能文件格式規範（新增）
+- **SKILL.md frontmatter 標準**：每個技能必須有 YAML frontmatter，至少含 `title`、`name`、`description`、`category`、`version`
+- **目標**：52 個 skills/ 目錄中，統一 100% 符合前置標頭格式
+- **版本格式**：採用 `1.0.0`、`1.1.0` 等標準版本號，不使用 `v1`、`vv1` 等非標準寫法
+- **工具**：使用 `execute_code` + `patch` 批量檢查與修復

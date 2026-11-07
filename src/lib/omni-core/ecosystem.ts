@@ -58,7 +58,7 @@ export class OmniCoreEcosystem {
   public static lockAndFreeze<T extends object & { evidence?: Record<string, unknown> }>(obj: T): T {
     // Attach a hash lock (simulated) to the object's evidence field
     obj.evidence = obj.evidence || {};
-    (obj as any).evidence['hash_lock'] = `0xCELESTIAL_${Date.now()}_${Math.random()
+    obj.evidence['hash_lock'] = `0xCELESTIAL_${Date.now()}_${Math.random()
       .toString(36)
       .substring(2, 9)}`;
 

@@ -154,7 +154,7 @@ pnpm install || npm install
 
 ---
 
-## 🔐 安全守則
+## 🔐 安全守則（嵌入用戶偏好）
 
 1. **絕不硬編碼**：任何 API 金鑰、密碼、機密資料均不得寫入程式碼
 2. **環境變數**：本地開發使用 `.env.local`（已 `.gitignore` 忽略）
@@ -166,6 +166,14 @@ pnpm install || npm install
 8. **禁止顯示真實值**：對話過程中任何機密值都必須遮罩（`***MASKED***`）
 9. **金鑰輪替**：每 90 天輪替一次高風險金鑰
 10. **最小權限**：僅授予必要的服務存取權限
+11. **語言限制**：繁體中文（zh-hant）only。Cannot use Japanese.
+12. **TypeBox 為合約正本**：TypeBox schema 為合約正本（source of truth），前端/後端皆由 schema 生成
+13. **直推 main 已核准**：2026-11-03 起，功能分支 PR 規則已放棄，實際以「直推 main」方式完成
+14. **5T 提交格式**：`5T: source_origin=<domain> <topic>`、`5T-Traceable: <trace>`、`5T-Trustworthy: <trust>`
+15. **Ossidian Sync 邊界**：`docs/vault-canon/` 永遠只走 `obsidian-git`（git）。`ob`（Obsidian Sync）只用於另一個獨立非共享 vault，禁止寫入 `vault-canon`。
+16. **Tesseract OCR**：`TESSDATA_PREFIX` 必須指向包含 `tessdata` 資料夾的上層目錄（`C:\Program Files\Tesseract-OCR`），或以 `--tessdata-dir` 參數指定。空格路徑需用雙引號包住。命令列格式：`tesseract.exe <input.png> stdout [<lang>|--tessdata-dir=<path>] [<lang>]`
+17. **Linux 32-bit build**：`apps/omnilive`/`apps/omnlive` 同名 → `EDUPLICATEWORKSPACE`。`typescript@7.0.2` 不提供 ia32 原生二進位。`vitest`/rolldown 原生綁定（wasm32-wasi）不可用。**解決方案：使用 64-bit node + `@typescript/typescript-win32-x64`**。
+18. **Shell history**：終端機 shell history 已 `history -c` 清除。
 
 ## 🏗️ 系統整合
 
@@ -410,6 +418,77 @@ npx tsx scripts/omni-bitwarden.ts sync
 
 ---
 
+## 📖 最佳實踐做法
+
+### 1. 密碼權限管理
+
+| 場景 | 最佳實踐 |
+|------|----------|
+| 本機開發 | `.env.local`，已 `.gitignore` 忽略，權限 600 |
+| 生產環境 | `secret-vault/ENV20230818.env`，權限 600，目錄 700 |
+| 萬能金庫 | `omni-bitwarden/`，權限 700 |
+| 人對人分享 | OneTimeSecret，臨時鏈接，盡快失效 |
+
+### 2. 環境變數最佳實踐
+
+```bash
+# ✅ 正確：使用 .env.local（已 gitignore）
+export NCBDB_API_TOKEN=***MASKED***
+
+# ❌ 錯誤：寫入程式碼
+const token = "ghp_xxxxxxxxxxxx"
+```
+
+### 3. 記憶體清理
+
+```typescript
+// 程式結束時清理環境變數中的機密值
+process.on("exit", () => {
+  for (const key of Object.keys(process.env)) {
+    if (key.includes("TOKEN") || key.includes("KEY") || key.includes("SECRET")) {
+      delete process.env[key];
+    }
+  }
+});
+```
+
+### 4. 日誌記錄
+
+```typescript
+// ✅ 正確：輸出來源，不輸出值
+console.log(`Secret "${key}" loaded from ${result.source}`);
+
+// ❌ 錯誤：輸出真實值
+console.log(`Token: ${result.value}`);
+```
+
+### 5. 輪替策略
+
+| 金鑰類型 | 輪替頻率 | 備註 |
+|----------|----------|------|
+| 服務帳號 | 90 天 | 高風險 |
+| 開發者金鑰 | 180 天 | 中風險 |
+| 只讀金鑰 | 365 天 | 低風險 |
+
+### 6. 版本控制忽略
+
+確保 `.gitignore` 包含：
+
+```gitignore
+.env.local
+.env.*.local
+secret-vault/
+omni-bitwarden/config.yaml
+```
+
+### 7. 聯絡管道
+
+- 離職或離開團隊時，立即撤銷所有安全存取權限
+- 發現金鑰泄露時，立即輪替並記錄事件
+- 所有機密存取透過 `omni_get_secret()` 統一管理
+
+---
+
 ## ⚠️ 注意事項
 
 1. **金鑰輪替**：每 90 天輪替一次高風險金鑰
@@ -419,3 +498,144 @@ npx tsx scripts/omni-bitwarden.ts sync
 5. **安全教訓**：參考 `.security-lesson-20261102.md` 學習經驗
 6. **秘密聖櫃**：所有機密存取透過 `omni_get_secret()` 統一管理
 7. **金鑰離職**：離職時立即撤銷所有安全存取權限
+
+---
+
+## 📖 參考資源
+
+- [Bitwarden CLI Documentation](https://bitwarden.com/help/cli/)
+- [OmniMasterKey 系統設計](./omni-master-key/SKILL.md)
+- [Junaikey 成長層](./omni-master-key/SKILL.md)
+- [安全原則與密碼學](./OMNISKILL_BOOK.md#37-安全與密碼學原理)
+- [DingJun1028/server](https://github.com/DingJun1028/server)
+- [DingJun1028/clients](https://github.com/DingJun1028/clients)
+- [passwordless-nodejs](https://github.com/DingJun1028/passwordless-nodejs)
+
+
+## 自然語觸發自動工具使用的機率 (Natural Language Auto-Tool Trigger)
+
+### 1. 觸發關鍵字清單 (Trigger Keywords)
+
+> 系統會自動識別輸入中的自然語觸發詞，觸發對應的工具/技能/代理。
+
+#### 核心觸發詞
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| omni-bitwarden | auto | 觸發本技能 | 5.0 |
+| 觸發 | trigger | 觸發工具使用 | 4.5 |
+| 自動 | auto | 自動執行 | 4.0 |
+| 幫助 | help | 顯示說明 | 3.0 |
+| 查詢 | query | 查詢資訊 | 3.0 |
+| 記錄 | record | 記錄數據 | 2.5 |
+| 執行 | run | 執行操作 | 3.0 |
+| 檢查 | check | 檢查狀態 | 2.5 |
+| 初始化 | init | 初始化系統 | 3.0 |
+
+#### 進階觸發詞
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| 指令 | command | 執行指令 | 4.0 |
+| 工具 | tool | 使用工具 | 3.5 |
+| 自動 | auto | 自動執行 | 3.0 |
+| 查詢 | query | 查詢 | 2.5 |
+| 記錄 | record | 記錄 | 2.0 |
+| 反思 | reflect | 反思 | 2.5 |
+| 重啟 | restart | 重啟 | 2.5 |
+| 關閉 | shutdown | 關閉 | 2.5 |
+
+---
+
+### 2. 觸發規則
+
+#### 2.1 預設觸發機率
+
+| 模式 | 權重 | 說明 |
+|------|------|------|
+| 核心關鍵字 | 100% | 必然觸發 |
+| 進階關鍵字 | 70% | 單一關鍵字即觸發 |
+| 其他自然語 | 30% | 隨機匹配 |
+| 歧義命中 | 15% | 需要確認 |
+
+#### 2.2 機率加權
+
+觸發機率 = (關鍵字分數 × 頻率) + (上下文相似度 × 0.3) + 隨機種子 (0-0.2)
+
+- 單一高權重關鍵字：自動觸發 (1.0)
+- 多關鍵字組合：權重加總，上限 1.0
+- 低權重 (< 0.3)：記錄，不自動執行
+
+#### 2.3 自然語解析範例
+
+```typescript
+// 輸入：omni-bitwarden 並查詢目前狀態
+{
+  triggers: ["omni-bitwarden", "query"],
+  actions: ["awaken()", "query()"],
+  priority: ["omni-bitwarden", "query"],
+  probability: 1.0
+}
+```
+
+---
+
+### 3. 工具選擇權重
+
+| 工具類別 | 關鍵字 | 權重 |
+|----------|--------|------|
+| 記憶查詢 | query, 查詢, 讀取 | 0.8 |
+| 技能成長 | omni-bitwarden, grow | 0.7 |
+| 反思 | reflect, 學習 | 0.75 |
+| 系統初始化 | omni-bitwarden, start | 0.9 |
+| 協作 | share, 協作 | 0.65 |
+| 結界 | inherit, 繼承 | 0.5 |
+
+---
+
+### 4. 信心分數與反饋
+
+| 信心分數 | 處理方式 |
+|----------|----------|
+| >= 0.9 | 自動執行 |
+| 0.7 - 0.9 | 記錄後自動執行 |
+| 0.4 - 0.7 | 詢問用戶 |
+| < 0.4 | 記錄不執行 |
+
+---
+
+### 5. 實際示例
+
+#### 5.1 單一自然語
+
+**輸入**：omni-bitwarden
+**解析**：核心關鍵字
+**輸出**：`awaken()`
+
+**輸入**："查詢 omni-bitwarden 狀態"
+**解析**：查詢 + 技能
+**輸出**：`query()`, `doctor()`
+
+#### 5.2 複雜自然語
+
+**輸入**："我今天學到新東西，幫我記住並分享"
+**解析**：
+- 關鍵字：`growth`, `share`, `memory`
+- 行動：`recordLearning()`, `recordMemory()`, `cross-agent sync`
+- 權重：0.75
+- 輸出：`growSkill()`, `remember()`, `tagSkill("share:active")`
+
+**輸入**："讓我檢查一下 omni-bitwarden 狀態"
+**解析**：檢查
+**輸出**：`doctor()`, `backend()`
+
+---
+
+### 6. 參數一致性
+
+此技能的默認配置：
+- **doctor／backend 與 awaken 必須用同一組參數**
+- **所有憑證來源 = `secret-vault/ENV20230818.env`**
+- **絕不在代碼中硬編碼憑證**
+- **NCBDB 為主，local 為備份**
+- **所有成長記錄必須帶 `agent_id`、`timestamp`、`source_origin`**
