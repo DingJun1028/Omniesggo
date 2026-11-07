@@ -146,6 +146,28 @@ export async function appendBlock(
   return r.node;
 }
 
+/** 區塊編輯（PATCH /api/notes/:uuid/blocks/:blockId）：LWW 就地更新、outlinks 熔合重建。 */
+export async function editBlock(
+  uuid: string,
+  blockId: string,
+  content: string,
+): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(
+    `/api/notes/${uuid}/blocks/${blockId}`,
+    { method: "PATCH", body: JSON.stringify({ content }) },
+  );
+  return r.node;
+}
+
+/** 區塊軟刪除（DELETE /api/notes/:uuid/blocks/:blockId）：CRDT tombstone，保留原文與 block_id。 */
+export async function softDeleteBlock(uuid: string, blockId: string): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(
+    `/api/notes/${uuid}/blocks/${blockId}`,
+    { method: "DELETE" },
+  );
+  return r.node;
+}
+
 export async function deleteNote(uuid: string): Promise<void> {
   await request<{ ok: boolean; deleted: string }>(`/api/notes/${uuid}`, { method: "DELETE" });
 }
