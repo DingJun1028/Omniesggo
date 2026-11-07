@@ -176,6 +176,31 @@ export async function purifyNote(uuid: string): Promise<OmniApiNode> {
   return r.node;
 }
 
+/** ALPHA → SIGMA 躍遷（POST /api/notes/:uuid/sigma）：非墓碑區塊熔合為長文、outlinks 熔合重建。 */
+export async function sigmaFuse(uuid: string): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(`/api/notes/${uuid}/sigma`, {
+    method: "POST",
+  });
+  return r.node;
+}
+
+/** SIGMA → OMEGA 結晶（POST /api/notes/:uuid/crystallize）：強型別實體注入。 */
+export async function crystallizeNote(uuid: string, entityType: string): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(`/api/notes/${uuid}/crystallize`, {
+    method: "POST",
+    body: JSON.stringify({ entity_type: entityType }),
+  });
+  return r.node;
+}
+
+/** OMEGA → ALPHA 逆向投影（POST /api/notes/:uuid/reverse）。 */
+export async function reverseProject(uuid: string): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(`/api/notes/${uuid}/reverse`, {
+    method: "POST",
+  });
+  return r.node;
+}
+
 export async function deleteNote(uuid: string): Promise<void> {
   await request<{ ok: boolean; deleted: string }>(`/api/notes/${uuid}`, { method: "DELETE" });
 }

@@ -185,6 +185,15 @@ export class OmniNoteLocalApiServer {
     if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "purify") {
       return this.respondNotePurify(res, id);
     }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "sigma") {
+      return this.respondNoteSigmaFuse(res, id);
+    }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "crystallize") {
+      return this.handleNoteCrystallize(req, res, id);
+    }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "reverse") {
+      return this.respondNoteReverseProject(res, id);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -293,6 +302,52 @@ export class OmniNoteLocalApiServer {
     await this.storage.write(purified);
     if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, purified);
     return sendJson(res, 200, { ok: true, node: purified });
+  }
+
+  /** ALPHA → SIGMA 躍遷：非墓碑區塊內容熔合為單一長文，outlinks 同步熔合重建 */
+  private async respondNoteSigmaFuse(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const active = existing.blocks.filter((b) => !b.deleted);
+    if (active.length === 0) return sendJson(res, 422, { ok: false, error: "NO_ACTIVE_BLOCKS" });
+    const universe = await this.buildUniverse();
+    const mergedMarkdown = active.map((b) => b.content).join("\n\n");
+    const sigma = await UnifiedMatrixEngine.transitionToSigmaGraph(
+      existing,
+      UnifiedMatrixEngine.deriveOutlinks(existing.blocks, universe),
+      mergedMarkdown,
+    );
+    await this.storage.write(sigma);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, sigma);
+    return sendJson(res, 200, { ok: true, node: sigma });
+  }
+
+  /** SIGMA → OMEGA 躍遷：強型別物件結晶（entity_type 注入 + 屬性併入） */
+  private async handleNoteCrystallize(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const entityType = typeof body.entity_type === "string" ? body.entity_type.trim() : "";
+    if (entityType.length === 0) return sendJson(res, 422, { ok: false, error: "ENTITY_TYPE_REQUIRED" });
+    const properties =
+      typeof body.properties === "object" && body.properties !== null && !Array.isArray(body.properties)
+        ? (body.properties as Record<string, unknown>)
+        : {};
+    const omega = await UnifiedMatrixEngine.crystallizeToOmegaObject(existing, entityType, properties);
+    await this.storage.write(omega);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, omega);
+    return sendJson(res, 200, { ok: true, node: omega });
+  }
+
+  /** OMEGA → ALPHA 逆向投影：結晶實體回流為捕獲態 */
+  private async respondNoteReverseProject(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const reversed = await UnifiedMatrixEngine.projectReverseToCapture(existing);
+    await this.storage.write(reversed);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, reversed);
+    return sendJson(res, 200, { ok: true, node: reversed });
   }
 
   private async handleBlockEdit(req: IncomingMessage, res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {

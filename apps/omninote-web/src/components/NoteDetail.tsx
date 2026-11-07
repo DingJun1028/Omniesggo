@@ -2,7 +2,16 @@
 
 import { useState } from "react";
 import type { OmniApiNode, OmniBlockType } from "@/lib/api";
-import { appendBlock, editBlock, softDeleteBlock, purifyNote, OMNI_BLOCK_TYPES } from "@/lib/api";
+import {
+  appendBlock,
+  editBlock,
+  softDeleteBlock,
+  purifyNote,
+  sigmaFuse,
+  crystallizeNote,
+  reverseProject,
+  OMNI_BLOCK_TYPES,
+} from "@/lib/api";
 
 const TYPE_LABEL: Record<string, string> = {
   paragraph: "段落",
@@ -28,6 +37,7 @@ export function NoteDetail({
   const [message, setMessage] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [entityType, setEntityType] = useState("note.crystal");
 
   async function append(): Promise<void> {
     const trimmed = content.trim();
@@ -102,6 +112,22 @@ export function NoteDetail({
     }
   }
 
+  async function runTransition(op: () => Promise<OmniApiNode>, done: string): Promise<void> {
+    if (busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const next = await op();
+      setMessage(`${done}✓`);
+      onUpdated(next);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "躍遷失敗");
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMessage(null), 2800);
+    }
+  }
+
   return (
     <div className="glass p-5">
       <div className="flex flex-wrap items-center gap-2">
@@ -125,6 +151,59 @@ export function NoteDetail({
         >
           淨化
         </button>
+        {note.matrix_phase !== "OMEGA_OBJECT_CRYSTAL" && (
+          <button
+            type="button"
+            className="rounded-lg bg-omni-sigma/25 px-2 py-1 text-[10px] text-omni-sigma transition hover:bg-omni-sigma/40 disabled:opacity-50"
+            disabled={busy}
+            onClick={() =>
+              void runTransition(
+                () => sigmaFuse(note.uuid),
+                "已熔合為 SIGMA（區塊長文熔煉、ON_SIGMA_SYNTHESIS 證據入鏈）",
+              )
+            }
+          >
+            熔合 SIGMA
+          </button>
+        )}
+        {note.matrix_phase !== "OMEGA_OBJECT_CRYSTAL" && (
+          <input
+            className="field w-auto max-w-[120px] px-2 py-1 text-[10px]"
+            aria-label="結晶實體型別"
+            value={entityType}
+            onChange={(e) => setEntityType(e.target.value)}
+          />
+        )}
+        {note.matrix_phase !== "OMEGA_OBJECT_CRYSTAL" && (
+          <button
+            type="button"
+            className="rounded-lg bg-omni-omega/25 px-2 py-1 text-[10px] text-omni-omega transition hover:bg-omni-omega/40 disabled:opacity-50"
+            disabled={busy || entityType.trim().length === 0}
+            onClick={() =>
+              void runTransition(
+                () => crystallizeNote(note.uuid, entityType.trim()),
+                "已結晶為 OMEGA（ON_OMEGA_CRYSTALLIZE 證據入鏈）",
+              )
+            }
+          >
+            結晶 OMEGA
+          </button>
+        )}
+        {note.matrix_phase === "OMEGA_OBJECT_CRYSTAL" && (
+          <button
+            type="button"
+            className="rounded-lg bg-omni-alpha/25 px-2 py-1 text-[10px] text-omni-alpha transition hover:bg-omni-alpha/40 disabled:opacity-50"
+            disabled={busy}
+            onClick={() =>
+              void runTransition(
+                () => reverseProject(note.uuid),
+                "已逆向投影回 ALPHA（ON_REVERSE_PROJECT 證據入鏈）",
+              )
+            }
+          >
+            逆向投影 ALPHA
+          </button>
+        )}
         <button
           type="button"
           className="ml-auto text-xs text-slate-400 transition hover:text-slate-200"
