@@ -1,3 +1,4 @@
-report updated Sat Nov  7 07:28:55 UTC 2026
+report updated Sat Nov  7 07:28:58 UTC 2026
 OUTAGE_RECOVERY run started
 SSH unreachable - querying OCI
+compartment list error: Warning: To increase security of your API key located at /tmp/oci_key.pem, append an extra line with 'OCI_API_KEY' at the end. For more information, refer to https://docs.oracle.com/iaas/Content/API/Concepts/apisigningkey.htm. To suppress the warning, set the env variable SUPPRESS_LABEL_WARNING=True WARNING: Permissions on /home/runner/.oci/config are too open.  To fix this please try executing th
