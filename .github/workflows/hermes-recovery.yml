@@ -47,8 +47,7 @@ jobs:
           mkdir -p ~/.ssh
           printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" 'echo SSH_OK; uptime; free -m | head -2; systemctl is-active cloudflared nginx hermes-serve hermes-dashboard 2>&1' 2>&1 | 
-tee /tmp/sshprobe.out
+          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" 'echo SSH_OK; uptime; free -m | head -2; systemctl is-active cloudflared nginx hermes-serve hermes-dashboard 2>&1' 2>&1 | tee /tmp/sshprobe.out
           if grep -q SSH_OK /tmp/sshprobe.out; then echo "up=true" >> $GITHUB_OUTPUT; else echo "up=false" >> $GITHUB_OUTPUT; fi
       - name: Install OCI CLI
         if: steps.sshprobe.outputs.up != 'true'
@@ -59,7 +58,7 @@ tee /tmp/sshprobe.out
           sudo ln -sf /tmp/ocivenv/bin/oci /usr/local/bin/oci
           oci --version
       - name: Configure OCI
-        if: steps.shpprobe.outputs.up != 'true'
+        if: steps.sshprobe.outputs.up != 'true'
         run: |
           mkdir -p ~/.oci
           cat > ~/.oci/config <<EOFCONF
@@ -125,8 +124,7 @@ tee /tmp/sshprobe.out
           done
           [ -z "$FOUND" ] && report "NO_INSTANCES_FOUND check tenancy/secrets"
           report "post-repair SSH probe"
-          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$V
-PS_USER@$VPS_HOST" 'echo SSH_OK; uptime' > /tmp/post.out 2>&1
+          timeout 40 ssh -i ~/.ssh/deploy_key -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" 'echo SSH_OK; uptime' > /tmp/post.out 2>&1
           if grep -q SSH_OK /tmp/post.out; then report "POST_RECOVERY SSH_OK"; cat /tmp/post.out | while IFS= read -r l; do report "R| $l"; done; else report "POST_RECOVERY SSH_STILL_DOWN"; fi
           rm -f ~/.ssh/deploy_key
           exit 0
