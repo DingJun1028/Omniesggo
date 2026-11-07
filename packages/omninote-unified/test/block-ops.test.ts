@@ -270,3 +270,35 @@ test("PHASE-1/2/3 API：三態躍遷 sigma → crystallize → reverse 全流程
     assert.equal(res404.status, 404);
   });
 });
+
+test("BLOCK-7 別名雙向解析與拓撲權威落盤：[[標題]] 解析至真實 uuid、未解析文字標的不入拓撲、磁碟往返以 manifest 為權威", async () => {
+  await withServer(async ({ port }) => {
+    // 標的筆記：第一個區塊內容即為其標題別名
+    const resB = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "ESG 永續筆記" }),
+    });
+    const uuidB = ((await resB.json()) as { node: UnifiedNode }).node.uuid;
+    // 來源筆記：含已解析之文字別名、未解析之文字標的、與管式別名
+    const resA = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "參照 [[ESG 永續筆記]] 與 [[不存在的標的]]" }),
+    });
+    const nodeA = ((await resA.json()) as { node: UnifiedNode }).node;
+    assert.equal(nodeA.topology.outlinks.length, 1);
+    assert.equal(nodeA.topology.outlinks[0]!.target_uuid, uuidB);
+    assert.equal(nodeA.topology.outlinks[0]!.wikilink_alias, "ESG 永續筆記");
+    assert.equal(nodeA.topology.outlinks[0]!.resolved, true);
+    // 磁碟往返（codec serialize → deserialize）：manifest 權威，outlinks 零損失且非正文推導之偽 uuid
+    const reread = ((await (await fetch(`${base(port)}/api/notes/${nodeA.uuid}`)).json()) as { node: UnifiedNode }).node;
+    assert.equal(reread.topology.outlinks.length, 1);
+    assert.equal(reread.topology.outlinks[0]!.target_uuid, uuidB);
+    assert.equal(reread.topology.outlinks[0]!.resolved, true);
+    // 標的被硬刪除後重讀：manifest 保留原拓撲（resolved 旗標不隨讀取改變；淨化端點方負責重標註）
+    await fetch(`${base(port)}/api/notes/${uuidB}`, { method: "DELETE" });
+    const after = ((await (await fetch(`${base(port)}/api/notes/${nodeA.uuid}`)).json()) as { node: UnifiedNode }).node;
+    assert.equal(after.topology.outlinks.length, 1);
+  });
+});
