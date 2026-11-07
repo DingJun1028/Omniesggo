@@ -113,3 +113,5 @@ jobs:
           name: verification-report
           path: verification_report.md
           retention-days: 30
+
+# retrigger: workflow actor reset 2026-11-07
