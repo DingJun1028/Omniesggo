@@ -1,0 +1,28 @@
+name: PR 188 branch sync (one-shot)
+
+on:
+  push:
+    branches: [feat/mcp-gateway-omnibus-hive]
+    paths: ['.github/workflows/pr188-branch-sync.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  sync-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/mcp-gateway-omnibus-hive
+          fetch-depth: 0
+      - name: merge main (index.ts 以分支超集解檔)
+        run: |
+          git config user.name "omni-sync-bot"
+          git config user.email "action@github.com"
+          git merge origin/main --no-edit --no-commit || true
+          # index.ts 已於分支內以「main 內容 + bus_events/hive_awards 超集」解檔，故取 --ours
+          git checkout --ours apps/mcp-gateway/src/index.ts
+          git add -A
+          git commit -m "chore: merge main into branch (index.ts superset resolution: bus_events/hive_awards + query_agent coexist)" || echo "nothing to commit (already up to date)"
+          git push
