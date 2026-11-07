@@ -17,8 +17,7 @@ jobs:
           VPS_HOST: ${{ secrets.VPS_HOST }}
         run: |
           mkdir -p /tmp/hd
-          printf '%s
-' "$VPS_SSH_KEY" > /tmp/hd/key
+          printf '%s\n' "$VPS_SSH_KEY" > /tmp/hd/key
           chmod 600 /tmp/hd/key
           set +e
           {
@@ -30,7 +29,7 @@ jobs:
               echo "- $u -> HTTP $code (curl rc=$rc)"
             done
             echo "## On VPS"
-            timeout 60 ssh -i /tmp/hd/key -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" 'echo "--- units"; sudo systemctl is-active hermes-serve hermes-dashboard 2>&1; echo "--- unit props"; sudo systemctl show hermes-serve hermes-dashboard -p NRestarts -p ActiveEnterTimestamp -p SubState 2>&1; echo "--- ports"; ss -ltn 2>/dev/null | grep -E ":(9119|9120)" || echo "PORTS 9119/9120 NOT LISTENING"; echo "--- processes"; ps aux | grep -E "[h]ermes (serve|dashboard)" || echo "no hermes processes"; echo "--- mem"; free -m | head -2; echo "--- uptime"; uptime; echo "--- journal hermes-serve (last 15)"; sudo journalctl -u hermes-serve -n 15 --no-pager 2>&1 | tail -15; echo "--- journal hermes-dashboard (last 8)"; sudo journalctl -u hermes-dashboard -n 8 --no-pager 2>&1 | tail -8; echo "--- nginx hermex upstream"; grep -n "proxy_pass" /etc/nginx/sites-enabled/hermex.conf 2>/dev/null | head -10; echo "--- loopback check 9119/9120"; for p in 9119 9120; do code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 8 "http://127.0.0.1:$p/api/auth/providers"); echo "127.0.0.1:$p/api/auth/providers -> $code"; done'
+            timeout 90 ssh -i /tmp/hd/key -o StrictHostKeyChecking=accept-new -o ConnectTimeout=15 "$VPS_USER@$VPS_HOST" 'echo "--- units"; sudo systemctl is-active hermes-serve hermes-dashboard 2>&1; echo "--- unit props"; sudo systemctl show hermes-serve hermes-dashboard -p NRestarts -p ActiveEnterTimestamp -p SubState 2>&1; echo "--- ports"; ss -ltn 2>/dev/null | grep -E ":(9119|9120)" || echo "PORTS 9119/9120 NOT LISTENING"; echo "--- processes"; ps aux | grep -E "[h]ermes (serve|dashboard)" || echo "no hermes processes"; echo "--- mem"; free -m | head -2; echo "--- uptime"; uptime; echo "--- journal hermes-serve (last 15)"; sudo journalctl -u hermes-serve -n 15 --no-pager 2>&1 | tail -15; echo "--- journal hermes-dashboard (last 8)"; sudo journalctl -u hermes-dashboard -n 8 --no-pager 2>&1 | tail -8; echo "--- nginx hermex proxy_pass"; grep -n "proxy_pass" /etc/nginx/sites-enabled/hermex.conf 2>/dev/null | head -10; echo "--- loopback check"; for p in 9119 9120; do code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 "http://127.0.0.1:$p/api/auth/providers"); echo "127.0.0.1:$p/api/auth/providers -> $code"; done'
             echo "## End"
           } > /tmp/hd/result.md 2>&1
           cat /tmp/hd/result.md
