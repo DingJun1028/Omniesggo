@@ -10,6 +10,9 @@ import {
   sigmaFuse,
   crystallizeNote,
   reverseProject,
+  generateRebase,
+  applySyncDelta,
+  type OmniApiSyncDeltaPacket,
   OMNI_BLOCK_TYPES,
 } from "@/lib/api";
 
@@ -38,6 +41,8 @@ export function NoteDetail({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [entityType, setEntityType] = useState("note.crystal");
+  const [rebaseContent, setRebaseContent] = useState("");
+  const [packet, setPacket] = useState<OmniApiSyncDeltaPacket | null>(null);
 
   async function append(): Promise<void> {
     const trimmed = content.trim();
@@ -122,6 +127,44 @@ export function NoteDetail({
       onUpdated(next);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "躍遷失敗");
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMessage(null), 2800);
+    }
+  }
+
+  async function generateRebasePacket(): Promise<void> {
+    const trimmed = rebaseContent.trim();
+    const blockIndex = note.blocks.findIndex((b) => !b.deleted);
+    if (trimmed.length === 0 || blockIndex === -1 || busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const next = await generateRebase(note.uuid, [
+        { op: "replace", path: `/blocks/${blockIndex}/content`, value: trimmed },
+      ]);
+      setPacket(next);
+      setMessage("封包已生成（LATERAL_REBASE，節點未變更；套用後方收斂）✓");
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "封包生成失敗");
+    } finally {
+      setBusy(false);
+      setTimeout(() => setMessage(null), 2800);
+    }
+  }
+
+  async function applyPacket(): Promise<void> {
+    if (packet === null || busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const next = await applySyncDelta(note.uuid, packet);
+      setPacket(null);
+      setRebaseContent("");
+      setMessage("封包已套用（JSON Patch 生效、ON_SYNC_DELTA_APPLY 證據入鏈）✓");
+      onUpdated(next);
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "套用失敗（409 表示本端已分歧，須重新生成封包）");
     } finally {
       setBusy(false);
       setTimeout(() => setMessage(null), 2800);
@@ -325,6 +368,46 @@ export function NoteDetail({
         >
           追加
         </button>
+      </div>
+      <div className="mt-3 rounded-lg border border-omni-sigma/25 bg-slate-900/30 px-3 py-2">
+        <p className="text-[10px] text-slate-400">
+          同態分支（LATERAL_REBASE）：以重基內容生成 SyncDeltaPacket（節點未變更），套用後版本遞增、ON_SYNC_DELTA_APPLY 證據入鏈。
+        </p>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <input
+            className="field flex-1 min-w-[160px]"
+            placeholder="第一個活躍區塊之重基內容"
+            aria-label="重基內容"
+            value={rebaseContent}
+            onChange={(e) => setRebaseContent(e.target.value)}
+          />
+          <button
+            type="button"
+            className="shrink-0 rounded-lg bg-omni-sigma/25 px-3 py-1 text-[10px] text-omni-sigma transition hover:bg-omni-sigma/40 disabled:opacity-50"
+            disabled={busy || rebaseContent.trim().length === 0 || !note.blocks.some((b) => !b.deleted)}
+            onClick={() => void generateRebasePacket()}
+          >
+            生成封包
+          </button>
+          <button
+            type="button"
+            className="shrink-0 rounded-lg bg-omni-alpha/90 px-3 py-1 text-[10px] text-slate-950 transition hover:bg-omni-alpha disabled:opacity-50"
+            disabled={busy || packet === null}
+            onClick={() => void applyPacket()}
+          >
+            套用封包
+          </button>
+        </div>
+        {packet !== null && (
+          <details className="mt-2">
+            <summary className="cursor-pointer text-[10px] text-slate-400 transition hover:text-slate-200">
+              封包預覽（vector {packet.vector} · state_signature {packet.state_signature.slice(0, 12)}）
+            </summary>
+            <pre className="mt-1 overflow-x-auto rounded bg-slate-950/60 p-2 text-[9px] leading-4 text-slate-300">
+              {JSON.stringify(packet, null, 2)}
+            </pre>
+          </details>
+        )}
       </div>
       {message !== null && <p className="mt-2 text-xs text-slate-300">{message}</p>}
 
