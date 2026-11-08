@@ -420,13 +420,16 @@ export class UnifiedMatrixEngine {
     let current: Record<string, unknown> | unknown[] = root;
     for (let i = 0; i < tokens.length - 1; i++) {
       const token = tokens[i];
+      if (token === undefined) throw new Error("INVALID_PATCH_PATH");
       const child = Array.isArray(current)
         ? current[Number(token)]
         : (current as Record<string, unknown>)[token];
       if (child === null || typeof child !== "object") throw new Error("INVALID_PATCH_PATH");
       current = child as Record<string, unknown> | unknown[];
     }
-    return { container: current, key: tokens[tokens.length - 1] };
+    const key = tokens[tokens.length - 1];
+    if (key === undefined) throw new Error("INVALID_PATCH_PATH");
+    return { container: current, key };
   }
 
   /** 熵減自癒：標註死鏈並計算 entropy_score */
