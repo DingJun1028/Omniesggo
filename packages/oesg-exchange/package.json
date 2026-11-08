@@ -1,0 +1,33 @@
+{
+  "name": "@esggo/oesg-exchange",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "oesg",
+    "exchange",
+    "carbon-credit",
+    "esggo",
+    "iso-14064-1",
+    "5t-protocol"
+  ],
+  "author": "ESG GO Team",
+  "license": "UNLICENSED",
+  "description": "OESG-Exchange 減量額度交易所 — OESG 五路線圖第四站（Pulse→Report→Audit→Exchange→DAO），訂閱 oesg.audit.verdict，僅 clean 判定鑄造掛牌額度並廣播 oesg.exchange.lot",
+  "dependencies": {
+    "@esggo/oesg-audit": "workspace:*",
+    "@esggo/oesg-report": "workspace:*",
+    "@esggo/omni-arch": "workspace:*",
+    "@esggo/omni-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": ">=4.1.11 <5"
+  }
+}

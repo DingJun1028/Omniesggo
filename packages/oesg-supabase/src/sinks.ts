@@ -8,6 +8,7 @@
  * - 表結構對應 migration oesg_pulse_report_tables (RLS 僅 service_role)
  */
 import type { AuditSink, AuditVerdict } from '@esggo/oesg-audit';
+import type { ExchangeLot, ExchangeSink } from '@esggo/oesg-exchange';
 import type { PulseSink } from '@esggo/oesg-pulse';
 import type { OesgReport, ReportSink } from '@esggo/oesg-report';
 
@@ -16,10 +17,11 @@ export interface PostgrestOptions {
   readonly url: string;
   /** service role key (server-only, 唯寫入用) */
   readonly serviceKey: string;
-  /** 覆寫表名 (預設 oesg_pulse_ticks / oesg_reports / oesg_audit_verdicts) */
+  /** 覆寫表名 (預設 oesg_pulse_ticks / oesg_reports / oesg_audit_verdicts / oesg_exchange_lots) */
   readonly pulseTable?: string;
   readonly reportTable?: string;
   readonly auditTable?: string;
+  readonly exchangeTable?: string;
   /** 測試注入用; 省略即用全域 fetch */
   readonly fetchImpl?: typeof fetch;
   readonly id?: string;
@@ -30,6 +32,7 @@ type FetchLike = typeof fetch;
 const DEFAULT_PULSE_TABLE = 'oesg_pulse_ticks';
 const DEFAULT_REPORT_TABLE = 'oesg_reports';
 const DEFAULT_AUDIT_TABLE = 'oesg_audit_verdicts';
+const DEFAULT_EXCHANGE_TABLE = 'oesg_exchange_lots';
 
 async function postgrestInsert(
   fetchImpl: FetchLike,
@@ -121,6 +124,31 @@ export function createSupabaseAuditSink(options: PostgrestOptions): AuditSink {
         findings: verdict.findings,
         attestation_hash: verdict.attestationHash,
         payload: verdict,
+      });
+    },
+  };
+}
+
+/** OESG-Exchange 掛牌額度寫出埠 (PostgREST) — 表結構對應 migration oesg_exchange_lots_table */
+export function createSupabaseExchangeSink(options: PostgrestOptions): ExchangeSink {
+  const { url, serviceKey } = options;
+  const table = options.exchangeTable ?? DEFAULT_EXCHANGE_TABLE;
+  const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
+  const id = options.id ?? `supabase-exchange-sink:${table}`;
+  return {
+    id,
+    async write(lot: Readonly<ExchangeLot>) {
+      await postgrestInsert(fetchImpl, url, serviceKey, table, {
+        lot_uuid: lot.uuid,
+        verdict_uuid: lot.verdictUuid,
+        report_uuid: lot.reportUuid,
+        org_id: lot.orgId,
+        period_start: lot.periodStart,
+        period_end: lot.periodEnd,
+        kgco2e: lot.kgCo2e,
+        status: lot.status,
+        attestation_hash: lot.attestationHash,
+        payload: lot,
       });
     },
   };

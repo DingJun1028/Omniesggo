@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createSupabaseAuditSink,
+  createSupabaseExchangeSink,
   createSupabasePulseSink,
   createSupabaseReportSink,
   type PostgrestOptions,
@@ -76,6 +77,24 @@ function sampleVerdict() {
   };
 }
 
+function sampleLot() {
+  return {
+    uuid: 'oesg-exchange.1',
+    version: '1.0.0',
+    timestamp: 1,
+    source_origin: 'oesg://exchange',
+    orgId: 'org-demo',
+    verdictUuid: 'oesg-audit.1',
+    reportUuid: 'oesg-report.1',
+    periodStart: 10,
+    periodEnd: 20,
+    kgCo2e: 592.8,
+    status: 'listed',
+    attestationHash: 'd'.repeat(64),
+    failures: [],
+  };
+}
+
 describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
   it('pulse sink: 正確端點、service key 標頭與列映射', async () => {
     const { calls, impl } = mockFetch();
@@ -133,6 +152,7 @@ describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
     expect(createSupabasePulseSink(BASE).id).toBe('supabase-pulse-sink:oesg_pulse_ticks');
     expect(createSupabaseReportSink(BASE).id).toBe('supabase-report-sink:oesg_reports');
     expect(createSupabaseAuditSink(BASE).id).toBe('supabase-audit-sink:oesg_audit_verdicts');
+    expect(createSupabaseExchangeSink(BASE).id).toBe('supabase-exchange-sink:oesg_exchange_lots');
   });
 
   it('audit sink: 正確端點與列映射 (verdict/findings/attestation_hash)', async () => {
@@ -151,6 +171,32 @@ describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
     expect(body.findings).toEqual([{ code: 'E_SHARE_NOT_CLOSED', detail: 'Σ ≠ 1' }]);
     expect(body.attestation_hash).toHaveLength(64);
     expect(body.payload.verdict).toBe('flagged');
+  });
+
+  it('exchange sink: 正確端點與列映射 (lot_uuid/kgco2e/status)', async () => {
+    const { calls, impl } = mockFetch();
+    const sink = createSupabaseExchangeSink({ ...BASE, fetchImpl: impl });
+
+    await sink.write(sampleLot() as never);
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe('https://demo.supabase.co/rest/v1/oesg_exchange_lots');
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.lot_uuid).toBe('oesg-exchange.1');
+    expect(body.verdict_uuid).toBe('oesg-audit.1');
+    expect(body.report_uuid).toBe('oesg-report.1');
+    expect(body.kgco2e).toBe(592.8);
+    expect(body.status).toBe('listed');
+    expect(body.attestation_hash).toHaveLength(64);
+    expect(body.payload.uuid).toBe('oesg-exchange.1');
+  });
+
+  it('exchange sink: 非 2xx 轉明確錯誤', async () => {
+    const { impl } = mockFetch(403);
+    const sink = createSupabaseExchangeSink({ ...BASE, fetchImpl: impl });
+    await expect(sink.write(sampleLot() as never)).rejects.toThrowError(
+      /Supabase insert into oesg_exchange_lots failed: 403/
+    );
   });
 
   it('audit sink: 非 2xx 轉明確錯誤', async () => {
