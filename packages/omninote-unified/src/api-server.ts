@@ -197,6 +197,9 @@ export class OmniNoteLocalApiServer {
     if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "rebase") {
       return this.handleNoteLateralRebase(req, res, id);
     }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "apply") {
+      return this.handleNoteApplySyncDelta(req, res, id);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -439,6 +442,83 @@ export class OmniNoteLocalApiServer {
       patch,
     );
     return sendJson(res, 200, { ok: true, packet });
+  }
+
+  /**
+   * SyncDeltaPacket 對端套用（十一期）：POST /api/notes/:uuid/apply，body 為完整封包。
+   * 道閘映射：404 NODE_NOT_FOUND；409 STATE_SIGNATURE_MISMATCH（本端已分歧，須重生成封包）；
+   * 422 INVALID_PACKET_SHAPE / PACKET_NODE_MISMATCH / NOT_SAME_PHASE / INVALID_PATCH_PATH。
+   */
+  private async handleNoteApplySyncDelta(
+    req: IncomingMessage,
+    res: ServerResponse,
+    nodeUuid: string
+  ): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const stringFields = ["packet_id", "node_uuid", "from_phase", "to_phase", "vector", "state_signature"] as const;
+    for (const field of stringFields) {
+      if (typeof body[field] !== "string" || (body[field] as string).length === 0) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_PACKET_SHAPE" });
+      }
+    }
+    if (!Array.isArray(body.patch)) {
+      return sendJson(res, 422, { ok: false, error: "INVALID_PACKET_SHAPE" });
+    }
+    const clockVector: Record<string, number> = {};
+    if (typeof body.clock_vector === "object" && body.clock_vector !== null && !Array.isArray(body.clock_vector)) {
+      for (const [peer, tick] of Object.entries(body.clock_vector as Record<string, unknown>)) {
+        if (typeof peer !== "string" || peer.length === 0 || typeof tick !== "number" || !Number.isInteger(tick)) {
+          return sendJson(res, 422, { ok: false, error: "INVALID_PACKET_SHAPE" });
+        }
+        clockVector[peer] = tick;
+      }
+    }
+    const patch = (body.patch as unknown[]).map((entry) => {
+      const record = entry as Record<string, unknown>;
+      const hasValue = "value" in record;
+      return {
+        op: record.op as "add" | "remove" | "replace" | "move",
+        path: record.path as string,
+        ...(hasValue ? { value: record.value } : {}),
+      };
+    }) as SyncDeltaPacket["patch"];
+    const packet: SyncDeltaPacket = {
+      packet_id: body.packet_id as string,
+      node_uuid: body.node_uuid as string,
+      from_phase: body.from_phase as SyncDeltaPacket["from_phase"],
+      to_phase: body.to_phase as SyncDeltaPacket["to_phase"],
+      vector: body.vector as SyncDeltaPacket["vector"],
+      clock_vector: clockVector,
+      patch,
+      state_signature: body.state_signature as string,
+    };
+    let applied: Readonly<UnifiedNode>;
+    try {
+      applied = await UnifiedMatrixEngine.applySyncDelta(
+        existing,
+        packet,
+        await this.buildUniverse(),
+        await this.buildAliasIndex()
+      );
+    } catch (err) {
+      const message = (err as Error).message;
+      if (message === "STATE_SIGNATURE_MISMATCH") return sendJson(res, 409, { ok: false, error: message });
+      if (
+        message === "INVALID_PACKET_SHAPE" ||
+        message === "PACKET_NODE_MISMATCH" ||
+        message === "NOT_SAME_PHASE" ||
+        message === "INVALID_PATCH_PATH"
+      ) {
+        return sendJson(res, 422, { ok: false, error: message });
+      }
+      throw err;
+    }
+    await this.storage.write(applied);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, applied);
+    return sendJson(res, 200, { ok: true, node: applied });
   }
 
   private async handleBlockEdit(req: IncomingMessage, res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {
