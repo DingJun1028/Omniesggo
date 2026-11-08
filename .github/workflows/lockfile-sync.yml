@@ -1,0 +1,32 @@
+name: lockfile-sync
+on:
+  push:
+    paths:
+      - .github/workflows/lockfile-sync.yml
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: regenerate lockfile
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          pnpm install --no-frozen-lockfile
+          git status --porcelain
+          git add -A
+          git diff --cached --quiet && echo "NO_CHANGES" && exit 0
+          git commit -m "chore: regenerate pnpm-lock.yaml (glob 14.0.3 alignment)"
+          git rm .github/workflows/lockfile-sync.yml
+          git commit --amend --no-edit
+          git push
