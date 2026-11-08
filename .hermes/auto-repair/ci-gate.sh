@@ -42,8 +42,18 @@ fetch_checks_raw() {
 }
 
 fetch_checks() {
-  local body rc
-  body="$(fetch_checks_raw 2>/dev/null)"; rc=$?
+  local body rc attempt
+  # Tolerate transient API errors (502/500/rate-limit) with a few retries;
+  # still fail closed if every attempt fails.
+  for attempt in 1 2 3 4 5; do
+    body="$(fetch_checks_raw 2>/dev/null)"; rc=$?
+    [ "$rc" -eq 0 ] && break
+    echo "CIGATE: check-runs fetch attempt $attempt failed (rc=$rc), retrying..." >&2
+    # Honor GitHub's rate-limit cooldown: after repeated failures, wait at
+    # least 60s instead of hammering the API (secondary limits require a
+    # minimum one-minute pause).
+    if [ "$attempt" -ge 3 ]; then sleep 60; else sleep 5; fi
+  done
   if [ "$rc" -ne 0 ]; then
     # A body that is JSON (starts with { or [) is the API error envelope.
     case "$body" in
@@ -97,6 +107,7 @@ fi
 
 # 等待 in_progress 的 check 跑完，最多 WAIT_MAX 秒（避免無限等待）
 WAIT_MAX="${GREEN_GATE_WAIT:-900}"
+START_TS=$(date +%s)
 elapsed=0
 declare -a PENDING=()
 declare -a RED=()
@@ -164,11 +175,13 @@ while :; do
   fi
 
   [ ${#PENDING[@]} -eq 0 ] && break
+  # Wall-clock deadline: retry sleeps and fetch time also count toward WAIT_MAX,
+  # so the gate cannot run past its job limit while fetches fail intermittently.
+  elapsed=$(( $(date +%s) - START_TS ))
   [ "$elapsed" -ge "$WAIT_MAX" ] && break
   printf 'CIGATE: %d check(s) still running, waiting... (%ds/%ds)\n' \
     "${#PENDING[@]}" "$elapsed" "$WAIT_MAX"
   sleep 15
-  elapsed=$((elapsed + 15))
 done
 
 echo

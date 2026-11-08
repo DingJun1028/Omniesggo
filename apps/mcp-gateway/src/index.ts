@@ -14,6 +14,7 @@ import { t, contract, impl, createApp, listen, HttpError } from '@carlos-tzin/tz
 import { withAuth } from './auth.js'
 import { ragSearchRoute } from './rag.js'
 import { agentAskRoute, agentSearchRoute } from './query-agent.js'
+import { busEventsRoute, hiveAwardsRoute } from './bus.js'
 
 const SERVICE = 'mcp-gateway'
 
@@ -120,15 +121,27 @@ export const listRegulationsRoute = impl(listRegulations, async ({ query }) => {
 })
 
 // ── App：契約即 OpenAPI 3.1 與 MCP，零轉換層 ───────────────────
-export const app = createApp([healthRoute, listRegulationsRoute, ragSearchRoute, agentAskRoute, agentSearchRoute], {
-  openapi: true,
-  mcp: true,
-  meta: {
-    title: 'Omniesggo MCP Gateway',
-    version: '0.4.0',
-    description: 'tzin contract-first 唯讀試點：平台資料之 MCP / OpenAPI 暴露層（default-deny auth；rag_search 唯讀檢索工具；query_agent ask/search 唯讀代理工具）',
+export const app = createApp(
+  [
+    healthRoute,
+    listRegulationsRoute,
+    ragSearchRoute,
+    agentAskRoute,
+    agentSearchRoute,
+    busEventsRoute,
+    hiveAwardsRoute,
+  ],
+  {
+    openapi: true,
+    mcp: true,
+    meta: {
+      title: 'Omniesggo MCP Gateway',
+      version: '0.5.0',
+      description:
+        'tzin contract-first 唯讀試點：平台資料之 MCP / OpenAPI 暴露層（default-deny auth；rag_search 唯讀檢索；query_agent ask/search 唯讀代理；bus_events 黑板鏡像；hive_awards 得標軌跡）',
+    },
   },
-})
+)
 
 /** 對外（含 /mcp、/openapi.json）一律經 withAuth 預設拒絕；/health 免認證。 */
 export const securedApp = withAuth(app, { token: process.env.MCP_GATEWAY_TOKEN })

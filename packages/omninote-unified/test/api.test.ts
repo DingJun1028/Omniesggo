@@ -161,3 +161,227 @@ test("API-6 語意搜尋降級：嵌入端點不可用時零結果且標記 degr
     { embedder },
   );
 });
+
+test("API-7 LATERAL_REBASE 同態分支：同相位 SyncDeltaPacket 生成，節點不變", async () => {
+  await withServer(async ({ port }) => {
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "同態分支測試筆記" }),
+    });
+    assert.equal(create.status, 201);
+    const created = (await create.json()) as {
+      node: { uuid: string; lock_hash: string; version: string; matrix_phase: string };
+    };
+
+    const rebase = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patch: [{ op: "replace", path: "/blocks/0/content", value: "同態重基底後內容" }],
+        clock_vector: { "peer-cli": 3 },
+      }),
+    });
+    assert.equal(rebase.status, 200);
+    const body = (await rebase.json()) as {
+      ok: boolean;
+      packet: {
+        packet_id: string;
+        node_uuid: string;
+        from_phase: string;
+        to_phase: string;
+        vector: string;
+        clock_vector: Record<string, number>;
+        patch: Array<{ op: string; path: string; value?: unknown }>;
+        state_signature: string;
+      };
+    };
+    assert.ok(body.ok);
+    assert.equal(body.packet.node_uuid, created.node.uuid);
+    assert.equal(body.packet.vector, "LATERAL_REBASE");
+    assert.equal(body.packet.from_phase, "ALPHA_ORIGIN_CAPTURE");
+    assert.equal(body.packet.to_phase, "ALPHA_ORIGIN_CAPTURE");
+    assert.deepEqual(body.packet.clock_vector, { "peer-cli": 3 });
+    assert.deepEqual(body.packet.patch, [{ op: "replace", path: "/blocks/0/content", value: "同態重基底後內容" }]);
+    assert.equal(body.packet.state_signature, created.node.lock_hash);
+
+    const reread = await fetch(base(port) + "/api/notes/" + created.node.uuid);
+    const after = ((await reread.json()) as { node: { version: string; lock_hash: string; blocks: Array<{ content: string }> } }).node;
+    assert.equal(after.version, created.node.version);
+    assert.equal(after.lock_hash, created.node.lock_hash);
+    assert.notEqual(after.blocks[0]?.content, "同態重基底後內容");
+  });
+});
+
+test("API-8 LATERAL_REBASE 道閘：404、跨相位 422、缺 patch 422、非法 op 422、預設時脈", async () => {
+  await withServer(async ({ port }) => {
+    const missing = await fetch(base(port) + "/api/notes/00000000-0000-4000-8000-000000000000/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patch: [] }),
+    });
+    assert.equal(missing.status, 404);
+
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "道閘測試" }),
+    });
+    const created = (await create.json()) as { node: { uuid: string } };
+
+    const crossPhase = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ to_phase: "SIGMA_GRAPH_SYNTHESIS", patch: [{ op: "add", path: "/tags" }] }),
+    });
+    assert.equal(crossPhase.status, 422);
+    assert.equal(((await crossPhase.json()) as { error: string }).error, "NOT_SAME_PHASE");
+
+    const noPatch = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    assert.equal(noPatch.status, 422);
+    assert.equal(((await noPatch.json()) as { error: string }).error, "PATCH_REQUIRED");
+
+    const badOp = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patch: [{ op: "copy", path: "/blocks/0/content" }] }),
+    });
+    assert.equal(badOp.status, 422);
+    assert.equal(((await badOp.json()) as { error: string }).error, "INVALID_PATCH_OP");
+
+    const badClock = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patch: [{ op: "remove", path: "/blocks/0" }], clock_vector: { p: "not-a-number" } }),
+    });
+    assert.equal(badClock.status, 422);
+    assert.equal(((await badClock.json()) as { error: string }).error, "INVALID_CLOCK_VECTOR");
+
+    const defaults = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patch: [{ op: "move", path: "/blocks/0", value: 1 }] }),
+    });
+    assert.equal(defaults.status, 200);
+    const packet = ((await defaults.json()) as { packet: { clock_vector: Record<string, number> } }).packet;
+    assert.equal(packet.clock_vector["peer-api"], 2);
+  });
+});
+
+test("API-9 SyncDeltaPacket 對端套用：patch 生效、版本遞增、證據入鏈；重放拒絕 409", async () => {
+  await withServer(async ({ port }) => {
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "對端套用測試" }),
+    });
+    const created = (await create.json()) as {
+      node: { uuid: string; version: string; lock_hash: string };
+    };
+
+    const rebase = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        patch: [
+          { op: "replace", path: "/blocks/0/content", value: "重基後內容" },
+          { op: "add", path: "/blocks/-", value: { block_id: "00000000-0000-4000-8000-00000000000a", type: "paragraph", content: "追加區塊", lamport_ts: 2, peer_id: "peer-cli", deleted: false } },
+        ],
+      }),
+    });
+    assert.equal(rebase.status, 200);
+    const { packet } = (await rebase.json()) as { packet: Record<string, unknown> };
+
+    const apply = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(packet),
+    });
+    assert.equal(apply.status, 200);
+    const applied = ((await apply.json()) as {
+      node: { version: string; blocks: Array<{ content: string }>; evidence: Array<{ hook_lifecycle: string }> };
+    }).node;
+    assert.equal(applied.blocks[0]?.content, "重基後內容");
+    assert.equal(applied.blocks.length, 2);
+    assert.equal(applied.blocks[1]?.content, "追加區塊");
+    assert.equal(applied.version, "1.0.1");
+    assert.ok(applied.evidence.some((e) => e.hook_lifecycle === "ON_SYNC_DELTA_APPLY"));
+
+    const replay = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(packet),
+    });
+    assert.equal(replay.status, 409);
+    assert.equal(((await replay.json()) as { error: string }).error, "STATE_SIGNATURE_MISMATCH");
+  });
+});
+
+test("API-10 對端套用道閘：404、封包形狀 422、uuid 不符 422、非法路徑 422", async () => {
+  await withServer(async ({ port }) => {
+    const missing = await fetch(base(port) + "/api/notes/00000000-0000-4000-8000-000000000000/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({}),
+    });
+    assert.equal(missing.status, 404);
+
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "道閘測試甲" }),
+    });
+    const created = (await create.json()) as { node: { uuid: string } };
+    const create2 = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "道閘測試乙" }),
+    });
+    const other = (await create2.json()) as { node: { uuid: string } };
+
+    const badShape = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ packet_id: 123 }),
+    });
+    assert.equal(badShape.status, 422);
+    assert.equal(((await badShape.json()) as { error: string }).error, "INVALID_PACKET_SHAPE");
+
+    const rebase = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patch: [{ op: "remove", path: "/blocks/0" }] }),
+    });
+    const { packet } = (await rebase.json()) as { packet: Record<string, unknown> };
+
+    const wrongNode = await fetch(base(port) + "/api/notes/" + other.node.uuid + "/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(packet),
+    });
+    assert.equal(wrongNode.status, 422);
+    assert.equal(((await wrongNode.json()) as { error: string }).error, "PACKET_NODE_MISMATCH");
+
+    const badPath = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/rebase", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patch: [{ op: "replace", path: "/nonexistent/0/content", value: "x" }] }),
+    });
+    const { packet: brokenPacket } = (await badPath.json()) as { packet: Record<string, unknown> };
+    const applyBroken = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(brokenPacket),
+    });
+    assert.equal(applyBroken.status, 422);
+    assert.equal(((await applyBroken.json()) as { error: string }).error, "INVALID_PATCH_PATH");
+
+    const readBack = await fetch(base(port) + "/api/notes/" + created.node.uuid);
+    const after = ((await readBack.json()) as { node: { blocks: Array<{ content: string }> } }).node;
+    assert.equal(after.blocks.length, 1);
+  });
+});

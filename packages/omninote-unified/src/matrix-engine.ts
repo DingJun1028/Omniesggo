@@ -305,6 +305,133 @@ export class UnifiedMatrixEngine {
     return Object.freeze(packet);
   }
 
+  /**
+   * SyncDeltaPacket 對端套用（十一期）：同態收斂（from_phase === to_phase === 節點現相位）。
+   * JSON Patch 子集：add / remove / replace / move；move 之 value 為來源路徑字串（契約僅有 op/path/value，如實標示此約定）。
+   * 前置道閘：packet 經 SyncDeltaPacketSchema 驗證、node_uuid 一致、state_signature 須等於本端 lock_hash（分歧即拒）。
+   */
+  static async applySyncDelta(
+    node: UnifiedNode,
+    packet: SyncDeltaPacket,
+    universe: ReadonlySet<string>,
+    aliasIndex: ReadonlyMap<string, string> = new Map()
+  ): Promise<Readonly<UnifiedNode>> {
+    if (!Value.Check(SyncDeltaPacketSchema, packet)) {
+      throw new Error("INVALID_PACKET_SHAPE");
+    }
+    if (packet.node_uuid !== node.uuid) throw new Error("PACKET_NODE_MISMATCH");
+    if (packet.state_signature !== node.lock_hash) throw new Error("STATE_SIGNATURE_MISMATCH");
+    if (packet.from_phase !== node.matrix_phase || packet.to_phase !== node.matrix_phase) {
+      throw new Error("NOT_SAME_PHASE");
+    }
+    const draft = structuredClone(node) as UnifiedNode;
+    const root = draft as unknown as Record<string, unknown>;
+    for (const op of packet.patch) {
+      UnifiedMatrixEngine.applyPatchOp(root, op);
+    }
+    const parts = draft.version.split(".");
+    const next: UnifiedNode = {
+      ...draft,
+      version: `${parts[0]}.${parts[1]}.${Number(parts[2]) + 1}`,
+      timestamp: Date.now(),
+      matrix_phase: packet.to_phase,
+      topology: {
+        ...draft.topology,
+        outlinks: UnifiedMatrixEngine.deriveOutlinks(draft.blocks, universe, aliasIndex),
+      },
+      evidence: [
+        ...draft.evidence,
+        {
+          source_origin: `SYNC_DELTA_APPLY(${packet.vector})`,
+          captured_at: new Date().toISOString(),
+          content_hash: await sha256(canonicalStringify(packet.patch)),
+          hook_lifecycle: "ON_SYNC_DELTA_APPLY",
+          audit_formula: `LATERAL_REBASE(${packet.packet_id})`,
+        },
+      ],
+    };
+    next.lock_hash = await computeNodeLockHash(next);
+    return this.sealNode(next);
+  }
+
+  /** JSON Patch 子集之單一操作套用；路徑不可達即 INVALID_PATCH_PATH。 */
+  private static applyPatchOp(
+    root: Record<string, unknown>,
+    op: SyncDeltaPacket["patch"][number]
+  ): void {
+    if (!op.path.startsWith("/")) throw new Error("INVALID_PATCH_PATH");
+    const tokens = op.path.slice(1).split("/");
+    if (tokens.length === 0 || tokens.some((t) => t.length === 0)) throw new Error("INVALID_PATCH_PATH");
+    const { container, key } = UnifiedMatrixEngine.patchNavigate(root, tokens);
+    if (op.op === "add" || op.op === "replace") {
+      if (Array.isArray(container)) {
+        const index = key === "-" ? container.length : Number(key);
+        if (!Number.isInteger(index) || index < 0 || index > container.length) throw new Error("INVALID_PATCH_PATH");
+        if (op.op === "add") container.splice(index, 0, op.value);
+        else {
+          if (index === container.length) container.push(op.value);
+          else container[index] = op.value;
+        }
+      } else {
+        container[key] = op.value;
+      }
+      return;
+    }
+    if (op.op === "remove") {
+      if (Array.isArray(container)) {
+        const index = Number(key);
+        if (!Number.isInteger(index) || index < 0 || index >= container.length) throw new Error("INVALID_PATCH_PATH");
+        container.splice(index, 1);
+      } else {
+        if (!(key in container)) throw new Error("INVALID_PATCH_PATH");
+        delete container[key];
+      }
+      return;
+    }
+    // move：value 為來源路徑字串（契約欄位僅 op/path/value 之約定）
+    if (typeof op.value !== "string" || !op.value.startsWith("/")) throw new Error("INVALID_PATCH_PATH");
+    const fromTokens = op.value.slice(1).split("/");
+    if (fromTokens.length === 0 || fromTokens.some((t) => t.length === 0)) throw new Error("INVALID_PATCH_PATH");
+    const source = UnifiedMatrixEngine.patchNavigate(root, fromTokens);
+    let moved: unknown;
+    if (Array.isArray(source.container)) {
+      const index = Number(source.key);
+      if (!Number.isInteger(index) || index < 0 || index >= source.container.length) throw new Error("INVALID_PATCH_PATH");
+      moved = source.container.splice(index, 1)[0];
+    } else {
+      if (!(source.key in source.container)) throw new Error("INVALID_PATCH_PATH");
+      moved = source.container[source.key];
+      delete source.container[source.key];
+    }
+    if (Array.isArray(container)) {
+      const index = key === "-" ? container.length : Number(key);
+      if (!Number.isInteger(index) || index < 0 || index > container.length) throw new Error("INVALID_PATCH_PATH");
+      container.splice(index, 0, moved);
+    } else {
+      container[key] = moved;
+    }
+  }
+
+  /** 導覽至路徑父層：回傳容器與末段鍵。 */
+  private static patchNavigate(
+    root: Record<string, unknown>,
+    tokens: string[]
+  ): { container: Record<string, unknown> | unknown[]; key: string } {
+    let current: Record<string, unknown> | unknown[] = root;
+    for (let i = 0; i < tokens.length - 1; i++) {
+      const token = tokens[i];
+      if (token === undefined) throw new Error("INVALID_PATCH_PATH");
+      const child = Array.isArray(current)
+        ? current[Number(token)]
+        : (current as Record<string, unknown>)[token];
+      if (child === null || typeof child !== "object") throw new Error("INVALID_PATCH_PATH");
+      current = child as Record<string, unknown> | unknown[];
+    }
+    const key = tokens[tokens.length - 1];
+    if (key === undefined) throw new Error("INVALID_PATCH_PATH");
+    return { container: current, key };
+  }
+
   /** 熵減自癒：標註死鏈並計算 entropy_score */
   static async purifyAndReduceEntropy(
     node: UnifiedNode,

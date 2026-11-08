@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  createSupabaseAuditSink,
   createSupabasePulseSink,
   createSupabaseReportSink,
   type PostgrestOptions,
@@ -54,6 +55,23 @@ function sampleReport() {
     topEmission: { sourceId: 'electricity', kgCo2e: 592.8 },
     verified: true,
     attestationHash: 'b'.repeat(64),
+    failures: [],
+  };
+}
+
+function sampleVerdict() {
+  return {
+    uuid: 'oesg-audit.1',
+    version: '1.0.0',
+    timestamp: 1,
+    source_origin: 'oesg://audit',
+    orgId: 'org-demo',
+    reportUuid: 'oesg-report.1',
+    periodStart: 10,
+    periodEnd: 20,
+    verdict: 'flagged',
+    findings: [{ code: 'E_SHARE_NOT_CLOSED', detail: 'Σ ≠ 1' }],
+    attestationHash: 'c'.repeat(64),
     failures: [],
   };
 }
@@ -114,5 +132,32 @@ describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
   it('sink id 命名與預設表', () => {
     expect(createSupabasePulseSink(BASE).id).toBe('supabase-pulse-sink:oesg_pulse_ticks');
     expect(createSupabaseReportSink(BASE).id).toBe('supabase-report-sink:oesg_reports');
+    expect(createSupabaseAuditSink(BASE).id).toBe('supabase-audit-sink:oesg_audit_verdicts');
+  });
+
+  it('audit sink: 正確端點與列映射 (verdict/findings/attestation_hash)', async () => {
+    const { calls, impl } = mockFetch();
+    const sink = createSupabaseAuditSink({ ...BASE, fetchImpl: impl });
+
+    await sink.write(sampleVerdict() as never);
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe('https://demo.supabase.co/rest/v1/oesg_audit_verdicts');
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.verdict_uuid).toBe('oesg-audit.1');
+    expect(body.report_uuid).toBe('oesg-report.1');
+    expect(body.org_id).toBe('org-demo');
+    expect(body.verdict).toBe('flagged');
+    expect(body.findings).toEqual([{ code: 'E_SHARE_NOT_CLOSED', detail: 'Σ ≠ 1' }]);
+    expect(body.attestation_hash).toHaveLength(64);
+    expect(body.payload.verdict).toBe('flagged');
+  });
+
+  it('audit sink: 非 2xx 轉明確錯誤', async () => {
+    const { impl } = mockFetch(403);
+    const sink = createSupabaseAuditSink({ ...BASE, fetchImpl: impl });
+    await expect(sink.write(sampleVerdict() as never)).rejects.toThrowError(
+      /Supabase insert into oesg_audit_verdicts failed: 403/
+    );
   });
 });

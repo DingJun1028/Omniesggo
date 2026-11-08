@@ -7,7 +7,7 @@
  * ============================================================================
  */
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import type { CRDTBlock, UnifiedNode } from "./core-types.js";
+import type { CRDTBlock, SyncDeltaPacket, UnifiedNode } from "./core-types.js";
 import { UnifiedMatrixEngine, computeNodeLockHash, sha256 } from "./matrix-engine.js";
 import { sealWithStructuralSharing } from "./perf.js";
 import { OmniStorageAdapter } from "./storage-adapter.js";
@@ -194,6 +194,12 @@ export class OmniNoteLocalApiServer {
     if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "reverse") {
       return this.respondNoteReverseProject(res, id);
     }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "rebase") {
+      return this.handleNoteLateralRebase(req, res, id);
+    }
+    if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "apply") {
+      return this.handleNoteApplySyncDelta(req, res, id);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -373,6 +379,146 @@ export class OmniNoteLocalApiServer {
     await this.storage.write(reversed);
     if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, reversed);
     return sendJson(res, 200, { ok: true, node: reversed });
+  }
+
+  /**
+   * LATERAL_REBASE 同態分支（十期）：為現存節點生成同相位 SyncDeltaPacket。
+   * 邊界如實標示：唯讀操作，不落地、不寫證據鏈、不變更 lock_hash；
+   * 封包之對端套用與收斂屬後續 peer-sync 範疇（本端點僅生成）。
+   */
+  private async handleNoteLateralRebase(
+    req: IncomingMessage,
+    res: ServerResponse,
+    nodeUuid: string,
+  ): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const toPhase = typeof body.to_phase === "string" && body.to_phase.length > 0 ? body.to_phase : existing.matrix_phase;
+    if (toPhase !== existing.matrix_phase) {
+      return sendJson(res, 422, { ok: false, error: "NOT_SAME_PHASE" });
+    }
+    const rawPatch = body.patch;
+    if (!Array.isArray(rawPatch) || rawPatch.length === 0) {
+      return sendJson(res, 422, { ok: false, error: "PATCH_REQUIRED" });
+    }
+    const REBASE_OPS: ReadonlySet<string> = new Set(["add", "remove", "replace", "move"]);
+    const patch: SyncDeltaPacket["patch"] = [];
+    for (const entry of rawPatch) {
+      if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_PATCH_OP" });
+      }
+      const op = (entry as Record<string, unknown>).op;
+      const path = (entry as Record<string, unknown>).path;
+      if (typeof op !== "string" || !REBASE_OPS.has(op) || typeof path !== "string" || path.length === 0) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_PATCH_OP" });
+      }
+      const hasValue = "value" in (entry as Record<string, unknown>);
+      patch.push(
+        hasValue
+          ? { op: op as "add" | "remove" | "replace" | "move", path, value: (entry as Record<string, unknown>).value }
+          : { op: op as "add" | "remove" | "replace" | "move", path },
+      );
+    }
+    let clockVector: Record<string, number>;
+    if (typeof body.clock_vector === "object" && body.clock_vector !== null && !Array.isArray(body.clock_vector)) {
+      clockVector = {};
+      for (const [peer, tick] of Object.entries(body.clock_vector as Record<string, unknown>)) {
+        if (typeof peer !== "string" || peer.length === 0 || typeof tick !== "number" || !Number.isInteger(tick)) {
+          return sendJson(res, 422, { ok: false, error: "INVALID_CLOCK_VECTOR" });
+        }
+        clockVector[peer] = tick;
+      }
+    } else {
+      const maxLamport = existing.blocks.reduce((m, b) => Math.max(m, b.lamport_ts), 0);
+      clockVector = { "peer-api": maxLamport + 1 };
+    }
+    const packet = UnifiedMatrixEngine.generateSyncDelta(
+      existing,
+      existing.matrix_phase,
+      "LATERAL_REBASE",
+      clockVector,
+      patch,
+    );
+    return sendJson(res, 200, { ok: true, packet });
+  }
+
+  /**
+   * SyncDeltaPacket 對端套用（十一期）：POST /api/notes/:uuid/apply，body 為完整封包。
+   * 道閘映射：404 NODE_NOT_FOUND；409 STATE_SIGNATURE_MISMATCH（本端已分歧，須重生成封包）；
+   * 422 INVALID_PACKET_SHAPE / PACKET_NODE_MISMATCH / NOT_SAME_PHASE / INVALID_PATCH_PATH。
+   */
+  private async handleNoteApplySyncDelta(
+    req: IncomingMessage,
+    res: ServerResponse,
+    nodeUuid: string
+  ): Promise<void> {
+    const existing = await this.storage.read(nodeUuid);
+    if (existing === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const stringFields = ["packet_id", "node_uuid", "from_phase", "to_phase", "vector", "state_signature"] as const;
+    for (const field of stringFields) {
+      if (typeof body[field] !== "string" || (body[field] as string).length === 0) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_PACKET_SHAPE" });
+      }
+    }
+    if (!Array.isArray(body.patch)) {
+      return sendJson(res, 422, { ok: false, error: "INVALID_PACKET_SHAPE" });
+    }
+    const clockVector: Record<string, number> = {};
+    if (typeof body.clock_vector === "object" && body.clock_vector !== null && !Array.isArray(body.clock_vector)) {
+      for (const [peer, tick] of Object.entries(body.clock_vector as Record<string, unknown>)) {
+        if (typeof peer !== "string" || peer.length === 0 || typeof tick !== "number" || !Number.isInteger(tick)) {
+          return sendJson(res, 422, { ok: false, error: "INVALID_PACKET_SHAPE" });
+        }
+        clockVector[peer] = tick;
+      }
+    }
+    const patch = (body.patch as unknown[]).map((entry) => {
+      const record = entry as Record<string, unknown>;
+      const hasValue = "value" in record;
+      return {
+        op: record.op as "add" | "remove" | "replace" | "move",
+        path: record.path as string,
+        ...(hasValue ? { value: record.value } : {}),
+      };
+    }) as SyncDeltaPacket["patch"];
+    const packet: SyncDeltaPacket = {
+      packet_id: body.packet_id as string,
+      node_uuid: body.node_uuid as string,
+      from_phase: body.from_phase as SyncDeltaPacket["from_phase"],
+      to_phase: body.to_phase as SyncDeltaPacket["to_phase"],
+      vector: body.vector as SyncDeltaPacket["vector"],
+      clock_vector: clockVector,
+      patch,
+      state_signature: body.state_signature as string,
+    };
+    let applied: Readonly<UnifiedNode>;
+    try {
+      applied = await UnifiedMatrixEngine.applySyncDelta(
+        existing,
+        packet,
+        await this.buildUniverse(),
+        await this.buildAliasIndex()
+      );
+    } catch (err) {
+      const message = (err as Error).message;
+      if (message === "STATE_SIGNATURE_MISMATCH") return sendJson(res, 409, { ok: false, error: message });
+      if (
+        message === "INVALID_PACKET_SHAPE" ||
+        message === "PACKET_NODE_MISMATCH" ||
+        message === "NOT_SAME_PHASE" ||
+        message === "INVALID_PATCH_PATH"
+      ) {
+        return sendJson(res, 422, { ok: false, error: message });
+      }
+      throw err;
+    }
+    await this.storage.write(applied);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, applied);
+    return sendJson(res, 200, { ok: true, node: applied });
   }
 
   private async handleBlockEdit(req: IncomingMessage, res: ServerResponse, nodeUuid: string, blockId: string): Promise<void> {

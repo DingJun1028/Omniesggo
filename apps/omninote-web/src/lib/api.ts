@@ -201,6 +201,53 @@ export async function reverseProject(uuid: string): Promise<OmniApiNode> {
   return r.node;
 }
 
+export interface OmniApiPatchOp {
+  op: "add" | "remove" | "replace" | "move";
+  path: string;
+  value?: unknown;
+}
+
+export interface OmniApiSyncDeltaPacket {
+  packet_id: string;
+  node_uuid: string;
+  from_phase: string;
+  to_phase: string;
+  vector: string;
+  clock_vector: Record<string, number>;
+  patch: OmniApiPatchOp[];
+  state_signature: string;
+}
+
+/**
+ * LATERAL_REBASE 同態分支（POST /api/notes/:uuid/rebase）：生成同相位 SyncDeltaPacket。
+ * 如實標示：唯讀操作，節點不落地、lock_hash 不變；封包套用方收斂。
+ */
+export async function generateRebase(
+  uuid: string,
+  patch: OmniApiPatchOp[],
+): Promise<OmniApiSyncDeltaPacket> {
+  const r = await request<{ ok: boolean; packet: OmniApiSyncDeltaPacket }>(
+    `/api/notes/${uuid}/rebase`,
+    { method: "POST", body: JSON.stringify({ patch }) },
+  );
+  return r.packet;
+}
+
+/**
+ * SyncDeltaPacket 對端套用（POST /api/notes/:uuid/apply）：JSON Patch 子集生效、
+ * 版本遞增、ON_SYNC_DELTA_APPLY 證據入鏈；409 表示本端 lock_hash 已分歧（須重新生成封包）。
+ */
+export async function applySyncDelta(
+  uuid: string,
+  packet: OmniApiSyncDeltaPacket,
+): Promise<OmniApiNode> {
+  const r = await request<{ ok: boolean; node: OmniApiNode }>(`/api/notes/${uuid}/apply`, {
+    method: "POST",
+    body: JSON.stringify(packet),
+  });
+  return r.node;
+}
+
 export async function deleteNote(uuid: string): Promise<void> {
   await request<{ ok: boolean; deleted: string }>(`/api/notes/${uuid}`, { method: "DELETE" });
 }

@@ -96,6 +96,8 @@ node --experimental-transform-types bin/omninote-server.ts /path/to/notes
 | POST | /api/notes/:uuid/sigma | ALPHA → SIGMA 躍遷：非墓碑區塊內容熔合為單一長文、outlinks 熔合重建（ON_SIGMA_SYNTHESIS 證據入鏈；422 若無活躍區塊） |
 | POST | /api/notes/:uuid/crystallize | SIGMA → OMEGA 躍遷：`{ entity_type, properties? }` 強型別結晶（ON_OMEGA_CRYSTALLIZE 證據入鏈；422 若缺 entity_type） |
 | POST | /api/notes/:uuid/reverse | OMEGA → ALPHA 逆向投影（ON_REVERSE_PROJECT 證據入鏈） |
+| POST | /api/notes/:uuid/rebase | LATERAL_REBASE 同態分支：生成同相位 SyncDeltaPacket（`{ to_phase?, clock_vector?, patch: [{op, path, value?}] }`；唯讀，不落地、不寫證據鏈、不變更 lock_hash；422 若跨相位、缺 patch 或 op 非法） |
+| POST | /api/notes/:uuid/apply | SyncDeltaPacket 對端套用（body 為完整封包）：JSON Patch 子集生效（add/remove/replace/move；move 之 value 為來源路徑字串）、版本 patch 遞增、outlinks 熔合重建、ON_SYNC_DELTA_APPLY 證據入鏈；409 若 state_signature 分歧（重放即拒）；422 若封包形狀、uuid 不符、跨相位或路徑不可達 |
 | POST | /api/notes/:uuid/purify | 熵減自癒：對現存宇宙重標註死鏈（resolved=false）並計算 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈） |
 | DELETE | /api/notes/:uuid | 刪除節點 |
 | POST | /api/search | 語意搜尋：\`{ query, top_k?, threshold? }\`；嵌入不可用時 \`degraded: true\` 且零結果（503 若未啟用嵌入器） |
