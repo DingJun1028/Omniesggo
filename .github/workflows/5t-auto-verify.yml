@@ -55,4 +55,4 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Agent Registry Smoke Test
-        run: npx tsx packages/omni-agent-bus/test/registry.smoke.ts
+        run: pnpm exec tsx packages/omni-agent-bus/test/registry.smoke.ts
