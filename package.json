@@ -38,7 +38,8 @@
     "verify:matrix": "node scripts/verify-terminal-origin.mjs",
     "verify:prd-matrix": "node scripts/verify-prd-matrix.mjs",
     "verify": "pnpm turbo run lint typecheck test build && pnpm -F ./apps/learning-center check:types-sync",
-    "update-skill-sync": "npx tsx scripts/update-skill-sync.ts"
+    "update-skill-sync": "npx tsx scripts/update-skill-sync.ts",
+    "gh:octokit": "node scripts/gh-octokit.mjs"
   },
   "dependencies": {
     "@esggo/errors": "workspace:*",
@@ -80,6 +81,7 @@
     "@cloudflare/vite-plugin": "^1.67.0",
     "@cloudflare/workers-types": "^5.20261104.1",
     "@next/eslint-plugin-next": "16.4.5",
+    "@octokit/rest": "^22.0.0",
     "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
