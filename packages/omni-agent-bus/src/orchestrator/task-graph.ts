@@ -126,37 +126,57 @@ export class TaskGraph {
   }
 
   /** 執行單一 task（含 retry + timeout） */
-  private async executeTask(node: TaskNode): Promise<void> {
+  private async executeTask(node: TaskNode, deadline: number): Promise<void> {
     node.status = 'running';
     node.startTime = Date.now();
 
     for (let attempt = 0; attempt <= node.maxRetries; attempt++) {
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        node.error = new Error(`全域超時: ${this.options.globalTimeout}ms`);
+        node.status = 'failed';
+        break;
+      }
+
+      const timeout = Math.min(node.timeout, remaining);
+      let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
       try {
         const result = await Promise.race([
           node.execute(this.context),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error(`Timeout: ${node.id} exceeded ${node.timeout}ms`)), node.timeout)
-          ),
+          new Promise<never>((_, reject) => {
+            timeoutHandle = setTimeout(() => reject(new Error(
+              timeout < node.timeout
+                ? `全域超時: ${this.options.globalTimeout}ms`
+                : `Timeout: ${node.id} exceeded ${node.timeout}ms`
+            )), timeout);
+          }),
         ]);
         node.result = result;
-        node.status = result.success ? 'completed' : 'failed';
+        this.context.results.set(node.id, result);
         if (result.success) {
-          this.context.results.set(node.id, result);
+          node.error = undefined;
+          node.status = 'completed';
+          node.endTime = Date.now();
           return;
         }
+
         if (attempt < node.maxRetries) continue;
+        node.error = new Error(`Task ${node.id} returned success: false`);
+        node.status = 'failed';
       } catch (err) {
         node.error = err as Error;
-        if (attempt < node.maxRetries) continue;
+        if (attempt < node.maxRetries && Date.now() < deadline) continue;
         node.status = 'failed';
+      } finally {
+        if (timeoutHandle !== undefined) clearTimeout(timeoutHandle);
       }
     }
     node.endTime = Date.now();
   }
 
-  /** 輪詢前置檢查：逾時即拋錯，否則允許繼續 */
+  /** 輪詢前置檢查：全域 deadline 到期即拋錯 */
   private ensureWithinGlobalTimeout(startTime: number): void {
-    if (Date.now() - startTime > this.options.globalTimeout) {
+    if (Date.now() - startTime >= this.options.globalTimeout) {
       throw new Error(`全域超時: ${this.options.globalTimeout}ms`);
     }
   }
@@ -188,6 +208,7 @@ export class TaskGraph {
 
     const startTime = Date.now();
     const errors = new Map<string, Error>();
+    const deadline = startTime + this.options.globalTimeout;
 
     for (;;) {
       this.ensureWithinGlobalTimeout(startTime);
@@ -200,7 +221,7 @@ export class TaskGraph {
 
       // 並行執行（限制 concurrency）
       const batch = ready.slice(0, this.options.maxConcurrency);
-      await Promise.all(batch.map(node => this.executeTask(node)));
+      await Promise.all(batch.map(node => this.executeTask(node, deadline)));
 
       if (!this.options.continueOnError && this.recordBatchFailures(batch, errors)) {
         break;
