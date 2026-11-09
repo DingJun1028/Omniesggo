@@ -5,7 +5,7 @@
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { createOmniTagPair, autoPair } from '@/core/tags/universal-tag-service';
+import { createOmniTagPair, autoPair } from '@/core/tags/omni-tag-service';
 
 const OmniPairSchema = z.object({
   mode: z.literal('omni'),

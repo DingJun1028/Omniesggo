@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     let translated = '';
     let engine = 'GTX-Zero-Key-Free';
 
-    // 優先呼叫本地高效能 universal-translator 服務 (PM2: 8788)
+    // 優先呼叫本地高效能 omni-translator 服務 (PM2: 8788)
     try {
       const localRes = await fetch('http://127.0.0.1:8788/translate', {
         method: 'POST',
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
         const localData = await localRes.json();
         if (localData && localData.text) {
           translated = localData.text;
-          engine = localData.engine || 'universal-translator-8788';
+          engine = localData.engine || 'omni-translator-8788';
         }
       }
     } catch (e) {

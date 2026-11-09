@@ -14,7 +14,7 @@ import { ZkpVault } from './zkp-vault';
 import { RagKnowledgeManager } from './rag-knowledge-manager';
 import { WuzuoNoteView } from './wuzuo-note-view';
 import { OmniCalendarView } from './omni-calendar-view';
-import { UniversalOmniConsole } from './universal-omni-console';
+import { UniversalOmniConsole } from './omni-console';
 import LearningCenter from './learning-center';
 import { HermesCronStatus } from './hermes-cron-status';
 import { ConcentricRadar } from './concentric-radar';

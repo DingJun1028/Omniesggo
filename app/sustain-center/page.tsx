@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useCallback, useState } from 'react';
-import { UniversalOmniConsole } from '../omni-center/universal-omni-console';
+import { UniversalOmniConsole } from '../omni-center/omni-console';
 import { OmniDataAnalyticsPanel } from '@/components/omni-data-analytics-panel';
 import { InsightGrid } from '@/components/sustain-center/insight-grid';
 import { TrustLedger, type LedgerItem } from '@/components/sustain-center/trust-ledger';
@@ -69,7 +69,7 @@ export default function SustainCenterPage() {
   useEffect(() => {
     let ws: WebSocket;
     const connectWs = () => {
-      const wsUrl = process.env.NEXT_PUBLIC_GATEWAY_WS_URL || 'ws://localhost:8642';
+      const wsUrl = process.env.NEXT_PUBLIC_GATEWAY_WS_URL || (process.env.NODE_ENV === 'production' ? 'wss://api.esggo.app/ws' : 'ws://localhost:8642');
       ws = new WebSocket(wsUrl);
       setWsConnected(true);
       ws.onmessage = (event) => {

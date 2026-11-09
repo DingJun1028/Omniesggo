@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { db } from '@lib/firebase';
 import { collection, query, where, orderBy, onSnapshot } from '@lib/firebase';
 import { ShieldCheck, Hash, Clock, Heart, ChevronDown, ChevronUp } from 'lucide-react';
-import { UniversalOmniConsole } from './universal-omni-console';
+import { UniversalOmniConsole } from './omni-console';
 
 interface ZkpRecord {
   id: string;

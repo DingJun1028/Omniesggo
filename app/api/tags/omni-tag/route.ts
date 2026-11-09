@@ -1,6 +1,6 @@
 // GET /api/tags/omni-tag — 列出萬能標籤
 // 5T Traceable — Prisma 全面禁用 → Supabase。
-// 原 prisma.universalTag.findMany 改為 supabase.from('omni_tags').select(...)
+// 原 prisma.omniTag.findMany 改為 supabase.from('omni_tags').select(...)
 // 萬能標籤服務已收合進 @/core/tags/omni-tag-service。
 import { NextRequest } from 'next/server';
 import { jsonResponse } from '@lib/api-utils';

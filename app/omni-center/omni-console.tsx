@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * universal-omni-console.tsx — 萬能中心「萬能函數」控制檯
+ * omni-console.tsx — 萬能中心「萬能函數」控制檯
  *
  * 直接呼叫 src/lib/esggo 的 omni() 萬能函數與 omniFn 函數庫，
  * 讓使用者在 UI 上體驗：建立組件 / 筆記 / 任務、執行已註冊函數、分派 OmniOne 案例。
@@ -10,7 +10,7 @@
 
 import { useMemo, useState } from 'react';
 import { Wand2, Play, Copy, CheckCircle2, XCircle, ShieldCheck } from 'lucide-react';
-import { persistOmniCase, persistConsoleSnapshot } from './universal-omni-console.actions';
+import { persistOmniCase, persistConsoleSnapshot } from './omni-console.actions';
 import { omni, omniFn, createFiveTComponent, type OmniKind, type OmniResult, type CaseType, type ComponentEvidence, type OmniRequest } from '@lib/esggo';
 
 const KINDS: { key: OmniKind; label: string; hint: string }[] = [

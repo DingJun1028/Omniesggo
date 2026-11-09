@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileText, ChevronDown, ChevronUp, X, Wand2 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
-import { UniversalOmniConsole } from '../../omni-center/universal-omni-console';
+import { UniversalOmniConsole } from '../../omni-center/omni-console';
 import { db } from '@lib/firebase';
 import { doc, setDoc } from '@lib/firebase';
 import { createFiveTComponent, type OmniResult } from '@lib/esggo';
