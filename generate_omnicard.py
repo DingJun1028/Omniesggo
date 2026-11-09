@@ -1,5 +1,5 @@
 import os, json
-repo = r'C:/Users/Administrator/hermes-first-task/Omniesggo-repo'.replace('\\','/')
+repo = os.path.dirname(os.path.abspath(__file__))
 reports = os.path.join(repo, 'reports')
 
 with open(os.path.join(reports, 'agents_data.json'), encoding='utf-8') as f:
