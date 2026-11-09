@@ -27,14 +27,39 @@ export function NotesBoard({
   onSelect: (uuid: string) => void;
   onChanged: () => void;
 }) {
+  const [filter, setFilter] = useState("");
+  const norm = filter.trim().toLowerCase();
+  /** 十九期關鍵字過濾：比對區塊內容與拓撲標籤（大小寫不敏感），與語意檢索面板互補。 */
+  const visible =
+    norm.length === 0
+      ? notes
+      : notes.filter(
+          (note) =>
+            note.blocks.some((b) => b.content.toLowerCase().includes(norm)) ||
+            note.topology.tags.some((t) => t.toLowerCase().includes(norm))
+        );
+
   return (
     <div className="glass p-5">
-      <h2 className="text-sm font-semibold tracking-wide text-slate-200">筆記結晶板</h2>
+      <h2 className="text-sm font-semibold tracking-wide text-slate-200">
+        筆記結晶板{norm.length > 0 && `（${visible.length}/${notes.length}）`}
+      </h2>
+      {notes.length > 0 && (
+        <input
+          className="field mt-3"
+          placeholder="關鍵字過濾此板筆記（內容或標籤）…"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          aria-label="筆記關鍵字過濾"
+        />
+      )}
       {notes.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">尚無筆記 — 從上方速記欄捕獲第一個靈感。</p>
+      ) : visible.length === 0 ? (
+        <p className="mt-3 text-xs text-slate-400">沒有符合關鍵字的筆記。</p>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          {notes.map((note) => (
+          {visible.map((note) => (
             <article
               key={note.uuid}
               className={`glass glass-hover p-4 ${PHASE_CLASS[note.matrix_phase] ?? ""} ${
