@@ -63,3 +63,14 @@
    ```
    全過通過時輸出 `E2E_ALL_PASS`。
 5. 升級路徑：免費沙箱可原地升級 pay-as-you-go，無需遷移。
+
+### 7.1 免費叢集生命週期（務必閱讀）
+
+- 7 天無活動 → 叢集暫停（suspended），資料保留；可於主控台手動復原。
+- 累計 30 天無活動 → 叢集永久刪除（暫停後約 23 天），刪除前 1 天寄發預警信。
+- 對策：接通後設每 6 小時一次之探測（如 GitHub Actions 排程 curl /v1/.well-known/ready 或輕量 meta 查詢），使「活動」永不中斷；此點與 Oracle Always Free 閒置回收同型教訓。
+
+### 7.2 GraphQL 去除化（中期技術債）
+
+- Weaviate Cloud 已公告 GraphQL API 將於 2027-05-01 於雲端關閉（本層 client.ts 與 mcp-gateway 之 nearVector 檢索皆走 /v1/graphql）。
+- 時程：2026-11 起一年半內須遷移至 gRPC/替代檢索介面；屬後續獨立 PR，本裁決不因此改變（REST 寫入與 schema 不受影響）。
