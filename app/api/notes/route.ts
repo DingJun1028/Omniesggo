@@ -8,7 +8,22 @@
  * is absent.
  */
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { listNotes, createNote, resolveRequestClient, type NoteData } from '@/lib/notes-store';
+import { rateLimit } from '@lib/rate-limit';
+import {
+  listNotes,
+  createNote,
+  resolveRequestClient,
+  validateNoteFields,
+  type NoteData,
+} from '@/lib/notes-store';
+
+async function throttleWrite(req: Request, userId?: string): Promise<boolean> {
+  const ip = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'anon';
+  const rl = await rateLimit(`notes-write:${userId ?? ip}`, 60, 60);
+  return rl.success;
+}
+
+
 
 export type { NoteData };
 
@@ -33,6 +48,9 @@ export async function POST(req: Request) {
     if ('error' in resolved) {
       return jsonError(resolved.error.code, resolved.error.message, 401);
     }
+    if (!(await throttleWrite(req, resolved.userId))) {
+      return jsonError('RATE_LIMITED', '寫入頻率過高，請稍後再試', 429);
+    }
 
     const body = await req.json();
     const title = String(body?.title ?? '').trim();
@@ -41,8 +59,9 @@ export async function POST(req: Request) {
       ? body.tags.map((t: unknown) => String(t).trim()).filter(Boolean)
       : [];
 
-    if (!title) {
-      return jsonError('INVALID_PARAMS', 'title is required', 400);
+    const invalid = validateNoteFields({ title, content, tags });
+    if (invalid) {
+      return jsonError('INVALID_PARAMS', invalid, 400);
     }
 
     const result = await createNote(resolved.sb, resolved.userId, { title, content, tags });

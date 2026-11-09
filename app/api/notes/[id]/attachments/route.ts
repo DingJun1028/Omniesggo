@@ -9,12 +9,22 @@
  */
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
+import { rateLimit } from '@lib/rate-limit';
 import {
   listAttachments,
   addAttachment,
   removeAttachment,
   resolveRequestClient,
+  validateAttachmentFields,
 } from '@/lib/notes-store';
+
+async function throttleWrite(req: Request, userId?: string): Promise<boolean> {
+  const ip = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'anon';
+  const rl = await rateLimit(`notes-write:${userId ?? ip}`, 60, 60);
+  return rl.success;
+}
+
+
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -51,12 +61,16 @@ export async function POST(
     if ('error' in resolved) {
       return jsonError(resolved.error.code, resolved.error.message, 401);
     }
+    if (!(await throttleWrite(request, resolved.userId))) {
+      return jsonError('RATE_LIMITED', '寫入頻率過高，請稍後再試', 429);
+    }
 
     const body = await request.json();
     const name = String(body?.name ?? '').trim();
     const storagePath = String(body?.path ?? '').trim();
-    if (!name || !storagePath) {
-      return jsonError('INVALID_PARAMS', 'name and path are required', 400);
+    const invalid = validateAttachmentFields({ name, path: storagePath, size: body?.size });
+    if (invalid) {
+      return jsonError('INVALID_PARAMS', invalid, 400);
     }
 
     const result = await addAttachment(resolved.sb, resolved.userId, {
@@ -82,6 +96,9 @@ export async function DELETE(request: NextRequest) {
     const resolved = await resolveRequestClient(request);
     if ('error' in resolved) {
       return jsonError(resolved.error.code, resolved.error.message, 401);
+    }
+    if (!(await throttleWrite(request, resolved.userId))) {
+      return jsonError('RATE_LIMITED', '寫入頻率過高，請稍後再試', 429);
     }
     const url = new URL(request.url);
     const attId = url.searchParams.get('id') || '';

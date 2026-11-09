@@ -51,7 +51,60 @@ export const NOTES_TABLE = 'notes';
 export const ATTACHMENTS_TABLE = 'note_attachments';
 export const ATTACHMENTS_BUCKET = 'note-attachments';
 
-const NOTES_FILE = path.join(process.cwd(), 'data', 'notes.json');
+export const LIMITS = {
+  titleMax: 200,
+  contentMax: 200_000,
+  tagsMax: 20,
+  tagMax: 50,
+  attachmentNameMax: 255,
+  attachmentSizeMax: 10 * 1024 * 1024,
+  listMax: 100,
+} as const;
+
+export function validateNoteFields(input: {
+  title?: unknown;
+  content?: unknown;
+  tags?: unknown;
+}): string | null {
+  if (input.title !== undefined) {
+    const title = String(input.title);
+    if (!title.trim()) return 'title must not be empty';
+    if (title.length > LIMITS.titleMax) return `title exceeds ${LIMITS.titleMax} chars`;
+  }
+  if (input.content !== undefined && String(input.content).length > LIMITS.contentMax) {
+    return `content exceeds ${LIMITS.contentMax} chars`;
+  }
+  if (input.tags !== undefined) {
+    const tags = Array.isArray(input.tags) ? input.tags : [];
+    if (tags.length > LIMITS.tagsMax) return `at most ${LIMITS.tagsMax} tags allowed`;
+    for (const t of tags) {
+      if (String(t).length > LIMITS.tagMax) return `tag exceeds ${LIMITS.tagMax} chars`;
+    }
+  }
+  return null;
+}
+
+export function validateAttachmentFields(input: {
+  name?: unknown;
+  path?: unknown;
+  size?: unknown;
+}): string | null {
+  const name = String(input.name ?? '');
+  const storagePath = String(input.path ?? '');
+  if (!name.trim()) return 'name is required';
+  if (!storagePath.trim()) return 'path is required';
+  if (name.length > LIMITS.attachmentNameMax) return `name exceeds ${LIMITS.attachmentNameMax} chars`;
+  const size = Number(input.size ?? 0);
+  if (!Number.isFinite(size) || size < 0) return 'size must be a non-negative number';
+  if (size > LIMITS.attachmentSizeMax) {
+    return `attachment exceeds ${LIMITS.attachmentSizeMax / 1024 / 1024} MB`;
+  }
+  return null;
+}
+
+function notesFilePath(): string {
+  return process.env.NOTES_FILE || path.join(process.cwd(), 'data', 'notes.json');
+}
 
 export interface SupabaseEnv {
   url: string;
@@ -125,18 +178,20 @@ interface NotesFileStore {
 let fileQueue: Promise<void> = Promise.resolve();
 
 function loadFileStore(): NotesFileStore {
-  const dir = path.dirname(NOTES_FILE);
+  const file = notesFilePath();
+  const dir = path.dirname(file);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  if (!fs.existsSync(NOTES_FILE)) {
-    fs.writeFileSync(NOTES_FILE, JSON.stringify({ notes: [], attachments: [] }, null, 2));
+  if (!fs.existsSync(file)) {
+    fs.writeFileSync(file, JSON.stringify({ notes: [], attachments: [] }, null, 2));
   }
-  const parsed = JSON.parse(fs.readFileSync(NOTES_FILE, 'utf-8')) as Partial<NotesFileStore>;
+  const parsed = JSON.parse(fs.readFileSync(file, 'utf-8')) as Partial<NotesFileStore>;
   return { notes: parsed.notes ?? [], attachments: parsed.attachments ?? [] };
 }
 
 function saveFileStore(store: NotesFileStore): Promise<void> {
+  const file = notesFilePath();
   const run = fileQueue.then(() => {
-    fs.writeFileSync(NOTES_FILE, JSON.stringify(store, null, 2));
+    fs.writeFileSync(file, JSON.stringify(store, null, 2));
   });
   fileQueue = run.catch(() => undefined);
   return run;
@@ -298,6 +353,14 @@ export async function deleteNote(
       const existing = await sb.from(NOTES_TABLE).select('id').eq('id', id).maybeSingle();
       if (existing.error) throw existing.error;
       if (!existing.data) return { ok: false, code: 'NOT_FOUND', message: 'Note not found' };
+      const atts = await sb.from(ATTACHMENTS_TABLE).select('path').eq('note_id', id);
+      if (atts.error) throw atts.error;
+      const paths = (atts.data ?? [])
+        .map((r: Record<string, unknown>) => String(r.path))
+        .filter(Boolean);
+      if (paths.length > 0) {
+        await sb.storage.from(ATTACHMENTS_BUCKET).remove(paths);
+      }
       const { error } = await sb.from(NOTES_TABLE).delete().eq('id', id);
       if (error) throw error;
       return { ok: true, value: { deleted: id } };

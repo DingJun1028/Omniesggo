@@ -8,7 +8,21 @@
  */
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-import { updateNote, deleteNote, resolveRequestClient } from '@/lib/notes-store';
+import { rateLimit } from '@lib/rate-limit';
+import {
+  updateNote,
+  deleteNote,
+  resolveRequestClient,
+  validateNoteFields,
+} from '@/lib/notes-store';
+
+async function throttleWrite(req: Request, userId?: string): Promise<boolean> {
+  const ip = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || 'anon';
+  const rl = await rateLimit(`notes-write:${userId ?? ip}`, 60, 60);
+  return rl.success;
+}
+
+
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -26,6 +40,9 @@ export async function PUT(
     const resolved = await resolveRequestClient(request);
     if ('error' in resolved) {
       return jsonError(resolved.error.code, resolved.error.message, 401);
+    }
+    if (!(await throttleWrite(request, resolved.userId))) {
+      return jsonError('RATE_LIMITED', '寫入頻率過高，請稍後再試', 429);
     }
 
     const body = await request.json();
@@ -45,6 +62,11 @@ export async function PUT(
         : [];
     }
     if (body?.fiveTGate !== undefined) patch.fiveTGate = String(body.fiveTGate);
+
+    const invalid = validateNoteFields(patch);
+    if (invalid) {
+      return jsonError('INVALID_PARAMS', invalid, 400);
+    }
 
     const result = await updateNote(resolved.sb, id, patch);
     if (!result.ok) {
@@ -70,6 +92,9 @@ export async function DELETE(
     const resolved = await resolveRequestClient(request);
     if ('error' in resolved) {
       return jsonError(resolved.error.code, resolved.error.message, 401);
+    }
+    if (!(await throttleWrite(request, resolved.userId))) {
+      return jsonError('RATE_LIMITED', '寫入頻率過高，請稍後再試', 429);
     }
 
     const result = await deleteNote(resolved.sb, id);

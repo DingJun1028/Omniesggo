@@ -92,6 +92,7 @@ export default function NotesClient() {
   const [notice, setNotice] = useState<string | null>(null);
   const [mobilePanel, setMobilePanel] = useState<"list" | "editor">("list");
   const [uploading, setUploading] = useState(false);
+  const [dirty, setDirty] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const apiFetch = useCallback(
@@ -136,6 +137,16 @@ export default function NotesClient() {
     },
     [apiFetch]
   );
+
+  useEffect(() => {
+    if (!dirty) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [dirty]);
 
   useEffect(() => {
     if (!SUPABASE_ENABLED) {
@@ -223,6 +234,7 @@ export default function NotesClient() {
     setTagsInput((n.tags ?? []).join(", "));
     setPreview(false);
     setNotice(null);
+    setDirty(false);
     setMobilePanel("editor");
   }, []);
 
@@ -233,6 +245,7 @@ export default function NotesClient() {
     setTagsInput("");
     setPreview(false);
     setNotice(null);
+    setDirty(false);
     setMobilePanel("editor");
   }, []);
 
@@ -255,6 +268,7 @@ export default function NotesClient() {
         const saved = j.data?.note;
         setNotes((prev) => prev.map((n) => (n.id === selectedId && saved ? saved : n)));
         setNotice("已儲存");
+        setDirty(false);
       } else {
         const r = await apiFetch("/api/notes", {
           method: "POST",
@@ -268,6 +282,7 @@ export default function NotesClient() {
           setSelectedId(created.id);
         }
         setNotice("已建立");
+        setDirty(false);
       }
     } catch (e) {
       setNotice(e instanceof Error ? `儲存失敗: ${e.message}` : "儲存失敗");
@@ -302,7 +317,11 @@ export default function NotesClient() {
       setUploading(true);
       setNotice(null);
       try {
-        for (const file of Array.from(files)) {
+        const tooBig = Array.from(files).filter((f) => f.size > 10 * 1024 * 1024);
+        if (tooBig.length > 0) {
+          setNotice(`附件超過 10 MB，已略過：${tooBig.map((f) => f.name).join(", ")}`);
+        }
+        for (const file of Array.from(files).filter((f) => f.size <= 10 * 1024 * 1024)) {
           const storagePath = `${user.uid}/${selectedId}/${Date.now()}_${file.name}`;
           const { error: upErr } = await supabase.storage
             .from(ATTACHMENTS_BUCKET)
@@ -462,6 +481,10 @@ export default function NotesClient() {
             mobilePanel === "editor" ? "hidden" : "flex"
           } w-full max-h-[45vh] shrink-0 flex-col overflow-y-auto border-b border-slate-200 dark:border-slate-800 md:max-h-none md:w-80 md:border-b-0 md:border-r`}
         >
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-2 text-[11px] text-slate-400 dark:border-slate-800">
+            <span>筆記</span>
+            <span>{filtered.length} / {notes.length}</span>
+          </div>
           {loading && <p className="p-4 text-sm text-slate-500">載入中…</p>}
           {error && (
             <div className="p-4 text-sm text-red-600">
@@ -514,13 +537,13 @@ export default function NotesClient() {
             </button>
             <input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => { setTitle(e.target.value); setDirty(true); }}
               placeholder="筆記標題"
               className="min-w-0 flex-1 bg-transparent text-base font-semibold outline-none placeholder:text-slate-400"
             />
             <input
               value={tagsInput}
-              onChange={(e) => setTagsInput(e.target.value)}
+              onChange={(e) => { setTagsInput(e.target.value); setDirty(true); }}
               placeholder="標籤（以逗號分隔）"
               className="w-full rounded-md border border-slate-300 bg-white px-2 py-1 text-xs dark:border-slate-700 dark:bg-slate-900 sm:w-48"
             />
@@ -556,7 +579,7 @@ export default function NotesClient() {
             ) : (
               <textarea
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => { setContent(e.target.value); setDirty(true); }}
                 placeholder="以 Markdown 撰寫筆記內容…"
                 className="h-full w-full resize-none bg-transparent text-sm leading-relaxed outline-none placeholder:text-slate-400"
               />
