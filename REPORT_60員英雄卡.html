@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>萬能卡牌英雄卡 — 雙蜂 60 員軍團</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0a0e1a; color: #e0e0e0; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 10px; color: #ffd700; }
+  .subtitle { text-align: center; color: #888; margin-bottom: 30px; font-size: 14px; }
+  .filters { text-align: center; margin-bottom: 20px; }
+  .filters button { background: #1a1f35; color: #e0e0e0; border: 1px solid #333; padding: 8px 16px; margin: 4px; border-radius: 6px; cursor: pointer; }
+  .filters button.active { background: #ffd700; color: #000; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: linear-gradient(135deg, #1a1f35, #0d1225); border: 1px solid #2a3050; border-radius: 12px; padding: 16px; transition: transform 0.2s; }
+  .card:hover { transform: translateY(-4px); border-color: #ffd700; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .card-id { font-size: 12px; color: #888; }
+  .card-name { font-size: 16px; font-weight: bold; color: #ffd700; }
+  .card-archetype { font-size: 12px; color: #aaa; font-style: italic; }
+  .card-meta { display: flex; gap: 8px; margin: 8px 0; font-size: 12px; }
+  .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+  .badge-umbra { background: #00ffff22; color: #00ffff; border: 1px solid #00ffff44; }
+  .badge-lumen { background: #ffd70022; color: #ffd700; border: 1px solid #ffd70044; }
+  .badge-array { background: #333; color: #ccc; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 8px 0; }
+  .stat { text-align: center; font-size: 11px; }
+  .stat-val { font-size: 14px; font-weight: bold; color: #fff; }
+  .stat-label { color: #888; }
+  .bar { height: 4px; background: #333; border-radius: 2px; margin-top: 2px; }
+  .bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, #ffd700, #ff8c00); }
+  .bonuses { font-size: 11px; color: #aaa; margin: 8px 0; }
+  .desc { font-size: 12px; color: #ccc; line-height: 1.4; margin-top: 8px; border-top: 1px solid #2a3050; padding-top: 8px; }
+  .array-sanctum { border-left: 3px solid #9b59b6; }
+  .array-rune { border-left: 3px solid #3498db; }
+  .array-wing { border-left: 3px solid #e74c3c; }
+  .array-alchemy { border-left: 3px solid #2ecc71; }
+  .array-audit { border-left: 3px solid #f39c12; }
+</style>
+</head>
+<body>
+<h1>🃏 萬能卡牌英雄卡</h1>
+<p class="subtitle">雙蜂 60 員軍團 | 暗系 Umbra (01-30) × 光系 Lumen (31-60) | 5 陣列 MECE</p>
+
+<div class="filters">
+  <button class="active" onclick="filter('all')">全部 60</button>
+  <button onclick="filter('sanctum')">智庫聖所</button>
+  <button onclick="filter('rune')">符文契約</button>
+  <button onclick="filter('wing')">暗翼/光翼</button>
+  <button onclick="filter('alchemy')">煉金熵減</button>
+  <button onclick="filter('audit')">5T 驗算</button>
+  <button onclick="filter('umbra')">暗系</button>
+  <button onclick="filter('lumen')">光系</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<script>
+const agents = [
+  // 智庫聖所 01-06, 31-36
+  {id:1,name:"萬能蜂后",arch:"Sovereign",array:"sanctum",side:"local",atk:7,def:9,spd:5,int:10,syn:9,mem:10,bonus:"🌑+⚡+🔗",desc:"蜂王之首，統領暗系蜂群。所有戰略決策的最終落庫點，5T 公約守護者。MEM=10，recalled 任何歷史決策。"},
+  {id:2,name:"萬能規劃蜂",arch:"Architect",array:"sanctum",side:"local",atk:6,def:7,spd:6,int:9,syn:8,mem:8,bonus:"🌑+🔗",desc:"戰略執行者，將宏觀願景分解為 3-5 年路線圖。SWOT 分析專家。"},
+  {id:3,name:"萬能分析蜂",arch:"Oracle",array:"sanctum",side:"local",atk:5,def:6,spd:7,int:9,syn:7,mem:7,bonus:"🌑",desc:"數據驅動決策支援。建立可追蹤數據流水線，從噪音提煉洞察。"},
+  {id:4,name:"萬能策効蜂",arch:"Muse",array:"sanctum",side:"local",atk:8,def:5,spd:7,int:8,syn:8,mem:6,bonus:"🌑+🔗",desc:"創意解決方案設計者。將抽象需求轉化為具體實現路徑。"},
+  {id:5,name:"萬能風險蜂",arch:"Sentinel",array:"sanctum",side:"local",atk:4,def:10,spd:6,int:8,syn:7,mem:8,bonus:"🌑+⚡",desc:"防禦型代理，專注風險識別。DEF=10，幾乎不會被錯誤擊穿。"},
+  {id:6,name:"萬能優化蜂",arch:"Alchemist",array:"sanctum",side:"local",atk:6,def:7,spd:8,int:7,syn:8,mem:6,bonus:"🌑+🔗",desc:"持續優化流程。向熵減目標邁進，識別瓶頸。"},
+  {id:31,name:"萬能記憶蜂后",arch:"Sovereign-L",array:"sanctum",side:"vps",atk:7,def:9,spd:5,int:10,syn:9,mem:10,bonus:"☀️+⚡+🔗",desc:"蜂后的記憶核心。TencentDB 向量沉澱主控。與 01 形成暗光雙核。"},
+  {id:32,name:"萬能檢索蜂后",arch:"Architect-L",array:"sanctum",side:"vps",atk:6,def:7,spd:7,int:9,syn:9,mem:9,bonus:"☀️+🔗",desc:"RAG 編排核心。跨陣列語意檢索，注入 agent 上下文。"},
+  {id:33,name:"萬能語義蜂后",arch:"Oracle-L",array:"sanctum",side:"vps",atk:5,def:6,spd:7,int:9,syn:8,mem:8,bonus:"☀️",desc:"嵌入模型管理者。Ollama nomic-embed-text 調度者。"},
+  {id:34,name:"萬能知識蜂后",arch:"Muse-L",array:"sanctum",side:"vps",atk:8,def:6,spd:6,int:9,syn:8,mem:9,bonus:"☀️+🔗",desc:"知識圖譜維護者。本體演化、實體關係管理。"},
+  {id:35,name:"萬能情境蜂后",arch:"Sentinel-L",array:"sanctum",side:"vps",atk:4,def:9,spd:7,int:8,syn:9,mem:9,bonus:"☀️+⚡",desc:"上下文管理專家。管理 agent 上下文視窗，防止溢出。"},
+  {id:36,name:"萬能反思蜂后",arch:"Alchemist-L",array:"sanctum",side:"vps",atk:6,def:8,spd:6,int:9,syn:8,mem:8,bonus:"☀️+🔗+⚡",desc:"蜂群良知。自我反思、價值對齊、5T 協定守護。"},
+  // 符文契約 07-12, 37-42
+  {id:7,name:"萬能編碼蜂",arch:"Smith",array:"rune",side:"local",atk:9,def:6,spd:7,int:8,syn:7,mem:5,bonus:"🌑",desc:"程式碼鑄造者。Traceable 代碼產出，API 設計。ATK=9 最強生成。"},
+  {id:8,name:"萬能算法蜂",arch:"Depth",array:"rune",side:"local",atk:7,def:6,spd:5,int:10,syn:7,mem:6,bonus:"🌑",desc:"AI/ML 管線專家。構建可驗證模型訓練。INT=10 最強推理。"},
+  {id:9,name:"萬能架構蜂",arch:"Architect",array:"rune",side:"local",atk:6,def:8,spd:5,int:9,syn:8,mem:7,bonus:"🌑+⚡",desc:"系統架構設計者。可擴展、Trackable 設計。"},
+  {id:10,name:"萬能數據蜂",arch:"Weaver",array:"rune",side:"local",atk:6,def:9,spd:6,int:8,syn:7,mem:8,bonus:"🌑",desc:"資料管道編織者。高可靠數據流，DEF=9。"},
+  {id:11,name:"萬能測試蜂",arch:"Seer",array:"rune",side:"local",atk:5,def:9,spd:7,int:8,syn:7,mem:6,bonus:"🌑+⚡",desc:"測試策略設計者。全面測試，可驗證報告。"},
+  {id:12,name:"萬能設計蜂",arch:"Shaper",array:"rune",side:"local",atk:7,def:5,spd:7,int:7,syn:8,mem:5,bonus:"🌑",desc:"UI/UX 塑造者。Tangible 介面設計。"},
+  {id:37,name:"萬能閘門蜂后",arch:"Smith-L",array:"rune",side:"vps",atk:9,def:7,spd:8,int:8,syn:8,mem:6,bonus:"☀️+⚡",desc:"VPS API 閘門守護者。OmniGateway (8642) 路由管理。"},
+  {id:38,name:"萬能算法蜂后",arch:"Depth-L",array:"rune",side:"vps",atk:7,def:6,spd:6,int:10,syn:7,mem:7,bonus:"☀️",desc:"VPS LLM 管線管理者。Gemini/Claude 調度。"},
+  {id:39,name:"萬能架構蜂后",arch:"Architect-L",array:"rune",side:"vps",atk:6,def:8,spd:6,int:9,syn:8,mem:8,bonus:"☀️+⚡",desc:"VPS 系統架構管理者。雲端部署設計。"},
+  {id:40,name:"萬能數據蜂后",arch:"Weaver-L",array:"rune",side:"vps",atk:6,def:9,spd:7,int:8,syn:7,mem:9,bonus:"☀️",desc:"VPS 資料庫管理者。Supabase schema 管理。MEM=9。"},
+  {id:41,name:"萬能測試蜂后",arch:"Seer-L",array:"rune",side:"vps",atk:5,def:9,spd:8,int:8,syn:7,mem:7,bonus:"☀️+⚡",desc:"VPS 測試管理者。CI/CD 測試執行。SPD=8。"},
+  {id:42,name:"萬能設計蜂后",arch:"Shaper-L",array:"rune",side:"vps",atk:7,def:5,spd:7,int:7,syn:8,mem:6,bonus:"☀️",desc:"VPS UI 設計管理者。品牌視覺、RWD。"},
+  // 暗翼/光翼 13-18, 43-48
+  {id:13,name:"萬能圖像蜂",arch:"Painter",array:"wing",side:"local",atk:8,def:5,spd:7,int:7,syn:8,mem:5,bonus:"🌑",desc:"視覺生成藝術家。品牌視覺、圖像生成。"},
+  {id:14,name:"萬能動畫蜂",arch:"Flow",array:"wing",side:"local",atk:7,def:5,spd:8,int:6,syn:8,mem:5,bonus:"🌑",desc:"動態特效編織者。OmniLive 字幕動畫。SPD=8。"},
+  {id:15,name:"萬能文案蜂",arch:"Narrator",array:"wing",side:"local",atk:8,def:6,spd:7,int:8,syn:8,mem:7,bonus:"🌑+🔗",desc:"文案敘事者。腳本 DNA 模板、內容生成。"},
+  {id:16,name:"萬能音頻蜂",arch:"Resonator",array:"wing",side:"local",atk:7,def:6,spd:7,int:6,syn:8,mem:5,bonus:"🌑",desc:"語音合成共振者。TTS、語音生成。"},
+  {id:17,name:"萬能市場蜂",arch:"Herald",array:"wing",side:"local",atk:7,def:5,spd:7,int:7,syn:9,mem:6,bonus:"🌑",desc:"行銷策略傳令者。客戶旅程設計。SYN=9。"},
+  {id:18,name:"萬能社群蜂",arch:"Bridger",array:"wing",side:"local",atk:6,def:5,spd:8,int:6,syn:9,mem:7,bonus:"🌑",desc:"社群互動橋接者。社群脈絡、用戶互動。"},
+  {id:43,name:"萬能圖像蜂后",arch:"Painter-L",array:"wing",side:"vps",atk:8,def:6,spd:7,int:7,syn:8,mem:6,bonus:"☀️",desc:"VPS 視覺生成管理者。品牌視覺、RWD 追溯。"},
+  {id:44,name:"萬能動畫蜂后",arch:"Flow-L",array:"wing",side:"vps",atk:7,def:6,spd:8,int:6,syn:8,mem:6,bonus:"☀️",desc:"VPS 動態特效管理者。字幕動畫、UI 轉場。"},
+  {id:45,name:"萬能文案蜂后",arch:"Narrator-L",array:"wing",side:"vps",atk:8,def:6,spd:7,int:8,syn:8,mem:8,bonus:"☀️+🔗",desc:"VPS 文案管理者。文案模板、內容沉澆。MEM=8。"},
+  {id:46,name:"萬能音頻蜂后",arch:"Resonator-L",array:"wing",side:"vps",atk:7,def:6,spd:7,int:6,syn:8,mem:6,bonus:"☀️",desc:"VPS 語音合成管理者。TTS、語音生成。"},
+  {id:47,name:"萬能市場蜂后",arch:"Herald-L",array:"wing",side:"vps",atk:7,def:5,spd:7,int:7,syn:9,mem:7,bonus:"☀️",desc:"VPS 行銷管理者。行銷策略、客戶旅程。"},
+  {id:48,name:"萬能社群蜂后",arch:"Bridger-L",array:"wing",side:"vps",atk:6,def:5,spd:8,int:6,syn:9,mem:8,bonus:"☀️",desc:"VPS 社群管理者。社群脈絡、用戶互動。MEM=8。"},
+  // 煉金熵減 19-24, 49-54
+  {id:19,name:"萬能增長蜂",arch:"Erode",array:"alchemy",side:"local",atk:6,def:7,spd:7,int:8,syn:7,mem:7,bonus:"🌑+🔗",desc:"增長監控侵蝕者。識別瓶頸，推動熵減。"},
+  {id:20,name:"萬能運營蜂",arch:"Nexus",array:"alchemy",side:"local",atk:5,def:8,spd:6,int:7,syn:9,mem:7,bonus:"🌑",desc:"運營流程樞紐。CI/CD Pipeline 管理。SYN=9。"},
+  {id:21,name:"萬能商業分析蜂",arch:"Skinner",array:"alchemy",side:"local",atk:5,def:6,spd:6,int:9,syn:7,mem:7,bonus:"🌑",desc:"商業洞察分析者。商業模式、ROI 評估。INT=9。"},
+  {id:22,name:"萬能探路蜂",arch:"Scout",array:"alchemy",side:"local",atk:7,def:5,spd:9,int:7,syn:7,mem:6,bonus:"🌑",desc:"資源探索先鋒。SPD=9，速度最快。"},
+  {id:23,name:"萬能外交蜂",arch:"Wraith",array:"alchemy",side:"local",atk:4,def:7,spd:6,int:7,syn:8,mem:7,bonus:"🌑+⚡",desc:"合作協議談判者。外部合作、API 整合。"},
+  {id:24,name:"萬能調研蜂",arch:"Lens",array:"alchemy",side:"local",atk:5,def:6,spd:7,int:8,syn:7,mem:8,bonus:"🌑",desc:"用戶調研透鏡。用戶需求、回饋收集。MEM=8。"},
+  {id:49,name:"萬能增長蜂后",arch:"Erode-L",array:"alchemy",side:"vps",atk:6,def:7,spd:7,int:8,syn:7,mem:8,bonus:"☀️+🔗",desc:"VPS 增長監控管理者。增長指標、熵減追蹤。MEM=8。"},
+  {id:50,name:"萬能運營蜂后",arch:"Nexus-L",array:"alchemy",side:"vps",atk:5,def:8,spd:7,int:7,syn:9,mem:8,bonus:"☀️",desc:"VPS 運營管理者。CI/CD、部署流程。SYN=9。"},
+  {id:51,name:"萬能商業分析蜂后",arch:"Skinner-L",array:"alchemy",side:"vps",atk:5,def:6,spd:6,int:9,syn:7,mem:8,bonus:"☀️",desc:"VPS 商業分析管理者。商業洞察、ROI。INT=9。"},
+  {id:52,name:"萬能探路蜂后",arch:"Scout-L",array:"alchemy",side:"vps",atk:7,def:5,spd:9,int:7,syn:7,mem:7,bonus:"☀️",desc:"VPS 資源探索管理者。新技術 scouting。SPD=9。"},
+  {id:53,name:"萬能外交蜂后",arch:"Wraith-L",array:"alchemy",side:"vps",atk:4,def:7,spd:6,int:7,syn:8,mem:8,bonus:"☀️+⚡",desc:"VPS 合作管理者。外部合作、API 整合。MEM=8。"},
+  {id:54,name:"萬能調研蜂后",arch:"Lens-L",array:"alchemy",side:"vps",atk:5,def:6,spd:7,int:8,syn:7,mem:9,bonus:"☀️",desc:"VPS 用戶調研管理者。用戶需求、回饋。MEM=9。"},
+  // 5T 驗算 25-30, 55-60
+  {id:25,name:"萬能測場蜂",arch:"Purifier",array:"audit",side:"local",atk:4,def:8,spd:7,int:7,syn:7,mem:7,bonus:"🌑+⚡",desc:"現場驗證淨化者。收集回饋，驗證效果。"},
+  {id:26,name:"萬能追蹤蜂",arch:"Hawk",array:"audit",side:"local",atk:5,def:7,spd:8,int:8,syn:7,mem:8,bonus:"🌑",desc:"競品追蹤鷹眼。競品監控、市場追蹤。"},
+  {id:27,name:"萬能安全蜂",arch:"Ward",array:"audit",side:"local",atk:3,def:10,spd:6,int:8,syn:7,mem:8,bonus:"🌑+⚡",desc:"資安守護者。DEF=10，最強防禦。"},
+  {id:28,name:"萬能維護蜂",arch:"Curator",array:"audit",side:"local",atk:5,def:7,spd:7,int:7,syn:8,mem:8,bonus:"🌑",desc:"維運策展者。維運腳本、SOP 管理。MEM=8。"},
+  {id:29,name:"萬能支援蜂",arch:"Echo",array:"audit",side:"local",atk:4,def:6,spd:8,int:7,syn:8,mem:7,bonus:"🌑",desc:"技術支援回聲。SOP 管理、問題排查。SPD=8。"},
+  {id:30,name:"萬能質控蜂",arch:"Seal",array:"audit",side:"local",atk:4,def:9,spd:6,int:8,syn:7,mem:8,bonus:"🌑+⚡+🔗",desc:"品質封印者。品質標準、Hash Lock。"},
+  {id:55,name:"萬能測場蜂后",arch:"Purifier-L",array:"audit",side:"vps",atk:4,def:8,spd:7,int:7,syn:7,mem:8,bonus:"☀️+⚡",desc:"VPS 現場驗證管理者。回饋、效果驗證。MEM=8。"},
+  {id:56,name:"萬能追蹤蜂后",arch:"Hawk-L",array:"audit",side:"vps",atk:5,def:7,spd:8,int:8,syn:7,mem:9,bonus:"☀️",desc:"VPS 競品追蹤管理者。競品監控。MEM=9。"},
+  {id:57,name:"萬能安全蜂后",arch:"Ward-L",array:"audit",side:"vps",atk:3,def:10,spd:6,int:8,syn:7,mem:9,bonus:"☀️+⚡",desc:"VPS 資安管理者。DEF=10，MEM=9。"},
+  {id:58,name:"萬能維護蜂后",arch:"Curator-L",array:"audit",side:"vps",atk:5,def:7,spd:7,int:7,syn:8,mem:9,bonus:"☀️",desc:"VPS 維運管理者。SOP、部署流程。MEM=9。"},
+  {id:59,name:"萬能支援蜂后",arch:"Echo-L",array:"audit",side:"vps",atk:4,def:6,spd:8,int:7,syn:8,mem:8,bonus:"☀️",desc:"VPS 技術支援管理者。SOP、排查。SPD=8。"},
+  {id:60,name:"萬能質控蜂后",arch:"Seal-L",array:"audit",side:"vps",atk:4,def:9,spd:6,int:8,syn:7,mem:9,bonus:"☀️+⚡+🔗",desc:"VPS 品質管理者。品質標準、Hash Lock。MEM=9。"},
+];
+
+const arrayNames = {sanctum:'智庫聖所',rune:'符文契約',wing:'暗翼/光翼',alchemy:'煉金熵減',audit:'5T 驗算'};
+const arrayColors = {sanctum:'#9b59b6',rune:'#3498db',wing:'#e74c3c',alchemy:'#2ecc71',audit:'#f39c12'};
+
+function renderCard(a) {
+  const sideClass = a.side === 'local' ? 'badge-umbra' : 'badge-lumen';
+  const sideLabel = a.side === 'local' ? '🌑 Umbra' : '☀️ Lumen';
+  return `<div class="card array-${a.array}" data-array="${a.array}" data-side="${a.side}">
+    <div class="card-header">
+      <span class="card-id">#${String(a.id).padStart(2,'0')}</span>
+      <span class="card-name">${a.name}</span>
+    </div>
+    <div class="card-archetype">${a.arch}</div>
+    <div class="card-meta">
+      <span class="badge ${sideClass}">${sideLabel}</span>
+      <span class="badge badge-array">${arrayNames[a.array]}</span>
+    </div>
+    <div class="stats">
+      ${['atk','def','spd','int','syn','mem'].map(s => `
+        <div class="stat">
+          <div class="stat-val">${a[s]}</div>
+          <div class="stat-label">${s.toUpperCase()}</div>
+          <div class="bar"><div class="bar-fill" style="width:${a[s]*10}%"></div></div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="bonuses">${a.bonus}</div>
+    <div class="desc">${a.desc}</div>
+  </div>`;
+}
+
+function filter(type) {
+  document.querySelectorAll('.filters button').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  const cards = document.querySelectorAll('.card');
+  cards.forEach(c => {
+    if (type === 'all') c.style.display = '';
+    else if (type === 'umbra' || type === 'lumen') c.style.display = c.dataset.side === (type === 'umbra' ? 'local' : 'vps') ? '' : 'none';
+    else c.style.display = c.dataset.array === type ? '' : 'none';
+  });
+}
+
+document.getElementById('grid').innerHTML = agents.map(renderCard).join('');
+</script>
+</body>
+</html>
