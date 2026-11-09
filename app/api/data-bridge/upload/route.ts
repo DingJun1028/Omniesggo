@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import ExcelJS from 'exceljs';
-import { PrismaClient } from '@prisma/client';
 import crypto from 'crypto';
-
-const prisma = new PrismaClient();
+import { supabase } from '@/lib/supabase-client';
 
 // ─── 5T Column Mapping Registry ──────────────────────────────────────────────
 const COLUMN_SYNONYMS: Record<string, string[]> = {
@@ -42,11 +40,11 @@ function normalizeColumnName(raw: string): string {
 function parseCsvText(text: string): { headers: string[]; rows: Record<string, string>[] } {
   const lines = text.split(/\r?\n/).filter(l => l.trim());
   if (lines.length < 2) return { headers: [], rows: [] };
-  const rawHeaders = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+  const rawHeaders = lines[0].split(',').map(h => h.trim().replace(/^\"|\"$/g, ''));
   const headers = rawHeaders.map(normalizeColumnName);
 
   const rows = lines.slice(1).map(line => {
-    const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
+    const cols = line.split(',').map(c => c.trim().replace(/^\"|\"$/g, ''));
     const row: Record<string, string> = {};
     headers.forEach((h, i) => { row[h] = cols[i] ?? ''; });
     return row;
@@ -211,28 +209,47 @@ export async function POST(req: Request) {
     const hashPayload = `${uuid}:${timestamp}:${parsed.rows.length}:${file.name}`;
     const hashLock = crypto.createHash('sha256').update(hashPayload).digest('hex');
 
-    // ─ Persist to Prisma Database (Supabase PostgreSQL) ─
-    try {
-      await prisma.dataBridgeUpload.create({
-        data: {
-          id: uuid,
-          sourceSystem: file.name,
-          dataType: dataType,
-          fileName: file.name,
-          fileSize: file.size,
-          recordCount: parsed.rows.length,
-          headers: JSON.stringify(parsed.headers),
-          hashLock: hashLock,
-          metrics: JSON.stringify(analysis),
-          records: {
-            create: parsed.rows.slice(0, 200).map((row) => ({
-              rawJson: JSON.stringify(row),
-            })),
-          },
-        },
-      });
-    } catch (dbErr) {
-      console.warn('[data-bridge/upload] Database write warning (falling back to memory response):', dbErr);
+    // ─ Persist to Supabase (two-step insert: DataBridgeUpload → DataBridgeRecord) ─
+    // Step 1: insert DataBridgeUpload (parent row)
+    const { data: upload, error: uploadErr } = await supabase
+      .from('DataBridgeUpload')
+      .insert([{
+        id: uuid,
+        sourceSystem: file.name,
+        dataType: dataType,
+        fileName: file.name,
+        fileSize: file.size,
+        recordCount: parsed.rows.length,
+        headers: JSON.stringify(parsed.headers),
+        hashLock: hashLock,
+        metrics: JSON.stringify(analysis),
+      }])
+      .select()
+      .single();
+
+    if (uploadErr || !upload) {
+      console.error('[data-bridge/upload] Failed to insert DataBridgeUpload:', uploadErr);
+      return NextResponse.json(
+        { success: false, error: 'Failed to persist upload record' },
+        { status: 500 }
+      );
+    }
+
+    // Step 2: insert DataBridgeRecord children (linked via uploadId FK)
+    const childRows = parsed.rows.slice(0, 200).map(row => ({
+      uploadId: upload.id,
+      rawJson: JSON.stringify(row),
+    }));
+    const { error: recordsErr } = await supabase
+      .from('DataBridgeRecord')
+      .insert(childRows);
+
+    if (recordsErr) {
+      console.error('[data-bridge/upload] Failed to insert DataBridgeRecord children:', recordsErr);
+      return NextResponse.json(
+        { success: false, error: 'Failed to persist record rows' },
+        { status: 500 }
+      );
     }
 
     // ─ Fire JunAiKey Growth ─

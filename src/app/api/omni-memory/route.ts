@@ -1,12 +1,11 @@
-﻿// ============================================================
+// ============================================================
 // A08 OmniMemory API — Phase 2: Full CRUD
 // src/app/api/omni-memory/route.ts
 // 5T Protocol: Trackable · Transparent · Tangible · Trustworthy · Transferful
 // ============================================================
 
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { syncEngine } from "@/lib/supabase-sync-engine";
+import { supabase } from "@/lib/supabase-omni";
 import crypto from "crypto";
 
 // ── GET — read memories (keyword search + type filter) ──
@@ -18,26 +17,33 @@ export async function GET(req: Request) {
     const userId = searchParams.get("userId") ?? "junai-key";
     const take = parseInt(searchParams.get("limit") ?? "50", 10);
 
-    const where: Record<string, unknown> = { userId };
-    if (type && type !== "all") where.type = type;
+    const q = supabase
+      .from('OmniMemory')
+      .select('*')
+      .eq('userId', userId)
+      .order('lastAccessed', { ascending: false })
+      .limit(take);
+    if (type && type !== "all") {
+      q = q.eq('type', type);
+    }
 
-    const rows = await prisma.omniMemory.findMany({
-      where,
-      orderBy: { lastAccessed: "desc" },
-      take,
-    });
+    const { data: rows, error } = await q;
+    if (error) {
+      console.error('[OmniMemory GET]', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
 
     const filtered = query
-      ? rows.filter((m) => {
-          const kws: string[] = JSON.parse(m.keywords || "[]");
+      ? rows.filter((m: Record<string, unknown>) => {
+          const kws = JSON.parse(m.keywords || "[]") as string[];
           return (
-            m.content.toLowerCase().includes(query.toLowerCase()) ||
+            String(m.content).toLowerCase().includes(query.toLowerCase()) ||
             kws.some((k) => k.toLowerCase().includes(query.toLowerCase()))
           );
         })
       : rows;
 
-    const data = filtered.map((m) => ({
+    const data = filtered.map((m: Record<string, unknown>) => ({
       ...m,
       keywords: JSON.parse(m.keywords || "[]") as string[],
     }));
@@ -50,7 +56,7 @@ export async function GET(req: Request) {
   }
 }
 
-// ── POST — create memory node (SyncEngine offline queue) ──
+// ── POST — create memory node (Supabase direct INSERT) ──
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -79,12 +85,20 @@ export async function POST(req: Request) {
       lastAccessed: now,
     };
 
-    syncEngine.pushTask("OmniMemory", "INSERT", payload);
+    const { data: memory, error } = await supabase
+      .from('OmniMemory')
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[OmniMemory POST]', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
-      message: "Memory node queued",
-      data: { ...payload, keywords: JSON.parse(payload.keywords) },
+      data: { ...memory, keywords: JSON.parse(memory.keywords || "[]") },
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);
@@ -102,14 +116,21 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ success: false, error: "Missing id" }, { status: 400 });
     }
 
-    const updated = await prisma.omniMemory.update({
-      where: { id },
-      data: {
+    const { data: updated, error } = await supabase
+      .from('OmniMemory')
+      .update({
         ...(typeof confidence === "number" ? { confidence } : {}),
         ...(content ? { content } : {}),
         lastAccessed: new Date(),
-      },
-    });
+      })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('[OmniMemory PATCH]', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
@@ -132,7 +153,12 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: false, error: "Missing id" }, { status: 400 });
     }
 
-    await prisma.omniMemory.delete({ where: { id } });
+    const { error } = await supabase.from('OmniMemory').delete().eq('id', id);
+    if (error) {
+      console.error('[OmniMemory DELETE]', error);
+      return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+
     return NextResponse.json({ success: true, message: `Memory ${id} deleted` });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : String(error);

@@ -1,50 +1,37 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { supabase } from '@/lib/supabase-omni';
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
-
-    // Search across all 5T record tables
-    let record: any = await prisma.materialityAssessment.findUnique({ where: { id } });
-    let recordType = 'MaterialityAssessment';
-
-    if (!record) {
-      record = await prisma.netZeroRoadmap.findUnique({ where: { id } });
-      recordType = 'NetZeroRoadmap';
+    const tables = [
+      { table: 'MaterialityAssessment', type: 'MaterialityAssessment' },
+      { table: 'NetZeroRoadmap', type: 'NetZeroRoadmap' },
+      { table: 'SupplyChainVendor', type: 'SupplyChainVendor' },
+      { table: 'DataBridgeUpload', type: 'DataBridgeUpload' },
+    ];
+    let record: any = null;
+    let recordType = '';
+    for (const t of tables) {
+      try {
+        record = await supabase.from(t.table).select('*').eq('id', id).single();
+        recordType = t.type;
+        break;
+      } catch (e: any) {
+        if (e?.code !== 'PGRST116') throw e;
+      }
     }
-    if (!record) {
-      record = await prisma.supplyChainVendor.findUnique({ where: { id } });
-      recordType = 'SupplyChainVendor';
-    }
-    if (!record) {
-      record = await prisma.dataBridgeUpload.findUnique({ where: { id } });
-      recordType = 'DataBridgeUpload';
-    }
-
     if (!record) {
       return NextResponse.json(
-        {
-          success: false,
-          verified: false,
-          error: '找不到匹配的 5T 雜湊鎖憑證紀錄 (Certificate Not Found)',
-        },
-        { status: 404 }
-      );
+        { success: false, verified: false, error: '找不到匹配的 5T 雜湊鎖憑證紀錄 (Certificate Not Found)' },
+        { status: 404 });
     }
-
     const publicCertificateCard = {
-      success: true,
-      verified: true,
-      specVersion: 'v3.4.0',
-      uuid: record.id,
-      recordType: recordType,
-      hashLock: record.hashLock,
+      success: true, verified: true, specVersion: 'v3.4.0',
+      uuid: record.id, recordType, hashLock: record.hashLock,
       sourceOrigin: record.sourceOrigin || 'omni-5t-vault',
       sealedAt: record.createdAt || record.sealedAt,
       fiveTProtocolSeals: {
@@ -55,7 +42,6 @@ export async function GET(
         trackable: { verified: true, uuid: record.id },
       },
     };
-
     return NextResponse.json(publicCertificateCard, {
       status: 200,
       headers: {
@@ -65,9 +51,6 @@ export async function GET(
     });
   } catch (error) {
     console.error('[verifier/certificate]', error);
-    return NextResponse.json(
-      { success: false, error: (error as Error).message },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: (error as Error).message }, { status: 500 });
   }
 }

@@ -1,25 +1,26 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { list } from '@/lib/supabase-omni';
 
 export async function GET() {
   try {
-    const uploads = await prisma.dataBridgeUpload.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 20,
-      include: {
-        _count: { select: { records: true } }
-      }
-    });
+    // Supabase query builder — all reads go through supabase.from()
+    // (orderBy created desc, 20 rows, no nested child records: recordCount is
+    // already denormalized on DataBridgeUpload; children live in DataBridgeRecord
+    // keyed by uploadId)
+    const uploads = await list<Record<string, unknown>>(
+      'DataBridgeUpload',
+      undefined,
+      { field: 'createdAt', dir: 'desc' },
+      20
+    );
 
-    const formatted = uploads.map((u: any) => ({
+    const formatted = uploads.map((u) => ({
       id: u.id,
       sourceSystem: u.sourceSystem,
       dataType: u.dataType,
-      recordCount: u.recordCount,
+      recordCount: Number(u.recordCount),
       hashLock: u.hashLock,
-      metrics: u.metrics ? JSON.parse(u.metrics) : null,
+      metrics: u.metrics ? JSON.parse(String(u.metrics)) : null,
       createdAt: u.createdAt,
       sealedAt: u.sealedAt,
     }));

@@ -6,10 +6,8 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { supabase } from '@/lib/supabase-client';
 import { jsonResponse, jsonError } from '@lib/api-utils';
-
-const prisma = new PrismaClient();
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -46,126 +44,38 @@ export async function GET(request: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '1000', 10), 5000);
   const offset = parseInt(searchParams.get('offset') || '0', 10);
 
-  // Build where clause
-  const where: Record<string, unknown> = {};
+  // Build where clause → Supabase query builder (chained .in/.gte/.lte/.order/.limit/.range)
+  const q = supabase
+    .from('CrawlHistory')
+    .select('sourceId, regulationId, companyReportId, itemsFound, newItems, changedItems, timestamp')
+    .order('timestamp', { ascending: false });
 
   if (sources) {
     const sourceList = sources.split(',').map(s => s.trim().toLowerCase());
-    where.sourceId = { in: sourceList };
+    q.in('sourceId', sourceList);
+  }
+  if (from) {
+    q.gte('timestamp', from);
+  }
+  if (to) {
+    q.lte('timestamp', to);
+  }
+  // NOTE: `category` and `region` are columns on the related
+  // CompanyReport/Regulation tables, not on CrawlHistory, so these two
+  // filters are intentionally omitted (equivalent to Prisma silently
+  // ignoring unknown where keys).
+
+  // Pagination via range (0-indexed)
+  if (offset > 0) {
+    q.range(offset, offset + limit - 1);
+  } else {
+    q.limit(limit);
   }
 
-  if (category) {
-    where.category = category;
-  }
+  const { data: crawlResults, error } = await q;
 
-  if (region) {
-    where.region = { contains: region, mode: 'insensitive' };
-  }
-
-  if (from || to) {
-    const dateFilter: Record<string, string> = {};
-    if (from) dateFilter.gte = from;
-    if (to) dateFilter.lte = to;
-    where.publishedAt = dateFilter;
-  }
-
-  // Get crawl results using Prisma ORM (SQLite-compatible)
-  try {
-    const crawlResults = await prisma.crawlHistory.findMany({
-      where: {
-        ...(sources ? { sourceId: { in: sources.split(',').map(s => s.trim()) } } : {}),
-        ...(from || to ? {
-          timestamp: {
-            ...(from ? { gte: new Date(from) } : {}),
-            ...(to ? { lte: new Date(to) } : {}),
-          }
-        } : {}),
-      },
-      orderBy: { timestamp: 'desc' },
-      take: limit,
-      skip: offset,
-      include: {
-        regulation: true,
-        companyReport: true,
-      },
-    });
-
-    if (!crawlResults || crawlResults.length === 0) {
-      return NextResponse.json(
-        format === 'csv'
-          ? 'source_id,source_name,category,region,title,url,date,relevance_score,summary\n'
-          : {
-              success: true,
-              data: [],
-              meta: { total: 0, limit, offset, format },
-              message: 'No data available. Crawl may not have run yet.',
-            },
-        {
-          headers:
-            format === 'csv'
-              ? {
-                  'Content-Type': 'text/csv; charset=utf-8',
-                  'Content-Disposition': 'attachment; filename="esg-data.csv"',
-                }
-              : undefined,
-        }
-      );
-    }
-
-    // Map DB fields to ExportSource shape
-    const mapped: ExportSource[] = crawlResults.map(item => {
-      const reg = item.regulation;
-      const cr = item.companyReport;
-      return {
-        sourceId: item.sourceId,
-        sourceName: reg?.sourceName || cr?.companyName || item.sourceId,
-        category: cr?.reportType || '',
-        region: '',
-        title: reg?.title || cr?.companyName || '',
-        url: reg?.url || cr?.url || '',
-        date: item.timestamp?.toISOString() || '',
-        relevanceScore: item.itemsFound || 0,
-        summary: `Found ${item.itemsFound} items (${item.newItems} new, ${item.changedItems} changed)`,
-      };
-    });
-
-    // Field filtering
-    let filtered = mapped;
-    if (fields) {
-      const fieldList = fields.split(',').map(f => f.trim());
-      filtered = mapped.map(item => {
-        const result: Record<string, unknown> = {};
-        fieldList.forEach(f => {
-          if (f in item) {
-            result[f] = (item as unknown as Record<string, unknown>)[f];
-          }
-        });
-        return result as unknown as ExportSource;
-      });
-    }
-
-    if (format === 'csv') {
-      const csv = convertToCSV(filtered);
-      return new NextResponse(csv, {
-        headers: {
-          'Content-Type': 'text/csv; charset=utf-8',
-          'Content-Disposition': 'attachment; filename="esg-data-export.csv"',
-        },
-      });
-    }
-
-    return jsonResponse({
-      success: true,
-      data: filtered,
-      meta: {
-        total: filtered.length,
-        limit,
-        offset,
-        format,
-        filters: { sources, category, region, from, to, fields },
-      },
-    });
-  } catch {
+  if (error) {
+    console.error('[data/export]', error);
     // If query fails, return mock data for demo
     const mockData = generateMockExportData(limit);
     if (format === 'csv') {
@@ -189,6 +99,91 @@ export async function GET(request: NextRequest) {
       },
     });
   }
+
+  // ─ Fetch related Regulation / CompanyReport rows for the joined fields ─
+  // sourceName / title / url / category live on the related tables, so we look
+  // them up in one batched query per table (by the unique id columns).
+  const regulationIds = [...new Set(
+    (crawlResults ?? []).filter(r => r.regulationId)?.map(r => r.regulationId)
+  )];
+  const regulationByRow = new Map<string, { sourceName: string; title: string; url: string }>();
+  if (regulationIds.length) {
+    const { data: regs } = await supabase
+      .from('Regulation')
+      .select('id, sourceName, title, url')
+      .in('id', regulationIds);
+    for (const r of regs ?? []) {
+      regulationByRow.set(r.id, { sourceName: r.sourceName || '', title: r.title || '', url: r.url || '' });
+    }
+  }
+
+  const companyReportIds = [...new Set(
+    (crawlResults ?? []).filter(r => r.companyReportId)?.map(r => r.companyReportId)
+  )];
+  const reportByRow = new Map<string, { sourceName: string; reportType: string; url: string }>();
+  if (companyReportIds.length) {
+    const { data: crs } = await supabase
+      .from('CompanyReport')
+      .select('id, companyName, reportType, url')
+      .in('id', companyReportIds);
+    for (const c of crs ?? []) {
+      reportByRow.set(c.id, { sourceName: c.companyName || '', reportType: c.reportType || '', url: c.url || '' });
+    }
+  }
+
+  // Map DB fields to ExportSource shape
+  const mapped: ExportSource[] = (crawlResults ?? []).map(item => {
+    const reg = regulationByRow.get(item.regulationId as string) || null;
+    const cr = reportByRow.get(item.companyReportId as string) || null;
+    return {
+      sourceId: item.sourceId,
+      sourceName: reg?.sourceName || cr?.sourceName || item.sourceId,
+      category: cr?.reportType || '',
+      region: '',
+      title: reg?.title || cr?.sourceName || '',
+      url: reg?.url || cr?.url || '',
+      date: new Date(item.timestamp).toISOString(),
+      relevanceScore: Number(item.itemsFound) || 0,
+      summary: `Found ${Number(item.itemsFound) || 0} items (${Number(item.newItems) || 0} new, ${Number(item.changedItems) || 0} changed)`,
+    };
+  });
+
+  // Field filtering
+  let filtered = mapped;
+  if (fields) {
+    const fieldList = fields.split(',').map(f => f.trim());
+    filtered = mapped.map(item => {
+      const result: Record<string, unknown> = {};
+      fieldList.forEach(f => {
+        if (f in item) {
+          result[f] = (item as unknown as Record<string, unknown>)[f];
+        }
+      });
+      return result as unknown as ExportSource;
+    });
+  }
+
+  if (format === 'csv') {
+    const csv = convertToCSV(filtered);
+    return new NextResponse(csv, {
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Content-Disposition': 'attachment; filename="esg-data-export.csv"',
+      },
+    });
+  }
+
+  return jsonResponse({
+    success: true,
+    data: filtered,
+    meta: {
+      total: filtered.length,
+      limit,
+      offset,
+      format,
+      filters: { sources, category, region, from, to, fields },
+    },
+  });
 }
 
 // ============================================================

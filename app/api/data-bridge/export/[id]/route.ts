@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { supabase } from '@/lib/supabase-client';
+import { first } from '@/lib/supabase-omni';
 
 export async function GET(
   req: Request,
@@ -10,17 +9,28 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const upload = await prisma.dataBridgeUpload.findUnique({
-      where: { id },
-      include: {
-        records: {
-          take: 50, // Preview up to 50 records in certificate
-        },
-      },
-    });
+    // 5T archive single seal: supabase.from() builder — no prisma
+    const { data: upload, error } = await supabase
+      .from('DataBridgeUpload')
+      .select(`
+        id,
+        sourceSystem,
+        dataType,
+        recordCount,
+        hashLock,
+        createdAt,
+        sealedAt,
+        metrics,
+        records (rawJson)
+      `)
+      .eq('id', id)
+      .single();
 
-    if (!upload) {
-      return NextResponse.json({ success: false, error: '找不到該筆 5T 封印紀錄' }, { status: 404 });
+    if (error || !upload) {
+      return NextResponse.json(
+        { success: false, error: '找不到該筆 5T 封印紀錄' },
+        { status: 404 }
+      );
     }
 
     const certificate = {
@@ -29,19 +39,24 @@ export async function GET(
       uuid: upload.id,
       sourceOrigin: upload.sourceSystem,
       dataType: upload.dataType,
-      recordCount: upload.recordCount,
+      recordCount: Number(upload.recordCount),
       hashLock: upload.hashLock,
       createdAt: upload.createdAt,
       sealedAt: upload.sealedAt,
-      esgMetrics: upload.metrics ? JSON.parse(upload.metrics) : null,
+      esgMetrics: upload.metrics ? JSON.parse(String(upload.metrics)) : null,
       fiveTVerification: {
         traceable: { verified: true, source: upload.sourceSystem },
-        transparent: { verified: true, formula: 'ISO-14064-1 & 台電 2024 排放係數' },
+        transparent: {
+          verified: true,
+          formula: 'ISO-14064-1 & 台電 2024 排放係數',
+        },
         tangible: { verified: true, uiTheme: 'Liquid Glass Cyan' },
         trustworthy: { verified: true, hashLock: upload.hashLock },
         trackable: { verified: true, dbRecordId: upload.id },
       },
-      recordsSample: upload.records.map((r: any) => JSON.parse(r.rawJson || '{}')),
+      recordsSample: (upload.records ?? []).map(
+        (r: { rawJson: string }) => JSON.parse(r.rawJson || '{}')
+      ),
     };
 
     return new Response(JSON.stringify(certificate, null, 2), {

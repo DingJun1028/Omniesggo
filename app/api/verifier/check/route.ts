@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import crypto from 'crypto';
-
-const prisma = new PrismaClient();
+import { supabase } from '@/lib/supabase-omni';
 
 export async function POST(req: Request) {
   try {
@@ -25,18 +22,22 @@ export async function POST(req: Request) {
         const recordCount = Math.max(0, lines.length - 1);
 
         // Try exact hash or search by sourceSystem & recordCount
-        const possibleUploads = await prisma.dataBridgeUpload.findMany({
-          where: {
-            OR: [
-              { sourceSystem: file.name },
-              { recordCount: recordCount },
-            ],
-          },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        });
+        const { data: possibleUploads, error: possibleError } = await supabase
+          .from('DataBridgeUpload')
+          .select('*')
+          .or(`sourceSystem.eq.${file.name},recordCount.eq.${recordCount}`)
+          .order('createdAt', { ascending: false })
+          .limit(10);
 
-        if (possibleUploads.length > 0) {
+        if (possibleError) {
+          console.error('[verifier/check]', possibleError);
+          return NextResponse.json(
+            { isVerified: false, error: possibleError.message },
+            { status: 500 }
+          );
+        }
+
+        if (possibleUploads && possibleUploads.length > 0) {
           const match = possibleUploads[0];
           return NextResponse.json({
             isVerified: true,
@@ -66,17 +67,23 @@ export async function POST(req: Request) {
       );
     }
 
-    // Query Prisma DB by hashLock or UUID
-    const record = await prisma.dataBridgeUpload.findFirst({
-      where: {
-        OR: [
-          { hashLock: targetHashLock },
-          { id: targetHashLock },
-        ],
-      },
-    });
+    // Query Supabase DB by hashLock or UUID
+    const { data: records, error } = await supabase
+      .from('DataBridgeUpload')
+      .select('*')
+      .or(`hashLock.eq.${targetHashLock},id.eq.${targetHashLock}`)
+      .limit(1);
 
-    if (record) {
+    if (error) {
+      console.error('[verifier/check]', error);
+      return NextResponse.json(
+        { isVerified: false, error: error.message },
+        { status: 500 }
+      );
+    }
+
+    if (records && records.length > 0) {
+      const record = records[0];
       return NextResponse.json({
         isVerified: true,
         status: 'AUTHENTIC',
