@@ -434,3 +434,6 @@ oa-swarm/data/
 
 # 瀏覽器工具相關
 .github/worker-tools/node_modules/
+
+# runtime notes store (universal notes /api/notes)
+data/notes.json
