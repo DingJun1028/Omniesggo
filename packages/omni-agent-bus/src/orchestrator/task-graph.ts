@@ -154,7 +154,7 @@ export class TaskGraph {
         node.result = result;
         this.context.results.set(node.id, result);
         if (result.success) {
-          node.error = undefined;
+          delete node.error;
           node.status = 'completed';
           node.endTime = Date.now();
           return;
@@ -223,7 +223,8 @@ export class TaskGraph {
       const batch = ready.slice(0, this.options.maxConcurrency);
       await Promise.all(batch.map(node => this.executeTask(node, deadline)));
 
-      if (!this.options.continueOnError && this.recordBatchFailures(batch, errors)) {
+      const batchFailed = this.recordBatchFailures(batch, errors);
+      if (!this.options.continueOnError && batchFailed) {
         break;
       }
     }
