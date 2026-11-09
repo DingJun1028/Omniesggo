@@ -1,5 +1,6 @@
 export {
   createSupabaseAuditSink,
+  createSupabaseExchangeSink,
   createSupabasePulseSink,
   createSupabaseReportSink,
   type PostgrestOptions,
