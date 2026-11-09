@@ -55,3 +55,4 @@ console.log('5T 驗算陣列:', auditAgents.length === 12 ? '✅ PASS' : '❌ FA
 const allPass = v60.pass && arrayOk && local.length === 30 && vps.length === 30 &&
   umbra.length === 30 && lumen.length === 30 && repairAgents.length > 0 && h.alive === 2;
 console.log('\n=== Agent Registry 冒煙測試 ===', allPass ? '✅ ALL PASS' : '❌ SOME FAILED');
+if (!allPass) process.exitCode = 1;
