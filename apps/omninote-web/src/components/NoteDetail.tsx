@@ -182,8 +182,23 @@ export function NoteDetail({
           v{note.version} · {note.entity_type} · {new Date(note.timestamp).toLocaleString()}
         </span>
         {note.entropy_score !== undefined && (
-          <span className="rounded-full bg-slate-700/50 px-2 py-0.5 text-[10px] text-slate-300">
+          <span
+            className="flex items-center gap-1.5 rounded-full bg-slate-700/50 px-2 py-0.5 text-[10px] text-slate-300"
+            title={`熵值 ${note.entropy_score.toFixed(4)}（0 至 1，越高表示死鏈與區塊量負擔越重）`}
+          >
             熵 {note.entropy_score.toFixed(4)}
+            <span className="inline-block h-1 w-10 overflow-hidden rounded-full bg-slate-900/80">
+              <span
+                className={`block h-full ${
+                  note.entropy_score < 0.25
+                    ? "bg-omni-alpha"
+                    : note.entropy_score < 0.5
+                      ? "bg-omni-omega"
+                      : "bg-red-400"
+                }`}
+                style={{ width: `${Math.min(100, Math.max(0, note.entropy_score * 100))}%` }}
+              />
+            </span>
           </span>
         )}
         <button
@@ -413,15 +428,30 @@ export function NoteDetail({
 
       <details className="mt-4">
         <summary className="cursor-pointer text-[11px] text-slate-400 transition hover:text-slate-200">
-          證據鏈（{note.evidence.length}）與 lock_hash
+          證據鏈時間軸（{note.evidence.length}）與 lock_hash
         </summary>
-        <ul className="mt-2 space-y-1">
+        <ol className="mt-2 space-y-1 border-l border-omni-sigma/40 pl-3">
           {note.evidence.map((e, i) => (
-            <li key={`${e.content_hash}-${i}`} className="text-[10px] leading-4 text-slate-400">
-              {e.hook_lifecycle} · {e.source_origin} · {e.captured_at}
+            <li key={`${e.content_hash}-${i}`} className="relative text-[10px] leading-4 text-slate-400">
+              <span
+                className={`absolute -left-[15px] top-1 inline-block h-1.5 w-1.5 rounded-full ${
+                  i === note.evidence.length - 1 ? "bg-omni-alpha" : "bg-omni-sigma/60"
+                }`}
+                aria-hidden="true"
+              />
+              <span className="rounded bg-omni-sigma/20 px-1 py-0.5 text-omni-sigma">
+                {e.hook_lifecycle}
+              </span>{" "}
+              {e.source_origin} · {e.captured_at}
+              <span
+                className="ml-1 cursor-help text-slate-500 underline decoration-dotted"
+                title={`audit_formula: ${e.audit_formula} · content_hash: ${e.content_hash}`}
+              >
+                i
+              </span>
             </li>
           ))}
-        </ul>
+        </ol>
         <p className="mt-2 break-all text-[10px] text-slate-500">lock_hash: {note.lock_hash}</p>
       </details>
     </div>
