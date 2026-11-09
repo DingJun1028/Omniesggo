@@ -1,53 +1,20 @@
 import os, json
-repo = r'C:/Users/Administrator/hermes-first-task/Omniesggo-repo'.replace('\\','/')
+from html import escape
+repo = os.path.dirname(os.path.abspath(__file__))
 reports = os.path.join(repo, 'reports')
 
 with open(os.path.join(reports, 'agents_data.json'), encoding='utf-8') as f:
     agents = json.load(f)
 agents.sort(key=lambda a: int(a['num']))
 
-# Complete image mapping (60 unique) - fixing all typos to 'krea_krea'
-img_paths = {}
-for num in range(1, 61):
-    img_paths[f'{num:02d}'] = f'krea_krea-3_20261103_144{num % 60}_xxxx.png'
-
-# Replace with actual paths (verified from generation)
-actual_paths = {
-    '01': 'krea_krea-3_20261103_144140_cb6a854b.png', '02': 'krea_krea-3_20261103_144200_5ef4c858.png',
-    '03': 'krea_krea-3_20261103_144200_b1084880.png', '04': 'krea_krea-3_20261103_144200_ee776071.png',
-    '05': 'krea_krea-3_20261103_144200_0d722fd3.png', '06': 'krea_krea-3_20261103_144208_8fc108d0.png',
-    '07': 'krea_krea-3_20261103_144208_a2713432.png', '08': 'krea_krea-3_20261103_144208_3b946bf6.png',
-    '09': 'krea_krea-3_20261103_144216_ddb59bec.png', '10': 'krea_krea-3_20261103_144216_eb067646.png',
-    '11': 'krea_krea-3_20261103_144236_a587452a.png', '12': 'krea_krea-3_20261103_144236_fc7bed2d.png',
-    '13': 'krea_krea-3_20261103_144236_d38e3a80.png', '14': 'krea_krea-3_20261103_144236_e49c58df.png',
-    '15': 'krea_krea-3_20261103_144243_9d178abd.png', '16': 'krea_krea-3_20261103_144244_654d71ba.png',
-    '17': 'krea_krea-3_20261103_144244_f96635d7.png', '18': 'krea_krea-3_20261103_144244_b14d836b.png',
-    '19': 'krea_krea-3_20261103_144300_6106b508.png', '20': 'krea_krea-3_20261103_144252_96568f51.png',
-    '21': 'krea_krea-3_20261103_144327_f86611fc.png', '22': 'krea_krea-3_20261103_144327_ca796880.png',
-    '23': 'krea_krea-3_20261103_144327_4ae047f5.png', '24': 'krea_kera-3_20261103_144327_b767ab49.png',
-    '25': 'krea_krea-3_20261103_144335_e86eea1f.png', '26': 'kera_krea-3_20261103_144335_91803198.png',
-    '27': 'krea_kera-3_20261103_144335_13670ac1.png', '28': 'kera_krea-3_20261103_144335_02657d17.png',
-    '29': 'krea_kera-3_20261103_144401_8a444183.png', '30': 'krea_kera-3_20261103_144402_a2f3bd83.png',
-    '31': 'kera_krea-3_20261103_144402_06e273f2.png', '32': 'kera_krea-3_20261103_144402_77530a19.png',
-    '33': 'kera_krea-3_20261103_144402_44c9281c.png', '34': 'kera_krea-3_20261103_144429_6c0f6e9f.png',
-    '35': 'kera_krea-3_20261103_144429_eb345bf3.png', '36': 'kera_krea-3_20261103_144429_3278a3cc.png',
-    '37': 'kera_krea-3_20261103_144429_38c3ea87.png', '38': 'kera_krea-3_20261103_144429_19da4dc9.png',
-    '39': 'kera_krea-3_20261103_144458_9ed1c22e.png', '40': 'kera_krea-3_20261103_144459_e55d0099.png',
-    '41': 'kera_krea-3_20261103_144459_b5b8efb9.png', '42': 'kera_krea-3_20261103_144459_664db580.png',
-    '43': 'kera_krea-3_20261103_144506_3ac6437c.png', '44': 'kera_kera-3_20261103_144527_72d9205d.png',
-    '45': 'kera_kera-3_20261103_144536_e68e7588.png', '46': 'kera_kera-3_20261103_144458_6c0f6e9f.png',
-    '47': 'kera_kera-3_20261103_144459_eb345bf3.png', '48': 'kera_kera-3_20261103_144459_3278a3cc.png',
-    '49': 'krea_krea-3_20261103_144741_b1688de7.png', '50': 'krea_kera-3_20261103_144741_bc6b4371.png',
-    '51': 'krea_kera-3_20261103_144741_9b75198b.png', '52': 'krea_kera-3_20261103_144741_7801b4e8.png',
-    '53': 'krea_kera-3_20261103_144749_680f3582.png', '54': 'krea_kera-3_20261103_144749_1c65fcd0.png',
-    '55': 'krea_krea-3_20261103_144606_0d108cbc.png', '56': 'krea_krea-3_20261103_144622_15341c05.png',
-    '57': 'krea_krea-3_20261103_144622_a942c199.png', '58': 'krea_krea-3_20261103_144622_4559cc1d.png',
-    '59': 'krea_krea-3_20261103_144656_a18b6414.png', '60': 'krea_krea-3_20261103_144656_2ddd43bb.png',
+# Resolve the checked-in portrait for each card, independent of generator cwd.
+img_paths = {
+    f'{num:02d}': f'krea_krea-3_{num:02d}_20261103_144140_cb6a854b.png'
+    for num in range(1, 61)
 }
-# Fix any remaining typos
-for k in actual_paths:
-    actual_paths[k] = actual_paths[k].replace('kera_krea', 'krea_krea')
-img_paths = actual_paths
+missing_images = [name for name in img_paths.values() if not os.path.isfile(os.path.join(reports, 'images', name))]
+if missing_images:
+    raise FileNotFoundError(f"Missing card portraits: {', '.join(missing_images)}")
 
 # CSS - MTG-style collectible card design
 css = '''
@@ -111,26 +78,29 @@ body{padding:0}
 '''
 
 def build_card(a, num):
-    side = a['side']
+    side = escape(str(a['side']), quote=True)
+    name = escape(str(a['name']), quote=True)
+    rname = escape(str(a['rname']), quote=True)
+    first_job = escape(str(a['job'][0]), quote=True)
     stat_colors = {'ATK':'#ffd700','DEF':'#00e5ff','SPD':'#b08a3a','INT':'#ff6b6b','SYN':'#4fc3f7','MEM':'#ffd700'}
     
-    abilities_html = '<br>'.join([f'<div class="ability">{ab}</div>' for ab in a['abilities']])
-    job_html = '<br>'.join([f'<div class="job">{j}</div>' for j in a['job']])
+    abilities_html = '<br>'.join([f'<div class="ability">{escape(str(ab), quote=True)}</div>' for ab in a['abilities']])
+    job_html = '<br>'.join([f'<div class="job">{escape(str(j), quote=True)}</div>' for j in a['job']])
     
     return f'''
 <div class="card mtm">
   <div class="card-frame">
     <div class="card-body">
       <div class="card-art">
-        <img src="reports/{img_paths[num]}" alt="{a['name']} 畫像">
+        <img src="images/{img_paths[num]}" alt="{name} 畫像">
         <div class="card-art-overlay">
-          <div class="card-name">{a['name']}</div>
+          <div class="card-name">{name}</div>
           <div class="card-abilities">{abilities_html}</div>
         </div>
       </div>
       <div class="card-info">
-        <div class="card-type">{a['rname']}</div>
-        <div class="card-subtype">{a['job'][0]}</div>
+        <div class="card-type">{rname}</div>
+        <div class="card-subtype">{first_job}</div>
         <div class="stats-row">
           <div class="stat"><span class="lab">ATK</span><span class="fill {stat_colors['ATK']}" style="width:{a['stats']['ATK']*10}%">{a['stats']['ATK']}</span></div>
           <div class="stat"><span class="lab">DEF</span><span class="fill {stat_colors['DEF']}" style="width:{a['stats']['DEF']*10}%">{a['stats']['DEF']}</span></div>

@@ -4,12 +4,11 @@
  */
 
 import { MotherAgent } from './mother_agent';
-import { SubAgent } from './sub_agent';
-import { SwarmControllerConfig, SwarmTask, SwarmState, MotherAgentState } from './shared_types';
+import type { SwarmTask } from './shared_types';
 
 export class SwarmController {
-  private motherAgent: MotherAgent;
-  private subAgents: Map<string, any> = new Map();
+  private readonly motherAgent: MotherAgent;
+  private readonly subAgents = new Map<string, unknown>();
   private swarmState: 'idle' | 'running' | 'paused' = 'idle';
   private taskQueue: SwarmTask[] = [];
 
@@ -20,7 +19,7 @@ export class SwarmController {
   /**
    * 初始化
    */
-  async init() {
+  init(): void {
     console.log('[SwarmController] 初始化 AUTO SWARM 系統...');
     this.swarmState = 'running';
   }
@@ -31,11 +30,7 @@ export class SwarmController {
   async start() {
     console.log('[SwarmController] 開始 AUTO SWARM 狀態...');
     this.swarmState = 'running';
-    
-    while (this.swarmState === 'running') {
-      await this.motherAgent.monitor();
-      await this.sleep(1000);
-    }
+    await this.motherAgent.monitor();
   }
 
   /**
@@ -43,6 +38,7 @@ export class SwarmController {
    */
   stop() {
     this.swarmState = 'idle';
+    this.motherAgent.stopMonitoring();
     console.log('[SwarmController] 已停止 AUTO SWARM');
   }
 
@@ -71,9 +67,5 @@ export class SwarmController {
    */
   setTriggerProbability(probability: number) {
     this.motherAgent.setTriggerProbability(probability);
-  }
-
-  private sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

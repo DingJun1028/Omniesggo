@@ -40,6 +40,8 @@ export interface TaskContext {
   results: Map<string, TaskResult>;
   /** 60 員 Registry 引用 */
   registry?: unknown;
+  /** 全域逾時時中止執行中 task 的訊號（task 可選擇監聽） */
+  signal?: AbortSignal;
 }
 
 export interface TaskResult {
@@ -64,9 +66,9 @@ const DEFAULT_OPTIONS: TaskGraphOptions = {
 };
 
 export class TaskGraph {
-  private nodes: Map<string, TaskNode> = new Map();
-  private options: TaskGraphOptions;
-  private context: TaskContext;
+  private readonly nodes: Map<string, TaskNode> = new Map();
+  private readonly options: TaskGraphOptions;
+  private readonly context: TaskContext;
 
   constructor(options: Partial<TaskGraphOptions> = {}) {
     this.options = { ...DEFAULT_OPTIONS, ...options };
@@ -113,13 +115,29 @@ export class TaskGraph {
 
   /** 取得可執行的 task（依賴已滿足） */
   private getReadyTasks(): TaskNode[] {
-    return Array.from(this.nodes.values()).filter(node => {
-      if (node.status !== 'pending') return false;
-      return node.dependencies.every(dep => {
-        const depNode = this.nodes.get(dep);
-        return depNode?.status === 'completed';
-      });
-    });
+    return Array.from(this.nodes.values()).filter(node => this.isReady(node));
+  }
+
+  private isReady(node: TaskNode): boolean {
+    return node.status === 'pending' && node.dependencies.every(dep =>
+      this.nodes.get(dep)?.status === 'completed'
+    );
+  }
+
+  private skipBlockedTasks(errors: Map<string, Error>): void {
+    for (const node of this.nodes.values()) {
+      if (node.status !== 'pending') continue;
+      node.status = 'skipped';
+      if (node.error) errors.set(node.id, node.error);
+    }
+  }
+
+  private collectBatchErrors(batch: TaskNode[], errors: Map<string, Error>): boolean {
+    const failed = batch.filter(node => node.status === 'failed');
+    for (const node of failed) {
+      if (node.error) errors.set(node.id, node.error);
+    }
+    return failed.length > 0;
   }
 
   /** 執行單一 task（含 retry + timeout） */
@@ -127,28 +145,38 @@ export class TaskGraph {
     node.status = 'running';
     node.startTime = Date.now();
 
-    for (let attempt = 0; attempt <= node.maxRetries; attempt++) {
-      try {
-        const result = await Promise.race([
-          node.execute(this.context),
-          new Promise<never>((_, reject) =>
-            setTimeout(() => reject(new Error(`Timeout: ${node.id} exceeded ${node.timeout}ms`)), node.timeout)
-          ),
-        ]);
-        node.result = result;
-        node.status = result.success ? 'completed' : 'failed';
-        if (result.success) {
-          this.context.results.set(node.id, result);
-          return;
+    try {
+      for (let attempt = 0; attempt <= node.maxRetries; attempt++) {
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
+        try {
+          const result = await Promise.race([
+            node.execute(this.context),
+            new Promise<never>((_, reject) => {
+              timeoutId = setTimeout(
+                () => reject(new Error(`Timeout: ${node.id} exceeded ${node.timeout}ms`)),
+                node.timeout
+              );
+            }),
+          ]);
+          node.result = result;
+          node.status = result.success ? 'completed' : 'failed';
+          if (result.success) {
+            this.context.results.set(node.id, result);
+            return;
+          }
+          node.error = new Error(`Task ${node.id} reported failure`);
+          if (attempt < node.maxRetries) continue;
+        } catch (err) {
+          node.error = err as Error;
+          if (attempt < node.maxRetries) continue;
+          node.status = 'failed';
+        } finally {
+          if (timeoutId) clearTimeout(timeoutId);
         }
-        if (attempt < node.maxRetries) continue;
-      } catch (err) {
-        node.error = err as Error;
-        if (attempt < node.maxRetries) continue;
-        node.status = 'failed';
       }
+    } finally {
+      node.endTime = Date.now();
     }
-    node.endTime = Date.now();
   }
 
   /** 執行整個 Task Graph */
@@ -158,11 +186,15 @@ export class TaskGraph {
       throw new Error(`DAG 循環偵測: ${validation.cycle?.join(' → ')}`);
     }
 
-    const startTime = Date.now();
     const errors = new Map<string, Error>();
+    const startTime = Date.now();
+    const abortController = new AbortController();
+    this.context.signal = abortController.signal;
 
     while (true) {
-      if (Date.now() - startTime > this.options.globalTimeout) {
+      const elapsed = Date.now() - startTime;
+      if (elapsed >= this.options.globalTimeout) {
+        abortController.abort(new Error(`全域超時: ${this.options.globalTimeout}ms`));
         throw new Error(`全域超時: ${this.options.globalTimeout}ms`);
       }
 
@@ -172,26 +204,32 @@ export class TaskGraph {
         const pending = Array.from(this.nodes.values()).filter(n => n.status === 'pending');
         if (pending.length > 0) {
           // 有 pending 但無 ready → 依賴失敗
-          for (const node of pending) {
-            node.status = 'skipped';
-            if (node.error) errors.set(node.id, node.error);
-          }
+          this.skipBlockedTasks(errors);
         }
         break;
       }
 
       // 並行執行（限制 concurrency）
       const batch = ready.slice(0, this.options.maxConcurrency);
-      await Promise.all(batch.map(node => this.executeTask(node)));
+      const remainingTime = this.options.globalTimeout - elapsed;
+      let timeoutId: ReturnType<typeof setTimeout> | undefined;
+      try {
+        await Promise.race([
+          Promise.all(batch.map(node => this.executeTask(node))),
+          new Promise<never>((_, reject) => {
+            timeoutId = setTimeout(() => {
+              const error = new Error(`全域超時: ${this.options.globalTimeout}ms`);
+              abortController.abort(error);
+              reject(error);
+            }, remainingTime);
+          }),
+        ]);
+      } finally {
+        if (timeoutId) clearTimeout(timeoutId);
+      }
 
       // 檢查失敗
-      const failed = batch.filter(n => n.status === 'failed');
-      if (failed.length > 0 && !this.options.continueOnError) {
-        for (const node of failed) {
-          if (node.error) errors.set(node.id, node.error);
-        }
-        break;
-      }
+      if (this.collectBatchErrors(batch, errors) && !this.options.continueOnError) break;
     }
 
     const allCompleted = Array.from(this.nodes.values()).every(n => n.status === 'completed');

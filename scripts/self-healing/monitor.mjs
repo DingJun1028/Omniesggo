@@ -4,10 +4,11 @@
  * 用法: node scripts/self-healing/monitor.mjs
  * 環境: SENTRY_WEBHOOK_SECRET, OLLAMA_URL
  */
-import { createServer } from 'http';
+import { createServer } from 'node:http';
 
 const PORT = process.env.SELF_HEALING_PORT || 8900;
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
+const MAX_WEBHOOK_BODY_BYTES = 1024 * 1024;
 
 const server = createServer(async (req, res) => {
   if (req.method !== 'POST' || req.url !== '/webhook') {
@@ -16,9 +17,17 @@ const server = createServer(async (req, res) => {
     return;
   }
 
-  const chunks = [];
-  for await (const chunk of req) chunks.push(chunk);
-  const body = JSON.parse(Buffer.concat(chunks).toString());
+  let body;
+  try {
+    body = await readJsonBody(req, MAX_WEBHOOK_BODY_BYTES);
+  } catch (error) {
+    if (!res.destroyed) {
+      const status = error instanceof RequestBodyTooLargeError ? 413 : 400;
+      res.writeHead(status, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: status === 413 ? 'Payload too large' : 'Invalid JSON body' }));
+    }
+    return;
+  }
 
   console.log('🚨 收到錯誤報告:', body.event?.title || body.message || 'unknown');
 
@@ -29,7 +38,7 @@ const server = createServer(async (req, res) => {
 
   if (analysis.confidence >= 0.8 && analysis.autoFixable) {
     console.log('✅ 建議自動修復（需人類 approve PR）');
-    // TODO: 觸發 auto-repair-v3 pipeline
+    // Deliberately stop at a recommendation until an authenticated approval integration exists.
   } else {
     console.log('⚠️ 僅報告，需人工介入');
   }
@@ -37,6 +46,33 @@ const server = createServer(async (req, res) => {
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ status: 'received', analysis }));
 });
+
+class RequestBodyTooLargeError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'RequestBodyTooLargeError';
+  }
+}
+
+async function readJsonBody(req, maxBytes) {
+  const chunks = [];
+  let size = 0;
+
+  for await (const chunk of req) {
+    size += chunk.length;
+    if (size > maxBytes) {
+      req.destroy();
+      throw new RequestBodyTooLargeError(`Webhook body exceeds ${maxBytes} bytes`);
+    }
+    chunks.push(chunk);
+  }
+
+  const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+  if (body === null || typeof body !== 'object' || Array.isArray(body)) {
+    throw new SyntaxError('Webhook body must be a JSON object');
+  }
+  return body;
+}
 
 async function analyzeError(errorBody) {
   const prompt = `你是 Omniesggo 的自癒系統代理（5T 驗算陣列 25-30/55-60）。

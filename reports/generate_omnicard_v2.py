@@ -1,8 +1,13 @@
 import json
 import os
+from html import escape as escape_html
+
+HTML_CLOSE_DIV = '</div>'
+HTML_CLOSE_DIV_INDENTED = '    </div>'
+HTML_CLOSE_SPAN = '</span>'
 
 # Use absolute path
-base_dir = r'C:/Users/Administrator/hermes-first-task/Omniesggo-repo'
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 json_path = os.path.join(base_dir, 'reports', 'agents_data.json')
 html_path = os.path.join(base_dir, 'reports', '60員軍團角色畫像.html')
 desktop_html_path = os.path.join(base_dir, 'reports', '60員軍團角色畫像_desktop.html')
@@ -25,13 +30,13 @@ for agent in agents_data:
     rname_clean = rname
     for suffix in [' (Sovereign)', ' (Sovereign-L)', ' (Architect-L)', ' (Oracle-L)', ' (Muse-L)', ' (Sentinel-L)', ' (Alchemist-L)', ' (Herald-L)', ' (Weaver-L)', ' (Seer-L)', ' (Shaper-L)', ' (Painter-L)', ' (Flow-L)', ' (Writer-L)', ' (Analyst-L)', ' (Networker-L)', ' (Translater-L)', ' (Drafter-L)', ' (Conductor-L)', ' (Media-L)', ' (Control-L)', ' (Erode-L)', ' (Nexus-L)', ' (Skinner-L)', ' (Scout-L)', ' (Wraith-L)', ' (Lens-L)', ' (Purifier-L)', ' (Hawk-L)', ' (Ward-L)', ' (Curator-L)', ' (Echo-L)', ' (Seal-L)', '萬能蜂后']:
         rname_clean = rname_clean.replace(suffix, '')
-    
     job_text = job[0] if job else rname_clean
-    skill_text = job_text[:30]
+    rname_clean = escape_html(rname_clean, quote=True)
+    skill_text = escape_html(job_text[:30], quote=True)
     
-    skill_data[num] = '<span class="skill-badge">' + skill_text + '</span>'
-    bg_data[num] = '<span class="bg-badge">' + side + ' · ' + rname_clean[:15] + '</span>'
-    agent_names[num] = agent['name']
+    skill_data[num] = '<span class="skill-badge">' + skill_text + HTML_CLOSE_SPAN
+    bg_data[num] = '<span class="bg-badge">' + side + ' · ' + rname_clean[:15] + HTML_CLOSE_SPAN
+    agent_names[num] = escape_html(agent['name'], quote=True)
 
 # Generate clean HTML from scratch
 html_parts = []
@@ -95,7 +100,7 @@ header p {
   background: var(--card);
   color: var(--fg);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.2s, border-color 0.2s, background-color 0.2s, color 0.2s;
 }
 
 .filter-btn:hover {
@@ -364,7 +369,7 @@ html_parts.append('<div class="filter-bar">')
 html_parts.append('<button class="filter-btn">All</button>')
 html_parts.append('<button class="filter-btn">蜂王(Umbra)</button>')
 html_parts.append('<button class="filter-btn">蜂后(Lumen)</button>')
-html_parts.append('</div>')
+html_parts.append(HTML_CLOSE_DIV)
 
 # Grid
 html_parts.append('<div class="grid">')
@@ -372,53 +377,35 @@ html_parts.append('<div class="grid">')
 # Generate cards (60 agents in order)
 for i, agent in enumerate(agents_data):
     num = agent['num']
-    name = agent['name']
+    name = escape_html(agent['name'], quote=True)
     job = agent['job']
     rname = agent['rname']
     side = '蜂王' if '蜂王' in rname else '蜂后'
-    soul = agent.get('soul', '')
+    soul = escape_html(agent.get('soul', ''), quote=True)
     picture = agent.get('picture', '')
     
     # Clean rname for badge
     rname_clean = rname
     for suffix in [' (Sovereign)', ' (Sovereign-L)', ' (Architect-L)', ' (Oracle-L)', ' (Muse-L)', ' (Sentinel-L)', ' (Alchemist-L)', ' (Herald-L)', ' (Weaver-L)', ' (Seer-L)', ' (Shaper-L)', ' (Painter-L)', ' (Flow-L)', ' (Writer-L)', ' (Analyst-L)', ' (Networker-L)', ' (Translater-L)', ' (Drafter-L)', ' (Conductor-L)', ' (Media-L)', ' (Control-L)', ' (Erode-L)', ' (Nexus-L)', ' (Skinner-L)', ' (Scout-L)', ' (Wraith-L)', ' (Lens-L)', ' (Purifier-L)', ' (Hawk-L)', ' (Ward-L)', ' (Curator-L)', ' (Echo-L)', ' (Seal-L)', '萬能蜂后']:
         rname_clean = rname_clean.replace(suffix, '')
-    
     job_text = job[0] if job else rname_clean
-    skill_text = job_text[:30]
+    rname_clean = escape_html(rname_clean, quote=True)
+    skill_text = escape_html(job_text[:30], quote=True)
     
     # Array colors
     array_num = int(num)
-    if 1 <= array_num <= 6:
-        array_name = '智庫聖所'
-        array_color = 'cyan'
-    elif 7 <= array_num <= 12:
-        array_name = '符文契約'
-        array_color = 'gold'
+    if 1 <= array_num <= 6 or 31 <= array_num <= 36:
+        array_name, array_color = '智庫聖所', 'cyan'
+    elif 7 <= array_num <= 12 or 37 <= array_num <= 42:
+        array_name, array_color = '符文契約', 'gold'
     elif 13 <= array_num <= 18:
-        array_name = '暗翼'
-        array_color = 'purple'
-    elif 19 <= array_num <= 24:
-        array_name = '煉金熵減'
-        array_color = 'red'
-    elif 25 <= array_num <= 30:
-        array_name = '5T驗算'
-        array_color = 'gray'
-    elif 31 <= array_num <= 36:
-        array_name = '智庫聖所'
-        array_color = 'cyan'
-    elif 37 <= array_num <= 42:
-        array_name = '符文契約'
-        array_color = 'gold'
+        array_name, array_color = '暗翼', 'purple'
     elif 43 <= array_num <= 48:
-        array_name = '光翼'
-        array_color = 'purple'
-    elif 49 <= array_num <= 54:
-        array_name = '煉金熵減'
-        array_color = 'red'
+        array_name, array_color = '光翼', 'purple'
+    elif 19 <= array_num <= 24 or 49 <= array_num <= 54:
+        array_name, array_color = '煉金熵減', 'red'
     else:
-        array_name = '5T驗算'
-        array_color = 'gray'
+        array_name, array_color = '5T驗算', 'gray'
     
     # BG badge colors
     bg_color_class = 'bg-badge-' + array_color
@@ -429,10 +416,10 @@ for i, agent in enumerate(agents_data):
     html_parts.append('      <img src="images/krea_krea-3_' + num.zfill(2) + '_20261103_144140_cb6a854b.png" alt="' + name + ' 畫像">')
     html_parts.append('      <div class="card-art-overlay">')
     html_parts.append('        <div class="skill-label">特長:</div>')
-    html_parts.append('        <span class="skill-badge">' + skill_text + '</span>')
+    html_parts.append('        <span class="skill-badge">' + skill_text + HTML_CLOSE_SPAN)
     html_parts.append('        <div class="card-name">' + name + '</div>')
     html_parts.append('      </div>')
-    html_parts.append('    </div>')
+    html_parts.append(HTML_CLOSE_DIV_INDENTED)
     html_parts.append('    <div class="card-body">')
     html_parts.append('      <div class="card-info">')
     html_parts.append('        <div class="card-type">' + soul + ' (' + ('蜂王' if '蜂王' in rname else '蜂后') + ')</div>')
@@ -441,11 +428,11 @@ for i, agent in enumerate(agents_data):
     
     # Add skill badges inline
     if job:
-        html_parts.append('<span class="skill-badge inline">' + skill_text + '</span>')
+        html_parts.append('<span class="skill-badge inline">' + skill_text + HTML_CLOSE_SPAN)
     
-    html_parts.append('</div>')
-    html_parts.append('        <span class="' + bg_color_class + '">' + side + ' · ' + rname_clean[:15] + '</span>')
-    html_parts.append('        <span class="bg-badge">' + array_name + '</span>')
+    html_parts.append(HTML_CLOSE_DIV)
+    html_parts.append('        <span class="' + bg_color_class + '">' + side + ' · ' + rname_clean[:15] + HTML_CLOSE_SPAN)
+    html_parts.append('        <span class="bg-badge">' + array_name + HTML_CLOSE_SPAN)
     html_parts.append('        <div class="stats-row">')
     
     # Add stats
@@ -455,19 +442,19 @@ for i, agent in enumerate(agents_data):
         val = stats.get(stat, 0)
         html_parts.append('<div class="stat"><span class="lab">' + stat + '</span><span class="value">' + str(val) + '</span></div>')
     
-    html_parts.append('</div>')
+    html_parts.append(HTML_CLOSE_DIV)
     html_parts.append('        <div class="card-text">' + soul + '</div>')
     html_parts.append('      </div>')
-    html_parts.append('    </div>')
+    html_parts.append(HTML_CLOSE_DIV_INDENTED)
     html_parts.append('    <div class="card-footer">')
     html_parts.append('      <div class="card-toughness">' + str(stats.get('DEF', 0)) + '</div>')
     html_parts.append('      <div class="card-power">' + str(stats.get('ATK', 0)) + '</div>')
     html_parts.append('      <div class="card-side">' + side + '</div>')
-    html_parts.append('    </div>')
+    html_parts.append(HTML_CLOSE_DIV_INDENTED)
     html_parts.append('  </div>')
-    html_parts.append('</div>')
+    html_parts.append(HTML_CLOSE_DIV)
 
-html_parts.append('</div>')  # grid
+html_parts.append(HTML_CLOSE_DIV)  # grid
 html_parts.append('<footer>Generated by OmniCard 萬能卡牌 System</footer>')
 html_parts.append('</body>')
 html_parts.append('</html>')

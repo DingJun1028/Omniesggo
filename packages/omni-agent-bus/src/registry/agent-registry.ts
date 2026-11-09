@@ -4,7 +4,7 @@
  * 將靜態 60 員定義轉換為 Agent Bus 可派遣的 AgentDescriptor
  */
 
-import type { ISoulAgent, HiveSide, ArrayKey } from '../../../shared/types';
+import type { ISoulAgent, HiveSide, ArrayKey } from '../../../../shared/types.js';
 
 // ts-matrix: 透過相對路徑引用 oa-swarm soul-matrix-60
 // 注意: 此模組僅在 monorepo 內使用，需確保 oa-swarm 在 workspace 中
@@ -65,14 +65,17 @@ export function createDescriptor(agent: ISoulAgent): AgentDescriptor {
 
 /** 60 員 Registry — 動態實例化 */
 export class AgentRegistry {
-  private agents: Map<number, AgentDescriptor> = new Map();
-  private byArray: Map<ArrayKey, number[]> = new Map();
-  private bySide: Map<HiveSide, number[]> = new Map();
-  private byAlignment: Map<'umbra' | 'lumen', number[]> = new Map();
+  private readonly agents: Map<number, AgentDescriptor> = new Map();
+  private readonly byArray: Map<ArrayKey, number[]> = new Map();
+  private readonly bySide: Map<HiveSide, number[]> = new Map();
+  private readonly byAlignment: Map<'umbra' | 'lumen', number[]> = new Map();
 
   constructor(matrix: ISoulAgent[]) {
     for (const agent of matrix) {
       const desc = createDescriptor(agent);
+      if (this.agents.has(desc.id)) {
+        throw new Error(`Duplicate agent id: ${desc.id}`);
+      }
       this.agents.set(desc.id, desc);
 
       // 索引

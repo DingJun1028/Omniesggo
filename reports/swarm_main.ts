@@ -30,7 +30,7 @@ async function main() {
   });
 
   // 啟動自動群體狀態
-  swarm.start();
+  await swarm.start();
 }
 
 // 執行

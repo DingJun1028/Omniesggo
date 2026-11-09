@@ -3,14 +3,16 @@
  * 負責監控任務隊列、決定觸發子代理、管理資源
  */
 
-import { MotherAgentState, MotherTask } from './shared_types';
+import type { MotherAgentState, MotherTask } from './shared_types';
 import { SubAgent } from './sub_agent';
 
 export class MotherAgent {
-  private id: string;
-  private name: string;
+  private readonly id: string;
+  private readonly name: string;
   private state: MotherAgentState;
   private triggerProbability: number;
+  private monitorTimer?: ReturnType<typeof setTimeout>;
+  private finishMonitoring?: () => void;
 
   constructor(id: string, name: string) {
     this.id = id;
@@ -34,18 +36,44 @@ export class MotherAgent {
     console.log(`[MotherAgent ${this.id}] 開始監控任務隊列...`);
     this.state.status = 'monitoring';
 
-    while (this.state.status === 'monitoring') {
-      const task = this.state.taskQueue.find(t => t.status === 'pending');
-      
-      if (task) {
-        // 依隨機機率決定是否觸發
-        if (Math.random() < this.triggerProbability) {
-          await this.triggerSubAgent(task);
+    await new Promise<void>((resolve) => {
+      this.finishMonitoring = resolve;
+      const checkQueue = async () => {
+        if (this.state.status !== 'monitoring') {
+          this.finishMonitoring = undefined;
+          resolve();
+          return;
         }
-      }
-      
-      // 每秒檢查一次
-      await this.sleep(1000);
+
+        const task = this.state.taskQueue.find(t => t.status === 'pending');
+        if (task && Math.random() < this.triggerProbability) {
+          try {
+            await this.triggerSubAgent(task);
+          } catch (error) {
+            console.error(`[MotherAgent ${this.id}] 任務失敗:`, error);
+          }
+        }
+
+        if (this.state.status !== 'monitoring') {
+          this.finishMonitoring = undefined;
+          resolve();
+          return;
+        }
+        this.monitorTimer = setTimeout(() => { void checkQueue(); }, 1000);
+      };
+
+      void checkQueue();
+    });
+  }
+
+  /** 停止佇列監控；正在執行的子代理完成後會退出迴圈。 */
+  stopMonitoring(): void {
+    this.state.status = 'idle';
+    if (this.monitorTimer) {
+      clearTimeout(this.monitorTimer);
+      this.monitorTimer = undefined;
+      this.finishMonitoring?.();
+      this.finishMonitoring = undefined;
     }
   }
 
@@ -98,7 +126,4 @@ export class MotherAgent {
     console.log(`[MotherAgent ${this.id}] 觸發機率調整為: ${(this.triggerProbability * 100).toFixed(0)}%`);
   }
 
-  private sleep(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
 }

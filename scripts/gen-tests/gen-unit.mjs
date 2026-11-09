@@ -4,7 +4,8 @@
  * 用法: node scripts/gen-tests/gen-unit.mjs <source-file>
  * 輸出: <source-file>.test.ts
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const MODEL = process.env.OLLAMA_MODEL || 'qwen2.5-coder:7b';
@@ -18,6 +19,9 @@ async function main() {
 
   const code = readFileSync(srcFile, 'utf8');
   const testFile = srcFile.replace(/\.ts$/, '.test.ts');
+  if (resolve(testFile) === resolve(srcFile)) {
+    throw new Error(`輸出路徑不可與來源檔案相同: ${srcFile}`);
+  }
 
   const prompt = `你是 Omniesggo 的符文契約陣列代理。
 為以下 TypeScript 程式碼生成 vitest 單元測試。
@@ -51,4 +55,7 @@ ${code}`;
   }
 }
 
-main();
+main().catch((err) => {
+  console.error('❌ 生成失敗:', err.message);
+  process.exitCode = 1;
+});

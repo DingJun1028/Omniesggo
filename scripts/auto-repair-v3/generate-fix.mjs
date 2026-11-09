@@ -5,7 +5,7 @@
  * 輸入: analyze.mjs 的 JSON 輸出
  * 輸出: fix.patch（diff 格式）+ 修復說明
  */
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const MODEL = process.env.OLLAMA_MODEL || 'qwen2.5-coder:7b';
@@ -71,4 +71,7 @@ ${Object.entries(fileContents).map(([f, c]) => `--- ${f} ---\n${c}`).join('\n\n'
   }
 }
 
-main();
+main().catch((err) => {
+  console.error('❌ 生成失敗:', err.message);
+  process.exitCode = 1;
+});

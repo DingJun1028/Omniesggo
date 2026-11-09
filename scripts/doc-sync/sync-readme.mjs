@@ -4,7 +4,7 @@
  * 用法: node scripts/doc-sync/sync-readme.mjs
  * 輸出: 更新 README.md 的模組列表區段
  */
-import { readFileSync, writeFileSync, readdirSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync } from 'node:fs';
 
 const README = 'README.md';
 

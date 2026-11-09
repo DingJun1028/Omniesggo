@@ -1,6 +1,14 @@
 import os, json, re
-repo = r'C:/Users\Administrator\hermes-first-task\Omniesggo-repo'.replace('\\','/')
+from html import escape
+repo = os.path.dirname(os.path.abspath(__file__))
 reports = os.path.join(repo, 'reports')
+img_paths = {
+    f'{num:02d}': f'krea_krea-3_{num:02d}_20261103_144140_cb6a854b.png'
+    for num in range(1, 61)
+}
+missing_images = [name for name in img_paths.values() if not os.path.isfile(os.path.join(reports, 'images', name))]
+if missing_images:
+    raise FileNotFoundError(f"Missing card portraits: {', '.join(missing_images)}")
 
 with open(os.path.join(reports, 'agents_data.json'), encoding='utf-8') as f:
     agents = json.load(f)
@@ -12,7 +20,10 @@ agents.sort(key=lambda a: int(a['num']))
 card_blocks = []
 for a in agents:
     num = a['num']
-    side = a['side']
+    side = escape(str(a['side']), quote=True)
+    name = escape(str(a['name']), quote=True)
+    rname = escape(str(a['rname']), quote=True)
+    first_job = escape(str(a['job'][0]), quote=True)
     color = '#0e1a2a' if side == '蜂王' else '#1a1408'
     border_color = '#2a4a6a' if side == '蜂王' else '#4a3a1a'
     gold_color = '#00e5ff' if side == '蜂王' else '#ffd700'
@@ -21,11 +32,11 @@ for a in agents:
     
     # Build abilities list
     abilities = a['abilities']
-    abilities_html = '<br>'.join([f'<div class="ability">{ab}</div>' for ab in abilities])
+    abilities_html = '<br>'.join([f'<div class="ability">{escape(str(ab), quote=True)}</div>' for ab in abilities])
     
     # Build job list
     jobs = a['job']
-    job_html = '<br>'.join([f'<div class="job">{j}</div>' for j in jobs])
+    job_html = '<br>'.join([f'<div class="job">{escape(str(j), quote=True)}</div>' for j in jobs])
     
     card_blocks.append(f'''
 <div class="card mtm">
@@ -36,15 +47,15 @@ for a in agents:
     </div>
     <div class="card-body">
       <div class="card-art">
-        <img src="reports/{img_paths[num]}" alt="{a['name']} 畫像">
+        <img src="images/{img_paths[num]}" alt="{name} 畫像">
         <div class="card-art-overlay">
-          <div class="card-name">{a['name']}</div>
+          <div class="card-name">{name}</div>
           <div class="card-abilities">{abilities_html}</div>
         </div>
       </div>
       <div class="card-info">
-        <div class="card-type">{a['rname']}</div>
-        <div class="card-subtype">{a['job'][0]}</div>
+        <div class="card-type">{rname}</div>
+        <div class="card-subtype">{first_job}</div>
         <div class="stats-row">
           <div class="stat"><span class="lab">ATK</span><span class="fill {stat_colors['ATK']}" style="width:{a['stats']['ATK']*10}%">{a['stats']['ATK']}</span></div>
           <div class="stat"><span class="lab">DEF</span><span class="fill {stat_colors['DEF']}" style="width:{a['stats']['DEF']*10}%">{a['stats']['DEF']}</span></div>

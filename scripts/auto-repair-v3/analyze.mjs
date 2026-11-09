@@ -4,7 +4,7 @@
  * 用法: node scripts/auto-repair-v3/analyze.mjs [log-file]
  *       或 pipe: gh run view --log-failed | node scripts/auto-repair-v3/analyze.mjs
  */
-import { readFileSync } from 'fs';
+import { readFileSync } from 'node:fs';
 
 const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434';
 const MODEL = process.env.OLLAMA_MODEL || 'qwen2.5-coder:7b';
@@ -93,4 +93,4 @@ ${truncated}`;
   }
 }
 
-main();
+await main();

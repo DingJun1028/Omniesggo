@@ -21,7 +21,7 @@
   .card-meta { display: flex; gap: 8px; margin: 8px 0; font-size: 12px; }
   .badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; }
   .badge-umbra { background: #00ffff22; color: #00ffff; border: 1px solid #00ffff44; }
-  .badge-lumen { background: #ffd70022; color: #ffd700; border: 1px solid #ffd70044; }
+  .badge-lumen { background: #332c00; color: #ffd700; border: 1px solid #665800; }
   .badge-array { background: #333; color: #ccc; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; margin: 8px 0; }
   .stat { text-align: center; font-size: 11px; }
@@ -36,6 +36,7 @@
   .array-wing { border-left: 3px solid #e74c3c; }
   .array-alchemy { border-left: 3px solid #2ecc71; }
   .array-audit { border-left: 3px solid #f39c12; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; } }
 </style>
 </head>
 <body>
