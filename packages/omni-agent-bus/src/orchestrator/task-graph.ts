@@ -4,7 +4,7 @@
  * 支援並行/序列/條件分支 + retry + timeout + circuit breaker
  */
 
-export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+export type GraphTaskStatus = 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
 
 export interface TaskNode {
   id: string;
@@ -16,15 +16,15 @@ export interface TaskNode {
   /** 依賴的 task id 列表 */
   dependencies: string[];
   /** 執行函式 */
-  execute: (context: TaskContext) => Promise<TaskResult>;
+  execute: (context: TaskContext) => Promise<GraphTaskResult>;
   /** 重試次數 */
   maxRetries: number;
   /** 超時（ms） */
   timeout: number;
   /** 狀態 */
-  status: TaskStatus;
+  status: GraphTaskStatus;
   /** 結果 */
-  result?: TaskResult;
+  result?: GraphTaskResult;
   /** 錯誤 */
   error?: Error;
   /** 開始時間 */
@@ -37,12 +37,12 @@ export interface TaskContext {
   /** 共享上下文（RAG 注入等） */
   shared: Record<string, unknown>;
   /** 前序 task 結果 */
-  results: Map<string, TaskResult>;
+  results: Map<string, GraphTaskResult>;
   /** 60 員 Registry 引用 */
   registry?: unknown;
 }
 
-export interface TaskResult {
+export interface GraphTaskResult {
   success: boolean;
   output: unknown;
   metadata?: Record<string, unknown>;
@@ -56,6 +56,9 @@ export interface TaskGraphOptions {
   /** 是否在失敗時繼續 */
   continueOnError: boolean;
 }
+
+/** 相容別名（呼叫端零改動）；與 canonical src/types/sustain-write.ts 之 TaskStatus/TaskResult 為異構本地型別 */
+export type { GraphTaskStatus as TaskStatus, GraphTaskResult as TaskResult };
 
 const DEFAULT_OPTIONS: TaskGraphOptions = {
   maxConcurrency: 5,
@@ -151,8 +154,33 @@ export class TaskGraph {
     node.endTime = Date.now();
   }
 
+  /** 輪詢前置檢查：逾時即拋錯，否則允許繼續 */
+  private ensureWithinGlobalTimeout(startTime: number): void {
+    if (Date.now() - startTime > this.options.globalTimeout) {
+      throw new Error(`全域超時: ${this.options.globalTimeout}ms`);
+    }
+  }
+
+  /** 將因依賴失敗而無法再執行的 pending task 標記為 skipped 並記錄錯誤 */
+  private skipUnreachableTasks(errors: Map<string, Error>): void {
+    const pending = Array.from(this.nodes.values()).filter(n => n.status === 'pending');
+    for (const node of pending) {
+      node.status = 'skipped';
+      if (node.error) errors.set(node.id, node.error);
+    }
+  }
+
+  /** 記錄批次內失敗 task；回傳是否存在失敗 */
+  private recordBatchFailures(batch: TaskNode[], errors: Map<string, Error>): boolean {
+    const failed = batch.filter(n => n.status === 'failed');
+    for (const node of failed) {
+      if (node.error) errors.set(node.id, node.error);
+    }
+    return failed.length > 0;
+  }
+
   /** 執行整個 Task Graph */
-  async run(): Promise<{ success: boolean; results: Map<string, TaskResult>; errors: Map<string, Error> }> {
+  async run(): Promise<{ success: boolean; results: Map<string, GraphTaskResult>; errors: Map<string, Error> }> {
     const validation = this.validateDAG();
     if (!validation.valid) {
       throw new Error(`DAG 循環偵測: ${validation.cycle?.join(' → ')}`);
@@ -161,22 +189,12 @@ export class TaskGraph {
     const startTime = Date.now();
     const errors = new Map<string, Error>();
 
-    while (true) {
-      if (Date.now() - startTime > this.options.globalTimeout) {
-        throw new Error(`全域超時: ${this.options.globalTimeout}ms`);
-      }
+    for (;;) {
+      this.ensureWithinGlobalTimeout(startTime);
 
       const ready = this.getReadyTasks();
       if (ready.length === 0) {
-        // 檢查是否全部完成或有失敗
-        const pending = Array.from(this.nodes.values()).filter(n => n.status === 'pending');
-        if (pending.length > 0) {
-          // 有 pending 但無 ready → 依賴失敗
-          for (const node of pending) {
-            node.status = 'skipped';
-            if (node.error) errors.set(node.id, node.error);
-          }
-        }
+        this.skipUnreachableTasks(errors);
         break;
       }
 
@@ -184,12 +202,7 @@ export class TaskGraph {
       const batch = ready.slice(0, this.options.maxConcurrency);
       await Promise.all(batch.map(node => this.executeTask(node)));
 
-      // 檢查失敗
-      const failed = batch.filter(n => n.status === 'failed');
-      if (failed.length > 0 && !this.options.continueOnError) {
-        for (const node of failed) {
-          if (node.error) errors.set(node.id, node.error);
-        }
+      if (!this.options.continueOnError && this.recordBatchFailures(batch, errors)) {
         break;
       }
     }
