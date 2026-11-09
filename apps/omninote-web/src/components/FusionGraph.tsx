@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { OmniApiNode } from "@/lib/api";
 
 const WIKILINK_RE = /\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g;
@@ -232,6 +232,29 @@ export function FusionGraph({
   onSelect: (uuid: string) => void;
 }) {
   const graph = useMemo(() => buildFusionGraph(notes), [notes]);
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  /** 鄰接表：節點索引 → 相鄰節點索引集合（十八期懸停聚焦依據）。 */
+  const neighbors = useMemo(() => {
+    const adj: Set<number>[] = graph.nodes.map(() => new Set<number>());
+    for (const e of graph.edges) {
+      adj[e.from]?.add(e.to);
+      adj[e.to]?.add(e.from);
+    }
+    return adj;
+  }, [graph]);
+
+  const isEdgeActive = (i: number): boolean => {
+    if (hovered === null) return true;
+    const e = graph.edges[i];
+    if (e === undefined) return false;
+    return e.from === hovered || e.to === hovered;
+  };
+
+  const isNodeActive = (i: number): boolean => {
+    if (hovered === null) return true;
+    return i === hovered || (neighbors[hovered]?.has(i) ?? false);
+  };
 
   return (
     <div className="glass p-5">
@@ -251,8 +274,9 @@ export function FusionGraph({
             const alias = e.alias ?? "";
             const mx = Math.round((a.x + b.x) / 2);
             const my = Math.round((a.y + b.y) / 2);
+            const active = isEdgeActive(i);
             return (
-              <g key={i}>
+              <g key={i} className="transition-opacity" opacity={active ? 1 : 0.12}>
                 <line
                   x1={a.x}
                   y1={a.y}
@@ -282,10 +306,19 @@ export function FusionGraph({
               </g>
             );
           })}
-          {graph.nodes.map((node) => (
+          {graph.nodes.map((node, i) => {
+            const active = isNodeActive(i);
+            return (
             <g
               key={node.id}
-              className={node.isNote ? "cursor-pointer" : ""}
+              className={`transition-opacity${node.isNote ? " cursor-pointer" : ""}`}
+              opacity={active ? 1 : 0.18}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(null)}
+              onFocus={() => setHovered(i)}
+              onBlur={() => setHovered(null)}
+              tabIndex={node.isNote ? 0 : -1}
+              aria-label={`${node.label}，${node.degree} 鏈結${node.isNote ? "" : "（未解析懸浮鏈結）"}`}
               onClick={() => {
                 if (node.isNote) onSelect(node.id);
               }}
@@ -296,6 +329,8 @@ export function FusionGraph({
                 r={node.isNote ? 9 + Math.min(6, node.degree) : 6}
                 fill={PHASE_FILL[node.phase] ?? "#64748b"}
                 opacity={node.isNote ? 0.95 : 0.5}
+                stroke={active && hovered === i ? "rgba(226,232,240,0.9)" : undefined}
+                strokeWidth={active && hovered === i ? 1.5 : undefined}
               >
                 <title>
                   {`${node.label}（${node.degree} 鏈結）`}
@@ -311,7 +346,8 @@ export function FusionGraph({
                 {node.label}
               </text>
             </g>
-          ))}
+            );
+          })}
         </svg>
       )}
     </div>
