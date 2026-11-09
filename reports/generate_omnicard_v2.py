@@ -5,7 +5,7 @@ CLOSE_DIV_INDENT = '    </div>'
 CLOSE_SPAN = '</span>'
 
 # Use absolute path
-base_dir = r'C:/Users/Administrator/hermes-first-task/Omniesggo-repo'
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 json_path = os.path.join(base_dir, 'reports', 'agents_data.json')
 html_path = os.path.join(base_dir, 'reports', '60員軍團角色畫像.html')
 desktop_html_path = os.path.join(base_dir, 'reports', '60員軍團角色畫像_desktop.html')
