@@ -17,6 +17,7 @@ interface GraphNode {
   x: number;
   y: number;
   isNote: boolean;
+  degree: number;
 }
 
 interface GraphEdge {
@@ -35,6 +36,7 @@ function noteToGraphNode(note: OmniApiNode): GraphNode {
     x: 0,
     y: 0,
     isNote: true,
+    degree: 0,
   };
 }
 
@@ -90,13 +92,16 @@ function appendUnresolvedNodes(
 ): void {
   for (const target of uniqueTargets) {
     index.set(target, nodes.length);
-    nodes.push({ id: target, label: target.slice(0, 14), phase: "LINK", x: 0, y: 0, isNote: false });
+    nodes.push({ id: target, label: target.slice(0, 14), phase: "LINK", x: 0, y: 0, isNote: false, degree: 0 });
     // 未解析之鏈結標的無法連回具體節點邊；僅呈現為懸浮節點。
   }
 }
 
-function applyCircularLayout(nodes: GraphNode[]): void {
-  const R = 150;
+/**
+ * 確定性力導向佈局（十五期）：環形初始化後迭代彈簧引力（沿邊）、
+ * 全對斥力與中心重力收斂；全程無隨機源，同一輸入恆得同一佈局。
+ */
+function applyForceLayout(nodes: GraphNode[], edges: GraphEdge[]): void {
   const CX = 190;
   const CY = 170;
   const n = nodes.length;
@@ -106,13 +111,100 @@ function applyCircularLayout(nodes: GraphNode[]): void {
     nodes[0].y = CY;
     return;
   }
+
+  // 環形初始化
+  const R0 = 120;
   for (let i = 0; i < n; i++) {
-    nodes[i].x = Math.round(CX + R * Math.cos((2 * Math.PI * i) / n));
-    nodes[i].y = Math.round(CY + R * Math.sin((2 * Math.PI * i) / n));
+    nodes[i].x = CX + R0 * Math.cos((2 * Math.PI * i) / n);
+    nodes[i].y = CY + R0 * Math.sin((2 * Math.PI * i) / n);
+  }
+
+  // 連結度（佈局後半徑分級依據）
+  for (const e of edges) {
+    nodes[e.from].degree += 1;
+    nodes[e.to].degree += 1;
+  }
+
+  const REPULSION = 5200;
+  const SPRING = 0.04;
+  const IDEAL_DIST = 95;
+  const GRAVITY = 0.012;
+  const MAX_STEP = 14;
+  const ITERATIONS = 160;
+  const xs = new Float64Array(n);
+  const ys = new Float64Array(n);
+  for (let i = 0; i < n; i++) {
+    xs[i] = nodes[i].x;
+    ys[i] = nodes[i].y;
+  }
+  const fx = new Float64Array(n);
+  const fy = new Float64Array(n);
+
+  for (let iter = 0; iter < ITERATIONS; iter++) {
+    fx.fill(0);
+    fy.fill(0);
+    // 全對斥力（庫倫）
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const dx = xs[i] - xs[j];
+        const dy = ys[i] - ys[j];
+        const d2 = Math.max(dx * dx + dy * dy, 16);
+        const f = REPULSION / d2;
+        const d = Math.sqrt(d2);
+        const ux = dx / d;
+        const uy = dy / d;
+        fx[i] += ux * f;
+        fy[i] += uy * f;
+        fx[j] -= ux * f;
+        fy[j] -= uy * f;
+      }
+    }
+    // 沿邊彈簧引力（掛鉤定律，理想距離 IDEAL_DIST）
+    for (const e of edges) {
+      const dx = xs[e.to] - xs[e.from];
+      const dy = ys[e.to] - ys[e.from];
+      const d = Math.max(Math.sqrt(dx * dx + dy * dy), 1);
+      const f = SPRING * (d - IDEAL_DIST);
+      const ux = dx / d;
+      const uy = dy / d;
+      fx[e.from] += ux * f;
+      fy[e.from] += uy * f;
+      fx[e.to] -= ux * f;
+      fy[e.to] -= uy * f;
+    }
+    // 中心重力（防止發散逸出畫布）
+    for (let i = 0; i < n; i++) {
+      fx[i] += (CX - xs[i]) * GRAVITY;
+      fy[i] += (CY - ys[i]) * GRAVITY;
+    }
+    // 阻尼積分（步幅截斷避免震盪發散）
+    for (let i = 0; i < n; i++) {
+      xs[i] += Math.max(-MAX_STEP, Math.min(MAX_STEP, fx[i] * 0.05));
+      ys[i] += Math.max(-MAX_STEP, Math.min(MAX_STEP, fy[i] * 0.05));
+    }
+  }
+
+  // 邊界調適：按最終包絡等比縮放並平移回 viewBox（380×340，留 30 邊距）
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (let i = 0; i < n; i++) {
+    minX = Math.min(minX, xs[i]);
+    maxX = Math.max(maxX, xs[i]);
+    minY = Math.min(minY, ys[i]);
+    maxY = Math.max(maxY, ys[i]);
+  }
+  const spanX = Math.max(maxX - minX, 1);
+  const spanY = Math.max(maxY - minY, 1);
+  const scale = Math.min(320 / spanX, 280 / spanY);
+  for (let i = 0; i < n; i++) {
+    nodes[i].x = Math.round(30 + (xs[i] - minX) * scale + (320 - spanX * scale) / 2);
+    nodes[i].y = Math.round(30 + (ys[i] - minY) * scale + (280 - spanY * scale) / 2);
   }
 }
 
-/** 由全部筆記之區塊內容解析 [[雙鏈]]，組裝環形佈局圖譜。 */
+/** 由全部筆記之區塊內容解析 [[雙鏈]]，組裝確定性力導向圖譜。 */
 export function buildFusionGraph(notes: OmniApiNode[]): { nodes: GraphNode[]; edges: GraphEdge[] } {
   const nodes: GraphNode[] = [];
   const edges: GraphEdge[] = [];
@@ -128,7 +220,7 @@ export function buildFusionGraph(notes: OmniApiNode[]): { nodes: GraphNode[]; ed
     collectWikilinkEdges(note, index, edges, unresolvedTargets);
   }
   appendUnresolvedNodes([...new Set(unresolvedTargets)], nodes, index);
-  applyCircularLayout(nodes);
+  applyForceLayout(nodes, edges);
   return { nodes, edges };
 }
 
@@ -147,7 +239,7 @@ export function FusionGraph({
         雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結）
       </h2>
       <p className="mt-1 text-[10px] text-slate-500">
-        實線=拓撲 outlinks（未解析虛線，邊中點標示 wikilink 別名）· 灰線=內容 [[雙鏈]] 投影
+        實線=拓撲 outlinks（未解析虛線，邊中點標示 wikilink 別名）· 灰線=內容 [[雙鏈]] 投影 · 力導向佈局（連結越多半徑越大）
       </p>
       {graph.nodes.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">尚無節點可繪製。</p>
@@ -201,13 +293,17 @@ export function FusionGraph({
               <circle
                 cx={node.x}
                 cy={node.y}
-                r={node.isNote ? 10 : 6}
+                r={node.isNote ? 9 + Math.min(6, node.degree) : 6}
                 fill={PHASE_FILL[node.phase] ?? "#64748b"}
                 opacity={node.isNote ? 0.95 : 0.5}
-              />
+              >
+                <title>
+                  {`${node.label}（${node.degree} 鏈結）`}
+                </title>
+              </circle>
               <text
                 x={node.x}
-                y={node.y + 22}
+                y={node.y + (node.isNote ? 9 + Math.min(6, node.degree) : 6) + 10}
                 textAnchor="middle"
                 fontSize={9}
                 fill="rgba(226,232,240,0.75)"
