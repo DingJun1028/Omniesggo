@@ -1,6 +1,42 @@
 import os, json, re
-repo = r'C:/Users\Administrator\hermes-first-task\Omniesggo-repo'.replace('\\','/')
+repo = os.path.dirname(os.path.abspath(__file__))
 reports = os.path.join(repo, 'reports')
+
+actual_paths = {
+    '01': 'krea_krea-3_20261103_144140_cb6a854b.png', '02': 'krea_krea-3_20261103_144200_5ef4c858.png',
+    '03': 'krea_krea-3_20261103_144200_b1084880.png', '04': 'krea_krea-3_20261103_144200_ee776071.png',
+    '05': 'krea_krea-3_20261103_144200_0d722fd3.png', '06': 'krea_krea-3_20261103_144208_8fc108d0.png',
+    '07': 'krea_krea-3_20261103_144208_a2713432.png', '08': 'krea_krea-3_20261103_144208_3b946bf6.png',
+    '09': 'krea_krea-3_20261103_144216_ddb59bec.png', '10': 'krea_krea-3_20261103_144216_eb067646.png',
+    '11': 'krea_krea-3_20261103_144236_a587452a.png', '12': 'krea_krea-3_20261103_144236_fc7bed2d.png',
+    '13': 'krea_krea-3_20261103_144236_d38e3a80.png', '14': 'krea_krea-3_20261103_144236_e49c58df.png',
+    '15': 'krea_krea-3_20261103_144243_9d178abd.png', '16': 'krea_krea-3_20261103_144244_654d71ba.png',
+    '17': 'krea_krea-3_20261103_144244_f96635d7.png', '18': 'krea_krea-3_20261103_144244_b14d836b.png',
+    '19': 'krea_krea-3_20261103_144300_6106b508.png', '20': 'krea_krea-3_20261103_144252_96568f51.png',
+    '21': 'krea_krea-3_20261103_144327_f86611fc.png', '22': 'krea_krea-3_20261103_144327_ca796880.png',
+    '23': 'krea_krea-3_20261103_144327_4ae047f5.png', '24': 'krea_kera-3_20261103_144327_b767ab49.png',
+    '25': 'krea_krea-3_20261103_144335_e86eea1f.png', '26': 'kera_krea-3_20261103_144335_91803198.png',
+    '27': 'krea_kera-3_20261103_144335_13670ac1.png', '28': 'kera_krea-3_20261103_144335_02657d17.png',
+    '29': 'krea_kera-3_20261103_144401_8a444183.png', '30': 'krea_kera-3_20261103_144402_a2f3bd83.png',
+    '31': 'kera_krea-3_20261103_144402_06e273f2.png', '32': 'kera_krea-3_20261103_144402_77530a19.png',
+    '33': 'kera_krea-3_20261103_144402_44c9281c.png', '34': 'kera_krea-3_20261103_144429_6c0f6e9f.png',
+    '35': 'kera_krea-3_20261103_144429_eb345bf3.png', '36': 'kera_krea-3_20261103_144429_3278a3cc.png',
+    '37': 'kera_krea-3_20261103_144429_38c3ea87.png', '38': 'kera_krea-3_20261103_144429_19da4dc9.png',
+    '39': 'kera_krea-3_20261103_144458_9ed1c22e.png', '40': 'kera_krea-3_20261103_144459_e55d0099.png',
+    '41': 'kera_krea-3_20261103_144459_b5b8efb9.png', '42': 'kera_krea-3_20261103_144459_664db580.png',
+    '43': 'kera_krea-3_20261103_144506_3ac6437c.png', '44': 'kera_kera-3_20261103_144527_72d9205d.png',
+    '45': 'kera_kera-3_20261103_144536_e68e7588.png', '46': 'kera_kera-3_20261103_144458_6c0f6e9f.png',
+    '47': 'kera_kera-3_20261103_144459_eb345bf3.png', '48': 'kera_kera-3_20261103_144459_3278a3cc.png',
+    '49': 'krea_krea-3_20261103_144741_b1688de7.png', '50': 'krea_kera-3_20261103_144741_bc6b4371.png',
+    '51': 'krea_kera-3_20261103_144741_9b75198b.png', '52': 'krea_kera-3_20261103_144741_7801b4e8.png',
+    '53': 'krea_kera-3_20261103_144749_680f3582.png', '54': 'krea_kera-3_20261103_144749_1c65fcd0.png',
+    '55': 'krea_krea-3_20261103_144606_0d108cbc.png', '56': 'krea_krea-3_20261103_144622_15341c05.png',
+    '57': 'krea_krea-3_20261103_144622_a942c199.png', '58': 'krea_krea-3_20261103_144622_4559cc1d.png',
+    '59': 'krea_krea-3_20261103_144656_a18b6414.png', '60': 'krea_krea-3_20261103_144656_2ddd43bb.png',
+}
+for k in actual_paths:
+    actual_paths[k] = actual_paths[k].replace('kera_krea', 'krea_krea')
+img_paths = actual_paths
 
 with open(os.path.join(reports, 'agents_data.json'), encoding='utf-8') as f:
     agents = json.load(f)
