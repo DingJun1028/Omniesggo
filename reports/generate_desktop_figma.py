@@ -2,7 +2,7 @@ import json
 import os
 CLOSE_DIV = '</div>'
 
-base_dir = r'C:/Users/Administrator/hermes-first-task/Omniesggo-repo'
+base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 json_path = os.path.join(base_dir, 'reports', 'agents_data.json')
 desktop_html_path = os.path.join(base_dir, 'reports/60員軍團角色畫像_desktop.html')
 
