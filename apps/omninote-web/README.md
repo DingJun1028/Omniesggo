@@ -19,6 +19,7 @@
 - 三態躍遷操作：非 OMEGA 節點可「熔合 SIGMA」（POST /api/notes/:uuid/sigma，區塊長文熔煉）與「結晶 OMEGA」（POST /api/notes/:uuid/crystallize，實體型別輸入框注入 entity_type）；OMEGA 節點可「逆向投影 ALPHA」（POST /api/notes/:uuid/reverse）。證據鏈 ON_SIGMA_SYNTHESIS / ON_OMEGA_CRYSTALLIZE / ON_REVERSE_PROJECT 如實入鏈。
 - 同態分支操作（十二期）：節點詳情可輸入重基內容生成 SyncDeltaPacket（POST /api/notes/:uuid/rebase，LATERAL_REBASE，節點未變更、lock_hash 不變），封包可預覽（vector 與 state_signature 前綴）後套用（POST /api/notes/:uuid/apply，JSON Patch 子集生效、版本遞增、ON_SYNC_DELTA_APPLY 證據入鏈；409 分歧提示重新生成）。
 - 熵值與證據鏈視覺化（十四期）：節點詳情之熵值顯示為分級橫條（低於 0.25 青綠、0.25 至 0.5 金黃、高於 0.5 紅色，title 提示計算語義）；證據鏈改為時間軸樣式（左側縱線與節點圓點，最新一筆以青綠圓點標示，hook_lifecycle 徽章化，audit_formula 與 content_hash 以懸停提示呈現）。
+- 熔合圖譜力導向佈局（十五期）：FusionGraph 由環形佈局改為確定性力導向佈局（環形初始化後迭代彈簧引力、全對斥力與中心重力，無隨機源、同一輸入恆得同一結果），節點半徑隨連結度遞增（9 至 15），懸停顯示連結數，邊界自動調適縮放回畫布。
 
 ## 啟動
 
