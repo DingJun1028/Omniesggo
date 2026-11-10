@@ -1,11 +1,2 @@
-report updated Sat Nov  7 07:48:25 UTC 2026
-run started v8
-SSH probe: DOWN
-key/fingerprint MISMATCH
-SSH unreachable - querying OCI
-COMPART_ERR: ServiceError: {     "client_version": "Oracle-PythonSDK/2.190.0, Oracle-PythonCLI/3.96.0",     "code": "NotAuthenticated",     "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",     "message": "The required information to complete authentication was not provided or was incorrect.",     "opc-request-id": "DF129F3C544B40F999B6A16EA44E688C/B7D8894E48D01164A8D7EE6A53494E89/8C1C5154A2C3C67F351CA1BB61716C61",     "operation_name": "list_compartments",     "request_endpoint": "GET https://identity.ap-singapore-1.oci.oraclecloud.com/20160918/compartments",     "status": 401,     "target_service": "identity",     "timestamp": "2026-11-07T07:47:52.463735+00:00",     "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message." } 
-INST_ERR: ServiceError: {     "client_version": "Oracle-PythonSDK/2.190.0, Oracle-PythonCLI/3.96.0",     "code": "NotAuthenticated",     "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",     "message": "The required information to complete authentication was not provided or was incorrect.",     "opc-request-id": "08CC0001E7CA4135950B8E3F4634EA9F/DA55D6AEBC5617DCABD7EE6A53494EB3/D23A953947534F25FEF6C0C7E8E8EE03",     "operation_name": "list_instances",     "request_endpoint": "GET https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",     "status": 401,     "target_service": "compute",     "timestamp": "2026-11-07T07:47:55.488254+00:00",     "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message." } 
-NO_INSTANCES_FOUND check tenancy/secrets
-post-repair SSH probe
-POST_RECOVERY SSH_STILL_DOWN
-run finished Sat Nov  7 07:48:25 UTC 2026
+report updated Tue Nov 10 09:41:35 UTC 2026
+run started v9
