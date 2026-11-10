@@ -39,7 +39,7 @@ jobs:
           git push origin HEAD:fix/hermes-serve-recovery || true
           EOS
           chmod +x /usr/local/bin/report
-          report "run started v9"
+          report "run started v10"
       - name: SSH probe
         id: sshprobe
         timeout-minutes: 3
@@ -53,8 +53,7 @@ jobs:
             -o ConnectTimeout=25 -p 22 "$VPS_USER@$VPS_HOST" \
             'echo SSH_OK; uptime' > /tmp/sshprobe.out 2>&1
           if grep -q SSH_OK /tmp/sshprobe.out
-       
-   then
+          then
             echo "up=true" >> $GITHUB_OUTPUT
             report "SSH probe: UP"
           else
@@ -106,8 +105,7 @@ jobs:
           oci iam compartment list --compartment-id "$OCI_TENANCY" --all \
             > /tmp/compartments.json 2>/tmp/oci-err1.txt
           COMPARTMENTS="$OCI_TENANCY"
-          if 
-[ -s /tmp/compartments.json ]; then
+          if [ -s /tmp/compartments.json ]; then
             for c in $(jq -r '.data[].id' /tmp/compartments.json 2>/dev/null); do
               COMPARTMENTS="$COMPARTMENTS $c"
             done
@@ -145,8 +143,7 @@ jobs:
                   else
                     report "issuing RESET"
                     oci compute instance action --instance-id "$iid" \
-                      --action RESET --wait-for-state RU
-NNING \
+                      --action RESET --wait-for-state RUNNING \
                       --max-wait-seconds 480 >/dev/null 2>&1
                     report "RESET issued, waiting 120s"
                     sleep 120
