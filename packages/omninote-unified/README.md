@@ -99,6 +99,7 @@ node --experimental-transform-types bin/omninote-server.ts /path/to/notes
 | POST | /api/notes/:uuid/rebase | LATERAL_REBASE 同態分支：生成同相位 SyncDeltaPacket（`{ to_phase?, clock_vector?, patch: [{op, path, value?}] }`；唯讀，不落地、不寫證據鏈、不變更 lock_hash；422 若跨相位、缺 patch 或 op 非法） |
 | POST | /api/notes/:uuid/apply | SyncDeltaPacket 對端套用（body 為完整封包）：JSON Patch 子集生效（add/remove/replace/move；move 之 value 為來源路徑字串）、版本 patch 遞增、outlinks 熔合重建、ON_SYNC_DELTA_APPLY 證據入鏈；409 若 state_signature 分歧（重放即拒）；422 若封包形狀、uuid 不符、跨相位或路徑不可達 |
 | POST | /api/notes/:uuid/purify | 熵減自癒：對現存宇宙重標註死鏈（resolved=false）並計算 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈） |
+| GET | /api/notes/:uuid/evidence | 證據鏈唯讀查詢（二十期）：`?limit=1..500&offset>=0&hook=ON_API_APPEND`（皆可選，limit 預設 50、offset 預設 0、hook 為精確匹配）；回 `{ uuid, node_version, lock_hash, total, offset, limit, entries }`，鏈序為入鏈順序；404 若節點不存在、422 INVALID_QUERY 若參數非法 |
 | DELETE | /api/notes/:uuid | 刪除節點 |
 | POST | /api/search | 語意搜尋：\`{ query, top_k?, threshold? }\`；嵌入不可用時 \`degraded: true\` 且零結果（503 若未啟用嵌入器） |
 | POST | /api/drafts | 隨時進度草稿存檔：\`{ draft_id, content, origin_tag?, tags? }\` 冪等 upsert（重複呼叫覆寫且 revision 遞增） |

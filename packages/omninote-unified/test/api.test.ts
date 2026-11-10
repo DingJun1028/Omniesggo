@@ -385,3 +385,102 @@ test("API-10 對端套用道閘：404、封包形狀 422、uuid 不符 422、非
     assert.equal(after.blocks.length, 1);
   });
 });
+
+test("API-11 證據鏈查詢：預設全量、hook 過濾、limit/offset 分頁、狀態綁定欄位", async () => {
+  await withServer(async ({ port }) => {
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "證據鏈查詢甲" }),
+    });
+    const created = (await create.json()) as { node: { uuid: string } };
+
+    // 追加兩個區塊 → 證據鏈 3 筆（ON_ALPHA_CAPTURE + 2×ON_API_APPEND）
+    for (const text of ["追加一", "追加二"]) {
+      const append = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/blocks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "paragraph", content: text }),
+      });
+      assert.equal(append.status, 200);
+    }
+
+    const all = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence");
+    assert.equal(all.status, 200);
+    const allBody = (await all.json()) as {
+      ok: boolean;
+      uuid: string;
+      node_version: string;
+      lock_hash: string;
+      total: number;
+      offset: number;
+      limit: number;
+      entries: Array<{ hook_lifecycle: string }>;
+    };
+    assert.equal(allBody.ok, true);
+    assert.equal(allBody.uuid, created.node.uuid);
+    assert.equal(allBody.total, 3);
+    assert.equal(allBody.offset, 0);
+    assert.equal(allBody.limit, 50);
+    assert.equal(allBody.entries.length, 3);
+    assert.match(allBody.lock_hash, /^[0-9a-f]{64}$/);
+    // 鏈序：ON_ALPHA_CAPTURE 為首筆
+    assert.equal(allBody.entries[0]?.hook_lifecycle, "ON_ALPHA_CAPTURE");
+    assert.equal(allBody.entries[2]?.hook_lifecycle, "ON_API_APPEND");
+
+    // hook 過濾
+    const filtered = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?hook=ON_API_APPEND");
+    const filteredBody = (await filtered.json()) as { total: number; entries: Array<{ hook_lifecycle: string }> };
+    assert.equal(filteredBody.total, 2);
+    assert.ok(filteredBody.entries.every((e) => e.hook_lifecycle === "ON_API_APPEND"));
+
+    // limit/offset 分頁（查詢字串於路由前綴剝離仍可解析）
+    const page = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?limit=2&offset=1");
+    const pageBody = (await page.json()) as { total: number; offset: number; limit: number; entries: Array<{ hook_lifecycle: string }> };
+    assert.equal(pageBody.total, 3);
+    assert.equal(pageBody.offset, 1);
+    assert.equal(pageBody.limit, 2);
+    assert.equal(pageBody.entries.length, 2);
+    assert.equal(pageBody.entries[0]?.hook_lifecycle, "ON_API_APPEND");
+
+    // 逾界 offset 回空陣列、total 不變
+    const beyond = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?offset=99");
+    const beyondBody = (await beyond.json()) as { total: number; entries: unknown[] };
+    assert.equal(beyondBody.total, 3);
+    assert.equal(beyondBody.entries.length, 0);
+  });
+});
+
+test("API-12 證據鏈查詢道閘：404、非法 limit 422、非法 offset 422、空 hook 422", async () => {
+  await withServer(async ({ port }) => {
+    const missing = await fetch(base(port) + "/api/notes/00000000-0000-4000-8000-000000000000/evidence");
+    assert.equal(missing.status, 404);
+    assert.equal(((await missing.json()) as { error: string }).error, "NODE_NOT_FOUND");
+
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "證據鏈道閘甲" }),
+    });
+    const created = (await create.json()) as { node: { uuid: string } };
+
+    const badLimit = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?limit=0");
+    assert.equal(badLimit.status, 422);
+    assert.equal(((await badLimit.json()) as { error: string }).error, "INVALID_QUERY");
+
+    const hugeLimit = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?limit=501");
+    assert.equal(hugeLimit.status, 422);
+
+    const badOffset = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?offset=-1");
+    assert.equal(badOffset.status, 422);
+
+    const emptyHook = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?hook=");
+    assert.equal(emptyHook.status, 422);
+
+    // 未知 hook：合法查詢，回零筆（如實區分 422 與空結果）
+    const unknownHook = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence?hook=ON_NO_SUCH_HOOK");
+    assert.equal(unknownHook.status, 200);
+    const unknownBody = (await unknownHook.json()) as { total: number; entries: unknown[] };
+    assert.equal(unknownBody.total, 0);
+  });
+});
