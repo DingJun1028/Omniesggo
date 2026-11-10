@@ -114,7 +114,7 @@ esggo/
 │   └── omni-api/           #   平台 API 層
 ├── packages/              # ★ 18 個 workspace 套件（見 §8 核心模組）
 │   ├── omni-core/          #   IComponentCore 心核介面 + sealComponentCore Hash Lock 刻印
-│   ├── omni-arch/          #   12大萬能架構：12模組 + OmniHeart × OmniBrain 契約實作（PR #112）
+│   ├── omni-arch/          #   12大萬能架構：12模組 + OmniHeart × OmniBrain + OmniHive 全知蜂巢（共享黑板＋動態競標）+ OmniProphet 先知矩陣 + 三模化身（tri-mode）+ 工具信任閘
 │   ├── oa-framework/       #   OA 萬能元框架（7 子框架 + 5T 管線，offline 可驗）
 │   ├── omni-agent/         #   代理本體（5T Gate）
 │   ├── omni-agent-bus/     #   萬能代理總線（事件骨幹, 冪等重放/分裂快照）
@@ -265,7 +265,7 @@ VPS 新機一鍵：`sudo node vps/junaikey-optimize.mjs`（Docker log rotation�
 | `@esggo/oa-framework` | OA 萬能元框架：7 子框架＋5T 管線，可離線 typecheck/build/註冊煙霧驗證 |
 | `@esggo/omni-agent` | 代理本體（5T Gate 出入口） |
 | `@esggo/omni-agent-bus` | 萬能代理總線：事件／訊息骨幹，冪等重放、分裂快照、conduit 模式、OA 橋接、TencentDB 團隊記憶 |
-| `@esggo/omni-arch` | 12大萬能架構實作：12 模組（四大維度）＋ OmniArch／OmniEngine／OmniTheme／OmniSeed／OmniUserRegistry ＋ OmniHeart × OmniBrain 生命體編排；正典見 `docs/vault-canon/OMNI-ARCH-12-MODULES.md` |
+| `@esggo/omni-arch` | 12大萬能架構實作：12 模組（四大維度）＋ OmniArch／OmniEngine／OmniTheme／OmniSeed／OmniUserRegistry ＋ OmniHeart × OmniBrain 生命體編排 ＋ OmniHive 全知蜂巢（共享黑板＋動態競標）／OmniProphet 先知矩陣（多重宇宙並行）／三模化身 tri-mode／工具信任閘 tool-trust-gate；正典見 `docs/vault-canon/OMNI-ARCH-12-MODULES.md` |
 | `@esggo/ollama-mcp` | 自架 Ollama MCP 橋（De-Google 推理層） |
 | 其餘 | `omni-memory` `omni-db` `omni-forge` `omni-bridge` `capacities` `omni-tag` `shared` `errors` `ui` `omni-ui` `i18n` `cli` |
 
