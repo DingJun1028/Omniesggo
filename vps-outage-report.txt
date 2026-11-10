@@ -1,4 +1,4 @@
-report updated Tue Nov 10 09:43:22 UTC 2026
+report updated Tue Nov 10 09:43:23 UTC 2026
 run started v9
 SSH probe: DOWN
 key/fingerprint MISMATCH
@@ -8,3 +8,4 @@ INST_ERR: ServiceError: {     "client_version": "Oracle-PythonSDK/2.190.0, Oracl
 NO_INSTANCES_FOUND check tenancy/secrets
 post-repair SSH probe
 POST_RECOVERY SSH_STILL_DOWN
+run finished Tue Nov 10 09:43:23 UTC 2026
