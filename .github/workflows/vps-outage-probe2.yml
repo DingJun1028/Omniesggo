@@ -1,0 +1,76 @@
+name: VPS outage probe v2 (2026-11-10)
+
+on:
+  push:
+    branches: [probe/vps-outage-20261110]
+    paths: [".github/workflows/vps-outage-probe2.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      OCI_CLI_USER: ${{ secrets.OCI_USER_OCID }}
+      OCI_CLI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+      OCI_CLI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_API_KEY }}
+      OCI_CLI_REGION: ${{ secrets.OCI_REGION }}
+      OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Init result file
+        run: |
+          mkdir -p /tmp/probe
+          echo "# VPS outage probe v2 — $(date -u +%Y-%m-%dT%H:%M:%SZ)" > /tmp/probe/result2.md
+
+      - name: Install oci-cli
+        run: python3 -m pip install --user --quiet oci-cli >/dev/null 2>&1 || true
+
+      - name: Target instance get (masked error)
+        run: |
+          set +e
+          export PATH="$HOME/.local/bin:$PATH"
+          ERR="$(oci compute instance get --instance-id "$OCI_TARGET" --query 'data."lifecycle-state"' --raw-output 2>&1)"
+          RC=$?
+          MASKED="$(printf '%s' "$ERR" | sed -E 's/ocid1\.[a-z0-9.*_-]+/<OCID>/g' | head -6)"
+          {
+            echo "- target_get_rc: $RC"
+            echo "- target_get_output_or_err (masked):"
+            printf '%s\n' "$MASKED" | sed 's/^/    /'
+          } >> /tmp/probe/result2.md
+
+      - name: Enumerate compartments and instances
+        run: |
+          set +e
+          export PATH="$HOME/.local/bin:$PATH"
+          echo "- compartments (names only):" >> /tmp/probe/result2.md
+          COMP_JSON="$(oci iam compartment list --all --query 'data[?"lifecycle-state"==`ACTIVE`].{name:"name",id:"id"}' 2>/dev/null)"
+          if [ -z "$COMP_JSON" ]; then
+            echo "    compartment_list: FAILED" >> /tmp/probe/result2.md
+            echo "    tenancy_root_instances:" >> /tmp/probe/result2.md
+            ROOT_JSON="$(oci compute instance list --compartment-id "$OCI_CLI_TENANCY" --all --query 'data[].{name:"display-name",state:"lifecycle-state"}' 2>/dev/null)"
+            printf '%s\n' "$ROOT_JSON" | sed 's/^/    /' >> /tmp/probe/result2.md
+          else
+            printf '%s\n' "$COMP_JSON" | jq -r '.[].name' 2>/dev/null | sed 's/^/    /' >> /tmp/probe/result2.md
+            echo "- instances per compartment (name + state):" >> /tmp/probe/result2.md
+            for CID in $(printf '%s\n' "$COMP_JSON" | jq -r '.[].id' 2>/dev/null); do
+              INST="$(oci compute instance list --compartment-id "$CID" --all --query 'data[].{name:"display-name",state:"lifecycle-state"}' 2>/dev/null)"
+              if [ -n "$INST" ]; then
+                printf '%s\n' "$INST" | jq -r '.[] | "    \(.name): \(.state)"' 2>/dev/null >> /tmp/probe/result2.md
+              fi
+            done
+          fi
+
+      - name: Commit result
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cp /tmp/probe/result2.md probe-result2.md
+          git add probe-result2.md
+          git diff --cached --quiet && echo "nothing to commit" || git commit -m "probe: v2 results $(date -u +%H%M%S)Z"
+          git push
