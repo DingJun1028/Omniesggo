@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createSupabaseAuditSink,
+  createSupabaseDaoSink,
   createSupabaseExchangeSink,
   createSupabasePulseSink,
   createSupabaseReportSink,
@@ -95,6 +96,27 @@ function sampleLot() {
   };
 }
 
+function sampleTrade() {
+  return {
+    uuid: 'oesg-dao.1',
+    version: '1.0.0',
+    timestamp: 1,
+    source_origin: 'oesg://dao',
+    orgId: 'org-demo',
+    buyerOrgId: 'org-buyer',
+    lotUuid: 'oesg-exchange.1',
+    verdictUuid: 'oesg-audit.1',
+    reportUuid: 'oesg-report.1',
+    periodStart: 10,
+    periodEnd: 20,
+    kgCo2e: 592.8,
+    action: 'settle',
+    status: 'settled',
+    attestationHash: 'e'.repeat(64),
+    failures: [],
+  };
+}
+
 describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
   it('pulse sink: 正確端點、service key 標頭與列映射', async () => {
     const { calls, impl } = mockFetch();
@@ -153,6 +175,7 @@ describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
     expect(createSupabaseReportSink(BASE).id).toBe('supabase-report-sink:oesg_reports');
     expect(createSupabaseAuditSink(BASE).id).toBe('supabase-audit-sink:oesg_audit_verdicts');
     expect(createSupabaseExchangeSink(BASE).id).toBe('supabase-exchange-sink:oesg_exchange_lots');
+    expect(createSupabaseDaoSink(BASE).id).toBe('supabase-dao-sink:oesg_dao_trades');
   });
 
   it('audit sink: 正確端點與列映射 (verdict/findings/attestation_hash)', async () => {
@@ -191,11 +214,38 @@ describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
     expect(body.payload.uuid).toBe('oesg-exchange.1');
   });
 
+  it('dao sink: 正確端點與列映射 (trade_uuid/lot_uuid/buyer_org_id/action/status)', async () => {
+    const { calls, impl } = mockFetch();
+    const sink = createSupabaseDaoSink({ ...BASE, fetchImpl: impl });
+
+    await sink.write(sampleTrade() as never);
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe('https://demo.supabase.co/rest/v1/oesg_dao_trades');
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.trade_uuid).toBe('oesg-dao.1');
+    expect(body.lot_uuid).toBe('oesg-exchange.1');
+    expect(body.org_id).toBe('org-demo');
+    expect(body.buyer_org_id).toBe('org-buyer');
+    expect(body.action).toBe('settle');
+    expect(body.status).toBe('settled');
+    expect(body.attestation_hash).toHaveLength(64);
+    expect(body.payload.uuid).toBe('oesg-dao.1');
+  });
+
   it('exchange sink: 非 2xx 轉明確錯誤', async () => {
     const { impl } = mockFetch(403);
     const sink = createSupabaseExchangeSink({ ...BASE, fetchImpl: impl });
     await expect(sink.write(sampleLot() as never)).rejects.toThrowError(
       /Supabase insert into oesg_exchange_lots failed: 403/
+    );
+  });
+
+  it('dao sink: 非 2xx 轉明確錯誤', async () => {
+    const { impl } = mockFetch(403);
+    const sink = createSupabaseDaoSink({ ...BASE, fetchImpl: impl });
+    await expect(sink.write(sampleTrade() as never)).rejects.toThrowError(
+      /Supabase insert into oesg_dao_trades failed: 403/
     );
   });
 

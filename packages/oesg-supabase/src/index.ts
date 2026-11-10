@@ -1,5 +1,6 @@
 export {
   createSupabaseAuditSink,
+  createSupabaseDaoSink,
   createSupabaseExchangeSink,
   createSupabasePulseSink,
   createSupabaseReportSink,
