@@ -8,7 +8,7 @@
  * - 表結構對應 migration oesg_pulse_report_tables (RLS 僅 service_role)
  */
 import type { AuditSink, AuditVerdict } from '@esggo/oesg-audit';
-import type { DaoSink, DaoTrade } from '@esggo/oesg-dao';
+import type { DaoAction, DaoSink } from '@esggo/oesg-dao';
 import type { ExchangeLot, ExchangeSink } from '@esggo/oesg-exchange';
 import type { PulseSink } from '@esggo/oesg-pulse';
 import type { OesgReport, ReportSink } from '@esggo/oesg-report';
@@ -18,7 +18,7 @@ export interface PostgrestOptions {
   readonly url: string;
   /** service role key (server-only, 唯寫入用) */
   readonly serviceKey: string;
-  /** 覆寫表名 (預設 oesg_pulse_ticks / oesg_reports / oesg_audit_verdicts / oesg_exchange_lots / oesg_dao_trades) */
+  /** 覆寫表名 (預設 oesg_pulse_ticks / oesg_reports / oesg_audit_verdicts / oesg_exchange_lots / oesg_dao_actions) */
   readonly pulseTable?: string;
   readonly reportTable?: string;
   readonly auditTable?: string;
@@ -35,7 +35,7 @@ const DEFAULT_PULSE_TABLE = 'oesg_pulse_ticks';
 const DEFAULT_REPORT_TABLE = 'oesg_reports';
 const DEFAULT_AUDIT_TABLE = 'oesg_audit_verdicts';
 const DEFAULT_EXCHANGE_TABLE = 'oesg_exchange_lots';
-const DEFAULT_DAO_TABLE = 'oesg_dao_trades';
+const DEFAULT_DAO_TABLE = 'oesg_dao_actions';
 
 async function postgrestInsert(
   fetchImpl: FetchLike,
@@ -44,18 +44,18 @@ async function postgrestInsert(
   table: string,
   row: Record<string, unknown>
 ): Promise<void> {
-  const response = await fetchImpl(url + '/rest/v1/' + table, {
+  const response = await fetchImpl(`${url}/rest/v1/${table}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: 'Bearer ' + serviceKey,
+      Authorization: `Bearer ${serviceKey}`,
       apikey: serviceKey,
       Prefer: 'return=minimal',
     },
     body: JSON.stringify(row),
   });
   if (!response.ok) {
-    throw new Error('Supabase insert into ' + table + ' failed: ' + response.status + ' ' + response.statusText);
+    throw new Error(`Supabase insert into ${table} failed: ${response.status} ${response.statusText}`);
   }
 }
 
@@ -64,7 +64,7 @@ export function createSupabasePulseSink(options: PostgrestOptions): PulseSink {
   const { url, serviceKey } = options;
   const table = options.pulseTable ?? DEFAULT_PULSE_TABLE;
   const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
-  const id = options.id ?? 'supabase-pulse-sink:' + table;
+  const id = options.id ?? `supabase-pulse-sink:${table}`;
   return {
     id,
     async write(tick) {
@@ -87,7 +87,7 @@ export function createSupabaseReportSink(options: PostgrestOptions): ReportSink 
   const { url, serviceKey } = options;
   const table = options.reportTable ?? DEFAULT_REPORT_TABLE;
   const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
-  const id = options.id ?? 'supabase-report-sink:' + table;
+  const id = options.id ?? `supabase-report-sink:${table}`;
   return {
     id,
     async write(report: Readonly<OesgReport>) {
@@ -113,7 +113,7 @@ export function createSupabaseAuditSink(options: PostgrestOptions): AuditSink {
   const { url, serviceKey } = options;
   const table = options.auditTable ?? DEFAULT_AUDIT_TABLE;
   const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
-  const id = options.id ?? 'supabase-audit-sink:' + table;
+  const id = options.id ?? `supabase-audit-sink:${table}`;
   return {
     id,
     async write(verdict: Readonly<AuditVerdict>) {
@@ -137,7 +137,7 @@ export function createSupabaseExchangeSink(options: PostgrestOptions): ExchangeS
   const { url, serviceKey } = options;
   const table = options.exchangeTable ?? DEFAULT_EXCHANGE_TABLE;
   const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
-  const id = options.id ?? 'supabase-exchange-sink:' + table;
+  const id = options.id ?? `supabase-exchange-sink:${table}`;
   return {
     id,
     async write(lot: Readonly<ExchangeLot>) {
@@ -157,29 +157,28 @@ export function createSupabaseExchangeSink(options: PostgrestOptions): ExchangeS
   };
 }
 
-/** OESG-DAO 治理交易寫出埠 (PostgREST) — 表結構對應 migration oesg_dao_trades_table */
+/** OESG-DAO 治理動作寫出埠 (PostgREST) — 表結構對應 migration oesg_dao_actions_table */
 export function createSupabaseDaoSink(options: PostgrestOptions): DaoSink {
   const { url, serviceKey } = options;
   const table = options.daoTable ?? DEFAULT_DAO_TABLE;
   const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
-  const id = options.id ?? 'supabase-dao-sink:' + table;
+  const id = options.id ?? `supabase-dao-sink:${table}`;
   return {
     id,
-    async write(trade: Readonly<DaoTrade>) {
+    async write(action: Readonly<DaoAction>) {
       await postgrestInsert(fetchImpl, url, serviceKey, table, {
-        trade_uuid: trade.uuid,
-        lot_uuid: trade.lotUuid,
-        verdict_uuid: trade.verdictUuid,
-        report_uuid: trade.reportUuid,
-        org_id: trade.orgId,
-        buyer_org_id: trade.buyerOrgId,
-        period_start: trade.periodStart,
-        period_end: trade.periodEnd,
-        kgco2e: trade.kgCo2e,
-        action: trade.action,
-        status: trade.status,
-        attestation_hash: trade.attestationHash,
-        payload: trade,
+        action_uuid: action.uuid,
+        lot_uuid: action.lotUuid,
+        verdict_uuid: action.verdictUuid,
+        report_uuid: action.reportUuid,
+        org_id: action.orgId,
+        to_org_id: action.toOrgId,
+        action: action.action,
+        kg_co2e: action.kgCo2e,
+        period_start: action.periodStart,
+        period_end: action.periodEnd,
+        attestation_hash: action.attestationHash,
+        payload: action,
       });
     },
   };

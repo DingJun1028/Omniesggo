@@ -12,15 +12,14 @@
   "keywords": [
     "oesg",
     "dao",
-    "governance",
-    "carbon-credit",
+    "carbon-governance",
     "esggo",
     "iso-14064-1",
     "5t-protocol"
   ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
-  "description": "OESG-DAO 減量額度治理引擎 — OESG 五路線圖第五站（Pulse→Report→Audit→Exchange→DAO），訂閱 oesg.exchange.lot，對掛牌額度執行 settle 交割 / retire 註銷治理並廣播 oesg.dao.trade",
+  "description": "OESG-DAO 額度治理 — OESG 五路線圖終站（Pulse→Report→Audit→Exchange→DAO），訂閱 oesg.exchange.lot，治理掛牌額度之轉讓與註銷並廣播 oesg.dao.action",
   "dependencies": {
     "@esggo/oesg-exchange": "workspace:*",
     "@esggo/omni-arch": "workspace:*",
