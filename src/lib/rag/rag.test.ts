@@ -88,6 +88,7 @@ describe("deterministic idempotency（R4 冪等重放）", () => {
     for (const _ of [1, 2]) {
       queueResponses(
         { status: 404, body: {} },
+        { status: 201, body: {} },
         { status: 200, body: { embedding: [0.5] } },
         { status: 201, body: {} }
       );
@@ -106,6 +107,7 @@ describe("indexDocument", () => {
     const repo: SupabaseChunkRepo = { saveVectorRef };
     queueResponses(
       { status: 404, body: {} },
+      { status: 201, body: {} },
       { status: 200, body: { embedding: [0.1, 0.2] } },
       { status: 201, body: {} }
     );
