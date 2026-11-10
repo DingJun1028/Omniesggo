@@ -1,0 +1,172 @@
+name: VPS outage probe (2026-11-10)
+
+on:
+  push:
+    branches: [probe/vps-outage-20261110]
+    paths: [".github/workflows/vps-outage-probe.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Init result file
+        run: |
+          mkdir -p /tmp/probe
+          echo "# VPS outage probe — $(date -u +%Y-%m-%dT%H:%M:%SZ) — runner-side" > /tmp/probe/result.md
+          echo "- runner_os: $(uname -srm)" >> /tmp/probe/result.md
+
+      - name: TCP port 22 probe (banner grab, 3 attempts)
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set +e
+          ok=0
+          for i in 1 2 3; do
+            BANNER="$(timeout 8 bash -c 'exec 3<>/dev/tcp/$VPS_HOST/22 && head -c 40 <&3' 2>/dev/null)"
+            if [ -n "$BANNER" ]; then
+              ok=1
+              echo "- ssh22: REACHABLE attempt=$i banner_len=${#BANNER}" >> /tmp/probe/result.md
+              break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != "1" ]; then
+            echo "- ssh22: UNREACHABLE (no banner, 3 attempts)" >> /tmp/probe/result.md
+          fi
+          echo "SSH22_OK=$ok" >> "$GITHUB_ENV"
+
+      - name: TCP probes 80/443 on VPS host
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        run: |
+          set +e
+          for p in 80 443; do
+            if timeout 8 bash -c "exec 3<>/dev/tcp/\$VPS_HOST/$p" 2>/dev/null; then
+              echo "- host_port_$p: OPEN" >> /tmp/probe/result.md
+            else
+              echo "- host_port_$p: CLOSED_OR_FILTERED" >> /tmp/probe/result.md
+            fi
+          done
+
+      - name: HTTP probes (public sites)
+        run: |
+          set +e
+          for site in esggo.co hermex.esggo.co ftgtours.esggo.co; do
+            CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 12 "https://$site")"
+            echo "- https_$site: ${CODE:-NA}" >> /tmp/probe/result.md
+          done
+
+      - name: Install oci-cli
+        run: |
+          set +e
+          python3 -m pip install --user --quiet oci-cli >/dev/null 2>&1
+          export PATH="$HOME/.local/bin:$PATH"
+          V="$(oci --version 2>/dev/null)"
+          if [ -n "$V" ]; then
+            echo "- oci_cli: OK ($V)" >> /tmp/probe/result.md
+          else
+            echo "- oci_cli: INSTALL_FAILED" >> /tmp/probe/result.md
+          fi
+
+      - name: Query OCI instance lifecycle state
+        env:
+          OCI_CLI_USER: ${{ secrets.OCI_USER_OCID }}
+          OCI_CLI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_API_KEY }}
+          OCI_CLI_REGION: ${{ secrets.OCI_REGION }}
+          OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+        run: |
+          set +e
+          export PATH="$HOME/.local/bin:$PATH"
+          STATE="$(oci compute instance get --instance-id "$OCI_TARGET" --query 'data."lifecycle-state"' --raw-output 2>/tmp/oci_err.log)"
+          if [ -z "$STATE" ]; then
+            echo "- oci_instance_state: QUERY_FAILED (see masked err)" >> /tmp/probe/result.md
+            echo "INSTANCE_STATE=UNKNOWN" >> "$GITHUB_ENV"
+          else
+            echo "- oci_instance_state: $STATE" >> /tmp/probe/result.md
+            echo "INSTANCE_STATE=$STATE" >> "$GITHUB_ENV"
+          fi
+
+      - name: Start instance if STOPPED
+        env:
+          OCI_CLI_USER: ${{ secrets.OCI_USER_OCID }}
+          OCI_CLI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_API_KEY }}
+          OCI_CLI_REGION: ${{ secrets.OCI_REGION }}
+          OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+        if: env.INSTANCE_STATE == 'STOPPED'
+        run: |
+          set +e
+          export PATH="$HOME/.local/bin:$PATH"
+          oci compute instance action --instance-id "$OCI_TARGET" --action START --query 'data."lifecycle-state"' --raw-output >/dev/null 2>&1
+          echo "- action: START_ISSUED" >> /tmp/probe/result.md
+          reached=0
+          for i in $(seq 1 20); do
+            sleep 10
+            S="$(oci compute instance get --instance-id "$OCI_TARGET" --query 'data."lifecycle-state"' --raw-output 2>/dev/null)"
+            if [ "$S" = "RUNNING" ]; then
+              echo "- action: RUNNING_reached_after_$((i*10))s" >> /tmp/probe/result.md
+              reached=1
+              break
+            fi
+          done
+          if [ "$reached" != "1" ]; then
+            echo "- action: NOT_RUNNING_after_200s (state=$S)" >> /tmp/probe/result.md
+          fi
+
+      - name: Re-probe port 22 after potential start
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+        if: env.SSH22_OK == '0' && env.INSTANCE_STATE == 'STOPPED'
+        run: |
+          set +e
+          for i in $(seq 1 18); do
+            BANNER="$(timeout 8 bash -c 'exec 3<>/dev/tcp/$VPS_HOST/22 && head -c 40 <&3' 2>/dev/null)"
+            if [ -n "$BANNER" ]; then
+              echo "- ssh22_recheck: REACHABLE_after_$((i*10))s" >> /tmp/probe/result.md
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "- ssh22_recheck: STILL_UNREACHABLE_after_180s" >> /tmp/probe/result.md
+
+      - name: SSH diagnostics if reachable
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+        if: env.SSH22_OK == '1'
+        run: |
+          set +e
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key
+          chmod 600 ~/.ssh/vps_key
+          R="$(timeout 30 ssh -i ~/.ssh/vps_key -o StrictHostKeyChecking=no -o ConnectTimeout=15 -o BatchMode=yes "$VPS_USER@$VPS_HOST" '
+            echo "uptime: $(uptime -p)";
+            echo "booted: $(uptime -s)";
+            systemctl is-active sshd 2>/dev/null | sed "s/^/sshd_active: /";
+            sudo fail2ban-client status sshd 2>/dev/null | grep -i "currently banned" | sed "s/^/fail2ban_/" || echo "fail2ban: NA";
+            free -m | awk "NR==2 {print \"mem_total_mb: \" \$2}";
+          ' 2>&1)"
+          {
+            echo "- ssh_diag_rc=$?"
+            echo "$R" | sed 's/^/- remote: /'
+          } >> /tmp/probe/result.md
+
+      - name: Commit result
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cp /tmp/probe/result.md probe-result.md
+          git add probe-result.md
+          git diff --cached --quiet && echo "nothing to commit" || git commit -m "probe: VPS outage result $(date -u +%H%M%S)Z"
+          git push
