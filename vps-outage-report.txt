@@ -1,2 +1,3 @@
-report updated Tue Nov 10 09:55:35 UTC 2026
+report updated Tue Nov 10 09:56:02 UTC 2026
 run started v10
+SSH probe: DOWN
