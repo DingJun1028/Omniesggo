@@ -1,0 +1,70 @@
+name: VPS outage probe v3 (2026-11-10)
+
+on:
+  push:
+    branches: [probe/vps-outage-20261110]
+    paths: [".github/workflows/vps-outage-probe3.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OCI_USER: ${{ secrets.OCI_USER_OCID }}
+      OCI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+      OCI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+      OCI_KEY: ${{ secrets.OCI_API_KEY }}
+      OCI_REGION: ${{ secrets.OCI_REGION }}
+      OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Init result file
+        run: |
+          mkdir -p /tmp/probe
+          echo "# VPS outage probe v3 — $(date -u +%Y-%m-%dT%H:%M:%SZ) — file-based config" > /tmp/probe/result3.md
+
+      - name: Install oci-cli
+        run: python3 -m pip install --user --quiet oci-cli >/dev/null 2>&1 || true
+
+      - name: Build config file and query
+        run: |
+          set +e
+          export PATH="$HOME/.local/bin:$PATH"
+          mkdir -p ~/.oci
+          printf '%s\n' "$OCI_KEY" > ~/.oci/key.pem
+          chmod 600 ~/.oci/key.pem
+          KEYLEN=$(wc -c < ~/.oci/key.pem)
+          HEAD1=$(head -1 ~/.oci/key.pem)
+          TAIL1=$(tail -1 ~/.oci/key.pem)
+          {
+            echo "- key_file_bytes: $KEYLEN"
+            echo "- key_head: $HEAD1"
+            echo "- key_tail: $TAIL1"
+            echo "- user_ocid_len: ${#OCI_USER} tenancy_ocid_len: ${#OCI_TENANCY} region: $OCI_REGION"
+            echo "- fingerprint_len: ${#OCI_FINGERPRINT}"
+          } >> /tmp/probe/result3.md
+          printf '[DEFAULT]\nuser=%s\nfingerprint=%s\ntenancy=%s\nregion=%s\nkey_file=%s\n' \
+            "$OCI_USER" "$OCI_FINGERPRINT" "$OCI_TENANCY" "$OCI_REGION" "$HOME/.oci/key.pem" > ~/.oci/config
+          chmod 600 ~/.oci/config
+          ERR="$(oci compute instance get --instance-id "$OCI_TARGET" --query 'data."lifecycle-state"' --raw-output 2>&1)"
+          RC=$?
+          MASKED="$(printf '%s' "$ERR" | sed -E 's/ocid1\.[a-z0-9.*_-]+/<OCID>/g' | head -8)"
+          {
+            echo "- instance_get_rc: $RC"
+            echo "- instance_get_output_or_err (masked):"
+            printf '%s\n' "$MASKED" | sed 's/^/    /'
+          } >> /tmp/probe/result3.md
+
+      - name: Commit result
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cp /tmp/probe/result3.md probe-result3.md
+          git add probe-result3.md
+          git diff --cached --quiet && echo "nothing to commit" || git commit -m "probe: v3 results $(date -u +%H%M%S)Z"
+          git push
