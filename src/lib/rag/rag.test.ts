@@ -2,6 +2,7 @@
 // src/lib/rag/rag.test.ts — 契約測試（vitest）
 // 手法：模擬 fetch（vi.stubGlobal），不觸網路、不需要 Ollama/Weaviate 實例
 // 覆蓋：fail-fast、確定性 ID（R4 冪等）、端到端流程順序、檢索過濾
+// 2026-11-10：檢索斷言隨 REST Search API（/v1/search/{class}/near-vector）改寫
 // =====================================================================
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
@@ -162,24 +163,24 @@ describe("indexDocument", () => {
 });
 
 describe("search", () => {
-  it("先嵌入查詢字串，GraphQL body 含 ownerId 過濾與向量", async () => {
+  it("先嵌入查詢字串，REST near-vector body 含向量、ownerId 過濾與顯式 limit", async () => {
     queueResponses(
       { status: 200, body: { embedding: [0.4, 0.5, 0.6] } },
       {
         status: 200,
         body: {
-          data: {
-            Get: {
-              OmniChunk: [
-                {
-                  content: "碳盤查原文",
-                  docId: CHUNK.docId,
-                  chunkIndex: 0,
-                  _additional: { id: "abc", distance: "0.123" },
-                },
-              ],
+          results: [
+            {
+              id: "abc",
+              properties: {
+                content: "碳盤查原文",
+                docId: CHUNK.docId,
+                chunkIndex: 0,
+              },
+              metadata: { distance: "0.123" },
             },
-          },
+          ],
+          tookMs: 8,
         },
       }
     );
@@ -187,23 +188,40 @@ describe("search", () => {
     const results = await search(CONFIG, "碳盤查", CHUNK.ownerId);
 
     expect(calls[0].url).toBe(`${CONFIG.ollamaUrl}/api/embeddings`);
-    expect(calls[1].url).toBe(`${CONFIG.weaviateUrl}/v1/graphql`);
-    const gql = JSON.parse(String(calls[1].init?.body)).query as string;
-    expect(gql).toContain(`valueString: "${CHUNK.ownerId}"`);
-    expect(gql).toContain("0.4,0.5,0.6");
+    expect(calls[1].url).toBe(
+      `${CONFIG.weaviateUrl}/v1/search/${CONFIG.className}/near-vector`
+    );
+    expect(calls[1].init?.method).toBe("POST");
+    const reqBody = JSON.parse(String(calls[1].init?.body));
+    expect(reqBody.vector).toEqual([0.4, 0.5, 0.6]);
+    expect(reqBody.limit).toBe(10);
+    expect(reqBody.where).toEqual({
+      path: ["ownerId"],
+      operator: "Equal",
+      valueString: CHUNK.ownerId,
+    });
+    expect(reqBody.returnMetadata).toEqual(["distance"]);
     expect(results).toEqual([
       { docId: CHUNK.docId, chunkIndex: 0, content: "碳盤查原文", distance: 0.123 },
     ]);
   });
 
-  it("GraphQL errors 時拋出 WEAVIATE_GRAPHQL_ERRORS", async () => {
+  it("Weaviate 非 2xx（真實 HTTP 狀態碼）時拋出 WEAVIATE_SEARCH_FAILED", async () => {
     queueResponses(
       { status: 200, body: { embedding: [0.1] } },
-      { status: 200, body: { errors: [{ message: "boom" }] } }
+      { status: 500, body: { error: [{ message: "boom" }] } }
     );
     await expect(search(CONFIG, "q", CHUNK.ownerId)).rejects.toThrow(
-      /WEAVIATE_GRAPHQL_ERRORS/
+      /WEAVIATE_SEARCH_FAILED/
     );
+  });
+
+  it("回應 results 為空陣列時回傳空結果", async () => {
+    queueResponses(
+      { status: 200, body: { embedding: [0.1] } },
+      { status: 200, body: { results: [], tookMs: 1 } }
+    );
+    await expect(search(CONFIG, "q", CHUNK.ownerId)).resolves.toEqual([]);
   });
 
   it("Ollama 嵌入失敗時拋出 OLLAMA_EMBED_FAILED", async () => {

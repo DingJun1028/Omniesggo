@@ -2,7 +2,9 @@
 // =====================================================================
 // scripts/verify-weaviate-cloud.mjs — Weaviate Cloud 免費沙箱驗證工具
 // 零依賴（Node 22 原生 fetch）；對齊 src/lib/rag/client.ts 之契約
-// （Authorization: Bearer、REST /v1/schema、/v1/objects、/v1/graphql）。
+// （Authorization: Bearer、REST /v1/schema、/v1/objects、
+//  REST Search /v1/search/{class}/near-vector — GraphQL 已棄用，
+//  見 docs/vault-canon/RAG-VECTOR-LAYER.md §7.2）。
 // 用法：
 //   WEAVIATE_URL=https://<cluster-id>.weaviate.network WEAVIATE_API_KEY=... \
 //     node scripts/verify-weaviate-cloud.mjs [ready|meta|schema|e2e]
@@ -104,13 +106,17 @@ async function e2e() {
   }
   console.log("PASS upsert 測試物件（明確向量寫入）");
 
-  // 3) nearVector 查詢（對齊 client.ts 之 GraphQL 檢索形態）
-  const gql = {
-    query: `{ Get { ${className}(nearVector: {vector: [${vector.join(",")}]}, limit: 3) { docId content ownerId } } }`,
-  };
-  const q = await call("/v1/graphql", { method: "POST", body: JSON.stringify(gql) });
-  if (q.status !== 200) { console.error(`FAIL graphql: HTTP ${q.status} ${q.body.slice(0, 200)}`); process.exit(1); }
-  const found = (JSON.parse(q.body)?.data?.Get?.[className] || []).some((o) => o.docId === "verify-weaviate-cloud-e2e");
+  // 3) nearVector 查詢（REST Search API：對齊 client.ts 之檢索形態）
+  const q = await call(`/v1/search/${className}/near-vector`, {
+    method: "POST",
+    body: JSON.stringify({
+      vector,
+      limit: 3,
+      returnProperties: ["docId", "content", "ownerId"],
+    }),
+  });
+  if (q.status !== 200) { console.error(`FAIL rest search: HTTP ${q.status} ${q.body.slice(0, 200)}`); process.exit(1); }
+  const found = (JSON.parse(q.body)?.results || []).some((o) => o.properties?.docId === "verify-weaviate-cloud-e2e");
   if (!found) { console.error("FAIL nearVector 查詢未尋回測試物件"); process.exit(1); }
   console.log("PASS nearVector 檢索尋回測試物件");
 
