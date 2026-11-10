@@ -1,4 +1,4 @@
-report updated Tue Nov 10 09:57:00 UTC 2026
+report updated Tue Nov 10 09:57:26 UTC 2026
 run started v10
 SSH probe: DOWN
 computed key fingerprint: bc1c688c393fa5a47d6a44d585d4b897
@@ -8,3 +8,4 @@ COMPART_ERR: ServiceError: {     "client_version": "Oracle-PythonSDK/2.190.0, Or
 INST_ERR: ServiceError: {     "client_version": "Oracle-PythonSDK/2.190.0, Oracle-PythonCLI/3.96.0",     "code": "NotAuthenticated",     "logging_tips": "Please run the OCI CLI command using --debug flag to find more debug information.",     "message": "The required information to complete authentication was not provided or was incorrect.",     "opc-request-id": "48A57CD4317341759DB3381AEE7D655B/AEABFE311C54F2A369EAF26A53494E9C/CB538832FA7B3FF443B8AEC829FDB406",     "operation_name": "list_instances",     "request_endpoint": "GET https://iaas.ap-singapore-1.oraclecloud.com/20160918/instances",     "status": 401,     "target_service": "compute",     "timestamp": "2026-11-10T09:56:57.578931+00:00",     "troubleshooting_tips": "See [https://docs.oracle.com/iaas/Content/API/References/apierrors.htm] for more information about resolving this error. If you are unable to resolve this issue, run this CLI command with --debug option and contact Oracle support and provide them the full error message." } 
 NO_INSTANCES_FOUND check tenancy/secrets
 post-repair SSH probe
+POST_RECOVERY SSH_STILL_DOWN
