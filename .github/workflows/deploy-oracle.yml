@@ -279,22 +279,27 @@ jobs:
         if: needs.pre-check.outputs.mode == 'direct'
         env:
           FTG_JWT_SECRET: ${{ secrets.FTG_JWT_SECRET }}
+          # SonarCloud S7636: secrets/env 一律經 env 映射, 不在 run 區塊展開
+          VPS_HOST_DIRECT: ${{ secrets.VPS_HOST }}
+          VPS_USER_DIRECT: ${{ env.VPS_USER }}
         run: |
           set -e
+          # 身分檔修復 (#179): webfactory/ssh-agent 將 VPS_SSH_KEY 載入 ssh-agent，
+          #   並非寫入 ~/.ssh/deploy_key —— 故改用 agent 身分（不指定 -i、私鑰不落盤）。
           # known_hosts 預置: 非互動 ssh 首連若無 host key 會直接失敗
           mkdir -p ~/.ssh
-          ssh-keyscan -H "${{ secrets.VPS_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null || true
+          ssh-keyscan -H "$VPS_HOST_DIRECT" >> ~/.ssh/known_hosts 2>/dev/null || true
           # JWT_SECRET 傳遞 (2026-09-27 實測修): 下方 heredoc 是 <<'VPS' (引號)，
           #   遠端才展開變數 → GitHub secret 無法自動進遠端環境 → ftg 拒絕啟動。
           #   不能改成未引號 heredoc: 會讓 $PM2 / $FTG_SRC 等全部改為本地展開而壞掉。
           #   走 stdin 傳輸而非 argv: 避免 secret 出現在 ssh 命令列 (ps 可見)。
           if [ -n "$FTG_JWT_SECRET" ]; then
-            printf '%s' "$FTG_JWT_SECRET" | ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o ConnectTimeout=30 ${{ env.VPS_USER }}@${{ secrets.VPS_HOST }} 'cat > /tmp/ftg_jwt && chmod 600 /tmp/ftg_jwt'
+            printf '%s' "$FTG_JWT_SECRET" | ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=~/.ssh/known_hosts -o ConnectTimeout=30 "$VPS_USER_DIRECT"@"$VPS_HOST_DIRECT" 'cat > /tmp/ftg_jwt && chmod 600 /tmp/ftg_jwt'
             echo "[OK] JWT secret staged on VPS"
           else
             echo "[WARN] FTG_JWT_SECRET not set in repo secrets -> ftg-journey-server will refuse to start (fail-fast, by design)"
           fi
-          ssh -i ~/.ssh/deploy_key -o UserKnownHostsFile=~/.ssh/known_hosts -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -o ConnectTimeout=30 ${{ env.VPS_USER }}@${{ secrets.VPS_HOST }} bash -s <<'VPS'
+          ssh -o IdentitiesOnly=yes -o UserKnownHostsFile=~/.ssh/known_hosts -o ServerAliveInterval=30 -o ServerAliveCountMax=20 -o ConnectTimeout=30 "$VPS_USER_DIRECT"@"$VPS_HOST_DIRECT" bash -s <<'VPS'
             set -e
             # 修復 git dubious ownership (目錄可能由 root 建立, ubuntu 執行)
             git config --global --add safe.directory /var/www/esggo
@@ -457,7 +462,7 @@ jobs:
       - name: Cleanup
         if: always()
         run: |
-          rm -f ~/.ssh/deploy_key ~/.ssh/bastion_key ~/.ssh/bastion_key.pub ~/.oci/key.pem ~/.ssh/known_hosts || true
+          rm -f ~/.ssh/bastion_key ~/.ssh/bastion_key.pub ~/.oci/key.pem ~/.ssh/known_hosts || true
 
   # ─── 通知 ───────────────────────────────────────────────────
   notify:
