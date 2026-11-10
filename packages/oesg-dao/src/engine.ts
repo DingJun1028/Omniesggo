@@ -1,16 +1,18 @@
 /**
- * OesgDaoEngine — OESG-DAO 減量額度治理引擎
+ * OesgDaoEngine — OESG-DAO 額度治理引擎
  *
- * OESG 五路線圖第五站 (終站): Pulse → Report → Audit → Exchange → **DAO**。
+ * OESG 五路線圖終站: Pulse → Report → Audit → Exchange → **DAO**。
  * 復用 12大萬能模組管線 (@esggo/omni-arch), 與前四站對稱:
- * - OmniBus: 訂閱 oesg.exchange.lot (listenTo) / 廣播 oesg.dao.trade
- * - OmniMemory: 治理交易結晶留痕 (tags: oesg/dao/carbon)
+ * - OmniBus: 訂閱 oesg.exchange.lot (listenTo) / 廣播 oesg.dao.action
+ * - OmniMemory: 治理動作與拒絕結晶留痕 (tags: oesg/dao/carbon|rejected)
  * - OmniHealing: 戒嚴期間拒絕治理寫入 (治理鐵律)
  *
  * 治理鐵律 (零幻覺, 不信任上游):
- * - 僅掛牌額度可治理; 未知額度 E_LOT_UNKNOWN, 已治理額度 E_LOT_CONSUMED (雙花攔截)
- * - settle 交割必須有買方組織, 無買方不成立 (E_DAO_BUYER)
- * - attestationHash 鎖 lot/verdict/report/量/雙方組織/動作七方關聯, 供 SLL 追溯
+ * - 僅登記冊內額度可治理 (E_LOT_UNKNOWN)
+ * - 已註銷額度不得再治理 (E_LOT_RETIRED; 每額度僅可註銷一次)
+ * - 轉讓標的不得為原持有人 (E_TRANSFER_SELF)
+ * - 轉讓必填受讓組織 (E_MISSING_OWNER)
+ * - attestationHash 鎖 action/lot/verdict/report 關聯, 供 SLL 第三方追溯
  */
 import { randomUUID } from 'node:crypto';
 import { computeHash } from '@esggo/omni-core';
@@ -19,10 +21,11 @@ import type { OesgExchangeEngine } from '@esggo/oesg-exchange';
 import {
   DaoError,
   type DaoAction,
+  type DaoRejection,
+  type DaoRequest,
   type DaoResult,
   type DaoSink,
   type DaoSinkFailure,
-  type DaoTrade,
   type LotInput,
 } from './types';
 
@@ -32,16 +35,23 @@ export interface OesgDaoConfig {
   readonly sourceOrigin?: string;
 }
 
-const TOPIC_TRADE = 'oesg.dao.trade';
+const TOPIC_ACTION = 'oesg.dao.action';
+const TOPIC_LOT = 'oesg.exchange.lot';
 const INTENT_DAO = 'oesg.dao.run';
+
+/** 登記冊條目: 額度結晶 + 生死狀態 (註銷即終結) */
+interface RegistryEntry {
+  readonly lot: LotInput;
+  retired: boolean;
+}
 
 export class OesgDaoEngine {
   readonly orgId: string;
   private readonly wire: ArchWire;
   private readonly sinks: readonly DaoSink[];
   private readonly sourceOrigin: string;
-  private readonly lots = new Map<string, LotInput>();
-  private readonly consumed = new Set<string>();
+  private readonly registry = new Map<string, RegistryEntry>();
+  private readonly requests: DaoRequest[] = [];
 
   constructor(wire: ArchWire, config: OesgDaoConfig) {
     if (!config.orgId) {
@@ -53,128 +63,177 @@ export class OesgDaoEngine {
     this.sourceOrigin = config.sourceOrigin ?? 'oesg://dao';
   }
 
-  /** 接線第四站: 訂閱 oesg.exchange.lot, 掛牌額度自動納入待治理清單 */
+  /** 接線第四站: 訂閱 oesg.exchange.lot, 掛牌額度自動納入登記冊 */
   listenTo(exchange: OesgExchangeEngine): void {
     exchange.subscribe((lot) => {
-      this.ingestLot(lot);
+      this.register(lot);
     });
+  }
+
+  /** 訂閱原始匯流排議題 (直連測試場景) */
+  subscribeLotTopic(listener: (lot: LotInput) => void): void {
+    this.wire.bus.subscribe(TOPIC_LOT, (event) => listener(event.payload as LotInput));
   }
 
   /** 手動納入掛牌額度 (離線批次/歷史結晶場景) */
   ingestLot(lot: LotInput): void {
-    this.lots.set(lot.uuid, lot);
+    this.register(lot);
   }
 
-  /** 待治理掛牌額度數 (治理盤點用) */
-  pendingCount(): number {
-    return this.lots.size;
-  }
-
-  /** 註冊代理意圖: agent.understand('oesg.dao.run') 即批次治理全部待治理額度 */
-  registerIntent(action: DaoAction = 'retire', buyerOrgId?: string): void {
-    this.wire.agent.onIntent(INTENT_DAO, async () => this.runAll(action, buyerOrgId));
-  }
-
-  /** 交割治理: 掛牌額度移轉予買方組織 */
-  async settle(lotUuid: string, buyerOrgId: string): Promise<Readonly<DaoTrade>> {
-    if (!buyerOrgId) {
-      throw new DaoError('E_DAO_BUYER', '交割必須有買方組織, 無買方不成立');
+  private register(lot: LotInput): void {
+    if (!this.registry.has(lot.uuid)) {
+      this.registry.set(lot.uuid, { lot, retired: false });
     }
-    return this.consume(lotUuid, 'settle', buyerOrgId);
   }
 
-  /** 註銷治理: 掛牌額度自持註銷封存 */
-  async retire(lotUuid: string): Promise<Readonly<DaoTrade>> {
-    return this.consume(lotUuid, 'retire', this.orgId);
+  /** 提交治理請求 (提案), 待 execute 批次執行 */
+  propose(request: DaoRequest): void {
+    this.requests.push(request);
   }
 
-  /** 批次治理: 對全部待治理掛牌額度執行同一治理動作 */
-  async runAll(action: DaoAction, buyerOrgId?: string): Promise<Readonly<DaoResult>> {
-    if (action === 'settle' && !buyerOrgId) {
-      throw new DaoError('E_DAO_BUYER', '交割必須有買方組織, 無買方不成立');
-    }
-    if (this.lots.size === 0) {
-      throw new DaoError('E_DAO_EMPTY', '待治理掛牌清單為空, 空治理不成立');
-    }
-    const trades: DaoTrade[] = [];
-    for (const lotUuid of [...this.lots.keys()]) {
-      trades.push(
-        await this.consume(lotUuid, action, action === 'settle' ? (buyerOrgId as string) : this.orgId)
-      );
-    }
-    return Object.freeze({ trades: Object.freeze(trades) });
+  /** 註冊代理意圖: agent.understand('oesg.dao.run') 即執行治理批次 */
+  registerIntent(): void {
+    this.wire.agent.onIntent(INTENT_DAO, async () => this.execute());
   }
 
-  /** 治理資格審查 (零幻覺, 不信任上游): 未知/雙花/買方缺額逐項攔截 */
-  private async consume(lotUuid: string, action: DaoAction, buyerOrgId: string): Promise<DaoTrade> {
+  /** 執行治理: 逐請求審查 → 動作/拒絕結晶 → 留痕 → 廣播 → 寫出 */
+  async execute(): Promise<Readonly<DaoResult>> {
     if (this.wire.healing.isLocked()) {
       throw new OmniArchError('E_MARTIAL_LAW', '戒嚴期間拒絕治理寫入');
     }
-    if (this.consumed.has(lotUuid)) {
-      throw new DaoError('E_LOT_CONSUMED', '掛牌額度已治理, 雙花攔截');
+    if (this.requests.length === 0) {
+      throw new DaoError('E_DAO_EMPTY', '待治理清單為空, 空治理不成立');
     }
-    const lot = this.lots.get(lotUuid);
-    if (!lot) {
-      throw new DaoError('E_LOT_UNKNOWN', '掛牌額度未知, 不得治理');
+
+    const requests = [...this.requests];
+    this.requests.length = 0;
+    const actions: DaoAction[] = [];
+    const rejections: DaoRejection[] = [];
+    for (const request of requests) {
+      const rejection = this.screen(request);
+      if (rejection) {
+        rejections.push(rejection);
+        await this.wire.memory.remember(
+          `oesg://dao/rejected/${rejection.lotUuid}`,
+          rejection,
+          ['oesg', 'dao', 'rejected']
+        );
+        continue;
+      }
+      actions.push(await this.settle(request));
     }
-    if (action === 'settle' && !buyerOrgId) {
-      throw new DaoError('E_DAO_BUYER', '交割必須有買方組織, 無買方不成立');
-    }
-    // 先消耗再鑄造, 防非同步窗口雙花
-    this.lots.delete(lotUuid);
-    this.consumed.add(lotUuid);
-    return this.mint(lot, action, buyerOrgId);
+    return Object.freeze({
+      actions: actions.map((a) => Object.freeze(a)),
+      rejections: Object.freeze([...rejections]),
+    });
   }
 
-  /** 鑄造治理交易: 結晶 → 留痕 → 廣播 → 寫出 (sink 失敗不毀治理交易) */
-  private async mint(lot: LotInput, action: DaoAction, buyerOrgId: string): Promise<DaoTrade> {
-    const trade: DaoTrade = {
-      uuid: 'oesg-dao.' + randomUUID(),
+  /** 治理資格審查 (零幻覺, 不信任上游旗標) */
+  private screen(request: DaoRequest): DaoRejection | null {
+    const entry = this.registry.get(request.lotUuid);
+    if (!entry) {
+      return {
+        lotUuid: request.lotUuid,
+        reason: 'E_LOT_UNKNOWN',
+        detail: `額度 ${request.lotUuid} 不在登記冊, 無登記不得治理`,
+      };
+    }
+    if (entry.retired) {
+      return {
+        lotUuid: request.lotUuid,
+        reason: 'E_LOT_RETIRED',
+        detail: `額度 ${request.lotUuid} 已註銷, 不得再治理`,
+      };
+    }
+    if (request.action === 'transfer') {
+      if (!request.toOrgId) {
+        return {
+          lotUuid: request.lotUuid,
+          reason: 'E_MISSING_OWNER',
+          detail: '轉讓必填受讓組織 toOrgId',
+        };
+      }
+      if (request.toOrgId === entry.lot.orgId) {
+        return {
+          lotUuid: request.lotUuid,
+          reason: 'E_TRANSFER_SELF',
+          detail: `轉讓標的 ${request.toOrgId} 為原持有人, 自轉讓不成立`,
+        };
+      }
+    }
+    return null;
+  }
+
+  /** 結算治理動作: 結晶 → 留痕 → 廣播 → 寫出 (sink 失敗不毀動作) */
+  private async settle(request: DaoRequest): Promise<DaoAction> {
+    const entry = this.registry.get(request.lotUuid) as RegistryEntry;
+    const lot = entry.lot;
+    const toOrgId = request.action === 'transfer' ? (request.toOrgId as string) : null;
+    const action: DaoAction = {
+      uuid: `oesg-dao.${randomUUID()}`,
       version: '1.0.0',
       timestamp: Date.now(),
       source_origin: this.sourceOrigin,
-      orgId: this.orgId,
-      buyerOrgId,
+      orgId: lot.orgId,
       lotUuid: lot.uuid,
       verdictUuid: lot.verdictUuid,
       reportUuid: lot.reportUuid,
+      kgCo2e: lot.kgCo2e,
       periodStart: lot.periodStart,
       periodEnd: lot.periodEnd,
-      kgCo2e: lot.kgCo2e,
-      action,
-      status: action === 'settle' ? 'settled' : 'retired',
+      action: request.action,
+      toOrgId,
       attestationHash: computeHash({
         lotUuid: lot.uuid,
         verdictUuid: lot.verdictUuid,
         reportUuid: lot.reportUuid,
         kgCo2e: lot.kgCo2e,
-        orgId: this.orgId,
-        buyerOrgId,
-        action,
+        action: request.action,
+        toOrgId,
+        orgId: lot.orgId,
       }),
       failures: Object.freeze([]),
     };
 
-    await this.wire.memory.remember('oesg://dao/' + trade.uuid, trade, [
+    // 註銷即終結: 每額度僅可註銷一次
+    if (request.action === 'retire') {
+      entry.retired = true;
+    } else if (toOrgId) {
+      // 轉讓後登記冊保有額度結晶, 所有權以動作鏈 (action chain) 追溯
+    }
+
+    // 治理存證: 額度量以掛牌結晶為權威, 治理動作不改量 (零幻覺)
+    const quantityVerification = await this.wire.evidence.verify({
+      standard: 'ISO-14064-1',
+      formulaName: 'governed_kgco2e = lot_kgco2e * (status == listed ? 1 : 0)',
+      inputs: { lotKgCo2e: lot.kgCo2e, listed: lot.status === 'listed' ? 1 : 0 },
+      formula: (i) => i.lotKgCo2e * i.listed,
+      expected: lot.kgCo2e,
+    });
+    if (!quantityVerification.passed) {
+      throw new DaoError('E_DAO_QUANTITY', '額度量與掛牌結晶不符, 治理不成立');
+    }
+
+    await this.wire.memory.remember(`oesg://dao/${action.uuid}`, action, [
       'oesg',
       'dao',
       'carbon',
     ]);
-    await this.wire.bus.publish(mintEvent(this.sourceOrigin, TOPIC_TRADE, trade));
+    await this.wire.bus.publish(mintEvent(this.sourceOrigin, TOPIC_ACTION, action));
 
     const failures: DaoSinkFailure[] = [];
     for (const sink of this.sinks) {
       try {
-        await sink.write(trade);
+        await sink.write(action);
       } catch (error) {
         failures.push({ sinkId: sink.id, error: String(error) });
       }
     }
-    return failures.length > 0 ? { ...trade, failures: Object.freeze(failures) } : trade;
+    return failures.length > 0 ? { ...action, failures: Object.freeze(failures) } : action;
   }
 
-  /** 供下游 (SLL 稽核/對帳) 訂閱治理事件 */
-  subscribe(listener: (trade: Readonly<DaoTrade>) => void): void {
-    this.wire.bus.subscribe(TOPIC_TRADE, (event) => listener(event.payload as DaoTrade));
+  /** 供下游 (SLL/帳本) 訂閱治理動作 */
+  subscribe(listener: (action: Readonly<DaoAction>) => void): void {
+    this.wire.bus.subscribe(TOPIC_ACTION, (event) => listener(event.payload as DaoAction));
   }
 }

@@ -1,57 +1,71 @@
 /**
- * OESG-DAO 型別契約 — 減量額度治理引擎 (OESG 五路線圖第五站)
+ * OESG-DAO 型別契約 — 額度治理 (OESG 五路線圖終站)
  *
  * MECE 邊界:
  * - 輸入: ExchangeLot 掛牌額度 (由 oesg.exchange.lot 廣播或直接 ingestLot)
- * - 治理: settle 交割 (買方組織承接) / retire 註銷 (自持註銷) → DaoTrade 治理結晶
- * - 每枚掛牌額度僅可治理一次 (雙花攔截 E_LOT_CONSUMED)
- * - DaoSink: 可插拔寫出埠, 與前四站對稱
+ * - 治理: transfer 轉讓所有權 / retire 終結註銷; 每額度僅可註銷一次
+ * - DaoSink: 可插拔寫出埠, 與 Pulse/Report/Audit/Exchange 對稱
  */
 import type { ExchangeLot } from '@esggo/oesg-exchange';
 
-/** 治理動作: settle = 交割移轉, retire = 註銷封存 */
-export type DaoAction = 'settle' | 'retire';
+/** 治理動作: transfer 轉讓 / retire 註銷 */
+export type DaoActionKind = 'transfer' | 'retire';
 
-/** 治理結晶狀態 */
-export type DaoTradeStatus = 'settled' | 'retired';
+/** 治理請求 (提案): 額度唯一, 動作由呼叫端指定 */
+export interface DaoRequest {
+  readonly lotUuid: string;
+  readonly action: DaoActionKind;
+  /** transfer 必填: 受讓組織 */
+  readonly toOrgId?: string;
+}
 
-/** DAO 治理交易結晶: 對齊 IComponentCore 欄位 */
-export interface DaoTrade {
+/** 治理動作結晶: 對齊 IComponentCore 欄位 */
+export interface DaoAction {
   readonly uuid: string;
   readonly version: string;
   readonly timestamp: number;
   readonly source_origin: string;
-  /** 賣方 (掛牌) 組織 */
   readonly orgId: string;
-  /** 買方組織; retire 時為 orgId 自持註銷 */
-  readonly buyerOrgId: string;
   readonly lotUuid: string;
   readonly verdictUuid: string;
   readonly reportUuid: string;
+  readonly kgCo2e: number;
   readonly periodStart: number;
   readonly periodEnd: number;
-  readonly kgCo2e: number;
-  readonly action: DaoAction;
-  readonly status: DaoTradeStatus;
+  readonly action: DaoActionKind;
+  /** transfer: 受讓組織; retire: null */
+  readonly toOrgId: string | null;
   readonly attestationHash: string;
   readonly failures: readonly DaoSinkFailure[];
 }
 
-/** 一次治理批次作業之結果 (零幻覺, 如實回報) */
-export interface DaoResult {
-  readonly trades: readonly Readonly<DaoTrade>[];
+/** 治理拒絕結晶: 違反治理鐵律之請求留痕供追溯 */
+export interface DaoRejection {
+  readonly lotUuid: string;
+  readonly reason:
+    | 'E_LOT_UNKNOWN'
+    | 'E_LOT_RETIRED'
+    | 'E_TRANSFER_SELF'
+    | 'E_MISSING_OWNER';
+  readonly detail: string;
 }
 
-/** 寫出埠失敗結晶: sink 失敗不毀治理交易, 留痕供自癒 */
+/** 一次治理作業之結果 (動作與拒絕皆如實回報, 零幻覺) */
+export interface DaoResult {
+  readonly actions: readonly Readonly<DaoAction>[];
+  readonly rejections: readonly DaoRejection[];
+}
+
+/** 寫出埠失敗結晶: sink 失敗不毀動作, 留痕供自癒 */
 export interface DaoSinkFailure {
   readonly sinkId: string;
   readonly error: string;
 }
 
-/** DAO 寫出埠 (可插拔: 記憶體/NCB/Supabase) */
+/** 治理寫出埠 (可插拔: 記憶體/NCB/Supabase) */
 export interface DaoSink {
   readonly id: string;
-  write(trade: Readonly<DaoTrade>): Promise<void>;
+  write(action: Readonly<DaoAction>): Promise<void>;
 }
 
 export class DaoError extends Error {

@@ -3,10 +3,11 @@ export { createMemoryDaoSink, createNcbDaoSink } from './sinks';
 export {
   DaoError,
   type DaoAction,
+  type DaoActionKind,
+  type DaoRejection,
+  type DaoRequest,
   type DaoResult,
   type DaoSink,
   type DaoSinkFailure,
-  type DaoTrade,
-  type DaoTradeStatus,
   type LotInput,
 } from './types';
