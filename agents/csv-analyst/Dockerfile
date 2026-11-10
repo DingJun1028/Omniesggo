@@ -6,14 +6,16 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # uv installs the Python version the project asks for, so the image needs none of its own. It goes
-# outside /root so that the worker's user can run it.
+# outside /root so that the worker's user can run it. UV_PYTHON pins the version: the managed
+# build context does not carry dotfiles such as .python-version.
 ENV UV_COMPILE_BYTECODE=1 \
     UV_PYTHON_INSTALL_DIR=/opt/python \
+    UV_PYTHON=3.12 \
     PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
 # Copy only the files the worker needs: never the whole build context.
-COPY pyproject.toml uv.lock .python-version ./
+COPY pyproject.toml uv.lock README.md ./
 COPY main.py ./
 # --no-build: install only pre-built wheels, never run setup scripts from source distributions.
 RUN uv sync --frozen --no-dev --no-build \
