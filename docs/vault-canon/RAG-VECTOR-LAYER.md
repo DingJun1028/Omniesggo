@@ -2,6 +2,7 @@
 
 > AUTO-GENERATED 禁手改區以外的設計正典。對齊：Supabase 正典資料層、De-Google 政策、tzin 唯讀試點、OTS 憑證交接。
 > 2026-11-07 使用者裁決：向量層改採 Weaviate Cloud 免費沙箱（原 VPS 自架 docker-compose 方案退役）。
+> 2026-11-10 檢索遷移：GraphQL 已棄用，檢索全面改走 REST Search API（見 §7.2）。
 
 ## 1. 角色分工
 
@@ -20,11 +21,11 @@
 ## 3. 用戶端模組（src/lib/rag/ 與 apps/mcp-gateway/src/rag.ts）
 
 - contracts.ts：型別契約（RagChunk、RagIndexedEvent、RagSearchResult、SupabaseChunkRepo）。
-- client.ts：設定載入（fail-fast）、確定性 UUID（R4 冪等）、Ollama 嵌入、Weaviate schema/upsert/graphql。
+- client.ts：設定載入（fail-fast）、確定性 UUID（R4 冪等）、Ollama 嵌入、Weaviate schema/upsert/REST Search（`POST /v1/search/{class}/near-vector`）。
 - index.ts：門面（indexDocument / search / buildIndexedEvent）。
 - rag.test.ts：契約測試（模擬 fetch，不觸網路）。
 - mcp-gateway/src/rag.ts：rag_search 唯讀端點（缺 WEAVIATE_API_KEY 時 503 優雅降級）。
-- 程式碼零改動即相容 Weaviate Cloud：兩入口皆以 `Authorization: Bearer <key>` 對 `WEAVIATE_URL` 呼叫同一套 REST/GraphQL API，WCD 亦接受此認證格式。
+- 程式碼零改動即相容 Weaviate Cloud：兩入口皆以 `Authorization: Bearer <key>` 對 `WEAVIATE_URL` 呼叫同一套 REST API（/v1/schema、/v1/objects、/v1/search），WCD 亦接受此認證格式。
 
 ## 4. 環境變數（經 OTS 交付；VPS .env.secrets / 部署環境，600）
 
@@ -38,13 +39,13 @@
 ## 5. 安全邊界
 
 - 傳輸：WCD 全程 TLS；認證為 Bearer API key（Tier 2 禁存，僅存 .env.secrets / Supabase vault_secrets）。
-- 查詢強制 ownerId 過濾（where Equal），與 Supabase RLS 語義一致；GraphQL 字串跳脫防注入（mcp-gateway 既有實作）。
+- 查詢強制 ownerId 過濾（where Equal，以 JSON 過濾器傳遞，與 Supabase RLS 語義一致；REST Search API 無 GraphQL 字串注入面，原 escapeGraphQLString 已隨遷移移除）。
 - 密文永不入 repo 與知識庫。
 - WCD 帳號本身之登入憑證（email/密碼）為 Tier 2，永不入庫。
 
 ## 6. 未驗證項（如實聲明）
 
-- WCD 端到端寫入/查詢未實測（待使用者建立沙箱並交付 URL + API key 後驗證）。
+- WCD 端到端寫入/查詢未實測（待使用者建立沙箱並交付 URL + API key 後驗證；REST Search near-vector 路徑亦待此時一併實測）。
 - 自帶向量寫入是否計入 WCD「每日 2,000 嵌入請求」額度未實測（本設計嵌入於用戶端 Ollama 完成，WCD 僅存向量）。
 - mcp-gateway rag_search 對 WCD 之實際延遲未量測。
 
@@ -70,7 +71,12 @@
 - 累計 30 天無活動 → 叢集永久刪除（暫停後約 23 天），刪除前 1 天寄發預警信。
 - 對策：接通後設每 6 小時一次之探測（如 GitHub Actions 排程 curl /v1/.well-known/ready 或輕量 meta 查詢），使「活動」永不中斷；此點與 Oracle Always Free 閒置回收同型教訓。
 
-### 7.2 GraphQL 去除化（中期技術債）
+### 7.2 GraphQL 棄用與 REST Search API 遷移（2026-11-10 完成）
 
-- Weaviate Cloud 已公告 GraphQL API 將於 2027-05-01 於雲端關閉（本層 client.ts 與 mcp-gateway 之 nearVector 檢索皆走 /v1/graphql）。
-- 時程：2026-11 起一年半內須遷移至 gRPC/替代檢索介面；屬後續獨立 PR，本裁決不因此改變（REST 寫入與 schema 不受影響）。
+- Weaviate GraphQL API 已於 **2026-10-26 正式棄用**（官方 migration guide）。時程比早期公告更緊迫：
+  - **2026-12-01**：WCD 對「近 30 天未使用 GraphQL」之叢集即關閉 GraphQL 端點。
+  - **2027-05-01**：全體 WCD 叢集 GraphQL EOL。
+- 遷移解（零依賴 HTTP 路徑）：**REST Search API（preview）**——`POST /v1/search/{collection}/near-vector`；WCD 全叢集已啟用（自架版 v1.39.7+ 預設啟用，near-vector 端點 v1.39.8+）。請求 body：`vector`（明確查詢向量）、`limit`（務必顯式指定：REST 預設 10 ≠ GraphQL 預設 100）、`where`（與 GraphQL 相同之 JSON 過濾器）、`returnProperties`、`returnMetadata: ["distance"]`。回應為平面封套 `{ results: [{ id, properties, metadata }], tookMs }`；錯誤以真實 HTTP 狀態碼回報（非 GraphQL 之 HTTP 200 + errors[]）。
+- 本層已遷移檔案（2026-11-10 PR）：`src/lib/rag/client.ts`（searchSimilar）、`apps/mcp-gateway/src/rag.ts`（ragSearch，escapeGraphQLString 隨遷移移除）、`scripts/verify-weaviate-cloud.mjs`（e2e 檢索步驟）＋兩測試檔。REST 寫入（/v1/objects）與 schema（/v1/schema）本就走 REST，不受影響。
+- 已知取捨：REST Search API 為 preview，欄位名稱可能微調；其不支援 group、generate（RAG）、多目標向量 weighting 等進階能力（本層未使用，無影響）。向量永不回傳於搜尋回應（本層僅取 distance，無影響）。
+- 認證形態不變：`Authorization: Bearer <WEAVIATE_API_KEY>`。

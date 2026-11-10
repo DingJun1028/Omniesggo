@@ -8,6 +8,10 @@
  *   4. 僅私有網路部署；對外一律經 withAuth 預設拒絕。
  *   5. 零新依賴：原生 fetch；環境變數與 VPS .env.secrets 同名
  *      （WEAVIATE_API_KEY 走 OTS 交接，密文永不入 repo）。
+ *   6. 檢索走 REST Search API（POST /v1/search/{class}/near-vector）：
+ *      GraphQL 已於 2026-10-26 棄用（WCD 閒置叢集 2026-12-01 關閉、
+ *      全體 2027-05-01 EOL）；ownerId 以 JSON where 過濾器傳遞，
+ *      無 GraphQL 字串注入面（原 escapeGraphQLString 隨遷移移除）。
  */
 import { t, contract, impl, HttpError } from '@carlos-tzin/tzin'
 
@@ -45,14 +49,9 @@ export interface RagHit {
   distance: number
 }
 
-// GraphQL 字串值防注入（ownerId 來自私網呼叫端，仍一律轉義雙引號）
-function escapeGraphQLString(value: string): string {
-  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-}
-
 /**
- * 兩段式檢索：Ollama 嵌入 → Weaviate GraphQL 近鄰查詢。
- * ownerId 為強制過濾條件（where Equal），絕不回傳跨 owner 資料。
+ * 兩段式檢索：Ollama 嵌入 → Weaviate REST Search API nearVector。
+ * ownerId 為強制過濾條件（where Equal，JSON 傳遞），絕不回傳跨 owner 資料。
  */
 export async function ragSearch(
   config: RagGatewayConfig,
@@ -75,45 +74,42 @@ export async function ragSearch(
     throw new HttpError(502, 'ollama embed failed: empty embedding')
   }
 
-  // 2) Weaviate 近鄰查詢（ownerId Equal 過濾）
-  const gqlBody = JSON.stringify({
-    query: `{
-      Get {
-        ${config.className}(
-          nearVector: { vector: [${embedded.embedding.join(',')}] }
-          limit: ${limit}
-          where: { path: ["ownerId"], operator: Equal, valueString: "${escapeGraphQLString(ownerId)}" }
-        ) {
-          content docId chunkIndex _additional { id distance }
-        }
-      }
-    }`,
-  })
-  const searchRes = await fetch(`${config.weaviateUrl}/v1/graphql`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${config.weaviateApiKey}`,
-      'Content-Type': 'application/json',
+  // 2) Weaviate 近鄰查詢（REST Search API：ownerId Equal 過濾、顯式 limit）
+  const searchRes = await fetch(
+    `${config.weaviateUrl}/v1/search/${config.className}/near-vector`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.weaviateApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        vector: embedded.embedding,
+        limit,
+        where: { path: ['ownerId'], operator: 'Equal', valueString: ownerId },
+        returnProperties: ['content', 'docId', 'chunkIndex'],
+        returnMetadata: ['distance'],
+      }),
+      signal: AbortSignal.timeout(config.timeoutMs),
     },
-    body: gqlBody,
-    signal: AbortSignal.timeout(config.timeoutMs),
-  })
+  )
   if (!searchRes.ok) {
+    // REST Search API 以真實 HTTP 狀態碼回報錯誤（401/403/404/422/429/500/503）
     throw new HttpError(502, `weaviate search failed: HTTP ${searchRes.status}`)
   }
   const payload = (await searchRes.json()) as {
-    data?: { Get?: Record<string, Array<{ content: string; docId: string; chunkIndex: number; _additional: { distance: string | number } }>> }
-    errors?: unknown
+    results?: Array<{
+      id?: string
+      properties: { content: string; docId: string; chunkIndex: number }
+      metadata?: { distance?: string | number }
+    }>
   }
-  if (payload.errors) {
-    throw new HttpError(502, 'weaviate search failed: graphql errors')
-  }
-  const rows = payload.data?.Get?.[config.className] ?? []
+  const rows = payload.results ?? []
   return rows.map((row) => ({
-    docId: row.docId,
-    chunkIndex: row.chunkIndex,
-    content: row.content,
-    distance: Number(row._additional.distance),
+    docId: row.properties.docId,
+    chunkIndex: row.properties.chunkIndex,
+    content: row.properties.content,
+    distance: Number(row.metadata?.distance ?? Number.NaN),
   }))
 }
 
@@ -122,7 +118,7 @@ const ragSearchContract = contract({
   method: 'POST',
   path: '/rag/search',
   name: 'rag_search',
-  description: 'RAG 語義檢索（唯讀）：Ollama 嵌入 → Weaviate 近鄰查詢，強制 ownerId 過濾',
+  description: 'RAG 語義檢索（唯讀）：Ollama 嵌入 → Weaviate REST Search nearVector，強制 ownerId 過濾',
   body: t.Object({
     query: t.String({ minLength: 1, maxLength: 2000 }),
     ownerId: t.String({ minLength: 1, maxLength: 128 }),
