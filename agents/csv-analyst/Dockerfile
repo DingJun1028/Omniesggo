@@ -12,8 +12,11 @@ ENV UV_COMPILE_BYTECODE=1 \
     PATH="/app/.venv/bin:$PATH"
 
 WORKDIR /app
-COPY . .
-RUN uv sync --frozen --no-dev \
+# Copy only the files the worker needs: never the whole build context.
+COPY pyproject.toml uv.lock .python-version ./
+COPY main.py ./
+# --no-build: install only pre-built wheels, never run setup scripts from source distributions.
+RUN uv sync --frozen --no-dev --no-build \
  && useradd --create-home --shell /usr/sbin/nologin agent \
  && chown -R agent:agent /app
 
