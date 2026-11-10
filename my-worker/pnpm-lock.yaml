@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@notionhq/workers':
-        specifier: ^0.9.5
-        version: 0.9.5(@notionhq/client@5.24.0)
+        specifier: ^0.9.6
+        version: 0.9.6(@notionhq/client@5.24.0)
     devDependencies:
       '@types/node':
         specifier: ^26.6.6
@@ -24,7 +24,7 @@ importers:
         version: 7.0.2
       wrangler:
         specifier: ^4.156.0
-        version: 4.156.0(@types/node@26.6.5)
+        version: 4.156.0(@types/node@26.6.6)
 
 packages:
 
@@ -410,8 +410,8 @@ packages:
     resolution: {integrity: sha512-fd71hjK6QZYggwWdaBeLu4ajBQ4HTK0R6bj7v9GMFhilgsdMRJ5HDHQtKbc8/y6E5XXLYgNpDz78Q+BdXHa1ug==}
     engines: {node: '>=18'}
 
-  '@notionhq/workers@0.9.5':
-    resolution: {integrity: sha512-TdEyGPTsNfd0+bR3x/oWcHMnyIGf8LKCfTevU7jnl8KIjtQFlv8UgVwuJZ1nZSnxVxfsYlvahoxnQGdQ/xVrIQ==}
+  '@notionhq/workers@0.9.6':
+    resolution: {integrity: sha512-YE+NbNueRM6I5Xa2hxUqh5NxTWwIL05QC077gg7Z3W/SYazCo6m3SAjR5nP5tz7+MOFi58MuYn0Cn683+k48Cw==}
     engines: {node: '>=22.0.0', npm: '>=10.9.2'}
     hasBin: true
     peerDependencies:
@@ -1023,11 +1023,11 @@ snapshots:
 
   '@notionhq/client@5.24.0': {}
 
-  '@notionhq/workers@0.9.5(@notionhq/client@5.24.0)':
+  '@notionhq/workers@0.9.6(@notionhq/client@5.24.0)':
     dependencies:
       '@notionhq/client': 5.24.0
       ajv: 8.20.0
-      ajv-formats: 3.0.1(ajv@8.20.0)
+      ajv-formats: 3.0.1
       rolldown: 1.2.15
 
   '@oxc-project/types@0.155.0': {}
@@ -1159,8 +1159,8 @@ snapshots:
   '@typescript/typescript-win32-x64@7.0.2':
     optional: true
 
-  ajv-formats@3.0.1(ajv@8.20.0):
-    optionalDependencies:
+  ajv-formats@3.0.1:
+    dependencies:
       ajv: 8.20.0
 
   ajv@8.20.0:
@@ -1218,7 +1218,7 @@ snapshots:
 
   kleur@4.1.5: {}
 
-  miniflare@5.20261023.3-beta(@types/node@26.6.5):
+  miniflare@5.20261023.3-beta(@types/node@26.6.6):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
       sharp: 0.35.5(@types/node@26.6.6)
@@ -1337,13 +1337,13 @@ snapshots:
       '@cloudflare/workerd-linux-arm64': 1.20261023.1
       '@cloudflare/workerd-windows-64': 1.20261023.1
 
-  wrangler@4.156.0(@types/node@26.6.5):
+  wrangler@4.156.0(@types/node@26.6.6):
     dependencies:
       '@cloudflare/kv-asset-handler': 0.5.0
       '@cloudflare/unenv-preset': 2.16.2(unenv@2.0.0-rc.24)(workerd@1.20261023.1)
       blake3-wasm: 2.1.5
       esbuild: 0.28.2
-      miniflare: 5.20261023.3-beta(@types/node@26.6.5)
+      miniflare: 5.20261023.3-beta(@types/node@26.6.6)
       path-to-regexp: 6.3.0
       unenv: 2.0.0-rc.24
       workerd: 1.20261023.1
