@@ -8,6 +8,7 @@
  * - 表結構對應 migration oesg_pulse_report_tables (RLS 僅 service_role)
  */
 import type { AuditSink, AuditVerdict } from '@esggo/oesg-audit';
+import type { DaoAction, DaoSink } from '@esggo/oesg-dao';
 import type { ExchangeLot, ExchangeSink } from '@esggo/oesg-exchange';
 import type { PulseSink } from '@esggo/oesg-pulse';
 import type { OesgReport, ReportSink } from '@esggo/oesg-report';
@@ -17,11 +18,12 @@ export interface PostgrestOptions {
   readonly url: string;
   /** service role key (server-only, 唯寫入用) */
   readonly serviceKey: string;
-  /** 覆寫表名 (預設 oesg_pulse_ticks / oesg_reports / oesg_audit_verdicts / oesg_exchange_lots) */
+  /** 覆寫表名 (預設 oesg_pulse_ticks / oesg_reports / oesg_audit_verdicts / oesg_exchange_lots / oesg_dao_actions) */
   readonly pulseTable?: string;
   readonly reportTable?: string;
   readonly auditTable?: string;
   readonly exchangeTable?: string;
+  readonly daoTable?: string;
   /** 測試注入用; 省略即用全域 fetch */
   readonly fetchImpl?: typeof fetch;
   readonly id?: string;
@@ -33,6 +35,7 @@ const DEFAULT_PULSE_TABLE = 'oesg_pulse_ticks';
 const DEFAULT_REPORT_TABLE = 'oesg_reports';
 const DEFAULT_AUDIT_TABLE = 'oesg_audit_verdicts';
 const DEFAULT_EXCHANGE_TABLE = 'oesg_exchange_lots';
+const DEFAULT_DAO_TABLE = 'oesg_dao_actions';
 
 async function postgrestInsert(
   fetchImpl: FetchLike,
@@ -149,6 +152,33 @@ export function createSupabaseExchangeSink(options: PostgrestOptions): ExchangeS
         status: lot.status,
         attestation_hash: lot.attestationHash,
         payload: lot,
+      });
+    },
+  };
+}
+
+/** OESG-DAO 治理動作寫出埠 (PostgREST) — 表結構對應 migration oesg_dao_actions_table */
+export function createSupabaseDaoSink(options: PostgrestOptions): DaoSink {
+  const { url, serviceKey } = options;
+  const table = options.daoTable ?? DEFAULT_DAO_TABLE;
+  const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
+  const id = options.id ?? `supabase-dao-sink:${table}`;
+  return {
+    id,
+    async write(action: Readonly<DaoAction>) {
+      await postgrestInsert(fetchImpl, url, serviceKey, table, {
+        action_uuid: action.uuid,
+        lot_uuid: action.lotUuid,
+        verdict_uuid: action.verdictUuid,
+        report_uuid: action.reportUuid,
+        org_id: action.orgId,
+        to_org_id: action.toOrgId,
+        action: action.action,
+        kg_co2e: action.kgCo2e,
+        period_start: action.periodStart,
+        period_end: action.periodEnd,
+        attestation_hash: action.attestationHash,
+        payload: action,
       });
     },
   };

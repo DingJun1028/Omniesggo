@@ -889,6 +889,25 @@ importers:
         specifier: '>=4.1.11 <5'
         version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.1.0)(happy-dom@21.0.4)(jsdom@30.1.3)(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
 
+  packages/oesg-dao:
+    dependencies:
+      '@esggo/oesg-exchange':
+        specifier: workspace:*
+        version: link:../oesg-exchange
+      '@esggo/omni-arch':
+        specifier: workspace:*
+        version: link:../omni-arch
+      '@esggo/omni-core':
+        specifier: workspace:*
+        version: link:../omni-core
+    devDependencies:
+      typescript:
+        specifier: ^7.0.2
+        version: 7.0.2
+      vitest:
+        specifier: '>=4.1.11 <5'
+        version: 4.1.11(@opentelemetry/api@1.9.1)(@types/node@26.6.6)(@vitest/coverage-v8@5.1.0)(happy-dom@21.0.4)(jsdom@30.1.3)(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.0))
+
   packages/oesg-exchange:
     dependencies:
       '@esggo/oesg-audit':
@@ -951,6 +970,9 @@ importers:
       '@esggo/oesg-audit':
         specifier: workspace:*
         version: link:../oesg-audit
+      '@esggo/oesg-dao':
+        specifier: workspace:*
+        version: link:../oesg-dao
       '@esggo/oesg-exchange':
         specifier: workspace:*
         version: link:../oesg-exchange

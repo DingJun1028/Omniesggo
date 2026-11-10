@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   createSupabaseAuditSink,
+  createSupabaseDaoSink,
   createSupabaseExchangeSink,
   createSupabasePulseSink,
   createSupabaseReportSink,
@@ -204,6 +205,43 @@ describe('OESG Supabase sink adapter (PostgREST 零依賴)', () => {
     const sink = createSupabaseAuditSink({ ...BASE, fetchImpl: impl });
     await expect(sink.write(sampleVerdict() as never)).rejects.toThrowError(
       /Supabase insert into oesg_audit_verdicts failed: 403/
+    );
+  });
+
+  it('dao sink: 正確端點與列映射 (action/to_org_id/kg_co2e)', async () => {
+    const { calls, impl } = mockFetch();
+    const sink = createSupabaseDaoSink({ ...BASE, fetchImpl: impl });
+
+    await sink.write({
+      uuid: 'oesg-dao.1', version: '1.0.0', timestamp: 1, source_origin: 'oesg://dao',
+      orgId: 'org-demo', lotUuid: 'oesg-exchange.1', verdictUuid: 'oesg-audit.1',
+      reportUuid: 'oesg-report.1', kgCo2e: 247, periodStart: 10, periodEnd: 20,
+      action: 'transfer', toOrgId: 'org-b', attestationHash: 'd'.repeat(64), failures: [],
+    } as never);
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0].url).toBe('https://demo.supabase.co/rest/v1/oesg_dao_actions');
+    const body = JSON.parse(String(calls[0].init.body));
+    expect(body.action_uuid).toBe('oesg-dao.1');
+    expect(body.lot_uuid).toBe('oesg-exchange.1');
+    expect(body.org_id).toBe('org-demo');
+    expect(body.to_org_id).toBe('org-b');
+    expect(body.action).toBe('transfer');
+    expect(body.kg_co2e).toBe(247);
+    expect(body.attestation_hash).toHaveLength(64);
+    expect(body.payload.uuid).toBe('oesg-dao.1');
+  });
+
+  it('dao sink: 非 2xx 轉明確錯誤', async () => {
+    const { impl } = mockFetch(403);
+    const sink = createSupabaseDaoSink({ ...BASE, fetchImpl: impl });
+    await expect(sink.write({
+      uuid: 'oesg-dao.1', version: '1.0.0', timestamp: 1, source_origin: 'oesg://dao',
+      orgId: 'org-demo', lotUuid: 'l', verdictUuid: 'v', reportUuid: 'r',
+      kgCo2e: 1, periodStart: 1, periodEnd: 2, action: 'retire',
+      toOrgId: null, attestationHash: 'e'.repeat(64), failures: [],
+    } as never)).rejects.toThrowError(
+      /Supabase insert into oesg_dao_actions failed: 403/
     );
   });
 });
