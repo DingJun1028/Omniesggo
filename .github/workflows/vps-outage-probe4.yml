@@ -1,0 +1,79 @@
+name: VPS outage probe v4 (2026-11-10 evening)
+
+on:
+  push:
+    branches: [probe/vps-outage-20261110]
+    paths: [".github/workflows/vps-outage-probe4.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      OCI_CLI_USER: ${{ secrets.OCI_USER_OCID }}
+      OCI_CLI_TENANCY: ${{ secrets.OCI_TENANCY_OCID }}
+      OCI_CLI_FINGERPRINT: ${{ secrets.OCI_API_FINGERPRINT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_API_KEY }}
+      OCI_CLI_REGION: ${{ secrets.OCI_REGION }}
+      OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Init result file
+        run: |
+          mkdir -p /tmp/probe
+          echo "# VPS outage probe v4 — $(date -u +%Y-%m-%dT%H:%M:%SZ)" > /tmp/probe/result4.md
+
+      - name: TCP port 22 probe
+        run: |
+          set +e
+          ok=0
+          for i in 1 2 3; do
+            BANNER="$(timeout 8 bash -c 'exec 3<>/dev/tcp/$VPS_HOST/22 && head -c 40 <&3' 2>/dev/null)"
+            if [ -n "$BANNER" ]; then
+              ok=1
+              echo "- ssh22: REACHABLE attempt=$i banner_len=${#BANNER}" >> /tmp/probe/result4.md
+              break
+            fi
+            sleep 4
+          done
+          if [ "$ok" != "1" ]; then
+            echo "- ssh22: UNREACHABLE" >> /tmp/probe/result4.md
+          fi
+
+      - name: TCP probes 80/443
+        run: |
+          set +e
+          for p in 80 443; do
+            if timeout 8 bash -c "exec 3<>/dev/tcp/\$VPS_HOST/$p" 2>/dev/null; then
+              echo "- host_port_$p: OPEN" >> /tmp/probe/result4.md
+            else
+              echo "- host_port_$p: CLOSED_OR_FILTERED" >> /tmp/probe/result4.md
+            fi
+          done
+
+      - name: Install oci-cli and query instance state
+        run: |
+          set +e
+          python3 -m pip install --user --quiet oci-cli >/dev/null 2>&1
+          export PATH="$HOME/.local/bin:$PATH"
+          STATE="$(oci compute instance get --instance-id "$OCI_TARGET" --query 'data."lifecycle-state"' --raw-output 2>&1)"
+          MASKED="$(printf '%s' "$STATE" | sed -E 's/ocid1\.[a-z0-9.*_-]+/<OCID>/g' | head -8)"
+          {
+            echo "- oci_query (masked):"
+            printf '%s\n' "$MASKED" | sed 's/^/    /'
+          } >> /tmp/probe/result4.md
+
+      - name: Commit result
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cp /tmp/probe/result4.md probe-result4.md
+          git add probe-result4.md
+          git diff --cached --quiet && echo "nothing to commit" || git commit -m "probe: v4 results $(date -u +%H%M%S)Z"
+          git push
