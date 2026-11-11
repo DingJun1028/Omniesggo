@@ -49,11 +49,33 @@ jobs:
           cat install-output.txt
           if [ "$rc" -ne 0 ]; then
             {
-              echo "## Install failed (exit $rc)"
+              echo "## Frozen install failed (exit $rc)"
               echo '```'
               tail -n 80 install-output.txt
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
+            # 匿名可見診斷通道：annotation（run 頁 Annotations 表匿名渲染）
+            msg=$(tail -n 30 install-output.txt | sed -z 's/\n/%0A/g' | cut -c1-3600)
+            echo "::error title=frozen-install-exit-$rc::$msg"
+            # 對照組：非凍結安裝。若對照組成功，表失敗源於鎖定檔驗證
+            # （ERR_PNPM_OUTDATED_LOCKFILE 類）；若對照組同敗，表另有原因
+            # （如 EBADPLATFORM 平台限定套件、ERR_PNPM_IGNORED_BUILDS）。
+            pnpm install --no-frozen-lockfile > install-relaxed.txt 2>&1
+            rc2=$?
+            echo "relaxed_exit_code=$rc2"
+            cat install-relaxed.txt
+            {
+              echo "## Relaxed install exit $rc2 (frozen was $rc)"
+              echo '```'
+              tail -n 80 install-relaxed.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            if [ "$rc2" -eq 0 ]; then
+              echo "::error title=diagnosis::relaxed install SUCCEEDED (exit 0) while frozen failed - lockfile verification is the cause"
+            else
+              msg2=$(tail -n 30 install-relaxed.txt | sed -z 's/\n/%0A/g' | cut -c1-3600)
+              echo "::error title=relaxed-install-exit-$rc2::$msg2"
+            fi
             exit "$rc"
           fi
 
