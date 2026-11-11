@@ -57,7 +57,23 @@ jobs:
             "${CONTEXT[@]}" \
             --timeout 600 \
             --interval 20 \
-            --verbose
+            --verbose > gate-output.txt 2>&1
+          rc=$?
+          echo "gate_exit_code=$rc"
+          cat gate-output.txt
+          # 失敗條件寫入 annotation 與 step summary —— 匿名可見，
+          # 免登入讀日誌（失敗由證據診斷，呼應本檔開頭註解之設計目的）。
+          if [ "$rc" -ne 0 ]; then
+            msg=$(tail -n 40 gate-output.txt | sed -z 's/\n/%0A/g' | cut -c1-3600)
+            echo "::error title=sonar-gate-exit-$rc::$msg"
+            {
+              echo "## SonarCloud quality gate failed (exit $rc)"
+              echo '```'
+              tail -n 60 gate-output.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit "$rc"
+          fi
 
       - name: Summary
         if: always()
