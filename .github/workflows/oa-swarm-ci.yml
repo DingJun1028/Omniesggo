@@ -49,14 +49,4 @@ jobs:
         run: pnpm test
 
       - name: Type check (tsconfig.ut.json)
-        run: |
-          set +e
-          pnpm typecheck > typecheck-output.txt 2>&1
-          rc=$?
-          echo "typecheck_exit_code=$rc"
-          cat typecheck-output.txt
-          if [ "$rc" -ne 0 ]; then
-            msg=$(tail -n 40 typecheck-output.txt | sed -z 's/\n/%0A/g' | cut -c1-3600)
-            echo "::error title=typecheck-exit-$rc::$msg"
-            exit "$rc"
-          fi
+        run: pnpm typecheck
