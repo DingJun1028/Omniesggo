@@ -18,8 +18,10 @@ jobs:
   oa-swarm-test:
     # oa-swarm 為獨立 pnpm 專案（自有 pnpm-workspace.yaml / pnpm-lock.yaml，
     # 非 root workspace 成員）。PR #228 已修復 manifest/lock/override 三方一致
-    # （vitest 5.1.0 + vite 8.3.8），本工作流以 frozen-lockfile 實證之，
+    # （vitest 5.1.0 + vite 8.3.7），本工作流以 frozen-lockfile 實證之，
     # 並補上 oa-swarm 測試套件之 CI 覆蓋。
+    # 注意 pnpm 12 內建 minimumReleaseAge（24h 冷卻期）：鎖定檔不得含
+    # 冷卻期內發布之套件版本，否則 frozen 驗證即敗（vite 8.3.8 前例）。
     # check:types-sync 不入 CI：check-oa-types-sync.mjs 依賴倉外路徑
     # （../../esggo/shared/types.ts，本機/VPS 佈局），CI checkout 下必 SRC missing。
     runs-on: ubuntu-latest
@@ -41,43 +43,7 @@ jobs:
           cache-dependency-path: oa-swarm/pnpm-lock.yaml
 
       - name: Install dependencies (frozen lockfile)
-        run: |
-          set +e
-          pnpm install --frozen-lockfile > install-output.txt 2>&1
-          rc=$?
-          echo "pnpm_exit_code=$rc"
-          cat install-output.txt
-          if [ "$rc" -ne 0 ]; then
-            {
-              echo "## Frozen install failed (exit $rc)"
-              echo '```'
-              tail -n 80 install-output.txt
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
-            # 匿名可見診斷通道：annotation（run 頁 Annotations 表匿名渲染）
-            msg=$(tail -n 30 install-output.txt | sed -z 's/\n/%0A/g' | cut -c1-3600)
-            echo "::error title=frozen-install-exit-$rc::$msg"
-            # 對照組：非凍結安裝。若對照組成功，表失敗源於鎖定檔驗證
-            # （ERR_PNPM_OUTDATED_LOCKFILE 類）；若對照組同敗，表另有原因
-            # （如 EBADPLATFORM 平台限定套件、ERR_PNPM_IGNORED_BUILDS）。
-            pnpm install --no-frozen-lockfile > install-relaxed.txt 2>&1
-            rc2=$?
-            echo "relaxed_exit_code=$rc2"
-            cat install-relaxed.txt
-            {
-              echo "## Relaxed install exit $rc2 (frozen was $rc)"
-              echo '```'
-              tail -n 80 install-relaxed.txt
-              echo '```'
-            } >> "$GITHUB_STEP_SUMMARY"
-            if [ "$rc2" -eq 0 ]; then
-              echo "::error title=diagnosis::relaxed install SUCCEEDED (exit 0) while frozen failed - lockfile verification is the cause"
-            else
-              msg2=$(tail -n 30 install-relaxed.txt | sed -z 's/\n/%0A/g' | cut -c1-3600)
-              echo "::error title=relaxed-install-exit-$rc2::$msg2"
-            fi
-            exit "$rc"
-          fi
+        run: pnpm install --frozen-lockfile
 
       - name: Unit tests (vitest)
         run: pnpm test
