@@ -1,0 +1,32 @@
+name: One-shot oa-swarm lockfile regen (#229 vite 8.3.7)
+
+on:
+  push:
+    branches:
+      - ci/oa-swarm-test-coverage
+
+permissions:
+  contents: write
+
+jobs:
+  regen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Regenerate oa-swarm lockfile (vite 8.3.7)
+        run: |
+          corepack enable
+          cd oa-swarm
+          pnpm install --lockfile-only --no-frozen-lockfile
+
+      - name: Commit lockfile and remove this workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add oa-swarm/pnpm-lock.yaml
+          git commit -m "chore(oa-swarm): regenerate lockfile for vite 8.3.7 (minimumReleaseAge)" || echo "no lockfile change"
+          git rm .github/workflows/regen-229.yml
+          git commit -m "chore: remove one-shot regen workflow (#229)" || echo "nothing to remove"
+          git push
