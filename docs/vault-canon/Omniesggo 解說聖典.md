@@ -1632,37 +1632,42 @@ Oracle VPS 是 Oracle 雲端虛擬伺服器，提供可靠的雲端運算資源�
 | 標記 | 定義 |
 |---|---|
 | 【文件描述】 | 僅見於文件（README、登錄冊、聖典、手冊等）之敘述，未於源碼層核對 |
-| 【源碼可見】 | 本次已於 main `3aa3f881` 快照讀取實際檔案內容並確認支持 |
+| 【源碼可見】 | 已於 main `3aa3f881` 快照讀取實際檔案內容並確認支持（001 至 006 之二輪複核以 main `8e77968a` 快照為基準，見 §10.3） |
+| 【API 查證】 | 已於 2026-11-11 二輪複核以 GitHub commits API（路徑歷史查詢）查證 |
 | 【部署／整合／現況未驗證】 | 涉及倉庫外狀態（VPS、域名、外部服務、本機聖櫃、雲端帳戶），本次未連線驗證 |
 
 補充原則：登錄冊「✅ 啟用／同步／實例運行」等狀態欄為其 2026-08-06 自載紀錄，屬【文件描述】，非本次驗證結果；README 或各正典所載之測試通過數字（如「706 passed」）亦僅為文件記載，不作為目前測試、部署或服務可用之證明。
 
 ### 10.2 九項神器核實總表
 
-| 編號 | 神器名稱 | 登錄冊路徑 | 本次核實結果（main `3aa3f881`） |
+| 編號 | 神器名稱 | 登錄冊路徑 | 核實結果（首輪 main `3aa3f881`；二輪複核 main `8e77968a`） |
 |---|---|---|---|
-| 001 | 自動修復核心 | `Artifacts/auto-repair.json` | 該路徑本次未找到，待查（§10.3） |
-| 002 | 核心配置 | `Artifacts/config.json` | 該路徑本次未找到，待查（§10.3） |
-| 003 | NVIDIA AI 模組 | `Artifacts/integrations/nvidia.json` | 該路徑本次未找到，待查（§10.3） |
-| 004 | Langfuse 追蹤器 | `Artifacts/integrations/langfuse.json` | 該路徑本次未找到，待查（§10.3） |
-| 005 | Google ADK | `Artifacts/integrations/adk.json` | 該路徑本次未找到，待查（§10.3） |
-| 006 | LangChain 引擎 | `Artifacts/integrations/langchain.json` | 該路徑本次未找到，待查（§10.3） |
+| 001 | 自動修復核心 | `Artifacts/auto-repair.json` | 已核實：該路徑於 main 歷史從未存在；另有修復相關實作於其他路徑（§10.3） |
+| 002 | 核心配置 | `Artifacts/config.json` | 已核實：該路徑於 main 歷史從未存在；倉內未見對應實作（§10.3） |
+| 003 | NVIDIA AI 模組 | `Artifacts/integrations/nvidia.json` | 已核實：該路徑於 main 歷史從未存在；另有 NVIDIA 整合程式碼於其他路徑（§10.3） |
+| 004 | Langfuse 追蹤器 | `Artifacts/integrations/langfuse.json` | 已核實：該路徑於 main 歷史從未存在；倉內零實作（§10.3） |
+| 005 | Google ADK | `Artifacts/integrations/adk.json` | 已核實：該路徑於 main 歷史從未存在；另有 ADK 配接器於其他路徑（§10.3） |
+| 006 | LangChain 引擎 | `Artifacts/integrations/langchain.json` | 已核實：該路徑於 main 歷史從未存在；僅探測層引用，非直接依賴（§10.3） |
 | 007 | 萬能即時翻譯 | `apps/universal-translator/` | 源碼可見，詳 §10.4；線上實例未驗證 |
 | 008 | Auto-Repair Workflow | `.github/workflows/auto-repair.yml` | 源碼可見，詳 §10.5；運行成效未驗證 |
 | 009 | TencentDB Agent Memory | `apps/tencentdb-memory/` | 源碼可見，詳 §10.6；線上實例未驗證 |
 
-### 10.3 001 至 006：本次未找到對應檔案，標「待查」
+### 10.3 001 至 006：登錄路徑經歷史查證從未存在（2026-11-11 二輪複核升級）
 
-**Artifacts 路徑核實**：main `3aa3f881` 快照中，倉庫根目錄無 `Artifacts/` 目錄；全倉搜尋（node_modules 除外）`auto-repair.json`、`config.json`、`nvidia.json`、`langfuse.json`、`adk.json`、`langchain.json` 均未找到。倉內與 `Artifacts` 相關者僅有 `Omni-Sanctuary/Artifacts/keys/secret-vault-index.md`（鍵值索引文件，與上述 JSON 無對應關係）。此結果僅表示「本次該路徑未找到」，**不推斷**該等檔案從未存在、對應服務未啟用或登錄有誤。
+**Artifacts 路徑核實（首輪，main `3aa3f881`）**：快照中，倉庫根目錄無 `Artifacts/` 目錄；全倉搜尋（node_modules 除外）`auto-repair.json`、`config.json`、`nvidia.json`、`langfuse.json`、`adk.json`、`langchain.json` 均未找到。倉內與 `Artifacts` 相關者僅有 `Omni-Sanctuary/Artifacts/keys/secret-vault-index.md`（鍵值索引文件，與上述 JSON 無對應關係）。首輪結果僅表示「該路徑未找到」，未推斷該等檔案從未存在。
 
-**與登錄名稱對應之實作核實**：
+**歷史查證（二輪複核，2026-11-11，base main `8e77968a`）**【API 查證】：以 GitHub commits API 之路徑歷史查詢，逐一查詢 `Artifacts/auto-repair.json`、`Artifacts/config.json`、`Artifacts/integrations/nvidia.json`、`Artifacts/integrations/langfuse.json`、`Artifacts/integrations/adk.json`、`Artifacts/integrations/langchain.json` 六路徑，以及根目錄 `Artifacts/` 目錄本身：各查詢之 commit 數均為零。此六檔與該目錄於 main 全程歷史**從未存在**，非「曾存在後遭移除」。首輪「不推斷從未存在」之保留聲明，據此解除。
 
-- 004 Langfuse 追蹤器：全倉（node_modules 除外）未見 Langfuse 整合之實作或介面。待查。
-- 005 Google ADK／006 LangChain 引擎：[`oa-twins/hyper/fabric.ts`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/oa-twins/hyper/fabric.ts)（源碼可見）為「跨框架能力探測層」，以三態（ACTIVE／PHANTOM／MISSING）探測 `langchain`、`@google/genkit`、`@google/adk`、`crewai` 四套件之宣告與可解析性；其註解明載不將此四個重型依賴納入 monorepo 直接依賴，改以 `probeFabric()` 探測合約取代。未見以「Google ADK」「LangChain 引擎」為名之整合模組或介面。待查。
-- 003 NVIDIA AI 模組：倉內存在 NVIDIA 相關程式（[`agents/skills/smart-ai-router/model-discovery/providers/nvidia.ts`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/agents/skills/smart-ai-router/model-discovery/providers/nvidia.ts)，源碼可見：NVIDIA NGC／Nemotron 免費模型探索 provider，環境變數 `NVIDIA_API_KEY`），惟其屬 smart-ai-router 之模型發現層，與登錄冊 `Artifacts/integrations/nvidia.json` 之對應關係未經證實。待查。
-- 001 自動修復核心／002 核心配置：未於倉內找到可對應 `Artifacts/auto-repair.json`、`Artifacts/config.json` 之實作或介面。§10.5 所述之 GitHub Actions 工作流為登錄冊另一獨立項目（008），是否即 001 所指未經證實。待查。
+**與登錄名稱對應之實作核實（二輪複核，main `8e77968a` 快照）**【源碼可見】：
 
-**操作方式**：001 至 006 因無實際實作或介面可依，本節不提供任何操作方式描述，避免杜撰。
+- 001 自動修復核心：倉內另有修復相關實作，惟路徑與登錄冊不符。其一為根目錄 [`esggo-auto-repair/worker/`](https://github.com/DingJun1028/Omniesggo/tree/8e77968aa64d6003fd927208e0ce702dd060415d/esggo-auto-repair/worker)（Cloudflare Worker：Hono 框架、webhook 簽名驗證、`esggo-repair-queue` 生產者／消費器含死信佇列 `esggo-repair-dlq`、環境變數 `WEBHOOK_SECRET`／`REPAIR_PAT`、`AUTO_MERGE` 開關、可信倉庫白名單；`wrangler.toml` 自載 2026-09-28 建構指令修正紀錄）；其二為 `apps/learning-center/esggo-auto-repair/worker/` 同源副本；另 `esggo-omni-center/esggo-auto-repair/worker/` 僅存生成型別檔（綁定 `REPAIR_QUEUE`）。§10.5 所述 GitHub Actions 工作流為登錄冊另一獨立項目（008）。上述實作是否即 001 所指，屬登錄冊釐清事項，本典不代其宣稱。
+- 002 核心配置：倉內未見任何對應「核心配置」之實作檔。`Omni-Sanctuary/README.md` 之結構圖與狀態表亦引用 `config.json`，該檔同樣不存在（同一 README 之宣稱亦屬【文件描述】）。
+- 003 NVIDIA AI 模組：倉內存在真實 NVIDIA 整合程式碼：`src/impl/core.ts` 之 `predictAndPreFetch`（NVIDIA NIM 端點 `https://integrate.api.nvidia.com/v1`，環境變數 `NVAPI_KEY` 未設時回傳空陣列，預設模型 `meta/llama-3.1-8b-instruct`）、`scripts/predictAndPreFetch.js` 及 infra 下 standalone 變體、smart-ai-router 之 [`nvidia.ts`](https://github.com/DingJun1028/Omniesggo/blob/8e77968aa64d6003fd927208e0ce702dd060415d/agents/skills/smart-ai-router/model-discovery/providers/nvidia.ts) provider（環境變數 `NVIDIA_API_KEY`）、`vps/junaikey/model-resolver.mjs`。上述皆非登錄冊所指之 `Artifacts/integrations/nvidia.json`。
+- 004 Langfuse 追蹤器：**倉內零實作**。僅有三處非實作引用：`apps/omni-blueprint-hub/.env.example` 內四行已註解之 `LANGFUSE_*` 環境變數佔位、`Omni-Sanctuary/Artifacts/keys/secret-vault-index.md` 之鍵名條目（僅名稱，鍵值未讀取）、`apps/tencentdb-memory/README.md` 問答提及宿主機服務。登錄冊「✅ 啟用」之狀態無倉內程式碼支持。
+- 005 Google ADK：倉內另有真實配接器：[`packages/oa-framework/src/adapters/adk.ts`](https://github.com/DingJun1028/Omniesggo/blob/8e77968aa64d6003fd927208e0ce702dd060415d/packages/oa-framework/src/adapters/adk.ts)（動態 `import('@google/adk')`，未安裝時降級為 scaffold 模式；`@google/adk` 為 optional peerDependency）、`lib/services/adk/persistent-session-service.ts`（自載 stub，`@google/adk` 排除於 build）與 `lib/services/adk/adk-squad-factory.ts`。與登錄路徑無對應。
+- 006 LangChain 引擎：倉內僅 [`oa-twins/hyper/fabric.ts`](https://github.com/DingJun1028/Omniesggo/blob/8e77968aa64d6003fd927208e0ce702dd060415d/oa-twins/hyper/fabric.ts) 三態探測層（ACTIVE／PHANTOM／MISSING）及其測試 `hyper.test.ts` 引用 `langchain`；其設計明載幽靈依賴不得直接 import，monorepo 內無任何 package.json 直接依賴宣告。未見以「LangChain 引擎」為名之整合模組。
+
+**操作方式**：002 與 004 因倉內無可依之實作，仍不提供操作方式，避免杜撰。001、003、005 之實際操作應依其真實路徑之文件與環境變數（如 `esggo-auto-repair/worker/wrangler.toml` 與 `WEBHOOK_SECRET`／`REPAIR_PAT`、`src/impl/core.ts` 之 `NVAPI_KEY`、oa-framework ADK 配接器之 `@google/adk` 安裝與 API key）；上述路徑之部署、執行與憑證設定**本次一概未執行**，操作前請先閱讀對應檔案。
 
 ### 10.4 007 萬能即時翻譯（`apps/universal-translator/`）
 
@@ -1763,4 +1768,4 @@ Oracle VPS 是 Oracle 雲端虛擬伺服器，提供可靠的雲端運算資源�
 
 - 本增補依 §8.2 以功能分支 PR 提交（不直接推送 main），僅改動本檔案一個檔案；未動 `soul.md`（含 §1.2）或任何其他檔案。
 - 本次修訂**未執行任何 CI、測試、部署或服務啟動**；文中「已核實」一律指文件與源碼層之靜態核對（基準 commit `3aa3f881`），非測試通過或部署驗證。
-- 各項證據層級標記與「待查」項目如文中所載；後續若尋得 001 至 006 之對應實作或整合檔，應補入本節並更新核實狀態。
+- 各項證據層級標記如文中所載。001 至 006 已於 2026-11-11 二輪複核升級為已核實：GitHub commits API 歷史查證確登錄路徑於 main 歷史從未存在，實作痕跡見 §10.3（基準 main `8e77968a`）。二輪複核亦僅為靜態查證（API 查詢與快照檔案讀取），未執行任何 CI、測試、部署或服務啟動。後續若登錄冊路徑有所修訂，應同步更新 §10.2 總表。
