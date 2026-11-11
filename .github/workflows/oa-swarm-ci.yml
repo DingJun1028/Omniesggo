@@ -22,6 +22,7 @@ jobs:
     # 並補上 oa-swarm 測試套件之 CI 覆蓋。
     # 注意 pnpm 12 內建 minimumReleaseAge（24h 冷卻期）：鎖定檔不得含
     # 冷卻期內發布之套件版本，否則 frozen 驗證即敗（vite 8.3.8 前例）。
+    # actions 引用一律釘選完整 commit SHA（Sonar 規則 S7637，PR #229 實證）。
     # check:types-sync 不入 CI：check-oa-types-sync.mjs 依賴倉外路徑
     # （../../esggo/shared/types.ts，本機/VPS 佈局），CI checkout 下必 SRC missing。
     runs-on: ubuntu-latest
@@ -30,13 +31,11 @@ jobs:
         working-directory: oa-swarm
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           cache: pnpm
