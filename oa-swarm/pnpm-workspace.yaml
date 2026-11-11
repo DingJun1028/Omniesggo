@@ -24,7 +24,15 @@ allowBuilds:
 overrides:
   # GHSA-5xrq-8626-4rwp（critical, DoS）。上游修補點為 4.1.0
   # （GitHub API first_patched_version = "4.1.0" 實測確認）。
-  vitest: '>=4.1.11 <5'
+  # 2026-11-11 對齊已合併之 PR #157/#214：oa-swarm package.json 已升
+  # vitest ^5.1.0（穩定版），原上界 <5 令 manifest 與本鎖脫鉤
+  # （鎖被迫停在 4.1.12，frozen-lockfile 對 oa-swarm 必失敗、
+  # Dependabot /oa-swarm vitest 更新無法落地）。上界改 <6，
+  # 維持 <major 上界原則；floor 5.1.0 > 4.1.0 修補點，原安全
+  # 意圖不變。vitest 5.1.0 peer vite ^6.4.0||^7||^8，重生鎖定檔
+  # 將 vite 帶至 8.3.x 修補版（8.3.1 之 2026 launch-editor/middleware
+  # 諮詢除污）。
+  vitest: '>=5.1.0 <6'
   # 2026-10-12 Dependabot high CVE-2026-93749 (source-map-js, fix>=1.2.2):
   # 本鎖 1.2.1 → 提升 (dev-only, minor 修補)。
   "source-map-js": ">=1.2.2"
