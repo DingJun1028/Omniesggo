@@ -18,11 +18,10 @@ jobs:
   oa-swarm-test:
     # oa-swarm 為獨立 pnpm 專案（自有 pnpm-workspace.yaml / pnpm-lock.yaml，
     # 非 root workspace 成員）。PR #228 已修復 manifest/lock/override 三方一致
-    # （vitest 5.1.0 + vite 8.3.8），本工作流首度以 frozen-lockfile 實證之，
-    # 並補上 oa-swarm 測試套件之 CI 覆蓋（此前 test/ + vitest.config.ts
-    # 未接入任何 workflow——既有缺口）。
+    # （vitest 5.1.0 + vite 8.3.8），本工作流以 frozen-lockfile 實證之，
+    # 並補上 oa-swarm 測試套件之 CI 覆蓋。
     # check:types-sync 不入 CI：check-oa-types-sync.mjs 依賴倉外路徑
-    # （../../esggo/shared/types.ts，VPS/本機佈局），CI checkout 下必 SRC missing。
+    # （../../esggo/shared/types.ts，本機/VPS 佈局），CI checkout 下必 SRC missing。
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -42,7 +41,21 @@ jobs:
           cache-dependency-path: oa-swarm/pnpm-lock.yaml
 
       - name: Install dependencies (frozen lockfile)
-        run: pnpm install --frozen-lockfile
+        run: |
+          set +e
+          pnpm install --frozen-lockfile > install-output.txt 2>&1
+          rc=$?
+          echo "pnpm_exit_code=$rc"
+          cat install-output.txt
+          if [ "$rc" -ne 0 ]; then
+            {
+              echo "## Install failed (exit $rc)"
+              echo '```'
+              tail -n 80 install-output.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit "$rc"
+          fi
 
       - name: Unit tests (vitest)
         run: pnpm test
