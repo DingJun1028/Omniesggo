@@ -17,9 +17,24 @@ jobs:
 
       - name: Regenerate oa-swarm lockfile (vite 8.3.7)
         run: |
+          set +e
           corepack enable
           cd oa-swarm
-          pnpm install --lockfile-only --no-frozen-lockfile
+          pnpm install --lockfile-only --no-frozen-lockfile > regen-output.txt 2>&1
+          rc=$?
+          echo "regen_exit_code=$rc"
+          cat regen-output.txt
+          if [ "$rc" -ne 0 ]; then
+            msg=$(tail -n 30 regen-output.txt | sed -z 's/\n/%0A/g' | cut -c1-3600)
+            echo "::error title=regen-exit-$rc::$msg"
+            {
+              echo "## Regen failed (exit $rc)"
+              echo '```'
+              tail -n 80 regen-output.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit "$rc"
+          fi
 
       - name: Commit lockfile and remove this workflow
         run: |
