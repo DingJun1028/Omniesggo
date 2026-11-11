@@ -20,8 +20,14 @@ jobs:
           set +e
           corepack enable
           cd oa-swarm
-          pnpm install --lockfile-only --no-frozen-lockfile > regen-output.txt 2>&1
+          # catch-22 逃出：既有鎖含過新 vite@8.3.8，minimumReleaseAge 政策
+          # 於解析前先行驗證既有鎖而擋下重生。僅此重生步驟放寬為 0
+          # （.npmrc 暫存，不隨 commit 入庫）；重生結果之鎖（vite 8.3.7，
+          # 已越過 24h 冷卻期）仍須通過 CI 之政策驗證方可合併。
+          echo "minimum-release-age=0" > .npmrc
+          pnpm install --lockfile-only --no-frozen-lockfile --config.minimumReleaseAge=0 > regen-output.txt 2>&1
           rc=$?
+          rm -f .npmrc
           echo "regen_exit_code=$rc"
           cat regen-output.txt
           if [ "$rc" -ne 0 ]; then
