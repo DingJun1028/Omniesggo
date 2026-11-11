@@ -51,6 +51,7 @@ jobs:
           else
             CONTEXT=(--branch main)
           fi
+          set +e
           node scripts/sonar-quality-gate.mjs \
             --organization dingjun1028 \
             --project DingJun1028_Omniesggo \
