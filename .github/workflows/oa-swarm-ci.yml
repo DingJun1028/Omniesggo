@@ -1,0 +1,51 @@
+name: oa-swarm-ci
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'oa-swarm/**'
+      - '.github/workflows/oa-swarm-ci.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'oa-swarm/**'
+      - '.github/workflows/oa-swarm-ci.yml'
+
+jobs:
+  oa-swarm-test:
+    # oa-swarm 為獨立 pnpm 專案（自有 pnpm-workspace.yaml / pnpm-lock.yaml，
+    # 非 root workspace 成員）。PR #228 已修復 manifest/lock/override 三方一致
+    # （vitest 5.1.0 + vite 8.3.8），本工作流首度以 frozen-lockfile 實證之，
+    # 並補上 oa-swarm 測試套件之 CI 覆蓋（此前 test/ + vitest.config.ts
+    # 未接入任何 workflow——既有缺口）。
+    # check:types-sync 不入 CI：check-oa-types-sync.mjs 依賴倉外路徑
+    # （../../esggo/shared/types.ts，VPS/本機佈局），CI checkout 下必 SRC missing。
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: oa-swarm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: oa-swarm/pnpm-lock.yaml
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests (vitest)
+        run: pnpm test
+
+      - name: Type check (tsconfig.ut.json)
+        run: pnpm typecheck
