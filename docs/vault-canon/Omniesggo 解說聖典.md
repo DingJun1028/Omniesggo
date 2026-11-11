@@ -18,6 +18,7 @@
 6. [創意集成](#6-創意集成)
 7. [維運須知](#7-維運須知)
 8. [特別注意](#8-特別注意)
+10. [神器目錄與核實狀態（2026-11-11 增補）](#10-神器目錄與核實狀態2026-11-11-增補)
 
 ---
 
@@ -1611,3 +1612,148 @@ Oracle VPS 是 Oracle 雲端虛擬伺服器，提供可靠的雲端運算資源�
 - [Oracle Cloud](https://cloud.oracle.com)  
 - [Oracle VPS 控制台](https://cloud.oracle.com/virtual)  
 
+
+---
+
+## 10. 神器目錄與核實狀態（2026-11-11 增補）
+
+> **增補性質**：本節依「萬能架構」相關資料局部增補，落點為本典末尾。本典既有章節（含 §2.3 名詞條目與其後附錄式條目）一律維持原文；既有敘述與本次查證之差異，僅於本節以來源與核實狀態釐清，不回頭改寫。
+> **核對基準**：main HEAD `3aa3f88115601aafc1779010ecadadbc995031a7`（2026-11-11 fresh-read）。本章所引倉庫路徑未另標 commit 者，一律指該 commit 下之內容。
+> **主要來源**：[Omni-Sanctuary/Index/artifact-registry.md（神器登錄冊）](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/Omni-Sanctuary/Index/artifact-registry.md)（登錄冊自載最後更新 2026-08-06，列 9 項神器）、[docs/vault-canon/OMNI-ARCH-12-MODULES.md（12 大萬能模組正典）](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/docs/vault-canon/OMNI-ARCH-12-MODULES.md)。
+
+### 10.0 分類釐清（先讀）
+
+1. **登錄冊 9 項與 12 模組正典為兩套分類，不得混算**：登錄冊列 001 至 009 共 9 項「神器」；`docs/vault-canon/OMNI-ARCH-12-MODULES.md` 則為 `@esggo/omni-arch`（`packages/omni-arch`）之 12 個 TypeScript 架構模組（OmniBase、OmniMemory、……、OmniEvolution）契約分類。兩者命名體系與統計口徑不同，不得相加、互換或互為總數。
+2. **卡牌化「神器類」屬敘事分類，非工程清單**：[soul-chapter-29-glory-sacred-tome.md](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/soul-chapter-29-glory-sacred-tome.md) §29.8 之「神器類 Artifacts」為卡牌化遊戲隱喻（該章自述為「可視化隱喻層（非工程元件）」，且 §29.9 誠實登記將「卡牌系統／10 色元素」標記為「⚠️ 隱喻」，並註明「OMC 與 OmniTag 為其工程實化」）。引用該章時須連同狀態標記一併引用，不得作為工程清單使用。
+3. **萬能元鑰與萬能標籤**：另列為相關能力（見 §10.7、§10.8），**不計入**登錄冊第 10、11 項編號；本章亦不以 9 項宣稱系統最終總數。
+
+### 10.1 證據層級定義
+
+| 標記 | 定義 |
+|---|---|
+| 【文件描述】 | 僅見於文件（README、登錄冊、聖典、手冊等）之敘述，未於源碼層核對 |
+| 【源碼可見】 | 本次已於 main `3aa3f881` 快照讀取實際檔案內容並確認支持 |
+| 【部署／整合／現況未驗證】 | 涉及倉庫外狀態（VPS、域名、外部服務、本機聖櫃、雲端帳戶），本次未連線驗證 |
+
+補充原則：登錄冊「✅ 啟用／同步／實例運行」等狀態欄為其 2026-08-06 自載紀錄，屬【文件描述】，非本次驗證結果；README 或各正典所載之測試通過數字（如「706 passed」）亦僅為文件記載，不作為目前測試、部署或服務可用之證明。
+
+### 10.2 九項神器核實總表
+
+| 編號 | 神器名稱 | 登錄冊路徑 | 本次核實結果（main `3aa3f881`） |
+|---|---|---|---|
+| 001 | 自動修復核心 | `Artifacts/auto-repair.json` | 該路徑本次未找到，待查（§10.3） |
+| 002 | 核心配置 | `Artifacts/config.json` | 該路徑本次未找到，待查（§10.3） |
+| 003 | NVIDIA AI 模組 | `Artifacts/integrations/nvidia.json` | 該路徑本次未找到，待查（§10.3） |
+| 004 | Langfuse 追蹤器 | `Artifacts/integrations/langfuse.json` | 該路徑本次未找到，待查（§10.3） |
+| 005 | Google ADK | `Artifacts/integrations/adk.json` | 該路徑本次未找到，待查（§10.3） |
+| 006 | LangChain 引擎 | `Artifacts/integrations/langchain.json` | 該路徑本次未找到，待查（§10.3） |
+| 007 | 萬能即時翻譯 | `apps/universal-translator/` | 源碼可見，詳 §10.4；線上實例未驗證 |
+| 008 | Auto-Repair Workflow | `.github/workflows/auto-repair.yml` | 源碼可見，詳 §10.5；運行成效未驗證 |
+| 009 | TencentDB Agent Memory | `apps/tencentdb-memory/` | 源碼可見，詳 §10.6；線上實例未驗證 |
+
+### 10.3 001 至 006：本次未找到對應檔案，標「待查」
+
+**Artifacts 路徑核實**：main `3aa3f881` 快照中，倉庫根目錄無 `Artifacts/` 目錄；全倉搜尋（node_modules 除外）`auto-repair.json`、`config.json`、`nvidia.json`、`langfuse.json`、`adk.json`、`langchain.json` 均未找到。倉內與 `Artifacts` 相關者僅有 `Omni-Sanctuary/Artifacts/keys/secret-vault-index.md`（鍵值索引文件，與上述 JSON 無對應關係）。此結果僅表示「本次該路徑未找到」，**不推斷**該等檔案從未存在、對應服務未啟用或登錄有誤。
+
+**與登錄名稱對應之實作核實**：
+
+- 004 Langfuse 追蹤器：全倉（node_modules 除外）未見 Langfuse 整合之實作或介面。待查。
+- 005 Google ADK／006 LangChain 引擎：[`oa-twins/hyper/fabric.ts`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/oa-twins/hyper/fabric.ts)（源碼可見）為「跨框架能力探測層」，以三態（ACTIVE／PHANTOM／MISSING）探測 `langchain`、`@google/genkit`、`@google/adk`、`crewai` 四套件之宣告與可解析性；其註解明載不將此四個重型依賴納入 monorepo 直接依賴，改以 `probeFabric()` 探測合約取代。未見以「Google ADK」「LangChain 引擎」為名之整合模組或介面。待查。
+- 003 NVIDIA AI 模組：倉內存在 NVIDIA 相關程式（[`agents/skills/smart-ai-router/model-discovery/providers/nvidia.ts`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/agents/skills/smart-ai-router/model-discovery/providers/nvidia.ts)，源碼可見：NVIDIA NGC／Nemotron 免費模型探索 provider，環境變數 `NVIDIA_API_KEY`），惟其屬 smart-ai-router 之模型發現層，與登錄冊 `Artifacts/integrations/nvidia.json` 之對應關係未經證實。待查。
+- 001 自動修復核心／002 核心配置：未於倉內找到可對應 `Artifacts/auto-repair.json`、`Artifacts/config.json` 之實作或介面。§10.5 所述之 GitHub Actions 工作流為登錄冊另一獨立項目（008），是否即 001 所指未經證實。待查。
+
+**操作方式**：001 至 006 因無實際實作或介面可依，本節不提供任何操作方式描述，避免杜撰。
+
+### 10.4 007 萬能即時翻譯（`apps/universal-translator/`）
+
+**功能**【源碼可見】：
+
+- 服務層 [`server.mjs`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/apps/universal-translator/server.mjs)（Node.js，預設埠 8788，HTTP + WebSocket + SSE）：端點含 `GET /health`、`GET /`（Live UI）、`GET /studio`（收音端）、`GET /float`（懸浮字幕）、`GET /stream?room=xxx`（觀眾端 SSE 雙語字幕，依 room 過濾廣播）、`POST /translate`（單語／多語翻譯，回 JSON 並廣播 SSE）、`POST /speak`、`WS /ws`（輸入即翻譯並廣播）；回應標頭帶 `X-OA-Engine`／`X-OA-Cached`／`X-OA-Trace` 溯源資訊。
+- 翻譯引擎鏈 [`translate.mjs`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/apps/universal-translator/translate.mjs)：Ollama+Gemma（設 `OLLAMA_MODEL` 時啟用）→ Gemini（`viaGeminiLive35`，設 `GEMINI_API_KEY` 時啟用）→ Google gtx（免費零 key）→ LibreTranslate（自建）→ MyMemory（免費）→ **原文兜底**；附 LRU 快取、指數退避重試、逾時與引擎標記。
+- 語音轉錄 [`stt_service.py`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/apps/universal-translator/stt_service.py)：faster-whisper 微服務，監聽 8790，`POST /transcribe` 接收音訊（webm/ogg/wav/mp3/flac/m4a）回傳文字與語言；預設模型 small、CPU int8、VAD 濾靜音。
+
+**適用場景**【文件描述＋源碼可見】：會議與直播之即時雙語字幕（studio 收音 → float／stream 觀眾端）、繁中↔英文雙向翻譯、可疊加 Zoom／Meet 之懸浮字幕（[README.md](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/apps/universal-translator/README.md)）。
+
+**已核實的使用方式**【文件描述，本次未執行】：README 快速開始：`pip install -r requirements.txt` → `python stt_service.py`（背景 STT）→ `node server.mjs`（:8788）。必要依賴：Node.js（`package.json`）與 Python `requirements.txt`（faster-whisper）。環境變數見 `.env.example`：`PORT`、`LIBRETRANSLATE_URL`／`LIBRETRANSLATE_KEY`、`MYMEMORY_EMAIL`、`OLLAMA_MODEL`（註解，預設停用）、`GEMINI_API_KEY`／`GEMINI_MODEL`／`GEMINI_TIMEOUT_MS`（註解，預設停用）。上述指令為文件所載，**本次未執行**任何啟動腳本或服務。
+
+**前置條件**【文件描述】：Node.js 與 Python + faster-whisper；使用 LibreTranslate 引擎需自建實例；啟用 Ollama 引擎需自行部署 Ollama 並 pull 模型。
+
+**特別事項與限制**：
+
+- **README 宣稱與程式實際整合須分開**【文件描述＋源碼可見】：README 稱「Gemini 3.5 Live Translate（可選增強）」並指向 `GEMINI_LIVE_3_5_INTEGRATION.md`——**該檔於本快照未找到**。程式層實際整合為：`translate.mjs` 之 `viaGeminiLive35` 引擎（僅在設 `GEMINI_API_KEY` 時進入引擎鏈最前端，預設關閉，失敗自動回落免費鏈，預設模型 `gemini-2.5-flash`），以及 `s2s_gemini_live.mjs` 之 S2S 介面（該檔註解自載依「禁用 Google／Gemini／Firebase」政策，雲端同傳預設停用、僅保留介面）。
+- **隱私與資料流向**：待譯文字會送至外部翻譯引擎（Google gtx、LibreTranslate、MyMemory；啟用時另有 Ollama 與 Gemini 之 generativelanguage API）；room 字幕廣播時會將原文、譯文、room_id、role 寫入共享記憶後端（[`src/memory-integration.mjs`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/apps/universal-translator/src/memory-integration.mjs)：`MEMORY_GATEWAY` 預設 `http://localhost:8420`，token 預設 `local`）。**敏感內容不應輸入本系統**。
+- **原文兜底不等於翻譯成功**：引擎鏈末端為原文兜底；收到原文回覆不代表譯文已產生，請以 `X-OA-Engine` 標頭辨識實際服務引擎。
+- **現場部署未驗證**：登錄冊稱 `https://translate.esggo.co`「實例運行」為 2026-08-06 紀錄【文件描述】；本次未連線驗證該域名或任何部署。
+
+### 10.5 008 Auto-Repair Workflow（`.github/workflows/auto-repair.yml`）
+
+**功能**【源碼可見，[auto-repair.yml](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/.github/workflows/auto-repair.yml) 590 行】：
+
+- **觸發條件**：`workflow_run` 事件——`OmniCore CI`、`ESG-GO CI/CD Pipeline`、`Build & publish AI Station image` 三個工作流完成後，且 `conclusion == 'failure'` 時（branches：`main`、`develop`）。
+- **分析**（`analyze` job）：下載失敗 run 之日誌，依模式識別 8 類錯誤（typescript／eslint／test／build／dependency／secret／docker／unknown），輸出 `repairable` 判定——**test 與 secret 兩類 `repairable=false`，不自動修復**。
+- **修復 job**（僅對應 `repairable=true` 之錯誤類型執行）：TypeScript（`: any` 改 `: unknown`、移除 `@ts-ignore`／`@ts-nocheck`、`lint --fix`）、ESLint（`lint --fix`，兩輪）、Build（重跑 `pnpm build`）、Dependency（重裝依賴並提交 lockfile）、Docker（Dockerfile `FROM node:` 統一改 `node:22-alpine` 後重建）。修復經驗證通過後，建立 `auto-repair/` 前綴分支並開立 PR 至 main。
+- **追蹤**（`tracker-notify`，always）：建立 tracker issue（同一 CI run 去重，已存在則改為留言）、Telegram 與 SMTP 電子郵件通知（對應 secrets 未設定則自動跳過）；`oa-selfcheck` job 執行 `oa-selfcheck.sh` 自驗。
+
+**適用場景**：main／develop 之 CI 失敗後的自動修復嘗試、錯誤分類與追蹤通知。
+
+**已核實的使用方式**：由 `workflow_run` 自動觸發，無手動入口；產出為修復分支 PR 與 tracker issue。本次僅閱讀工作流檔案內容，**未觸發、未執行**該工作流。
+
+**權限**【源碼可見】：`contents: write`、`pull-requests: write`、`issues: write`、`actions: read`；checkout 與推送可使用 `GH_PAT_AUTO_REPAIR` 或 `GITHUB_TOKEN`。
+
+**人工覆核要求**：修復僅開立 PR，**不自動合併**——與本典 §8.2「功能分支 PR，不得直接推送至 main」一致；PR 併入前須人工覆核。secret 類錯誤（日�出現 `AKIA`／`ghp_` 等特徵）一律不自動修復，須人工處理。
+
+**特別事項與限制**：本檔案存在於 main 為【源碼可見】；惟其**是否已實際啟用、是否曾成功修復**任何 CI 失敗，本次未驗證，不作宣稱。
+
+### 10.6 009 TencentDB Agent Memory（`apps/tencentdb-memory/`）
+
+**功能**【文件描述＋源碼可見】：TencentDB Agent Memory（上游 `TencentCloud/TencentDB-Agent-Memory`）之本地部署腳本組（[`apps/tencentdb-memory/README.md`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/apps/tencentdb-memory/README.md) 207 行，附 start／stop／verify 腳本；另見[集成聖典 Omni-Sanctuary/Codex/tencentdb-memory-canon.md](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/Omni-Sanctuary/Codex/tencentdb-memory-canon.md)）：
+
+- 三件套：`memory-core`（記憶核心 Gateway，埠 8420：記憶讀寫、鑑權、skill／RAG 資料面）、`memory-hub`（埠 8125 Panel 管理 UI ＋ 8424 Knowledge 服務）、`proxy`（埠 8096：上游 LLM 請求轉發代理）。
+- Docker 映象取自 Docker Hub `agentmemory` 命名空間（`agentmemory/memory-core`、`agentmemory/memory-hub`、`agentmemory/memory-proxy`，多架構公開）。
+
+**適用場景**【文件描述】：蜂群共享長期記憶後端（MemoryCore／MemoryHub／Proxy 三位一體）、知識庫與 RAG 資料面、coding agent 之 API 入口（`ANTHROPIC_BASE_URL`／`OPENAI_BASE_URL` 指向 proxy）。
+
+**已核實的使用方式**【文件描述，本次未執行】：README 所載流程——`cp .env.example .env` → 編輯 `.env` 填入兩組 LLM 參數 → `./verify.sh`（干跑校驗；`--skip-llm` 可跳過外部請求）→ `./start-all.sh` 一鍵拉起；各元件可 `./start-memory-core.sh`、`./start-memory-hub.sh`、`./start-proxy.sh` 獨立啟動；`./stop-all.sh` 停止（`--purge` 另刪 volume 與網路）。**本次未執行**任何啟動腳本、未連線任何外部服務、未進行任何 volume 操作。
+
+**前置條件**【文件描述】：macOS／Linux、Docker、bash 4+；兩組獨立 LLM 參數——`MEMORY_LLM_*`（memory-core／memory-hub 內部 embedding 與總結用）與 `PROXY_UPSTREAM_*`（proxy 轉發上游）；memory-hub 與 proxy 之完整功能（RAG、鑑權、skill 注入）建議 memory-core 先啟動。
+
+**特別事項與限制**：
+
+- **內部憑證預設值不適合生產或公網**【文件描述，README 明載】：`MEMORY_CORE_GATEWAY_API_KEY` 預設 `local`、`MEMORY_CORE_ADMIN_USERNAME`／`MEMORY_CORE_ADMIN_USER_KEY` 預設 `admin`——README 自述「生產／聯調／公網暴露前必須替換成隨機長串，否則任何拿到埠的人都能拿到 system_admin 權限」。
+- **資料持久化與破壞性操作**：資料存於 named volumes（`tdai-memory-core-data`、`tdai-panel-data`）；`stop-all.sh --purge` 會刪除 volume，屬破壞性操作。
+- **過去紀錄非目前狀態**：集成聖典所載「VPS 實例三件套 healthy＋公網 tunnel 驗證通過」等敘述屬過去部署紀錄【文件描述】，本次未驗證目前 VPS 或 `memory.esggo.co` 之現況。
+
+### 10.7 相關能力一：萬能元鑰（不計入登錄冊編號）
+
+**名稱與定位混用——待釐清**。「萬能元鑰」一詞於倉內至少有三種指涉【源碼可見】：
+
+1. [`skills/security/omni-master-key/SKILL.md`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/skills/security/omni-master-key/SKILL.md) 上半部：**OmniMasterKey**＝統一憑證存取（本機 `secret-vault/*.env` 為主、Bitwarden `bw` CLI 為備之瀑布式讀取；輸出一律 `***MASKED***`；實作檔 `scripts/omni_master_key.py`、結構自驗 `scripts/verify_omni_master_key.py`）。
+2. 同檔下半部與 [`vps/junaikey.mjs`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/vps/junaikey.mjs)：**JunAikey 萬能元鑰／萬能永憶**＝代理成長層（記憶、技能、進度、閉環；NCBDB 為 primary、本機 `~/.junaikey/` 為 fallback；SKILL.md 自載「不取代祕密庫；祕密庫管憑證，JunAikey 管記憶」）。
+3. [`vps/omni-master-key.mjs`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/vps/omni-master-key.mjs)：**OmniKey（萬能元鑰）**＝SUPREME 最高層，**OmniMasterKey（萬能鑰匙）**＝其下之 vault 管理層（鍵值由 VPS 端 gitignored `.env.secrets` 注入 `process.env`）——此命名層級與第 1 點相反。
+
+三者之統一定位須待釐清；本節僅並列如實記載，不作裁決。
+
+**「萬能元鑰是密碼解碼器」**：此為**使用者定義**（使用者對萬能元鑰之口頭定義）。本次已查之程式（`scripts/omni_master_key.py`、`vps/omni-master-key.mjs`、`vps/junaikey.mjs`）所見為憑證之「讀取、分發與遮罩」及鍵值登錄定義，**未見**解碼或解密邏輯；不得推論實際程式均具解碼能力。
+
+**適用場景**【文件描述＋源碼可見】：憑證統一讀取入口（`omni_get_secret()`，輸出遮罩、僅回報來源標籤與檔名）；代理任務需注入金鑰而不得硬編碼時之環境變數注入。
+
+**特別事項與限制**：
+
+- 已核實程式**未證實**「安全加密金庫」或「自動輪替」能力：本機 vault 為 `.env` 純文字檔（權限 600），非加密容器；`local .env` 不可視為已驗證金庫。SKILL.md 所列輪替原則（如高風險金鑰 90 天）屬治理規範【文件描述】，未見自動輪替實作。
+- hash、Base64、ZKP（SKILL.md 提及 `{{ZKP:KEY}}` 鍵孔與 auto-discovery 流程）等技術詞**均不可寫成端到端加密**。
+- 安全界線：本次修訂未讀取、顯示、解碼、測試、複製或更動任何真實秘密；未執行 `vps/omni-master-key.mjs`、`vps/junaikey.mjs` 或任何讀取憑證之命令。
+- §2.3 既有 #10 OmniMasterKey、#11 Junaikey 條目維持原文；其敘述與本次查證之差異（例如 #11 稱 Junaikey 為「開發者專屬金鑰……身份識別與權限管理」，而 SKILL.md 與 `vps/junaikey.mjs` 將 JunAikey 定位為代理成長層）以本節釐清為準，不回頭改寫既有條目。
+
+### 10.8 相關能力二：萬能標籤（OmniTag／Trust Label，不計入登錄冊編號）
+
+**三處不同實作，API 與用途各異，引用時須指明具體檔案**：
+
+1. [`packages/omni-arch/src/tag.ts`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/packages/omni-arch/src/tag.ts)【源碼可見】：`OmniTagRegistry` 類——標籤須以 `#` 開頭（`E_TAG_FORMAT` 契約錯誤）、可標 `readonly` 保護、高危標籤（如 `#高危操作`）觸發 `MartialLock` 戒嚴防護色（對接 OmniTheme；未受保護標籤回 `LiquidGlass`）。
+2. [`app/api/tags/universal/route.ts`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/app/api/tags/universal/route.ts)【源碼可見】：Next.js API 路由——`GET /api/tags/universal?entityType=&entityId=` 查詢實體標籤配對（無參數則列出全部 UniversalTag）、`POST`（`action: 'sync-esg'`）同步 ESGTag；底層為 prisma 資料庫配對層。
+3. [`docs/OMNITAG-TRUSTLABEL-USER-MANUAL.md`](https://github.com/DingJun1028/Omniesggo/blob/3aa3f88115601aafc1779010ecadadbc995031a7/docs/OMNITAG-TRUSTLABEL-USER-MANUAL.md)【文件描述】：6 維 MECE 標籤（security／agent／squad／lifecycle／priority／platform 等）＋ 信任標別系統：`TRUST_LEVEL_SCORE` 分級（low 0.70／authenticated 0.90／high 0.95／critical 1.00）、生命週期 draft→active→sealed→frozen→archived、`hashLock` 為 SHA-256(`${agent}:${level}:${timestamp}`）、`Object.freeze()`、frozen lock 契約（`validateTrustLevel`／`enforceFrozenLock`）。該手冊自載之測試基線（706 passed 等）為文件記載，非本次驗證。
+
+**適用場景**：模組／記憶／技能之結構化分類檢索、生命週期治理、信任門控（`trustGate`）、標籤衝突檢查（如 `security:public` 與 `security:restricted` 互斥）。
+
+**特別事項與限制**：
+
+- **標籤、分數及 freeze/hash 不是身分驗證或授權的替代品**：trustScore 與 hashLock 為治理與溯源標記，不構成認證（authentication）或授權（authorization）機制。
