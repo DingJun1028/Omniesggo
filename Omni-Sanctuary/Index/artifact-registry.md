@@ -8,15 +8,17 @@
 
 || 編號 | 神器名稱 | 類型 | 路徑 | 狀態 |
 ||------|----------|------|------|------|
-|| 001 | 自動修復核心 | 機制 | `Artifacts/auto-repair.json` | ✅ 啟用 |
-|| 002 | 核心配置 | 設定 | `Artifacts/config.json` | ✅ 同步 |
-|| 003 | NVIDIA AI 模組 | 整合 | `Artifacts/integrations/nvidia.json` | ✅ 啟用 |
-|| 004 | Langfuse 追蹤器 | 觀察 | `Artifacts/integrations/langfuse.json` | ✅ 啟用 |
-|| 005 | Google ADK | 整合 | `Artifacts/integrations/adk.json` | ✅ 啟用 |
-|| 006 | LangChain 引擎 | 套件 | `Artifacts/integrations/langchain.json` | ✅ 啟用 |
+|| 001 | 自動修復核心 | 機制 | `esggo-auto-repair/worker/`（修復機制另見 008） | 源碼可見（2026-11-12 核實） |
+|| 002 | 核心配置 | 設定 | 待釐清（原登錄路徑從未存在，倉內未見對應實作） | 待釐清 |
+|| 003 | NVIDIA AI 模組 | 整合 | `src/impl/core.ts`＋`scripts/predictAndPreFetch.js`＋smart-ai-router `nvidia.ts` | 源碼可見（需 `NVAPI_KEY`，運行未驗證） |
+|| 004 | Langfuse 追蹤器 | 觀察 | 倉內零實作（僅 `.env.example` 註解佔位） | 未實作 |
+|| 005 | Google ADK | 整合 | `packages/oa-framework/src/adapters/adk.ts`＋`lib/services/adk/` | 源碼可見（optional peerDependency，未裝時 scaffold） |
+|| 006 | LangChain 引擎 | 套件 | `oa-twins/hyper/fabric.ts`（三態探測層） | 僅探測層引用（非直接依賴） |
 || 007 | 萬能即時翻譯 | 服務 | `apps/universal-translator/` + `https://translate.esggo.co` | ✅ 實例運行 |
 || 008 | Auto-Repair Workflow | GitHub Actions | `.github/workflows/auto-repair.yml` | ✅ 啟用 |
 || 009 | TencentDB Agent Memory | 記憶後端 | `apps/tencentdb-memory/` + `https://memory.esggo.co` | ✅ 實例運行 |
+
+> **2026-11-12 核實修訂**：001 至 006 之原登錄路徑（`Artifacts/auto-repair.json`、`Artifacts/config.json`、`Artifacts/integrations/{nvidia,langfuse,adk,langchain}.json`）經 GitHub commits API 路徑歷史查證，於 main 全程歷史從未存在；上表路徑與狀態欄已依倉內實際實作修訂，007 至 009 維持原登錄不變。逐項核實紀錄與證據層級見《Omniesggo 解說聖典》第 10 章（§10.2、§10.3）。
 
 ## 📖 聖典清單
 
@@ -49,4 +51,4 @@
 
 ---
 
-*最後更新: 2026-08-06 | Hash Lock 已啟用*
+*最後更新: 2026-11-12 | Hash Lock 已啟用*
