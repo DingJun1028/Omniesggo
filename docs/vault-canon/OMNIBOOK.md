@@ -1,6 +1,6 @@
 # 萬能聖典 OmniBook
 
-> **版本**：v1.0.0（創始版）｜**發布**：2026-11-10｜**定位**：Omniesggo 總綱性聖典
+> **版本**：v1.1.0（內容增修版）｜**發布**：2026-11-12｜**定位**：Omniesggo 總綱性聖典
 >
 > 2026-11-08 使用者定義本聖典之三重角色：專案正典文件、跨對話代理手冊、知識庫總綱；並裁決採「最佳實踐版本」之版本管理。
 
@@ -23,21 +23,21 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 
 | 決策 | 內容 |
 | --- | --- |
-| 資料層 | 全面 Supabase（Prisma 僅餘相容層 `src/lib/db/prisma-compat.ts），不新增 Prisma 依賴 |
+| 資料層 | 全面 Supabase（Prisma 僅餘相容層 `src/lib/db/prisma-compat.ts`），不新增 Prisma 依賴 |
 | De-Google | Google/Gemini/Firebase 全面禁用；AI 推論自架 Ollama（qwen2.5:14b / nomic-embed-text）＋ OpenRouter/Groq fallback |
 | 驗證契約 | Zod 已全量遷移 TypeBox（@sinclair/typebox）；注意 Value.Check 不套用 default 之語義落差 |
 | CSS | tailwindcss 維持 3.x（learning-center ignore major） |
 | express | root override `express: >=4.21.2 <5` |
 | MCP | tzin 契約式唯讀閘道（apps/mcp-gateway），僅私有網路部署 |
-| CI 環境 | Node >= 22.13（node:sqlite）、pnpm 11.5.2 |
+| CI 環境 | Node >= 22.13（node:sqlite）；pnpm 已演進為 12.16.1（root packageManager 為權威，本地安裝以 `corepack enable` 依 repo 自取版本，勿釘舊版 11.5.2） |
 
 ### 3. 架構地圖
 
 - **@esggo/omni-core**：R1 深凍結、R2 出口封裝、R3 熵帳、R4 冪等重放、R5 分裂快照、R6 預取閘門、R7 學習閉環；Trust Label 契約（trustScore/trustGate）。
 - **@esggo/omni-arch**：12大萬能模組（四大維度 × 各三）＋ OmniArch/OmniEngine/OmniTheme/OmniSeed/OmniUserRegistry ＋ OmniHeart × OmniBrain 頂層編排 ＋ OmniHive 全知蜂巢競標 ＋ OmniProphet 先知矩陣多重宇宙 ＋ Tri-Mode 千面化身 ＋ 工具權限 × Trust Label 雙閘。正典：`OMNI-ARCH-12-MODULES.md`。
-- **OESG 五站路線圖**：Pulse（碳排脈動）→ Report（報告生成）→ Audit（漂綠稽核）→ Exchange（減量額度掛牌）→ DAO（唯一剩餘站）。各站復用 12大萬能模組管線，Supabase sink 對應專用資料表（RLS 僅 service_role）。
+- **OESG 五站路線圖（2026-11-10 全線通車）**：Pulse（碳排脈動）→ Report（報告生成）→ Audit（漂綠稽核）→ Exchange（減量額度掛牌）→ DAO（額度治理交割/註銷）五站全數落地（DAO 為 PR #216，雙花攔截、attestationHash 七方關聯鎖；測試含五站真實管線閉環 Pulse→DAO 單批驗證）。各站復用 12大萬能模組管線，Supabase sink 對應專用資料表（RLS 僅 service_role）。
 - **apps/mcp-gateway**（tzin 0.5.0）：rag_search、query_agent ask/search、bus_events、hive_awards 唯讀契約端點；缺憑證一律 503 優雅降級。
-- **RAG 向量層**：src/lib/rag（Weaviate 物件 ID 確定性 UUID、Ollama 嵌入、ownerId 強制過濾）；Weaviate Cloud 免費沙箱為現行資料層（GraphQL 須於 2027-05-01 前遷移，見 WCD 生命週期記錄）。
+- **RAG 向量層**：src/lib/rag（Weaviate 物件 ID 確定性 UUID、Ollama 嵌入、ownerId 強制過濾）；Weaviate Cloud 免費沙箱為現行資料層（GraphQL 須於 2027-05-01 前遷移，見 WCD 生命週期記錄）。契約測試之 mock 佇列須與實際 fetch 次序對齊（404→POST 建類別路徑為 4 次 fetch），錯位假紅已由 PR #219 修復。
 - **OmniNote**：零算力 Ollama 本機回環、TypeBox 契約、Block-CRDT、5T 治理、數據氣密艙隱私承諾（向量資料不出本機）。
 
 ### 4. 品質治理與 CI/CD 體系（四層）
@@ -109,9 +109,9 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 
 ### 3. 已知外部阻塞（即時快照，代理接手時先驗證）
 
-- VPS 斷聯（2026-11-06 起）：OCI API 憑證 401 待使用者重新簽發；修復工作流 fix/hermes-serve-recovery v8 已就緒，憑證到位即可執行。
+- VPS 斷聯（2026-11-06 起，2026-11-10 定案診斷）：161.118.248.180 全埠 TCP 逾時，主機層斷聯，高度疑 Oracle Cloud Always Free 個體閒置回收。OCI API 憑證 MISMATCH：私鑰推導公鑰指紋 `bc1c688c393fa5a47d6a44d585d4b897` 與 secrets.OCI_API_FINGERPRINT 不符，需使用者於 OCI Console 重新簽發 API Signing Key 並同步 OCI_API_KEY／OCI_API_FINGERPRINT（必要時核對 OCI_USER_OCID）。修復工作流 fix/hermes-serve-recovery 已備 workflow_dispatch（v10），憑證到位即可執行；Deploy to Oracle VPS 於 main 恆紅屬此事故既有紅燈，非倉庫回歸，issue #179 追蹤。
 - Weaviate Cloud：待使用者註冊沙箱並交付 WEAVIATE_URL／WEAVIATE_API_KEY，驗證工具 verify-weaviate-cloud.mjs 已備。
-- Deploy to Oracle VPS 於 main 恆紅屬上述事故既有紅燈，非倉庫回歸。
+- main 0f42bd94（PR #219 合併）推送 CI 已全綠結案（16 run 中 15 success，唯一 failure 即上述 VPS 既有紅燈）。
 
 ---
 
@@ -120,3 +120,4 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 | 版本 | 日期 | 摘要 |
 | --- | --- | --- |
 | v1.0.0 | 2026-11-10 | 創始版：確立三重角色、版本迭代機制（最佳實踐版本）、技術棧政策正典、架構地圖、代理手冊、知識庫總綱。 |
+| v1.1.0 | 2026-11-12 | 內容增修：OESG 五站路線圖全線通車（DAO 落地，PR #216）；CI 環境 pnpm 演進更正為 12.16.1（packageManager 為權威）；RAG mock 佇列錯位假紅修復入向量層條目（PR #219）；外部阻塞快照更新（VPS 定案診斷、OCI 指紋 MISMATCH、main 0f42bd94 全綠結案）。 |
