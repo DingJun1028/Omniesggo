@@ -14,7 +14,7 @@
     "@google/adk": "*"
   },
   "dependencies": {
-    "@everworker/oneringai": "^1.2.1"
+    "@everworker/oneringai": "^1.2.2"
   },
   "peerDependenciesMeta": {
     "@google/adk": {
