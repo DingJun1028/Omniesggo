@@ -45,6 +45,13 @@ updates:
       - dependency-name: "eslint"
         versions:
           - ">=10.0.0"
+      # 2026-11-13 決策（比照 DIN-15，PR #251 評估結案）：
+      # tailwindcss 3→4 為破壞性大版本（6 個 app 仍在 3.x），PR #251
+      # TypeCheck+next build/build/Docker Build Test 全紅。major 不自動開 PR，
+      # 未來遷移 tailwind 4 需先備妥 migration plan 再手動進行。
+      - dependency-name: "tailwindcss"
+        update-types:
+          - "version-update:semver-major"
     # === 開 PR 自動合併設定 ===
     groups:
       minor-and-patch:
