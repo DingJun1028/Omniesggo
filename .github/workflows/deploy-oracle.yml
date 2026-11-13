@@ -275,6 +275,23 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
+      # ---- #239 診斷閉環: 22 埠可達性預檢 (fail-fast, 免燒 25 分鐘 job 逾時) ----
+      - name: SSH reachability preflight
+        if: needs.pre-check.outputs.mode == 'direct'
+        env:
+          VPS_HOST_DIRECT: ${{ secrets.VPS_HOST }}
+        run: |
+          # 根因實證 (issue #239 / #179): 2026-11-06 起 VPS 主機 22/80/443 全埠對外不可達,
+          #   direct 部署固定死於 ssh ConnectTimeout (exit 255) 並佔滿 25 分鐘 job 逾時。
+          #   此為外部基礎設施阻塞, 非倉庫程式碼問題。預檢將其分類為顯式錯誤,
+          #   在任何遠端變更 (secret staging / git reset) 發生之前即中止。
+          if timeout 10 bash -c 'cat < /dev/null > /dev/tcp/"$VPS_HOST_DIRECT"/22' 2>/dev/null; then
+            echo "[OK] target host port 22 reachable — proceeding with deploy"
+          else
+            echo "::error::SSH preflight: target host port 22 unreachable (timeout 10s). External infrastructure blocker tracked in issue #179/#239 — not a repository-code failure. Deploy aborted before any remote mutation."
+            exit 1
+          fi
+
       - name: Deploy direct
         if: needs.pre-check.outputs.mode == 'direct'
         env:
