@@ -112,15 +112,18 @@ esggo/
 │   ├── tencentdb-memory/   #   TencentDB 團隊記憶
 │   ├── omni-blueprint-hub/ #   藍圖中樞
 │   └── omni-api/           #   平台 API 層
-├── packages/              # ★ 18 個 workspace 套件（見 §8 核心模組）
+├── packages/              # ★ 26 個 workspace 套件（見 §8 核心模組）
 │   ├── omni-core/          #   IComponentCore 心核介面 + sealComponentCore Hash Lock 刻印
 │   ├── omni-arch/          #   12大萬能架構：12模組 + OmniHeart × OmniBrain + OmniHive 全知蜂巢（共享黑板＋動態競標）+ OmniProphet 先知矩陣 + 三模化身（tri-mode）+ 工具信任閘
+│   ├── aios-matrix/       #   AIOS 融合矩陣：5 大行為核心 × 12 MECE 維度（元件即代理, verifyAiosTopology MECE 驗證）
 │   ├── oa-framework/       #   OA 萬能元框架（7 子框架 + 5T 管線，offline 可驗）
 │   ├── omni-agent/         #   代理本體（5T Gate）
 │   ├── omni-agent-bus/     #   萬能代理總線（事件骨幹, 冪等重放/分裂快照）
 │   ├── ollama-mcp/         #   自架 Ollama MCP 橋（De-Google 推理層）
 │   ├── omni-memory/ omni-db/ omni-forge/ omni-bridge/ capacities/
 │   ├── omni-tag/ shared/ errors/ ui/ omni-ui/ i18n/ cli/
+│   ├── oesg-pulse/ oesg-report/ oesg-audit/ oesg-exchange/ oesg-dao/ oesg-supabase/  # OESG 五站資料管線（Pulse→Report→Audit→Exchange→DAO）＋ Supabase sink
+│   ├── omninote-unified/  #   萬能筆記 OmniNote 統合（TypeBox 契約, Block-CRDT）
 ├── libs/ cli/              # 共用函式庫與 CLI（esggo / oa-cli / omnicli）
 ├── shared/                 # 跨倉共享層（prd-matrix.json PRD 矩陣正本）
 ├── tools/ts-matrix/        # TS 終始矩陣雙向驗證器 + drift baseline
@@ -266,8 +269,9 @@ VPS 新機一鍵：`sudo node vps/junaikey-optimize.mjs`（Docker log rotation�
 | `@esggo/omni-agent` | 代理本體（5T Gate 出入口） |
 | `@esggo/omni-agent-bus` | 萬能代理總線：事件／訊息骨幹，冪等重放、分裂快照、conduit 模式、OA 橋接、TencentDB 團隊記憶 |
 | `@esggo/omni-arch` | 12大萬能架構實作：12 模組（四大維度）＋ OmniArch／OmniEngine／OmniTheme／OmniSeed／OmniUserRegistry ＋ OmniHeart × OmniBrain 生命體編排 ＋ OmniHive 全知蜂巢（共享黑板＋動態競標）／OmniProphet 先知矩陣（多重宇宙並行）／三模化身 tri-mode／工具信任閘 tool-trust-gate；正典見 `docs/vault-canon/OMNI-ARCH-12-MODULES.md` |
+| `@esggo/aios-matrix` | AIOS 終極融合矩陣：5 大行為核心 × 12 大 MECE 維度（元件即代理）＋ `verifyAiosTopology()` MECE 拓撲驗證 ＋ AiosDimensionAgent／AiosFusionMatrix 註冊調度軌跡層；正典見 `docs/vault-canon/AIOS-FUSION-MATRIX.md` |
 | `@esggo/ollama-mcp` | 自架 Ollama MCP 橋（De-Google 推理層） |
-| 其餘 | `omni-memory` `omni-db` `omni-forge` `omni-bridge` `capacities` `omni-tag` `shared` `errors` `ui` `omni-ui` `i18n` `cli` |
+| 其餘 | `omni-memory` `omni-db` `omni-forge` `omni-bridge` `capacities` `omni-tag` `shared` `errors` `ui` `omni-ui` `i18n` `cli` `oesg-pulse` `oesg-report` `oesg-audit` `oesg-exchange` `oesg-dao` `oesg-supabase` `omninote-unified` |
 
 ### MCP Gateway（`apps/mcp-gateway`，tzin 試點）
 
@@ -307,6 +311,7 @@ Puppeteer 建 read-only billing token 寫入 `.env.local`。
 | `docs/USER_MANUAL_COMPLETE.md` | 使用者手冊 |
 | `docs/vault-canon/OMN-PRD-001-SCHEMA-TRACEABILITY.md` | Schema 追溯正典 |
 | `docs/vault-canon/OMNI-ARCH-12-MODULES.md` | 12大萬能架構實作正典（模組對應表、接線、揭露） |
+| `docs/vault-canon/AIOS-FUSION-MATRIX.md` | AIOS 終極融合矩陣正典（5 核心 × 12 維度 MECE、化身／聖柱／奧義／公理、誠實揭露） |
 | `docs/adr/`（`docs/` 下 ADR-*.md） | 架構決策記錄 |
 | `.hermes/auto-repair/CI-GATE.md` | CI 全綠閘規則 |
 | `soul-chapter-*.md` / `soul.md` | 版本血脈章節（soul-lineage CI 守護） |
