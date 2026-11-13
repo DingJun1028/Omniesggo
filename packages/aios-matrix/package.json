@@ -21,6 +21,6 @@
   "description": "AIOS 終極融合矩陣 — 5 大行為核心 × 12 大 MECE 維度之 TypeScript 契約實作（元件即代理）",
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vitest": "^5.0.3"
+    "vitest": "^5.1.0"
   }
 }
