@@ -56,14 +56,13 @@ export class OmniCoreEcosystem {
    * Mimics the Hash Lock + Object.freeze() behaviour.
    */
   public static lockAndFreeze<T extends object & { evidence?: Record<string, unknown> }>(obj: T): T {
-    // Attach a hash lock (simulated) to the object's evidence field
     obj.evidence = obj.evidence || {};
-    (obj as any).evidence['hash_lock'] = `0xCELESTIAL_${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2, 9)}`;
-
+    Object.assign(obj.evidence, {
+      hash_lock: `0xCELESTIAL_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+    });
     // Freeze the object to prevent further modifications
-    return Object.freeze(obj);
+    const frozen: unknown = Object.freeze(obj);
+    return frozen as T;
   }
 }
 

@@ -1,6 +1,6 @@
 ---
 name: oa-ui-design-system
-description: "ESGGO 系統級四大萬能（OmniTag/OmniBase/OmniAgent/OmniTheme）+ 5T 協議 + Solid Card 設計系統 + v5 萬能系統版（28章×28萬字）。使用時機：建立新頁面、重構 UI 元件、設計審核、永續報告（24/28章）、VPS 部署除錯、AI 模型測試、Hermes config 注入、知識教學平台、系統級架構調整。"
+description: "系統級 UI 設計：Omni 標籤/基礎/代理/主題、5T、Solid Card"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

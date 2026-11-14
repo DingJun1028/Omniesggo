@@ -73,12 +73,12 @@ check_broker() {
   # 用 python3 執行 pm2 list
   read -r rc out err < <(python3 -c "
 import subprocess
-r = subprocess.run(['pm2', 'list'], capture_output=True, text=True)
+r = subprocess.run('pm2 list', shell=True, capture_output=True, text=True)
 print(r.returncode)
 print(r.stdout)
 print(r.stderr)
 ")
-  if [ "$rc" -ne 0 ]; then
+  if [ "${rc//$'\r'/}" -ne 0 ]; then
     die "pm2 list failed"
   fi
 

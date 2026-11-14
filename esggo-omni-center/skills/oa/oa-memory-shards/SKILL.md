@@ -1,6 +1,6 @@
 ---
 name: oa-memory-shards
-description: "Use when the user wants to manage, query, or inspect the OmniMemory Shards system. Handles memory shard extraction (from conversations, error logs, code reviews, web crawls), skill ultimate synthesis, shard relation management, and shard usage tracking. Load when user mentions memory shards, skill ultimates, or knowledge extraction."
+description: "管理 OmniMemory 分片：擷取、合成、關聯、追蹤"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

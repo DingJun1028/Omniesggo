@@ -1,6 +1,6 @@
 ---
 name: oa-summon
-description: "Use as the primary entry point for OmniAgent operations. Spawns and coordinates other OA skills based on user intent. Load when user says 'OA', 'OmniAgent', '召喚', or starts any OA workflow. Routes to appropriate skills: page-builder, design-fix, 5t-enforcer, deploy, report-depth, etc."
+description: "OA 工作首進點：調度子技能"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

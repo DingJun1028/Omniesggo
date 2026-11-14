@@ -1,6 +1,6 @@
 ---
 name: oa-skill-scaffold
-description: "Use when the user wants to create a new OA skill. Generates the complete skill scaffold: directory, SKILL.md with proper frontmatter, reference files, and test templates. Load when user says '建立技能', '新技能', 'scaffold skill', or 'create OA skill'."
+description: "建立新 OA 技能：骨架與前置文件"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

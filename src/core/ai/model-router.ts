@@ -646,9 +646,44 @@ async function callCloudflareAI(model: string, messages: ChatMessage[], options:
   throw new Error('[callCloudflareAI] 尚未實作：需要 Cloudflare AI 端點配置（API key 環境變數）');
 }
 
-/** 呼叫本地 Ollama 端點（stub，待實作） */
+/** 呼叫本地 Ollama 端點（Ollama API /api/chat） */
 async function callLocalOllama(model: string, messages: ChatMessage[], options: { endpoint?: string; maxTokens?: number; temperature?: number; timeoutMs?: number }): Promise<string> {
-  throw new Error('[callLocalOllama] 尚未實作：需要本地 Ollama 服務連線');
+  const endpoint = options.endpoint ?? process.env.VPS_OLLAMA_URL;
+  if (!endpoint) throw new Error('[callLocalOllama] 尚未實作：需要本地 Ollama 服務連線（未設定 endpoint）');
+  const controller = new AbortController();
+  const timeoutMs = options.timeoutMs ?? 120000;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model,
+        messages,
+        stream: false,
+        options: {
+          temperature: options.temperature ?? 0.7,
+          max_tokens: options.maxTokens ?? 128,
+        },
+      }),
+    });
+    clearTimeout(timer);
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error('[callLocalOllama] Ollama API HTTP ' + response.status + ': ' + text);
+    }
+    const data = await response.json() as { message?: { content: string } };
+    const content = data.message?.content;
+    if (!content) throw new Error('[callLocalOllama] Ollama API: empty response');
+    return content;
+  } catch (e) {
+    clearTimeout(timer);
+    if (e instanceof Error && e.name === 'AbortError') {
+      throw new Error('[callLocalOllama] 逾時 (' + timeoutMs + 'ms)');
+    }
+    throw e;
+  }
 }
 
 export async function callChatProvider(

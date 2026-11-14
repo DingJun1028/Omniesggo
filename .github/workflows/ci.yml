@@ -49,3 +49,10 @@ jobs:
       - name: 5T Cryptographic Snapshot Verification
         run: node scripts/omni-snapshot.mjs --verify
         timeout-minutes: 5
+
+      - name: 超能力 7 階段追蹤 — 關卡封印 (Superpowers gate)
+        run: |
+          node vps/junaikey.mjs trackSuperPowersStage finish5t done \
+            --source=github-actions --sourceOrigin=ci-gate \
+            --notes="5T 全綠閘通過，7 階段結束"
+        timeout-minutes: 2

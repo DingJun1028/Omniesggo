@@ -434,7 +434,7 @@ export function generateFiveTReport(score: FiveTScore): string {
 
 // ── §20.5 OmniTag 契約閘（5T 驗算陣列 25-30 接線） ──────────
 // 零侵入掛接 src/lib/omnitag-contract.ts，產物誕生/變更即過契約閘。
-// 用相對 import 避免 @/ alias 在 core tsconfig 解析爭議（參見 universal-tag-service.ts 註解）。
+// 用相對 import 避免 @/ alias 在 core tsconfig 解析爭議（參見 omni-tag-service.ts 註解）。
 import {
   verifyOmniTagContract,
   routeOmniTag,

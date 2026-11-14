@@ -5,7 +5,7 @@
 
 import { jsonResponse } from '@lib/api-utils';
 
-const GATEWAY_URL = process.env.EMM_GATEWAY_URL || 'http://161.118.248.180:8642';
+const GATEWAY_URL = process.env.EMM_GATEWAY_URL || 'http://omniagent-gateway:8642';
 
 interface SonnarAggregate {
   crawlCount: number;

@@ -1,6 +1,6 @@
 ---
 name: oa-5t-enforcer
-description: "Use when verifying data compliance with the 5T Integrity Protocol (真善美信通). Checks all five dimensions: Truth (可感知), Goodness (可溯源), Beauty (可追蹤), Trust (不可篡改), Transferful (可透明驗算). Load when user mentions 5T verification, data integrity, or audit checks."
+description: "5T完整性檢查（真善美信通）"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

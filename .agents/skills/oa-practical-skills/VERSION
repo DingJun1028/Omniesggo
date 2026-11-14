@@ -1,0 +1,13 @@
+# 5T 健康標記檔（5T: source_origin, 5T: trackable, 5T: tangible, 5T: transparent, 5T: trustworthy）
+source_origin: oa-practical-skills
+START_ENCODING: utf-8
+tangible_count: 25
+transparency_count: 18
+hash_lock: sha256:PLACEHOLDER_NEEDS_REAL_HASH
+
+[5T]
+source_origin = "oa-practical-skills"
+trackable = true
+tangible = true
+transparent = true
+trustworthy = true

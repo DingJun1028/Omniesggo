@@ -3,8 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Eye, Cpu, Activity, Shield, BrainCircuit, Heart,
-  Sun, Moon, RefreshCcw, Database, FileText, CheckCircle2,
-  AlertCircle, ShieldCheck, Download, Copy, Zap
+  Sun, Moon, RefreshCcw, Database, AlertCircle, ShieldCheck, Download, Copy, Zap
 } from 'lucide-react';
 
 // ── Hexa-Core Organs ──────────────────────────────────────────────────────

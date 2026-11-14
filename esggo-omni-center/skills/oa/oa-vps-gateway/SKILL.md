@@ -1,6 +1,6 @@
 ---
 name: oa-vps-gateway
-description: "Hermes Agent Gateway VPS setup, Telegram auth, cron reports, and infrastructure management. Use when setting up or maintaining Hermes Gateway on a VPS (Oracle Cloud, etc.), configuring Telegram bot auth, scheduling daily reports, or debugging gateway connectivity."
+description: "Hermes Gateway VPS 配置與管理"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

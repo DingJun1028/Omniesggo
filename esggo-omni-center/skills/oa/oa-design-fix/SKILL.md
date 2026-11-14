@@ -1,6 +1,6 @@
 ---
 name: oa-design-fix
-description: "Use when the user reports color issues, dark theme appearing, broken styles, or visual bugs. Diagnoses and fixes light theme violations across the ESGGO project. Checks for dark backgrounds, glass/blur effects, wrong text colors, and ensures Berkeley Blue #003262 + Gold #FDB515 compliance."
+description: "修復色彩/主題問題：Berkeley Blue + Gold 配色"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

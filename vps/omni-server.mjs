@@ -3,7 +3,7 @@ import cors from 'cors';
 import { gatewayKey, audit, summary, isSummoned, summonRitual } from './omni-master-key.mjs';
 
 const app = express();
-const port = 8642;
+const port = Number(process.env.PORT ?? 8642);
 
 // Trust first proxy (Cloudflare → VPS), required for express-rate-limit
 // to correctly read X-Forwarded-For for client IP identification.

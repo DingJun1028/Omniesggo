@@ -38,6 +38,16 @@ done
 echo "🎬 立即執行一次 Dispatcher tick..."
 hermes -p orchestrator cron run dispatcher-tick 2>/dev/null || hermes -p orchestrator cron run 0ad3c19d9890 2>/dev/null || true
 
+# 6. 初始化 超能力 7 階段追蹤 (JunAikey 萬能元鑰)
+echo ""
+echo "🔑 初始化 超能力 7 階段追蹤 (JunAikey 萬能元鑰)..."
+if [ -f "vps/junaikey.sh" ] && [ -f "C:/Users/dingj/secret-vault/ENV20230818.env" ]; then
+    vps/junaikey.sh superpowers brainstorming start --source=startup --sourceOrigin=start-automation </dev/null
+    echo "   ✅ 超能力 7 階段追蹤初始化完成"
+elif [ -f "vps/junaikey.sh" ]; then
+    echo "   ⚠️  超能力 7 階段追蹤跳過：秘密聖櫃 (ENV) 未配置"
+fi
+
 echo ""
 echo "✅ 系統啟動完成！"
 echo ""

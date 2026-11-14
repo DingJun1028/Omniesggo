@@ -1,0 +1,15 @@
+# 5T 合規的 Crew 定義（5T: source_origin, 5T: traceable, 5T: trackable, 5T: truthful, 5T: trustworthy）
+version: "1.0"
+source_origin: oa-swarm-local-runtime
+
+crew:
+  - name: local-runtime-engine
+    role: execution
+    agents:
+      - qa
+      - runtime
+      - ollama
+  - name: local-runtime-ollama
+    role: inference
+    agents:
+      - model

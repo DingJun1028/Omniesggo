@@ -14,7 +14,6 @@
 //   - 每實體一筆 sync_matrix 狀態, 對帳後固化
 //   - graceful skip: 無 OMNI_DB_PWD 時全部 no-op (不阻斷主流程)
 
-import { prisma } from '@/lib/storage-service';
 import {
   hasOracleCreds,
   pullFromOracle,
@@ -51,12 +50,12 @@ export async function hydrateFromOracle(): Promise<HydrationResult> {
     // 在 app 端標記此 uuid 的實體為「Oracle 已確認」(sourceOrigin 補 oracle-confirmed)
     // 若 app 本地已有該 uuid 的 tagPair/universalTag, 更新其 lifecycleHooks 補 oracleConfirmed 標記
     try {
-      const existingPair = await prisma.tagPair.findFirst({ where: { uuid } });
+      const existingPair = await findTagPair({ where: { uuid } });
       if (existingPair) {
         const meta = (
           existingPair.lifecycleHooks ? JSON.parse(existingPair.lifecycleHooks) : {}
         ) as Record<string, unknown>;
-        await prisma.tagPair.update({
+        await updateTagPair({
           where: { id: existingPair.id },
           data: { lifecycleHooks: JSON.stringify({ ...meta, oracleConfirmed: true, oracleSeq: entry.seq }) },
         });
@@ -73,10 +72,7 @@ export async function hydrateFromOracle(): Promise<HydrationResult> {
 // 這裡用 app 本地資料量近似 origin_seq: 以 tagPair 總數 + 各實體 createdAt 序作為代理。
 // 真實部署中 origin_seq 應來自 app 端自己的寫入序號 (此處以 count 近似, 足以驅動對帳決策)。
 async function collectAppOriginSeq(): Promise<Array<{ uuid: string; originSeq: number }>> {
-  const pairs = await prisma.tagPair.findMany({
-    select: { uuid: true, createdAt: true },
-    orderBy: { createdAt: 'asc' },
-  });
+  const pairs = await listTagPairs({ select: 'uuid, createdAt', orderBy: { createdAt: 'asc' } });
   // uuid 可能為 NULL (舊資料), 過濾避免下游 string|null 型別錯誤
   return pairs
     .filter((p): p is { uuid: string; createdAt: Date } => !!p.uuid)
@@ -176,12 +172,12 @@ export async function pullBehindApp(
       continue;
     }
     try {
-      const existing = await prisma.tagPair.findFirst({ where: { uuid: r.uuid } });
+      const existing = await findTagPair({ where: { uuid: r.uuid } });
       if (existing) {
         // app 已有 -> 補標 oracleConfirmed (不覆寫既有資料)
         const meta = (existing.lifecycleHooks ? JSON.parse(existing.lifecycleHooks) : {}) as Record<string, unknown>;
         const entryData = entry as { seq?: number };
-        await prisma.tagPair.update({
+        await updateTagPair({
           where: { id: existing.id },
           data: { lifecycleHooks: JSON.stringify({ ...meta, oracleConfirmed: true, oracleSeq: entry.seq }) },
         });

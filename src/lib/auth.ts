@@ -16,7 +16,7 @@ export interface LocalUser {
 
 export type User = LocalUser;
 
-function mapSupabaseUser(user: any): LocalUser | null {
+function mapSupabaseUser(user: Record<string, unknown>): LocalUser | null {
   if (!user) return null;
   return {
     uid: user.id,

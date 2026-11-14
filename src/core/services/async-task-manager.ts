@@ -79,7 +79,7 @@ export interface TaskProgress {
 
 export const DEFAULT_RENDER_OPTIONS = { charts: true, imagery: true };
 
-export function normalizeRenderOptions(opts?: any): { charts: boolean; imagery: boolean } {
+export function normalizeRenderOptions(opts?: { charts?: boolean; imagery?: boolean }): { charts: boolean; imagery: boolean } {
   if (!opts || typeof opts !== 'object') {
     return { ...DEFAULT_RENDER_OPTIONS };
   }
@@ -165,7 +165,7 @@ export function createTask(
     scope1Tco2e: number;
     scope2Tco2e: number;
   },
-  renderOptions?: any,
+  renderOptions?: { charts?: boolean; imagery: boolean },
 ): string {
   const taskId = `tsk-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();

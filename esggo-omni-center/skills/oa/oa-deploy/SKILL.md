@@ -1,6 +1,6 @@
 ---
 name: oa-deploy
-description: "Use when the user says '部署', 'deploy', '上線', or asks to push changes to production. Runs git commit, git push, and Vercel deployment with build verification. Handles common deployment errors like build timeouts, cache issues, and lockfile mismatches."
+description: "部署/上線：git push + Vercel 建置驗證"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

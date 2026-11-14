@@ -1,6 +1,6 @@
 ---
 name: oa-report-assembler
-description: "Use when the user wants to assemble or generate sustainability/ESG reports. Automated assembly of 24-section sustainability reports using zero-compute pre-written templates. Load when user mentions report assembly, ESG report generation, or 24-section report."
+description: "24 章 ESG 報表組裝（零運算模板）"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

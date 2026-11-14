@@ -1,6 +1,6 @@
 ---
 name: oa-realtime-monitor
-description: "Use when the user wants real-time system monitoring via SSE, Redis, or API. Monitors gateway health, agent status, deployment status, and system metrics. Load when user mentions monitoring, real-time, SSE, health check, or observability."
+description: "SSE/Redis/API 即時監控：閘道、代理、部署"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

@@ -4,6 +4,7 @@
 import { IWuZuoMiaoDe, InputData } from './interfaces';
 import { randomUUID, createHash } from 'node:crypto';
 import { EntropyForge } from '../omni-core/entropy-forge';
+import { createAlert } from '@/lib/storage-service';
 
 export interface CelestialData {
   [key: string]: unknown;
@@ -196,19 +197,16 @@ export class CelestialController {
   private async engraveToRepository(artifact: CelestialData, metadata: CelestialMetadata) {
     // 沉澱：寫入 OmniVault (Alert 表) — 5T Trackable
     try {
-      const { prisma } = await import('@/lib/storage-service');
-      await prisma.alert.create({
-        data: {
-          sourceId: 'celestial-flow',
-          sourceName: metadata.strategy || 'CelestialController',
-          alertType: 'system_event',
-          severity: 'low',
-          title: `沉澱: ${metadata.status || 'Verified'}`,
-          summary: JSON.stringify(metadata).slice(0, 500),
-          url: '',
-          hash: artifact.uuid || '',
-          esgPillar: '',
-        },
+      await createAlert({
+        sourceId: 'celestial-flow',
+        sourceName: metadata.strategy || 'CelestialController',
+        alertType: 'system_event',
+        severity: 'low',
+        title: `沉澱: ${metadata.status || 'Verified'}`,
+        summary: JSON.stringify(metadata).slice(0, 500),
+        url: '',
+        hash: artifact.uuid || '',
+        esgPillar: '',
       });
       console.log(`[Celestial] Engraved to repository: ${metadata.status}`);
     } catch (_dbErr) {
@@ -234,19 +232,16 @@ export class CelestialController {
     
     // 2. DB 持久化異常事件
     try {
-      const { prisma } = await import('@/lib/storage-service');
-      await prisma.alert.create({
-        data: {
-          sourceId: 'celestial-self-healing',
-          sourceName: 'OmniOrchestrator',
-          alertType: 'system_anomaly',
-          severity: 'high',
-          title: `[Self-Healing] 系統異常: ${String((error as Error).message || error).slice(0, 200)}`,
-          summary: `UUID: ${sealedData.uuid}\n已觸發自癒協議，WuZuoMiaoDe 降級保護。`,
-          url: '',
-          hash: sealedData.uuid || '',
-          esgPillar: '',
-        },
+      await createAlert({
+        sourceId: 'celestial-self-healing',
+        sourceName: 'OmniOrchestrator',
+        alertType: 'system_anomaly',
+        severity: 'high',
+        title: `[Self-Healing] 系統異常: ${String((error as Error).message || error).slice(0, 200)}`,
+        summary: `UUID: ${sealedData.uuid}\n已觸發自癒協議，WuZuoMiaoDe 降級保護。`,
+        url: '',
+        hash: sealedData.uuid || '',
+        esgPillar: '',
       });
     } catch (e) {
       console.error('[Celestial] Failed to persist self-healing alert to DB:', e);

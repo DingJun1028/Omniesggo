@@ -5,7 +5,19 @@
  * Auto-generates reports from Alert + Regulation + CompanyReport tables
  */
 
-import { prisma } from '@/lib/storage-service';
+import {
+  listRegulations,
+  listCompanyReports,
+  listAlerts,
+  listCrawlHistory,
+  upsertDailyReport,
+  deleteDailyReportItems,
+  createDailyReportItem,
+  getDailyReport,
+  listDailyReportItems,
+  listDailyReports,
+  updateDailyReport,
+} from '@/lib/storage-service';
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -66,26 +78,11 @@ export class DailyReportService {
     const dateStr = formatDate(date);
 
     // Gather data from the last 24h
-    const [recentRegulations, recentReports, recentAlerts, recentCrawlItems] = await Promise.all([
-      prisma.regulation.findMany({
-        where: { crawledAt: { gte: start, lte: end } },
-        select: { title: true, sourceName: true, url: true },
-        take: 20,
-      }),
-      prisma.companyReport.findMany({
-        where: { crawledAt: { gte: start, lte: end } },
-        select: { companyName: true, reportType: true, url: true },
-        take: 20,
-      }),
-      prisma.alert.findMany({
-        where: { createdAt: { gte: start, lte: end } },
-        take: 20,
-      }),
-      prisma.crawlHistory.findMany({
-        where: { timestamp: { gte: start, lte: end } },
-        include: { regulation: true },
-        take: 20,
-      }),
+    const [regulations, reports, alerts, crawlItems] = await Promise.all([
+      listRegulations({ where: { crawledAt: { gte: start, lte: end } }, select: { title: true, sourceName: true, url: true }, take: 20 }),
+      listCompanyReports({ where: { crawledAt: { gte: start, lte: end } }, select: { companyName: true, reportType: true, url: true }, take: 20 }),
+      listAlerts({ where: { createdAt: { gte: start, lte: end } }, take: 20 }),
+      listCrawlHistory({ where: { timestamp: { gte: start, lte: end } }, take: 20 }),
     ]);
 
     // Build report title
@@ -163,7 +160,7 @@ export class DailyReportService {
     }
 
     // Upsert the daily report
-    const report = await prisma.dailyReport.upsert({
+    const report = await upsertDailyReport({
       where: { reportDate: start },
       update: {
         title,
@@ -188,9 +185,9 @@ export class DailyReportService {
     });
 
     // Delete old items and recreate
-    await prisma.dailyReportItem.deleteMany({ where: { reportId: report.id } });
+    await deleteDailyReportItems({ where: { reportId: report.id } });
     for (const item of items) {
-      await prisma.dailyReportItem.create({
+      await createDailyReportItem({
         data: { ...item, reportId: report.id },
       });
     }
@@ -202,10 +199,10 @@ export class DailyReportService {
    * Get a daily report by ID with all items
    */
   async getReportById(id: string): Promise<DailyReportDTO | null> {
-    const report = await prisma.dailyReport.findUnique({ where: { id } });
+    const report = await getDailyReport({ where: { id } });
     if (!report) return null;
 
-    const items = await prisma.dailyReportItem.findMany({
+    const items = await listDailyReportItems({
       where: { reportId: id },
       orderBy: { orderIndex: 'asc' },
     });
@@ -244,7 +241,7 @@ export class DailyReportService {
    */
   async getTodayReport(): Promise<DailyReportDTO> {
     const today = getStartOfDay(new Date());
-    const existing = await prisma.dailyReport.findUnique({ where: { reportDate: today } });
+    const existing = await getDailyReport({ where: { reportDate: today } });
     if (existing) return this.getReportById(existing.id) as Promise<DailyReportDTO>;
     return this.generateReport(new Date());
   }
@@ -253,7 +250,7 @@ export class DailyReportService {
    * List recent published reports
    */
   async listReports(limit = 30, status = 'published'): Promise<DailyReportDTO[]> {
-    const reports = await prisma.dailyReport.findMany({
+    const reports = await listDailyReports({
       where: { status },
       orderBy: { reportDate: 'desc' },
       take: limit,
@@ -266,7 +263,7 @@ export class DailyReportService {
    * Publish a draft report
    */
   async publishReport(id: string, editorNote?: string): Promise<DailyReportDTO | null> {
-    await prisma.dailyReport.update({
+    await updateDailyReport({
       where: { id },
       data: { status: 'published', publishedAt: new Date(), ...(editorNote ? { editorNote } : {}) },
     });
@@ -280,7 +277,7 @@ export class DailyReportService {
     const start = new Date();
     start.setMonth(start.getMonth() - months);
 
-    const reports = await prisma.dailyReport.findMany({
+    const reports = await listDailyReports({
       where: { reportDate: { gte: start } },
       orderBy: { reportDate: 'desc' },
       select: { reportDate: true, alertCount: true, status: true },

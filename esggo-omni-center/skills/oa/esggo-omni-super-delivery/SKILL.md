@@ -1,6 +1,6 @@
 ---
 name: esggo-omni-super-delivery
-description: "Use when claiming a soul-level (靈魂條目級) deliverable is complete, or when user says 萬能超交付 / 超交付 / super delivery / 3-layer landing. Enforces the three iron laws (三鐵律): 3-layer landing (主典/落檔/技能), tool-output-only evidence, fix-the-class. Load before declaring any 靈魂條目 done."
+description: "靈魂條目完成聲明：三鐵律、工具輸出證據、修類別"
 version: 1.0.0
 author: ESGGO OmniAgent
 license: MIT

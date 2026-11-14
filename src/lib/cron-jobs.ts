@@ -39,28 +39,29 @@ async function generateDailyReportJob(): Promise<{
     const todayEnd = new Date(todayStr + 'T23:59:59.999Z');
 
     // Check if already generated for today
-    const existing = await prisma.dailyReport.findUnique({ where: { reportDate: todayStart } });
+    const existing = await getDailyReport({ where: { reportDate: todayStart } });
     if (existing) {
       return { success: true, message: 'Already generated for today', reportDate: todayStr };
     }
 
     // Count today's new alerts
-    const newAlerts = await prisma.alert.count({
+    const newAlerts = await countAlerts({
       where: { createdAt: { gte: todayStart, lte: todayEnd } },
     });
 
     // Count regulations (no createdAt on Regulation — use id count as proxy)
-    const totalRegulations = await prisma.regulation.count();
+    const totalRegulations = await countRegulations();
 
     // Count company reports (no createdAt on CompanyReport)
-    const totalReports = await prisma.companyReport.count();
+    const totalReports = await countCompanyReports();
 
     // Aggregate source distribution
-    const recentAlerts = await prisma.alert.findMany({
-      where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } },
-      select: { sourceName: true, alertType: true },
-      take: 100,
-    });
+    const recentAlertRes = await supabase
+      .from('alert')
+      .select('sourceName, alertType')
+      .gte('createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .limit(100);
+    const recentAlerts = recentAlertRes ?? [];
 
     const tagStats: Record<string, number> = {};
     for (const alert of recentAlerts) {
@@ -69,12 +70,13 @@ async function generateDailyReportJob(): Promise<{
     }
 
     // Find highlight items (critical/high severity recent alerts)
-    const highlightAlerts = await prisma.alert.findMany({
-      where: { severity: 'critical' },
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-      select: { id: true, title: true, sourceName: true, severity: true, esgPillar: true },
-    });
+    const highlightAlertRes = await supabase
+      .from('alert')
+      .select('id, title, sourceName, severity, esgPillar')
+      .eq('severity', 'critical')
+      .order('createdAt', { ascending: false })
+      .limit(5);
+    const highlightAlerts = highlightAlertRes ?? [];
 
     const highlights = highlightAlerts.length > 0
       ? highlightAlerts.map((a: { title: string | null }) => a.title || '未命名警示')
@@ -84,8 +86,20 @@ async function generateDailyReportJob(): Promise<{
     const topSources = Array.from(sourceNameSet).slice(0, 5);
 
     // Create daily report
-    const report = await prisma.dailyReport.create({
-      data: {
+    const report = await upsertDailyReport({
+      where: { reportDate: todayStart },
+      create: {
+        reportDate: todayStart,
+        title: `永續觀察者日報 — ${todayStr}`,
+        summary: `${todayStr} 共收錄 ${newAlerts} 則警示（近 7 日累計 ${recentAlerts.length} 則）。目前法規資料庫 ${totalRegulations} 筆、企業報告 ${totalReports} 份。`,
+        highlights: JSON.stringify(highlights),
+        tagStats: JSON.stringify(tagStats),
+        sourceCount: topSources.length,
+        alertCount: newAlerts,
+        topSources: JSON.stringify(topSources),
+        status: 'published',
+      },
+      update: {
         reportDate: todayStart,
         title: `永續觀察者日報 — ${todayStr}`,
         summary: `${todayStr} 共收錄 ${newAlerts} 則警示（近 7 日累計 ${recentAlerts.length} 則）。目前法規資料庫 ${totalRegulations} 筆、企業報告 ${totalReports} 份。`,
@@ -100,17 +114,17 @@ async function generateDailyReportJob(): Promise<{
 
     // Create report items for critical alerts
     if (highlightAlerts.length > 0) {
-      await prisma.dailyReportItem.createMany({
-        data: highlightAlerts.map((item: { id: string; title: string | null; sourceName: string | null; severity: string | null; esgPillar: string | null }) => ({
+      await supabase
+        .from('daily_report_item')
+        .insert(highlightAlerts.map((item: { id: string; title: string | null; sourceName: string | null; severity: string | null; esgPillar: string | null }) => ({
           reportId: report.id,
           alertId: item.id,
           itemType: 'alert',
           title: item.title || '未命名警示',
-          sourceName: item.sourceName || undefined,
-          severity: item.severity || undefined,
-          esgPillar: item.esgPillar || undefined,
-        })),
-      });
+          sourceName: item.sourceName || null,
+          severity: item.severity || null,
+          esgPillar: item.esgPillar || null,
+        })));
     }
 
     const duration = Date.now() - startTime;
@@ -129,7 +143,7 @@ async function generateDailyReportJob(): Promise<{
 async function checkUserAchievements(): Promise<{ checked: number; upgrades: number }> {
   let upgrades = 0;
   try {
-    const userGrowths = await prisma.userGrowth.findMany();
+    const userGrowths = await listUserGrowth();
 
     for (const user of userGrowths) {
       const tiers = [
@@ -142,7 +156,7 @@ async function checkUserAchievements(): Promise<{ checked: number; upgrades: num
 
       const currentTier = tiers.find((t) => user.totalPoints >= t.threshold);
       if (currentTier && currentTier.name !== user.tier) {
-        await prisma.userGrowth.update({
+        await updateUserGrowth({
           where: { id: user.id },
           data: { tier: currentTier.name, updatedAt: new Date() },
         });
@@ -340,7 +354,7 @@ export function initCronJobs(): () => void {
   // Generate on startup if missing today
   const today = new Date().toISOString().split('T')[0];
   const todayStart = new Date(today + 'T00:00:00.000Z');
-  prisma.dailyReport.findUnique({ where: { reportDate: todayStart } })
+  getDailyReport({ where: { reportDate: todayStart } })
     .then((existing: { id: string } | null) => {
       if (!existing) {
         console.log('[Cron] No report for today, generating on startup...');

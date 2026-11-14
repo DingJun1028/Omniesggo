@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         uuid: payload.uuid
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('ESG Report seal error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

@@ -23,7 +23,7 @@ export async function GET(req: Request) {
     }
 
     return NextResponse.json({ success: true, data: traces });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('API /omni-trace Error:', error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

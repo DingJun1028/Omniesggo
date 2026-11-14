@@ -1,6 +1,6 @@
 ---
 name: oa-audit-scanner
-description: "Use when the user wants to run compliance scans: GRI, SASB, TCFD, SDGs, Taiwan FSC. Automated scanning of reports, data, and processes against ESG frameworks. Load when user mentions audit, compliance, scan, GRI, SASB, TCFD, SDGs, FSC."
+description: "合規掃描：GRI、SASB、TCFD、SDGs、FSC"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

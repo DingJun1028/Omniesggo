@@ -1,6 +1,6 @@
 ---
 name: oa-agent-trainer
-description: "Use when the user wants to train or optimize agents: prompt optimization, few-shot examples, model selection, performance benchmarking. Load when user mentions agent training, prompt optimization, model benchmarking, or agent improvement."
+description: "訓練/優化 agents：提示詞、few-shot、模型選擇、效能測量"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

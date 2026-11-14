@@ -35,7 +35,7 @@ export class SecureUtils {
     // the digest can later be re-derived (evidence minus hash_lock).
     const serialized = JSON.stringify(rec);
     const digest = createHash('sha256').update(serialized).digest('hex');
-    (evidence as any)['hash_lock'] = `0x${digest}`;
+    (evidence as Record<string, unknown>)['hash_lock'] = `0x${digest}`;
 
     // Execute native JavaScript Object.freeze() to prevent further tampering
     Object.freeze(obj);
@@ -54,12 +54,12 @@ export class SecureUtils {
     if (!rec.evidence || typeof rec.evidence !== 'object') return false;
 
     const evidence = { ...(rec.evidence as Record<string, unknown>) };
-    const stored = (evidence as any)['hash_lock'];
+    const stored = (evidence as Record<string, unknown>)['hash_lock'];
     if (typeof stored !== 'string' || !stored.startsWith('0x')) return false;
 
     // Re-derive the digest over the same shape that was hashed at lock time
     // (evidence minus the hash_lock field itself).
-    delete (evidence as any)['hash_lock'];
+    delete (evidence as Record<string, unknown>)['hash_lock'];
     const expected = `0x${createHash('sha256').update(JSON.stringify({ ...rec, evidence })).digest('hex')}`;
     return stored === expected;
   }

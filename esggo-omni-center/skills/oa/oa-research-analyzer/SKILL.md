@@ -1,6 +1,6 @@
 ---
 name: oa-research-analyzer
-description: "Use when the user wants ESG research analysis: policy tracking, regulation comparison, best practice benchmarking, trend analysis. Load when user mentions research, analysis, policy, regulation, benchmarking, trends."
+description: "ESG 研究：政策、規範、最佳實踐、趨勢分析"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

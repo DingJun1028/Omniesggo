@@ -1,0 +1,13 @@
+{
+  "source_origin": "oab-float-deploy-staging",
+  "version": "1.0",
+  "start_encoding": "utf-8",
+  "hash_lock": "sha256:PLACEHOLDER_NEEDS_REAL_HASH",
+  "5T": {
+    "traceable": true,
+    "trackable": true,
+    "tangible": true,
+    "transparent": true,
+    "trustworthy": true
+  }
+}

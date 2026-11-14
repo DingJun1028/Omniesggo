@@ -302,6 +302,25 @@
       ]
     }
   },
+  "superpowers": {
+    "module": "vps/junaikey",
+    "stages": [
+      "brainstorming", "worktrees", "plans", "subagent", "tdd", "codereview", "finish5t"
+    ],
+    "tags": [
+      "#superpowers:brainstorming",
+      "#superpowers:worktrees",
+      "#superpowers:plans",
+      "#superpowers:subagent",
+      "#superpowers:tdd",
+      "#superpowers:codereview",
+      "#superpowers:finish5t"
+    ],
+    "auto_on_stage": "brainstorming",
+    "backend": "NCBDB primary / local fallback",
+    "source_provider": "JUNAKEY",
+    "source_origin": "esggo:30-agent-swarm"
+  },
   "5t_compliance": {
     "all_files_tagged": true,
     "evidence_module": "active",

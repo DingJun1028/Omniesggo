@@ -1,14 +1,11 @@
 'use client';
 
 import React, { useState, useId } from 'react';
-import { 
-  FileText, ShieldCheck, CheckCircle2, 
-  Sparkles, Download, Printer, Copy, Check,
-  Building, Leaf, Users, ShieldAlert, Sliders, Sun, Moon,
-  LayoutGrid, Eye, Edit3
+import {
+  FileText, ShieldCheck, CheckCircle2,
+  Sparkles, Printer, Copy, Check, Eye, Sun, Moon,
 } from 'lucide-react';
-import { OmniCard, OmniCardHeader, OmniCardTitle, OmniCardContent } from '../../omni-base/OmniCard';
-import { OmniButton } from '../../omni-base/OmniButton';
+import { OmniBadge, OmniButton, DynamicFormEngine } from '../../omni-base/OmniCard';
 import { OmniBadge } from '../../omni-base/OmniBadge';
 import DynamicFormEngine from './DynamicFormEngine';
 import type { DynamicFormSchema } from '@/lib/omni-reports/types';

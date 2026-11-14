@@ -107,13 +107,13 @@ class UserGrowthService {
       .select('userId, displayName, tier, level, totalPoints, streakDays')
       .order('totalPoints', { ascending: false })
       .limit(limit);
-    return (data as any[]) ?? [];
+    return (data as { userId: string; displayName: string; tier: string; level: number; totalPoints: number; streakDays: number; }[]) ?? [];
   }
 
   /** Get user achievements */
   async getUserAchievements(userId: string) {
     const rows = await supabase.from('UserAchievement').select('*').eq('userId', userId).order('unlockedAt', { ascending: false });
-    const list = (rows as any[]) ?? [];
+    const list = (rows as { userId: string; achievementId: string; unlockedAt: string; }[]) ?? [];
     const out = [];
     for (const r of list) {
       const [ach] = await supabase.from('Achievement').select('*').eq('id', r.achievementId).limit(1);
@@ -138,11 +138,11 @@ class UserGrowthService {
   async getDailyTasks(userId: string) {
     const tasks = await supabase.from('GrowthTask').select('*').eq('isActive', true).eq('category', 'daily').order('xpReward', { ascending: false });
     const { data: userTasks } = await supabase.from('UserTask').select('*').eq('userId', userId);
-    const map = new Map<string, any>();
-    for (const ut of (userTasks as any[]) ?? []) {
+    const map = new Map<string, { taskId: string; progress: number; status: string; completedAt?: string | null }>();
+    for (const ut of (userTasks as { taskId: string; status: string; progress: number; completedAt?: string | null }[]) ?? []) {
       map.set(ut.taskId, ut);
     }
-    return (tasks as any[]).map((t) => {
+    return (tasks as { id: string; slug: string; xpReward: number }[]).map((t) => {
       const progress = map.get(t.id) ?? null;
       return {
         ...t,
@@ -166,7 +166,7 @@ class UserGrowthService {
       await supabase.from('UserTask').insert({ userId, taskId, progress, status, completedAt }).select().single();
     }
     if (progress >= 100 && status === 'completed') {
-      await this.addXP(userId, (task as any).xpReward, `task:${task.slug}`);
+      await this.addXP(userId, (task as { xpReward: number }).xpReward, `task:${task.slug}`);
     }
     return { progress, status, completedAt };
   }
@@ -184,9 +184,9 @@ class UserGrowthService {
     const [user] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
     if (!user) throw new Error('User not found');
     const now = new Date();
-    const lastActive = new Date((user as any).lastActiveAt);
+    const lastActive = new Date((user as { lastActiveAt: string }).lastActiveAt);
     const diffDays = Math.floor((now.getTime() - lastActive.getTime()) / (1000 * 60 * 60 * 24));
-    let streakDays = (user as any).streakDays;
+    let streakDays = (user as { streakDays: number }).streakDays;
     if (diffDays === 1) {
       streakDays += 1;
     } else if (diffDays > 1) {
@@ -205,15 +205,15 @@ class UserGrowthService {
   /** Get user subscription list */
   async getSubscriptions(userId: string) {
     const { data } = await supabase.from('Subscription').select('*').eq('userId', userId).eq('isActive', true).order('createdAt', { ascending: false });
-    return (data as any[]) ?? [];
+    return (data as { userId: string; subType: string; targetId: string; isActive: boolean; }[]) ?? [];
   }
 
   /** Toggle subscription */
   async toggleSubscription(userId: string, subType: string, targetId: string) {
     const [existing] = await supabase.from('Subscription').select('*').eq('userId', userId).eq('subType', subType).eq('targetId', targetId).limit(1);
     if (existing) {
-      const { data } = await supabase.from('Subscription').update({ isActive: !(existing as any).isActive }).eq('id', (existing as any).id).select().single();
-      return { subscribed: !(existing as any).isActive };
+      const { data } = await supabase.from('Subscription').update({ isActive: !(existing as { isActive: boolean }).isActive }).eq('id', (existing as { id: string }).id).select().single();
+      return { subscribed: !(existing as { isActive: boolean }).isActive };
     }
     await supabase.from('Subscription').insert({ userId, subType, targetId });
     await this.addXP(userId, XP_REWARDS.subscribe_source, `subscribe:${subType}`);
@@ -224,17 +224,17 @@ class UserGrowthService {
   async getFullProfile(userId: string) {
     const [user] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
     if (!user) return null;
-    const [ach] = await supabase.from('UserAchievement').select('*').eq('userId', userId).orderBy('unlockedAt', { ascending: false }).limit(20);
-    const tasks = await supabase.from('UserTask').select('*').eq('userId', userId).eq('status', { in: ['pending', 'in_progress'] }).orderBy('createdAt', { ascending: false }).limit(10);
-    const subs = await supabase.from('Subscription').select('*').eq('userId', userId).eq('isActive', true).orderBy('createdAt', { ascending: false }).limit(50);
-    const currentTierIdx = TIER_ORDER.indexOf((user as any).tier);
+    const [ach] = (await supabase.from('UserAchievement').select('*').eq('userId', userId).orderBy('unlockedAt', { ascending: false }).limit(20)) as { userId: string; achievementId: string; unlockedAt: string; }[];
+    const tasks = (await supabase.from('UserTask').select('*').eq('userId', userId).eq('status', { in: ['pending', 'in_progress'] }).orderBy('createdAt', { ascending: false }).limit(10)) as { userId: string; taskId: string; status: string; progress: number; completedAt?: string | null; }[];
+    const subs = (await supabase.from('Subscription').select('*').eq('userId', userId).eq('isActive', true).orderBy('createdAt', { ascending: false }).limit(50)) as { userId: string; subType: string; targetId: string; isActive: boolean; }[];
+    const currentTierIdx = TIER_ORDER.indexOf((user as { tier: string }).tier);
     const nextTier = currentTierIdx < TIER_ORDER.length - 1 ? TIER_ORDER[currentTierIdx + 1] : null;
     const nextTierThreshold = nextTier ? TIER_THRESHOLDS[nextTier] : null;
-    const progressToNext = nextTierThreshold ? Math.min(100, Math.round(((user as any).totalPoints / nextTierThreshold) * 100)) : 100;
+    const progressToNext = nextTierThreshold ? Math.min(100, Math.round(((user as { totalPoints: number }).totalPoints / nextTierThreshold) * 100)) : 100;
     return {
       ...user,
-      tierLabel: TIER_LABELS[(user as any).tier] || (user as any).tier,
-      tierIcon: TIER_ICONS[(user as any).tier] || '❓',
+      tierLabel: TIER_LABELS[(user as { tier: string }).tier] || (user as { tier: string }).tier,
+      tierIcon: TIER_ICONS[(user as { tier: string }).tier] || '❓',
       nextTier,
       nextTierLabel: nextTier ? TIER_LABELS[nextTier] : null,
       nextTierThreshold,

@@ -1,6 +1,6 @@
 ---
 name: oa-report-depth
-description: "ESGGO 280K字深度永續報告生成引擎。使用 answer-database 真實數據 + 專家模板 + 5T協議 + ZKP封印。當用戶要求生成完整永續報告、擴展報告深度、或修復報告品質問題時使用。"
+description: "280K 字 ESG 深度永續報告生成（ZKP 封印）"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

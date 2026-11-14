@@ -1,6 +1,6 @@
 ---
 name: oa-data-explorer
-description: "Use when the user wants interactive data exploration via natural language queries against Supabase. Translates natural language to SQL/REST queries, executes them, and presents results. Load when user mentions data exploration, natural language query, or Supabase exploration."
+description: "自然語言查詢 Supabase 資料"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

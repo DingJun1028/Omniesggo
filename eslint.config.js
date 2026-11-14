@@ -1,3 +1,6 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 const nextPlugin = require('@next/eslint-plugin-next');
 const typescriptEslint = require('typescript-eslint');
 const reactPlugin = require('eslint-plugin-react');
@@ -6,7 +9,7 @@ const importPlugin = require('eslint-plugin-import');
 const jsxA11yPlugin = require('eslint-plugin-jsx-a11y');
 const globals = require('globals');
 
-module.exports = [
+export default [
   ...typescriptEslint.configs.recommended,
   {
     ignores: [

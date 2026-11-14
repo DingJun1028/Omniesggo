@@ -1,6 +1,6 @@
 ---
 name: oa-supabase-query
-description: "Use when the user needs to query or inspect the Supabase database. Executes REST API calls against the Supabase Data API to fetch ESG metrics, audit records, user data, or any database table. Use for data inspection, debugging, and verification — NOT for bulk data modification."
+description: "Supabase 資料查詢/檢視"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

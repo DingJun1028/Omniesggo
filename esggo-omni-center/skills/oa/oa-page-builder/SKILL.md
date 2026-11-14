@@ -1,6 +1,6 @@
 ---
 name: oa-page-builder
-description: "Use when the user provides a design guide table (spec table) and asks to create or rebuild a Next.js page. Generates page components following ESGGO design conventions: light theme only, Berkeley Blue #003262 primary, Gold #FDB515 accent, no dark/glass/liquid effects."
+description: "依設計指標表生成 Next.js 頁面"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

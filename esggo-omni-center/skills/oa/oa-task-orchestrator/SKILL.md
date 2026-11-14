@@ -1,6 +1,6 @@
 ---
 name: oa-task-orchestrator
-description: "Use when the user wants to orchestrate multiple sub-agent tasks, manage delegate_task workflows, monitor agent status, or coordinate parallel work. Handles task decomposition, assignment to sub-agents, progress tracking, failure retry, and result aggregation. Load when user mentions task orchestration, sub-agents, parallel work, or delegate."
+description: "子任務排程、追蹤、重試、聚合"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

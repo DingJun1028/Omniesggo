@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { ShieldCheck, Award, Printer, Hash, CheckCircle2, Lock, Sparkles, Download } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, FileText, Sparkles, Printer, Lock, Award } from 'lucide-react';
 
 export interface ICertificateData {
   uuid: string;

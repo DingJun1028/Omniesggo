@@ -111,9 +111,11 @@ export default defineConfig({
       'tests/canon.test.mjs',
       'tests/omnitag.test.mjs',
       'tests/junaikey.test.mjs',
-      // vps/junaikey 下的 resolver 測試同樣是 node:test 腳本（import { test } from
-      // 'node:test' + node:assert），目錄無 package.json，故不會被 workspace 的 test
-      // script 收編，但被根 vitest 掃到會報 "No test suite found in file"（2 檔紅燈）。
+      // 以下 tests/*.test.mjs 為 Node 內建腳本式驗證（頂層 assert + process.exit），非 vitest 套件：
+      // （deploy-contract / junaikey-secrets / omni-one 亦同，這三檔在 exclude 漏列，已補回）
+      'tests/deploy-contract.test.mjs',
+      'tests/junaikey-secrets.test.mjs',
+      'tests/omni-one.test.mjs',
       // 由 `node --test vps/junaikey/*.test.mjs` 執行，覆蓋率不減。
       'vps/junaikey/*.test.mjs',
       // oneringai/tests/index.test.ts 為自製測試 harness（自建 TestResult

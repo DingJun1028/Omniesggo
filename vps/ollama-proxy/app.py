@@ -4,12 +4,12 @@ Ollama Proxy (方式 B) — FastAPI 自管代理, 帶 API Key 驗證
 
 功能:
   - 擋在 Ollama (127.0.0.1:11434) 前面
-  - 所有請求需帶 X-API-Key header (值從環境變數 OLLAMA_PROXY_KEY 讀, 該變數存於秘密聖櫃 ENV20230818.env)
+  - 所有請求需帶 X-API-Key header (值從環境變數 OLLAMA_PROXY_KEY 讀; 秘密聖櫃 ENV20230818.env 含 OLLAMA_API_KEY 鍵)
   - 轉發所有路徑到 Ollama, 支援流式 (SSE)
 
 部署 (VPS):
   pip install fastapi uvicorn httpx
-  export OLLAMA_PROXY_KEY="$(grep OLLAMA_PROXY_KEY ~/secret-vault/ENV20230818.env | cut -d= -f2)"
+  export OLLAMA_PROXY_KEY="$(grep OLLAMA_API_KEY ~/secret-vault/ENV20230818.env | cut -d= -f2)"
   export OLLAMA_BACKEND=http://127.0.0.1:11434
   uvicorn app:app --host 0.0.0.0 --port 11435   # 監聽 11435, 不衝突 Ollama 11434
 

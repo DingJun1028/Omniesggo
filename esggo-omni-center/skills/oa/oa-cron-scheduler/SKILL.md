@@ -1,6 +1,6 @@
 ---
 name: oa-cron-scheduler
-description: "Use when the user wants to schedule recurring tasks, manage cron jobs, or set up automated workflows. Handles cron job creation, scheduling, monitoring, and management via Hermes cron system. Load when user mentions cron, schedule, recurring, automation, or scheduled tasks."
+description: "排程 cron 任務與自動化流程"
 version: 2.0.0
 author: ESGGO OmniAgent
 license: MIT

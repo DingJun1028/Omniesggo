@@ -156,7 +156,7 @@ export class SupabaseSyncEngine {
         this.queue.shift(); // 執行成功，移除任務
         this.saveQueue();
         console.log(`[SyncEngine] 任務執行成功: [${task.operation}] ${task.table}`);
-      } catch (error: any) {
+      } catch (error: unknown) {
         task.retryCount++;
         console.warn(`[SyncEngine] 任務執行失敗 (重試次數: ${task.retryCount}/${this.MAX_RETRIES}):`, error.message);
         
