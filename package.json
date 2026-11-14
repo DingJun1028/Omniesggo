@@ -57,7 +57,7 @@
     "commander": "^15.1.0",
     "exceljs": "4.4.0",
     "framer-motion": "^14.12.0",
-    "glob": "14.0.3",
+    "glob": "14.0.4",
     "ioredis": "^6.0.0",
     "isomorphic-dompurify": "^4.7.0",
     "jose": "^6.2.17",
