@@ -135,9 +135,9 @@ npx celestial-command \
 | 內容 | 路徑 |
 |---|---|
 | 主典 | `esggo-omni-center/soul.md` §30 |
-| 層2 落檔 | `soul-chapter-30-super-delivery.md` |
+| 層2 落檔 | `soul-chapter-30-9-hyper-awakening.md` |
 | §29.11 超覺醒 | `esggo-omni-center/soul.md` §29.11 |
-| 層2 落檔（29） | `soul-chapter-29-glory-sacred-tome.md` |
+| 層2 落檔（29） | `esggo-omni-center/soul-chapter-29-glory-sacred-tome.md` （未生成，待 §29 完成） |
 | 驗證器 | `scripts/verify_soul_canon.py` |
 | 技能首頁 | `esggo-omni-center/skills/oa/esggo-omni-super-delivery/SKILL.md` |
 
