@@ -337,17 +337,16 @@ export class OmniNoteLocalApiServer {
   }
 
   /**
-   * 二十三期：證據鏈 hook 別統計（唯讀聚合）。
-   * GET /api/notes/:uuid/evidence/stats → { total, by_hook, hooks, first_captured_at, last_captured_at }
-   * by_hook 為 hook_lifecycle → 筆數之映射；hooks 為依入鏈順序首次出現排序之清單；
-   * captured_at 取自證據項欄位（字串排序非時間權威，如實標示）。
+   * 證據鏈 hook 別聚合共用輔助（二十三期 stats 與二十五期 export 共用）。
+   * by_hook 為 hook_lifecycle → 筆數之映射；hooks 為依入鏈順序首次出現排序之清單。
    */
-  private async respondNoteEvidenceStats(res: ServerResponse, nodeUuid: string): Promise<void> {
-    const node = await this.storage.read(nodeUuid);
-    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+  private aggregateEvidenceHooks(evidence: ReadonlyArray<{ hook_lifecycle: string }>): {
+    by_hook: Record<string, number>;
+    hooks: string[];
+  } {
     const byHook = new Map<string, number>();
     const hookOrder: string[] = [];
-    for (const e of node.evidence) {
+    for (const e of evidence) {
       const prev = byHook.get(e.hook_lifecycle);
       if (prev === undefined) {
         byHook.set(e.hook_lifecycle, 1);
@@ -356,6 +355,18 @@ export class OmniNoteLocalApiServer {
         byHook.set(e.hook_lifecycle, prev + 1);
       }
     }
+    return { by_hook: Object.fromEntries(byHook), hooks: hookOrder };
+  }
+
+  /**
+   * 二十三期：證據鏈 hook 別統計（唯讀聚合）。
+   * GET /api/notes/:uuid/evidence/stats → { total, by_hook, hooks, first_captured_at, last_captured_at }
+   * captured_at 取自證據項欄位（字串排序非時間權威，如實標示）。
+   */
+  private async respondNoteEvidenceStats(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const { by_hook, hooks } = this.aggregateEvidenceHooks(node.evidence);
     const capturedTimes = node.evidence.map((e) => e.captured_at);
     return sendJson(res, 200, {
       ok: true,
@@ -363,8 +374,8 @@ export class OmniNoteLocalApiServer {
       node_version: node.version,
       lock_hash: node.lock_hash,
       total: node.evidence.length,
-      by_hook: Object.fromEntries(byHook),
-      hooks: hookOrder,
+      by_hook,
+      hooks,
       first_captured_at: capturedTimes.length > 0 ? capturedTimes[0] ?? null : null,
       last_captured_at: capturedTimes.length > 0 ? capturedTimes[capturedTimes.length - 1] ?? null : null,
     });
@@ -379,17 +390,7 @@ export class OmniNoteLocalApiServer {
   private async respondNoteEvidenceExport(res: ServerResponse, nodeUuid: string): Promise<void> {
     const node = await this.storage.read(nodeUuid);
     if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
-    const byHook = new Map<string, number>();
-    const hookOrder: string[] = [];
-    for (const e of node.evidence) {
-      const prev = byHook.get(e.hook_lifecycle);
-      if (prev === undefined) {
-        byHook.set(e.hook_lifecycle, 1);
-        hookOrder.push(e.hook_lifecycle);
-      } else {
-        byHook.set(e.hook_lifecycle, prev + 1);
-      }
-    }
+    const { by_hook, hooks } = this.aggregateEvidenceHooks(node.evidence);
     return sendJson(res, 200, {
       ok: true,
       format: "evidence_export_v1",
@@ -397,8 +398,8 @@ export class OmniNoteLocalApiServer {
       node_version: node.version,
       lock_hash: node.lock_hash,
       total: node.evidence.length,
-      by_hook: Object.fromEntries(byHook),
-      hooks: hookOrder,
+      by_hook,
+      hooks,
       entries: node.evidence,
       exported_at: new Date().toISOString(),
     });
