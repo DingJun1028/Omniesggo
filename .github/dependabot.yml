@@ -45,6 +45,13 @@ updates:
       - dependency-name: "eslint"
         versions:
           - ">=10.0.0"
+      # 2026-11-13 決策（比照 DIN-15，PR #251 評估結案）：
+      # tailwindcss 3→4 為破壞性大版本（6 個 app 仍在 3.x），PR #251
+      # TypeCheck+next build/build/Docker Build Test 全紅。major 不自動開 PR，
+      # 未來遷移 tailwind 4 需先備妥 migration plan 再手動進行。
+      - dependency-name: "tailwindcss"
+        update-types:
+          - "version-update:semver-major"
     # === 開 PR 自動合併設定 ===
     groups:
       minor-and-patch:
@@ -137,8 +144,12 @@ updates:
     ignore:
       - dependency-name: "undici"
 
-  # === pip (oa-team-crewai) ===
-  - package-ecosystem: "pip"
+  # === uv (oa-team-crewai) ===
+  # 2026-11-13 決策（PR #231/#232 診斷）：pip ecosystem 只改 pyproject.toml、
+  # 不更新 uv.lock，config-smoke 之 `uv sync --locked` 必紅（lockfile 過期即失敗）。
+  # 改用 uv ecosystem 使 Dependabot 同時更新 uv.lock（Astral 官方支援，
+  # 見 docs.astral.sh/uv/guides/integration/dependabot）。
+  - package-ecosystem: "uv"
     directory: "/oa-team-crewai"
     schedule:
       interval: "weekly"
@@ -157,5 +168,5 @@ updates:
 
 # === 全域安全策略備註 ===
 # - npm/pnpm 用 pnpm 自動處理 lockfile
-# - pip 用 uv 處理 (oa-team-crewai 已用 uv.lock)
+# - oa-team-crewai 由 Dependabot uv ecosystem 同步 pyproject.toml + uv.lock
 # - 5T-AGPL Addendum: 每次升級都跑 pnpm typecheck + uv lock --check

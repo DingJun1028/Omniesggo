@@ -13,11 +13,8 @@ Omni-Sanctuary/
 │   ├── protocols.md       # 協議文檔
 │   └── archive/           # 歷史版本存檔
 │
-├── ⚔️ Artifacts/          # 萬能神器存放處
-│   ├── auto-repair.json   # 自動修復機制
-│   ├── config.json        # 核心配置
-│   ├── keys/              # 金鑰索引 (僅限參考)
-│   └── integrations/      # 整合配置
+├── ⚔️ Artifacts/          # 萬能神器存放處（2026-11-12 核實）
+│   └── keys/              # 金鑰索引 (僅限參考；現僅 secret-vault-index.md)
 │
 ├── 📚 Index/              # 索引系統
 │   ├── master-index.md    # 主索引
@@ -40,12 +37,11 @@ Omni-Sanctuary/
 
 ## ⚔️ 萬能神器 (Artifacts)
 
-| 神器 | 類型 | 狀態 |
+> **2026-11-12 核實**：本目錄現僅存 `keys/secret-vault-index.md`；歷史所載 `auto-repair.json`、`config.json` 與 `integrations/` 經 GitHub commits API 查證，於 main 全程歷史從未存在。神器清單與核實狀態以 [`Index/artifact-registry.md`](Index/artifact-registry.md) 與《Omniesggo 解說聖典》第 10 章（§10.2、§10.3）為準。
+
+| 項目 | 類型 | 狀態 |
 |------|------|------|
-| `auto-repair.json` | 自動修復 | ✅ 啟用 |
-| `config.json` | 核心配置 | ✅ 同步 |
-| `keys/` | 金鑰索引 | 🔒 受限 |
-| `integrations/` | 整合配置 | ✅ 完成 |
+| `keys/secret-vault-index.md` | 金鑰索引 | 🔒 受限 |
 
 ---
 

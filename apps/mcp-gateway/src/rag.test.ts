@@ -45,14 +45,16 @@ const config: RagGatewayConfig = {
   timeoutMs: 1000,
 }
 
+// REST Search API 回應形態：{ results: [{ id, properties, metadata }], tookMs }
 const weaviatePayload = {
-  data: {
-    Get: {
-      OmniChunk: [
-        { content: '碳排放範疇一', docId: 'doc-1', chunkIndex: 0, _additional: { id: 'a', distance: '0.12' } },
-      ],
+  results: [
+    {
+      id: 'a',
+      properties: { content: '碳排放範疇一', docId: 'doc-1', chunkIndex: 0 },
+      metadata: { distance: '0.12' },
     },
-  },
+  ],
+  tookMs: 5,
 }
 
 describe('resolveRagConfig — 缺金鑰優雅降級', () => {
@@ -72,8 +74,8 @@ describe('resolveRagConfig — 缺金鑰優雅降級', () => {
   })
 })
 
-describe('ragSearch — 兩段式檢索（stub fetch）', () => {
-  it('Ollama 嵌入後 Weaviate 查詢，ownerId 進入 where Equal 過濾', async () => {
+describe('ragSearch — 兩段式檢索（stub fetch，REST Search API）', () => {
+  it('Ollama 嵌入後 Weaviate near-vector 查詢，ownerId 進入 where Equal 過濾', async () => {
     const fn = stubFetch([
       { ok: true, status: 200, json: { embedding: [0.1, 0.2] } },
       { ok: true, status: 200, json: weaviatePayload },
@@ -83,20 +85,22 @@ describe('ragSearch — 兩段式檢索（stub fetch）', () => {
       { docId: 'doc-1', chunkIndex: 0, content: '碳排放範疇一', distance: 0.12 },
     ])
     expect(fn).toHaveBeenCalledTimes(2)
-    expect(fn.mock.calls[1][0]).toContain('/v1/graphql')
-    const gql = JSON.parse(fn.mock.calls[1][1].body).query
-    expect(gql).toContain('valueString: "user-7"')
-    expect(gql).toContain('limit: 5')
+    expect(fn.mock.calls[1][0]).toBe(`${config.weaviateUrl}/v1/search/${config.className}/near-vector`)
+    const reqBody = JSON.parse(fn.mock.calls[1][1].body)
+    expect(reqBody.vector).toEqual([0.1, 0.2])
+    expect(reqBody.limit).toBe(5)
+    expect(reqBody.where).toEqual({ path: ['ownerId'], operator: 'Equal', valueString: 'user-7' })
+    expect(reqBody.returnMetadata).toEqual(['distance'])
   })
 
-  it('ownerId 含雙引號時被轉義（防 GraphQL 注入）', async () => {
+  it('ownerId 含雙引號時經 JSON 傳遞原值不損毀（無 GraphQL 注入面）', async () => {
     const fn = stubFetch([
       { ok: true, status: 200, json: { embedding: [0.5] } },
       { ok: true, status: 200, json: weaviatePayload },
     ])
     await ragSearch(config, 'q', 'own"er', 5)
-    const gql = JSON.parse(fn.mock.calls[1][1].body).query
-    expect(gql).toContain('own\\"er')
+    const reqBody = JSON.parse(fn.mock.calls[1][1].body)
+    expect(reqBody.where.valueString).toBe('own"er')
   })
 
   it('Ollama 非 2xx 回 502', async () => {
@@ -109,7 +113,7 @@ describe('ragSearch — 兩段式檢索（stub fetch）', () => {
     await expect(ragSearch(config, 'q', 'u', 5)).rejects.toThrow(/empty embedding/)
   })
 
-  it('Weaviate 非 2xx 回 502', async () => {
+  it('Weaviate 非 2xx 回 502（真實 HTTP 狀態碼）', async () => {
     stubFetch([
       { ok: true, status: 200, json: { embedding: [0.5] } },
       { ok: false, status: 401, json: {} },
@@ -117,12 +121,12 @@ describe('ragSearch — 兩段式檢索（stub fetch）', () => {
     await expect(ragSearch(config, 'q', 'u', 5)).rejects.toThrow(/weaviate search failed/)
   })
 
-  it('GraphQL errors 回 502', async () => {
+  it('Weaviate 422（端點驗證失敗）回 502', async () => {
     stubFetch([
       { ok: true, status: 200, json: { embedding: [0.5] } },
-      { ok: true, status: 200, json: { errors: [{ message: 'x' }] } },
+      { ok: false, status: 422, json: { error: [{ message: 'x' }] } },
     ])
-    await expect(ragSearch(config, 'q', 'u', 5)).rejects.toThrow(/graphql errors/)
+    await expect(ragSearch(config, 'q', 'u', 5)).rejects.toThrow(/weaviate search failed/)
   })
 })
 

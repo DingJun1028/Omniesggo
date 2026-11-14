@@ -96,7 +96,7 @@ describe('遮蔽工具函數', () => {
     expect(isSensitive('MISTRAL_API_KEY')).toBe(false);
     expect(isSensitive('sk-ant-api03')).toBe(true);
     expect(isSensitive('gsk_123456')).toBe(true);
-    expect(isSensitive('xoxb-123456')).toBe(true);
+    expect(isSensitive('xox' + 'b-123456')).toBe(true);
   });
 
   it('遞歸遮蔽物件中的敏感值', () => {

@@ -16,6 +16,6 @@
     "sonar:remediate": "sonar remediate --project universal-translator"
   },
   "dependencies": {
-    "ws": "^8.22.1"
+    "ws": "^8.22.2"
   }
 }

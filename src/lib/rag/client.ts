@@ -1,6 +1,9 @@
 // =====================================================================
 // src/lib/rag/client.ts — 設定載入、Ollama 嵌入、Weaviate 寫入與查詢
 // 零新依賴（原生 fetch + node:crypto）；僅內網呼叫（VPS 127.0.0.1）
+// 檢索走 REST Search API（POST /v1/search/{class}/near-vector）：
+// Weaviate GraphQL 已於 2026-10-26 棄用，WCD 2026-12-01 起關閉閒置叢集
+// 之 GraphQL、全體叢集 2027-05-01 EOL（docs/vault-canon/RAG-VECTOR-LAYER.md §7.2）。
 // =====================================================================
 import { createHash } from "node:crypto";
 import type { RagClientConfig, RagChunk, RagSearchResult } from "./contracts";
@@ -60,7 +63,7 @@ export async function embed(config: RagClientConfig, content: string): Promise<n
 }
 
 // ---------------------------------------------------------------------
-// Weaviate：schema 確保、寫入、查詢
+// Weaviate：schema 確保、寫入、查詢（REST Search API）
 // ---------------------------------------------------------------------
 function authHeaders(config: RagClientConfig): Record<string, string> {
   return { Authorization: `Bearer ${config.weaviateApiKey}` };
@@ -122,11 +125,11 @@ export async function upsertChunk(
   return id;
 }
 
-interface WeaviateRow {
-  content: string;
-  docId: string;
-  chunkIndex: number;
-  _additional: { id: string; distance: string | number };
+// REST Search API 回應形態：{ results: [{ id, properties, metadata }], tookMs }
+interface WeaviateSearchRow {
+  id?: string;
+  properties: { content: string; docId: string; chunkIndex: number };
+  metadata?: { distance?: string | number };
 }
 
 export async function searchSimilar(
@@ -135,39 +138,38 @@ export async function searchSimilar(
   ownerId: string,
   limit = 10
 ): Promise<RagSearchResult[]> {
-  const res = await fetch(`${config.weaviateUrl}/v1/graphql`, {
-    method: "POST",
-    headers: { ...authHeaders(config), "Content-Type": "application/json" },
-    body: JSON.stringify({
-      query: `{
-        Get {
-          ${config.className}(
-            nearVector: { vector: [${queryVector.join(",")}] }
-            limit: ${limit}
-            where: { path: ["ownerId"], operator: Equal, valueString: "${ownerId}" }
-          ) {
-            content docId chunkIndex _additional { id distance }
-          }
-        }
-      }`,
-    }),
-    signal: AbortSignal.timeout(config.timeoutMs),
-  });
+  const res = await fetch(
+    `${config.weaviateUrl}/v1/search/${config.className}/near-vector`,
+    {
+      method: "POST",
+      headers: { ...authHeaders(config), "Content-Type": "application/json" },
+      // REST Search API（preview）：near-vector 端點接受明確查詢向量，
+      // where 為與 GraphQL 相同之 JSON 過濾器（ownerId Equal），
+      // limit 一律顯式指定（REST 預設 10，與 GraphQL 預設 100 不同）。
+      body: JSON.stringify({
+        vector: queryVector,
+        limit,
+        where: {
+          path: ["ownerId"],
+          operator: "Equal",
+          valueString: ownerId,
+        },
+        returnProperties: ["content", "docId", "chunkIndex"],
+        returnMetadata: ["distance"],
+      }),
+      signal: AbortSignal.timeout(config.timeoutMs),
+    }
+  );
   if (!res.ok) {
+    // REST Search API 以真實 HTTP 狀態碼回報錯誤（非 GraphQL 之 200+errors[]）
     throw new Error(`WEAVIATE_SEARCH_FAILED: HTTP ${res.status}`);
   }
-  const body = (await res.json()) as {
-    data?: { Get?: Record<string, WeaviateRow[]> };
-    errors?: unknown;
-  };
-  if (body.errors) {
-    throw new Error("WEAVIATE_GRAPHQL_ERRORS");
-  }
-  const rows = body.data?.Get?.[config.className] ?? [];
+  const body = (await res.json()) as { results?: WeaviateSearchRow[] };
+  const rows = body.results ?? [];
   return rows.map((r) => ({
-    docId: r.docId,
-    chunkIndex: r.chunkIndex,
-    content: r.content,
-    distance: Number(r._additional.distance),
+    docId: r.properties.docId,
+    chunkIndex: r.properties.chunkIndex,
+    content: r.properties.content,
+    distance: Number(r.metadata?.distance ?? Number.NaN),
   }));
 }

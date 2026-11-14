@@ -46,6 +46,7 @@ const BLOCK_TYPES: ReadonlySet<string> = new Set([
   "object_attribute_card",
 ]);
 const DRAFT_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function bumpPatch(version: string): string {
   const parts = version.split(".");
@@ -137,7 +138,23 @@ export class OmniNoteLocalApiServer {
     });
   }
 
+  private hostHeaderAllowed(req: IncomingMessage): boolean {
+    const host = (String(req.headers.host ?? "").split(":")[0] ?? "").toLowerCase();
+    if (!LOOPBACK_HOSTS.has(host)) return false;
+    const origin = req.headers.origin;
+    if (origin !== undefined) {
+      try {
+        const originHost = new URL(origin).hostname.toLowerCase();
+        if (!LOOPBACK_HOSTS.has(originHost)) return false;
+      } catch {
+        return false;
+      }
+    }
+    return true;
+  }
+
   private authorized(req: IncomingMessage): boolean {
+    if (!this.hostHeaderAllowed(req)) return false;
     if (this.token === undefined) return true;
     const header = req.headers.authorization;
     return header === "Bearer " + this.token;
@@ -150,6 +167,14 @@ export class OmniNoteLocalApiServer {
 
     if (url === "/health") return this.respondHealth(res);
     if (!url.startsWith("/api/")) return sendJson(res, 404, { ok: false, error: "NOT_FOUND" });
+    if (!this.hostHeaderAllowed(req)) return sendJson(res, 403, { ok: false, error: "FORBIDDEN_HOST" });
+    if (method === "POST" || method === "PATCH" || method === "PUT") {
+      const hasBody = req.headers["transfer-encoding"] !== undefined || Number(req.headers["content-length"] ?? 0) > 0;
+      if (hasBody) {
+        const ct = String(req.headers["content-type"] ?? "").toLowerCase();
+        if (!ct.startsWith("application/json")) return sendJson(res, 415, { ok: false, error: "UNSUPPORTED_MEDIA_TYPE" });
+      }
+    }
     if (!this.authorized(req)) return sendJson(res, 401, { ok: false, error: "UNAUTHORIZED" });
 
     const fixed = OmniNoteLocalApiServer.FIXED_ROUTES[method + " " + url];
@@ -171,6 +196,14 @@ export class OmniNoteLocalApiServer {
   ): Promise<void> | undefined {
     const resource = segments[1];
     const id = segments[2];
+    if (resource === "notes" && id !== undefined && !UUID_V4_PATTERN.test(id)) {
+      sendJson(res, 400, { ok: false, error: "INVALID_ID" });
+      return Promise.resolve();
+    }
+    if (resource === "drafts" && id !== undefined && !DRAFT_ID_PATTERN.test(id)) {
+      sendJson(res, 400, { ok: false, error: "INVALID_ID" });
+      return Promise.resolve();
+    }
     if (resource === "notes" && id !== undefined && segments.length === 3) {
       if (method === "GET") return this.respondNoteRead(res, id);
       if (method === "DELETE") return this.respondNoteDelete(res, id);
@@ -199,6 +232,12 @@ export class OmniNoteLocalApiServer {
     }
     if (method === "POST" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "apply") {
       return this.handleNoteApplySyncDelta(req, res, id);
+    }
+    if (method === "GET" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "evidence") {
+      return this.respondNoteEvidence(req, res, id);
+    }
+    if (method === "GET" && resource === "notes" && id !== undefined && segments.length === 5 && segments[3] === "evidence" && segments[4] === "stats") {
+      return this.respondNoteEvidenceStats(res, id);
     }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
@@ -248,6 +287,84 @@ export class OmniNoteLocalApiServer {
     const node = await this.storage.read(nodeUuid);
     if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
     return sendJson(res, 200, { ok: true, node });
+  }
+
+  /**
+   * 二十期：證據鏈唯讀查詢（稽核軌跡讀取路徑）。
+   * GET /api/notes/:uuid/evidence?limit=50&offset=0&hook=ON_API_APPEND
+   * 唯讀不落地；limit 1..500（預設 50）、offset >= 0（預設 0）、hook 為可選精確匹配；
+   * 回應附 node_version 與 lock_hash 供客戶端綁定當下狀態；非法參數一律 422 INVALID_QUERY。
+   */
+  private async respondNoteEvidence(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const raw = (req.url ?? "").split("?")[1] ?? "";
+    const params = new URLSearchParams(raw);
+    const limitRaw = params.get("limit");
+    const offsetRaw = params.get("offset");
+    const hook = params.get("hook");
+    let limit = 50;
+    let offset = 0;
+    if (limitRaw !== null) {
+      limit = Number(limitRaw);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      }
+    }
+    if (offsetRaw !== null) {
+      offset = Number(offsetRaw);
+      if (!Number.isInteger(offset) || offset < 0) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      }
+    }
+    if (hook !== null && hook.trim().length === 0) {
+      return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+    }
+    const chain = hook === null ? node.evidence : node.evidence.filter((e) => e.hook_lifecycle === hook);
+    return sendJson(res, 200, {
+      ok: true,
+      uuid: node.uuid,
+      node_version: node.version,
+      lock_hash: node.lock_hash,
+      total: chain.length,
+      offset,
+      limit,
+      entries: chain.slice(offset, offset + limit),
+    });
+  }
+
+  /**
+   * 二十三期：證據鏈 hook 別統計（唯讀聚合）。
+   * GET /api/notes/:uuid/evidence/stats → { total, by_hook, hooks, first_captured_at, last_captured_at }
+   * by_hook 為 hook_lifecycle → 筆數之映射；hooks 為依入鏈順序首次出現排序之清單；
+   * captured_at 取自證據項欄位（字串排序非時間權威，如實標示）。
+   */
+  private async respondNoteEvidenceStats(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const byHook = new Map<string, number>();
+    const hookOrder: string[] = [];
+    for (const e of node.evidence) {
+      const prev = byHook.get(e.hook_lifecycle);
+      if (prev === undefined) {
+        byHook.set(e.hook_lifecycle, 1);
+        hookOrder.push(e.hook_lifecycle);
+      } else {
+        byHook.set(e.hook_lifecycle, prev + 1);
+      }
+    }
+    const capturedTimes = node.evidence.map((e) => e.captured_at);
+    return sendJson(res, 200, {
+      ok: true,
+      uuid: node.uuid,
+      node_version: node.version,
+      lock_hash: node.lock_hash,
+      total: node.evidence.length,
+      by_hook: Object.fromEntries(byHook),
+      hooks: hookOrder,
+      first_captured_at: capturedTimes.length > 0 ? capturedTimes[0] ?? null : null,
+      last_captured_at: capturedTimes.length > 0 ? capturedTimes[capturedTimes.length - 1] ?? null : null,
+    });
   }
 
   private async handleBlockAppend(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {

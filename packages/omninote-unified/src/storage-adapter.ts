@@ -15,6 +15,14 @@ export interface IStorageDriver {
 }
 
 /** Node 環境驅動：以 node:fs 落地「檔案系統即資料庫」 */
+const UUID_V4_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function assertUuid(nodeUuid: string): void {
+  if (typeof nodeUuid !== "string" || !UUID_V4_PATTERN.test(nodeUuid)) {
+    throw new Error("INVALID_UUID");
+  }
+}
+
 export class NodeFileSystemDriver implements IStorageDriver {
   constructor(private readonly rootDir: string) {}
 
@@ -23,6 +31,7 @@ export class NodeFileSystemDriver implements IStorageDriver {
   }
 
   async write(node: Readonly<UnifiedNode>): Promise<void> {
+    assertUuid(node.uuid);
     const { mkdir, writeFile, readdir, readFile, rm } = await import("node:fs/promises");
     await mkdir(this.rootDir + "/attachments", { recursive: true });
     const artifact = await LocalMarkdownHomomorphicCodec.serialize(node);
@@ -32,9 +41,8 @@ export class NodeFileSystemDriver implements IStorageDriver {
     ]);
     // 同一節點因 matrix_phase／entity_type 變化可能殘留舊檔名：寫入後清理同 uuid 之過時檔案，
     // 否則 read() 將依目錄順序誤讀舊版本（檔案系統即資料庫之單調不變量）。
-    const short = node.uuid.slice(0, 8);
     const staleCandidates = (await readdir(this.rootDir)).filter(
-      (f) => f.endsWith(".md") && f.includes(short) && f !== artifact.relativePath,
+      (f) => f.endsWith(".md") && f !== artifact.relativePath,
     );
     const staleContents = await Promise.all(
       staleCandidates.map((f) => readFile(`${this.rootDir}/${f}`, "utf-8").catch(() => null)),
@@ -50,11 +58,11 @@ export class NodeFileSystemDriver implements IStorageDriver {
   }
 
   async read(nodeUuid: string): Promise<UnifiedNode | null> {
+    assertUuid(nodeUuid);
     const { readdir, readFile } = await import("node:fs/promises");
     try {
-      const short = nodeUuid.slice(0, 8);
       const files = await readdir(this.rootDir);
-      const target = files.find((f) => f.includes(short) && f.endsWith(".md"));
+      const target = await this.findExactFile(files, nodeUuid);
       if (!target) return null;
       const content = await readFile(`${this.rootDir}/${target}`, "utf-8");
       const resolver = async (rel: string) => {
@@ -68,11 +76,33 @@ export class NodeFileSystemDriver implements IStorageDriver {
   }
 
   async delete(nodeUuid: string): Promise<void> {
+    assertUuid(nodeUuid);
     const { readdir, rm } = await import("node:fs/promises");
-    const short = nodeUuid.slice(0, 8);
-    for (const f of await readdir(this.rootDir)) {
-      if (f.includes(short) && f.endsWith(".md")) { await rm(`${this.rootDir}/${f}`); return; }
+    const files = await readdir(this.rootDir);
+    const targets = await this.findExactFiles(files, nodeUuid);
+    for (const f of targets) {
+      await rm(`${this.rootDir}/${f}`);
     }
+  }
+
+  private async findExactFiles(allFiles: string[], nodeUuid: string): Promise<string[]> {
+    const { readFile } = await import("node:fs/promises");
+    const mdFiles = allFiles.filter((f) => f.endsWith(".md"));
+    const contents = await Promise.all(mdFiles.map((f) => readFile(`${this.rootDir}/${f}`, "utf-8").catch(() => null)));
+    const matches: string[] = [];
+    contents.forEach((content, i) => {
+      if (content === null) return;
+      try {
+        const { frontmatterRaw } = LocalMarkdownHomomorphicCodec.extractFrontmatterAndBody(content);
+        if (JSON.parse(frontmatterRaw || "{}").omni_uuid === nodeUuid) matches.push(mdFiles[i]!);
+      } catch { /* ignore unparseable */ }
+    });
+    return matches;
+  }
+
+  private async findExactFile(allFiles: string[], nodeUuid: string): Promise<string | undefined> {
+    const matches = await this.findExactFiles(allFiles, nodeUuid);
+    return matches[0];
   }
 
   async listUuids(): Promise<string[]> {

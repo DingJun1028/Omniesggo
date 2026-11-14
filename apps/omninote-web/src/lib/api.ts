@@ -126,6 +126,33 @@ export async function fetchNote(uuid: string): Promise<OmniApiNode | null> {
   return "node" in r ? r.node : null;
 }
 
+/** 二十二期：證據鏈分頁查詢回應（GET /api/notes/:uuid/evidence）。 */
+export interface OmniApiEvidencePage {
+  ok: boolean;
+  uuid: string;
+  node_version: string;
+  lock_hash: string;
+  total: number;
+  offset: number;
+  limit: number;
+  entries: OmniApiEvidence[];
+}
+
+/** 證據鏈唯讀查詢：hook 為可選精確匹配；limit 1..500；offset >= 0。 */
+export async function fetchEvidencePage(
+  uuid: string,
+  options: { limit?: number; offset?: number; hook?: string } = {},
+): Promise<OmniApiEvidencePage> {
+  const params = new URLSearchParams();
+  if (options.limit !== undefined) params.set("limit", String(options.limit));
+  if (options.offset !== undefined) params.set("offset", String(options.offset));
+  if (options.hook !== undefined && options.hook.trim().length > 0) {
+    params.set("hook", options.hook.trim());
+  }
+  const qs = params.size > 0 ? `?${params.toString()}` : "";
+  return request<OmniApiEvidencePage>(`/api/notes/${uuid}/evidence${qs}`);
+}
+
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
   const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",

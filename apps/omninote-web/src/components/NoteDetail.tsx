@@ -12,6 +12,8 @@ import {
   reverseProject,
   generateRebase,
   applySyncDelta,
+  fetchEvidencePage,
+  type OmniApiEvidencePage,
   type OmniApiSyncDeltaPacket,
   OMNI_BLOCK_TYPES,
 } from "@/lib/api";
@@ -41,6 +43,26 @@ export function NoteDetail({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
   const [entityType, setEntityType] = useState("note.crystal");
+  // 二十二期：證據鏈伺服器分頁查詢（對接 GET /api/notes/:uuid/evidence）
+  const [evidencePage, setEvidencePage] = useState<OmniApiEvidencePage | null>(null);
+  const [evidenceHook, setEvidenceHook] = useState("");
+  const [evidenceError, setEvidenceError] = useState<string | null>(null);
+
+  const EVIDENCE_PAGE_SIZE = 20;
+
+  async function queryEvidence(offset: number, hook: string): Promise<void> {
+    setEvidenceError(null);
+    try {
+      const page = await fetchEvidencePage(note.uuid, {
+        limit: EVIDENCE_PAGE_SIZE,
+        offset,
+        hook: hook.trim().length > 0 ? hook.trim() : undefined,
+      });
+      setEvidencePage(page);
+    } catch (err) {
+      setEvidenceError(err instanceof Error ? err.message : "證據鏈查詢失敗");
+    }
+  }
   const [rebaseContent, setRebaseContent] = useState("");
   const [packet, setPacket] = useState<OmniApiSyncDeltaPacket | null>(null);
 
@@ -430,29 +452,91 @@ export function NoteDetail({
         <summary className="cursor-pointer text-[11px] text-slate-400 transition hover:text-slate-200">
           證據鏈時間軸（{note.evidence.length}）與 lock_hash
         </summary>
-        <ol className="mt-2 space-y-1 border-l border-omni-sigma/40 pl-3">
-          {note.evidence.map((e, i) => (
-            <li key={`${e.content_hash}-${i}`} className="relative text-[10px] leading-4 text-slate-400">
-              <span
-                className={`absolute -left-[15px] top-1 inline-block h-1.5 w-1.5 rounded-full ${
-                  i === note.evidence.length - 1 ? "bg-omni-alpha" : "bg-omni-sigma/60"
-                }`}
-                aria-hidden="true"
-              />
-              <span className="rounded bg-omni-sigma/20 px-1 py-0.5 text-omni-sigma">
-                {e.hook_lifecycle}
-              </span>{" "}
-              {e.source_origin} · {e.captured_at}
-              <span
-                className="ml-1 cursor-help text-slate-500 underline decoration-dotted"
-                title={`audit_formula: ${e.audit_formula} · content_hash: ${e.content_hash}`}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <input
+            className="field max-w-[240px]"
+            placeholder="hook 篩選（如 ON_API_APPEND）"
+            value={evidenceHook}
+            onChange={(e) => setEvidenceHook(e.target.value)}
+            aria-label="證據鏈 hook 篩選"
+          />
+          <button
+            type="button"
+            className="rounded-lg border border-omni-sigma/40 px-2.5 py-1 text-[10px] text-slate-300 transition hover:border-omni-sigma"
+            onClick={() => void queryEvidence(0, evidenceHook)}
+          >
+            查詢（伺服器分頁）
+          </button>
+          {evidencePage !== null && (
+            <>
+              <button
+                type="button"
+                className="rounded-lg border border-slate-500/30 px-2.5 py-1 text-[10px] text-slate-300 transition hover:border-omni-sigma disabled:opacity-40"
+                disabled={evidencePage.offset <= 0}
+                onClick={() => void queryEvidence(Math.max(0, evidencePage.offset - EVIDENCE_PAGE_SIZE), evidenceHook)}
               >
-                i
+                上一頁
+              </button>
+              <button
+                type="button"
+                className="rounded-lg border border-slate-500/30 px-2.5 py-1 text-[10px] text-slate-300 transition hover:border-omni-sigma disabled:opacity-40"
+                disabled={evidencePage.offset + evidencePage.limit >= evidencePage.total}
+                onClick={() => void queryEvidence(evidencePage.offset + EVIDENCE_PAGE_SIZE, evidenceHook)}
+              >
+                下一頁
+              </button>
+              <button
+                type="button"
+                className="text-[10px] text-slate-500 underline decoration-dotted transition hover:text-slate-300"
+                onClick={() => setEvidencePage(null)}
+              >
+                返回本機全量
+              </button>
+              <span className="text-[10px] text-slate-500">
+                {evidencePage.total === 0
+                  ? "0 筆"
+                  : `${evidencePage.offset + 1}-${Math.min(evidencePage.offset + evidencePage.limit, evidencePage.total)} / 共 ${evidencePage.total} 筆`}
+                （node_version {evidencePage.node_version}）
               </span>
-            </li>
-          ))}
-        </ol>
-        <p className="mt-2 break-all text-[10px] text-slate-500">lock_hash: {note.lock_hash}</p>
+            </>
+          )}
+        </div>
+        {evidenceError !== null && (
+          <p className="mt-1 text-[10px] text-amber-300/90">{evidenceError}</p>
+        )}
+        {(() => {
+          const entries = evidencePage !== null ? evidencePage.entries : note.evidence;
+          return (
+            <ol className="mt-2 space-y-1 border-l border-omni-sigma/40 pl-3">
+              {entries.map((e, i) => (
+                <li key={`${e.content_hash}-${i}`} className="relative text-[10px] leading-4 text-slate-400">
+                  <span
+                    className={`absolute -left-[15px] top-1 inline-block h-1.5 w-1.5 rounded-full ${
+                      i === entries.length - 1 ? "bg-omni-alpha" : "bg-omni-sigma/60"
+                    }`}
+                    aria-hidden="true"
+                  />
+                  <span className="rounded bg-omni-sigma/20 px-1 py-0.5 text-omni-sigma">
+                    {e.hook_lifecycle}
+                  </span>{" "}
+                  {e.source_origin} · {e.captured_at}
+                  <span
+                    className="ml-1 cursor-help text-slate-500 underline decoration-dotted"
+                    title={`audit_formula: ${e.audit_formula} · content_hash: ${e.content_hash}`}
+                  >
+                    i
+                  </span>
+                </li>
+              ))}
+              {entries.length === 0 && (
+                <li className="text-[10px] text-slate-500">沒有符合條件的證據項。</li>
+              )}
+            </ol>
+          );
+        })()}
+        <p className="mt-2 break-all text-[10px] text-slate-500">
+          lock_hash: {evidencePage !== null ? evidencePage.lock_hash : note.lock_hash}
+        </p>
       </details>
     </div>
   );

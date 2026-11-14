@@ -134,7 +134,17 @@ jobs:
             exit 1
           fi
           echo "[diag] deploy start=$(date -u +%FT%TZ)"
-          pnpm run deploy:cloudflare
+          # #263 診斷閉環：部署輸出必須顯式落軌——wrangler/vinext 失敗原因（如 API error 10013）
+          # 以 workflow command annotation 匿名可見，避免「exit code 1」黑箱迫使猜測迭代。
+          set +e
+          pnpm run deploy:cloudflare 2>&1 | tee deploy-output.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            tail_lines=$(tail -n 40 deploy-output.log | sed -z 's/\r//g; s/%/%25/g; s/\n/%0A/g')
+            echo "::error::deploy:cloudflare failed (exit $rc). Last 40 lines of output:%0A${tail_lines}"
+            exit 1
+          fi
           echo "[diag] deploy done end=$(date -u +%FT%TZ)"
 
       - name: Set DATABASE_URL secret (esggo-web)

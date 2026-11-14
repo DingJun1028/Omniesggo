@@ -15,6 +15,7 @@ import { withAuth } from './auth.js'
 import { ragSearchRoute } from './rag.js'
 import { agentAskRoute, agentSearchRoute } from './query-agent.js'
 import { busEventsRoute, hiveAwardsRoute } from './bus.js'
+import { sllTraceRoute, sllLedgerRoute } from './sll.js'
 
 const SERVICE = 'mcp-gateway'
 
@@ -130,15 +131,17 @@ export const app = createApp(
     agentSearchRoute,
     busEventsRoute,
     hiveAwardsRoute,
+    sllTraceRoute,
+    sllLedgerRoute,
   ],
   {
     openapi: true,
     mcp: true,
     meta: {
       title: 'Omniesggo MCP Gateway',
-      version: '0.5.0',
+      version: '0.6.0',
       description:
-        'tzin contract-first 唯讀試點：平台資料之 MCP / OpenAPI 暴露層（default-deny auth；rag_search 唯讀檢索；query_agent ask/search 唯讀代理；bus_events 黑板鏡像；hive_awards 得標軌跡）',
+        'tzin contract-first 唯讀試點：平台資料之 MCP / OpenAPI 暴露層（default-deny auth；rag_search 唯讀檢索；query_agent ask/search 唯讀代理；bus_events 黑板鏡像；hive_awards 得標軌跡；sll_trace/sll_ledger SLL 第三方追溯）',
     },
   },
 )
