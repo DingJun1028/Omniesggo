@@ -46,7 +46,6 @@ export function NoteDetail({
   // 二十二期：證據鏈伺服器分頁查詢（對接 GET /api/notes/:uuid/evidence）
   const [evidencePage, setEvidencePage] = useState<OmniApiEvidencePage | null>(null);
   const [evidenceHook, setEvidenceHook] = useState("");
-  const [evidenceOffset, setEvidenceOffset] = useState(0);
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
 
   const EVIDENCE_PAGE_SIZE = 20;
@@ -60,7 +59,6 @@ export function NoteDetail({
         hook: hook.trim().length > 0 ? hook.trim() : undefined,
       });
       setEvidencePage(page);
-      setEvidenceOffset(page.offset);
     } catch (err) {
       setEvidenceError(err instanceof Error ? err.message : "證據鏈查詢失敗");
     }
