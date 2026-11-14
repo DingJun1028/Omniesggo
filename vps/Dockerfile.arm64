@@ -12,7 +12,8 @@ RUN apk upgrade --no-cache && apk add --no-cache libc6-compat build-base python3
 # pnpm run build 之 verify-deps-before-run 以 ERR_PNPM_VERIFY_DEPS_BEFORE_RUN 失敗
 # （lockfile 已記錄 packageManagerDependencies 含 @pnpm/exe@12.16.1）。
 # 不以修改 pnpm-lock.yaml 方式修復（見 .github/workflows/deploy.yml docker-build 註解）。
-RUN npm install -g pnpm@12.16.1
+# --ignore-scripts：pnpm 安裝本身無需 lifecycle scripts（SonarCloud docker:S6505）。
+RUN npm install -g --ignore-scripts pnpm@12.16.1
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 COPY packages/errors/package.json packages/errors/
 COPY apps/oneringai/package.json apps/oneringai/
@@ -22,7 +23,7 @@ RUN pnpm install --frozen-lockfile --ignore-scripts
 
 FROM --platform=linux/arm64 node:22-alpine AS builder
 WORKDIR /app
-RUN apk upgrade --no-cache && npm install -g pnpm@12.16.1 && rm -rf /var/cache/apk/*
+RUN apk upgrade --no-cache && npm install -g --ignore-scripts pnpm@12.16.1 && rm -rf /var/cache/apk/*
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production CI=true
