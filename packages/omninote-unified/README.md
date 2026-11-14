@@ -101,6 +101,7 @@ node --experimental-transform-types bin/omninote-server.ts /path/to/notes
 | POST | /api/notes/:uuid/purify | 熵減自癒：對現存宇宙重標註死鏈（resolved=false）並計算 entropy_score（ON_ENTROPY_PURIFICATION 證據入鏈） |
 | GET | /api/notes/:uuid/evidence | 證據鏈唯讀查詢（二十期）：`?limit=1..500&offset>=0&hook=ON_API_APPEND`（皆可選，limit 預設 50、offset 預設 0、hook 為精確匹配）；回 `{ uuid, node_version, lock_hash, total, offset, limit, entries }`，鏈序為入鏈順序；404 若節點不存在、422 INVALID_QUERY 若參數非法 |
 | GET | /api/notes/:uuid/evidence/stats | 證據鏈 hook 別統計（二十三期，唯讀聚合）：回 `{ uuid, node_version, lock_hash, total, by_hook, hooks, first_captured_at, last_captured_at }`；by_hook 為 hook_lifecycle → 筆數映射，hooks 為依入鏈首現順序之清單；captured_at 為字串排序非時間權威（如實標示）；404 若節點不存在 |
+| GET | /api/notes/:uuid/evidence/export | 證據鏈全量匯出（二十五期，唯讀稽核歸檔）：回 `{ format: "evidence_export_v1", uuid, node_version, lock_hash, total, by_hook, hooks, entries, exported_at }`；entries 為入鏈順序全量（無分頁）；exported_at 為伺服器當下時間非鏈內時間權威（如實標示）；快照綁定 node_version 與 lock_hash 供匯出後變更偵測；404 若節點不存在 |
 | DELETE | /api/notes/:uuid | 刪除節點 |
 | POST | /api/search | 語意搜尋：\`{ query, top_k?, threshold? }\`；嵌入不可用時 \`degraded: true\` 且零結果（503 若未啟用嵌入器） |
 | POST | /api/drafts | 隨時進度草稿存檔：\`{ draft_id, content, origin_tag?, tags? }\` 冪等 upsert（重複呼叫覆寫且 revision 遞增） |

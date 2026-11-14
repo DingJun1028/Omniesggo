@@ -239,6 +239,9 @@ export class OmniNoteLocalApiServer {
     if (method === "GET" && resource === "notes" && id !== undefined && segments.length === 5 && segments[3] === "evidence" && segments[4] === "stats") {
       return this.respondNoteEvidenceStats(res, id);
     }
+    if (method === "GET" && resource === "notes" && id !== undefined && segments.length === 5 && segments[3] === "evidence" && segments[4] === "export") {
+      return this.respondNoteEvidenceExport(res, id);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -364,6 +367,40 @@ export class OmniNoteLocalApiServer {
       hooks: hookOrder,
       first_captured_at: capturedTimes.length > 0 ? capturedTimes[0] ?? null : null,
       last_captured_at: capturedTimes.length > 0 ? capturedTimes[capturedTimes.length - 1] ?? null : null,
+    });
+  }
+
+  /**
+   * 二十五期：證據鏈全量匯出（唯讀、稽核歸檔用途）。
+   * GET /api/notes/:uuid/evidence/export → { format, uuid, node_version, lock_hash, total, by_hook, hooks, entries, exported_at }
+   * entries 為入鏈順序之全量證據項（無分頁）；exported_at 為伺服器回應當下時間，非鏈內時間權威（如實標示）；
+   * 匯出為快照綁定 node_version 與 lock_hash，客戶端可據以偵測匯出後節點變更。
+   */
+  private async respondNoteEvidenceExport(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const byHook = new Map<string, number>();
+    const hookOrder: string[] = [];
+    for (const e of node.evidence) {
+      const prev = byHook.get(e.hook_lifecycle);
+      if (prev === undefined) {
+        byHook.set(e.hook_lifecycle, 1);
+        hookOrder.push(e.hook_lifecycle);
+      } else {
+        byHook.set(e.hook_lifecycle, prev + 1);
+      }
+    }
+    return sendJson(res, 200, {
+      ok: true,
+      format: "evidence_export_v1",
+      uuid: node.uuid,
+      node_version: node.version,
+      lock_hash: node.lock_hash,
+      total: node.evidence.length,
+      by_hook: Object.fromEntries(byHook),
+      hooks: hookOrder,
+      entries: node.evidence,
+      exported_at: new Date().toISOString(),
     });
   }
 
