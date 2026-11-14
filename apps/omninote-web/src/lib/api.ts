@@ -153,6 +153,24 @@ export async function fetchEvidencePage(
   return request<OmniApiEvidencePage>(`/api/notes/${uuid}/evidence${qs}`);
 }
 
+/** 二十四期：證據鏈 hook 別統計回應（GET /api/notes/:uuid/evidence/stats）。 */
+export interface OmniApiEvidenceStats {
+  ok: boolean;
+  uuid: string;
+  node_version: string;
+  lock_hash: string;
+  total: number;
+  by_hook: Record<string, number>;
+  hooks: string[];
+  first_captured_at: string | null;
+  last_captured_at: string | null;
+}
+
+/** 證據鏈 hook 別統計（唯讀聚合）：captured_at 為字串排序非時間權威（引擎端已如實標示）。 */
+export async function fetchEvidenceStats(uuid: string): Promise<OmniApiEvidenceStats> {
+  return request<OmniApiEvidenceStats>(`/api/notes/${uuid}/evidence/stats`);
+}
+
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
   const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",
