@@ -551,3 +551,92 @@ test("API-14 證據鏈統計道閘：404 未知節點；單證據節點 first===
     assert.equal(body.first_captured_at, body.last_captured_at);
   });
 });
+
+test("API-15 證據鏈匯出：全量入鏈順序、by_hook 聚合一致、快照綁定 node_version 與 lock_hash", async () => {
+  await withServer(async ({ port }) => {
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "匯出測試甲" }),
+    });
+    const created = (await create.json()) as { node: { uuid: string; version: string; lock_hash: string; evidence: unknown[] } };
+    for (const text of ["匯出追加一", "匯出追加二", "匯出追加三"]) {
+      await fetch(base(port) + "/api/notes/" + created.node.uuid + "/blocks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type: "paragraph", content: text }),
+      });
+    }
+    const exp = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence/export");
+    assert.equal(exp.status, 200);
+    const body = (await exp.json()) as {
+      ok: boolean;
+      format: string;
+      uuid: string;
+      node_version: string;
+      lock_hash: string;
+      total: number;
+      by_hook: Record<string, number>;
+      hooks: string[];
+      entries: Array<{ hook_lifecycle: string; source_origin: string; captured_at: string; content_hash: string; audit_formula: string }>;
+      exported_at: string;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.format, "evidence_export_v1");
+    assert.equal(body.uuid, created.node.uuid);
+    assert.notEqual(body.node_version, created.node.version, "追加區塊後版本應已遞增");
+    assert.match(body.lock_hash, /^[0-9a-f]{64}$/);
+    assert.equal(body.total, 4);
+    assert.equal(body.entries.length, 4);
+    assert.deepEqual(body.hooks, ["ON_ALPHA_CAPTURE", "ON_API_APPEND"]);
+    assert.equal(body.by_hook["ON_ALPHA_CAPTURE"], 1);
+    assert.equal(body.by_hook["ON_API_APPEND"], 3);
+    assert.deepEqual(
+      body.entries.map((e) => e.hook_lifecycle),
+      ["ON_ALPHA_CAPTURE", "ON_API_APPEND", "ON_API_APPEND", "ON_API_APPEND"],
+      "entries 應為入鏈順序全量",
+    );
+    for (const e of body.entries) {
+      assert.match(e.content_hash, /^[0-9a-f]{64}$/);
+      assert.equal(typeof e.captured_at, "string");
+      assert.equal(typeof e.source_origin, "string");
+      assert.equal(typeof e.audit_formula, "string");
+    }
+    assert.equal(typeof body.exported_at, "string");
+    // 與 stats 端點聚合一致性交叉驗證
+    const stats = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence/stats");
+    const statsBody = (await stats.json()) as { total: number; by_hook: Record<string, number>; hooks: string[]; lock_hash: string };
+    assert.equal(statsBody.total, body.total);
+    assert.deepEqual(statsBody.by_hook, body.by_hook);
+    assert.deepEqual(statsBody.hooks, body.hooks);
+    assert.equal(statsBody.lock_hash, body.lock_hash);
+  });
+});
+
+test("API-16 證據鏈匯出道閘：404 未知節點；空匯出仍具備完整欄位", async () => {
+  await withServer(async ({ port }) => {
+    const missing = await fetch(base(port) + "/api/notes/00000000-0000-4000-8000-000000000000/evidence/export");
+    assert.equal(missing.status, 404);
+    assert.equal(((await missing.json()) as { error: string }).error, "NODE_NOT_FOUND");
+
+    const create = await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "匯出道閘甲" }),
+    });
+    const created = (await create.json()) as { node: { uuid: string; evidence: unknown[] } };
+    const exp = await fetch(base(port) + "/api/notes/" + created.node.uuid + "/evidence/export");
+    assert.equal(exp.status, 200);
+    const body = (await exp.json()) as {
+      total: number;
+      entries: unknown[];
+      by_hook: Record<string, number>;
+      hooks: string[];
+      exported_at: string;
+    };
+    assert.equal(body.total, created.node.evidence.length);
+    assert.deepEqual(body.by_hook, { ON_ALPHA_CAPTURE: 1 });
+    assert.deepEqual(body.hooks, ["ON_ALPHA_CAPTURE"]);
+    assert.equal(typeof body.exported_at, "string");
+  });
+});

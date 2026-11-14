@@ -171,13 +171,5 @@
     "express": "^4.21.2",
     "body-parser": "^1.20.9",
     "cookie": "^0.7.2"
-  },
-  "pnpm": {
-    "overrides": {
-      "glob": ">=14.0.2",
-      "fflate": ">=0.7.5",
-      "@hono/node-server": ">=2.1.6",
-      "fast-xml-parser": ">=5.12.0"
-    }
   }
 }
