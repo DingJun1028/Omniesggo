@@ -32,7 +32,7 @@ jobs:
           out=$(pnpm install --frozen-lockfile --prefer-frozen-lockfile 2>&1); rc=$?
           printf '%s\n' "$out"
           if [ $rc -ne 0 ]; then
-            msg=$(printf '%s' "$out" | grep -E 'ERR_PNPM|ERR_|Expected|Validation' | tail -8 | sed 's/%/%25/g; s/"/\"/g' | tr '\n' ' ')
+            msg=$(printf '%s' "$out" | grep -B2 -A10 'ERR_PNPM' | tail -20 | sed 's/%/%25/g; s/"/\"/g' | tr '\n' ' ' | cut -c1-900)
             echo "::error::pnpm frozen-lockfile 失敗 rc=$rc: $msg"
           fi
           exit $rc
