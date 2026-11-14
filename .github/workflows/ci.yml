@@ -27,7 +27,15 @@ jobs:
         timeout-minutes: 3
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --prefer-frozen-lockfile
+        run: |
+          set +e
+          out=$(pnpm install --frozen-lockfile --prefer-frozen-lockfile 2>&1); rc=$?
+          printf '%s\n' "$out"
+          if [ $rc -ne 0 ]; then
+            msg=$(printf '%s' "$out" | grep -E 'ERR_PNPM|ERR_|Expected|Validation' | tail -8 | sed 's/%/%25/g; s/"/\"/g' | tr '\n' ' ')
+            echo "::error::pnpm frozen-lockfile 失敗 rc=$rc: $msg"
+          fi
+          exit $rc
         timeout-minutes: 15
 
       - name: 100% Encoding Hygiene Check (全真綠)
