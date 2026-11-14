@@ -2,7 +2,7 @@
 // pre-commit hook — Encoding + lockfile sync + lint-staged
 // Git will run this via the system Node.js (cross-platform compatible)
 
-const { execSync, execFileSync } = require('child_process');
+import { execSync, execFileSync } from 'child_process';
 
 // 1. Check encoding issues (U+FFFD, non-UTF-8)
 try {
@@ -12,12 +12,14 @@ try {
 }
 
 // 2. Check lockfile sync — prevent CI --frozen-lockfile failures
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
-const pkgPath = path.resolve(__dirname, '..', 'package.json');
-const lockPath = path.resolve(__dirname, '..', 'pnpm-lock.yaml');
+const __dir = fileURLToPath(import.meta.url);
+const pkgPath = path.resolve(__dir, '..', 'package.json');
+const lockPath = path.resolve(__dir, '..', 'pnpm-lock.yaml');
 
 // package.json 變更時必須驗 lockfile, 但「lockfile 存在與否」要看 **index**
 // 而非磁碟: 刪除 pnpm-lock.yaml 這個提交本身就是最高風險的繞過路徑 ——

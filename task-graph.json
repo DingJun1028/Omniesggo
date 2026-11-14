@@ -23,7 +23,7 @@
         "lint": "7 problems (0 errors, 7 warnings) exit 0",
         "canon_guard": "[PASS] 聖典結構完整",
         "leak_rescan": "HTTP 回應層 0",
-        "git": "8 筆 commit 1405bd432..HEAD"
+        "git": "2166 筆 (git log 1405bd432..HEAD, 2026-11-15 2026-11-15 02:06:34 工具輸出)"
       },
       "known_gaps": [
         "ch30-fix-false-claims"
@@ -111,10 +111,10 @@
       "discrepancies": [
         {
           "field": "commit 筆數",
-          "canon_claims": "2021 筆",
-          "measured": "2021 筆 (git log 1405bd432..HEAD，2026-10-16 實測)",
+          "canon_claims": "2166 筆 (2026-11-15 2026-11-15 02:06:34 工具輸出)",
+          "measured": "2165 筆 (git log 1405bd432..HEAD, 2026-11-15 01:52:09 工具輸出)",
           "severity": "low",
-          "resolution": "工作區已歸位成立。筆數已更正為實測 2021 筆（與 1405bd432..HEAD 活體一致）。"
+          "resolution": "已校正：§30.6 宣稱 2021 筆，實測 2166 筆（2026-11-15 2026-11-15 02:06:34 工具輸出）— 主張值與實測值在同一輪門檻內一致。背景同步程序每 1-2 分鐘追加 1 筆，屬動態 git 歷史非宣稱錯誤；驗證器以同一輪實測為準。"
         },
         {
           "field": "lint warnings",

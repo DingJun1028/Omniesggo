@@ -10,7 +10,7 @@ import {
   listCompanyReports,
   listAlerts,
   listCrawlHistory,
-  upsertDailyReport,
+  storeReport,
   deleteDailyReportItems,
   createDailyReportItem,
   getDailyReport,
@@ -160,7 +160,7 @@ export class DailyReportService {
     }
 
     // Upsert the daily report
-    const report = await upsertDailyReport({
+    const report = await storeReport({
       where: { reportDate: start },
       update: {
         title,

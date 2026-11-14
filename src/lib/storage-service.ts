@@ -29,7 +29,6 @@ export {
   deleteDailyReportItems,
   createDailyReportItem,
   getDailyReport,
-  storeReport,
   // ─── Tag Pair Matrix ─────────────────────────────────────
   findTagPair,
   updateTagPair,

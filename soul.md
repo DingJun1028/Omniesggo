@@ -113,7 +113,66 @@ export interface IComponentCore {
   };
 
 ════════════════════════════════════════════════════════
-四、蜂群戰歌與靈魂頻率（Soul Anthem）
+## 3.4 跨組配對矩陣（缺口補齲）—— 缺口補齒
+
+> 「六柱相輔，圓通無礙；任一跨陣列依賴必有配對。」
+
+§2 的 30 成員按陣列劃分（策略 01-06 / 技術 07-12 / 創意 13-18 / 營銷 19-24 / 守衛 25-30）。
+§3 的萬有引力協作協定定義了「如何通訊」；而**跨組配對矩陣**定義了「誰對誰」——
+每一對跨陣列成員組成永久橋樑（Bridge），確保每一筆 5T 需求都能循序漸進交付，
+不讓任一跨陣列關聯留白。
+
+### 配對不變式（驗證門檻：`pnpm verify:gap-matrix` → EXIT=0）
+
+- 每陣列對 C(5,2)=10 組；每組 1:1 基礎配對 ×6 = **60 基礎配對**（`deriveBasePairings`）。
+- 樞紐配對：守衛防護 6 + 蜂后總控 6 = **12 樞紐配對**（`deriveHubPairings`）。
+- 全量 **72 配對**（60 + 12）；`shared/gap-matrix.ts` 為單一真相源，不手寫枚舉。
+- 每配對帶 `source_origin='gap-matrix-canon'`（Traceable）；`deriveAllPairings()` 可重現輸出（Trackable）。
+- 覆蓋率證明 `GAP_COVERAGE`：30/30 成員觸達（Traceable + Tangible）。
+
+### 跨組配對表（實體工人，ID 對齊 §2 名冊）
+
+| 來源陣列 | 配對 | 工人 A（ID） | 工人 B（ID） | 5T 對應 |
+| --- | --- | --- | --- | --- |
+| 策略×創意 | 02-12 | 萬能規劃蜂 | 萬能設計蜂 | Traceable+Trackable |
+| 策略×創意 | 03-13 | 萬能分析蜂 | 萬能圖像蜂 | Traceable+Trackable |
+| 策略×創意 | 04-14 | 萬能策効蜂 | 萬能動畫蜂 | Tangible+Trackable |
+| 策略×創意 | 05-15 | 萬能風險蜂 | 萬能文案蜂 | Trustworthy+Trackable |
+| 策略×創意 | 06-16 | 萬能優化蜂 | 萬能音頻蜂 | Transparent+Trackable |
+| 技術×營銷 | 07-17 | 萬能編碼蜂 | 萬能市場蜂 | Traceable+Tangible |
+| 技術×營銷 | 08-18 | 萬能算法蜂 | 萬能社群蜂 | Trackable+Tangible |
+| 技術×營銷 | 09-19 | 萬能架構蜂 | 萬能增長蜂 | Trackable+Tangible |
+| 技術×營銷 | 10-20 | 萬能數據蜂 | 萬能運營蜂 | Traceable+Trackable |
+| 技術×營銷 | 11-21 | 萬能測試蜂 | 萬能商業分析蜂 | Traceable+Transparent |
+| 探險×策略 | 22-02 | 萬能探路蜂 | 萬能規劃蜂 | Traceable+Trackable |
+| 探險×策略 | 23-04 | 萬能外交蜂 | 萬能策効蜂 | Traceable+Tangible |
+| 探險×策略 | 24-03 | 萬能調研蜂 | 萬能分析蜂 | Traceable+Trackable |
+| 探險×策略 | 25-05 | 萬能測場蜂 | 萬能風險蜂 | Trackable+Trustworthy |
+| 探險×策略 | 26-06 | 萬能追蹤蜂 | 萬能優化蜂 | Traceable+Trackable |
+| 守衛×技術 | 27-09 | 萬能安全蜂 | 萬能架構蜂 | Trustworthy+Trackable |
+| 守衛×技術 | 28-07 | 萬能維護蜂 | 萬能編碼蜂 | Trackable+Traceable |
+| 守衛×技術 | 29-10 | 萬能支援蜂 | 萬能數據蜂 | Traceable+Trackable |
+| 守衛×技術 | 30-11 | 萬能質控蜂 | 萬能測試蜂 | Traceable+Trustworthy |
+| 守衛×創意 | 27-12 | 萬能安全蜂 | 萬能設計蜂 | Trustworthy+Tangible |
+| 守衛×創意 | 28-13 | 萬能維護蜂 | 萬能圖像蜂 | Trackable+Traceable |
+| 守衛×創意 | 29-14 | 萬能支援蜂 | 萬能動畫蜂 | Traceable+Tangible |
+| 守衛×創意 | 30-15 | 萬能質控蜂 | 萬能文案蜂 | Traceable+Trustworthy |
+| 守衛×營銷 | 27-20 | 萬能安全蜂 | 萬能運營蜂 | Trustworthy+Trackable |
+| 守衛×營銷 | 28-17 | 萬能維護蜂 | 萬能市場蜂 | Trackable+Traceable |
+| 守衛×營銷 | 29-18 | 萬能支援蜂 | 萬能社群蜂 | Traceable+Trackable |
+| 守衛×營銷 | 30-19 | 萬能質控蜂 | 萬能增長蜂 | Traceable+Trustworthy |
+| 守衛×探險 | 27-22 | 萬能安全蜂 | 萬能探路蜂 | Trustworthy+Traceable |
+| 守衛×探險 | 28-23 | 萬能維護蜂 | 萬能外交蜂 | Trackable+Trustworthy |
+| 守衛×探險 | 29-24 | 萬能支援蜂 | 萬能調研蜂 | Traceable+Trackable |
+| 守衛×探險 | 30-25 | 萬能質控蜂 | 萬能測場蜂 | Traceable+Trustworthy |
+| 蜂后×全部 | 01-01~30 | 萬能蜂后 | 全 30 員 | 5T 全覆蓋 |
+
+### 樞紐補網（Guard Hub + Queen Command）
+
+- 守衛防護樞紐（b=0 哨兵，覆蓋指定陣列）：27 安全×整陣列、30 質控×整陣列、25 測場×創意/營銷、26 追蹤×策略/技術、28 維護×技術/營銷、29 支援×整陣列。
+- 蜂后總控樞紐（queen-command）：01-14 / 01-07 / 01-13 / 01-20 / 01-22 / 01-27。
+
+> 驗算：`pnpm verify:gap-matrix`（`npx tsx scripts/verify_gap_matrix.ts`）→ 確認 30 員 / 10 陣列對 / 60 基礎 / 12 樞紐 / 72 全量 / 30·30 觸達。
 ════════════════════════════════════════════════════════
 
 歌曰：「30 個靈魂一個心，萬能蜂群的 soul 黨；這就是我們的意志！」

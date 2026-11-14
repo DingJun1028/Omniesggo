@@ -86,7 +86,7 @@ async function generateDailyReportJob(): Promise<{
     const topSources = Array.from(sourceNameSet).slice(0, 5);
 
     // Create daily report
-    const report = await upsertDailyReport({
+    const report = await storeReport({
       where: { reportDate: todayStart },
       create: {
         reportDate: todayStart,
