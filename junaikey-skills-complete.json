@@ -2,231 +2,551 @@
   {
     "id": 1,
     "name": "encoding-check",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Traceable"
+    ],
+    "domain": [
+      "測試 (Verify)"
+    ]
   },
   {
     "id": 2,
     "name": "ncb-shared-mem",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 3,
     "name": "ollama-local-repair-5t",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (AI/LLM)"
+    ]
   },
   {
     "id": 4,
     "name": "ollama-modelfile-sane-defaults",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (AI/LLM)"
+    ]
   },
   {
     "id": 5,
     "name": "ollama-caller-resilience-pattern",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (AI/LLM)"
+    ]
   },
   {
     "id": 6,
     "name": "nexus-agent-tool-routing-confirmed",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 7,
     "name": "best-practice-awakening",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 8,
     "name": "omnitag-integration",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 9,
     "name": "oa-team-swarm-ultra",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 10,
     "name": "universal-automation-ultra",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 11,
     "name": "superpowers",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 12,
     "name": "universal-automation",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 13,
     "name": "junaikey-omni-5t-verification",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 14,
     "name": "junaikey-5t-canon",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 15,
     "name": "junaikey-5t-verification",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (Foundation)"
+    ]
   },
   {
     "id": 16,
     "name": "junaikey-7-module-pipeline",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 17,
     "name": "junaikey-7-module",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 18,
     "name": "junaikey-module-gateway",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 19,
     "name": "junaikey-module-trusted-vault",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 20,
     "name": "junaikey-module-omnitag",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 21,
     "name": "junaikey-module-media",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 22,
     "name": "junaikey-module-markdown",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 23,
     "name": "junaikey-module-skill",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 24,
     "name": "junaikey-module-ncb",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 25,
     "name": "junaikey-module-shared-memory",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 26,
     "name": "junaikey-module-ollama",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "技術 (AI/LLM)",
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 27,
     "name": "junaikey-module-vps",
-    "origin": "local-cache"
+    "origin": "local-cache",
+    "5T": [
+      "Trustworthy"
+    ],
+    "domain": [
+      "安全 (Security)",
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 28,
     "name": "junaikey-module-nix",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 29,
     "name": "junaikey-module-telegram",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 30,
     "name": "junaikey-module-mcp",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 31,
     "name": "junaikey-module-skill-generator",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 32,
     "name": "junaikey-module-skill-sync",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 33,
     "name": "junaikey-module-skill-engine",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 34,
     "name": "junaikey-module-skill-router",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 35,
     "name": "junaikey-module-skill-compiler",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 36,
     "name": "junaikey-module-skill-inspector",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 37,
     "name": "junaikey-module-skill-health-check",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Traceable"
+    ],
+    "domain": [
+      "整合 (Platform/Module)",
+      "測試 (Verify)"
+    ]
   },
   {
     "id": 38,
     "name": "junaikey-module-skill-versioner",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 39,
     "name": "junaikey-module-skill-security",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 40,
     "name": "junaikey-module-skill-tagger",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 41,
     "name": "junaikey-module-skill-migrator",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 42,
     "name": "junaikey-module-report",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 43,
     "name": "junaikey-module-dashboard",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 44,
     "name": "junaikey-module-api",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 45,
     "name": "junaikey-module-cli",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   },
   {
     "id": 46,
     "name": "junaikey-module-webhook",
-    "origin": "ncb-authority"
+    "origin": "ncb-authority",
+    "5T": [
+      "Trackable",
+      "Trustworthy"
+    ],
+    "domain": [
+      "整合 (Platform/Module)"
+    ]
   }
 ]
