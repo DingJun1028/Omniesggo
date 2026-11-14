@@ -171,6 +171,25 @@ export async function fetchEvidenceStats(uuid: string): Promise<OmniApiEvidenceS
   return request<OmniApiEvidenceStats>(`/api/notes/${uuid}/evidence/stats`);
 }
 
+/** 二十六期：證據鏈全量匯出回應（GET /api/notes/:uuid/evidence/export）。 */
+export interface OmniApiEvidenceExport {
+  ok: boolean;
+  format: string;
+  uuid: string;
+  node_version: string;
+  lock_hash: string;
+  total: number;
+  by_hook: Record<string, number>;
+  hooks: string[];
+  entries: OmniApiEvidence[];
+  exported_at: string;
+}
+
+/** 證據鏈全量匯出（唯讀稽核歸檔）：exported_at 為伺服器當下時間非鏈內時間權威（引擎端已如實標示）。 */
+export async function fetchEvidenceExport(uuid: string): Promise<OmniApiEvidenceExport> {
+  return request<OmniApiEvidenceExport>(`/api/notes/${uuid}/evidence/export`);
+}
+
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
   const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",
