@@ -236,6 +236,12 @@ export class OmniNoteLocalApiServer {
     if (method === "GET" && resource === "notes" && id !== undefined && segments.length === 4 && segments[3] === "evidence") {
       return this.respondNoteEvidence(req, res, id);
     }
+    if (method === "GET" && resource === "notes" && id !== undefined && segments.length === 5 && segments[3] === "evidence" && segments[4] === "stats") {
+      return this.respondNoteEvidenceStats(res, id);
+    }
+    if (method === "GET" && resource === "notes" && id !== undefined && segments.length === 5 && segments[3] === "evidence" && segments[4] === "export") {
+      return this.respondNoteEvidenceExport(res, id);
+    }
     if (resource === "drafts" && id !== undefined && segments.length === 3 && (method === "GET" || method === "DELETE")) {
       return this.respondDraftGetOrDelete(res, method, id);
     }
@@ -327,6 +333,75 @@ export class OmniNoteLocalApiServer {
       offset,
       limit,
       entries: chain.slice(offset, offset + limit),
+    });
+  }
+
+  /**
+   * 證據鏈 hook 別聚合共用輔助（二十三期 stats 與二十五期 export 共用）。
+   * by_hook 為 hook_lifecycle → 筆數之映射；hooks 為依入鏈順序首次出現排序之清單。
+   */
+  private aggregateEvidenceHooks(evidence: ReadonlyArray<{ hook_lifecycle: string }>): {
+    by_hook: Record<string, number>;
+    hooks: string[];
+  } {
+    const byHook = new Map<string, number>();
+    const hookOrder: string[] = [];
+    for (const e of evidence) {
+      const prev = byHook.get(e.hook_lifecycle);
+      if (prev === undefined) {
+        byHook.set(e.hook_lifecycle, 1);
+        hookOrder.push(e.hook_lifecycle);
+      } else {
+        byHook.set(e.hook_lifecycle, prev + 1);
+      }
+    }
+    return { by_hook: Object.fromEntries(byHook), hooks: hookOrder };
+  }
+
+  /**
+   * 二十三期：證據鏈 hook 別統計（唯讀聚合）。
+   * GET /api/notes/:uuid/evidence/stats → { total, by_hook, hooks, first_captured_at, last_captured_at }
+   * captured_at 取自證據項欄位（字串排序非時間權威，如實標示）。
+   */
+  private async respondNoteEvidenceStats(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const { by_hook, hooks } = this.aggregateEvidenceHooks(node.evidence);
+    const capturedTimes = node.evidence.map((e) => e.captured_at);
+    return sendJson(res, 200, {
+      ok: true,
+      uuid: node.uuid,
+      node_version: node.version,
+      lock_hash: node.lock_hash,
+      total: node.evidence.length,
+      by_hook,
+      hooks,
+      first_captured_at: capturedTimes.length > 0 ? capturedTimes[0] ?? null : null,
+      last_captured_at: capturedTimes.length > 0 ? capturedTimes[capturedTimes.length - 1] ?? null : null,
+    });
+  }
+
+  /**
+   * 二十五期：證據鏈全量匯出（唯讀、稽核歸檔用途）。
+   * GET /api/notes/:uuid/evidence/export → { format, uuid, node_version, lock_hash, total, by_hook, hooks, entries, exported_at }
+   * entries 為入鏈順序之全量證據項（無分頁）；exported_at 為伺服器回應當下時間，非鏈內時間權威（如實標示）；
+   * 匯出為快照綁定 node_version 與 lock_hash，客戶端可據以偵測匯出後節點變更。
+   */
+  private async respondNoteEvidenceExport(res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const { by_hook, hooks } = this.aggregateEvidenceHooks(node.evidence);
+    return sendJson(res, 200, {
+      ok: true,
+      format: "evidence_export_v1",
+      uuid: node.uuid,
+      node_version: node.version,
+      lock_hash: node.lock_hash,
+      total: node.evidence.length,
+      by_hook,
+      hooks,
+      entries: node.evidence,
+      exported_at: new Date().toISOString(),
     });
   }
 

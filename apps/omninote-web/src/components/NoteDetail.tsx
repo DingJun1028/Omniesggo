@@ -13,7 +13,9 @@ import {
   generateRebase,
   applySyncDelta,
   fetchEvidencePage,
+  fetchEvidenceStats,
   type OmniApiEvidencePage,
+  type OmniApiEvidenceStats,
   type OmniApiSyncDeltaPacket,
   OMNI_BLOCK_TYPES,
 } from "@/lib/api";
@@ -47,8 +49,21 @@ export function NoteDetail({
   const [evidencePage, setEvidencePage] = useState<OmniApiEvidencePage | null>(null);
   const [evidenceHook, setEvidenceHook] = useState("");
   const [evidenceError, setEvidenceError] = useState<string | null>(null);
+  // 二十四期：hook 別統計徽章（對接 GET /api/notes/:uuid/evidence/stats）
+  const [evidenceStats, setEvidenceStats] = useState<OmniApiEvidenceStats | null>(null);
+  const [statsError, setStatsError] = useState<string | null>(null);
 
   const EVIDENCE_PAGE_SIZE = 20;
+
+  async function loadStats(): Promise<void> {
+    setStatsError(null);
+    try {
+      const stats = await fetchEvidenceStats(note.uuid);
+      setEvidenceStats(stats);
+    } catch (err) {
+      setStatsError(err instanceof Error ? err.message : "統計查詢失敗");
+    }
+  }
 
   async function queryEvidence(offset: number, hook: string): Promise<void> {
     setEvidenceError(null);
@@ -503,6 +518,45 @@ export function NoteDetail({
         </div>
         {evidenceError !== null && (
           <p className="mt-1 text-[10px] text-amber-300/90">{evidenceError}</p>
+        )}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            className="rounded-lg border border-omni-sigma/40 px-2.5 py-1 text-[10px] text-slate-300 transition hover:border-omni-sigma"
+            onClick={() => void loadStats()}
+          >
+            hook 別統計
+          </button>
+          {evidenceStats !== null && (
+            <>
+              {evidenceStats.total === 0 ? (
+                <span className="text-[10px] text-slate-500">無證據項。</span>
+              ) : (
+                <span className="text-[10px] text-slate-500">
+                  共 {evidenceStats.total} 筆 · 首筆 {evidenceStats.first_captured_at ?? "N/A"} ·
+                  末筆 {evidenceStats.last_captured_at ?? "N/A"}（node_version {evidenceStats.node_version}）
+                </span>
+              )}
+              {evidenceStats.hooks.map((hook) => (
+                <button
+                  key={hook}
+                  type="button"
+                  className="rounded bg-omni-sigma/20 px-1.5 py-0.5 text-[10px] text-omni-sigma transition hover:bg-omni-sigma/40"
+                  title={`點擊以 ${hook} 篩選證據鏈`}
+                  onClick={() => {
+                    setEvidenceHook(hook);
+                    setEvidencePage(null);
+                    void queryEvidence(0, hook);
+                  }}
+                >
+                  {hook} × {evidenceStats.by_hook[hook] ?? 0}
+                </button>
+              ))}
+            </>
+          )}
+        </div>
+        {statsError !== null && (
+          <p className="mt-1 text-[10px] text-amber-300/90">{statsError}</p>
         )}
         {(() => {
           const entries = evidencePage !== null ? evidencePage.entries : note.evidence;
