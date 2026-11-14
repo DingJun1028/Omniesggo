@@ -14,6 +14,7 @@ import {
   applySyncDelta,
   fetchEvidencePage,
   fetchEvidenceStats,
+  fetchEvidenceExport,
   type OmniApiEvidencePage,
   type OmniApiEvidenceStats,
   type OmniApiSyncDeltaPacket,
@@ -52,6 +53,29 @@ export function NoteDetail({
   // 二十四期：hook 別統計徽章（對接 GET /api/notes/:uuid/evidence/stats）
   const [evidenceStats, setEvidenceStats] = useState<OmniApiEvidenceStats | null>(null);
   const [statsError, setStatsError] = useState<string | null>(null);
+  // 二十六期：證據鏈全量匯出下載（對接 GET /api/notes/:uuid/evidence/export）
+  const [exportBusy, setExportBusy] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
+
+  async function downloadEvidenceExport(): Promise<void> {
+    if (exportBusy) return;
+    setExportBusy(true);
+    setExportError(null);
+    try {
+      const snapshot = await fetchEvidenceExport(note.uuid);
+      const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `omninote-evidence-${snapshot.uuid}-v${snapshot.node_version}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "匯出失敗");
+    } finally {
+      setExportBusy(false);
+    }
+  }
 
   const EVIDENCE_PAGE_SIZE = 20;
 
@@ -527,6 +551,14 @@ export function NoteDetail({
           >
             hook 別統計
           </button>
+          <button
+            type="button"
+            className="rounded-lg border border-omni-sigma/40 px-2.5 py-1 text-[10px] text-slate-300 transition hover:border-omni-sigma disabled:opacity-40"
+            disabled={exportBusy}
+            onClick={() => void downloadEvidenceExport()}
+          >
+            {exportBusy ? "匯出中…" : "匯出 JSON 快照"}
+          </button>
           {evidenceStats !== null && (
             <>
               {evidenceStats.total === 0 ? (
@@ -557,6 +589,9 @@ export function NoteDetail({
         </div>
         {statsError !== null && (
           <p className="mt-1 text-[10px] text-amber-300/90">{statsError}</p>
+        )}
+        {exportError !== null && (
+          <p className="mt-1 text-[10px] text-amber-300/90">{exportError}</p>
         )}
         {(() => {
           const entries = evidencePage !== null ? evidencePage.entries : note.evidence;
