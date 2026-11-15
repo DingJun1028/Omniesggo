@@ -6,7 +6,7 @@ import YAML from 'yaml';
 import fs from 'fs';
 import path from 'path';
 
-import { Type, Static } from 'typebox';
+import { Type, Static } from '@sinclair/typebox';
 
 // ────────────────────────────────
 // TypeBox Schema 定義

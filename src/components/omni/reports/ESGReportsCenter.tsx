@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { 
-  FileText, ShieldCheck, CheckCircle2, Printer, Copy, Check,
+import {
+  FileText, ShieldCheck, CheckCircle2, Printer, Copy, Check, Sparkles,
   Sun, Moon,
   Eye
 } from 'lucide-react';

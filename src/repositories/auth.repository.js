@@ -276,7 +276,6 @@ export const DataError = Object.freeze({
 
 // ── 狀態 ─────────────────────────────────────────────────────────────
 
-let app = null;
 let auth = null;
 let db = null;
 /** @type {boolean} Whether Firebase is active. */
@@ -298,7 +297,6 @@ export function initializeFirebase() {
  */
 export function disableFirebase() {
   useFirebase = false;
-  app = null;
   auth = null;
   db = null;
 }
