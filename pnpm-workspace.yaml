@@ -109,6 +109,8 @@ overrides:
   # 傳入鏈路：經 pnpm-lock.yaml 解析（manifest 無直依），走 workspace overrides 統一提升
   "handlebars": ">=4.7.10"
 
+# pnpm 11 build-script allowlist. Keep only this supported field; preview's pnpm 10
+# injects neverBuiltDependencies, which conflicts with the legacy onlyBuiltDependencies.
 allowBuilds:
   '@firebase/util': false
   '@google/genai': false
@@ -122,14 +124,6 @@ allowBuilds:
   sqlite3: false
   tesseract.js: true
   unrs-resolver: false
-  # 修正 2026-09-28：加入 esggo-auto-repair/* 進 workspace（a1fedbb4e）後，
-  # 該專案的 wrangler 依賴帶入 workerd（CF workerd runtime）。pnpm 11 遇未宣告
-  # 的依賴會寫入佔位字串 "set this to true or false"，該非 boolean 值會讓
-  # CI 乾淨環境 pnpm install 於 Install dependencies 階段 exit 1
-  # （ERR_PNPM_IGNORED_BUILDS），連帶 23 個 check 全紅。
-  # 與 40621aeb5（tesseract.js 同類問題）相同根因。
-  # 採 false：workerd 僅供 wrangler dev 執行 Cloudflare worker，CI 不需要其
-  # postinstall 產物，與 sqlite3 / protobufjs / unrs-resolver 採相同保守設定。
   workerd: false
 
 minimumReleaseAgeExclude:
@@ -166,6 +160,3 @@ minimumReleaseAgeExclude:
   - tar@7.5.21
   - js-yaml@4.3.1
 
-onlyBuiltDependencies:
-  - tesseract.js
-  - sqlite3
