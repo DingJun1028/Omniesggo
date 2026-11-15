@@ -941,9 +941,15 @@ importers:
         specifier: workspace:*
         version: link:../omni-core
     devDependencies:
+      '@esggo/oesg-audit':
+        specifier: workspace:*
+        version: link:../oesg-audit
       '@esggo/oesg-pulse':
         specifier: workspace:*
         version: link:../oesg-pulse
+      '@esggo/oesg-report':
+        specifier: workspace:*
+        version: link:../oesg-report
       typescript:
         specifier: ^7.0.2
         version: 7.0.2

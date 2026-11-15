@@ -22,7 +22,7 @@ export const SecretConfigSchema = Type.Object({
 export const RotationConfigSchema = Type.Object({
   enabled: Type.Boolean({ description: '是否啟用輪替' }),
   interval_days: Type.Number({ description: '輪替間隔天數' }),
-  last_rotate: Type.Nullable(Type.String({ description: '上次輪替時間' })),
+  last_rotate: Type.Union([Type.String({ description: '上次輪替時間' }), Type.Null()]),
 }, { $id: 'RotationConfig' });
 
 export const VaultConfigSchema = Type.Object({
