@@ -43,7 +43,7 @@ jobs:
     # 永遠走不到判定區 —— 一個輸出不了判定的閘。故 20 → 65。
     timeout-minutes: 65
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7.0.1
         with:
           # 必須檢查 PR 的 head commit，不是 merge commit，
           # 否則會去查一個沒有任何 checks 的 commit 而誤判。
