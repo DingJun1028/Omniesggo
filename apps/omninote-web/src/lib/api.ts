@@ -190,6 +190,21 @@ export async function fetchEvidenceExport(uuid: string): Promise<OmniApiEvidence
   return request<OmniApiEvidenceExport>(`/api/notes/${uuid}/evidence/export`);
 }
 
+/** 二十八期：全域標籤彙整回應（GET /api/tags）。 */
+export interface OmniApiTagsOverview {
+  ok: boolean;
+  total_notes: number;
+  tagged_nodes: number;
+  untagged_nodes: number;
+  total_tag_occurrences: number;
+  tags: Array<{ tag: string; count: number }>;
+}
+
+/** 全域標籤彙整（唯讀聚合）：tags 依字典序穩定排序；count 為含該標籤之節點數（引擎端已如實標示）。 */
+export async function fetchTagsOverview(): Promise<OmniApiTagsOverview> {
+  return request<OmniApiTagsOverview>("/api/tags");
+}
+
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
   const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",
