@@ -70,6 +70,11 @@ export default defineConfig({
       // （2026-10-13 本分支 vitest 5 檔紅燈根因：exclude 只擋了 omnilive 沒擋 omnlive）。
       // 由 `pnpm --filter omnlive-legacy test` (= node --test) 執行，覆蓋率不減。
       'apps/omnlive/test/**',
+      // omninote-unified 測試以 Node 內建 test runner (node:test + tsx --test) 撰寫，非 vitest
+      // 套件（自帶 package.json test script）。二十七期（PR #277）起 9 檔被根 vitest 抓取時報
+      // 「No test suite found in file」，令神聖契約驗證步驟恆 exit 1（continue-on-error 遮蔽為慢性紅）。
+      // 該套件由 `pnpm --filter @esggo/omninote-unified test` (= tsx --test) 執行，覆蓋率不減。
+      'packages/omninote-unified/test/**',
       // Self-Healing Engine 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
       //   - server.test.mjs → import { test } from 'node:test'，根 vitest 抓取時報
       //                       "No test suite found in file"
