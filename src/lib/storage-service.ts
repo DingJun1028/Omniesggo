@@ -24,6 +24,9 @@ export {
   listTagsAttachedToNote,
   verifyStorage,
   // ─── Daily Report System ────────────────────────────────
+  listRegulations,
+  listCompanyReports,
+  listAlerts,
   listDailyReports,
   listDailyReportItems,
   deleteDailyReportItems,
@@ -51,7 +54,8 @@ import type { DelegationPermission } from '../types/complete-delegation';
 
 // ─── Supabase client (lazy proxy, per supabase-client.ts) ─────
 import { supabase } from './supabase-client';
-import prisma from '@/lib/prisma';
+// NOTE: Prisma 已全面停用（2026-08-25 Supabase 遷移）。此 barrel 不再匯出 prisma，
+// 需要計數的呼叫端請改用 storage-supabase 的 count* / list* Supabase 函式。
 
 // ─── Readiness gate ───────────────────────────────────────────
 // NOTE: 實作請以 src/lib/storage-supabase.ts 的 verifyStorage 為唯一正本（與 Supabase 收合一致）。
