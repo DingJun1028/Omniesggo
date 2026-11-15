@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "internal://esggo/task-graph/v1",
   "version": "1.0.0",
   "generated_by": "session 20260930_095911 · 萬能超交付第五階（同步升級閉環）",
@@ -12,7 +12,7 @@
       "status": "delivered",
       "artifacts": [
         "esggo-omni-center/soul.md#L2193-L2390",
-        "esggo-omni-center/soul-chapter-30-9-hyper-awakening.md",
+        "soul-chapter-30-super-delivery.md",
         "TODO-super-delivery-20260930.md",
         "skills:esggo-omni-super-delivery",
         "remotes/omniesggo/main -> https://github.com/DingJun1028/Omniesggo.git (verified)"
