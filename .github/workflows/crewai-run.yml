@@ -28,7 +28,7 @@ jobs:
       OPENAI_API_KEY: 'offline-config-check-not-a-real-key'
       OPENAI_MODEL_NAME: gpt-4o-mini
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
         with:
           version: '0.13.5'
@@ -65,7 +65,7 @@ jobs:
       # GitHub Actions 運算式中空字串為 falsy，故未設定的 secret 會自動回落。
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY || secrets.CREWAI_API_KEY }}
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
         with:
           version: '0.13.5'
