@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { OmniApiNode } from "@/lib/api";
+import { useEffect, useMemo, useState } from "react";
+import { fetchTagsOverview } from "@/lib/api";
+import type { OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 
 const WIKILINK_RE = /\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g;
 const PHASE_FILL: Record<string, string> = {
@@ -231,8 +232,35 @@ export function FusionGraph({
   notes: OmniApiNode[];
   onSelect: (uuid: string) => void;
 }) {
-  const graph = useMemo(() => buildFusionGraph(notes), [notes]);
   const [hovered, setHovered] = useState<number | null>(null);
+  // 二十九期：標籤過濾聯動（對接 GET /api/tags），精確標籤匹配，未選時維持全量。
+  const [tagAxis, setTagAxis] = useState<OmniApiTagsOverview | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchTagsOverview()
+      .then((overview) => {
+        if (!cancelled) setTagAxis(overview);
+      })
+      .catch(() => {
+        // 標籤軸為輔助資訊，取得失敗時靜默降級為全量圖譜，不打斷主流程。
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /** 過濾後之筆記子集：精確標籤匹配（topology.tags.includes），懸浮鏈結節點隨子集重建。 */
+  const filteredNotes = useMemo(
+    () =>
+      tagFilter === null
+        ? notes
+        : notes.filter((note) => note.topology.tags.includes(tagFilter)),
+    [notes, tagFilter]
+  );
+
+  const graph = useMemo(() => buildFusionGraph(filteredNotes), [filteredNotes]);
 
   /** 鄰接表：節點索引 → 相鄰節點索引集合（十八期懸停聚焦依據）。 */
   const neighbors = useMemo(() => {
@@ -259,11 +287,39 @@ export function FusionGraph({
   return (
     <div className="glass p-5">
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">
-        雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結）
+        雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結
+        {tagFilter !== null && ` · 標籤過濾：${tagFilter}`})
       </h2>
       <p className="mt-1 text-[10px] text-slate-500">
         實線=拓撲 outlinks（未解析虛線，邊中點標示 wikilink 別名）· 灰線=內容 [[雙鏈]] 投影 · 力導向佈局（連結越多半徑越大）
       </p>
+      {tagAxis !== null && tagAxis.tags.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          <button
+            type="button"
+            className="cursor-pointer rounded-full border px-2 py-0.5 text-[10px] text-slate-400 transition hover:border-slate-100/30"
+            title="點擊恢復全量圖譜"
+            onClick={() => setTagFilter(null)}
+          >
+            全量
+          </button>
+          {tagAxis.tags.map((t) => (
+            <button
+              type="button"
+              key={t.tag}
+              className={`cursor-pointer rounded-full border px-2 py-0.5 text-[10px] transition ${
+                tagFilter === t.tag
+                  ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
+                  : "border-slate-100/10 text-slate-400 hover:border-slate-100/30"
+              }`}
+              title={`點擊以 ${t.tag} 過濾圖譜節點（count 為含該標籤之節點數）`}
+              onClick={() => setTagFilter(tagFilter === t.tag ? null : t.tag)}
+            >
+              {t.tag} × {t.count}
+            </button>
+          ))}
+        </div>
+      )}
       {graph.nodes.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">尚無節點可繪製。</p>
       ) : (
