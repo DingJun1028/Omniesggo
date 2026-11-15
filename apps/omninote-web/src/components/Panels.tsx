@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import type { OmniApiDraft, OmniApiNode } from "@/lib/api";
+import { useEffect, useState } from "react";
+import type { OmniApiDraft, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 import {
   buildExportUrl,
   deleteDraft,
   deleteNote,
+  fetchTagsOverview,
   promoteDraft,
   semanticSearch,
 } from "@/lib/api";
@@ -28,22 +29,72 @@ export function NotesBoard({
   onChanged: () => void;
 }) {
   const [filter, setFilter] = useState("");
+  // 二十八期：標籤軸徽章（對接 GET /api/tags），點擊切換標籤過濾
+  const [tagAxis, setTagAxis] = useState<OmniApiTagsOverview | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchTagsOverview()
+      .then((overview) => {
+        if (!cancelled) setTagAxis(overview);
+      })
+      .catch(() => {
+        if (!cancelled) setTagAxis(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [notes]);
+
   const norm = filter.trim().toLowerCase();
-  /** 十九期關鍵字過濾：比對區塊內容與拓撲標籤（大小寫不敏感），與語意檢索面板互補。 */
-  const visible =
-    norm.length === 0
-      ? notes
-      : notes.filter(
-          (note) =>
-            note.blocks.some((b) => b.content.toLowerCase().includes(norm)) ||
-            note.topology.tags.some((t) => t.toLowerCase().includes(norm))
-        );
+  /** 十九期關鍵字過濾：比對區塊內容與拓撲標籤（大小寫不敏感），與語意檢索面板互補。
+   *  二十八期標籤過濾：精確匹配之標籤軸過濾，與關鍵字過濾採交集。 */
+  const visible = notes.filter((note) => {
+    const byKeyword =
+      norm.length === 0 ||
+      note.blocks.some((b) => b.content.toLowerCase().includes(norm)) ||
+      note.topology.tags.some((t) => t.toLowerCase().includes(norm));
+    const byTag = tagFilter === null || note.topology.tags.includes(tagFilter);
+    return byKeyword && byTag;
+  });
 
   return (
     <div className="glass p-5">
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">
-        筆記結晶板{norm.length > 0 && `（${visible.length}/${notes.length}）`}
+        筆記結晶板{(norm.length > 0 || tagFilter !== null) && `（${visible.length}/${notes.length}）`}
       </h2>
+      {tagAxis !== null && tagAxis.tags.length > 0 && (
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
+          <span className="text-[10px] text-slate-500" title="全域標籤彙整（GET /api/tags）：count 為含該標籤之節點數">
+            標籤軸 {tagAxis.tags.length} 種 ·
+          </span>
+          {tagAxis.tags.map((t) => (
+            <button
+              key={t.tag}
+              type="button"
+              className={`rounded px-1.5 py-0.5 text-[10px] transition ${
+                tagFilter === t.tag
+                  ? "bg-omni-alpha/30 text-omni-alpha"
+                  : "bg-omni-sigma/20 text-omni-sigma hover:bg-omni-sigma/40"
+              }`}
+              title={`點擊以 ${t.tag} 過濾此板筆記`}
+              onClick={() => setTagFilter(tagFilter === t.tag ? null : t.tag)}
+            >
+              {t.tag} × {t.count}
+            </button>
+          ))}
+          {tagFilter !== null && (
+            <button
+              type="button"
+              className="text-[10px] text-slate-500 underline decoration-dotted transition hover:text-slate-300"
+              onClick={() => setTagFilter(null)}
+            >
+              清除標籤過濾
+            </button>
+          )}
+        </div>
+      )}
       {notes.length > 0 && (
         <input
           className="field mt-3"
