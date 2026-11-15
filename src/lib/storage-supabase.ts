@@ -572,31 +572,29 @@ export async function listDailyReports(filter: { where?: Record<string, unknown>
   }
 }
 
+export async function createDailyReport(input: { data: Record<string, unknown> }): Promise<any> {
+  try {
+    const res = await safeSupabase(() =>
+      supabase.from('daily_report').insert(input.data).select('*').single(),
+    );
+    return res ?? input.data;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return input.data;
+  }
+}
+
 export async function updateDailyReport(filter: { where?: Record<string, unknown>; data?: Record<string, unknown> }): Promise<any | null> {
   try {
-    let query = supabase.from('daily_report').update(filter?.data ?? {}).eq('id', 'placeholder');
-    if (filter?.where) {
-      Object.entries(filter.where).forEach(([key, value]) => {
-        if (value && typeof value === 'object' && 'gte' in value) {
-          query = query.gte(key, String(value.gte));
-        } else if (value !== undefined && key !== 'id') {
-          query = query.eq(key, value);
-        }
-      });
-    }
-    // If only 'where' provided without 'id', need to find the first match
-    if (!filter?.data && filter?.where) {
-      const ids = await listDailyReports({ where: filter.where, take: 1 });
-      if (ids.length > 0) {
-        query = supabase.from('daily_report').update(filter.data ?? {}).eq('id', ids[0].id);
-      }
-    }
-    const { data, error } = await query;
-    if (error) {
-      console.warn('[Storage-Service] Supabase error:', error.message);
+    const id = typeof filter?.where?.id === 'string' ? filter.where.id : null;
+    if (!id) {
+      console.warn('[Storage-Service] updateDailyReport 需要 where.id');
       return null;
     }
-    return data?.[0] ?? null;
+    const res = await safeSupabase(() =>
+      supabase.from('daily_report').update(filter?.data ?? {}).eq('id', id).select('*').single(),
+    );
+    return res ?? null;
   } catch (e) {
     console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
     return null;
@@ -604,11 +602,20 @@ export async function updateDailyReport(filter: { where?: Record<string, unknown
 }
 
 // ─── Tag Pair Matrix ────────────────────────────────────────────
-export async function findTagPair(filter: { entityType?: string; entityId?: string }): Promise<any | null> {
+export async function findTagPair(filter: {
+  entityType?: string;
+  entityId?: string;
+  where?: Record<string, unknown>;
+}): Promise<any | null> {
   try {
     let query = supabase.from('tag_pair').select('*');
     if (filter?.entityType) query = query.eq('entityType', filter.entityType);
     if (filter?.entityId) query = query.eq('entityId', filter.entityId);
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value !== undefined) query = query.eq(key, value);
+      });
+    }
     const { data, error } = await query.limit(1);
     if (error) {
       console.warn('[Storage-Service] Supabase error:', error.message);
@@ -661,15 +668,21 @@ export async function listTagPairs(filter: { where?: Record<string, unknown>; ta
 }
 
 // ─── 統計查詢 (Statistics) ──────────────────────────────────────
-export async function countAlerts(): Promise<number> {
+export async function countAlerts(filter?: { where?: Record<string, unknown> }): Promise<number> {
   try {
-    const { data, error } = await safeSupabase(() =>
-      supabase.from('alerts').select('*', { count: 'exact', head: true }),
-    );
-    if (error) {
-      console.warn('[Storage-Service] Supabase error:', error.message);
-      return 0;
+    let query = supabase.from('alerts').select('*', { count: 'exact', head: true });
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value && typeof value === 'object' && 'lte' in value) {
+          query = query.lte(key, String(value.lte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
     }
+    const { data } = await safeSupabase(() => query);
     return typeof data === 'number' ? data : 0;
   } catch (e) {
     console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
@@ -730,10 +743,10 @@ export async function listUserGrowth(filter: { limit?: number }): Promise<any[]>
 
 export async function updateUserGrowth(input: { id: string; data: Record<string, unknown> }): Promise<any | null> {
   try {
-    const { data, error } = await safeSupabase(() =>
+    const { data } = await safeSupabase(() =>
       supabase.from('user_growth').update(input.data).eq('id', input.id).select('*').single(),
     );
-    return data?.[0] ?? null;
+    return data ?? null;
   } catch (e) {
     console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
     return null;

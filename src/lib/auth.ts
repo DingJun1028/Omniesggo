@@ -16,13 +16,22 @@ export interface LocalUser {
 
 export type User = LocalUser;
 
-function mapSupabaseUser(user: Record<string, unknown>): LocalUser | null {
+/** Supabase Auth 的 User 物件 (部分欄位) — 以結構化介面描述, 避免依賴套件的 index signature。 */
+export interface SupabaseUserRecord {
+  id?: string | null;
+  email?: string | null;
+  user_metadata?: Record<string, unknown> | null;
+}
+
+function mapSupabaseUser(user: SupabaseUserRecord | null | undefined): LocalUser | null {
   if (!user) return null;
+  const meta = user.user_metadata ?? {};
+  const fallbackName = user.email?.split('@')[0] ?? null;
   return {
-    uid: user.id,
+    uid: user.id ?? '',
     email: user.email ?? null,
-    displayName: user.user_metadata?.full_name ?? user.email?.split('@')[0] ?? null,
-    photoURL: user.user_metadata?.avatar_url ?? null,
+    displayName: (meta.full_name as string | undefined) ?? fallbackName,
+    photoURL: (meta.avatar_url as string | undefined) ?? null,
   };
 }
 

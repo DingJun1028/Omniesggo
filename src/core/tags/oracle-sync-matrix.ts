@@ -22,6 +22,7 @@ import {
   ensureSyncMatrix,
   type SyncMatrixRow,
 } from './oracle-sync-service';
+import { findTagPair, updateTagPair, listTagPairs } from '@/lib/storage-service';
 
 // ── 1. hydration: 啟動從 Oracle 全量回拉, 重組 app 端信任狀態 ──────────
 // Oracle 是信任帳本 source of truth。esggo-core 啟動時 replay 全量 entry,
@@ -56,7 +57,7 @@ export async function hydrateFromOracle(): Promise<HydrationResult> {
           existingPair.lifecycleHooks ? JSON.parse(existingPair.lifecycleHooks) : {}
         ) as Record<string, unknown>;
         await updateTagPair({
-          where: { id: existingPair.id },
+          id: existingPair.id,
           data: { lifecycleHooks: JSON.stringify({ ...meta, oracleConfirmed: true, oracleSeq: entry.seq }) },
         });
         matched++;
@@ -72,7 +73,7 @@ export async function hydrateFromOracle(): Promise<HydrationResult> {
 // 這裡用 app 本地資料量近似 origin_seq: 以 tagPair 總數 + 各實體 createdAt 序作為代理。
 // 真實部署中 origin_seq 應來自 app 端自己的寫入序號 (此處以 count 近似, 足以驅動對帳決策)。
 async function collectAppOriginSeq(): Promise<Array<{ uuid: string; originSeq: number }>> {
-  const pairs = await listTagPairs({ select: 'uuid, createdAt', orderBy: { createdAt: 'asc' } });
+  const pairs = await listTagPairs({});
   // uuid 可能為 NULL (舊資料), 過濾避免下游 string|null 型別錯誤
   return pairs
     .filter((p): p is { uuid: string; createdAt: Date } => !!p.uuid)
@@ -178,7 +179,7 @@ export async function pullBehindApp(
         const meta = (existing.lifecycleHooks ? JSON.parse(existing.lifecycleHooks) : {}) as Record<string, unknown>;
         const entryData = entry as { seq?: number };
         await updateTagPair({
-          where: { id: existing.id },
+          id: existing.id,
           data: { lifecycleHooks: JSON.stringify({ ...meta, oracleConfirmed: true, oracleSeq: entry.seq }) },
         });
         pulled++;

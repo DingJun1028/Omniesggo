@@ -1,12 +1,27 @@
 import ollama from 'ollama';
 
+/** generateContent 的推論參數 (對應 Gemini 的 config, 轉換為 Ollama options)。 */
+export interface GenerateContentConfig {
+  temperature?: number;
+  maxOutputTokens?: number;
+  [key: string]: unknown;
+}
+
 export class GoogleGenAI {
   constructor(options: Record<string, unknown>) {}
 
   [key: string]: unknown; // Allow arbitrary extensions like interactions
 
   models = {
-    generateContent: async ({ model, contents }: { model: string; contents: unknown }) => {
+    generateContent: async ({
+      model,
+      contents,
+      config,
+    }: {
+      model: string;
+      contents: unknown;
+      config?: GenerateContentConfig;
+    }) => {
       let text = '';
       if (typeof contents === 'string') {
         text = contents;
@@ -18,8 +33,12 @@ export class GoogleGenAI {
       
       try {
         const response = await ollama.generate({
-          model: 'qwen2.5:14b', // Using Ollama default for esggo local inference
-          prompt: text
+          model: model || 'qwen2.5:14b', // Using Ollama default for esggo local inference
+          prompt: text,
+          options: {
+            ...(config?.temperature !== undefined ? { temperature: config.temperature } : {}),
+            ...(config?.maxOutputTokens !== undefined ? { num_predict: config.maxOutputTokens } : {}),
+          },
         });
         return { text: response.response };
       } catch (e) {

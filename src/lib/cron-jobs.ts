@@ -9,6 +9,16 @@
  */
 
 import { supabase } from '@/lib/supabase-client';
+import {
+  getDailyReport,
+  countAlerts,
+  countRegulations,
+  countCompanyReports,
+  createDailyReport,
+  createDailyReportItem,
+  listUserGrowth,
+  updateUserGrowth,
+} from '@/lib/storage-service';
 
 const HAS_DATABASE_URL = Boolean(process.env.DATABASE_URL?.trim());
 
@@ -56,12 +66,12 @@ async function generateDailyReportJob(): Promise<{
     const totalReports = await countCompanyReports();
 
     // Aggregate source distribution
-    const recentAlertRes = await supabase
-      .from('alert')
+    const { data: recentAlertRows } = await supabase
+      .from('alerts')
       .select('sourceName, alertType')
       .gte('createdAt', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
       .limit(100);
-    const recentAlerts = recentAlertRes ?? [];
+    const recentAlerts = recentAlertRows ?? [];
 
     const tagStats: Record<string, number> = {};
     for (const alert of recentAlerts) {
@@ -70,13 +80,13 @@ async function generateDailyReportJob(): Promise<{
     }
 
     // Find highlight items (critical/high severity recent alerts)
-    const highlightAlertRes = await supabase
-      .from('alert')
+    const { data: highlightAlertRows } = await supabase
+      .from('alerts')
       .select('id, title, sourceName, severity, esgPillar')
       .eq('severity', 'critical')
       .order('createdAt', { ascending: false })
       .limit(5);
-    const highlightAlerts = highlightAlertRes ?? [];
+    const highlightAlerts = highlightAlertRows ?? [];
 
     const highlights = highlightAlerts.length > 0
       ? highlightAlerts.map((a: { title: string | null }) => a.title || '未命名警示')
@@ -86,9 +96,8 @@ async function generateDailyReportJob(): Promise<{
     const topSources = Array.from(sourceNameSet).slice(0, 5);
 
     // Create daily report
-    const report = await storeReport({
-      where: { reportDate: todayStart },
-      create: {
+    const report = await createDailyReport({
+      data: {
         reportDate: todayStart,
         title: `永續觀察者日報 — ${todayStr}`,
         summary: `${todayStr} 共收錄 ${newAlerts} 則警示（近 7 日累計 ${recentAlerts.length} 則）。目前法規資料庫 ${totalRegulations} 筆、企業報告 ${totalReports} 份。`,
@@ -98,33 +107,26 @@ async function generateDailyReportJob(): Promise<{
         alertCount: newAlerts,
         topSources: JSON.stringify(topSources),
         status: 'published',
-      },
-      update: {
-        reportDate: todayStart,
-        title: `永續觀察者日報 — ${todayStr}`,
-        summary: `${todayStr} 共收錄 ${newAlerts} 則警示（近 7 日累計 ${recentAlerts.length} 則）。目前法規資料庫 ${totalRegulations} 筆、企業報告 ${totalReports} 份。`,
-        highlights: JSON.stringify(highlights),
-        tagStats: JSON.stringify(tagStats),
-        sourceCount: topSources.length,
-        alertCount: newAlerts,
-        topSources: JSON.stringify(topSources),
-        status: 'published',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
+    const reportId = typeof report?.id === 'string' ? report.id : '';
 
     // Create report items for critical alerts
     if (highlightAlerts.length > 0) {
-      await supabase
-        .from('daily_report_item')
-        .insert(highlightAlerts.map((item: { id: string; title: string | null; sourceName: string | null; severity: string | null; esgPillar: string | null }) => ({
-          reportId: report.id,
-          alertId: item.id,
-          itemType: 'alert',
-          title: item.title || '未命名警示',
-          sourceName: item.sourceName || null,
-          severity: item.severity || null,
-          esgPillar: item.esgPillar || null,
-        })));
+      for (const item of highlightAlerts as Array<{ id: string; title: string | null; sourceName: string | null; severity: string | null; esgPillar: string | null }>) {
+        await createDailyReportItem({
+          data: {
+            reportId,
+            itemType: 'alert',
+            title: item.title || '未命名警示',
+            sourceName: item.sourceName || null,
+            severity: item.severity || null,
+            esgPillar: item.esgPillar || null,
+          },
+        });
+      }
     }
 
     const duration = Date.now() - startTime;
@@ -157,7 +159,7 @@ async function checkUserAchievements(): Promise<{ checked: number; upgrades: num
       const currentTier = tiers.find((t) => user.totalPoints >= t.threshold);
       if (currentTier && currentTier.name !== user.tier) {
         await updateUserGrowth({
-          where: { id: user.id },
+          id: user.id,
           data: { tier: currentTier.name, updatedAt: new Date() },
         });
         upgrades++;

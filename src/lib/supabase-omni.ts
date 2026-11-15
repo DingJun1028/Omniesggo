@@ -13,14 +13,14 @@ export async function first<T = unknown>(
   table: string,
   where: Record<string, unknown>,
 ): Promise<T | null> {
-  const { data, error } = await _supabase
-    .from(table)
-    .select('*')
-    .eq(...Object.entries(where).flatMap(([k, v]) => [k, v] as [string, unknown]))
-    .limit(1)
-    .single();
-  if (error && error.status !== 406) {
-    // 406 = no rows found
+  const entries = Object.entries(where);
+  let query = _supabase.from(table).select('*');
+  for (const [k, v] of entries) {
+    query = query.eq(k, v);
+  }
+  const { data, error } = await query.limit(1).single();
+  if (error) {
+    // PGRST116 = no rows found (单一 result 查詢無資料)
     if (error.code === 'PGRST116') return null;
     throw error;
   }
@@ -52,5 +52,5 @@ export async function list<T = unknown>(
 export async function count(table: string): Promise<number> {
   const { data, error } = await _supabase.from(table).select('*', { count: 'exact', head: true });
   if (error) throw error;
-  return (data as number) ?? 0;
+  return typeof data === 'number' ? data : (((data as unknown as { count?: number } | null)?.count) ?? 0);
 }

@@ -158,7 +158,7 @@ export class SupabaseSyncEngine {
         console.log(`[SyncEngine] 任務執行成功: [${task.operation}] ${task.table}`);
       } catch (error: unknown) {
         task.retryCount++;
-        console.warn(`[SyncEngine] 任務執行失敗 (重試次數: ${task.retryCount}/${this.MAX_RETRIES}):`, error.message);
+        console.warn(`[SyncEngine] 任務執行失敗 (重試次數: ${task.retryCount}/${this.MAX_RETRIES}):`, (error as Error).message);
         
         if (task.retryCount >= this.MAX_RETRIES) {
           console.error(`[SyncEngine] 任務已達最大重試次數，將移至死信佇列 (Dead Letter Queue): ${task.id}`);

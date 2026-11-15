@@ -113,7 +113,7 @@ class UserGrowthService {
   /** Get user achievements */
   async getUserAchievements(userId: string) {
     const rows = await supabase.from('UserAchievement').select('*').eq('userId', userId).order('unlockedAt', { ascending: false });
-    const list = (rows as { userId: string; achievementId: string; unlockedAt: string; }[]) ?? [];
+    const list = (rows as unknown as { userId: string; achievementId: string; unlockedAt: string; }[]) ?? [];
     const out = [];
     for (const r of list) {
       const [ach] = await supabase.from('Achievement').select('*').eq('id', r.achievementId).limit(1);
@@ -142,7 +142,7 @@ class UserGrowthService {
     for (const ut of (userTasks as { taskId: string; status: string; progress: number; completedAt?: string | null }[]) ?? []) {
       map.set(ut.taskId, ut);
     }
-    return (tasks as { id: string; slug: string; xpReward: number }[]).map((t) => {
+    return (tasks as unknown as { id: string; slug: string; xpReward: number }[]).map((t) => {
       const progress = map.get(t.id) ?? null;
       return {
         ...t,
@@ -224,9 +224,9 @@ class UserGrowthService {
   async getFullProfile(userId: string) {
     const [user] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
     if (!user) return null;
-    const [ach] = (await supabase.from('UserAchievement').select('*').eq('userId', userId).orderBy('unlockedAt', { ascending: false }).limit(20)) as { userId: string; achievementId: string; unlockedAt: string; }[];
-    const tasks = (await supabase.from('UserTask').select('*').eq('userId', userId).eq('status', { in: ['pending', 'in_progress'] }).orderBy('createdAt', { ascending: false }).limit(10)) as { userId: string; taskId: string; status: string; progress: number; completedAt?: string | null; }[];
-    const subs = (await supabase.from('Subscription').select('*').eq('userId', userId).eq('isActive', true).orderBy('createdAt', { ascending: false }).limit(50)) as { userId: string; subType: string; targetId: string; isActive: boolean; }[];
+    const [ach] = (await supabase.from('UserAchievement').select('*').eq('userId', userId).order('unlockedAt', { ascending: false }).limit(20)) as unknown as { userId: string; achievementId: string; unlockedAt: string; }[];
+    const tasks = (await supabase.from('UserTask').select('*').eq('userId', userId).in('status', ['pending', 'in_progress']).order('createdAt', { ascending: false }).limit(10)) as unknown as { userId: string; taskId: string; status: string; progress: number; completedAt?: string | null; }[];
+    const subs = (await supabase.from('Subscription').select('*').eq('userId', userId).eq('isActive', true).order('createdAt', { ascending: false }).limit(50)) as unknown as { userId: string; subType: string; targetId: string; isActive: boolean; }[];
     const currentTierIdx = TIER_ORDER.indexOf((user as { tier: string }).tier);
     const nextTier = currentTierIdx < TIER_ORDER.length - 1 ? TIER_ORDER[currentTierIdx + 1] : null;
     const nextTierThreshold = nextTier ? TIER_THRESHOLDS[nextTier] : null;

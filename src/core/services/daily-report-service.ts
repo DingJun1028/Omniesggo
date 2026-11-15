@@ -10,10 +10,10 @@ import {
   listCompanyReports,
   listAlerts,
   listCrawlHistory,
-  storeReport,
   deleteDailyReportItems,
   createDailyReportItem,
   getDailyReport,
+  createDailyReport,
   listDailyReportItems,
   listDailyReports,
   updateDailyReport,
@@ -79,8 +79,8 @@ export class DailyReportService {
 
     // Gather data from the last 24h
     const [regulations, reports, alerts, crawlItems] = await Promise.all([
-      listRegulations({ where: { crawledAt: { gte: start, lte: end } }, select: { title: true, sourceName: true, url: true }, take: 20 }),
-      listCompanyReports({ where: { crawledAt: { gte: start, lte: end } }, select: { companyName: true, reportType: true, url: true }, take: 20 }),
+      listRegulations({ where: { crawledAt: { gte: start, lte: end } }, take: 20 }),
+      listCompanyReports({ where: { crawledAt: { gte: start, lte: end } }, take: 20 }),
       listAlerts({ where: { createdAt: { gte: start, lte: end } }, take: 20 }),
       listCrawlHistory({ where: { timestamp: { gte: start, lte: end } }, take: 20 }),
     ]);
@@ -89,26 +89,33 @@ export class DailyReportService {
     const title = `永續觀察日報 — ${dateStr} ESG 動態`;
 
     // Generate summary
-    const total = recentRegulations.length + recentReports.length + recentAlerts.length;
-    const summary = `本日共監測到 ${total} 則 ESG 動態，包含 ${recentRegulations.length} 項法規更新、${recentReports.length} 份企業報告、${recentAlerts.length} 則快訊。資料來源涵蓋 ${new Set([...recentRegulations.map(r => r.sourceName), ...recentCrawlItems.map(c => c.regulation?.sourceName)].filter(Boolean)).size} 個權威機構。`;
+    const total = regulations.length + reports.length + alerts.length;
+    const sourceNames = new Set<string>();
+    for (const r of regulations) {
+      if (r.sourceName) sourceNames.add(r.sourceName);
+    }
+    for (const c of crawlItems as Array<{ regulation?: { sourceName?: string } }>) {
+      if (c.regulation?.sourceName) sourceNames.add(c.regulation.sourceName);
+    }
+    const summary = `本日共監測到 ${total} 則 ESG 動態，包含 ${regulations.length} 項法規更新、${reports.length} 份企業報告、${alerts.length} 則快訊。資料來源涵蓋 ${sourceNames.size} 個權威機構。`;
 
     // Build highlights (top 5)
     const highlightPool = [
-      ...recentRegulations.slice(0, 3).map(r => `${r.sourceName}: ${r.title}`),
-      ...recentReports.slice(0, 2).map(r => `${r.companyName} 發布 ${r.reportType}`),
+      ...regulations.slice(0, 3).map(r => `${r.sourceName}: ${r.title}`),
+      ...reports.slice(0, 2).map(r => `${r.companyName} 發布 ${r.reportType}`),
     ];
     const highlights = highlightPool.slice(0, 5);
 
     // Tag stats
     const tagStats: Record<string, number> = {};
-    for (const reg of recentRegulations) {
+    for (const reg of regulations) {
       const tag = reg.sourceName || 'other';
       tagStats[tag] = (tagStats[tag] || 0) + 1;
     }
 
     // Top sources
     const sourceFreq: Record<string, number> = {};
-    for (const reg of recentRegulations) {
+    for (const reg of regulations) {
       sourceFreq[reg.sourceName] = (sourceFreq[reg.sourceName] || 0) + 1;
     }
     const topSources = Object.entries(sourceFreq)
@@ -120,7 +127,7 @@ export class DailyReportService {
     let orderIndex = 0;
     const items: Omit<DailyReportItemDTO, 'id'>[] = [];
 
-    for (const r of recentRegulations) {
+    for (const r of regulations) {
       items.push({
         itemType: 'regulation',
         title: r.title,
@@ -133,7 +140,7 @@ export class DailyReportService {
       });
     }
 
-    for (const r of recentReports) {
+    for (const r of reports) {
       items.push({
         itemType: 'report',
         title: `${r.companyName} 永續報告書`,
@@ -146,7 +153,7 @@ export class DailyReportService {
       });
     }
 
-    for (const a of recentAlerts) {
+    for (const a of alerts) {
       items.push({
         itemType: 'topic',
         title: a.title,
@@ -159,40 +166,37 @@ export class DailyReportService {
       });
     }
 
-    // Upsert the daily report
-    const report = await storeReport({
-      where: { reportDate: start },
-      update: {
-        title,
-        summary,
-        highlights: JSON.stringify(highlights),
-        tagStats: JSON.stringify(tagStats),
-        sourceCount: recentCrawlItems.length,
-        alertCount: recentAlerts.length,
-        topSources: JSON.stringify(topSources),
-        updatedAt: new Date(),
-      },
-      create: {
-        reportDate: start,
-        title,
-        summary,
-        highlights: JSON.stringify(highlights),
-        tagStats: JSON.stringify(tagStats),
-        sourceCount: recentCrawlItems.length,
-        alertCount: recentAlerts.length,
-        topSources: JSON.stringify(topSources),
-      },
-    });
+    // Upsert the daily report (以 reportDate 為冪等鍵)
+    const reportData = {
+      title,
+      summary,
+      highlights: JSON.stringify(highlights),
+      tagStats: JSON.stringify(tagStats),
+      sourceCount: crawlItems.length,
+      alertCount: alerts.length,
+      topSources: JSON.stringify(topSources),
+      updatedAt: new Date(),
+    };
+    const existing = await getDailyReport({ where: { reportDate: start } });
+    let reportId = typeof existing?.id === 'string' ? existing.id : '';
+    if (reportId) {
+      await updateDailyReport({ where: { id: reportId }, data: reportData });
+    } else {
+      const created = await createDailyReport({
+        data: { ...reportData, reportDate: start, status: 'draft', createdAt: new Date() },
+      });
+      reportId = typeof created?.id === 'string' ? created.id : '';
+    }
 
     // Delete old items and recreate
-    await deleteDailyReportItems({ where: { reportId: report.id } });
+    await deleteDailyReportItems({ where: { reportId } });
     for (const item of items) {
       await createDailyReportItem({
-        data: { ...item, reportId: report.id },
+        data: { ...item, reportId },
       });
     }
 
-    return this.getReportById(report.id) as Promise<DailyReportDTO>;
+    return this.getReportById(reportId) as Promise<DailyReportDTO>;
   }
 
   /**

@@ -53,7 +53,7 @@ class QueryBuilder {
     }
 
     return new QuerySnapshot((data || []).map((row: Record<string, unknown>) => ({
-      id: row.id,
+      id: String(row.id ?? ''),
       data: () => row
     })));
   }
