@@ -333,7 +333,10 @@ export function maskSecretsInObject(obj: any, maskLength: number = 8): any {
   if (obj !== null && typeof obj === 'object') {
     const result: any = {};
     for (const [key, value] of Object.entries(obj)) {
-      result[key] = isSensitive(key) ? maskOutput(String(value), maskLength) : maskSecretsInObject(value, maskLength);
+      // 敏感判定：鍵名或字串值內容任一命中模式即遮蔽（模式清單皆為值前綴，僅查鍵名形同虛設）
+      result[key] = (isSensitive(key) || (typeof value === 'string' && isSensitive(value)))
+        ? maskOutput(String(value), maskLength)
+        : maskSecretsInObject(value, maskLength);
     }
     return result;
   }

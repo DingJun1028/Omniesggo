@@ -4,6 +4,7 @@
 // 全端全域全量雙向同步 - TypeBox Schema 與配置管理器測試
 
 import { describe, it, expect } from 'vitest';
+import { Value } from '@sinclair/typebox/value';
 import {
   OmniBitwardenConfigSchema,
   SecretConfigSchema,
@@ -22,8 +23,7 @@ describe('TypeBox Schema 驗證', () => {
       enabled: true,
       endpoint: 'https://vault.esggo.co',
     };
-    const result = VaultConfigSchema!.safeParse(config);
-    expect(result.success).toBe(true);
+    expect(Value.Check(VaultConfigSchema!, config)).toBe(true);
   });
 
   it('驗證 SecretConfig', () => {
@@ -33,8 +33,7 @@ describe('TypeBox Schema 驗證', () => {
       auto_rotate: true,
       description: 'NCBDB 資料庫 API 金鑰',
     };
-    const result = SecretConfigSchema!.safeParse(config);
-    expect(result.success).toBe(true);
+    expect(Value.Check(SecretConfigSchema!, config)).toBe(true);
   });
 
   it('驗證完整配置', () => {
@@ -65,24 +64,19 @@ describe('TypeBox Schema 驗證', () => {
         { name: 'esggo', type: 'omniseggo', version: '5.1.0' },
       ],
     };
-    const result = OmniBitwardenConfigSchema!.safeParse(config);
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.secrets).toHaveLength(2);
-      expect(result.data.vault.name).toBe('OmniBitwarden');
-    }
+    expect(Value.Check(OmniBitwardenConfigSchema!, config)).toBe(true);
+    expect(config.secrets).toHaveLength(2);
+    expect(config.vault.name).toBe('OmniBitwarden');
   });
 
   it('拒絕缺少必要字段的 SecretConfig', () => {
     const config = { name: 'NCBDB_API_TOKEN', auto_rotate: true };
-    const result = SecretConfigSchema!.safeParse(config);
-    expect(result.success).toBe(false);
+    expect(Value.Check(SecretConfigSchema!, config)).toBe(false);
   });
 
   it('拒絕缺少必要字段的 VaultConfig', () => {
     const config = { name: 'OmniBitwarden', enabled: true, endpoint: 'https://vault.esggo.co' };
-    const result = VaultConfigSchema!.safeParse(config);
-    expect(result.success).toBe(false);
+    expect(Value.Check(VaultConfigSchema!, config)).toBe(false);
   });
 });
 
