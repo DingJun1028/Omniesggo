@@ -1,0 +1,12 @@
+.next/dev/types/validator.ts(1865,39): error TS2307: Cannot find module '../../../app/api/tags/universal/route.js' or its corresponding type declarations.
+app/actions/gamification.ts(15,11): error TS2488: Type 'PostgrestSingleResponse<any[]>' must have a '[Symbol.iterator]()' method that returns an iterator.
+app/api/omni-center/radar/route.ts(10,10): error TS2305: Module '"@lib/storage-service"' has no exported member 'prisma'.
+app/api/omni-center/summary/route.ts(10,10): error TS2305: Module '"@lib/storage-service"' has no exported member 'prisma'.
+app/api/omni-matrix/status/route.ts(12,21): error TS2352: Conversion of type 'any[] | null' to type 'number' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type 'any[]' is not comparable to type 'number'.
+app/api/omni-one/route.ts(2,37): error TS2724: '"@/core/ai/model-router"' has no exported member named 'formatRoutingResult'. Did you mean 'RoutingResult'?
+app/api/omni-one/route.ts(164,32): error TS2345: Argument of type 'RouteWithTrigger' is not assignable to parameter of type 'string'.
+app/api/pdf/parse/route.ts(3,10): error TS2305: Module '"../../../../src/lib/supabase-omni"' has no exported member 'JSONB'.
+src/core/services/user-growth-service.ts(45,11): error TS2488: Type 'PostgrestSingleResponse<any[]>' must have a '[Symbol.iterator]()' method that returns an iterator.
+src/lib/auth.ts(54,26): error TS2559: Type '{ provider: Provider; url: string; flowId?: string | null | undefined; }' has no properties in common with type 'SupabaseUserRecord'.
+src/lib/cron-jobs.ts(148,31): error TS2554: Expected 1 arguments, but got 0.
