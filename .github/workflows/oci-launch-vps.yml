@@ -8,7 +8,7 @@ jobs:
       instance_ip: ${{ steps.launch.outputs.ip }}
       instance_id: ${{ steps.launch.outputs.instance }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install OCI CLI
         run: |
