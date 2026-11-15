@@ -1,4 +1,5 @@
-import { z } from "zod";
+// PRD: docs/OMN-PRD-001.md §4.1 FR-07（符文鑲嵌插件 API/ schema 追溯標註）
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +7,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：負責定義 IComponentCore，注入唯一 UUID 並執行深度凍結
  */
 
-export const CovenanterInputSchema = z.object({
-  componentName: z.string().describe("欲鑄造的元件名稱"),
-  category: z.string().describe("元件類別"),
+export const CovenanterInputSchema = Type.Object({
+  componentName: Type.String({ description: "欲鑄造的元件名稱" }),
+  category: Type.String({ description: "元件類別" }),
 });
 
 export const covenanterRune = defineRune({

@@ -1,7 +1,7 @@
 /**
  * WorkerPool — 並行處理池 (對齊 §12.0 Parallel Workers)
  *
- * 無作: 未提供 worker 時退化为序列執行 (graceful)
+ * 無作: 未提供 worker 時退化為序列執行 (graceful)
  * 圓通: 所有任務並行派發, 結果聚合回傳
  * 無礙: 單任務錯不中斷其他任務 (Promise.allSettled 語意)
  */

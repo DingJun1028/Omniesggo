@@ -75,7 +75,7 @@ export const PAGE_GUIDES: Record<string, { title: string; steps: GuideStep[] }> 
     ]
   },
   "omni-chrono": {
-    title: "[溯源管理] 變更紀錄追踪流程 (Chronology Protocol)",
+    title: "[溯源管理] 變更紀錄追蹤流程 (Chronology Protocol)",
     steps: [
       { id: 1, title: "檢索歷史存證", desc: "定位跨時序的區塊鏈存證", icon: HistoryIcon, color: "text-primary", border: "border-primary/20", bg: "bg-primary/10" },
       { id: 2, title: "對比數據差異", desc: "分析指標隨時間的波動率", icon: Activity, color: "text-proxy", border: "border-proxy/20", bg: "bg-proxy/10" },

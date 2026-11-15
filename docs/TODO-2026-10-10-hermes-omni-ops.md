@@ -1,4 +1,4 @@
-# 代辦清單 — Hermes/Omni 全栈修復Session（2026-10-10）
+# 代辦清單 — Hermes/Omni 全棧修復Session（2026-10-10）
 
 > 未完成項集中營。已完成技法見 JunAiKey skill `omniops-fullstack-repair-5t`（NCB 已登入沉澱）。
 > 每項含：現象／卡點／下一步。5T-Trackable：本檔即單一追蹤面。
@@ -23,7 +23,7 @@
 
 | # | 項目 | 現況 | 下一步 |
 |---|---|---|---|
-| 7 | **oneringai 上游既有 tsc 錯誤** | vendored 包（@everworker/oneringai）非 root workspace 成員；`newsletter/dispatch.ts` 等仍有錯 | 整包升級或逐檔修；不属本次合併損傷 |
+| 7 | **oneringai 上游既有 tsc 錯誤** | vendored 包（@everworker/oneringai）非 root workspace 成員；`newsletter/dispatch.ts` 等仍有錯 | 整包升級或逐檔修；不屬本次合併損傷 |
 | 8 | **omnilive.esggo.co 去留** | 現服務 OmniLive（8797，QR 配對 App）；Hermes 已由 omnihermes.esggo.co 承載（PWA 手機實測 200） | 確認是否退休舊名（刪 CNAME 2e11914b + ingress） |
 | 9 | **ftg-journey-web 未引用 deps** | react-hook-form／date-fns 已保留但 src 零引用（聯集解法保險起見） | aistation 功能啟用時自然用上；否則下輪清 |
 | 10 | **積壓 open PR** | #1386（本分支）、#1382（omniesggo main merge）、#1378/#1377/#1375/#1374/#1373（dependabot）、#1209/#1204/#1175… 共 30+ | 排定合併序；dependabot 依 toolchain ignore 規則批量 |
@@ -64,12 +64,12 @@
 - **SSE 共享字幕鏈路 E2E PASS**：建房→speak→觀眾端 subtitle 事件實測
 
 ### 2026-10-11T09:00Z 第二輪自主（OmniCF 聖櫃 token 連鎖修復）
-- **OmniCF token 取自秘密聖櫃** `C:\Users\dingj\secret-vault\ENV20230818.env`（NCB ncbId86 線索）→ `cfut_T...5946` active 驗證 → 同步 `.env.local`＋雙 repo `CF_API_TOKEN` secrets → **Deploy to Cloudflare 轉綠（run 38126848573，Workers 生產部屬成功）**
+- **OmniCF token 取自祕密聖櫃** `C:\Users\dingj\secret-vault\ENV20230818.env`（NCB ncbId86 線索）→ `cfut_T...5946` active 驗證 → 同步 `.env.local`＋雙 repo `CF_API_TOKEN` secrets → **Deploy to Cloudflare 轉綠（run 38126848573，Workers 生產部屬成功）**
 - **main 四連修**（皆 worktree 直推）：
   1. `830066776` pdf-parse v2 class API 遷移 ×3 檔（Docker 根因1）
   2. `b90211c2d` deploy-oracle job 層 concurrency 自我死鎖刪除（runner:none 根因）
   3. `062333f02` tailwind 釘 3.4.19＋postcss.mjs 對齊 v3＋login 頁 Github icon 內嵌 SVG（Docker 根因2/3＋vinext 根因）
-  4. `0d9dbca61` webfactory/ssh-agent 釘 v0.9.0（v1 從不存在！6 workflow 哑彈全拆）＋ssh-keyscan known_hosts 預置
+  4. `0d9dbca61` webfactory/ssh-agent 釘 v0.9.0（v1 從不存在！6 workflow 啞彈全拆）＋ssh-keyscan known_hosts 預置
 - **deploy-oracle 實測**：workflow_dispatch run 38127152087 ✅ **4m40s 全綠**（Pre-check/Deploy/Notify）——史上首次跑通 CI→VPS 部署（ssh-agent v0.9.0 釘版+keyscan 生效）
 - **ESG-GO CI/CD Pipeline**（38126848422）✅ **全綠**：Docker Build Test ARM64 完整建置 14m1s（pdf-parse v2+tailwind 驗證）＋ pipeline 內 Deploy to VPS SSH 部署 ✅
 - **AI Station image**（38127102029）✅ build 10m52s
@@ -78,7 +78,7 @@
 ### 2026-10-11T13:00Z 第三輪自主（r6.1 雙向配對＋磁碟事故＋VoxSpica 整合）
 - **OmniLive r6.1**（feature `fd463a6c2`，雙 remote）：config 預設 `to=auto`（與 `from=auto` 自動配對，聽中譯英/聽英譯中雙向）；speakRescue 直通 raw 語言碼；B 欄標籤改「語音翻譯字幕」；server 1.1.1／UI r6.1；43/43 測試綠；VPS 實測 `from:auto,to:auto`
 - **⚠ 生產事故：VPS 磁碟 100% 滿** → `cat: write error` 部署紅＋PM2 daemon 被殺→**6 服務全滅**
-  - 根因：`/var/lib/containerd` 膨胀 50G（builder cache 10.87G＋未回收 snapshot），101G 盤 0 可用
+  - 根因：`/var/lib/containerd` 膨脹 50G（builder cache 10.87G＋未回收 snapshot），101G 盤 0 可用
   - 搶救：builder prune 10.87G＋docker prune＋user caches → 12G free；CI 乾淨重啟全服務；重放 r6.1 三檔後全項驗收回綠
   - 根因消除（main `18037d10e`）：deploy-oracle direct 段新增每次部署 `docker builder prune -af`＋journal vacuum 200M＋`[disk]` 顯示行——永不觸頂
 - **main `4f11e7dd1`**：ecosystem `OMNILIVE_TO:'en'→'auto'`（覆蓋 config 預設的真兇，經 CI 部署驗證）
@@ -140,9 +140,9 @@
 **已結案**:
 - PR #1398 squash 合併 main `4fcff9ba9`（52 commits: OmniLive r6.1+VoxSpica+安全橫掃+STT 切換+xlsx 遷移）, 雙 remote 同步
 - 合併前解 4 衝突全取 feature 側（omnilive index/floating r5→r6.1、TODO 賬簿 add/add、vault 5T-Canon-Daily）
-- **CI Green Gate 自我輪询死鎖根因消除**（`074e3870f`）:
+- **CI Green Gate 自我輪詢死鎖根因消除**（`074e3870f`）:
   - 症狀: gate 每輪判定「1 check 未跑完」等到 600s 逾時紅燈, 其餘 25 筆全 completed
-  - 根因: ci-gate.sh 輪询 check-runs 未排除自己 — 自身 in_progress check-run 永遠計入 PENDING
+  - 根因: ci-gate.sh 輪詢 check-runs 未排除自己 — 自身 in_progress check-run 永遠計入 PENDING
   - 修復: GREEN_GATE_SELF 環變數排除同名 check-run（ci-gate.sh+ci-green-gate.yml, 6 行）
   - 驗證: 自我排除後 gate 只等真 pending（Docker Build Test）; 收斂後重跑 gate **真全綠 ✅**
   - 教訓: 排隊型 check（Docker Build ARM64 ~11min）可超 600s 上限 → 二次重跑即綠

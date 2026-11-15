@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { PrismaClient } from '@prisma/client';
+import pg from 'pg';
 
 console.log('\n======================================================');
 console.log(' 💎 ESG GO OmniCore v3.4.0 全域系統健康診斷 (Health Check)');
@@ -25,15 +25,18 @@ async function runHealthCheck() {
     // 1. Node Runtime & Env check
     recordCheck('Node.js 執行期環境', 'PASS', `Version: ${process.version}`);
 
-    // 2. Prisma & Database Connectivity Check
+    // 2. Supabase PostgreSQL Connectivity Check
     try {
-      const prisma = new PrismaClient();
-      await prisma.$connect();
-      const assessmentCount = await prisma.materialityAssessment.count().catch(() => 0);
-      await prisma.$disconnect();
-      recordCheck('Prisma PostgreSQL 資料庫連線', 'PASS', `紀錄數量: ${assessmentCount}`);
+      const pool = new pg.Pool({
+        connectionString: process.env.DATABASE_URL || process.env.SUPABASE_DB_URL || '',
+        max: 2,
+        connectionTimeoutMillis: 5000,
+      });
+      const res = await pool.query('SELECT count(*)::int AS n FROM public."MaterialityAssessment"');
+      await pool.end();
+      recordCheck('Supabase PostgreSQL 資料庫連線', 'PASS', `紀錄數量: ${res.rows[0]?.n ?? 0}`);
     } catch (dbErr) {
-      recordCheck('Prisma PostgreSQL 資料庫連線', 'WARN', dbErr.message || 'SQLite/Local fallback active');
+      recordCheck('Supabase PostgreSQL 資料庫連線', 'WARN', dbErr.message || 'Local fallback active');
     }
 
     // 3. System Encoding Check

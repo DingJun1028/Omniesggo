@@ -20,6 +20,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Run junaikey unit tests
         run: node tests/junaikey.test.mjs
+      - name: Run model and service resolver unit tests
+        run: node --test vps/junaikey/model-resolver.test.mjs vps/junaikey/service-resolver.test.mjs
       - name: Run canon unit tests
         run: node tests/canon.test.mjs
       - name: Run omnitag unit tests

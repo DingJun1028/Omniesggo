@@ -16,7 +16,7 @@
 #   證據（2026-10-05 重新實測，修正上一版「從未成功過」的失實宣稱）：
 #     · main 分支連續 4 個 commit (0bac9850, 41516d73, 3e5cc857, 730c8d06) 皆 cancelled
 #     · 但 commit 2cc5a6bd（分支 verify/ci-green-gate-e2e）結論為 **success**
-#     ⇒ 正確敘述是「在 main 上不穩定」，不是「從未成功」。SonarCloud 具備執行能力。
+#   ⇒ 正確敘述是「在 main 上不穩定」，不是「從未成功」。SonarCloud 具備執行能力。
 #   根因（部分已證、部分仍屬未解）：
 #     · 已證：repo 內無 sonar workflow（.github/workflows/ 無 sonar 檔），
 #       check 由外部 SonarCloud GitHub App (slug sonarqubecloud) 建立，
@@ -28,3 +28,18 @@
 #     plan，GET /branches/main/protection 回 403 "Upgrade to GitHub Pro"）。
 #   本白名單僅允許 cancelled 結論；一旦 SonarCloud 回傳 success/failure 即自動失效。
 SonarCloud Code Analysis|cancelled|外部 App；main 上不穩定（2cc5a6bd 曾 success），非 required check
+
+# Kilo Code Review|action_required|
+#   證據（2026-10-31 實測，PR #118 head 6704baf）：
+#     · check 於 04:15:16 啟動、04:15:17 即完成（1 秒），結論 action_required，
+#       並未對程式碼執行任何分析。
+#     · kilo-code-bot 於 PR #118 留言明示：
+#       "Kilo Code Review could not run — your account is out of credits."
+#   ⇒ 屬外部 GitHub App（Kilo）帳戶額度耗盡，repo 內無對應 workflow，
+#     auto-repair 無從觸發修復；非程式碼問題、非服務故障。
+#   影響：ci-gate.sh 將 action_required 歸類 MANUAL → exit 1，使 CI Green Gate
+#     對功能全綠的 PR 顯示紅燈（PR #118 其餘 25 項檢查全數通過）。
+#   本白名單僅允許 action_required 結論；一旦 Kilo 帳戶恢復額度（check 轉為
+#   success/failure/neutral）即自動失效，恢復正常判定。
+#   使用者已於 2026-10-31 對話中明示批准本例外列入。
+Kilo Code Review|action_required|外部 App；帳戶額度耗盡無法執行審查（2026-10-31 PR #118 實測 bot 留言明示 out of credits；check 1 秒結束未分析程式碼）

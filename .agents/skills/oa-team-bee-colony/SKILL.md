@@ -4,6 +4,10 @@ category: autonomous-ai-agents
 description: 🐝 OA-Team 30 萬能蜂群 究極版奧義 — ESG-GO 生態完整融合，含 5T Protocol、OmniTag、最佳實踐覺結界、熵減治理、VPS/Docker/CI 實戰範本
 tags: swarm, esggo, best-practice, omnitag, entropy, vps, ci-cd
 load: always  # 核心技能，預設載入
+title: OA 蜂群
+version: 1.0.0
+title: OA 蜂群
+version: 1.0.0
 ---
 
 # 🐝 OA-Team 30 萬能蜂群 — 究極版奧義
@@ -57,7 +61,7 @@ load: always  # 核心技能，預設載入
 | 03 | 脈絡師 | 對話脈絡提純與摘要 | `[agent:03][squad:智庫聖所]` |
 | 04 | 模式師 | 重複模式識別與萃取 | `[agent:04][squad:智庫聖所]` |
 | 05 | 標籤師 | OmniTag 自動分類與分配 | `[agent:05][squad:智庫聖所]` |
-| 06 | 結界師 | 最佳實踐覺繼承狀態維護 | `[agent:06][squad:智庫聖所][best-practice:结界]` |
+| 06 | 結界師 | 最佳實踐覺繼承狀態維護 | `[agent:06][squad:智庫聖所][best-practice:結界]` |
 
 ### 2.2 符文契約（Agent 07-12）
 
@@ -101,7 +105,7 @@ load: always  # 核心技能，預設載入
 | 27 | UUID 師 | 全域唯一識別碼生成與管理 | `[agent:27][squad:5T驗算][platform:omni]` |
 | 28 | 調度長 | 任務排程 / 負載均衡 / 佇列管理 | `[agent:28][squad:5T驗算][p0]` |
 | 29 | 品質官 | 品質控制閘道 / 驗證檢查點 | `[agent:29][squad:5T驗算][lifecycle:active]` |
-| 30 | 恢復師 | 錯誤恢復 / 回滾 / 降級機制 | `[agent:30][squad:5T驗算][best-practice:结界]` |
+| 30 | 恢復師 | 錯誤恢復 / 回滾 / 降級機制 | `[agent:30][squad:5T驗算][best-practice:結界]` |
 
 ---
 
@@ -114,25 +118,25 @@ load: always  # 核心技能，預設載入
 | **安全分級** | `public` / `internal` / `confidential` / `restricted` | 資料機密等級 |
 | **代理歸屬** | `agent:01` ~ `agent:30`、`squad:智庫聖所` | 責任歸屬 |
 | **生命週期** | `lifecycle:draft` / `active` / `frozen` / `archived` | 狀態追蹤 |
-| **品質/熵減** | `p0` / `p1` / `p2` / `p3` | P0=阻断項、P3=噪音 |
+| **品質/熵減** | `p0` / `p1` / `p2` / `p3` | P0=阻斷項、P3=噪音 |
 | **平台/環境** | `platform:esggo` / `platform:vps` / `platform:firebase` | 部署環境 |
-| **結界/繼承** | `best-practice:awakened` / `best-practice:结界` | 最佳實踐覺狀態 |
+| **結界/繼承** | `best-practice:awakened` / `best-practice:結界` | 最佳實踐覺狀態 |
 
 ### 3.2 自動化路由規則
 
-| Tag 组合 | 路由目標 |
+| Tag 組合 | 路由目標 |
 |----------|---------|
 | `agent:01-06` + `squad:智庫聖所` | Hindsight / 記憶召回 |
 | `agent:07-12` + `squad:符文契約` | API / TypeScript / ZKP 修復 |
 | `agent:13-18` + `squad:光之羽翼` | 部署 / cron / 自動化 |
 | `agent:19-24` + `squad:煉金熵減` | 重構 / lint / test / entropy |
 | `agent:25-30` + `squad:5T驗算` | ISO / Hash Lock / 稽核 |
-| `best-practice:结界` | 全部自動 inheriting |
+| `best-practice:結界` | 全部自動 inheriting |
 
 ### 3.3 驗證規則
 
 1. **必備 Tag**：每個 artifact 至少要有 `agent:*` + `lifecycle:*` + `p*`
-2. **結界自動繼承**：一旦標記 `best-practice:结界`，全部子代理自動 inheriting
+2. **結界自動繼承**：一旦標記 `best-practice:結界`，全部子代理自動 inheriting
 3. **凍結不可改**：`lifecycle:frozen` + `restricted` 禁止修改
 4. **熵減追蹤**：`p0` 任務完成後 entropy 必須下降 `< 0.1`
 
@@ -234,12 +238,12 @@ agents-cli swarm start --agents=30
 
 - name: esggo-monitor-docker-status
   schedule: "0 */2 * * *"
-  tags: [agent:14][squad:光之羽翼][p2][platform:vps][best-practice:结界]
+  tags: [agent:14][squad:光之羽翼][p2][platform:vps][best-practice:結界]
   deliver: all
 
 - name: esggo-daily-report
   schedule: "0 18 * * *"
-  tags: [agent:28][squad:5T驗算][p3][platform:omni][best-practice:结界]
+  tags: [agent:28][squad:5T驗算][p3][platform:omni][best-practice:結界]
   deliver: all
 ```
 
@@ -306,9 +310,138 @@ const entropyGuard = async (): Promise<EntropyReport> => {
 | CI 通過 | `pnpm lint && pnpm typecheck && pnpm vitest run` | ⏳ |
 | 30 Agents | `agents-cli swarm start --agents=30` | ⏳ |
 | 熵減閾值 | `entropy < 0.1` | ⏳ |
-| 結界激活 | `best-practice:结界` inheritance 生效 | ⏳ |
+| 結界啟用 | `best-practice:結界` inheritance 生效 | ⏳ |
 
 ---
 
 *究極版奧義 v2.0 | ESG-GO Ultimate Edition | License: AGPL-3.0*
 *🔄 Self-Evolution Active | 結界狀態: ⚡ awakened*
+
+
+## 自然語觸發自動工具使用的機率 (Natural Language Auto-Tool Trigger)
+
+### 1. 觸發關鍵字清單 (Trigger Keywords)
+
+> 系統會自動識別輸入中的自然語觸發詞，觸發對應的工具/技能/代理。
+
+#### 核心觸發詞
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| oa-team-bee-colony | auto | 觸發本技能 | 5.0 |
+| 觸發 | trigger | 觸發工具使用 | 4.5 |
+| 自動 | auto | 自動執行 | 4.0 |
+| 幫助 | help | 顯示說明 | 3.0 |
+| 查詢 | query | 查詢資訊 | 3.0 |
+| 記錄 | record | 記錄數據 | 2.5 |
+| 執行 | run | 執行操作 | 3.0 |
+| 檢查 | check | 檢查狀態 | 2.5 |
+| 初始化 | init | 初始化系統 | 3.0 |
+
+#### 進階觸發詞
+
+| 關鍵字 | 英文 | 觸發功能 | 機率權重 |
+|--------|------|---------|----------|
+| 指令 | command | 執行指令 | 4.0 |
+| 工具 | tool | 使用工具 | 3.5 |
+| 自動 | auto | 自動執行 | 3.0 |
+| 查詢 | query | 查詢 | 2.5 |
+| 記錄 | record | 記錄 | 2.0 |
+| 反思 | reflect | 反思 | 2.5 |
+| 重啟 | restart | 重啟 | 2.5 |
+| 關閉 | shutdown | 關閉 | 2.5 |
+
+---
+
+### 2. 觸發規則
+
+#### 2.1 預設觸發機率
+
+| 模式 | 權重 | 說明 |
+|------|------|------|
+| 核心關鍵字 | 100% | 必然觸發 |
+| 進階關鍵字 | 70% | 單一關鍵字即觸發 |
+| 其他自然語 | 30% | 隨機匹配 |
+| 歧義命中 | 15% | 需要確認 |
+
+#### 2.2 機率加權
+
+觸發機率 = (關鍵字分數 × 頻率) + (上下文相似度 × 0.3) + 隨機種子 (0-0.2)
+
+- 單一高權重關鍵字：自動觸發 (1.0)
+- 多關鍵字組合：權重加總，上限 1.0
+- 低權重 (< 0.3)：記錄，不自動執行
+
+#### 2.3 自然語解析範例
+
+```typescript
+// 輸入：oa-team-bee-colony 並查詢目前狀態
+{
+  triggers: ["oa-team-bee-colony", "query"],
+  actions: ["awaken()", "query()"],
+  priority: ["oa-team-bee-colony", "query"],
+  probability: 1.0
+}
+```
+
+---
+
+### 3. 工具選擇權重
+
+| 工具類別 | 關鍵字 | 權重 |
+|----------|--------|------|
+| 記憶查詢 | query, 查詢, 讀取 | 0.8 |
+| 技能成長 | oa-team-bee-colony, grow | 0.7 |
+| 反思 | reflect, 學習 | 0.75 |
+| 系統初始化 | oa-team-bee-colony, start | 0.9 |
+| 協作 | share, 協作 | 0.65 |
+| 結界 | inherit, 繼承 | 0.5 |
+
+---
+
+### 4. 信心分數與反饋
+
+| 信心分數 | 處理方式 |
+|----------|----------|
+| >= 0.9 | 自動執行 |
+| 0.7 - 0.9 | 記錄後自動執行 |
+| 0.4 - 0.7 | 詢問用戶 |
+| < 0.4 | 記錄不執行 |
+
+---
+
+### 5. 實際示例
+
+#### 5.1 單一自然語
+
+**輸入**：oa-team-bee-colony
+**解析**：核心關鍵字
+**輸出**：`awaken()`
+
+**輸入**："查詢 oa-team-bee-colony 狀態"
+**解析**：查詢 + 技能
+**輸出**：`query()`, `doctor()`
+
+#### 5.2 複雜自然語
+
+**輸入**："我今天學到新東西，幫我記住並分享"
+**解析**：
+- 關鍵字：`growth`, `share`, `memory`
+- 行動：`recordLearning()`, `recordMemory()`, `cross-agent sync`
+- 權重：0.75
+- 輸出：`growSkill()`, `remember()`, `tagSkill("share:active")`
+
+**輸入**："讓我檢查一下 oa-team-bee-colony 狀態"
+**解析**：檢查
+**輸出**：`doctor()`, `backend()`
+
+---
+
+### 6. 參數一致性
+
+此技能的默認配置：
+- **doctor／backend 與 awaken 必須用同一組參數**
+- **所有憑證來源 = `secret-vault/ENV20230818.env`**
+- **絕不在代碼中硬編碼憑證**
+- **NCBDB 為主，local 為備份**
+- **所有成長記錄必須帶 `agent_id`、`timestamp`、`source_origin`**

@@ -1,67 +1,67 @@
-# TDAI 全局镜像本地部署
+# TDAI 全域性映象本地部署
 
-全局三件套镜像的本地拉起脚本 —— `memory-core` + `memory-hub` + `proxy`，可各自独立运行，也能一条命令全部启动。
+全域性三件套映象的本地拉起指令碼 —— `memory-core` + `memory-hub` + `proxy`，可各自獨立執行，也能一條命令全部啟動。
 
-## 组件与端口
+## 元件與埠
 
-| 组件 | 容器名 | 镜像（Docker Hub 公开） | 宿主机端口 | 用途 |
+| 元件 | 容器名 | 映象（Docker Hub 公開） | 宿主機埠 | 用途 |
 |---|---|---|---|---|
-| **memory-core** | `tdai-memory-core` | [`agentmemory/memory-core`](https://hub.docker.com/r/agentmemory/memory-core) | `8420` | 内核 gateway，记忆读写、鉴权、skill/RAG 数据面 |
-| **memory-hub**  | `tdai-memory-hub`  | [`agentmemory/memory-hub`](https://hub.docker.com/r/agentmemory/memory-hub)   | `8125` / `8424` | 管理面板 (Panel) + 知识服务 (Knowledge) 合并镜像 |
-| **proxy**       | `tdai-proxy`       | [`agentmemory/memory-proxy`](https://hub.docker.com/r/agentmemory/memory-proxy) | `8096` | LLM 请求转发代理，coding agent 的 API 入口 |
+| **memory-core** | `tdai-memory-core` | [`agentmemory/memory-core`](https://hub.docker.com/r/agentmemory/memory-core) | `8420` | 核心 gateway，記憶讀寫、鑑權、skill/RAG 資料面 |
+| **memory-hub**  | `tdai-memory-hub`  | [`agentmemory/memory-hub`](https://hub.docker.com/r/agentmemory/memory-hub)   | `8125` / `8424` | 管理面板 (Panel) + 知識服務 (Knowledge) 合併映象 |
+| **proxy**       | `tdai-proxy`       | [`agentmemory/memory-proxy`](https://hub.docker.com/r/agentmemory/memory-proxy) | `8096` | LLM 請求轉發代理，coding agent 的 API 入口 |
 
-> 三个镜像都发布在 Docker Hub 的 [`agentmemory`](https://hub.docker.com/u/agentmemory) 命名空间下，
-> 多架构（`linux/amd64` + `linux/arm64`），公开可拉、无需登录。想固定版本时把 `.env` 里的 tag 从
-> `:latest` 换成具体版本即可，例如 `:1.0.0-beta.1`。
+> 三個映象都發布在 Docker Hub 的 [`agentmemory`](https://hub.docker.com/u/agentmemory) 名稱空間下，
+> 多架構（`linux/amd64` + `linux/arm64`），公開可拉、無需登入。想固定版本時把 `.env` 里的 tag 從
+> `:latest` 換成具體版本即可，例如 `:1.0.0-beta.1`。
 >
-> 腾讯内部同事也可以覆盖到内网私仓 `mirrors.tencent.com/memory-team-control/` —— 见 `.env.example` 里
-> 注释掉的备选块。
+> 騰訊內部同事也可以覆蓋到內網私倉 `mirrors.tencent.com/memory-team-control/` —— 見 `.env.example` 里
+> 註釋掉的備選塊。
 
-## 环境要求
+## 環境要求
 
 - macOS / Linux
 - Docker（Docker Desktop / colima / OrbStack 任一）
-- `bash` 4+（macOS 自带 3.2 也能跑）
+- `bash` 4+（macOS 自帶 3.2 也能跑）
 
-## 快速开始
+## 快速開始
 
 ```bash
-# 1) 准备 .env
+# 1) 準備 .env
 cp .env.example .env
 
-# 2) 编辑 .env，把两组 LLM 参数填成真值
-#    - MEMORY_LLM_*   → memory-core + memory-hub 内部用
-#    - PROXY_UPSTREAM_* → proxy 转发到的上游 LLM
+# 2) 編輯 .env，把兩組 LLM 引數填成真值
+#    - MEMORY_LLM_*   → memory-core + memory-hub 內部用
+#    - PROXY_UPSTREAM_* → proxy 轉發到的上游 LLM
 $EDITOR .env
 
-# 3) 干跑校验（不启动容器）
-#    默认会同时校验 LLM 通路 —— 提前验证 API key/URL/模型名，避免起服务后才发现配错
+# 3) 干跑校驗（不啟動容器）
+#    預設會同時校驗 LLM 通路 —— 提前驗證 API key/URL/模型名，避免起服務后才發現配錯
 ./verify.sh
-# 不希望发外部请求（离线环境等）：./verify.sh --skip-llm
+# 不希望發外部請求（離線環境等）：./verify.sh --skip-llm
 
-# 4) 一键拉起三件套
+# 4) 一鍵拉起三件套
 ./start-all.sh
 ```
 
-## LLM 通路预检
+## LLM 通路預檢
 
-`verify.sh` 默认会预检两组 LLM 通路（`--skip-llm` 关掉）：
+`verify.sh` 預設會預檢兩組 LLM 通路（`--skip-llm` 關掉）：
 
-- **OpenAI 兼容协议**：`GET {base}/models`，只验证 API key + URL，**不消耗任何 token**
-- **Anthropic 协议**：`POST {base}/v1/messages` 发 `max_tokens=1` 的最小消息，消耗 ≤ 10 token
-- **memory 组** 与 **proxy 组** 独立验；若两组配置完全相同，自动跳过重复检查
-- **容器已运行时**，额外从容器内 exec 一次 curl，验证"容器 → LLM"的网络可达性（一些企业代理/DNS 隔离环境下宿主机可达但容器不可达）
+- **OpenAI 相容協議**：`GET {base}/models`，只驗證 API key + URL，**不消耗任何 token**
+- **Anthropic 協議**：`POST {base}/v1/messages` 發 `max_tokens=1` 的最小訊息，消耗 ≤ 10 token
+- **memory 組** 與 **proxy 組** 獨立驗；若兩組配置完全相同，自動跳過重複檢查
+- **容器已執行時**，額外從容器內 exec 一次 curl，驗證"容器 → LLM"的網路可達性（一些企業代理/DNS 隔離環境下宿主機可達但容器不可達）
 
-失败例子：
+失敗例子：
 
 ```
-[error] memory 组 API key 无效（HTTP 401）：https://api.deepseek.com/v1/models
+[error] memory 組 API key 無效（HTTP 401）：https://api.deepseek.com/v1/models
 {"error":{"message":"Authentication Fails, Your api key: ****abcd is invalid",...}}
 ```
 
-—— API key 错、URL 错、模型名错都会在启动前拦下，不会等到 wiki ingest / chat 时才 401。
+—— API key 錯、URL 錯、模型名錯都會在啟動前攔下，不會等到 wiki ingest / chat 時才 401。
 
-启动完成后：
+啟動完成後：
 
 - Panel UI：<http://localhost:8125/>
 - Knowledge API：<http://localhost:8424/v3/>
@@ -69,82 +69,82 @@ $EDITOR .env
 - Memory Gateway：<http://localhost:8420/>
 - Proxy：<http://localhost:8096/>
 
-## 两组独立参数
+## 兩組獨立引數
 
-**这是脚本设计的核心** —— memory 组和 proxy 组的 LLM 完全独立，可以指向不同供应商 / 不同模型。
+**這是指令碼設計的核心** —— memory 組和 proxy 組的 LLM 完全獨立，可以指向不同供應商 / 不同模型。
 
-### memory 组（memory-core + memory-hub 使用）
+### memory 組（memory-core + memory-hub 使用）
 
-内核记忆 embed/summarize、knowledge 的 wiki ingest / 总结走这组配置。
+核心記憶 embed/summarize、knowledge 的 wiki ingest / 總結走這組配置。
 
-| 变量 | 说明 | 示例 |
+| 變數 | 說明 | 示例 |
 |---|---|---|
 | `MEMORY_LLM_BASE_URL` | OpenAI 兼容 base URL | `https://api.deepseek.com/v1` |
-| `MEMORY_LLM_API_KEY` | 上述端点的 API Key | `sk-xxxxxxxx` |
+| `MEMORY_LLM_API_KEY` | 上述端點的 API Key | `sk-xxxxxxxx` |
 | `MEMORY_LLM_MODEL` | 模型 ID | `deepseek-chat` |
-| `MEMORY_LLM_PROTOCOL` | `openai` 或 `anthropic`，默认 `openai` | `openai` |
+| `MEMORY_LLM_PROTOCOL` | `openai` 或 `anthropic`，預設 `openai` | `openai` |
 
-### proxy 组（proxy 使用）
+### proxy 組（proxy 使用）
 
-proxy 接到用户请求后转发到这组端点。
+proxy 接到使用者請求後轉發到這組端點。
 
-| 变量 | 说明 | 示例 |
+| 變數 | 說明 | 示例 |
 |---|---|---|
-| `PROXY_UPSTREAM_URL` | 转发目标 base URL | `https://api.deepseek.com/v1` |
-| `PROXY_UPSTREAM_API_KEY` | 转发用 API Key | `sk-xxxxxxxx` |
-| `PROXY_UPSTREAM_MODEL` | 面向用户的模型 ID | `deepseek-chat` |
+| `PROXY_UPSTREAM_URL` | 轉發目標 base URL | `https://api.deepseek.com/v1` |
+| `PROXY_UPSTREAM_API_KEY` | 轉發用 API Key | `sk-xxxxxxxx` |
+| `PROXY_UPSTREAM_MODEL` | 面向使用者的模型 ID | `deepseek-chat` |
 
-> 两组可以填相同值（都指向同一个 LLM），也可以完全不同：例如 memory 组用便宜模型做 embedding，proxy 组用强模型做主对话。
+> 兩組可以填相同值（都指向同一個 LLM），也可以完全不同：例如 memory 組用便宜模型做 embedding，proxy 組用強模型做主對話。
 
-参数缺失时脚本会**在启动前一次性列出所有缺失项**并 `exit 1`，不会跑到一半才失败。
+引數缺失時指令碼會**在啟動前一次性列出所有缺失項**並 `exit 1`，不會跑到一半才失敗。
 
-## 内部凭据（生产环境必看）
+## 內部憑據（生產環境必看）
 
-三件套之间用 `MEMORY_CORE_GATEWAY_API_KEY` 互相认证，首次启动还会通过
-`init-admin` 建一个 `system_admin` 账户。为了**零配置本地体验**，脚本默认值是：
+三件套之間用 `MEMORY_CORE_GATEWAY_API_KEY` 互相認證，首次啟動還會通過
+`init-admin` 建一個 `system_admin` 賬戶。為了**零配置本地體驗**，指令碼預設值是：
 
-| 变量 | 默认值 | 用途 |
+| 變數 | 預設值 | 用途 |
 |---|---|---|
 | `MEMORY_CORE_GATEWAY_API_KEY` | `local` | memory-hub / proxy → memory-core 的 Bearer |
-| `MEMORY_CORE_ADMIN_USERNAME` | `admin` | 初始化的 system_admin 用户名 |
-| `MEMORY_CORE_ADMIN_USER_KEY` | `admin` | 该 admin 用户的登录 key |
+| `MEMORY_CORE_ADMIN_USERNAME` | `admin` | 初始化的 system_admin 使用者名稱 |
+| `MEMORY_CORE_ADMIN_USER_KEY` | `admin` | 該 admin 使用者的登入 key |
 
-> 这三个默认值只适合个人本地跑通流程。**生产/联调/公网暴露前必须替换成随机长串**，
-> 否则任何拿到端口的人都能拿到 system_admin 权限。
+> 這三個預設值只適合個人本地跑通流程。**生產/聯調/公網暴露前必須替換成隨機長串**，
+> 否則任何拿到埠的人都能拿到 system_admin 許可權。
 >
-> 在 `.env` 里取消对应三行的注释并覆盖即可（`_lib.sh` 会 `require_vars`
-> 校验其他必填项，但这三个变量因为有默认兜底，脚本会在启动时打 `[warn]` 提醒你换）。
+> 在 `.env` 里取消對應三行的註釋並覆蓋即可（`_lib.sh` 會 `require_vars`
+> 校驗其他必填項，但這三個變數因為有預設兜底，指令碼會在啟動時打 `[warn]` 提醒你換）。
 
-## 独立使用每个组件
+## 獨立使用每個元件
 
-三个脚本可以单独执行，方便调试或只需要部分能力时：
+三個指令碼可以單獨執行，方便除錯或只需要部分能力時：
 
 ```bash
-./start-memory-core.sh       # 只跑内核 gateway（8420）
-./start-memory-hub.sh   # 只跑面板 + 知识（8125 + 8424）；需要 MEMORY_LLM_* 参数
-./start-proxy.sh        # 只跑 proxy（8096）；需要 PROXY_UPSTREAM_* 参数
+./start-memory-core.sh       # 只跑核心 gateway（8420）
+./start-memory-hub.sh   # 只跑面板 + 知識（8125 + 8424）；需要 MEMORY_LLM_* 引數
+./start-proxy.sh        # 只跑 proxy（8096）；需要 PROXY_UPSTREAM_* 引數
 ```
 
-依赖关系：
+依賴關係：
 
-- **memory-core**：无外部依赖，可以独立起
-- **memory-hub**：能独立启动（LLM_MODE=custom 直连 LLM），但内部 knowledge 调 memory-core 做 RAG 时会失败 → 建议 memory-core 先起
-- **proxy**：能独立启动（cost-guard 不可用时自动降级 passthrough，直接转发），但 auth / tdai memory / skill 注入需要 memory-core 才有效
+- **memory-core**：無外部依賴，可以獨立起
+- **memory-hub**：能獨立啟動（LLM_MODE=custom 直連 LLM），但內部 knowledge 調 memory-core 做 RAG 時會失敗 → 建議 memory-core 先起
+- **proxy**：能獨立啟動（cost-guard 不可用時自動降級 passthrough，直接轉發），但 auth / tdai memory / skill 注入需要 memory-core 才有效
 
-任意组件缺失时脚本会 `warn` 提醒但不阻塞。
+任意元件缺失時指令碼會 `warn` 提醒但不阻塞。
 
-## 数据持久化
+## 資料持久化
 
-- `tdai-memory-core-data`（named volume）→ memory-core 的 SQLite / 记忆数据
+- `tdai-memory-core-data`（named volume）→ memory-core 的 SQLite / 記憶資料
 - `tdai-panel-data`（named volume）→ memory-hub 里 knowledge 的 SQLite / git clone / wiki 文件
 
-`docker volume rm` 之前数据一直保留。改名可在 `.env` 里改 `MEMORY_CORE_VOLUME` / `PANEL_VOLUME`。
+`docker volume rm` 之前資料一直保留。改名可在 `.env` 里改 `MEMORY_CORE_VOLUME` / `PANEL_VOLUME`。
 
 ## 停止 / 清理
 
 ```bash
-./stop-all.sh            # 停容器，保留 volume（下次启动数据还在）
-./stop-all.sh --purge    # 停容器 + 删 volume + 删网络（彻底清理）
+./stop-all.sh            # 停容器，保留 volume（下次啟動資料還在）
+./stop-all.sh --purge    # 停容器 + 刪 volume + 刪網路（徹底清理）
 ```
 
 ## 查看日志
@@ -155,53 +155,53 @@ docker logs -f tdai-memory-hub
 docker logs -f tdai-proxy
 ```
 
-memory-hub 内部有两个进程（panel + knowledge），日志分别在容器内 `/data/knowledge/logs/panel.log` 和 `.../knowledge.log`。
+memory-hub 內部有兩個進程（panel + knowledge），日誌分別在容器內 `/data/knowledge/logs/panel.log` 和 `.../knowledge.log`。
 
-## 端口冲突
+## 埠衝突
 
-如果 `8125` / `8420` / `8424` / `8096` 与本地已有服务冲突，直接在 `.env` 改：
+如果 `8125` / `8420` / `8424` / `8096` 與本地已有服務衝突，直接在 `.env` 改：
 
 ```bash
 MEMORY_CORE_PORT=18420
 PANEL_PORT=18125
 KNOWLEDGE_PORT=18424
 PROXY_PORT=18096
-# knowledge 对外可达地址要跟着 KNOWLEDGE_PORT 走
+# knowledge 對外可達地址要跟著 KNOWLEDGE_PORT 走
 KNOWLEDGE_PUBLIC_BASE_URL=http://host.docker.internal:18424/v3
 ```
 
-## 使用 proxy 作为 coding agent 的 API base
+## 使用 proxy 作為 coding agent 的 API base
 
-以 Claude Code 为例：
+以 Claude Code 為例：
 
 ```bash
 export ANTHROPIC_BASE_URL=http://localhost:8096
 export ANTHROPIC_API_KEY=any-string-if-auth-disabled
-# 使用 openai 协议的客户端类似：OPENAI_BASE_URL=http://localhost:8096/v1
+# 使用 openai 協議的客戶端類似：OPENAI_BASE_URL=http://localhost:8096/v1
 ```
 
-Panel UI "客户端接入地址" 卡片会自动拼上宿主机的 LAN IP + `PROXY_PORT`（例如
-`http://192.168.1.100:8096/codebuddy/default`），别人的电脑复制过去就能直接连过来。
-由 `MEMORY_HUB_PROXY_PUBLIC_URL`（未设时脚本用 `hostname -I` / macOS `ipconfig getifaddr en0`
-自动探测，探不到才回落 `localhost`）注入到 memory-hub 里的 `metadata-instances.json.proxy_endpoint`。
-Panel 后端 → Kernel 的转发不受此变量影响（始终走 `REMOTE_INSTANCE_URL` → memory-core:8420）。
-自动探测的地址不对时（多网卡 / 公网域名 / 反代前置），在 `.env` 显式设
-`MEMORY_HUB_PROXY_PUBLIC_URL=http://<真值>:8096`。想让 UI 卡片走老行为（回落到
-gateway_endpoint）就把 `MEMORY_HUB_PROXY_PUBLIC_URL` 显式设为空字符串。
+Panel UI "客戶端接入地址" 卡片會自動拼上宿主機的 LAN IP + `PROXY_PORT`（例如
+`http://192.168.1.100:8096/codebuddy/default`），別人的電腦複製過去就能直接連過來。
+由 `MEMORY_HUB_PROXY_PUBLIC_URL`（未設時指令碼用 `hostname -I` / macOS `ipconfig getifaddr en0`
+自動探測，探不到才回落 `localhost`）注入到 memory-hub 里的 `metadata-instances.json.proxy_endpoint`。
+Panel 後端 → Kernel 的轉發不受此變數影響（始終走 `REMOTE_INSTANCE_URL` → memory-core:8420）。
+自動探測的地址不對時（多網絡卡 / 公網域名 / 反代前置），在 `.env` 顯式設
+`MEMORY_HUB_PROXY_PUBLIC_URL=http://<真值>:8096`。想讓 UI 卡片走老行為（回落到
+gateway_endpoint）就把 `MEMORY_HUB_PROXY_PUBLIC_URL` 顯式設為空字串。
 
-`proxy` 默认关闭 `auth` / `sessionInit` / `costGuard`（这些依赖内部服务），只做纯转发 + `tdai-memory` 上下文注入（injector 名称，非容器名）。要开启完整流水线，需要另行配置 —— 参见 `context_proxy/config.example.yaml`。
+`proxy` 預設關閉 `auth` / `sessionInit` / `costGuard`（這些依賴內部服務），只做純轉發 + `tdai-memory` 上下文注入（injector 名稱，非容器名）。要開啟完整流水線，需要另行配置 —— 參見 `context_proxy/config.example.yaml`。
 
-## 常见问题
+## 常見問題
 
 **Q: `./start-all.sh` 卡在 wait_healthy？**
-镜像可能还在拉取。用 `docker pull <IMAGE>` 手动预拉一次再跑脚本。
+映象可能還在拉取。用 `docker pull <IMAGE>` 手動預拉一次再跑指令碼。
 
-**Q: memory-hub 起来但 Panel 打不开？**
+**Q: memory-hub 起來但 Panel 打不開？**
 
-检查 `.env` 里 `KNOWLEDGE_PUBLIC_BASE_URL` 是不是含 `/v3` —— 缺 `/v3` panel 会报错。
+檢查 `.env` 里 `KNOWLEDGE_PUBLIC_BASE_URL` 是不是含 `/v3` —— 缺 `/v3` panel 會報錯。
 
-**Q: proxy 转发返回 401？**
-`PROXY_UPSTREAM_API_KEY` 无效或 `PROXY_UPSTREAM_URL` 不匹配。用 `docker logs tdai-proxy` 看错误。
+**Q: proxy 轉發返回 401？**
+`PROXY_UPSTREAM_API_KEY` 無效或 `PROXY_UPSTREAM_URL` 不匹配。用 `docker logs tdai-proxy` 看錯誤。
 
-**Q: 如何在容器外访问宿主机上其它服务（Ollama、Langfuse 等）？**
-脚本已默认 `--add-host=host.docker.internal:host-gateway`。容器内用 `http://host.docker.internal:<port>` 即可。
+**Q: 如何在容器外訪問宿主機上其它服務（Ollama、Langfuse 等）？**
+指令碼已預設 `--add-host=host.docker.internal:host-gateway`。容器內用 `http://host.docker.internal:<port>` 即可。

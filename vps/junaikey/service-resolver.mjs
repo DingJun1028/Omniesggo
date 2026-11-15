@@ -85,23 +85,23 @@ function probeLocalFs(dir) {
   });
 }
 
-/** 建眾鑰之首 service resolver。opts: { chains, llmChain, ollamaUrl, timeoutMs, log } */
-export function createServiceResolver({ chains = DEFAULT_SERVICE_CHAINS, llmChain, ollamaUrl, timeoutMs = 15000, log = console.error } = {}) {
+/** 建眾鑰之首 service resolver。opts: { chains, llmChain, ollamaUrl, timeoutMs, log, probePythonModuleFn, probeLocalFsFn, modelResolverFactory, env } */
+export function createServiceResolver({ chains = DEFAULT_SERVICE_CHAINS, llmChain, ollamaUrl, timeoutMs = 15000, log = console.error, probePythonModuleFn = probePythonModule, probeLocalFsFn = probeLocalFs, modelResolverFactory = createModelResolver, env = process.env } = {}) {
   const serviceNames = [...Object.keys(chains), 'llm'];
 
   // ── 內部: 探測單一服務候選是否可用 (失敗即 throw, 由鏈接續) ──
   async function probeOne(c) {
     const started = Date.now();
     if (typeof c.probe === 'string' && c.probe.startsWith('py:')) {
-      const r = await probePythonModule(c.probe.slice(3), timeoutMs);
+      const r = await probePythonModuleFn(c.probe.slice(3), timeoutMs);
       return { ok: true, ...r, latencyMs: Date.now() - started };
     }
     if (c.provider === 'local-fs') {
-      const r = await probeLocalFs(c.dir);
+      const r = await probeLocalFsFn(c.dir);
       return { ok: true, ...r, latencyMs: Date.now() - started };
     }
     if (c.kind === 'cloud-key') {
-      const key = process.env[c.keyEnv] || (c.keyEnvAlt && process.env[c.keyEnvAlt]);
+      const key = env[c.keyEnv] || (c.keyEnvAlt && env[c.keyEnvAlt]);
       if (!key) {
         throw new Error(`${c.provider} 無 API key (${c.keyEnv}${c.keyEnvAlt ? ` / ${c.keyEnvAlt}` : ''} 未設)`);
       }
@@ -118,10 +118,11 @@ export function createServiceResolver({ chains = DEFAULT_SERVICE_CHAINS, llmChai
 
     // llm: 委派眾鑰之首 L3 model-resolver (同一權威, 同一鏈)
     if (name === 'llm') {
-      const mr = createModelResolver({
+      const mr = modelResolverFactory({
         chain: llmChain || DEFAULT_LLM_CHAIN,
         ollamaUrl,
         timeoutMs: Math.max(timeoutMs, 30000), // 模型冷載入需 30s (modelkey-coldload-timeout 教訓)
+        env,
       });
       const r = await mr.resolve(preferred);
       return Object.freeze({ ...r, service: 'llm', selectedProvider: r.selectedBackend });

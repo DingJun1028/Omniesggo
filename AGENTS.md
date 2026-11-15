@@ -85,3 +85,12 @@ Read `docs/README.md` inside that installed package first, then read the relevan
 
 This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
 <!-- END:turborepo-agent-rules -->
+
+
+## 資料庫遷移說明（2026-10-27：Supabase 全面取代 Prisma）
+
+- Prisma（`@prisma/client`、`prisma`、`@prisma/adapter-pg`、`postinstall: prisma generate`）已自依賴與管線移除；`prisma/` 目錄與相關鏡像腳本已刪除。
+- 資料層改為 `src/lib/db/prisma-compat.ts`：Supabase 支援的 Prismo 相容層，保留 `prisma.<model>.<method>()` 呼叫形狀，既有呼叫端僅改 import 路徑。
+- 環境變數：主連線 `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`（或 anon key 後備）；次要連線 `SUPABASE_OMNI_URL` + `SUPABASE_OMNI_SERVICE_ROLE_KEY`；Raw SQL 走 `pg`，使用 `DATABASE_URL`。表名預設為 Prisma Model 名，可用 `SUPABASE_TABLE_MAP` (JSON) 覆寫。
+- 已知限制：`$transaction` 為循序執行、非原子；Raw SQL 僅限 Node 環境；營運腳本（omni-snapshot/omni-healthcheck/seed-5t-demo/omni-dreams/create_omni_memory）已改為 `pg` 直連 SQL。
+- CI/CD 已移除所有 `prisma generate` / `prisma migrate` 步驟。合併前需在本地執行一次 `pnpm install` 以更新 `pnpm-lock.yaml`（frozen-lockfile 工作流程相依）。

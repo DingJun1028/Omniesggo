@@ -14,7 +14,7 @@ const compliant: OmniTagSet = {
   lifecycle: 'active',
   priority: 'p2',
   platform: 'esggo',
-  bestPractice: '结界',
+  bestPractice: '結界',
 };
 
 describe('§20.5 FiveTOmniTagGate 接線 (5T 驗算陣列 25-30)', () => {
@@ -97,7 +97,7 @@ describe('§20.5 FiveTOmniTagGate 接線 (5T 驗算陣列 25-30)', () => {
   it('barrier inheritance flag propagates on emit', () => {
     const r = FiveTOmniTagGate.emitArtifact({
       entityId: 'barrier:01',
-      tag: { agent: 'agent:25', trustLevel: 'high', lifecycle: 'active', priority: 'p2', bestPractice: '结界' } as OmniTagSet,
+      tag: { agent: 'agent:25', trustLevel: 'high', lifecycle: 'active', priority: 'p2', bestPractice: '結界' } as OmniTagSet,
     });
     expect(r.route.barrierInherited).toBe(true);
   });

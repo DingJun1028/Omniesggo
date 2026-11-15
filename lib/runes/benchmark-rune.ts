@@ -1,15 +1,15 @@
 import { defineRune } from '@lib/adk/core';
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 
-const BenchmarkResultSchema = z.object({
-  industry: z.string(),
-  metric_name: z.string(),
-  user_value: z.number().optional(),
-  benchmark_avg: z.number(),
-  benchmark_top_tier: z.number(),
-  unit: z.string(),
-  ranking_percentile: z.number().optional(),
-  improvement_potential: z.string()
+const BenchmarkResultSchema = Type.Object({
+  industry: Type.String(),
+  metric_name: Type.String(),
+  user_value: Type.Optional(Type.Number()),
+  benchmark_avg: Type.Number(),
+  benchmark_top_tier: Type.Number(),
+  unit: Type.String(),
+  ranking_percentile: Type.Optional(Type.Number()),
+  improvement_potential: Type.String()
 });
 
 export const industryBenchmarkRune = defineRune({

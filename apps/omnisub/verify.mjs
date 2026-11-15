@@ -112,11 +112,11 @@ check('韓文不被誤判為中文', dl('안녕하세요') === 'en', dl('안녕�
 // 僅含漢字的日文在技術上無法與中文區分（會、議、日 皆為漢字且不含假名），
 // detectLang 必然判為 zh-TW。這是兩語範圍下的已知且可接受限制
 //（使用者已限定僅需繁中 ⇄ 英文），故此處驗證「含假名時才排除」。
-// 注意：不可用「今日の会議」當例子 —— 其中的「の」(U+306E) 是平假名，
+// 注意：不可用「今日の會議」當例子 —— 其中的「の」(U+306E) 是平假名，
 // 會被 KANA 規則正確攔下而判為 en，無法用來示範純漢字情境。
-check('含假名的夾漢字日文判為非中文（避免誤譯）', dl('今日の会議') === 'en', dl('今日の会議'));
-check('含の之日文亦判為非中文（の=U+306E 平假名）', dl('この会議は来週です') === 'en', dl('この会議は来週です'));
-check('純漢字日文無法區分（已知限制，記錄為 zh-TW）', dl('会議資料') === 'zh-TW', dl('会議資料'));
+check('含假名的夾漢字日文判為非中文（避免誤譯）', dl('今日の會議') === 'en', dl('今日の會議'));
+check('含の之日文亦判為非中文（の=U+306E 平假名）', dl('この會議は來週です') === 'en', dl('この會議は來週です'));
+check('純漢字日文無法區分（已知限制，記錄為 zh-TW）', dl('會議資料') === 'zh-TW', dl('會議資料'));
 check('空字串安全回傳 en', dl('') === 'en');
 
 // ---------- 4. 目標語言恆為對方（雙向自動對翻） ----------
@@ -234,7 +234,7 @@ check('webspeech 時 whisper 選項隱藏', $('whisperOpts').style.display === '
 const urls = [...html.matchAll(/https?:\/\/[a-z0-9.\-]+/gi)].map(m => m[0]);
 const paid = urls.filter(u => /openai|anthropic|api\.deepl|paid|azure|gcp|googleapis\.com\/v1/.test(u));
 check('程式碼內無付費 AI 端點（零算力/零費用）', paid.length === 0, paid.join(','));
-check('無 API key 欄位残留（Gemini 已移除）', !html.includes('AIza'));
+check('無 API key 欄位殘留（Gemini 已移除）', !html.includes('AIza'));
 
 // ---------- 18. 暫停真的停止推論（原版無效） ----------
 api.UI.paused = true;

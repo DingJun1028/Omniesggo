@@ -1,21 +1,24 @@
-﻿/**
+/**
  * A08 Phase 1 — OmniMemory & OmniTraceLog Bootstrap Script
  * scripts/create_omni_memory.ts
  *
- * Ensures tables exist in Supabase with correct columns matching prisma/schema.prisma.
+ * Ensures tables exist in Supabase with correct columns.
  * Run via: npx tsx scripts/create_omni_memory.ts
+ * Prisma 已移除：改以 pg (DATABASE_URL) 直接執行 DDL。
  */
 
-import { PrismaClient } from "@prisma/client";
+import pg from 'pg';
 
-const prisma = new PrismaClient();
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL || process.env.SUPABASE_DB_URL || '',
+  max: 5,
+});
 
 async function bootstrap() {
   console.log("A08 Bootstrap — creating OmniMemory & OmniTraceLog tables if absent...");
 
   try {
-    // OmniMemory — full schema with userId, agentId, metadata
-    await prisma.$executeRawUnsafe(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS public."OmniMemory" (
         "id"           TEXT NOT NULL,
         "userId"       TEXT NOT NULL DEFAULT 'junai-key',
@@ -31,13 +34,12 @@ async function bootstrap() {
         CONSTRAINT "OmniMemory_pkey" PRIMARY KEY ("id")
       );
     `);
-    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "OmniMemory_userId_idx"  ON public."OmniMemory"("userId");`);
-    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "OmniMemory_agentId_idx" ON public."OmniMemory"("agentId");`);
-    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "OmniMemory_type_idx"    ON public."OmniMemory"("type");`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS "OmniMemory_userId_idx"  ON public."OmniMemory"("userId");`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS "OmniMemory_agentId_idx" ON public."OmniMemory"("agentId");`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS "OmniMemory_type_idx"    ON public."OmniMemory"("type");`);
     console.log("  [OK] OmniMemory table ready.");
 
-    // OmniTraceLog — 5T audit trail
-    await prisma.$executeRawUnsafe(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS public."OmniTraceLog" (
         "id"          TEXT NOT NULL,
         "uuid"        TEXT NOT NULL,
@@ -51,16 +53,16 @@ async function bootstrap() {
         CONSTRAINT "OmniTraceLog_uuid_key" UNIQUE ("uuid")
       );
     `);
-    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "OmniTraceLog_type_idx"      ON public."OmniTraceLog"("type");`);
-    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "OmniTraceLog_agent_idx"     ON public."OmniTraceLog"("agent");`);
-    await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "OmniTraceLog_timestamp_idx" ON public."OmniTraceLog"("timestamp");`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS "OmniTraceLog_type_idx"      ON public."OmniTraceLog"("type");`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS "OmniTraceLog_agent_idx"     ON public."OmniTraceLog"("agent");`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS "OmniTraceLog_timestamp_idx" ON public."OmniTraceLog"("timestamp");`);
     console.log("  [OK] OmniTraceLog table ready.");
 
-    console.log("\nA08 Bootstrap complete. Run `npx prisma generate` to refresh the client.");
+    console.log("\nA08 Bootstrap complete. (Supabase direct connection — no Prisma client needed.)");
   } catch (err) {
     console.error("Bootstrap error:", err);
   } finally {
-    await prisma.$disconnect();
+    await pool.end();
   }
 }
 

@@ -1,10 +1,10 @@
 # Interaction Patterns
 
-三档交互代码库。所有代码可直接复用，按用户选定的档位组合进生成的 Style SKILL。
+三檔互動程式碼庫。所有程式碼可直接複用，按使用者選定的檔位組合進生成的 Style SKILL。
 
 ---
 
-## 公共基础
+## 公共基礎
 
 ### useInView Hook（L1/L2/L3 通用）
 
@@ -24,7 +24,7 @@ function useInView(options = {}) {
 }
 ```
 
-### 原生 JS 版（无框架时）
+### 原生 JS 版（無框架時）
 
 ```js
 function initScrollReveal(selector = '.reveal', cls = 'in-view') {
@@ -36,14 +36,14 @@ function initScrollReveal(selector = '.reveal', cls = 'in-view') {
 document.addEventListener('DOMContentLoaded', () => initScrollReveal());
 ```
 
-### Smooth Scroll 基础
+### Smooth Scroll 基礎
 
 ```css
 html { scroll-behavior: smooth; }
 [id] { scroll-margin-top: 80px; }
 ```
 
-### Reduced Motion 降级
+### Reduced Motion 降級
 
 ```css
 @media (prefers-reduced-motion: reduce) {
@@ -58,11 +58,11 @@ html { scroll-behavior: smooth; }
 
 ---
 
-## L1: 精致静态
+## L1: 精緻靜態
 
-> 优雅的 hover 反馈 + 柔和入场。不喧宾夺主，信息优先。
+> 優雅的 hover 反饋 + 柔和入場。不喧賓奪主，資訊優先。
 
-### 入场：淡入
+### 入場：淡入
 
 ```css
 @keyframes fadeIn {
@@ -76,7 +76,7 @@ html { scroll-behavior: smooth; }
 .reveal.in-view { opacity: 1; }
 ```
 
-### 入场：轻微上浮
+### 入場：輕微上浮
 
 ```css
 .reveal {
@@ -91,7 +91,7 @@ html { scroll-behavior: smooth; }
 }
 ```
 
-### Hover：轻浮起 + 阴影
+### Hover：輕浮起 + 陰影
 
 ```css
 .card {
@@ -103,7 +103,7 @@ html { scroll-behavior: smooth; }
 }
 ```
 
-### Hover：颜色渐变
+### Hover：顏色漸變
 
 ```css
 .btn {
@@ -115,7 +115,7 @@ html { scroll-behavior: smooth; }
 }
 ```
 
-### Hover：下划线滑入
+### Hover：下劃線滑入
 
 ```css
 .link {
@@ -146,11 +146,11 @@ html { scroll-behavior: smooth; }
 
 ---
 
-## L2: 流畅交互
+## L2: 流暢互動
 
-> 滚动 reveal、视差、导航变化。有节奏感，每个 section 像一个"场景"。
+> 滾動 reveal、視差、導航變化。有節奏感，每個 section 像一個"場景"。
 
-### 入场：fadeInUp + Stagger
+### 入場：fadeInUp + Stagger
 
 ```css
 @keyframes fadeInUp {
@@ -165,7 +165,7 @@ html { scroll-behavior: smooth; }
 }
 .reveal.in-view { opacity: 1; transform: translateY(0); }
 
-/* Stagger：子元素交错入场 */
+/* Stagger：子元素交錯入場 */
 .reveal.in-view > *:nth-child(1) { transition-delay: 0s; }
 .reveal.in-view > *:nth-child(2) { transition-delay: 0.1s; }
 .reveal.in-view > *:nth-child(3) { transition-delay: 0.2s; }
@@ -173,7 +173,7 @@ html { scroll-behavior: smooth; }
 .reveal.in-view > *:nth-child(5) { transition-delay: 0.4s; }
 ```
 
-JS 动态 stagger（不限制子元素数量）：
+JS 動態 stagger（不限制子元素數量）：
 ```js
 function initStaggerReveal(containerSelector = '.stagger-reveal') {
   const obs = new IntersectionObserver((entries) => {
@@ -191,7 +191,7 @@ function initStaggerReveal(containerSelector = '.stagger-reveal') {
 }
 ```
 
-### 入场：scaleIn
+### 入場：scaleIn
 
 ```css
 .reveal-scale {
@@ -203,7 +203,7 @@ function initStaggerReveal(containerSelector = '.stagger-reveal') {
 .reveal-scale.in-view { opacity: 1; transform: scale(1); }
 ```
 
-### 视差：CSS scroll-driven（现代浏览器）
+### 視差：CSS scroll-driven（現代瀏覽器）
 
 ```css
 @supports (animation-timeline: scroll()) {
@@ -218,7 +218,7 @@ function initStaggerReveal(containerSelector = '.stagger-reveal') {
 }
 ```
 
-### 视差：简单 JS 方案（兼容性好）
+### 視差：簡單 JS 方案（相容性好）
 
 ```js
 function initParallax(selector = '.parallax', speed = 0.3) {
@@ -240,7 +240,7 @@ function initParallax(selector = '.parallax', speed = 0.3) {
 }
 ```
 
-### 导航：滚动后透明→毛玻璃
+### 導航：滾動后透明→毛玻璃
 
 ```css
 .nav {
@@ -269,7 +269,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 ```
 
-### 滚动进度条
+### 滾動進度條
 
 ```css
 .scroll-progress {
@@ -292,7 +292,7 @@ window.addEventListener('scroll', () => {
 }, { passive: true });
 ```
 
-### Hover：卡片图片缩放
+### Hover：卡片圖片縮放
 
 ```css
 .img-card { overflow: hidden; border-radius: var(--radius); }
@@ -304,7 +304,7 @@ window.addEventListener('scroll', () => {
 .img-card:hover img { transform: scale(1.06); }
 ```
 
-### Hover：发光边框（暗色风格）
+### Hover：發光邊框（暗色風格）
 
 ```css
 .glow-card {
@@ -317,7 +317,7 @@ window.addEventListener('scroll', () => {
 }
 ```
 
-### 按钮按压微交互
+### 按鈕按壓微互動
 
 ```css
 .btn {
@@ -333,7 +333,7 @@ window.addEventListener('scroll', () => {
 }
 ```
 
-### 数字计数器
+### 數字計數器
 
 ```js
 function countUp(el, end, duration = 2000) {
@@ -346,7 +346,7 @@ function countUp(el, end, duration = 2000) {
   }, 16);
 }
 
-// 配合 IntersectionObserver 触发
+// 配合 IntersectionObserver 觸發
 function initCounters(selector = '.count-up') {
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => {
@@ -366,11 +366,11 @@ function initCounters(selector = '.count-up') {
 
 ---
 
-## L3: 沉浸体验
+## L3: 沉浸體驗
 
-> 滚动驱动时间线、section pin、光标跟随、页面转场。需要用户确认是否引入 GSAP 等依赖。
+> 滾動驅動時間線、section pin、游標跟隨、頁面轉場。需要使用者確認是否引入 GSAP 等依賴。
 
-### GSAP + ScrollTrigger 基础设置
+### GSAP + ScrollTrigger 基礎設定
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
@@ -380,23 +380,23 @@ gsap.registerPlugin(ScrollTrigger);
 </script>
 ```
 
-### Section Pin（滚动时固定区域，内容变化）
+### Section Pin（滾動時固定區域，內容變化）
 
 ```js
 gsap.to('.pinned-content', {
   scrollTrigger: {
     trigger: '.pin-section',
     start: 'top top',
-    end: '+=200%',       // pin 持续的滚动距离
+    end: '+=200%',       // pin 持續的滾動距離
     pin: true,
-    scrub: 1,            // 滚动绑定
+    scrub: 1,            // 滾動繫結
   },
   opacity: 1,
   y: 0,
 });
 ```
 
-### 滚动驱动时间线
+### 滾動驅動時間線
 
 ```js
 const tl = gsap.timeline({
@@ -413,7 +413,7 @@ tl.from('.step-1', { opacity: 0, y: 40 })
   .from('.step-3', { opacity: 0, y: 40 }, '+=0.1');
 ```
 
-### 水平滚动 Section
+### 水平滾動 Section
 
 ```js
 const panels = gsap.utils.toArray('.h-panel');
@@ -442,7 +442,7 @@ gsap.to(panels, {
 }
 ```
 
-### 光标跟随（磁性效果）
+### 游標跟隨（磁性效果）
 
 ```js
 const cursor = document.querySelector('.custom-cursor');
@@ -450,7 +450,7 @@ document.addEventListener('mousemove', (e) => {
   cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
 });
 
-// 磁性按钮
+// 磁性按鈕
 document.querySelectorAll('.magnetic').forEach(btn => {
   btn.addEventListener('mousemove', (e) => {
     const rect = btn.getBoundingClientRect();
@@ -480,7 +480,7 @@ document.querySelectorAll('.magnetic').forEach(btn => {
 }
 ```
 
-### 光标辉光（暗色风格）
+### 游標輝光（暗色風格）
 
 ```css
 .cursor-glow {
@@ -504,7 +504,7 @@ document.addEventListener('mousemove', (e) => {
 });
 ```
 
-### 文字逐词 Reveal
+### 文字逐詞 Reveal
 
 ```js
 function initTextReveal(selector = '.text-reveal') {
@@ -520,7 +520,7 @@ function initTextReveal(selector = '.text-reveal') {
   });
 }
 
-// 配合 IO 触发
+// 配合 IO 觸發
 function triggerTextReveal(selector = '.text-reveal') {
   const obs = new IntersectionObserver((entries) => {
     entries.forEach(e => {
@@ -536,7 +536,7 @@ function triggerTextReveal(selector = '.text-reveal') {
 }
 ```
 
-### 页面转场
+### 頁面轉場
 
 ```css
 .page-transition {
@@ -547,7 +547,7 @@ function triggerTextReveal(selector = '.text-reveal') {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 退出（配合路由切换使用） */
+/* 退出（配合路由切換使用） */
 .page-exit {
   animation: pageExit 0.25s ease-in both;
 }
@@ -556,7 +556,7 @@ function triggerTextReveal(selector = '.text-reveal') {
 }
 ```
 
-### 3D 透视卡片
+### 3D 透視卡片
 
 ```css
 .perspective-card {
@@ -583,7 +583,7 @@ document.querySelectorAll('.perspective-card').forEach(card => {
 });
 ```
 
-### Lenis 平滑滚动（可选增强）
+### Lenis 平滑滾動（可選增強）
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
@@ -592,7 +592,7 @@ const lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
 function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
 requestAnimationFrame(raf);
 
-// 与 GSAP ScrollTrigger 同步
+// 與 GSAP ScrollTrigger 同步
 lenis.on('scroll', ScrollTrigger.update);
 gsap.ticker.add((time) => lenis.raf(time * 1000));
 gsap.ticker.lagSmoothing(0);
@@ -601,9 +601,9 @@ gsap.ticker.lagSmoothing(0);
 
 ---
 
-## 装饰性效果（按风格选用）
+## 裝飾性效果（按風格選用）
 
-### 渐变流动背景
+### 漸變流動背景
 
 ```css
 @keyframes gradientShift {
@@ -618,7 +618,7 @@ gsap.ticker.lagSmoothing(0);
 }
 ```
 
-### Glow Pulse（暗色风格）
+### Glow Pulse（暗色風格）
 
 ```css
 @keyframes glowPulse {
@@ -628,7 +628,7 @@ gsap.ticker.lagSmoothing(0);
 .glow { animation: glowPulse 3s ease-in-out infinite; }
 ```
 
-### Blob 浮动（活泼风格背景）
+### Blob 浮動（活潑風格背景）
 
 ```css
 @keyframes blobMorph {
@@ -648,7 +648,7 @@ gsap.ticker.lagSmoothing(0);
 }
 ```
 
-### 打字机效果
+### 打字機效果
 
 ```css
 @keyframes typing { from { width: 0; } to { width: 100%; } }

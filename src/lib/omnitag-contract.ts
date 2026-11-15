@@ -5,7 +5,7 @@
  * 本模組為純函式、零外部依賴，供 5T 驗算陣列 (25-30) 在產物誕生時
  * 自動稽核「必備三枚」與凍結不可改等契約，對齊 §20.5 規則 1-5。
  *
- * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]
+ * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:結界]
  */
 
 // ── §20.2 六大維度定義 ──────────────────────────────────
@@ -31,7 +31,7 @@ export interface OmniTagSet {
   /** 平台環境 */
   platform?: OmnitagPlatform;
   /** 結界繼承 */
-  bestPractice?: 'awakened' | '结界';
+  bestPractice?: 'awakened' | '結界';
 }
 
 export interface ContractCheck {
@@ -108,11 +108,11 @@ export function enforceFrozenLock(
 
 /**
  * §20.5 規則 3 — 結界自動繼承
- * 標記 best-practice:结界 後，全部子代理自動 inheriting。
+ * 標記 best-practice:結界 後，全部子代理自動 inheriting。
  * 回傳該標籤組是否處於結界繼承態。
  */
 export function isBarrierInherited(tag: OmniTagSet): boolean {
-  return tag.bestPractice === '结界';
+  return tag.bestPractice === '結界';
 }
 
 /**
@@ -226,7 +226,7 @@ const ROUTE_TABLE: Record<SquadName, RouteTarget> = {
 /**
  * §20.4 自動路由解析。
  * 優先以 agent 編號決定陣列；若 agent 缺漏則退用 squad 字面值。
- * best-practice:结界 標記時，繼承旗標全體擴散。
+ * best-practice:結界 標記時，繼承旗標全體擴散。
  */
 export function routeOmniTag(tag: OmniTagSet): {
   target: RouteTarget | null;

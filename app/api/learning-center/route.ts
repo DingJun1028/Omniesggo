@@ -1,4 +1,4 @@
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * Learning Center API — NCBDB 模式 (GCP Firebase 已停用, 力度 1, 2026-08-25)
  *

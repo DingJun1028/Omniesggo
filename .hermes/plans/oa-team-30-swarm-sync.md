@@ -48,15 +48,15 @@ python3 scripts/verify-agents-yaml.py
 - 每個代理 7 維度齊備：`security / agent / squad / lifecycle / priority / platform / best-practice`。
 - 所有維度值合法（對照 OmniTag spec 可取值清單）。
 - 必備標籤規則：每代理至少含 `agent:*` + `lifecycle:*` + `p*` — 全部通過。
-- 禁用組合（`lifecycle:frozen+active`、`security:public+restricted`、`p0+p3`、`awakened+draft`、`结界+draft`）— 0 違規。
-- 代理標籤分布：`best-practice` = awakened 23 / 结界 7；`security` = internal 22 / restricted 4 / public 4；`lifecycle` = active 29 / frozen 1。
+- 停用組合（`lifecycle:frozen+active`、`security:public+restricted`、`p0+p3`、`awakened+draft`、`結界+draft`）— 0 違規。
+- 代理標籤分佈：`best-practice` = awakened 23 / 結界 7；`security` = internal 22 / restricted 4 / public 4；`lifecycle` = active 29 / frozen 1。
 - 每代理 `tags` 字串與結構化 `omnitag` map 前綴一致。
 
 ### 3.3 最佳實踐覺結界 inheritance（✅ PASS）
-- `inheritance_sources = [06, 14, 15, 22, 26, 28, 30]` 與標記 `best-practice:结界` 的代理集合**完全一致**。
+- `inheritance_sources = [06, 14, 15, 22, 26, 28, 30]` 與標記 `best-practice:結界` 的代理集合**完全一致**。
 - 結界來源代理均非 `lifecycle:draft`（26 Hash 鎖匠為 frozen，屬正常凍結語意）。
 - 三條硬規則（預設即合規 / 不帶病上線 / 醒著就頂標）、6 項 startup checklist、4 位 guardian、3 條撤銷條件齊備。
-- 繼承 tag 對映：`inherited_tag = best-practice:结界`、`source_tag = best-practice:awakened`。
+- 繼承 tag 對映：`inherited_tag = best-practice:結界`、`source_tag = best-practice:awakened`。
 
 ---
 

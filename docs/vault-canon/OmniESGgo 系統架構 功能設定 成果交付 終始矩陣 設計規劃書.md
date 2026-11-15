@@ -2,7 +2,7 @@
 title: OmniESGgo 系統架構 功能設定 成果交付 終始矩陣 設計規劃書
 canon_id: OMN-PRD-002
 date: 2026-10-09
-tags: [best-practice:结界][unit-of-learning][canon][design-spec]
+tags: [best-practice:結界][unit-of-learning][canon][design-spec]
 canonical: [[AI Research Index]]
 ---
 
@@ -207,7 +207,7 @@ canonical: [[AI Research Index]]
   ├─ 可追蹤（Trackable）— git tag + push 雙 remote
   ├─ 可驗算（Calculable）— pnpm audit / vitest / curl 200 / Resend id
   ├─ 不可篡改（Trustworthy）— annotated tag + Object.freeze
-  └─ 結界繼承（best-practice:结界）— 全體子代理自動 inheriting
+  └─ 結界繼承（best-practice:結界）— 全體子代理自動 inheriting
   ↓
 [End: 14 步驟全綠 + 12 個 tag + 3 個 user-action 僅待]
 ```
@@ -263,7 +263,7 @@ canonical: [[AI Research Index]]
 ### 5.4 結界繼承計畫（Best Practice Awakening 啟動清單）
 
 - [ ] 啟動前 checklist 全綠
-- [ ] 6 化身 × 7 工具全部繼承 `best-practice:结界`
+- [ ] 6 化身 × 7 工具全部繼承 `best-practice:結界`
 - [ ] 14 個 git tag 雙 repo 對齊
 - [ ] 聖典文件完整封卷（soul.md + OMNI-CANON.md + 7 文件 + LICENSE）
 - [ ] 12 個 workflow 紅燈全修（已修 11，待 user 1 個 = OpenAI key）

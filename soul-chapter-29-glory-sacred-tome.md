@@ -196,7 +196,7 @@ export const sacredCommand = async (cmd: string): Promise<SacredCommandResult> =
 | 神器類 Artifacts | 持續被動增益 | 基礎設施、工具、軟體 |
 | 結界類 Enchantments | 控制環境、改變規則 | 法律、政策、協議 |
 
-稀有度：普通 Common → 非普通 Uncommon → 稀有 Rare → 秘稀 Mythic Rare → 傳說 Legendary。稀有度直接關聯模組的**成本與影響**。
+稀有度：普通 Common → 非普通 Uncommon → 稀有 Rare → 祕稀 Mythic Rare → 傳說 Legendary。稀有度直接關聯模組的**成本與影響**。
 
 **29.8.2 10 色萬能精靈**：金·鋒靈 Aurex（秩序策略）、木·森靈 Sylfa（成長創造）、水·湧靈 Aquare（思緒記憶）、火·焰靈 Pyra（熱情行動）、土·磐靈 Terrax（穩定根基）、光·耀靈 Luxis（照明透明）、暗·幽靈 Umbrix（隱匿混沌）、無·源靈 Nullis（全域中立）、時風·馭靈 Tempest（序列節奏）、靈魂·蘊靈 Anima（元認知）。
 

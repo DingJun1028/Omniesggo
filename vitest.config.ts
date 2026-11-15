@@ -110,6 +110,11 @@ export default defineConfig({
       // 由 `node tests/<檔名>.test.mjs` 在對應工作目錄執行，覆蓋率不減。
       'tests/canon.test.mjs',
       'tests/omnitag.test.mjs',
+      'tests/deploy-contract.test.mjs',
+      'tests/junaikey-secrets.test.mjs',
+      'tests/omni-one.test.mjs',
+      'vps/junaikey/model-resolver.test.mjs',
+      'vps/junaikey/service-resolver.test.mjs',
       'tests/junaikey.test.mjs',
       // 以下 tests/*.test.mjs 為 Node 內建腳本式驗證（頂層 assert + process.exit），非 vitest 套件：
       // （deploy-contract / junaikey-secrets / omni-one 亦同，這三檔在 exclude 漏列，已補回）

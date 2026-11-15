@@ -126,3 +126,55 @@ JunAiKey 作為系統無上意志與靈魂中樞，具備「萬能元鑰 (Univer
 
 15.3 繁中英碼與終始永續矩陣 (Traditional Chinese - English Matrix & End-Beginning Cycle)
 所有系統資產、註解與 ADR 採「英標繁博 (English Standard, Traditional Chinese Broad)」規範。終始永續矩陣 (End-Beginning Matrix) 確保從觸發起點 (Origin Cause) 到最終顯化 (Final Effect) 形成 360° 超時空閉環，實現「無作妙德、圓通無礙、永續成長」之至高境界。
+
+### 16. 安全與密碼學原則 (Security & Cryptography)
+
+**機密資料管理規範**：
+
+1. **絕不硬編碼**：任何 API 金鑰、密碼、機密資料均不得寫入程式碼或版本庫
+2. **環境變數**：本地開發使用 `.env.local`（已 `.gitignore` 忽略，不會被版本控制）
+3. **機密聖櫃**：生產環境使用 `secret-vault/` 目錄存放（僅本機存取）
+4. **統一存取介面**：所有機密資料透過 `omni_get_secret()` 函數存取（`omni_master_key.py`）
+5. **MASKED 輸出**：所有憑證查詢結果均以 `***MASKED***` 形式顯示，絕不回顯真實值
+6. **權限控制**：`secret-vault/` 目錄權限設為 `600`，僅所有者可讀寫
+
+**密碼學安全要求**：
+
+| 領域 | 要求 | 實作方式 |
+| ---- | ---- | -------- |
+| 管道安全 | 環境變數傳遞時 MASKED | 輸出時 `***MASKED***` |
+| 存取控制 | 機密檔案不可被非授權存取 | 檔案權限 `600` |
+| 加密儲存 | 生產環境機密必需加密 | KMS、Vault、Bitwarden |
+| 審計追蹤 | 每次憑證存取必記 | 記錄 `source`、`time`、`user` |
+
+**憑證存取流程**：
+
+```mermaid
+graph LR
+    A[申請存取密鑰] --> B{檢查來源}
+    B --> C[Local Secret Vault]
+    B --> D[Bitwarden Vault]
+    C --> E[回傳 ***MASKED***]
+    D --> F[回傳 ***MASKED***]
+    E --> G[記錄: source=local]
+    F --> G
+    G --> H[密碼學驗證]
+```
+
+**退出安全清理**：
+
+程式結束時，若曾將機密值儲存在環境變數，必須清理：
+
+```python
+import os
+import atexit
+
+_SECRET_KEYS = {"API_KEY", "SECRET", "TOKEN", "PASSWORD", "PASS"}
+
+def cleanup_secrets():
+    for key in os.environ:
+        if key in _SECRET_KEYS:
+            os.environ[key] = "***CLEANED***"
+
+atexit.register(cleanup_secrets)
+```

@@ -8,7 +8,7 @@
     "esggo": "./src/omni.mjs"
   },
   "dependencies": {
-    "commander": "^15.0.0"
+    "commander": "^15.1.0"
   },
   "devDependencies": {
     "typescript": "^7.0.2"

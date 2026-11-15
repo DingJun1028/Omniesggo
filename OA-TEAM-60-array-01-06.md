@@ -26,6 +26,6 @@
 
 ## 記憶路由
 
-- 蜂王：`/api/assets?tag=umbra&array=智库聖所`
-- 蜂后：`/api/assets?tag=lumen&array=智库聖所`
+- 蜂王：`/api/assets?tag=umbra&array=智庫聖所`
+- 蜂后：`/api/assets?tag=lumen&array=智庫聖所`
 - 共用 session 前綴：`oa-team-array-01-06`

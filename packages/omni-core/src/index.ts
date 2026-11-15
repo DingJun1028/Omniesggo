@@ -1,12 +1,12 @@
 /**
  * @esggo/omni-core v1.0.0
  *
- * IComponentCore 心核介面 + sealComponentCore Hash Lock 刻印
+ * OmniCoreComponentCore 心核介面 + sealComponentCore Hash Lock 刻印
  *
  * 5T 對應:
  * - Traceable: source_origin 欄位標記數據源頭
  * - Trackable: timestamp 欄位記錄刻印時間
- * - Tangible: IComponentCore 介面實體可被驗證
+ * - Tangible: OmniCoreComponentCore 介面實體可被驗證
  * - Transparent: evidence 鏈式追加零幻覺驗算報告
  * - Trustworthy: sealComponentCore 執行 Hash Lock + Object.freeze()
  */
@@ -32,7 +32,7 @@ export interface Evidence {
  *
  * 所有 Omni 元件 (Memory/Tag/Agent/DB/UI/Bridge/Forge) 必須實作
  */
-export interface IComponentCore {
+export interface OmniCoreComponentCore {
   /** 萬能永憶主體唯一識別碼 (UUID v7) */
   readonly uuid: string;
   /** 語義化版本控制 (e.g., "1.2.0") */
@@ -44,14 +44,16 @@ export interface IComponentCore {
   /** 證據佐證庫 (可變, 用於鏈式追加) */
   evidence: Evidence[];
 }
+// ts-matrix: 收斂至規範型別 (canonical: src/types/core-contract)
+export type { OmniCoreComponentCore as IComponentCore };
 
 /**
- * 建立新 IComponentCore 預設值
+ * 建立新 OmniCoreComponentCore 預設值
  */
 export function createComponentCore(
   source_origin: string,
-  options: Partial<Pick<IComponentCore, 'uuid' | 'version' | 'timestamp'>> = {}
-): IComponentCore {
+  options: Partial<Pick<OmniCoreComponentCore, 'uuid' | 'version' | 'timestamp'>> = {}
+): OmniCoreComponentCore {
   return {
     uuid: options.uuid ?? randomUUID(),
     version: options.version ?? '1.0.0',
@@ -76,7 +78,7 @@ export function computeHash(payload: unknown): string {
  * 1. 計算整體 hash (含 evidence 鏈)
  * 2. 寫入 seal 證據到 evidence
  * 3. Object.freeze() 整個 component + evidence 陣列
- * 4. 回傳 Readonly<IComponentCore>
+ * 4. 回傳 Readonly<OmniCoreComponentCore>
  *
  * @example
  * ```typescript
@@ -86,7 +88,7 @@ export function computeHash(payload: unknown): string {
  * // Object.isFrozen(sealed) === true
  * ```
  */
-export async function sealComponentCore<T extends IComponentCore>(
+export async function sealComponentCore<T extends OmniCoreComponentCore>(
   component: T
 ): Promise<Readonly<T>> {
   // 1. 計算整體 hash (含 evidence 在 seal 前)
@@ -109,12 +111,12 @@ export async function sealComponentCore<T extends IComponentCore>(
 }
 
 /**
- * 驗證 IComponentCore 是否仍維持不可篡改
+ * 驗證 OmniCoreComponentCore 是否仍維持不可篡改
  *
  * 重新計算 hash + 比對 evidence[last].hash
  * 若 mismatch → 已被篡改 (5T Trustworthy 失效)
  */
-export async function verifySeal(component: Readonly<IComponentCore>): Promise<boolean> {
+export async function verifySeal(component: Readonly<OmniCoreComponentCore>): Promise<boolean> {
   if (!Object.isFrozen(component) || !Object.isFrozen(component.evidence)) {
     return false;
   }
@@ -126,7 +128,7 @@ export async function verifySeal(component: Readonly<IComponentCore>): Promise<b
   }
 
   // 重新計算 hash (排除 seal evidence 本身)
-  const cloned: IComponentCore = {
+  const cloned: OmniCoreComponentCore = {
     uuid: component.uuid,
     version: component.version,
     timestamp: component.timestamp,
@@ -138,4 +140,23 @@ export async function verifySeal(component: Readonly<IComponentCore>): Promise<b
   return recomputed === sealEvidence.hash;
 }
 
-export type { IComponentCore as IComponentCoreType };
+export type { OmniCoreComponentCore as IComponentCoreType };
+
+// ── v2 Hardening & Evolution (2026-10-30) ─────────────────────
+// 12大萬能架構 v2 缺口補齊模組:
+//   R1 deepFreeze 深凍結 | R2 egressLock 事件 SHA-256 出口封裝
+//   R3 EntropyLedger 可量化熵減 | R6 PrefetchGate 先知預判成本閘門
+//   R7 LearningLoop + ChaosEngine 自我學習進化閉環
+export { deepFreeze } from './deep-freeze';
+export { egressLock, hashLockEvent, type EgressSeal, type LockableEvent } from './egress';
+export {
+  ChaosEngine,
+  EntropyLedger,
+  LearningLoop,
+  PrefetchGate,
+  type EntropyMetrics,
+  type RepairTemplate,
+} from './evolution';
+
+// ── §20 Trust Label 契約 (2026-11-01 下沉至套件層, 供 MECE 復用) ──
+export { trustGate, trustScore, TRUST_LEVEL_SCORE, type TrustLevel } from './trust';

@@ -9,7 +9,7 @@ import type { SubFrameId } from './types.js';
 
 export type SwarmArray = 'strategy' | 'tech' | 'creative' | 'marketing' | 'guard';
 
-/** 30 蜂群 → { 陣列, 綁定子框架, 職責 } */
+/** 30 蜂群 → { 陣列, 綁定子框架, 職責 }; 空 binds 保留節點但不路由到已移除的框架 */
 export interface SwarmNode {
   id: number;
   name: string;
@@ -22,7 +22,7 @@ export const SWARM_NODES: SwarmNode[] = [
   // --- 策略陣列 (1-6) ---
   { id: 1, name: '萬能蜂后', array: 'strategy', binds: ['agent0'], role: '戰略總覽' },
   { id: 2, name: '萬能規劃蜂', array: 'strategy', binds: ['adk'], role: '長遠規劃' },
-  { id: 3, name: '萬能分析蜂', array: 'strategy', binds: ['genkit'], role: '數據挖掘' },
+  { id: 3, name: '萬能分析蜂', array: 'strategy', binds: [], role: '數據挖掘' },
   { id: 4, name: '萬能策効蜂', array: 'strategy', binds: ['crewai'], role: '創意思維' },
   { id: 5, name: '萬能風險蜂', array: 'strategy', binds: ['omniroute'], role: '風險控制' },
   { id: 6, name: '萬能優化蜂', array: 'strategy', binds: ['agent0'], role: '效率提升' },
@@ -31,7 +31,7 @@ export const SWARM_NODES: SwarmNode[] = [
   { id: 8, name: '萬能算法蜂', array: 'tech', binds: ['adk'], role: '機器學習' },
   { id: 9, name: '萬能架構蜂', array: 'tech', binds: ['agentreach'], role: '雲端架構' },
   { id: 10, name: '萬能數據蜂', array: 'tech', binds: ['turbovec'], role: '資料管道' },
-  { id: 11, name: '萬能測試蜂', array: 'tech', binds: ['genkit'], role: '自動化測試' },
+  { id: 11, name: '萬能測試蜂', array: 'tech', binds: [], role: '自動化測試' },
   { id: 12, name: '萬能設計蜂', array: 'tech', binds: ['openmontage'], role: 'UI/UX' },
   // --- 創意陣列 (13-18) ---
   { id: 13, name: '萬能圖像蜂', array: 'creative', binds: ['openmontage'], role: '品牌視覺' },
@@ -43,7 +43,7 @@ export const SWARM_NODES: SwarmNode[] = [
   // --- 營銷陣列 (19-24) ---
   { id: 19, name: '萬能增長蜂', array: 'marketing', binds: ['turbovec'], role: '用戶增長' },
   { id: 20, name: '萬能運營蜂', array: 'marketing', binds: ['agent0'], role: '進度管理' },
-  { id: 21, name: '萬能商業分析蜂', array: 'marketing', binds: ['genkit'], role: '商業洞察' },
+  { id: 21, name: '萬能商業分析蜂', array: 'marketing', binds: [], role: '商業洞察' },
   { id: 22, name: '萬能探路蜂', array: 'marketing', binds: ['agentreach'], role: '資源探索' },
   { id: 23, name: '萬能外交蜂', array: 'marketing', binds: ['omniroute'], role: '合作關係' },
   { id: 24, name: '萬能調研蜂', array: 'marketing', binds: ['turbovec'], role: '用戶研究' },

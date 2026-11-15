@@ -16,14 +16,16 @@ import { omniOne } from "../../sdks/omni-one/src";
 // 1. Types & Data
 // ==========================================
 export type Priority = "High" | "Medium" | "Low";
-export type TaskStatus = "Pending" | "Completed";
+export type WuzuoTaskStatus = "Pending" | "Completed";
+// ts-matrix: 對外相容別名 (API 不變)
+export type { WuzuoTaskStatus as TaskStatus };
 
 export interface OmniTask {
   id: string;
   title: string;
   priority: Priority;
   dueDate: number; // timestamp
-  status: TaskStatus;
+  status: WuzuoTaskStatus;
   tags: string[];
 }
 

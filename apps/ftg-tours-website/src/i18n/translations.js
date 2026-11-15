@@ -5,7 +5,7 @@ export const translations = {
   zh: {
     // 5T-Transparent: 錯誤邊界文案。這群不走 t()（class 元件
     // 取不到 hook），因此改為直接讀 translations[lang]。
-    // 不接 t() 的經體：字典全綠、欄字尽齊，却在統程錯誤時整頁籁中，
+    // 不接 t() 的經體：字典全綠、欄字盡齊，卻在統程錯誤時整頁籟中，
     // 是產品形象最崩的那一頁。
     errorBoundary: {
       title: '頁面暫時無法顯示',
@@ -330,7 +330,7 @@ export const translations = {
       target4Title: '新人融入',
       target4Desc: '協助新同仁快速融入團隊',
       target5Title: '跨部門交流',
-      target5Desc: '打破部門界線，促進横向合作',
+      target5Desc: '打破部門界線，促進橫向合作',
       journeyTitle: '可搭配的旅程內容',
       leaveTitle: '這趟旅程可以留下什麼',
       leave1Title: '員工身心放鬆與回復',
@@ -596,7 +596,7 @@ export const translations = {
       benefit1Title: '團隊共創',
       benefit1Desc: '在自然環境中合作，建立團隊默契',
       benefit2Title: '連結地方與環境',
-      benefit2Desc: '在行动中感受地方與環境連結',
+      benefit2Desc: '在行動中感受地方與環境連結',
       benefit3Title: '走進自然',
       benefit3Desc: '親身體驗自然，感受永續價值',
       designTitle: '墾趣如何設計這場 Team Day',

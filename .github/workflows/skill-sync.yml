@@ -1,0 +1,74 @@
+name: skill-sync
+
+# ── 技能同步記錄 ──────────────────────────────────────────
+# 此 workflow 在 push 到 main 時自動執行：
+#   1. 掃描 .agents/skills/*/SKILL.md
+#   2. 提取版本、類別、描述等信息
+#   3. 上傳到 Supabase skill_sync 表
+#
+# 觸發條件：
+#   - push 到 main
+#   - 手動觸發（workflow_dispatch）
+#
+# 配置：
+#   需要 secrets：
+#     SUPABASE_URL
+#     SUPABASE_SERVICE_ROLE_KEY
+#     SKILL_SYNC_TABLE (可選，預設 skill_sync)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # 手動觸發
+
+permissions:
+  contents: read
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  skill-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: |
+          corepack enable
+          corepack prepare pnpm@latest --activate
+          pnpm install --frozen-lockfile --prefer-frozen-lockfile --no-frozen-lockfile
+
+      - name: 更新技能同步記錄
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SKILL_SYNC_TABLE: ${{ secrets.SKILL_SYNC_TABLE || 'skill_sync' }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "⚠️  缺少 Supabase 配置，跳過記錄"
+            echo "INFO: 未設定 SUPABASE_URL 或 SUPABASE_SERVICE_ROLE_KEY"
+            exit 0
+          fi
+
+          echo "📊 掃描技能文件..."
+          SCAN_OUTPUT=$(npx tsx scripts/update-skill-sync.ts 2>&1)
+          echo "$SCAN_OUTPUT"
+
+      - name: 上傳當前狀態
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-sync-report
+          path: scripts/update-skill-sync.ts
+          retention-days: 30

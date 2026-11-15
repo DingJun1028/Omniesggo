@@ -1,0 +1,242 @@
+#!/usr/bin/env node
+/**
+ * SonarCloud Quality Gate checker (Automatic Analysis companion).
+ *
+ * Polls the SonarCloud Web API for the quality-gate status of a project /
+ * pull request and, on failure, prints the failing conditions plus the
+ * relevant issue details so the root cause is visible directly in CI logs.
+ *
+ * Zero runtime dependencies (Node >= 22, global fetch). Fail-fast: the token
+ * is read exclusively from the SONAR_TOKEN environment variable and is never
+ * printed, logged, or persisted.
+ *
+ * Stale-verdict settle window: right after a synchronize push, the
+ * SonarCloud API keeps serving the PREVIOUS analysis result until the new
+ * Automatic Analysis is indexed, so an immediately observed verdict can
+ * belong to the prior head (false ERROR and false OK alike). Verdicts
+ * observed before the settle window elapses are therefore recorded but not
+ * accepted; polling continues until a verdict is observed at or after the
+ * settle deadline. Set --settle 0 to disable.
+ *
+ * Usage:
+ *   SONAR_TOKEN=... node scripts/sonar-quality-gate.mjs \
+ *     --organization dingjun1028 \
+ *     --project DingJun1028_Omniesggo \
+ *     [--pull-request 123 | --branch main] \
+ *     [--timeout 600] [--interval 20] [--settle 120] [--verbose]
+ *
+ * Exit codes: 0 = gate PASSED, 1 = gate FAILED, 2 = timeout / API error.
+ */
+
+const DEFAULT_TIMEOUT_SECONDS = 600;
+const DEFAULT_INTERVAL_SECONDS = 20;
+const DEFAULT_SETTLE_SECONDS = 120;
+const MAX_ISSUES = 50;
+
+function parseArgs(argv) {
+  const args = {
+    organization: "dingjun1028",
+    project: "DingJun1028_Omniesggo",
+    pullRequest: null,
+    branch: null,
+    timeout: DEFAULT_TIMEOUT_SECONDS,
+    interval: DEFAULT_INTERVAL_SECONDS,
+    settle: DEFAULT_SETTLE_SECONDS,
+    verbose: false,
+  };
+  for (let i = 0; i < argv.length; i++) {
+    const a = argv[i];
+    const next = () => {
+      if (i + 1 >= argv.length) fail(`missing value for ${a}`);
+      return argv[++i];
+    };
+    switch (a) {
+      case "--organization": args.organization = next(); break;
+      case "--project": args.project = next(); break;
+      case "--pull-request": args.pullRequest = Number(next()); break;
+      case "--branch": args.branch = next(); break;
+      case "--timeout": args.timeout = Number(next()); break;
+      case "--interval": args.interval = Number(next()); break;
+      case "--settle": args.settle = Number(next()); break;
+      case "--verbose": args.verbose = true; break;
+      case "--help": case "-h":
+        console.log("See header comment for usage."); process.exit(0); break;
+      default: fail(`unknown argument: ${a}`);
+    }
+  }
+  if (!Number.isFinite(args.pullRequest) && !args.branch) args.branch = "main";
+  if (args.pullRequest != null && args.branch && argv.includes("--pull-request")) {
+    args.branch = null; // PR context takes precedence over an explicit branch.
+  }
+  if (args.interval < 5) fail("--interval must be >= 5 seconds");
+  if (!Number.isFinite(args.settle) || args.settle < 0) fail("--settle must be >= 0 seconds");
+  if (args.timeout < args.interval + args.settle) {
+    fail("--timeout must be >= --interval + --settle (settle window must fit inside the poll budget)");
+  }
+  return args;
+}
+
+function fail(message, code = 2) {
+  console.error(`Error: ${message}`);
+  process.exit(code);
+}
+
+async function api(path, params, token) {
+  const url = new URL(`https://sonarcloud.io/api/${path}`);
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== null && v !== undefined && v !== "") url.searchParams.set(k, String(v));
+  }
+  const res = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+  });
+  const body = await res.text();
+  if (res.status === 404) return { status: 404, data: null };
+  if (!res.ok) {
+    throw new Error(`SonarCloud API ${res.status} on ${path}: ${body.slice(0, 400)}`);
+  }
+  return { status: res.status, data: JSON.parse(body) };
+}
+
+function contextParams(args) {
+  return args.pullRequest != null
+    ? { projectKey: args.project, pullRequest: args.pullRequest }
+    : { projectKey: args.project, branch: args.branch };
+}
+
+function formatConditions(status) {
+  const rows = (status.conditions ?? []).map((c) => {
+    const metric = c.metricKey ?? "";
+    const value = `${c.value ?? "?"}${c.errorThreshold ? ` (threshold ${c.comparator} ${c.errorThreshold})` : ""}`;
+    return `  [${c.status}] ${metric}: ${value}`;
+  });
+  return rows.length ? rows.join("\n") : "  (no conditions reported)";
+}
+
+async function fetchIssues(args, token, qualities) {
+  const issues = [];
+  for (const q of qualities) {
+    const { data } = await api("issues/search", {
+      organization: args.organization,
+      componentKeys: args.project,
+      ...(args.pullRequest != null ? { pullRequest: args.pullRequest } : { branch: args.branch }),
+      impactSoftwareQualities: q,
+      ps: MAX_ISSUES,
+      s: "FILE_LINE", // SonarCloud issues/search 允許之排序值（ISSUE_KEY 非法，回 400）
+    }, token);
+    for (const it of data?.issues ?? []) {
+      issues.push({
+        rule: it.rule,
+        severity: it.severity,
+        component: (it.component ?? "").split(":").pop(),
+        line: it.line ?? "-",
+        message: (it.message ?? "").split("\n")[0],
+      });
+    }
+    if (issues.length >= MAX_ISSUES) break;
+  }
+  return issues.slice(0, MAX_ISSUES);
+}
+
+function deriveQualities(conditions) {
+  const failed = (conditions ?? []).filter((c) => c.status !== "OK");
+  const qualities = [...new Set(failed.map((c) => {
+    const key = c.metricKey ?? "";
+    return key.startsWith("new_") ? key.replace(/^new_/, "").replace(/_rating$/, "").toUpperCase() : null;
+  }).filter(Boolean))];
+  return qualities.length ? qualities : ["SECURITY", "RELIABILITY", "MAINTAINABILITY"];
+}
+
+async function pollOnce(args, token) {
+  try {
+    const { status, data } = await api("qualitygates/project_status", contextParams(args), token);
+    const projectStatus = status === 200 ? data?.projectStatus : null;
+    if (projectStatus?.status) return projectStatus;
+    if (args.verbose) console.log(`  ...gate not ready (HTTP ${status}); retrying.`);
+    return null;
+  } catch (err) {
+    // Transient SonarCloud API errors (e.g. while the Automatic Analysis for a
+    // fresh push is being re-indexed) are retried until the deadline expires.
+    if (args.verbose) console.log(`  ...API error: ${err?.message ?? err}; retrying.`);
+    return null;
+  }
+}
+
+async function pollGate(args, token) {
+  const startedAt = Date.now();
+  const settleDeadline = startedAt + args.settle * 1000;
+  const overallDeadline = startedAt + args.timeout * 1000;
+  let lastStatus = null;
+  while (Date.now() < overallDeadline) {
+    const t0 = Date.now();
+    const projectStatus = await pollOnce(args, token);
+    if (projectStatus) {
+      lastStatus = projectStatus;
+      const settled = Date.now() >= settleDeadline;
+      const verdictKnown = projectStatus.status !== "UNKNOWN";
+      if (verdictKnown && settled) break;
+      if (verdictKnown && !settled && args.verbose) {
+        const waitMs = Math.max(0, settleDeadline - Date.now());
+        console.log(`  ...verdict ${projectStatus.status} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
+      }
+    }
+    const elapsed = Date.now() - t0;
+    await new Promise((r) => setTimeout(r, Math.max(0, args.interval * 1000 - elapsed)));
+  }
+  return lastStatus;
+}
+
+async function printIssues(args, token, status, where) {
+  let issues = [];
+  try {
+    issues = await fetchIssues(args, token, deriveQualities(status.conditions));
+  } catch (err) {
+    console.log(`  (issue details unavailable: ${err?.message ?? err})`);
+  }
+  if (!issues.length) {
+    console.log(`\nNo issues returned for the failing qualities on ${where}; check the SonarCloud UI for detail.`);
+    return;
+  }
+  console.log(`\nTop ${issues.length} issue(s) on ${where}:`);
+  for (const it of issues) {
+    console.log(`  - [${it.severity}] ${it.rule} ${it.component}:${it.line} — ${it.message}`);
+  }
+}
+
+async function main() {
+  const args = parseArgs(process.argv.slice(2));
+  const token = process.env.SONAR_TOKEN;
+  if (!token || !token.trim()) {
+    fail("SONAR_TOKEN is not set. Provide it via environment; never hardcode it. (fail-fast policy)");
+  }
+
+  // 1. Validate the token once, up front.
+  const { data: auth } = await api("authentication/validate", {}, token);
+  if (!auth?.valid) fail("SONAR_TOKEN was rejected by SonarCloud (authentication/validate).");
+
+  const where = args.pullRequest != null ? `PR #${args.pullRequest}` : `branch "${args.branch}"`;
+  console.log(`SonarCloud quality gate: ${args.project} @ ${where} — polling up to ${args.timeout}s (settle ${args.settle}s).`);
+
+  // 2. Poll the gate until the Automatic Analysis has finished computing it,
+  //    trusting only verdicts observed after the stale-verdict settle window.
+  const lastStatus = await pollGate(args, token);
+  if (!lastStatus || lastStatus.status === "UNKNOWN") {
+    fail(`quality gate not computed within ${args.timeout}s for ${where}.`);
+  }
+
+  console.log(`Quality gate status: ${lastStatus.status}`);
+  console.log(formatConditions(lastStatus));
+
+  // 3. On failure, surface the concrete issues so the fix is evidence-driven.
+  if (lastStatus.status === "ERROR" || lastStatus.status === "WARN") {
+    await printIssues(args, token, lastStatus, where);
+  }
+
+  if (lastStatus.status === "ERROR") {
+    console.error("Quality gate: FAILED");
+    process.exit(1);
+  }
+  console.log("Quality gate: PASSED");
+  process.exit(0);
+}
+
+main().catch((err) => fail(err?.message ?? String(err)));

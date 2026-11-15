@@ -1,18 +1,23 @@
 # OA Framework — 萬能分身元框架
 
-整合 7 大 AI Agent 框架為統一元框架，對齊 `soul.md` 的 5T 協議與 `omni-agent` 5T 驗證引擎。
+整合 10 個子框架適配器為統一元框架，對齊 `soul.md` 的 5T 協議與 `omni-agent` 5T 驗證引擎。
 
 ## 整合的子框架
 
 | ID | 框架 | 形態 | 適配器 |
 |---|---|---|---|
 | `adk` | Google Agent Development Kit (TS) | npm `@google/adk` | `adapters/adk.ts` |
-| `genkit` | Google Genkit (Firebase) | npm `genkit` | `adapters/genkit.ts` |
 | `agent0` | Agent Zero organic framework | Docker `agent0ai/agent-zero:50001` | `adapters/agent0.ts` |
 | `crewai` | CrewAI 30 蜂群 | Python/uv (crewai-runtime) | `adapters/crewai.ts` |
 | `agentreach` | Agent Reach（最新技術） | **spec pending** — 待使用者提供文檔 | `adapters/agentreach.ts` |
 | `deerflow` | DeerFlow 研究流程 | Python FastAPI (esggo-deerflow) | `adapters/deerflow.ts` |
 | `tencent-mem` | 騰訊 Agent 記憶 (TencentDB Agent Memory) — **Team Memory** | MemoryCore `:8420` + Hub `:8125` + Proxy `:8096` | `adapters/tencent-mem.ts` |
+| `openmontage` | OpenMontage | 本地適配器 | `adapters/openmontage.ts` |
+| `omniroute` | OmniRoute | 本地適配器 | `adapters/omniroute.ts` |
+| `turbovec` | TurboVec | 本地適配器 | `adapters/turbovec.ts` |
+| `oneringai` | OneRingAI | npm `@everworker/oneringai` | `adapters/oneringai.ts` |
+
+Genkit 整合已移除。原綁定 Genkit 的蜂群節點 3、11、21 保留，但 binds 為空，不自動改派其他框架。子框架可用性以各 adapter health() 結果為準。
 
 ## 架構
 
@@ -22,10 +27,10 @@ src/
     types.ts        # IComponentCore / ISubFrameAdapter / OAFrameConfig / OATask / OATaskResult
     t5.ts           # 5T 驗證器 + Hash Lock (forgeT5 / verify5T)
     orchestrator.ts # OAOrchestrator — 多框架並行 dispatch + 5T 閘門
-  adapters/         # 7 個子框架適配器 (統一 ISubFrameAdapter 介面)
-  index.ts          # createOAFrame() — 一鍵註冊全部 7 框架
+  adapters/         # 10 個子框架適配器 (統一 ISubFrameAdapter 介面)
+  index.ts          # createOAFrame() — 一鍵註冊全部 10 框架
 test/
-  smoke.ts          # 7 框架並行 + 5T 驗證
+  smoke.ts          # 10 框架並行 + 5T 驗證
 ```
 
 ## 5T 協議（來自 soul.md + omni-agent Gate）
@@ -55,14 +60,13 @@ for (const r of results) {
 
 ```bash
 npm run typecheck   # tsc 零錯誤
-npx tsx test/smoke.ts  # 7 框架並行 + 5T 鑄造 → ALL_7_FRAMEWORKS_OK
+npx tsx test/smoke.ts  # 10 框架並行 + 5T 鑄造 → ALL_10_FRAMEWORKS_OK
 ```
 
 ## 待辦
 
 - [x] **5T 雙層閘門** — 欄位級(t5 布林 + Hash Lock 重算) + 內容級(對齊 omni-agent `gates.ts` 的長度下限/品質正則), `omni-gate.ts` 橋接器已落地, smoke 全過
 - [x] **ADK** — 真實連結 `new LlmAgent({name,model,instruction,tools})` + `run()` (dynamic import, 未裝 `@google/adk` 時 graceful 降級)
-- [x] **Genkit** — 真實連結 `genkit({plugins:[googleAI()]})` + `ai.generate()` (dynamic import, 未裝時 graceful 降級)
 - [x] **Agent Reach** — 對齊官方精確子命令 (Panniantong/agent-reach, Python `pip install agent-reach`):
   - 本質: 路由器+體檢器, 實際執行委派上游 CLI (非自帶 search)
   - 路由表 (來自 agent_reach/skill/SKILL.md):
@@ -89,5 +93,5 @@ npx tsx test/smoke.ts  # 7 框架並行 + 5T 鑄造 → ALL_7_FRAMEWORKS_OK
   - 認證：Bearer `TDAI_GATEWAY_API_KEY` + 必帶 `x-tdai-service-id` header (預設 `oa-team-swarm`)；核心寫入/召回路由為 `POST /v3/conversation/add` + `/v3/conversation/search` (經實測驗證 L0 存可取)。
   - 已知限制：`embeddingService:false` (core 啟動探測時序)，向量語意檢索弱，但 BM25/sqlite 檢索可用。
 - [ ] **Agent Reach**：使用者未提供文檔，`agentreach.ts` 為占位骨架（`health()` 回 `down`），待補協議細節後實作通道分發。
-- [ ] 各 adapter `dispatch` 目前為 scaffold（回傳標記字串），需注入真實 SDK 調用（@google/adk / genkit / Agent0 A2A / crewai-runtime / DeerFlow API / TencentDB gateway）。
+- [ ] 各 adapter `dispatch` 目前為 scaffold（回傳標記字串），需注入真實 SDK 調用（@google/adk / Agent0 A2A / crewai-runtime / DeerFlow API / TencentDB gateway）。
 - [ ] 與 `omni-agent` 5T Gate 串接（將 `verify5T` 作為部署前閘門）。

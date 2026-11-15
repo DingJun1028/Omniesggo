@@ -1,0 +1,33 @@
+name: Verify repaired root Dockerfile
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - '.github/workflows/verify-root-dockerfile.yml'
+permissions:
+  contents: read
+jobs:
+  lint:
+    if: github.head_ref == 'fix/repo-ci-crewai-worker'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Lint repaired root Dockerfile
+        uses: hadolint/hadolint-action@54c9adbab1582c2ef04b2016b760714a4bfde3cf
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: warning
+  build:
+    if: github.head_ref == 'fix/repo-ci-crewai-worker'
+    needs: lint
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build repaired root Dockerfile without publishing
+        run: docker build --progress=plain --tag esggo-pr-76-root:test --file Dockerfile .

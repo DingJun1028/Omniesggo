@@ -16,7 +16,7 @@
  *   TASK ID 是「哪一個修復任務」的身分，OmniTag 是「該任務歸誰、走哪個陣列、
  *   優先序為何」的路由。本模組產出 `omniTag` 建議欄位，兩者可串接。
  *
- * [agent:27][squad:5T驗算][lifecycle:active][p1][platform:esggo][best-practice:结界]
+ * [agent:27][squad:5T驗算][lifecycle:active][p1][platform:esggo][best-practice:結界]
  */
 
 import { readFileSync, existsSync } from 'fs';
@@ -186,7 +186,7 @@ export function suggestOmniTag(taskId: string, description: string): {
       lifecycle: 'active',
       priority: 'p1',
       platform: 'esggo',
-      bestPractice: '结界',
+      bestPractice: '結界',
     },
     squad,
   };

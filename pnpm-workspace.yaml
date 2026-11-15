@@ -21,6 +21,7 @@ packages:
   - '!apps/oa-swarm'
 
 overrides:
+  "@azure/msal-node": ">=7.1.0 <8"
   "@vitest/mocker": ">=4.1.11 <5"
   ws: '>=8.21.0 <9'
   "tar": ">=7.5.21 <8"
@@ -35,8 +36,9 @@ overrides:
   # 安全修補：必須加 <major 上界，裸 '>=' 會讓 pnpm 跳到跨 major。
   # （原註解引用的 AGENTS.md #4 經實查不存在：root AGENTS.md 無編號條文）
   "nanoid": ">=3.3.18 <4"
-  "dompurify": ">=3.4.12 <4"
-  "body-parser": ">=1.20.6 <2"
+  "dompurify": ">=3.4.17 <4"
+  "happy-dom": ">=21.0.4 <22"
+  "body-parser": ">=1.20.9 <2"
   # ── 2026-09-05 pnpm audit 修補：qs SSRF (express → body-parser → qs) ──
   # 傳入鏈路：express@4.22.2 → body-parser(~1.20.5) → qs(~6.15.1)
   # 修補：升級至 >=6.15.4 (patched version)
@@ -77,7 +79,7 @@ overrides:
   # ⛔ 回退 (2026-08-17 09:00 部署前驗證): undici@8 移除了 lib/handler/wrap-handler.js，
   #    jsdom@29.1.1 硬性 require 該路徑 → OmniCore CI / learning-center-ci / VPS 建置三紅。
   #    jsdom@29 只接受 ^7.25.0；跨 major 亦違反 major 上界原則。維持 7.x 修補版。
-  "undici": ">=7.29.1 <8"
+  "undici": ">=7.30.1 <8"
   "@grpc/grpc-js": ">=1.13.6 <2"
   "cross-spawn": ">=7.0.6 <8"
   "express": ">=4.21.2 <5"
@@ -115,13 +117,12 @@ overrides:
   "postcss-selector-parser": ">=7.1.6 <8"
 
 allowBuilds:
+  'cpu-features': false
+  'ssh2': false
   '@firebase/util': false
   '@google/genai': false
-  '@prisma/client': true
-  '@prisma/engines': true
   core-js: true
   esbuild: true
-  prisma: true
   protobufjs: false
   sharp: true
   sqlite3: false
@@ -174,3 +175,11 @@ minimumReleaseAgeExclude:
 onlyBuiltDependencies:
   - tesseract.js
   - sqlite3
+
+# ssh2 → cpu-features 為選用之原生加速（純 JS fallback 完整可用）；
+# CI 不需其 postinstall 產物，明示略過以消除 ERR_PNPM_IGNORED_BUILDS（exit 1）。
+# 2026-11-05 實證（install-diag）：pnpm 11.5.2 對未宣告建置腳本之依賴
+# cpu-features@0.0.10、ssh2@1.17.0 報 ERR_PNPM_IGNORED_BUILDS，連帶全倉 CI 紅。
+ignoredBuiltDependencies:
+  - cpu-features
+  - ssh2

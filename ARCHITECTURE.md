@@ -101,7 +101,7 @@ FTG Worker（`apps/ftg-tours-website/worker/`）已是正確形狀——把它�
   │          ↓ 5 分鐘內自動回執信（含下次聯絡承諾）
 交付        journey.ftgtours.esggo.co（Google 登入 → 行程儀表板 →
   │          行前準備/打卡/ESG 任務/徽章 → Impact Note PDF）
-留存        Impact Note 分享（公開連結+品牌牆）→ 明年復購钩子
+留存        Impact Note 分享（公開連結+品牌牆）→ 明年復購鉤子
             + /philosophy 品牌故事頁強化信任
 ```
 

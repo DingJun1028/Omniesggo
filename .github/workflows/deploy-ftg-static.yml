@@ -19,18 +19,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
-          cache-dependency-path: apps/ftg-tours-website/package-lock.json
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
 
       - name: Build FTG
         working-directory: apps/ftg-tours-website
-        run: |
-          npm ci
-          npm run build
+        run: pnpm run build
 
       - name: Setup SSH key
         uses: webfactory/ssh-agent@v0.9.0
@@ -43,6 +46,7 @@ jobs:
           FTG_DST="/var/www/ftgtours"
           echo "Syncing FTG build artifacts to VPS..."
           rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
             "$FTG_SRC/" \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$FTG_DST/"
           echo "Sync complete!"
@@ -52,11 +56,9 @@ jobs:
           ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
             "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
             'sudo nginx -t && sudo nginx -s reload'
-        continue-on-error: true
 
       - name: Verify deployment
         run: |
           sleep 3
-          curl -sL -o /dev/null -w "ftgtours.esggo.co status: %{http_code}\n" "https://ftgtours.esggo.co/"
-          curl -sL -o /dev/null -w "esggo.co status: %{http_code}\n" "https://esggo.co/"
-        continue-on-error: true
+          curl -fsSL --proto "=https" --proto-redir "=https" -o /dev/null -w "ftgtours.esggo.co status: %{http_code}\n" "https://ftgtours.esggo.co/"
+          curl -fsSL --proto "=https" --proto-redir "=https" -o /dev/null -w "esggo.co status: %{http_code}\n" "https://esggo.co/"

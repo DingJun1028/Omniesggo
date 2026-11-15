@@ -1,4 +1,4 @@
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 // src/lib/sustain-write/index.ts
 // Re-export key utilities from each module
 
@@ -16,7 +16,7 @@ export {
   gapFillNumeric,
 } from './data-processing';
 
-// Business Intelligence
+// Business Intelligence (legacy + OmniBiz)
 export {
   type MarketSignal,
   type CompetitorSnapshot,
@@ -25,6 +25,20 @@ export {
   summarizeTrend,
   BizIntelligenceEngine,
   bizIntelligence,
+} from './biz-intelligence';
+export type {
+  Category,
+  IndustryDataPoint,
+  TrendSeries,
+  OmniBizInsight,
+} from './biz-intelligence/types';
+export {
+  hashLock,
+  sealInsight,
+  trendDirection,
+  gravityTwo,
+  OmniBizEngine,
+  omniBiz,
 } from './biz-intelligence';
 
 // C-Version Report API

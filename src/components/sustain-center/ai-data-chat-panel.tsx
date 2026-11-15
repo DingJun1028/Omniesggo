@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Bot, Send, Sparkles, ShieldCheck, Hash, Cpu, RefreshCw } from 'lucide-react';
+import { Bot, Send, ShieldCheck, Hash, Cpu, RefreshCw } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -11,6 +11,9 @@ interface ChatMessage {
   hashLock?: string;
   engine?: string;
 }
+
+// 模組層級 id 產生器：保持事件處理器中之 Date.now() 呼叫於元件 render 之外
+const nextId = (prefix: string): string => `${prefix}-${Date.now()}`;
 
 export function AIDataChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -36,7 +39,7 @@ export function AIDataChatPanel() {
     if (!textToSend.trim() || loading) return;
 
     const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
+      id: nextId('u'),
       sender: 'user',
       text: textToSend,
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -64,7 +67,7 @@ export function AIDataChatPanel() {
 
       if (json.success) {
         const aiMsg: ChatMessage = {
-          id: `ai-${Date.now()}`,
+          id: nextId('ai'),
           sender: 'ai',
           text: json.answer,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -77,7 +80,7 @@ export function AIDataChatPanel() {
       }
     } catch (err) {
       const errorMsg: ChatMessage = {
-        id: `err-${Date.now()}`,
+        id: nextId('err'),
         sender: 'ai',
         text: `⚠️ 分析過程發生錯誤: ${(err as Error).message}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

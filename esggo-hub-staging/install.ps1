@@ -42,7 +42,7 @@ if ($ForceBackend -or -not (Test-Path $apiDest)) {
 
 # 3. Enable plugin in config — merge, do not overwrite other enabled plugins.
 #    CRITICAL: must be a JSON ARRAY, e.g. ["esggo-hub"]. A bare string "esggo-hub"
-#    is silently ignored by the gateway (backend never mounts -> pane shows "后端未启用").
+#    is silently ignored by the gateway (backend never mounts -> pane shows "後端未啟用").
 try {
   $existing = @()
   $raw = & hermes config get plugins.enabled 2>$null

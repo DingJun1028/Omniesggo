@@ -45,12 +45,14 @@ export interface Wisdom extends IComponentCore {
   provenance: ProvenanceChain;
 }
 
-export interface EvolutionReport extends IComponentCore {
+export interface DbEvolutionReport extends IComponentCore {
   contradictions: Array<{ factA: string; factB: string; severity: number }>;
   gaps: Array<{ topic: string; missingCount: number }>;
   newInsights: Insight[];
   iteratedAt: number;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { DbEvolutionReport as EvolutionReport };
 
 /**
  * OmniDB class — Knowledge Pyramid engine
@@ -151,7 +153,7 @@ export class OmniDB {
   /**
    * Algorithm 5: Self-Iteration Loop
    */
-  async iterate(): Promise<Readonly<EvolutionReport>> {
+  async iterate(): Promise<Readonly<DbEvolutionReport>> {
     const contradictions: Array<{ factA: string; factB: string; severity: number }> = [];
     const seenRules = new Map<string, string>();
 
@@ -178,7 +180,7 @@ export class OmniDB {
     const core = createComponentCore(`omni-db://evolve/iterate`);
     const sealed = await sealComponentCore(core);
 
-    const report: EvolutionReport = {
+    const report: DbEvolutionReport = {
       ...sealed,
       contradictions,
       gaps,

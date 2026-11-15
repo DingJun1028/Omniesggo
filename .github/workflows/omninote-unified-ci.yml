@@ -1,0 +1,67 @@
+# =============================================================================
+# OmniNote: Unified — 契約驗證工作流（PR #161 權威驗證落點）
+# 觸發：feature 分支 push 與涉及 packages/omninote-unified 之 PR
+# 設計：
+#   1. lockfile 同步前（PR #161 待辦）允許 --no-frozen-lockfile 降級安裝，
+#      lockfile 落地後 frozen 自動成立，此步無需再改。
+#   2. tsc --noEmit 以真實 @sinclair/typebox 為權威型別檢查。
+#   3. 38 項契約測試（核心 17 + API 6 + 匯入匯出 8 + 草稿 7）為阻斷項。
+#   4. 基準為非阻斷（continue-on-error），符合「bench 另立非阻斷 CI」規範。
+# =============================================================================
+name: OmniNote Unified CI
+
+on:
+  push:
+    branches: [feat/omninote-unified-package]
+  pull_request:
+    paths:
+      - 'packages/omninote-unified/**'
+      - 'pnpm-lock.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: omninote-unified-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  omninote-unified:
+    name: TypeCheck + 38 contract tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+        timeout-minutes: 5
+
+      - name: Setup pnpm 12.16.1
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 12.16.1
+        timeout-minutes: 3
+
+      - name: Install dependencies (frozen 優先；lockfile 同步前允許降級)
+        run: |
+          pnpm install --frozen-lockfile || (
+            echo "::warning::pnpm-lock.yaml 尚未同步（PR #161 待辦），暫以 --no-frozen-lockfile 安裝"
+            pnpm install --no-frozen-lockfile
+          )
+        timeout-minutes: 25
+
+      - name: TypeScript type check (authoritative)
+        run: pnpm --filter @esggo/omninote-unified typecheck
+        timeout-minutes: 10
+
+      - name: Contract tests (38)
+        run: pnpm --filter @esggo/omninote-unified test
+        timeout-minutes: 10
+
+      - name: Benchmarks (non-blocking)
+        run: pnpm --filter @esggo/omninote-unified bench
+        timeout-minutes: 10
+        continue-on-error: true

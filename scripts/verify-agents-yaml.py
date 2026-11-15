@@ -9,7 +9,7 @@ Checks /opt/esggo/agents.yaml against the OA-Team spec:
   4. Required-tag rule: every agent has agent:* + lifecycle:* + p*.
   5. Forbidden combinations are not present.
   6. best-practice-awakening 結界 inheritance integrity:
-       - inheritance_sources list matches agents tagged best-practice:结界
+       - inheritance_sources list matches agents tagged best-practice:結界
        - no inheritance-source agent is lifecycle:draft
   7. Canonical `tags` string is consistent with the structured omnitag map.
 
@@ -36,7 +36,7 @@ DIMENSION_VALUES = {
     "lifecycle": {"draft", "active", "frozen", "archived"},
     "priority": {"p0", "p1", "p2", "p3"},
     "platform": {"esggo", "omni", "vps", "firebase", "vercel", "github"},
-    "best-practice": {"awakened", "结界", "draft"},
+    "best-practice": {"awakened", "結界", "draft"},
 }
 
 REQUIRED_TAG_DIMS = ["agent", "lifecycle", "priority"]
@@ -46,7 +46,7 @@ FORBIDDEN_PAIRS = [
     (("security", "public"), ("security", "restricted"), "security:public + security:restricted"),
     (("priority", "p0"), ("priority", "p3"), "p0 + p3"),
     (("best-practice", "awakened"), ("lifecycle", "draft"), "best-practice:awakened + lifecycle:draft"),
-    (("best-practice", "结界"), ("lifecycle", "draft"), "best-practice:结界 + lifecycle:draft"),
+    (("best-practice", "結界"), ("lifecycle", "draft"), "best-practice:結界 + lifecycle:draft"),
 ]
 
 CORE_DIM_ORDER = ["security", "agent", "squad", "lifecycle", "priority", "platform", "best-practice"]
@@ -121,11 +121,11 @@ def _failures() -> list[str]:
     inheritance_sources = set(
         bpa.get("inheritance_sources", inheritance_block.get("inheritance_sources", []))
     )
-    tagged_sources = {a.get("id") for a in agents if a.get("omnitag", {}).get("best-practice") == "结界"}
+    tagged_sources = {a.get("id") for a in agents if a.get("omnitag", {}).get("best-practice") == "結界"}
     if inheritance_sources != tagged_sources:
         errors.append(
             f"inheritance_sources {sorted(inheritance_sources)} do not match agents "
-            f"tagged best-practice:结界 {sorted(tagged_sources)}"
+            f"tagged best-practice:結界 {sorted(tagged_sources)}"
         )
     for agent_id in inheritance_sources:
         agent = next((a for a in agents if a.get("id") == agent_id), None)

@@ -1,53 +1,53 @@
-# 质量检查清单
+# 質量檢查清單
 
-Phase C 代码生成完成后，逐项自检。
+Phase C 程式碼生成完成後，逐項自檢。
 
-## DESIGN.md 合规（必查）
+## DESIGN.md 合規（必查）
 
-- [ ] 已生成 DESIGN.md 并保存到项目目录
-- [ ] DESIGN.md 包含完整 9 个章节，无空章节
-- [ ] 代码中所有颜色通过 DESIGN.md 定义的 CSS 变量引用，无硬编码 hex
-- [ ] 字体严格按 DESIGN.md 的 Typography Rules 使用
-- [ ] 交互效果严格按 DESIGN.md 指定的档位（L1/L2/L3）实现
-- [ ] 未违反 DESIGN.md 的 Do's and Don'ts 中的任何一条
+- [ ] 已生成 DESIGN.md 並儲存到專案目錄
+- [ ] DESIGN.md 包含完整 9 個章節，無空章節
+- [ ] 程式碼中所有顏色通過 DESIGN.md 定義的 CSS 變數引用，無硬編碼 hex
+- [ ] 字型嚴格按 DESIGN.md 的 Typography Rules 使用
+- [ ] 互動效果嚴格按 DESIGN.md 指定的檔位（L1/L2/L3）實現
+- [ ] 未違反 DESIGN.md 的 Do's and Don'ts 中的任何一條
 
-## 参考网站解析（有参考 URL 时）
+## 參考網站解析（有參考 URL 時）
 
-- [ ] 综合体验感知 + Token 提取 + 截图对照三类输入分析
-- [ ] 使用脚本或 curl 抓取原始 HTML/CSS，未单纯依赖 AI 摘要
-- [ ] 已数清参考站所有 section 模块
-- [ ] 若有滚动联动动效，已做 motion audit
-- [ ] 生成完成后对结果与参考物做过显式差异审计
+- [ ] 綜合體驗感知 + Token 提取 + 截圖對照三類輸入分析
+- [ ] 使用指令碼或 curl 抓取原始 HTML/CSS，未單純依賴 AI 摘要
+- [ ] 已數清參考站所有 section 模組
+- [ ] 若有滾動聯動動效，已做 motion audit
+- [ ] 生成完成後對結果與參考物做過顯式差異審計
 
-## 字体
+## 字型
 
-- [ ] 字体按 DESIGN.md 选取，有 Google Fonts @import URL + fallback
-- [ ] 已按 text-decoration-rules.md 对 h1/h2/h3 执行装饰判断
-- [ ] **场景化字号要求**（从 `scene-defaults.md` 取对应场景字号，不要一刀切）：
+- [ ] 字型按 DESIGN.md 選取，有 Google Fonts @import URL + fallback
+- [ ] 已按 text-decoration-rules.md 對 h1/h2/h3 執行裝飾判斷
+- [ ] **場景化字號要求**（從 `scene-defaults.md` 取對應場景字號，不要一刀切）：
   - Landing / Portfolio Hero：≥ 60px、weight ≥ 700
   - Blog / 文章：Hero 32-40px，body 1-1.0625rem，行高 1.7-1.8
-  - Dashboard / App UI：页面标题 1.25-1.5rem，正文 0.875rem
-  - PPT / 课件：Hero 3-3.5rem（serif），正文 0.82-0.85rem
-  - 邮件：标题 24-28px，正文 15-16px
-- [ ] 中文内容：字体含中文字族，行高 ≥ 1.7，字距 0.02em
+  - Dashboard / App UI：頁面標題 1.25-1.5rem，正文 0.875rem
+  - PPT / 課件：Hero 3-3.5rem（serif），正文 0.82-0.85rem
+  - 郵件：標題 24-28px，正文 15-16px
+- [ ] 中文內容：字型含中文字族，行高 ≥ 1.7，字距 0.02em
 
-## 视觉系统
+## 視覺系統
 
-- [ ] 所有颜色通过 CSS 变量
-- [ ] 图标使用项目库 / lucide-react / 内联 SVG；**Playful Creative 调性允许 Emoji 装饰**，其余调性禁用
-- [ ] 用户素材已做适配处理；不匹配时已提醒
-- [ ] 图片占位：参考站 URL / Unsplash，禁止纯色块
+- [ ] 所有顏色通過 CSS 變數
+- [ ] 圖示使用專案庫 / lucide-react / 內聯 SVG；**Playful Creative 調性允許 Emoji 裝飾**，其餘調性停用
+- [ ] 使用者素材已做适配處理；不匹配時已提醒
+- [ ] 圖片佔位：參考站 URL / Unsplash，禁止純色塊
 
 ## 交互
 
-- [ ] 每个可交互元素有 hover + focus 状态
-- [ ] 入场动画已实现（至少 L1 级 fadeIn）
-- [ ] L2+ 滚动行为已实现（reveal / 视差 / 导航变化）
-- [ ] L3 特效已实现（pin / 光标 / 转场）
-- [ ] L2+ 包含 prefers-reduced-motion 降级
+- [ ] 每個可互動元素有 hover + focus 狀態
+- [ ] 入場動畫已實現（至少 L1 級 fadeIn）
+- [ ] L2+ 滾動行為已實現（reveal / 視差 / 導航變化）
+- [ ] L3 特效已實現（pin / 游標 / 轉場）
+- [ ] L2+ 包含 prefers-reduced-motion 降級
 
-## 响应式
+## 響應式
 
-- [ ] 至少适配移动端（< 600px）和桌面端
-- [ ] 导航在移动端有折叠方案
-- [ ] 图片和容器不溢出
+- [ ] 至少适配移動端（< 600px）和桌面端
+- [ ] 導航在移動端有摺疊方案
+- [ ] 圖片和容器不溢位

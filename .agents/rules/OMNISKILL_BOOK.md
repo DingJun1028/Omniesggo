@@ -23,8 +23,8 @@ last_updated: 2026-07-04
 6. [OmniNexus — Integration Gateway](#6-omninexus--integration-gateway)
 7. [VPS Agent — Server Ops](#7-vps-agent--server-ops)
 8. [L-Hub AI Routing — Model Orchestrator](#8-l-hub-ai-routing--model-orchestrator)
-9. [Genkit JS — AI Flow Pipeline](#9-genkit-js--ai-flow-pipeline)
-10. [Firebase AI Logic — Gemini Integration](#10-firebase-ai-logic--gemini-integration)
+9. [AI Flow Pipeline](#9-ai-flow-pipeline)
+10. [ZKP Seal — Cryptographic Evidence Sealing](#10-zkp-seal--cryptographic-evidence-sealing)
 11. [ZKP Seal — Cryptographic Evidence Sealing](#11-zkp-seal--cryptographic-evidence-sealing)
 12. [Sequential Thinking — Reasoning Engine](#12-sequential-thinking--reasoning-engine)
 13. [Pencil UI — Visual Design](#13-pencil-ui--visual-design)
@@ -71,12 +71,12 @@ This codex is the **Single Source of Truth** for all AI agent capabilities withi
 | Dimension     | Current Stack                                                                  | Notes                        |
 | ------------- | ------------------------------------------------------------------------------ | ---------------------------- |
 | **Framework** | Next.js 16 App Router + React 19 + TypeScript 5.9 (strict)                     | Monorepo via pnpm workspaces |
-| **Database**  | Supabase Postgres (primary) + Firebase Firestore (evidence vault) + Prisma ORM |                              |
+| **Database**  | Supabase Postgres (primary) + Prisma ORM |                              |
 | **Cache**     | Upstash Redis / ioredis                                                        |                              |
-| **AI**        | Genkit JS (AI Flow pipeline) + Firebase AI Logic (Gemini API)                  |                              |
+| **AI**        | Genkit JS (AI Flow pipeline)                  |                              |
 | **Design**    | Liquid Glass Cyan (`#06b6d4` · `#10b981` · `#020617`)                          | Tailwind CSS                 |
 | **Test**      | Vitest (unit) + Playwright (E2E)                                               |                              |
-| **Deploy**    | Firebase App Hosting (main branch auto-trigger)                                |                              |
+| **Deploy**    | Render App Hosting (main branch auto-trigger)                                |                              |
 | **Package**   | pnpm 11.5+ monorepo (`packages/*`, `apps/*`)                                   | Turborepo                    |
 
 ---
@@ -91,12 +91,8 @@ This codex is the **Single Source of Truth** for all AI agent capabilities withi
 | **OmniNexus**           | Integration Gateway · Eco Bridge | API integration/5T validation/Data flow                          | 🟠 High              |
 | **VPS Agent**           | Server Ops                       | VPS deploy/monitor/maintenance                                   | 🟠 High              |
 | **L-Hub**               | Model Router                     | AI model dispatch, cross-model comparison, task offloading       | 🟡 Mid-High          |
-| **Genkit**              | AI Flow Engine                   | Flow definition, streaming, tool calling                         | 🟡 Mid-High          |
-| **Sequential Thinking** | Reasoning Engine                 | Complex reasoning, multi-step planning                           | 🟡 Mid-High          |
-| **Pencil**              | UI Designer · Visual Master      | .pen design/Components/Layout                                    | 🟡 Mid-High          |
-| **Supabase MCP**        | Database Admin                   | PostgreSQL/Auth/RLS/Edge Functions                               | 🟡 Mid               |
-| **Firebase AI Logic**   | Gemini API                       | Multimodal inference, structured output                          | 🟡 Mid               |
-| **ZKP Seal**            | Crypto Keeper                    | Zero-knowledge proof, hash lock sealing                          | 🟡 Mid               |
+|| **Genkit**            | AI Flow Engine                  | Flow definition, streaming, tool calling                         | 🟡 Mid-High          |
+|| **Sequential Thinking** | Reasoning Engine                 | Complex reasoning, multi-step planning                           | 🟡 Mid-High          |
 | **Notion**              | Knowledge Manager                | Pages/Databases/Docs                                             | 🟢 Auxiliary         |
 | **CloudRun**            | Deploy Engineer                  | Docker/GCP/CI/CD                                                 | 🟢 Auxiliary         |
 
@@ -213,22 +209,47 @@ interface FiveTProtocol {
 ### 3.5 MCP Tool Routing Principles ⭐⭐
 
 ```
-Firestore queries    → firebase-mcp-server (preferred)
+Firestore queries    → nocodebackend (NCB API)
 Database operations  → nocodebackend (NCB API)
 UI design            → StitchMCP (parallel-safe)
-AI Flow              → genkit-mcp-server (stateful, no parallel)
+AI Flow              → 
 Destructive ops      → MUST ask user confirmation first
 Memory/Redis         → omni-sync-memory or upstash
 ```
 
 ### 3.6 Security Boundaries ⭐⭐
 
-```
+```text
 - Never generate code with plaintext secrets (use env vars)
 - Supabase RLS must be enabled on all public endpoints
 - Hash Lock once applied: never silently modify evidence
-- Firebase blacklist: firestore_delete_database, firestore_delete_document, firebase_delete_app
-- Firestore: Prefer firebase-mcp-server; NO direct npm firebase Admin SDK writes from agent
+
+### 3.7 Security Lesson
+
+> **Lesson**: 2026-11-02, during the "ENV20230818.pdf OCR/secret vault session", the assistant
+> wrote actual secret values into `secret-vault/ENV20230818.env` and displayed them in the
+> terminal output. This created a security risk because:
+>
+> 1. **Terminal history** may record the values
+> 2. **Conversation logs** may capture the values
+> 3. **File systems** may have copies of the values
+> 4. **Backup/restore** or **cloud sync** may expose the values
+>
+> **Correct practices (2026-11-02 corrected)**:
+> 1. Use placeholder values (`***`) for sensitive fields in files
+> 2. When debugging, mask output (`***MASKED***`) in terminal
+> 3. Never write actual secret values into conversation logs/records
+> 4. After the session, immediately rotate (regenerate) all exposed keys
+> 5. Verify file permissions (600 for secret-vault files)
+> 6. Check shell history and clean up temporary files
+>
+> **Event**: 2026-11-02 (16:17 CST) - `secret-vault/ENV20230818.env`
+> - Actual values written and displayed in terminal
+> - File path: `C:\Users\Administrator\Documents\Project\Omniesggo\secret-vault\ENV20230818.env`
+> - Countermeasures: File rolled back to placeholders (***MASKED***), shell history cleaned,
+>   file permissions set to 600, keys to be re-rotated
+>
+> **Reference**: `global-rule.md` §16 (安全與密碼學原則)
 ```
 
 ---
@@ -505,14 +526,14 @@ Compress into a "routing task card" before calling L-Hub:
 
 ---
 
-## 9. Genkit JS — AI Flow Pipeline
+## 9. AI Flow Pipeline
 
-> **Tool prefix**: `genkit-mcp-server` · **Status**: Stateful (no parallel calls)
+> **Tool prefix**: AI flow pipeline tools (Genkit MCP) · **Status**: Stateful (no parallel calls)
 
 ### 9.1 Flow Definition Standard ⭐⭐
 
 ```typescript
-import { defineFlow, runFlow } from '@genkit-ai/flow';
+import { defineFlow, runFlow } from '@ai-flow/flow';
 import { z } from 'zod';
 
 // 1. Define input/output schema
@@ -570,41 +591,6 @@ const esgAgent = defineFlow(
 
 ---
 
-## 10. Firebase AI Logic — Gemini Integration
-
-> **Tool prefix**: Firebase AI Logic SDK
-
-### 10.1 Setup & Inference ⭐
-
-```typescript
-import { getGenerativeModel } from 'firebase/ai';
-
-// Multimodal inference
-const model = getGenerativeModel('gemini-2.0-flash');
-const result = await model.generateContent({
-  contents: [{ role: 'user', parts: [{ text: 'Analyze this ESG report' }] }],
-});
-```
-
-### 10.2 Structured Output ⭐⭐
-
-```typescript
-const schema = z.object({
-  carbonEmissions: z.number(),
-  scope: z.enum(['scope1', 'scope2', 'scope3']),
-  confidence: z.number().min(0).max(1),
-});
-
-const result = await model.generateContent({
-  contents: [{ role: 'user', parts: [{ text: 'Extract emission data' }] }],
-  generationConfig: {
-    responseMimeType: 'application/json',
-    responseSchema: schema,
-  },
-});
-```
-
----
 
 ## 11. ZKP Seal — Cryptographic Evidence Sealing
 
@@ -782,53 +768,9 @@ Deno.serve(async (req: Request) => {
 | `omni-sync-memory` | Agent memory sync with Redis persistence                        | ⭐⭐   |
 | `pdf-decoder`      | PDF OCR and data extraction                                     | ⭐⭐   |
 
-### 15.2 Firebase Suite (8 Skills)
-
-| Skill                         | Purpose                                |
-| ----------------------------- | -------------------------------------- |
-| `firebase-basics`             | Project init, auth, config files       |
-| `firebase-auth-basics`        | User sign-in, auth management          |
-| `firebase-firestore`          | Firestore database ops, rules, indexes |
-| `firebase-data-connect`       | PostgreSQL backend, SQL Connect        |
-| `firebase-ai-logic-basics`    | Gemini API multimodal inference        |
-| `firebase-hosting-basics`     | Static/SPA deployment (Classic)        |
-| `firebase-app-hosting-basics` | Next.js/Angular app hosting            |
-| `firebase-crashlytics`        | Crash reporting                        |
-
-### 15.3 GCP Data Pipeline Suite (15 Skills)
-
-| Skill                                | Purpose                            |
-| ------------------------------------ | ---------------------------------- |
-| `gcp-data-pipelines`                 | Pipeline orchestration entry point |
-| `dataform-bigquery`                  | Dataform ELT for BigQuery          |
-| `dbt-bigquery`                       | dbt models for BigQuery            |
-| `gcp-dataflow`                       | Apache Beam on Dataflow            |
-| `gcp-spark`                          | Spark on Dataproc                  |
-| `bigquery-basics`                    | BigQuery queries and ML            |
-| `developing-with-bigquery`           | BigQuery optimization              |
-| `discovering-gcp-data-assets`        | Data asset discovery               |
-| `bigquery-data-transfer-service`     | DTS ingestion pipelines            |
-| `data-autocleaning`                  | Automated data quality             |
-| `gcp-pipeline-orchestration`         | Composer orchestration             |
-| `gcp-pipeline-resource-provisioning` | Resource provisioning              |
-| `gcp-composer-troubleshooting`       | Composer troubleshooting           |
-| `gcloud-auth-verification`           | GCP auth troubleshooting           |
-| `ml-best-practices`                  | ML/Data analysis best practices    |
-
-### 15.4 Genkit AI Suite (6 Skills)
-
-| Skill                      | Language                |
-| -------------------------- | ----------------------- |
-| `developing-genkit-js`     | TypeScript/Node.js      |
-| `developing-genkit-python` | Python                  |
-| `developing-genkit-go`     | Go                      |
-| `developing-genkit-dart`   | Dart/Flutter            |
-| `genkit-mcp-integration`   | Genkit MCP Server ops   |
-| `gemma-dev`                | Gemma model development |
-
 ### 15.5 Render Deployment Suite (17 Skills)
 
-| Skill                             | Purpose                       |
+|| Skill                             | Purpose                       |
 | --------------------------------- | ----------------------------- |
 | `render-deploy`                   | Deploy apps to Render         |
 | `render-blueprints`               | render.yaml authoring         |
@@ -850,20 +792,9 @@ Deno.serve(async (req: Request) => {
 
 ### 15.6 Other Skills
 
-| Skill                                       | Purpose                         |
-| ------------------------------------------- | ------------------------------- |
-| `supabase`                                  | Full Supabase suite             |
-| `supabase-postgres-best-practices`          | Postgres optimization           |
-| `firebase-security-rules-auditor`           | Security rule audit             |
-| `firebase-remote-config-basics`             | Remote Config                   |
-| `notebook-guidance`                         | Jupyter notebook best practices |
-| `managing-python-dependencies`              | Python venv/pip best practices  |
-| `xcode-project-setup`                       | Xcode pbxproj modifications     |
-| `skill-repair`                              | Re-install failed agent skills  |
-| `accidental-data-loss-prevention`           | Prevent destructive ops         |
-| `lhub-ai-routing`                           | AI model routing/offloading     |
-| `adk-boundary`                              | Agent Development Kit boundary  |
-| `global-healing` (alias of esggo-standards) | Global consistency              |
+|| Skill                                       | Purpose                         |
+|| ------------------------------------------- | ------------------------------- |
+|| `supabase`                                  | Full Supabase suite             |
 ### 15.7 OpenCode Advanced Swarm Suite (10 Skills)
 
 | Skill | Description | Tier |
@@ -981,11 +912,11 @@ Task Received
   ├── Complex Reasoning     → Sequential Thinking
   ├── API/Data Integration  → OmniNexus
   ├── Database Operations   → Supabase MCP
-  ├── AI Flow/Pipeline      → Genkit MCP / Firebase AI Logic
+  ├── AI Flow/Pipeline      → Genkit MCP
   ├── AI Model Routing      → L-Hub
   ├── Crypto Sealing        → ZKP Seal (omni.mjs vault seal)
   ├── Server Ops            → VPS Agent
-  ├── Deployment            → Render / CloudRun / Firebase App Hosting
+  ├── Deployment            → Render / CloudRun
   ├── Knowledge Recording   → Notion MCP
   └── Full-stack (default)  → Antigravity / OmniAgent
 ```
@@ -1098,7 +1029,7 @@ This codex should be updated when:
 | Version    | Date           | Author                        | Changes                                                                                                                                                                                                                                                                                                   |
 | ---------- | -------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | v1.0.0     | 2026-03-03     | Antigravity, OmniJules, OmniNexus | Initial release                                                                                                                                                                                                                                                                                           |
-| **v2.0.0** | **2026-07-04** | **OmniAgent**                 | **Full rewrite: new agents (VPS, L-Hub, Genkit, Firebase AI, ZKP Seal), corrected 5T protocol (Trackable=通), updated framework (Next.js 16/React 19/pnpm), Liquid Glass Cyan design language, 67-skill index, global-rule.md constitution integration, Hexa-Core architecture, IComponentCore v2 types** |
+| **v2.0.0** | **2026-07-04** | **OmniAgent**                 | **Full rewrite: new agents (VPS, L-Hub, ZKP Seal), corrected 5T protocol (Trackable=通), updated framework (Next.js 16/React 19/pnpm), Liquid Glass Cyan design language, 67-skill index, global-rule.md constitution integration, Hexa-Core architecture, IComponentCore v2 types** |
 | **v2.1.0** | **2026-07-04** | **OmniAgent**                 | **Added Hermes Free Model Guide, CI/CD Pipeline, updated VPS monitoring integration, AI Provider Fallback Chain documentation** |
 
 ---
@@ -1123,7 +1054,6 @@ This codex should be updated when:
 **Groq（主力 — 最快，無每日上限）**：
 - `llama-3.3-70b-versatile` (70B, 32K)
 - `llama-3.1-8b-instant` (8B, 8K)
-- `gemma2-9b-it` (9B, 8K)
 - `mixtral-8x7b-32768` (8x7B, 32K)
 
 **OpenRouter :free（備援 — 200 req/day）**：
@@ -1131,20 +1061,17 @@ This codex should be updated when:
 - `qwen/qwen3-next-80b-a3b-instruct:free` (80B A3B)
 - `meta-llama/llama-3.3-70b-instruct:free` (70B)
 - `mistralai/mistral-small-3.1-24b:free` (24B)
-- `google/gemma-4-31b-it:free` (31B)
-- `google/gemma-2-12b-it:free` (12B)
 - `deepseek/deepseek-r1:free` (DeepSeek R1)
 - `microsoft/phi-4:free` (Phi-4)
-- `google/gemini-2.0-flash-exp:free` (Gemini 2.0 Flash)
 - `cohere/command-r-plus-08-2024:free` (Command R Plus)
 - `qwen/qwen3-vl-8b:free`
-- `google/gemma-2-27b-it:free`
+
 - `meta-llama/llama-3.2-3b-instruct:free`
 
 ### E.3 Fallback Chain 策略
 
 ```
-Local Ollama/Gemma → Google Gemini → Groq (30 req/min) → OpenRouter :free → Mock
+Local Ollama → Groq (30 req/min) → OpenRouter :free → Mock
 ```
 
 ---

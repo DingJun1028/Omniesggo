@@ -6,7 +6,7 @@ const PRODUCTS = [
   { id: 2, name: "公平貿易咖啡豆 (Fair Trade Coffee Beans)", desc: "來自瓜地馬拉的 100% 公平貿易認證咖啡 (Guatemala Certifed Coffee).", price: 1200, icon: Coffee, color: "amber" },
   { id: 3, name: "永續報告書範本 (Sustainability Report Template)", desc: "進階版 CSR/ESG 報告書排版範本 (Advanced Report Layout Template).", price: 800, icon: Book, color: "indigo" },
   { id: 4, name: "認養一棵樹 (Adopt a Tree)", desc: "我們將以您的名義在亞馬遜雨林種下一棵樹 (Amazon Rainforest Reforestation).", price: 3000, icon: TreeDeciduous, color: "emerald" },
-  { id: 5, name: "神秘卡牌包 (Mystery Card Pack)", desc: "包含 3 張隨機永續卡牌，有機會獲得史詩卡 (3 Random Sustainability Cards)！", price: 1500, icon: Gift, color: "purple" },
+  { id: 5, name: "神祕卡牌包 (Mystery Card Pack)", desc: "包含 3 張隨機永續卡牌，有機會獲得史詩卡 (3 Random Sustainability Cards)！", price: 1500, icon: Gift, color: "purple" },
 ];
 
 export function MallView() {

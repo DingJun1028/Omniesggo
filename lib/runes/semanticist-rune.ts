@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type, type Static } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,21 +6,21 @@ import { defineRune } from '@lib/adk/core';
  * 責任：零遺忘版本控制，確保每個 Commit 都是對 OmniRepository 的永恆刻印
  */
 
-export const SemanticVersionSchema = z.object({
-  currentVersion: z.string().describe("目前版本號 (semver 格式，如 v1.2.3)"),
-  changeType: z.enum(["major", "minor", "patch"]).describe("變更類型"),
-  changeLog: z.string().describe("本次變更描述"),
-  author: z.string().describe("變更執行者 UUID"),
-  module: z.string().describe("受影響的模組名稱"),
+export const SemanticVersionSchema = Type.Object({
+  currentVersion: Type.String({ description: "目前版本號 (semver 格式，如 v1.2.3)" }),
+  changeType: Type.Union([Type.Literal("major"), Type.Literal("minor"), Type.Literal("patch")], { description: "變更類型" }),
+  changeLog: Type.String({ description: "本次變更描述" }),
+  author: Type.String({ description: "變更執行者 UUID" }),
+  module: Type.String({ description: "受影響的模組名稱" }),
 });
 
-export const SemanticVersionResultSchema = z.object({
-  newVersion: z.string(),
-  versionHash: z.string(),
-  timestamp: z.number(),
-  isValid: z.boolean(),
-  conflictDetected: z.boolean(),
-  message: z.string(),
+export const SemanticVersionResultSchema = Type.Object({
+  newVersion: Type.String(),
+  versionHash: Type.String(),
+  timestamp: Type.Number(),
+  isValid: Type.Boolean(),
+  conflictDetected: Type.Boolean(),
+  message: Type.String(),
 });
 
 function bumpVersion(current: string, type: "major" | "minor" | "patch"): string {
@@ -51,7 +51,7 @@ export const semanticistRune = defineRune({
       .toString("base64")
       .slice(0, 16);
 
-    const result: z.infer<typeof SemanticVersionResultSchema> = {
+    const result: Static<typeof SemanticVersionResultSchema> = {
       newVersion,
       versionHash,
       timestamp,

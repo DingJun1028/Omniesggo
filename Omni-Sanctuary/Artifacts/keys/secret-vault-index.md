@@ -1,4 +1,4 @@
-# 🔒 秘密聖櫃 (Secret Sanctuary Vault)
+# 🔒 祕密聖櫃 (Secret Sanctuary Vault)
 
 > 本檔案為**索引參考**，所有密鑰實際存放於 GitHub Secrets / VPS 環境變數。
 > 明文 Token 不會提交至 Git 倉庫。

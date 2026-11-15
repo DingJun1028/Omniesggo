@@ -1,0 +1,51 @@
+name: oa-swarm-ci
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'oa-swarm/**'
+      - '.github/workflows/oa-swarm-ci.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'oa-swarm/**'
+      - '.github/workflows/oa-swarm-ci.yml'
+
+jobs:
+  oa-swarm-test:
+    # oa-swarm 為獨立 pnpm 專案（自有 pnpm-workspace.yaml / pnpm-lock.yaml，
+    # 非 root workspace 成員）。PR #228 已修復 manifest/lock/override 三方一致
+    # （vitest 5.1.0 + vite 8.3.7），本工作流以 frozen-lockfile 實證之，
+    # 並補上 oa-swarm 測試套件之 CI 覆蓋。
+    # 注意 pnpm 12 內建 minimumReleaseAge（24h 冷卻期）：鎖定檔不得含
+    # 冷卻期內發布之套件版本，否則 frozen 驗證即敗（vite 8.3.8 前例）。
+    # actions 引用一律釘選完整 commit SHA（Sonar 規則 S7637，PR #229 實證）。
+    # check:types-sync 不入 CI：check-oa-types-sync.mjs 依賴倉外路徑
+    # （../../esggo/shared/types.ts，本機/VPS 佈局），CI checkout 下必 SRC missing。
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: oa-swarm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: Setup pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: oa-swarm/pnpm-lock.yaml
+
+      - name: Install dependencies (frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Unit tests (vitest)
+        run: pnpm test
+
+      - name: Type check (tsconfig.ut.json)
+        run: pnpm typecheck

@@ -22,7 +22,7 @@ Artifact）一律受結界法管轄，無一例外。
 | 空間柱 | 全節點同步 | VPS/Firebase/Gateway/Swarm | v1 本機 + v2 遠端備援 |
 | 因果柱 | 可溯源 | 每筆標 source_origin | Bearer 鑑權 + gateway 凍結 |
 | 不朽柱 | 不可篡改 | Hash Lock + freeze + SHA256 | L0-L3 本機落盤主權 |
-| 圓通柱 | 5T 貫穿 | Tra/Track/Tang/Trans/Trust | TDAI Bearer + CORS 白名单 |
+| 圓通柱 | 5T 貫穿 | Tra/Track/Tang/Trans/Trust | TDAI Bearer + CORS 白名單 |
 
 > 記憶戰柱一條：穹頂六柱、記憶柱為先；柱之朽，結界何存？
 
@@ -69,7 +69,7 @@ Artifact）一律受結界法管轄，無一例外。
 | 契約 | tdai-gateway.json 凍結，回灌 07-12 |
 | VPS | 空間柱 v1/v2 雙路徑，無單點 |
 | CI | 熵值 gate + Hash Lock 雙閘 |
-| Swarm | best-practice:结界 標記全體 inheriting |
+| Swarm | best-practice:結界 標記全體 inheriting |
 
 > **界之啟示**：「一入結界，萬法歸一；一入記憶，永世同頻。」
 > 啟動令：`protocol=5T · entropy=0.1 · 30-agents · 4可1不可 · 結界=AWAKE · 六柱=STANDING`

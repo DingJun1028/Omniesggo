@@ -1,0 +1,134 @@
+# OmniBitwarden 配置模板
+# 複製此文件為 config.yaml 並填入您的金鑰
+
+vault:
+  name: OmniBitwarden
+  type: bitwarden
+  enabled: true
+  endpoint: https://vault.esggo.co
+
+auth:
+  type: bitwarden
+  token: ${OMNIBITWARDEN_TOKEN}
+  organization: esggo-co
+  team: core
+
+scopes:
+  development:
+    path: .env.local
+    auto_rotate: false
+  production:
+    path: secret-vault/ENV20230818.env
+    auto_rotate: true
+  ci:
+    path: .github/scripts/ci-secrets.yaml
+    auto_rotate: false
+
+secrets:
+  - name: NCBDB_API_TOKEN
+    scope: production
+    auto_rotate: true
+    description: NCBDB 資料庫 API 金鑰
+  - name: MISTRAL_API_KEY
+    scope: development
+    auto_rotate: false
+    description: Mistral AI API 金鑰
+  - name: GROQ_API_KEY
+    scope: development
+    auto_rotate: false
+    description: Groq AI API 金鑰
+  - name: MISTRAL_WORKFLOW_KEY
+    scope: development
+    auto_rotate: false
+    description: Mistral Workflow 金鑰
+  - name: OPENAI_API_KEY
+    scope: development
+    auto_rotate: false
+    description: OpenAI API 金鑰
+  - name: CLOUDFLARE_API_TOKEN
+    scope: production
+    auto_rotate: false
+    description: Cloudflare API 金鑰
+  - name: VITE_CLOUDFLARE_ACCOUNT_ID
+    scope: production
+    auto_rotate: false
+    description: Cloudflare 帳號 ID
+  - name: SUPABASE_ANON_KEY
+    scope: production
+    auto_rotate: false
+    description: Supabase Anon Key
+  - name: SUPABASE_SERVICE_ROLE_KEY
+    scope: production
+    auto_rotate: false
+    description: Supabase Service Role Key
+  - name: DATABASE_URL
+    scope: production
+    auto_rotate: false
+    description: 數據庫連接字串
+  - name: SUPABASE_URL
+    scope: production
+    auto_rotate: false
+    description: Supabase 網址
+  - name: OMNIMASTER_KEY
+    scope: production
+    auto_rotate: true
+    description: OmniMasterKey 密鑰
+  - name: CONDUIT_PASSWORD
+    scope: production
+    auto_rotate: true
+    description: Conduit 服務密碼
+  - name: JWT_SECRET
+    scope: production
+    auto_rotate: true
+    description: JWT 簽名密鑰
+  - name: REFRESH_TOKEN_SECRET
+    scope: production
+    auto_rotate: false
+    description: Refresh Token 簽名密鑰
+  - name: FIREBASE_API_KEY
+    scope: development
+    auto_rotate: false
+    description: Firebase API 金鑰
+  - name: FIREBASE_AUTH_DOMAIN
+    scope: development
+    auto_rotate: false
+    description: Firebase Auth Domain
+  - name: FIREBASE_PROJECT_ID
+    scope: development
+    auto_rotate: false
+    description: Firebase Project ID
+
+security:
+  mask_output: true
+  mask_length: 8
+  vault_dir: omni-bitwarden
+  file_permissions: "600"
+  rotation:
+    enabled: true
+    interval_days: 90
+    last_rotate: null
+  sensitive_patterns:
+    - "sk-ant-"
+    - "gsk_"
+    - "mstrl_"
+    - "xoxb-"
+    - "xoxa-"
+    - "xoxc-"
+    - "xoxd-"
+    - "sqlnet-"
+    - "keybase-"
+    - "hf_"
+    - "ghp_"
+    - "gho_"
+    - "github_pat_"
+
+integrations:
+  - name: bitwarden
+    type: bitwarden
+    version: 2026.10.1
+  - name: esggo
+    type: omniesggo
+    version: 5.1.0
+  - name: omniskill
+    type: omniskill
+    version: 2.0.0

@@ -30,10 +30,6 @@ jobs:
         run: pnpm install --frozen-lockfile --prefer-frozen-lockfile
         timeout-minutes: 15
 
-      - name: Generate Prisma Client
-        run: npx prisma generate
-        timeout-minutes: 10
-
       - name: 100% Encoding Hygiene Check (全真綠)
         run: node scripts/encoding-check.mjs
         timeout-minutes: 5

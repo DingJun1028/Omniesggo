@@ -193,7 +193,7 @@ export function Dashboard() {
           <h3 className="text-lg font-semibold mb-2">{searchQuery || filterStage !== 'all' ? '沒有符合條件的旅程' : '還沒有旅程'}</h3>
           <p className="text-gray-500 mb-6 text-sm">{searchQuery || filterStage !== 'all' ? '試試其他搜尋條件' : '建立你的第一個 ESG 旅程，開始追蹤影響力'}</p>
           {!searchQuery && filterStage === 'all' && (
-            <button className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors" onClick={() => setShowCreate(true)}>建立第一个旅程</button>
+            <button className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700 transition-colors" onClick={() => setShowCreate(true)}>建立第一個旅程</button>
           )}
         </div>
       ) : (

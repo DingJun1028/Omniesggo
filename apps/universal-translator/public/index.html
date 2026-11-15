@@ -530,7 +530,7 @@ async function startSys(){
     if(!a.length){
       s.getTracks().forEach(t=>t.stop());
       setDiag('dShare','ok');setDiag('dAudio','err','沒抓到音訊軌道');
-      $('#dMsg').innerHTML='Windows 抓系統音秘訣：<br>1) 選「<b>整個螢幕</b>」或「<b>Chrome 分頁</b>」<br>2) 勾選「<b>分享音訊</b>」<br>3) 勿選「應用程式視窗」(Zoom視窗)<br>若清單有「立體聲混音」請先選它';
+      $('#dMsg').innerHTML='Windows 抓系統音祕訣：<br>1) 選「<b>整個螢幕</b>」或「<b>Chrome 分頁</b>」<br>2) 勾選「<b>分享音訊</b>」<br>3) 勿選「應用程式視窗」(Zoom視窗)<br>若清單有「立體聲混音」請先選它';
       openDiag();toast('沒抓到系統音：選「整個螢幕」並勾「分享音訊」');return null;
     }
     setDiag('dShare','ok');setDiag('dAudio','ok');

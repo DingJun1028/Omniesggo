@@ -5,7 +5,7 @@
  * 測試:
  *  - GET  /api/healthz
  *  - POST /api/tags/pair (validation edge cases)
- *  - Zod validation helpers
+ *  - TypeBox validation helpers
  *  - Logger (pino)
  *  - Middleware export
  *
@@ -120,10 +120,10 @@ describe('POST /api/tags/pair', () => {
 });
 
 // ==========================================
-// Zod Validation Helpers
+// TypeBox Validation Helpers
 // ==========================================
 
-describe('Zod Validation (zod-validation.ts)', () => {
+describe('TypeBox Validation (zod-validation.ts)', () => {
   it('validateBody is an exported function', async () => {
     const { validateBody } = await import('../src/lib/zod-validation');
     expect(typeof validateBody).toBe('function');
@@ -135,66 +135,66 @@ describe('Zod Validation (zod-validation.ts)', () => {
   });
 
   it('ESGReportSchema validates correct data', async () => {
+    const { Value } = await import('@sinclair/typebox/value');
     const { ESGReportSchema } = await import('../src/lib/zod-validation');
-    const result = ESGReportSchema.safeParse({
+    expect(Value.Check(ESGReportSchema, {
       framework: 'GRI',
       company: 'ESG Corp',
       year: 2024,
-    });
-    expect(result.success).toBe(true);
+    })).toBe(true);
   });
 
   it('ESGReportSchema rejects missing framework', async () => {
+    const { Value } = await import('@sinclair/typebox/value');
     const { ESGReportSchema } = await import('../src/lib/zod-validation');
-    const result = ESGReportSchema.safeParse({
+    expect(Value.Check(ESGReportSchema, {
       company: 'ESG Corp',
       year: 2024,
-    });
-    expect(result.success).toBe(false);
+    })).toBe(false);
   });
 
   it('ESGReportSchema rejects invalid year', async () => {
+    const { Value } = await import('@sinclair/typebox/value');
     const { ESGReportSchema } = await import('../src/lib/zod-validation');
-    const result = ESGReportSchema.safeParse({
+    expect(Value.Check(ESGReportSchema, {
       framework: 'GRI',
       company: 'ESG Corp',
       year: 1999,
-    });
-    expect(result.success).toBe(false);
+    })).toBe(false);
   });
 
   it('DelegationRequestSchema validates correct data', async () => {
+    const { Value } = await import('@sinclair/typebox/value');
     const { DelegationRequestSchema } = await import('../src/lib/zod-validation');
-    const result = DelegationRequestSchema.safeParse({
+    expect(Value.Check(DelegationRequestSchema, {
       task: 'Analyze Q3 ESG data',
-    });
-    expect(result.success).toBe(true);
+    })).toBe(true);
   });
 
   it('DelegationRequestSchema rejects empty task', async () => {
+    const { Value } = await import('@sinclair/typebox/value');
     const { DelegationRequestSchema } = await import('../src/lib/zod-validation');
-    const result = DelegationRequestSchema.safeParse({ task: '' });
-    expect(result.success).toBe(false);
+    expect(Value.Check(DelegationRequestSchema, { task: '' })).toBe(false);
   });
 
   it('UniversalTagSchema validates correct data', async () => {
+    const { Value } = await import('@sinclair/typebox/value');
     const { UniversalTagSchema } = await import('../src/lib/zod-validation');
-    const result = UniversalTagSchema.safeParse({
+    expect(Value.Check(UniversalTagSchema, {
       name: 'Carbon Emissions',
       pillar: 'Environmental',
       category: 'Climate',
-    });
-    expect(result.success).toBe(true);
+    })).toBe(true);
   });
 
   it('UniversalTagSchema rejects invalid pillar', async () => {
+    const { Value } = await import('@sinclair/typebox/value');
     const { UniversalTagSchema } = await import('../src/lib/zod-validation');
-    const result = UniversalTagSchema.safeParse({
+    expect(Value.Check(UniversalTagSchema, {
       name: 'Test',
       pillar: 'InvalidPillar',
       category: 'Test',
-    });
-    expect(result.success).toBe(false);
+    })).toBe(false);
   });
 });
 

@@ -1,19 +1,13 @@
 // ═══════════════════════════════════════════════════════════════
 // @esggo/shared/database — Unified Database Client
-// Single source for Prisma + database operations
+// Single source for Supabase-backed database operations
 // ═══════════════════════════════════════════════════════════════
 
 import { getConfig } from './config';
 
 // ── Prisma Client Singleton ────────────────────────────────────
 
-type PrismaClient = {
-  $connect: () => Promise<void>;
-  $disconnect: () => Promise<void>;
-  $queryRaw: (template: TemplateStringsArray) => Promise<unknown>;
-  $transaction: <T>(fn: (tx: PrismaClient) => Promise<T>) => Promise<T>;
-  [key: string]: unknown;
-};
+import { createPrismaCompatClient, type PrismaClient } from '@lib/db/prisma-compat';
 
 let _prisma: PrismaClient | null = null;
 let _prismaOmni: PrismaClient | null = null;
@@ -23,20 +17,7 @@ let _prismaOmni: PrismaClient | null = null;
  */
 export async function getPrisma(): Promise<PrismaClient> {
   if (_prisma) return _prisma;
-
-  const config = getConfig();
-  if (!config.database.url) {
-    throw new Error('DATABASE_URL not configured');
-  }
-
-  const { PrismaClient: PrismaClass } = await import('@prisma/client');
-
-  _prisma = new PrismaClass({
-    log: config.app.isDevelopment
-      ? ['query', 'error', 'warn']
-      : ['error'],
-  }) as unknown as PrismaClient;
-
+  _prisma = createPrismaCompatClient();
   return _prisma;
 }
 
@@ -45,18 +26,12 @@ export async function getPrisma(): Promise<PrismaClient> {
  */
 export async function getPrismaOmni(): Promise<PrismaClient> {
   if (_prismaOmni) return _prismaOmni;
-
-  const config = getConfig();
-  if (!config.database.omniUrl) {
-    throw new Error('OMNI_DATABASE_URL not configured');
-  }
-
-  const { PrismaClient: PrismaClass } = await import('@prisma/client');
-
-  _prismaOmni = new PrismaClass({
-    log: config.app.isDevelopment ? ['error'] : [],
-  }) as unknown as PrismaClient;
-
+  _prismaOmni = createPrismaCompatClient({
+    url: process.env.SUPABASE_OMNI_URL,
+    key:
+      process.env.SUPABASE_OMNI_SERVICE_ROLE_KEY ||
+      process.env.SUPABASE_OMNI_ANON_KEY,
+  });
   return _prismaOmni;
 }
 
