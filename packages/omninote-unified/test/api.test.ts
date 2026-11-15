@@ -640,3 +640,64 @@ test("API-16 證據鏈匯出道閘：404 未知節點；空匯出仍具備完整
     assert.equal(typeof body.exported_at, "string");
   });
 });
+
+test("API-17 全域標籤彙整：節點計數、字典序排序、untagged 統計、快照欄位", async () => {
+  await withServer(async ({ port }) => {
+    const post = async (text: string, tags: string[]) =>
+      fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, tags }),
+      });
+    await post("標籤甲", ["zeta", "alpha"]);
+    await post("標籤乙", ["alpha"]);
+    await post("無標籤甲", []);
+    const res = await fetch(base(port) + "/api/tags");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      total_notes: number;
+      tagged_nodes: number;
+      untagged_nodes: number;
+      total_tag_occurrences: number;
+      tags: Array<{ tag: string; count: number }>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total_notes, 3);
+    // spawnAlphaOrigin 之預設拓撲帶 "#inbox"，故空 tags 建立之節點仍屬已標籤節點
+    assert.equal(body.tagged_nodes, 3);
+    assert.equal(body.untagged_nodes, 0);
+    assert.equal(body.total_tag_occurrences, 4);
+    assert.deepEqual(body.tags, [
+      { tag: "#inbox", count: 1 },
+      { tag: "alpha", count: 2 },
+      { tag: "zeta", count: 1 },
+    ], "tags 應依字典序穩定排序且 count 為含該標籤之節點數");
+  });
+});
+
+test("API-18 全域標籤彙整道閘：空庫回零；節點內重複標籤去重", async () => {
+  await withServer(async ({ port }) => {
+    const empty = await fetch(base(port) + "/api/tags");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as { total_notes: number; tags: unknown[]; untagged_nodes: number };
+    assert.equal(emptyBody.total_notes, 0);
+    assert.deepEqual(emptyBody.tags, []);
+    assert.equal(emptyBody.untagged_nodes, 0);
+
+    await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "重複標籤甲", tags: ["dup", "dup"] }),
+    });
+    const res = await fetch(base(port) + "/api/tags");
+    const body = (await res.json()) as {
+      tagged_nodes: number;
+      total_tag_occurrences: number;
+      tags: Array<{ tag: string; count: number }>;
+    };
+    assert.equal(body.tagged_nodes, 1);
+    assert.equal(body.total_tag_occurrences, 1, "節點內重複標籤應去重後計數");
+    assert.deepEqual(body.tags, [{ tag: "dup", count: 1 }]);
+  });
+});
