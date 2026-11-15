@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>OmniLive 萬能即時轉譯雙語字幕層</title>
 <script src="./qrcode.min.js"></script>
+<script src="./i18n/i18n.js" defer></script>
 <style>
 /* ===== OmniLive 2026-10-11 大進化: White/GOLD/TEAL 一體式面板 ===== */
 :root{
@@ -221,7 +222,7 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
 <div id="panel">
   <div id="panelHead">
     <span class="brand-mark">OA</span>
-    <span class="t"><em>OmniLive</em> 雙語字幕</span>
+    <span class="t"><em>OmniLive</em> <span data-i18n-key="omnilive.subtitle">雙語字幕</span></span>
     <span class="badge" id="roleBadge">—</span>
     <span class="badge live hidden" id="roomBadge"></span>
     <div class="head-btns">
@@ -239,17 +240,17 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
     <div id="sharePanel">
       <h2>建立分享會議（QR / 連結同步字幕）</h2>
       <div class="row">
-        <button class="btn primary" id="createRoom">建立分享連結</button>
+        <button class="btn primary" id="createRoom" data-i18n-key="omnilive.createRoom">建立分享連結</button>
         <input type="text" id="roomPwd" placeholder="房間密碼(選填)">
       </div>
       <div id="shareBody" class="hidden" style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
-        <div class="hint" style="color:var(--green)">主持人連結</div>
-        <div class="share-link"><input type="text" id="casterLink" readonly><button class="btn" data-copy="casterLink">複製</button></div>
-        <div class="hint" style="color:var(--teal)">觀眾連結（掃 QR 或傳連結即同步看到字幕）</div>
-        <div class="share-link"><input type="text" id="viewerLink" readonly><button class="btn" data-copy="viewerLink">複製</button></div>
+        <div class="hint" style="color:var(--green)" data-i18n-key="omnilive.casterLink">主持人連結</div>
+        <div class="share-link"><input type="text" id="casterLink" readonly><button class="btn" data-copy="casterLink" data-i18n-key="omnilive.copy">複製</button></div>
+        <div class="hint" style="color:var(--teal)" data-i18n-key="omnilive.viewerLink">觀眾連結（掃 QR 或傳連結即同步看到字幕）</div>
+        <div class="share-link"><input type="text" id="viewerLink" readonly><button class="btn" data-copy="viewerLink" data-i18n-key="omnilive.copy">複製</button></div>
         <div class="row" style="margin-top:4px">
-          <button class="btn" id="openViewer">預覽觀眾</button>
-          <button class="btn" id="refreshCount">人數</button>
+          <button class="btn" id="openViewer" data-i18n-key="omnilive.previewViewer">預覽觀眾</button>
+          <button class="btn" id="refreshCount" data-i18n-key="omnilive.people">人數</button>
         </div>
         <div class="qr" id="qrBox"></div>
         <div class="hint" id="viewerCount"></div>
@@ -260,10 +261,10 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
       <h2>收音控制（Zoom 場景）</h2>
       <div class="row">
         <select id="audioSource">
-          <option value="system-display" selected>系統音訊 / Zoom 共享聲音</option>
-          <option value="mic">本機麥克風</option>
-          <option value="device">指定輸入裝置</option>
-          <option value="caption">手動字幕輸入</option>
+          <option value="system-display" selected data-i18n-key="omnilive.source.systemDisplay">系統音訊 / Zoom 共享聲音</option>
+          <option value="mic" data-i18n-key="omnilive.source.mic">本機麥克風</option>
+          <option value="device" data-i18n-key="omnilive.source.device">指定輸入裝置</option>
+          <option value="caption" data-i18n-key="omnilive.source.caption">手動字幕輸入</option>
         </select>
       </div>
       <div class="row" style="margin-top:8px">
@@ -285,31 +286,31 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
       <h2>手動字幕輸入</h2>
       <div class="row">
         <input type="text" id="captionInput" placeholder="直接貼上發言文字…">
-        <button class="btn" id="sendCaption">送出</button>
+        <button class="btn" id="sendCaption" data-i18n-key="omnilive.sendCaption">送出</button>
       </div>
     </div>
 
     <div>
       <h2>字幕顯示</h2>
       <div class="row">
-        <label style="flex:1">字級 <input type="range" id="fontSize" min="14" max="48" value="28" style="flex:1"></label>
+        <label style="flex:1"><span data-i18n-key="omnilive.fontSize">字級</span> <input type="range" id="fontSize" min="14" max="48" value="28" style="flex:1"></label>
       </div>
       <div class="row" style="margin-top:6px">
-        <span class="hint">字色</span>
+        <span class="hint" data-i18n-key="omnilive.fontColor">字色</span>
         <span class="color-swatch w active" id="colorW" title="White 白"></span>
         <span class="color-swatch g" id="colorG" title="GOLD 金"></span>
         <span class="color-swatch t" id="colorT" title="TEAL 青（救援色）"></span>
         <span class="hint" style="margin-left:auto">救援時自動 TEAL</span>
       </div>
       <div class="row" style="margin-top:6px">
-        <label class="chk"><input type="checkbox" id="orderSrcFirst"> 原文在上</label>
-        <label class="chk"><input type="checkbox" id="bgToggle" checked> 背景可讀</label>
-        <label class="chk"><input type="checkbox" id="wordToggle" checked> 逐字</label>
-        <label class="chk"><input type="checkbox" id="showToggle" checked> 顯示</label>
+        <label class="chk"><input type="checkbox" id="orderSrcFirst"> <span data-i18n-key="omnilive.orderSourceFirst">原文在上</span></label>
+        <label class="chk"><input type="checkbox" id="bgToggle" checked> <span data-i18n-key="omnilive.bgReadable">背景可讀</span></label>
+        <label class="chk"><input type="checkbox" id="wordToggle" checked> <span data-i18n-key="omnilive.wordMode">逐字</span></label>
+        <label class="chk"><input type="checkbox" id="showToggle" checked> <span data-i18n-key="omnilive.show">顯示</span></label>
       </div>
       <div class="row" style="margin-top:6px">
-        <label>從 <select id="from"><option value="auto" selected>自動</option><option value="zh-TW">繁中</option><option value="en">英文</option></select></label>
-        <label>到 <select id="to"><option value="auto" selected>自動</option><option value="en">英文</option><option value="zh-TW">繁中</option></select></label>
+        <label><span data-i18n-key="omnilive.from">從</span> <select id="from"><option value="auto" selected>自動</option><option value="zh-TW">繁中</option><option value="en">英文</option></select></label>
+        <label><span data-i18n-key="omnilive.to">到</span> <select id="to"><option value="auto" selected>自動</option><option value="en">英文</option><option value="zh-TW">繁中</option></select></label>
         <button class="btn" id="swapBtn" style="flex:0" aria-label="交換原文與翻譯方向" title="交換原文與翻譯方向">⇄</button>
       </div>
       <div class="row" style="margin-top:6px">
@@ -369,13 +370,13 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
 <!-- 段落重點摘要浮窗 (r6: 原「課程即時解說/課程重點」→ 段落自動抓取摘要) -->
 <div id="courseWin">
   <header>
-    <b>段落重點摘要</b>
+    <b data-i18n-key="omnilive.summary">段落重點摘要</b>
     <button class="icon-btn" id="courseClose" title="收合">關閉</button>
   </header>
   <div id="courseBody">
-    <div class="csec"><h3>段落重點摘要（自動抓取）</h3><div class="summary" id="cSummary">—</div><div id="cKeypoints"></div></div>
-    <div class="csec"><h3>重要名詞</h3><div id="cTerms"></div></div>
-    <div class="csec"><h3>類似案例</h3><div id="cCases"></div></div>
+    <div class="csec"><h3 data-i18n-key="omnilive.summaryTitle">段落重點摘要（自動抓取）</h3><div class="summary" id="cSummary">—</div><div id="cKeypoints"></div></div>
+    <div class="csec"><h3 data-i18n-key="omnilive.terms">重要名詞</h3><div id="cTerms"></div></div>
+    <div class="csec"><h3 data-i18n-key="omnilive.similar">類似案例</h3><div id="cCases"></div></div>
     <div class="hint" id="cUpdated"></div>
   </div>
 </div>
@@ -383,10 +384,10 @@ label{font-size:.76rem;color:var(--muted);display:flex;align-items:center;gap:6p
 <!-- QR 彈窗 -->
 <div id="qrModal">
   <div class="qr-card">
-    <div class="cap">觀眾連結（已複製）— 掃碼即同步看字幕</div>
+    <div class="cap" data-i18n-key="omnilive.viewerLinkCopied">觀眾連結（已複製）— 掃碼即同步看字幕</div>
     <div class="qr" id="qrBox2"></div>
     <div class="lnk" id="qrLink2"></div>
-    <button id="qrClose">關閉</button>
+    <button id="qrClose" data-i18n-key="omnilive.summaryClose">關閉</button>
   </div>
 </div>
 
@@ -966,5 +967,6 @@ function stopRescue(){
 }
 $('btnRescue').onclick=()=>{ rescueOn?stopRescue():startRescue(false); };
 </script>
+<div id="i18nLog" class="log"></div>
 </body>
 </html>

@@ -5,6 +5,8 @@
 // ============================================================
 
 const AUDIO_SOURCES = ['mic', 'system-display', 'device', 'caption'];
+/** 5T i18n locale contract (Traceable): en + zh-TW (packages/i18n singleton). */
+export const SUPPORTED_LOCALES = ['en', 'zh-TW'];
 
 /**
  * 讀取並驗證設定；必要設定缺漏時拋 CONFIG_MISSING。
@@ -46,6 +48,14 @@ export function loadConfig() {
   // r6.1: 預設 to=auto — 與 from=auto 配對成「自動↔自動」:
   // 聽見繁中自動對應英文, 聽見英文自動對應繁中 (translate.detectLang 負責翻向)
   const to = (process.env.OMNILIVE_TO || 'auto').trim();
+  // 5T Transparent: 翻譯方向必須受 i18n locale contract 約束
+  const validDirections = new Set(['auto', ...SUPPORTED_LOCALES]);
+  if (!validDirections.has(from)) {
+    throw new Error('CONFIG_MISSING: OMNILIVE_FROM="' + from + '" 不合法，必須是 auto | en | zh-TW');
+  }
+  if (!validDirections.has(to)) {
+    throw new Error('CONFIG_MISSING: OMNILIVE_TO="' + to + '" 不合法，必須是 auto | en | zh-TW');
+  }
   if (!from || !to) {
     throw new Error('CONFIG_MISSING: OMNILIVE_FROM 與 OMNILIVE_TO 皆不可為空');
   }
@@ -95,5 +105,7 @@ export function publicConfig(cfg) {
     roomPasswordEnabled: cfg.roomPasswordEnabled,
     roomTtlMs: cfg.roomTtlMs,
     appVersion: '1.0.0',
+    appLocale: 'zh-TW',
+    i18nLocales: SUPPORTED_LOCALES,
   };
 }
