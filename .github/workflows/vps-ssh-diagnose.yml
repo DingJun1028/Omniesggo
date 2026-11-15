@@ -32,7 +32,7 @@ jobs:
       OCI_TARGET: ${{ secrets.OCI_TARGET_RESOURCE_ID }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
 
       - name: Inspect SSH keys
         run: |
