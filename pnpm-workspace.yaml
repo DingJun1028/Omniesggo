@@ -109,22 +109,14 @@ overrides:
   # 傳入鏈路：經 pnpm-lock.yaml 解析（manifest 無直依），走 workspace overrides 統一提升
   "handlebars": ">=4.7.10"
 
-# pnpm 11 build-script allowlist. Keep only this supported field; preview's pnpm 10
-# injects neverBuiltDependencies, which conflicts with the legacy onlyBuiltDependencies.
-allowBuilds:
-  '@firebase/util': false
-  '@google/genai': false
-  '@prisma/client': true
-  '@prisma/engines': true
-  core-js: true
-  esbuild: true
-  prisma: true
-  protobufjs: false
-  sharp: true
-  sqlite3: false
-  tesseract.js: true
-  unrs-resolver: false
-  workerd: false
+# Build-script denylist compatible with preview's injected neverBuiltDependencies.
+ignoredBuiltDependencies:
+  - '@firebase/util'
+  - '@google/genai'
+  - protobufjs
+  - sqlite3
+  - unrs-resolver
+  - workerd
 
 minimumReleaseAgeExclude:
   - '@typescript-eslint/eslint-plugin@8.62.1'
