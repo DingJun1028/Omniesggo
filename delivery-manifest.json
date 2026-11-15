@@ -3,45 +3,38 @@
   "artifacts": [
     {
       "path": "soul-chapter-30-super-delivery.md",
-      "role": "ch30 落檔備份",
       "sha256": "9ea57e49ec83ed526aa14e1dd7c327f32841e4ca42f1876c7eef325d908d54ed"
     },
     {
       "path": "TODO-super-delivery-20260930.md",
-      "role": "ch30 待辦閉環",
       "sha256": "86ce4995beff8aaecfc852aa1e7071343c7fd8cf03bfa22073552cacb9870341"
     },
     {
       "path": "scripts/apply_super_awakening.py",
-      "role": "ch30 應用腳本",
       "sha256": "c6dd65859e274cd4bc16da07ac770a25566a5a9fe83e69dd3345e88521d4cc5b"
     },
     {
       "path": "scripts/verify_sync_closure.py",
-      "role": "第五階閉環驗證器",
       "sha256": "31cba306e7c2503908d7e0a35344686ddca56af7514989d1e72a42447e3e21fd"
     },
     {
       "path": "scripts/verify_delivery_center.py",
-      "role": "第六階交付驗證中心",
       "sha256": "6bbc888c5fa70b3b29d2ec43a3457dfadb20acb08ea581db0523f88d55db06ad"
     },
     {
       "path": "scripts/verify_soul_canon.py",
-      "role": "主典守門人",
       "sha256": "c2a15aecab9f0fc080a0182bc13020ef181ef545424ffc4ac45883c074bda89e"
     },
     {
       "path": "task-graph.json",
-      "role": "任務圖譜",
-      "sha256": "1693eef1135ac8861180861a9adcd93ddad6e538ec81042f7a965616b061fe5f"
+      "sha256": "6882404469b7e97cdbd714df257fc1a6c1cc3b90253db054008bb6bcf3bc7249"
     }
   ],
   "verifications": [
     {
       "label": "主典守門人",
       "cmd": [
-        "{python}",
+        "python3",
         "scripts/verify_soul_canon.py"
       ]
     }
@@ -55,8 +48,8 @@
   },
   "claims": {
     "file_count": 7,
-    "total_bytes": 96745,
+    "total_bytes": 96742,
     "best_practice_tag": "awakened",
-    "awakened_at": "2026-11-15T03:18:00Z"
+    "awakened_at": "2026-11-15T10:58:00Z"
   }
 }
