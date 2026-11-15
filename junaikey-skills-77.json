@@ -1,0 +1,1050 @@
+{
+  "project": "esggo-omni-30-swarm",
+  "source": "JunAikey 萬能元鑰 — 76 筆技能清單 (含 5T 推斷)",
+  "total": 116,
+  "generated": "2026-11-15",
+  "best_practice": "awakened",
+  "best_practice_tag": "[best-practice:awakened]",
+  "skills": [
+    {
+      "id": 1,
+      "name": "encoding-check",
+      "origin": "local-cache",
+      "5T": [
+        "Traceable"
+      ],
+      "domain": [
+        "測試 (Verify)"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "ncb-shared-mem",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "ollama-local-repair-5t",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (AI/LLM)"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "ollama-modelfile-sane-defaults",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (AI/LLM)"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "ollama-caller-resilience-pattern",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (AI/LLM)"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "nexus-agent-tool-routing-confirmed",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "best-practice-awakening",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "omnitag-integration",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "oa-team-swarm-ultra",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "universal-automation-ultra",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "superpowers",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 12,
+      "name": "universal-automation",
+      "origin": "local-cache",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 13,
+      "name": "junaikey-omni-5t-verification",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 14,
+      "name": "junaikey-5t-canon",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 15,
+      "name": "junaikey-5t-verification",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (Foundation)"
+      ]
+    },
+    {
+      "id": 16,
+      "name": "junaikey-7-module-pipeline",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 17,
+      "name": "junaikey-7-module",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 18,
+      "name": "junaikey-module-gateway",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 19,
+      "name": "junaikey-module-trusted-vault",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 20,
+      "name": "junaikey-module-omnitag",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 21,
+      "name": "junaikey-module-media",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 22,
+      "name": "junaikey-module-markdown",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 23,
+      "name": "junaikey-module-skill",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 24,
+      "name": "junaikey-module-ncb",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 25,
+      "name": "junaikey-module-shared-memory",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 26,
+      "name": "junaikey-module-ollama",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "技術 (AI/LLM)",
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 27,
+      "name": "junaikey-module-vps",
+      "origin": "local-cache",
+      "5T": [
+        "Trustworthy"
+      ],
+      "domain": [
+        "安全 (Security)",
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 28,
+      "name": "junaikey-module-nix",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 29,
+      "name": "junaikey-module-telegram",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 30,
+      "name": "junaikey-module-mcp",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 31,
+      "name": "junaikey-module-skill-generator",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 32,
+      "name": "junaikey-module-skill-sync",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 33,
+      "name": "junaikey-module-skill-engine",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 34,
+      "name": "junaikey-module-skill-router",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 35,
+      "name": "junaikey-module-skill-compiler",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 36,
+      "name": "junaikey-module-skill-inspector",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 37,
+      "name": "junaikey-module-skill-health-check",
+      "origin": "ncb-authority",
+      "5T": [
+        "Traceable"
+      ],
+      "domain": [
+        "整合 (Platform/Module)",
+        "測試 (Verify)"
+      ]
+    },
+    {
+      "id": 38,
+      "name": "junaikey-module-skill-versioner",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 39,
+      "name": "junaikey-module-skill-security",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 40,
+      "name": "junaikey-module-skill-tagger",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 41,
+      "name": "junaikey-module-skill-migrator",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 42,
+      "name": "junaikey-module-report",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 43,
+      "name": "junaikey-module-dashboard",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 44,
+      "name": "junaikey-module-api",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 45,
+      "name": "junaikey-module-cli",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 46,
+      "name": "junaikey-module-webhook",
+      "origin": "ncb-authority",
+      "5T": [
+        "Trackable",
+        "Trustworthy"
+      ],
+      "domain": [
+        "整合 (Platform/Module)"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "hermes-state-db-repair",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 2,
+      "name": "ncb-verify-insert",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 3,
+      "name": "db-offline-maintenance",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 4,
+      "name": "omniops-fullstack-repair-5t",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 5,
+      "name": "ncb-backend-verified",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 6,
+      "name": "ncb-vault-authorization",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 7,
+      "name": "reflect-string-learning-clobbers",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 8,
+      "name": "voxspica-omnilive-integration",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 9,
+      "name": "voxspica-omnlive-integration",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 10,
+      "name": "_probe_",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 11,
+      "name": "junaikey-closed-loop",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 12,
+      "name": "awaken",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 13,
+      "name": "junaikey-godmode-final-verify",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 17,
+      "name": "version",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 19,
+      "name": "junaikey-memory-schema-mismatch",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 20,
+      "name": "source-origin-json-workaround",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 21,
+      "name": "junaikey-memory-source-origin-migration",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 22,
+      "name": "junaikey-skill-directory-completed",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 23,
+      "name": "closed-loop-verified",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 24,
+      "name": "conflict-marker-ours-equals-main",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 25,
+      "name": "vendored-marker-false-positive",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 26,
+      "name": "contract-change-orphan-consumers",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 27,
+      "name": "prior-resolution-gutted-files",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 28,
+      "name": "junaikey-env-file-doctor-drift",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 29,
+      "name": "zod-v4-api-not-final",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 30,
+      "name": "zodvalidation-param-count",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 31,
+      "name": "ts2694-safe-parsetype",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 32,
+      "name": "vacuum-wal-strand",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 33,
+      "name": "vacuum-online-safe",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 34,
+      "name": "drop-trigger-view-noop",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 35,
+      "name": "zod-v4-api-drift-safe-parse-type",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 36,
+      "name": "zod-validation-already-baked",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 37,
+      "name": "typecheck-after-zod-fix",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 38,
+      "name": "vacuum-probe-fast",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 39,
+      "name": "ncbd-verify-insert",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 42,
+      "name": "seal-v1.0.1",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 43,
+      "name": "field-open",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 44,
+      "name": "tags-open",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 45,
+      "name": "junaikey-field-open",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 46,
+      "name": "mece-ncb",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 47,
+      "name": "docker-ollama-container",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 48,
+      "name": "tencentdb8420-health",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 49,
+      "name": "docker-hub-decision",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 50,
+      "name": "ollama-container-up",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 51,
+      "name": "model-backend-missing-header",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 52,
+      "name": "docker-hub-container",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 53,
+      "name": "qwen2.5:3b-model",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 54,
+      "name": "omni-agent-arch",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 55,
+      "name": "aistation-produce-test-coverage",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 56,
+      "name": "version-lock-5t",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 57,
+      "name": "junaikey-openrouter-key",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 58,
+      "name": "ai-station-launcher-stale-tree",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 59,
+      "name": "edge-tts-403-silent-fallback",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 60,
+      "name": "orphan-server-port-archaeology",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 61,
+      "name": "gateway-20261016",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 62,
+      "name": "gateway-port-fix",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 63,
+      "name": "gateway-db-clean",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 64,
+      "name": "jina-key-integration",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 65,
+      "name": "junaikey-omni-godmode",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 66,
+      "name": "sync-distance-verification",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 67,
+      "name": "generic-join-pattern",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 68,
+      "name": "remote-sync-pipeline",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 69,
+      "name": "merge-write-verify",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 70,
+      "name": "registry-fix",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 71,
+      "name": "registry-validation",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 72,
+      "name": "whisper-offline",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 73,
+      "name": "soul-gap-matrix-remediation",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 74,
+      "name": "esggo-soul-delivery",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 75,
+      "name": "timestamped-baseline",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    },
+    {
+      "id": 76,
+      "name": "omnitag",
+      "origin": "local-cache",
+      "5T": [],
+      "domain": []
+    }
+  ]
+}
