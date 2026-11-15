@@ -65,6 +65,10 @@ export class OmniBusMirror {
     this.attached = true
   }
 
+  markDetached(): void {
+    this.attached = false
+  }
+
   isAttached(): boolean {
     return this.attached
   }
@@ -190,6 +194,7 @@ export function attachArchBus(
       unsubscribe()
     }
     mirror.setAwardSource(undefined)
+    mirror.markDetached()
   }
 }
 

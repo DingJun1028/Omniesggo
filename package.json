@@ -110,7 +110,8 @@
     "vinext": "^1.4.3",
     "vite": "^8.3.6",
     "vitest": "^5.0.3",
-    "wrangler": "4.158.0"
+    "wrangler": "4.158.0",
+    "yaml": "^2.9.0"
   },
   "engines": {
     "node": ">=20",
