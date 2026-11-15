@@ -34,7 +34,7 @@ export async function list<T = unknown>(
   orderBy?: { field: string; dir: 'asc' | 'desc' },
   limit?: number,
 ): Promise<T[]> {
-  const q = _supabase.from(table).select('*');
+  let q = _supabase.from(table).select('*');
   if (where) {
     for (const [k, v] of Object.entries(where)) {
       if (Array.isArray(v)) q = q.in(k, v);

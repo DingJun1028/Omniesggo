@@ -29,6 +29,7 @@ export {
   deleteDailyReportItems,
   createDailyReportItem,
   getDailyReport,
+  updateDailyReport,
   // ─── Tag Pair Matrix ─────────────────────────────────────
   findTagPair,
   updateTagPair,
@@ -50,6 +51,7 @@ import type { DelegationPermission } from '../types/complete-delegation';
 
 // ─── Supabase client (lazy proxy, per supabase-client.ts) ─────
 import { supabase } from './supabase-client';
+import prisma from '@/lib/prisma';
 
 // ─── Readiness gate ───────────────────────────────────────────
 // NOTE: 實作請以 src/lib/storage-supabase.ts 的 verifyStorage 為唯一正本（與 Supabase 收合一致）。

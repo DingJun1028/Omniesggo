@@ -333,3 +333,463 @@ export async function verifyStorage() {
   }
   return results;
 }
+
+// ─── 8. 每日觀察系統 (Daily Report System) ─────────────────────
+// 每日 ESG 動態覽：法規、報告、快訊、爬蟲紀錄
+
+export async function listRegulations(filter: { where?: Record<string, unknown>; select?: Record<string, unknown>; take?: number }): Promise<any[]> {
+  try {
+    let query = supabase.from('regulations').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.select) {
+      query = query.select(Object.values(filter.select).join(','));
+    }
+    if (filter?.take) {
+      query = query.limit(filter.take);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+export async function listCompanyReports(filter: { where?: Record<string, unknown>; select?: Record<string, unknown>; take?: number }): Promise<any[]> {
+  try {
+    let query = supabase.from('company_report').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.select) {
+      query = query.select(Object.values(filter.select).join(','));
+    }
+    if (filter?.take) {
+      query = query.limit(filter.take);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+export async function listAlerts(filter: { where?: Record<string, unknown>; take?: number }): Promise<any[]> {
+  try {
+    let query = supabase.from('alerts').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.take) {
+      query = query.limit(filter.take);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+export async function listCrawlHistory(filter: { where?: Record<string, unknown>; take?: number }): Promise<any[]> {
+  try {
+    let query = supabase.from('crawl_history').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.take) {
+      query = query.limit(filter.take);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+// ─── Daily Report Data Access ───────────────────────────────────
+export async function deleteDailyReportItems(filter: { where?: Record<string, unknown> }): Promise<boolean> {
+  try {
+    let query = supabase.from('daily_report_item').delete();
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    const res = await safeSupabase(() => query);
+    return !!res;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return false;
+  }
+}
+
+export async function createDailyReportItem(input: { data: Record<string, unknown> }): Promise<any> {
+  try {
+    const res = await safeSupabase(() =>
+      supabase.from('daily_report_item').insert(input.data).select('*').single(),
+    );
+    return res ?? input.data;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return input.data;
+  }
+}
+
+export async function getDailyReport(filter: { where?: Record<string, unknown> }): Promise<any | null> {
+  try {
+    let query = supabase.from('daily_report').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    const { data, error } = await query.limit(1);
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return null;
+    }
+    return data?.[0] ?? null;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return null;
+  }
+}
+
+export async function listDailyReportItems(filter: { where?: Record<string, unknown>; orderBy?: Record<string, unknown> }): Promise<any[]> {
+  try {
+    let query = supabase.from('daily_report_item').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.orderBy) {
+      Object.entries(filter.orderBy).forEach(([key, value]) => {
+        query = query.order(key, { ascending: value === 'asc' });
+      });
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+export async function listDailyReports(filter: { where?: Record<string, unknown>; orderBy?: Record<string, unknown>; take?: number; select?: Record<string, unknown> }): Promise<any[]> {
+  try {
+    let query = supabase.from('daily_report').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.select) {
+      query = query.select(Object.values(filter.select).join(','));
+    }
+    if (filter?.orderBy) {
+      Object.entries(filter.orderBy).forEach(([key, value]) => {
+        query = query.order(key, { ascending: value === 'asc' });
+      });
+    }
+    if (filter?.take) {
+      query = query.limit(filter.take);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+export async function updateDailyReport(filter: { where?: Record<string, unknown>; data?: Record<string, unknown> }): Promise<any | null> {
+  try {
+    let query = supabase.from('daily_report').update(filter?.data ?? {}).eq('id', 'placeholder');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined && key !== 'id') {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    // If only 'where' provided without 'id', need to find the first match
+    if (!filter?.data && filter?.where) {
+      const ids = await listDailyReports({ where: filter.where, take: 1 });
+      if (ids.length > 0) {
+        query = supabase.from('daily_report').update(filter.data ?? {}).eq('id', ids[0].id);
+      }
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return null;
+    }
+    return data?.[0] ?? null;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return null;
+  }
+}
+
+// ─── Tag Pair Matrix ────────────────────────────────────────────
+export async function findTagPair(filter: { entityType?: string; entityId?: string }): Promise<any | null> {
+  try {
+    let query = supabase.from('tag_pair').select('*');
+    if (filter?.entityType) query = query.eq('entityType', filter.entityType);
+    if (filter?.entityId) query = query.eq('entityId', filter.entityId);
+    const { data, error } = await query.limit(1);
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return null;
+    }
+    return data?.[0] ?? null;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return null;
+  }
+}
+
+export async function updateTagPair(input: { id: string; data: Record<string, unknown> }): Promise<any | null> {
+  try {
+    const { data, error } = await safeSupabase(() =>
+      supabase.from('tag_pair').update(input.data).eq('id', input.id).select('*').single(),
+    );
+    return data?.[0] ?? null;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return null;
+  }
+}
+
+export async function listTagPairs(filter: { where?: Record<string, unknown>; take?: number }): Promise<any[]> {
+  try {
+    let query = supabase.from('tag_pair').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.take) {
+      query = query.limit(filter.take);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+// ─── 統計查詢 (Statistics) ──────────────────────────────────────
+export async function countAlerts(): Promise<number> {
+  try {
+    const { data, error } = await safeSupabase(() =>
+      supabase.from('alerts').select('*', { count: 'exact', head: true }),
+    );
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return 0;
+    }
+    return typeof data === 'number' ? data : 0;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return 0;
+  }
+}
+
+export async function countRegulations(): Promise<number> {
+  try {
+    const { data, error } = await safeSupabase(() =>
+      supabase.from('regulations').select('*', { count: 'exact', head: true }),
+    );
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return 0;
+    }
+    return typeof data === 'number' ? data : 0;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return 0;
+  }
+}
+
+export async function countCompanyReports(): Promise<number> {
+  try {
+    const { data, error } = await safeSupabase(() =>
+      supabase.from('company_report').select('*', { count: 'exact', head: true }),
+    );
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return 0;
+    }
+    return typeof data === 'number' ? data : 0;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return 0;
+  }
+}
+
+// ─── 成長紀錄 (User Growth) ─────────────────────────────────────
+export async function listUserGrowth(filter: { limit?: number }): Promise<any[]> {
+  try {
+    let query = supabase.from('user_growth').select('*');
+    if (filter?.limit) {
+      query = query.limit(filter.limit);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+export async function updateUserGrowth(input: { id: string; data: Record<string, unknown> }): Promise<any | null> {
+  try {
+    const { data, error } = await safeSupabase(() =>
+      supabase.from('user_growth').update(input.data).eq('id', input.id).select('*').single(),
+    );
+    return data?.[0] ?? null;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return null;
+  }
+}
+
+// ─── 警示系統 (Alert System) ────────────────────────────────────
+export async function createAlert(input: Record<string, unknown>): Promise<any> {
+  try {
+    const res = await safeSupabase(() =>
+      supabase.from('alerts').insert(input).select('*').single(),
+    );
+    return res ?? input;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return input;
+  }
+}
+
+// ─── 爬蟲歷史 (Crawl History) ───────────────────────────────────
+export async function listCrawlHistoryByDate(filter: { where?: Record<string, unknown>; take?: number }): Promise<any[]> {
+  try {
+    let query = supabase.from('crawl_history').select('*');
+    if (filter?.where) {
+      Object.entries(filter.where).forEach(([key, value]) => {
+        if (value && typeof value === 'object' && 'gte' in value) {
+          query = query.gte(key, String(value.gte));
+        } else if (value !== undefined) {
+          query = query.eq(key, value);
+        }
+      });
+    }
+    if (filter?.take) {
+      query = query.limit(filter.take);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return [];
+    }
+    return data ?? [];
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return [];
+  }
+}
+
+// ─── 格式化路由結果 (formatRoutingResult) ───────────────────────
+export async function formatRoutingResult(input: Record<string, unknown>): Promise<string> {
+  try {
+    const { data, error } = await safeSupabase(() =>
+      supabase.from('routing_result').insert(input).select('id').single(),
+    );
+    return data?.[0]?.id ?? 'unknown';
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return 'unknown';
+  }
+}

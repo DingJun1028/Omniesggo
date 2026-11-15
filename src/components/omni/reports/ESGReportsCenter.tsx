@@ -5,8 +5,8 @@ import {
   FileText, ShieldCheck, CheckCircle2,
   Sparkles, Printer, Copy, Check, Eye, Sun, Moon,
 } from 'lucide-react';
-import { OmniBadge, OmniButton, DynamicFormEngine } from '../../omni-base/OmniCard';
 import { OmniBadge } from '../../omni-base/OmniBadge';
+import { OmniButton } from '../../omni-base/OmniButton';
 import DynamicFormEngine from './DynamicFormEngine';
 import type { DynamicFormSchema } from '@/lib/omni-reports/types';
 
