@@ -58,7 +58,7 @@
 
 1. **§30 萬能超交付 喚醒指引** — `SKILL.md`（esggo-omni-super-delivery）：4Can1Cannot 指令、3 層落地錨、授權結界、驗算標準；檔案 15,920 B（2026-11-15 02:11:55 重新校準）。
 2. **Ch.24 grep 規格路徑盲區** — `references/grep-patterns.md` 曾不存在；**已建立**，補 `src/app/**/route.ts` 以封閉盲區；全庫 `git grep` 掃描為終極準繩（2 處 → 13 處，其中 10 處為刻意保留，登記於 soul.md §30.4 殘留登記，非缺陷）。
-3. **task-graph.json 路徑修復** — 背景程序於 2026-11-15 02:06:56 重整，`soul-chapter-30-9-hyper-awakening.md` 前綴已被完整替換為 `soul-chapter-30-super-delivery.md`（本輪 4.1.1 修正，2026-11-15 02:15 完成）。
+3. **task-graph.json 路徑修復** — 背景程序於 2026-11-15 02:06:56 重整，`soul-chapter-30-*` 相關檔案已被完整替換為 `soul-chapter-30-super-delivery.md`（本輪 4.1.1 修正，2026-11-15 02:15 完成）。
 4. **§30.6 數字與實測校正** — `ch30-fix-false-claims` 節點：宣稱「2021 筆」→ 更正為 **2,166 筆**（`git log 1405bd432..HEAD`，2026-11-15 02:06:34 工具輸出）；`ch30-super-delivery.evidence.git` 同步 2,166 筆。
 5. **_fix-backup-\* 歷史備份** — 保留（_fix-backup-20260801 仍存在），**不動**（Trustworthy 紅線，「未刪除任何靈魂檔」）。—— 修正自早期未驗證記錄「已清除」，實際未清除。
 6. **oa-twins/bin 忽略規則** — `.gitignore` 已有 `!oa-twins/bin/**`；`git check-ignore` 確認 `oa-twin-health.py` 為合法包含（2026-11-15 02:07）。
