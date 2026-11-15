@@ -1,0 +1,470 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../../core/resource';
+import * as DNSAPI from './dns';
+import { BaseDNS, DNS, DNSGetParams } from './dns';
+import { APIPromise } from '../../../core/api-promise';
+import { PagePromise, SinglePage } from '../../../core/pagination';
+import { RequestOptions } from '../../../internal/request-options';
+import { path } from '../../../internal/utils/path';
+
+export class BaseSubdomains extends APIResource {
+  static override readonly _key: readonly ['emailSending', 'subdomains'] = Object.freeze([
+    'emailSending',
+    'subdomains',
+  ] as const);
+
+  /**
+   * Creates a new sending subdomain or re-enables sending on an existing subdomain
+   * that had it disabled. If zone-level Email Sending has not been enabled yet, the
+   * zone flag is automatically set when the entitlement is present. A leftmost
+   * wildcard such as `*.example.com` is accepted only for accounts with wildcard
+   * Email Sending enabled. Wildcard senders share the base domain's DKIM signing
+   * identity and `cf-bounce.<base>` return path.
+   *
+   * @example
+   * ```ts
+   * const subdomain =
+   *   await client.emailSending.subdomains.create({
+   *     zone_id: '023e105f4ecef8ad9ca31a8372d0c353',
+   *     name: 'sub.example.com',
+   *   });
+   * ```
+   */
+  create(params: SubdomainCreateParams, options?: RequestOptions): APIPromise<SubdomainCreateResponse> {
+    const { zone_id, ...body } = params;
+    return (
+      this._client.post(path`/zones/${zone_id}/email/sending/subdomains`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: SubdomainCreateResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Lists all sending-enabled subdomains for the zone.
+   *
+   * @example
+   * ```ts
+   * // Automatically fetches more pages as needed.
+   * for await (const subdomainListResponse of client.emailSending.subdomains.list(
+   *   { zone_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * )) {
+   *   // ...
+   * }
+   * ```
+   */
+  list(
+    params: SubdomainListParams,
+    options?: RequestOptions,
+  ): PagePromise<SubdomainListResponsesSinglePage, SubdomainListResponse> {
+    const { zone_id } = params;
+    return this._client.getAPIList(
+      path`/zones/${zone_id}/email/sending/subdomains`,
+      SinglePage<SubdomainListResponse>,
+      options,
+    );
+  }
+
+  /**
+   * Disables sending on a subdomain and removes its DNS records. If routing is still
+   * active on the subdomain, only sending is disabled.
+   *
+   * @example
+   * ```ts
+   * const subdomain =
+   *   await client.emailSending.subdomains.delete(
+   *     'aabbccdd11223344aabbccdd11223344',
+   *     { zone_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   *   );
+   * ```
+   */
+  delete(
+    subdomainID: string,
+    params: SubdomainDeleteParams,
+    options?: RequestOptions,
+  ): APIPromise<SubdomainDeleteResponse> {
+    const { zone_id } = params;
+    return this._client.delete(path`/zones/${zone_id}/email/sending/subdomains/${subdomainID}`, options);
+  }
+
+  /**
+   * Updates the activity-log preview preference for a sending subdomain.
+   *
+   * @example
+   * ```ts
+   * const response = await client.emailSending.subdomains.edit(
+   *   'aabbccdd11223344aabbccdd11223344',
+   *   { zone_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * );
+   * ```
+   */
+  edit(
+    subdomainID: string,
+    params: SubdomainEditParams,
+    options?: RequestOptions,
+  ): APIPromise<SubdomainEditResponse> {
+    const { zone_id, ...body } = params;
+    return (
+      this._client.patch(path`/zones/${zone_id}/email/sending/subdomains/${subdomainID}`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: SubdomainEditResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Gets information for a specific sending subdomain.
+   *
+   * @example
+   * ```ts
+   * const subdomain = await client.emailSending.subdomains.get(
+   *   'aabbccdd11223344aabbccdd11223344',
+   *   { zone_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * );
+   * ```
+   */
+  get(
+    subdomainID: string,
+    params: SubdomainGetParams,
+    options?: RequestOptions,
+  ): APIPromise<SubdomainGetResponse> {
+    const { zone_id } = params;
+    return (
+      this._client.get(
+        path`/zones/${zone_id}/email/sending/subdomains/${subdomainID}`,
+        options,
+      ) as APIPromise<{ result: SubdomainGetResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class Subdomains extends BaseSubdomains {
+  dns: DNSAPI.DNS = new DNSAPI.DNS(this._client);
+}
+
+export type SubdomainListResponsesSinglePage = SinglePage<SubdomainListResponse>;
+
+export interface SubdomainCreateResponse {
+  /**
+   * Whether Email Sending is enabled on this subdomain.
+   */
+  enabled: boolean;
+
+  /**
+   * The exact domain name or a leftmost wildcard such as `*.example.com`.
+   */
+  name: string;
+
+  /**
+   * Sending subdomain identifier.
+   */
+  tag: string;
+
+  /**
+   * The date and time the destination address has been created.
+   */
+  created?: string;
+
+  /**
+   * The DKIM selector used for email signing. Wildcard rows publish the selector and
+   * sign with `d=<base>`.
+   */
+  dkim_selector?: string;
+
+  /**
+   * Whether a send request that includes a recipient suppressed on this subdomain
+   * drops that recipient and still delivers to the rest, instead of failing the
+   * entire request.
+   */
+  drop_suppressed_recipients?: boolean;
+
+  /**
+   * The date and time the destination address was last modified.
+   */
+  modified?: string;
+
+  /**
+   * Whether sent messages from this subdomain can be previewed in the activity log.
+   */
+  preview_enabled?: boolean;
+
+  /**
+   * The return-path domain used for bounce handling. Wildcard rows use
+   * `cf-bounce.<base>`.
+   */
+  return_path_domain?: string;
+}
+
+export interface SubdomainListResponse {
+  /**
+   * Whether Email Sending is enabled on this subdomain.
+   */
+  enabled: boolean;
+
+  /**
+   * The exact domain name or a leftmost wildcard such as `*.example.com`.
+   */
+  name: string;
+
+  /**
+   * Sending subdomain identifier.
+   */
+  tag: string;
+
+  /**
+   * The date and time the destination address has been created.
+   */
+  created?: string;
+
+  /**
+   * The DKIM selector used for email signing. Wildcard rows publish the selector and
+   * sign with `d=<base>`.
+   */
+  dkim_selector?: string;
+
+  /**
+   * Whether a send request that includes a recipient suppressed on this subdomain
+   * drops that recipient and still delivers to the rest, instead of failing the
+   * entire request.
+   */
+  drop_suppressed_recipients?: boolean;
+
+  /**
+   * The date and time the destination address was last modified.
+   */
+  modified?: string;
+
+  /**
+   * Whether sent messages from this subdomain can be previewed in the activity log.
+   */
+  preview_enabled?: boolean;
+
+  /**
+   * The return-path domain used for bounce handling. Wildcard rows use
+   * `cf-bounce.<base>`.
+   */
+  return_path_domain?: string;
+}
+
+export interface SubdomainDeleteResponse {
+  errors: Array<SubdomainDeleteResponse.Error>;
+
+  messages: Array<SubdomainDeleteResponse.Message>;
+
+  /**
+   * Whether the API call was successful.
+   */
+  success: true;
+}
+
+export namespace SubdomainDeleteResponse {
+  export interface Error {
+    code: number;
+
+    message: string;
+
+    documentation_url?: string;
+
+    source?: Error.Source;
+  }
+
+  export namespace Error {
+    export interface Source {
+      pointer?: string;
+    }
+  }
+
+  export interface Message {
+    code: number;
+
+    message: string;
+
+    documentation_url?: string;
+
+    source?: Message.Source;
+  }
+
+  export namespace Message {
+    export interface Source {
+      pointer?: string;
+    }
+  }
+}
+
+export interface SubdomainEditResponse {
+  /**
+   * Whether Email Sending is enabled on this subdomain.
+   */
+  enabled: boolean;
+
+  /**
+   * The exact domain name or a leftmost wildcard such as `*.example.com`.
+   */
+  name: string;
+
+  /**
+   * Sending subdomain identifier.
+   */
+  tag: string;
+
+  /**
+   * The date and time the destination address has been created.
+   */
+  created?: string;
+
+  /**
+   * The DKIM selector used for email signing. Wildcard rows publish the selector and
+   * sign with `d=<base>`.
+   */
+  dkim_selector?: string;
+
+  /**
+   * Whether a send request that includes a recipient suppressed on this subdomain
+   * drops that recipient and still delivers to the rest, instead of failing the
+   * entire request.
+   */
+  drop_suppressed_recipients?: boolean;
+
+  /**
+   * The date and time the destination address was last modified.
+   */
+  modified?: string;
+
+  /**
+   * Whether sent messages from this subdomain can be previewed in the activity log.
+   */
+  preview_enabled?: boolean;
+
+  /**
+   * The return-path domain used for bounce handling. Wildcard rows use
+   * `cf-bounce.<base>`.
+   */
+  return_path_domain?: string;
+}
+
+export interface SubdomainGetResponse {
+  /**
+   * Whether Email Sending is enabled on this subdomain.
+   */
+  enabled: boolean;
+
+  /**
+   * The exact domain name or a leftmost wildcard such as `*.example.com`.
+   */
+  name: string;
+
+  /**
+   * Sending subdomain identifier.
+   */
+  tag: string;
+
+  /**
+   * The date and time the destination address has been created.
+   */
+  created?: string;
+
+  /**
+   * The DKIM selector used for email signing. Wildcard rows publish the selector and
+   * sign with `d=<base>`.
+   */
+  dkim_selector?: string;
+
+  /**
+   * Whether a send request that includes a recipient suppressed on this subdomain
+   * drops that recipient and still delivers to the rest, instead of failing the
+   * entire request.
+   */
+  drop_suppressed_recipients?: boolean;
+
+  /**
+   * The date and time the destination address was last modified.
+   */
+  modified?: string;
+
+  /**
+   * Whether sent messages from this subdomain can be previewed in the activity log.
+   */
+  preview_enabled?: boolean;
+
+  /**
+   * The return-path domain used for bounce handling. Wildcard rows use
+   * `cf-bounce.<base>`.
+   */
+  return_path_domain?: string;
+}
+
+export interface SubdomainCreateParams {
+  /**
+   * Path param: Identifier.
+   */
+  zone_id: string;
+
+  /**
+   * Body param: The domain name within the zone. A wildcard is allowed only as the
+   * complete leftmost label (`*.example.com`) and requires the account wildcard
+   * Email Sending entitlement.
+   */
+  name: string;
+}
+
+export interface SubdomainListParams {
+  /**
+   * Identifier.
+   */
+  zone_id: string;
+}
+
+export interface SubdomainDeleteParams {
+  /**
+   * Identifier.
+   */
+  zone_id: string;
+}
+
+export interface SubdomainEditParams {
+  /**
+   * Path param: Identifier.
+   */
+  zone_id: string;
+
+  /**
+   * Body param: Whether a send request that includes a recipient suppressed on this
+   * subdomain drops that recipient and still delivers to the rest, instead of
+   * failing the entire request.
+   */
+  drop_suppressed_recipients?: boolean;
+
+  /**
+   * Body param: Whether sent messages from this subdomain can be previewed in the
+   * activity log.
+   */
+  preview_enabled?: boolean;
+}
+
+export interface SubdomainGetParams {
+  /**
+   * Identifier.
+   */
+  zone_id: string;
+}
+
+Subdomains.DNS = DNS;
+Subdomains.BaseDNS = BaseDNS;
+
+export declare namespace Subdomains {
+  export {
+    type SubdomainCreateResponse as SubdomainCreateResponse,
+    type SubdomainListResponse as SubdomainListResponse,
+    type SubdomainDeleteResponse as SubdomainDeleteResponse,
+    type SubdomainEditResponse as SubdomainEditResponse,
+    type SubdomainGetResponse as SubdomainGetResponse,
+    type SubdomainListResponsesSinglePage as SubdomainListResponsesSinglePage,
+    type SubdomainCreateParams as SubdomainCreateParams,
+    type SubdomainListParams as SubdomainListParams,
+    type SubdomainDeleteParams as SubdomainDeleteParams,
+    type SubdomainEditParams as SubdomainEditParams,
+    type SubdomainGetParams as SubdomainGetParams,
+  };
+
+  export { DNS as DNS, BaseDNS as BaseDNS, type DNSGetParams as DNSGetParams };
+}

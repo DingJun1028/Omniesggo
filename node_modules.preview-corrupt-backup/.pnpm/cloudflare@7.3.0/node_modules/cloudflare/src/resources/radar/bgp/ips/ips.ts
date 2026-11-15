@@ -1,0 +1,318 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../../../core/resource';
+import * as TopAPI from './top';
+import { BaseTop, Top, TopAsesParams, TopAsesResponse } from './top';
+import { APIPromise } from '../../../../core/api-promise';
+import { RequestOptions } from '../../../../internal/request-options';
+
+export class BaseIPs extends APIResource {
+  static override readonly _key: readonly ['radar', 'bgp', 'ips'] = Object.freeze([
+    'radar',
+    'bgp',
+    'ips',
+  ] as const);
+
+  /**
+   * Retrieves time series data for the announced IP space count, represented as the
+   * number of IPv4 /24s and IPv6 /48s, for a given ASN.
+   *
+   * @example
+   * ```ts
+   * const response = await client.radar.bgp.ips.timeseries();
+   * ```
+   */
+  timeseries(
+    query: IPTimeseriesParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<IPTimeseriesResponse> {
+    return (
+      this._client.get('/radar/bgp/ips/timeseries', { query, ...options }) as APIPromise<{
+        result: IPTimeseriesResponse;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class IPs extends BaseIPs {
+  top: TopAPI.Top = new TopAPI.Top(this._client);
+}
+
+export interface IPTimeseriesResponse {
+  /**
+   * Metadata for the results.
+   */
+  meta: IPTimeseriesResponse.Meta;
+
+  serie_0: IPTimeseriesResponse.Serie0;
+}
+
+export namespace IPTimeseriesResponse {
+  /**
+   * Metadata for the results.
+   */
+  export interface Meta {
+    /**
+     * Aggregation interval of the results (e.g., in 15 minutes or 1 hour intervals).
+     * Refer to
+     * [Aggregation intervals](https://developers.cloudflare.com/radar/concepts/aggregation-intervals/).
+     */
+    aggInterval: 'FIFTEEN_MINUTES' | 'ONE_HOUR' | 'ONE_DAY' | 'ONE_WEEK' | 'ONE_MONTH';
+
+    confidenceInfo: Meta.ConfidenceInfo;
+
+    dateRange: Array<Meta.DateRange>;
+
+    /**
+     * Timestamp of the last dataset update.
+     */
+    lastUpdated: string;
+
+    /**
+     * Normalization method applied to the results. Refer to
+     * [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/).
+     */
+    normalization:
+      | 'PERCENTAGE'
+      | 'MIN0_MAX'
+      | 'MIN_MAX'
+      | 'RAW_VALUES'
+      | 'PERCENTAGE_CHANGE'
+      | 'ROLLING_AVERAGE'
+      | 'OVERLAPPED_PERCENTAGE'
+      | 'RATIO';
+
+    /**
+     * Measurement units for the results.
+     */
+    units: Array<Meta.Unit>;
+
+    delay?: Meta.Delay;
+  }
+
+  export namespace Meta {
+    export interface ConfidenceInfo {
+      annotations: Array<ConfidenceInfo.Annotation>;
+
+      /**
+       * Provides an indication of how much confidence Cloudflare has in the data.
+       */
+      level: number;
+    }
+
+    export namespace ConfidenceInfo {
+      /**
+       * Annotation associated with the result (e.g. outage or other type of event).
+       */
+      export interface Annotation {
+        /**
+         * Data source for annotations.
+         */
+        dataSource:
+          | 'ALL'
+          | 'AI_BOTS'
+          | 'AI_GATEWAY'
+          | 'BGP'
+          | 'BOTS'
+          | 'CONNECTION_ANOMALY'
+          | 'CT'
+          | 'DNS'
+          | 'DNS_MAGNITUDE'
+          | 'DNS_AS112'
+          | 'DOS'
+          | 'EMAIL_ROUTING'
+          | 'EMAIL_SECURITY'
+          | 'FW'
+          | 'FW_PG'
+          | 'HTTP'
+          | 'HTTP_CONTROL'
+          | 'HTTP_CRAWLER_REFERER'
+          | 'HTTP_ORIGINS'
+          | 'IQI'
+          | 'LEAKED_CREDENTIALS'
+          | 'NET'
+          | 'ROBOTS_TXT'
+          | 'SPEED'
+          | 'WORKERS_AI';
+
+        description: string;
+
+        endDate: string;
+
+        /**
+         * Event type for annotations.
+         */
+        eventType: 'GENERAL' | 'OUTAGE' | 'PARTIAL_PROJECTION' | 'PIPELINE' | 'TRAFFIC_ANOMALY';
+
+        /**
+         * Whether event is a single point in time or a time range.
+         */
+        isInstantaneous: boolean;
+
+        linkedUrl: string;
+
+        startDate: string;
+
+        tags?: Array<string>;
+      }
+    }
+
+    export interface DateRange {
+      /**
+       * Adjusted end of date range.
+       */
+      endTime: string;
+
+      /**
+       * Adjusted start of date range.
+       */
+      startTime: string;
+    }
+
+    export interface Unit {
+      name: string;
+
+      value: string;
+    }
+
+    export interface Delay {
+      asn_data: Delay.ASNData;
+
+      country_data: Delay.CountryData;
+
+      healthy: boolean;
+
+      nowTs: number;
+    }
+
+    export namespace Delay {
+      export interface ASNData {
+        delaySecs: number;
+
+        delayStr: string;
+
+        healthy: boolean;
+
+        latest: ASNData.Latest;
+      }
+
+      export namespace ASNData {
+        export interface Latest {
+          entries_count: number;
+
+          path: string;
+
+          timestamp: number;
+        }
+      }
+
+      export interface CountryData {
+        delaySecs: number;
+
+        delayStr: string;
+
+        healthy: boolean;
+
+        latest: CountryData.Latest;
+      }
+
+      export namespace CountryData {
+        export interface Latest {
+          count: number;
+
+          timestamp: number;
+        }
+      }
+    }
+  }
+
+  export interface Serie0 {
+    ipv4: Array<string>;
+
+    ipv6: Array<string>;
+
+    timestamps: Array<string>;
+  }
+}
+
+export interface IPTimeseriesParams {
+  /**
+   * Filters results by Autonomous System. Specify one or more Autonomous System
+   * Numbers (ASNs) as a comma-separated list. Prefix with `-` to exclude ASNs from
+   * results. For example, `-174, 3356` excludes results from AS174, but includes
+   * results from AS3356.
+   */
+  asn?: Array<string>;
+
+  /**
+   * End of the date range (inclusive). Alternative to `dateRange`; provide together
+   * with `dateStart`. When requesting comparison series, every series must resolve
+   * to the same duration as the main series. Each `dateStart`/`dateEnd` is floored
+   * to the nearest 15 minutes before evaluation, so windows whose durations match
+   * only before alignment may be rejected.
+   */
+  dateEnd?: Array<string>;
+
+  /**
+   * Filters results by relative date range ending at the current time, with each
+   * value producing a separate series. Use `<n>d` for days (up to `364d`) or `<n>w`
+   * for weeks (up to `52w`). Append `control` to request the equivalent previous
+   * period for comparison: the comparison window is shifted back by the current
+   * window's length rounded up to a whole number of weeks, so it keeps the same
+   * weekday alignment and does not overlap the current window (e.g. `7dcontrol`
+   * covers days -14 to -7, `10dcontrol` covers days -24 to -14). For example, pass
+   * `7d` and `7dcontrol` to compare this week with the previous week. All series
+   * must resolve to the same duration as the main series; relative ranges (including
+   * `control`) satisfy this automatically. Use this parameter or set specific start
+   * and end dates (`dateStart` and `dateEnd` parameters).
+   */
+  dateRange?: Array<string>;
+
+  /**
+   * Start of the date range. Alternative to `dateRange`; provide together with
+   * `dateEnd`. When requesting comparison series, every series must resolve to the
+   * same duration as the main series. Each `dateStart`/`dateEnd` is floored to the
+   * nearest 15 minutes before evaluation, so windows whose durations match only
+   * before alignment may be rejected.
+   */
+  dateStart?: Array<string>;
+
+  /**
+   * Format in which results will be returned.
+   */
+  format?: 'JSON' | 'CSV';
+
+  /**
+   * Includes data delay meta information.
+   */
+  includeDelay?: boolean;
+
+  /**
+   * Filters results by IP version (Ipv4 vs. IPv6).
+   */
+  ipVersion?: Array<'IPv4' | 'IPv6'>;
+
+  /**
+   * Filters results by location. Specify a comma-separated list of alpha-2 location
+   * codes.
+   */
+  location?: Array<string>;
+
+  /**
+   * Array of names used to label the series in the response.
+   */
+  name?: Array<string>;
+}
+
+IPs.Top = Top;
+IPs.BaseTop = BaseTop;
+
+export declare namespace IPs {
+  export { type IPTimeseriesResponse as IPTimeseriesResponse, type IPTimeseriesParams as IPTimeseriesParams };
+
+  export {
+    Top as Top,
+    BaseTop as BaseTop,
+    type TopAsesResponse as TopAsesResponse,
+    type TopAsesParams as TopAsesParams,
+  };
+}

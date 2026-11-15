@@ -1,0 +1,495 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../../../core/resource';
+import * as TopAPI from './top';
+import {
+  BaseTop,
+  Top,
+  TopAsesParams,
+  TopAsesResponse,
+  TopLocationsParams,
+  TopLocationsResponse,
+} from './top';
+import { APIPromise } from '../../../../core/api-promise';
+import { RequestOptions } from '../../../../internal/request-options';
+
+export class BaseSpeed extends APIResource {
+  static override readonly _key: readonly ['radar', 'quality', 'speed'] = Object.freeze([
+    'radar',
+    'quality',
+    'speed',
+  ] as const);
+
+  /**
+   * Retrieves a histogram from the previous 90 days of Cloudflare Speed Test data,
+   * split into fixed bandwidth (Mbps), latency (ms), or jitter (ms) buckets.
+   *
+   * @example
+   * ```ts
+   * const response =
+   *   await client.radar.quality.speed.histogram();
+   * ```
+   */
+  histogram(
+    query: SpeedHistogramParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<SpeedHistogramResponse> {
+    return (
+      this._client.get('/radar/quality/speed/histogram', { query, ...options }) as APIPromise<{
+        result: SpeedHistogramResponse;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Retrieves a summary of bandwidth, latency, jitter, and packet loss, from the
+   * previous 90 days of Cloudflare Speed Test data.
+   *
+   * @example
+   * ```ts
+   * const response = await client.radar.quality.speed.summary();
+   * ```
+   */
+  summary(
+    query: SpeedSummaryParams | null | undefined = {},
+    options?: RequestOptions,
+  ): APIPromise<SpeedSummaryResponse> {
+    return (
+      this._client.get('/radar/quality/speed/summary', { query, ...options }) as APIPromise<{
+        result: SpeedSummaryResponse;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class Speed extends BaseSpeed {
+  top: TopAPI.Top = new TopAPI.Top(this._client);
+}
+
+export interface SpeedHistogramResponse {
+  histogram_0: SpeedHistogramResponse.Histogram0;
+
+  /**
+   * Metadata for the results.
+   */
+  meta: SpeedHistogramResponse.Meta;
+}
+
+export namespace SpeedHistogramResponse {
+  export interface Histogram0 {
+    bandwidthDownload: Array<string>;
+
+    bandwidthUpload: Array<string>;
+
+    bucketMin: Array<string>;
+  }
+
+  /**
+   * Metadata for the results.
+   */
+  export interface Meta {
+    /**
+     * The width for every bucket in the histogram.
+     */
+    bucketSize: number;
+
+    confidenceInfo: Meta.ConfidenceInfo;
+
+    dateRange: Array<Meta.DateRange>;
+
+    /**
+     * Timestamp of the last dataset update.
+     */
+    lastUpdated: string;
+
+    /**
+     * Normalization method applied to the results. Refer to
+     * [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/).
+     */
+    normalization:
+      | 'PERCENTAGE'
+      | 'MIN0_MAX'
+      | 'MIN_MAX'
+      | 'RAW_VALUES'
+      | 'PERCENTAGE_CHANGE'
+      | 'ROLLING_AVERAGE'
+      | 'OVERLAPPED_PERCENTAGE'
+      | 'RATIO';
+
+    totalTests: Array<number>;
+
+    /**
+     * Measurement units for the results.
+     */
+    units: Array<Meta.Unit>;
+  }
+
+  export namespace Meta {
+    export interface ConfidenceInfo {
+      annotations: Array<ConfidenceInfo.Annotation>;
+
+      /**
+       * Provides an indication of how much confidence Cloudflare has in the data.
+       */
+      level: number;
+    }
+
+    export namespace ConfidenceInfo {
+      /**
+       * Annotation associated with the result (e.g. outage or other type of event).
+       */
+      export interface Annotation {
+        /**
+         * Data source for annotations.
+         */
+        dataSource:
+          | 'ALL'
+          | 'AI_BOTS'
+          | 'AI_GATEWAY'
+          | 'BGP'
+          | 'BOTS'
+          | 'CONNECTION_ANOMALY'
+          | 'CT'
+          | 'DNS'
+          | 'DNS_MAGNITUDE'
+          | 'DNS_AS112'
+          | 'DOS'
+          | 'EMAIL_ROUTING'
+          | 'EMAIL_SECURITY'
+          | 'FW'
+          | 'FW_PG'
+          | 'HTTP'
+          | 'HTTP_CONTROL'
+          | 'HTTP_CRAWLER_REFERER'
+          | 'HTTP_ORIGINS'
+          | 'IQI'
+          | 'LEAKED_CREDENTIALS'
+          | 'NET'
+          | 'ROBOTS_TXT'
+          | 'SPEED'
+          | 'WORKERS_AI';
+
+        description: string;
+
+        endDate: string;
+
+        /**
+         * Event type for annotations.
+         */
+        eventType: 'GENERAL' | 'OUTAGE' | 'PARTIAL_PROJECTION' | 'PIPELINE' | 'TRAFFIC_ANOMALY';
+
+        /**
+         * Whether event is a single point in time or a time range.
+         */
+        isInstantaneous: boolean;
+
+        linkedUrl: string;
+
+        startDate: string;
+
+        tags?: Array<string>;
+      }
+    }
+
+    export interface DateRange {
+      /**
+       * Adjusted end of date range.
+       */
+      endTime: string;
+
+      /**
+       * Adjusted start of date range.
+       */
+      startTime: string;
+    }
+
+    export interface Unit {
+      name: string;
+
+      value: string;
+    }
+  }
+}
+
+export interface SpeedSummaryResponse {
+  /**
+   * Metadata for the results.
+   */
+  meta: SpeedSummaryResponse.Meta;
+
+  summary_0: SpeedSummaryResponse.Summary0;
+}
+
+export namespace SpeedSummaryResponse {
+  /**
+   * Metadata for the results.
+   */
+  export interface Meta {
+    confidenceInfo: Meta.ConfidenceInfo;
+
+    dateRange: Array<Meta.DateRange>;
+
+    /**
+     * Timestamp of the last dataset update.
+     */
+    lastUpdated: string;
+
+    /**
+     * Normalization method applied to the results. Refer to
+     * [Normalization methods](https://developers.cloudflare.com/radar/concepts/normalization/).
+     */
+    normalization:
+      | 'PERCENTAGE'
+      | 'MIN0_MAX'
+      | 'MIN_MAX'
+      | 'RAW_VALUES'
+      | 'PERCENTAGE_CHANGE'
+      | 'ROLLING_AVERAGE'
+      | 'OVERLAPPED_PERCENTAGE'
+      | 'RATIO';
+
+    /**
+     * Measurement units for the results.
+     */
+    units: Array<Meta.Unit>;
+  }
+
+  export namespace Meta {
+    export interface ConfidenceInfo {
+      annotations: Array<ConfidenceInfo.Annotation>;
+
+      /**
+       * Provides an indication of how much confidence Cloudflare has in the data.
+       */
+      level: number;
+    }
+
+    export namespace ConfidenceInfo {
+      /**
+       * Annotation associated with the result (e.g. outage or other type of event).
+       */
+      export interface Annotation {
+        /**
+         * Data source for annotations.
+         */
+        dataSource:
+          | 'ALL'
+          | 'AI_BOTS'
+          | 'AI_GATEWAY'
+          | 'BGP'
+          | 'BOTS'
+          | 'CONNECTION_ANOMALY'
+          | 'CT'
+          | 'DNS'
+          | 'DNS_MAGNITUDE'
+          | 'DNS_AS112'
+          | 'DOS'
+          | 'EMAIL_ROUTING'
+          | 'EMAIL_SECURITY'
+          | 'FW'
+          | 'FW_PG'
+          | 'HTTP'
+          | 'HTTP_CONTROL'
+          | 'HTTP_CRAWLER_REFERER'
+          | 'HTTP_ORIGINS'
+          | 'IQI'
+          | 'LEAKED_CREDENTIALS'
+          | 'NET'
+          | 'ROBOTS_TXT'
+          | 'SPEED'
+          | 'WORKERS_AI';
+
+        description: string;
+
+        endDate: string;
+
+        /**
+         * Event type for annotations.
+         */
+        eventType: 'GENERAL' | 'OUTAGE' | 'PARTIAL_PROJECTION' | 'PIPELINE' | 'TRAFFIC_ANOMALY';
+
+        /**
+         * Whether event is a single point in time or a time range.
+         */
+        isInstantaneous: boolean;
+
+        linkedUrl: string;
+
+        startDate: string;
+
+        tags?: Array<string>;
+      }
+    }
+
+    export interface DateRange {
+      /**
+       * Adjusted end of date range.
+       */
+      endTime: string;
+
+      /**
+       * Adjusted start of date range.
+       */
+      startTime: string;
+    }
+
+    export interface Unit {
+      name: string;
+
+      value: string;
+    }
+  }
+
+  export interface Summary0 {
+    /**
+     * A numeric string.
+     */
+    bandwidthDownload: string;
+
+    /**
+     * A numeric string.
+     */
+    bandwidthUpload: string;
+
+    /**
+     * A numeric string.
+     */
+    jitterIdle: string;
+
+    /**
+     * A numeric string.
+     */
+    jitterLoaded: string;
+
+    /**
+     * A numeric string.
+     */
+    latencyIdle: string;
+
+    /**
+     * A numeric string.
+     */
+    latencyLoaded: string;
+
+    /**
+     * A numeric string.
+     */
+    packetLoss: string;
+  }
+}
+
+export interface SpeedHistogramParams {
+  /**
+   * Filters results by Autonomous System. Specify one or more Autonomous System
+   * Numbers (ASNs) as a comma-separated list. Prefix with `-` to exclude ASNs from
+   * results. For example, `-174, 3356` excludes results from AS174, but includes
+   * results from AS3356.
+   */
+  asn?: Array<string>;
+
+  /**
+   * Specifies the width for every bucket in the histogram.
+   */
+  bucketSize?: number;
+
+  /**
+   * Filters results by continent. Specify a comma-separated list of alpha-2 codes.
+   * Prefix with `-` to exclude continents from results. For example, `-EU,NA`
+   * excludes results from EU, but includes results from NA.
+   */
+  continent?: Array<string>;
+
+  /**
+   * End of the date range (inclusive). Alternative to `dateRange`; provide together
+   * with `dateStart`. When requesting comparison series, every series must resolve
+   * to the same duration as the main series. Each `dateStart`/`dateEnd` is floored
+   * to the nearest 15 minutes before evaluation, so windows whose durations match
+   * only before alignment may be rejected.
+   */
+  dateEnd?: Array<string>;
+
+  /**
+   * Format in which results will be returned.
+   */
+  format?: 'JSON' | 'CSV';
+
+  /**
+   * Filters results by location. Specify a comma-separated list of alpha-2 codes.
+   * Prefix with `-` to exclude locations from results. For example, `-US,PT`
+   * excludes results from the US, but includes results from PT.
+   */
+  location?: Array<string>;
+
+  /**
+   * Metrics to be returned.
+   */
+  metricGroup?: 'BANDWIDTH' | 'LATENCY' | 'JITTER';
+
+  /**
+   * Array of names used to label the series in the response.
+   */
+  name?: Array<string>;
+}
+
+export interface SpeedSummaryParams {
+  /**
+   * Filters results by Autonomous System. Specify one or more Autonomous System
+   * Numbers (ASNs) as a comma-separated list. Prefix with `-` to exclude ASNs from
+   * results. For example, `-174, 3356` excludes results from AS174, but includes
+   * results from AS3356.
+   */
+  asn?: Array<string>;
+
+  /**
+   * Filters results by continent. Specify a comma-separated list of alpha-2 codes.
+   * Prefix with `-` to exclude continents from results. For example, `-EU,NA`
+   * excludes results from EU, but includes results from NA.
+   */
+  continent?: Array<string>;
+
+  /**
+   * End of the date range (inclusive). Alternative to `dateRange`; provide together
+   * with `dateStart`. When requesting comparison series, every series must resolve
+   * to the same duration as the main series. Each `dateStart`/`dateEnd` is floored
+   * to the nearest 15 minutes before evaluation, so windows whose durations match
+   * only before alignment may be rejected.
+   */
+  dateEnd?: Array<string>;
+
+  /**
+   * Format in which results will be returned.
+   */
+  format?: 'JSON' | 'CSV';
+
+  /**
+   * Filters results by location. Specify a comma-separated list of alpha-2 codes.
+   * Prefix with `-` to exclude locations from results. For example, `-US,PT`
+   * excludes results from the US, but includes results from PT.
+   */
+  location?: Array<string>;
+
+  /**
+   * Array of names used to label the series in the response.
+   */
+  name?: Array<string>;
+}
+
+Speed.Top = Top;
+Speed.BaseTop = BaseTop;
+
+export declare namespace Speed {
+  export {
+    type SpeedHistogramResponse as SpeedHistogramResponse,
+    type SpeedSummaryResponse as SpeedSummaryResponse,
+    type SpeedHistogramParams as SpeedHistogramParams,
+    type SpeedSummaryParams as SpeedSummaryParams,
+  };
+
+  export {
+    Top as Top,
+    BaseTop as BaseTop,
+    type TopAsesResponse as TopAsesResponse,
+    type TopLocationsResponse as TopLocationsResponse,
+    type TopAsesParams as TopAsesParams,
+    type TopLocationsParams as TopLocationsParams,
+  };
+}

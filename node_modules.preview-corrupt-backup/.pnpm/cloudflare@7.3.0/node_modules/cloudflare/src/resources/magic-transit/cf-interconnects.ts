@@ -1,0 +1,1350 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../core/resource';
+import * as MagicTransitAPI from './magic-transit';
+import { APIPromise } from '../../core/api-promise';
+import { buildHeaders } from '../../internal/headers';
+import { RequestOptions } from '../../internal/request-options';
+import { path } from '../../internal/utils/path';
+
+export class BaseCfInterconnects extends APIResource {
+  static override readonly _key: readonly ['magicTransit', 'cfInterconnects'] = Object.freeze([
+    'magicTransit',
+    'cfInterconnects',
+  ] as const);
+
+  /**
+   * Updates a specific interconnect associated with an account. Use
+   * `?validate_only=true` as an optional query parameter to only run validation
+   * without persisting changes.
+   *
+   * @example
+   * ```ts
+   * const cfInterconnect =
+   *   await client.magicTransit.cfInterconnects.update(
+   *     '023e105f4ecef8ad9ca31a8372d0c353',
+   *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   *   );
+   * ```
+   */
+  update(
+    cfInterconnectID: string,
+    params: CfInterconnectUpdateParams,
+    options?: RequestOptions,
+  ): APIPromise<CfInterconnectUpdateResponse> {
+    const { account_id, 'x-magic-new-hc-target': xMagicNewHcTarget, ...body } = params;
+    return (
+      this._client.put(path`/accounts/${account_id}/magic/cf_interconnects/${cfInterconnectID}`, {
+        body,
+        ...options,
+        headers: buildHeaders([
+          {
+            ...(xMagicNewHcTarget?.toString() != null ?
+              { 'x-magic-new-hc-target': xMagicNewHcTarget?.toString() }
+            : undefined),
+          },
+          options?.headers,
+        ]),
+      }) as APIPromise<{ result: CfInterconnectUpdateResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Lists interconnects associated with an account.
+   *
+   * @example
+   * ```ts
+   * const cfInterconnects =
+   *   await client.magicTransit.cfInterconnects.list({
+   *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+   *   });
+   * ```
+   */
+  list(params: CfInterconnectListParams, options?: RequestOptions): APIPromise<CfInterconnectListResponse> {
+    const { account_id, 'x-magic-new-hc-target': xMagicNewHcTarget } = params;
+    return (
+      this._client.get(path`/accounts/${account_id}/magic/cf_interconnects`, {
+        ...options,
+        headers: buildHeaders([
+          {
+            ...(xMagicNewHcTarget?.toString() != null ?
+              { 'x-magic-new-hc-target': xMagicNewHcTarget?.toString() }
+            : undefined),
+          },
+          options?.headers,
+        ]),
+      }) as APIPromise<{ result: CfInterconnectListResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Updates multiple interconnects associated with an account. Use
+   * `?validate_only=true` as an optional query parameter to only run validation
+   * without persisting changes.
+   *
+   * @example
+   * ```ts
+   * const response =
+   *   await client.magicTransit.cfInterconnects.bulkUpdate({
+   *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+   *     body: {},
+   *   });
+   * ```
+   */
+  bulkUpdate(
+    params: CfInterconnectBulkUpdateParams,
+    options?: RequestOptions,
+  ): APIPromise<CfInterconnectBulkUpdateResponse> {
+    const { account_id, body, 'x-magic-new-hc-target': xMagicNewHcTarget } = params;
+    return (
+      this._client.put(path`/accounts/${account_id}/magic/cf_interconnects`, {
+        body: body,
+        ...options,
+        headers: buildHeaders([
+          {
+            ...(xMagicNewHcTarget?.toString() != null ?
+              { 'x-magic-new-hc-target': xMagicNewHcTarget?.toString() }
+            : undefined),
+          },
+          options?.headers,
+        ]),
+      }) as APIPromise<{ result: CfInterconnectBulkUpdateResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Lists details for a specific interconnect.
+   *
+   * @example
+   * ```ts
+   * const cfInterconnect =
+   *   await client.magicTransit.cfInterconnects.get(
+   *     '023e105f4ecef8ad9ca31a8372d0c353',
+   *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   *   );
+   * ```
+   */
+  get(
+    cfInterconnectID: string,
+    params: CfInterconnectGetParams,
+    options?: RequestOptions,
+  ): APIPromise<CfInterconnectGetResponse> {
+    const { account_id, 'x-magic-new-hc-target': xMagicNewHcTarget } = params;
+    return (
+      this._client.get(path`/accounts/${account_id}/magic/cf_interconnects/${cfInterconnectID}`, {
+        ...options,
+        headers: buildHeaders([
+          {
+            ...(xMagicNewHcTarget?.toString() != null ?
+              { 'x-magic-new-hc-target': xMagicNewHcTarget?.toString() }
+            : undefined),
+          },
+          options?.headers,
+        ]),
+      }) as APIPromise<{ result: CfInterconnectGetResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class CfInterconnects extends BaseCfInterconnects {}
+
+export interface CfInterconnectUpdateResponse {
+  modified?: boolean;
+
+  modified_interconnect?: CfInterconnectUpdateResponse.ModifiedInterconnect;
+}
+
+export namespace CfInterconnectUpdateResponse {
+  export interface ModifiedInterconnect {
+    /**
+     * Identifier
+     */
+    id?: string;
+
+    /**
+     * True if automatic stateful return routing should be enabled for a tunnel, false
+     * otherwise. Requires the `coupler_integration` account flag to be enabled;
+     * requests setting this to `true` without that flag will be rejected.
+     */
+    automatic_return_routing?: boolean;
+
+    bgp?: ModifiedInterconnect.BGP;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    colo_name?: string;
+
+    /**
+     * The date and time the tunnel was created.
+     */
+    created_on?: string;
+
+    /**
+     * An optional description of the interconnect.
+     */
+    description?: string;
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    gre?: ModifiedInterconnect.GRE;
+
+    health_check?: ModifiedInterconnect.HealthCheck;
+
+    /**
+     * The IPv4 interface address for the interconnect. For MPLS Interconnects, use a
+     * /30 or /31 prefix. For GRE Interconnects, a /30 or /31 prefix may be used.
+     * Version 1.5 interconnects require a /31 prefix and may also use a prefix from
+     * the account's authorized prefixes; otherwise, select the subnet from RFC 1918 or
+     * the approved link-local ranges.
+     */
+    interface_address?: string;
+
+    /**
+     * A 127 bit IPV6 prefix from within the virtual_subnet6 prefix space with the
+     * address being the first IP of the subnet and not same as the address of
+     * virtual_subnet6. Eg if virtual_subnet6 is 2606:54c1:7:0:a9fe:12d2::/127 ,
+     * interface_address6 could be 2606:54c1:7:0:a9fe:12d2:1:200/127
+     */
+    interface_address6?: string;
+
+    /**
+     * The date and time the tunnel was last modified.
+     */
+    modified_on?: string;
+
+    /**
+     * The Maximum Transmission Unit (MTU) in bytes for the interconnect. The minimum
+     * value is 576.
+     */
+    mtu?: number;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    name?: string;
+
+    /**
+     * Immutable interconnect version configured at creation time. One of:
+     *
+     * - "1"
+     * - "1.5"
+     * - "2"
+     */
+    version?: string;
+
+    /**
+     * An identifier that correlates this interconnect with the corresponding V2 CNI
+     * interconnect resource.
+     */
+    virtual_port_reservation_id?: string;
+  }
+
+  export namespace ModifiedInterconnect {
+    export interface BGP {
+      /**
+       * @deprecated Deprecated. Use customer_asn.
+       */
+      as_no?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      cloudflare_endpoint?: string;
+
+      /**
+       * ASN used on the customer end of the BGP session.
+       */
+      customer_asn?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      customer_endpoint?: string;
+
+      /**
+       * ID of the BGP filter profile applied to routes advertised to the customer.
+       */
+      export_filter_id?: string;
+
+      /**
+       * Prefixes in this list will be advertised to the customer device, in addition to
+       * the routes in the Magic routing table.
+       */
+      extra_prefixes?: Array<string>;
+
+      /**
+       * ID of the BGP filter profile applied to routes received from the customer.
+       */
+      import_filter_id?: string;
+
+      /**
+       * MD5 key to use for session authentication.
+       *
+       * Note that _this is not a security measure_. MD5 is not a valid security
+       * mechanism, and the key is not treated as a secret value. This is _only_
+       * supported for preventing misconfiguration, not for defending against malicious
+       * attacks.
+       *
+       * The MD5 key, if set, must be of non-zero length and consist only of the
+       * following types of character:
+       *
+       * - ASCII alphanumerics: `[a-zA-Z0-9]`
+       * - Special characters in the set `'!@#$%^&*()+[]{}<>/.,;:_-~`= \|`
+       *
+       * In other words, MD5 keys may contain any printable ASCII character aside from
+       * newline (0x0A), quotation mark (`"`), vertical tab (0x0B), carriage return
+       * (0x0D), tab (0x09), form feed (0x0C), and the question mark (`?`). Requests
+       * specifying an MD5 key with one or more of these disallowed characters will be
+       * rejected.
+       */
+      md5_key?: string;
+    }
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    export interface GRE {
+      /**
+       * The IP address assigned to the Cloudflare side of the GRE tunnel created as part
+       * of the Interconnect.
+       */
+      cloudflare_endpoint?: string;
+    }
+
+    export interface HealthCheck {
+      /**
+       * The direction of the flow of the healthcheck. Either unidirectional, where the
+       * probe comes to you via the interconnect and the result comes back to Cloudflare
+       * via the open Internet, or bidirectional where both the probe and result come and
+       * go via the interconnect.
+       */
+      direction?: 'unidirectional' | 'bidirectional';
+
+      /**
+       * Determines whether to run healthchecks for a tunnel.
+       */
+      enabled?: boolean;
+
+      /**
+       * How frequent the health check is run. The default value is `mid`.
+       */
+      rate?: MagicTransitAPI.HealthCheckRate;
+
+      /**
+       * The source IPv4 address used for bidirectional health checks. Supported only for
+       * version 1.5 interconnects. It is required when `direction` is `bidirectional`
+       * and must be omitted (and is cleared) when `direction` is `unidirectional`. The
+       * address must be within RFC1918 space, the approved link-local range
+       * 169.254.240.0/20, or the Cloudflare reserved range 198.41.199.224/27.
+       */
+      source?: string;
+
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target. Must be in
+       * object form if the x-magic-new-hc-target header is set to true and string form
+       * if x-magic-new-hc-target is absent or set to false.
+       */
+      target?: HealthCheck.MagicHealthCheckTarget | string;
+
+      /**
+       * The type of healthcheck to run, reply or request. The default value is `reply`.
+       */
+      type?: MagicTransitAPI.HealthCheckType;
+    }
+
+    export namespace HealthCheck {
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target.
+       */
+      export interface MagicHealthCheckTarget {
+        /**
+         * The effective health check target. If 'saved' is empty, then this field will be
+         * populated with the calculated default value on GET requests. Ignored in POST,
+         * PUT, and PATCH requests.
+         */
+        effective?: string;
+
+        /**
+         * The saved health check target. Setting the value to the empty string indicates
+         * that the calculated default value will be used.
+         */
+        saved?: string;
+      }
+    }
+  }
+}
+
+export interface CfInterconnectListResponse {
+  interconnects?: Array<CfInterconnectListResponse.Interconnect>;
+}
+
+export namespace CfInterconnectListResponse {
+  export interface Interconnect {
+    /**
+     * Identifier
+     */
+    id?: string;
+
+    /**
+     * True if automatic stateful return routing should be enabled for a tunnel, false
+     * otherwise. Requires the `coupler_integration` account flag to be enabled;
+     * requests setting this to `true` without that flag will be rejected.
+     */
+    automatic_return_routing?: boolean;
+
+    bgp?: Interconnect.BGP;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    colo_name?: string;
+
+    /**
+     * The date and time the tunnel was created.
+     */
+    created_on?: string;
+
+    /**
+     * An optional description of the interconnect.
+     */
+    description?: string;
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    gre?: Interconnect.GRE;
+
+    health_check?: Interconnect.HealthCheck;
+
+    /**
+     * The IPv4 interface address for the interconnect. For MPLS Interconnects, use a
+     * /30 or /31 prefix. For GRE Interconnects, a /30 or /31 prefix may be used.
+     * Version 1.5 interconnects require a /31 prefix and may also use a prefix from
+     * the account's authorized prefixes; otherwise, select the subnet from RFC 1918 or
+     * the approved link-local ranges.
+     */
+    interface_address?: string;
+
+    /**
+     * A 127 bit IPV6 prefix from within the virtual_subnet6 prefix space with the
+     * address being the first IP of the subnet and not same as the address of
+     * virtual_subnet6. Eg if virtual_subnet6 is 2606:54c1:7:0:a9fe:12d2::/127 ,
+     * interface_address6 could be 2606:54c1:7:0:a9fe:12d2:1:200/127
+     */
+    interface_address6?: string;
+
+    /**
+     * The date and time the tunnel was last modified.
+     */
+    modified_on?: string;
+
+    /**
+     * The Maximum Transmission Unit (MTU) in bytes for the interconnect. The minimum
+     * value is 576.
+     */
+    mtu?: number;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    name?: string;
+
+    /**
+     * Immutable interconnect version configured at creation time. One of:
+     *
+     * - "1"
+     * - "1.5"
+     * - "2"
+     */
+    version?: string;
+
+    /**
+     * An identifier that correlates this interconnect with the corresponding V2 CNI
+     * interconnect resource.
+     */
+    virtual_port_reservation_id?: string;
+  }
+
+  export namespace Interconnect {
+    export interface BGP {
+      /**
+       * @deprecated Deprecated. Use customer_asn.
+       */
+      as_no?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      cloudflare_endpoint?: string;
+
+      /**
+       * ASN used on the customer end of the BGP session.
+       */
+      customer_asn?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      customer_endpoint?: string;
+
+      /**
+       * ID of the BGP filter profile applied to routes advertised to the customer.
+       */
+      export_filter_id?: string;
+
+      /**
+       * Prefixes in this list will be advertised to the customer device, in addition to
+       * the routes in the Magic routing table.
+       */
+      extra_prefixes?: Array<string>;
+
+      /**
+       * ID of the BGP filter profile applied to routes received from the customer.
+       */
+      import_filter_id?: string;
+
+      /**
+       * MD5 key to use for session authentication.
+       *
+       * Note that _this is not a security measure_. MD5 is not a valid security
+       * mechanism, and the key is not treated as a secret value. This is _only_
+       * supported for preventing misconfiguration, not for defending against malicious
+       * attacks.
+       *
+       * The MD5 key, if set, must be of non-zero length and consist only of the
+       * following types of character:
+       *
+       * - ASCII alphanumerics: `[a-zA-Z0-9]`
+       * - Special characters in the set `'!@#$%^&*()+[]{}<>/.,;:_-~`= \|`
+       *
+       * In other words, MD5 keys may contain any printable ASCII character aside from
+       * newline (0x0A), quotation mark (`"`), vertical tab (0x0B), carriage return
+       * (0x0D), tab (0x09), form feed (0x0C), and the question mark (`?`). Requests
+       * specifying an MD5 key with one or more of these disallowed characters will be
+       * rejected.
+       */
+      md5_key?: string;
+    }
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    export interface GRE {
+      /**
+       * The IP address assigned to the Cloudflare side of the GRE tunnel created as part
+       * of the Interconnect.
+       */
+      cloudflare_endpoint?: string;
+    }
+
+    export interface HealthCheck {
+      /**
+       * The direction of the flow of the healthcheck. Either unidirectional, where the
+       * probe comes to you via the interconnect and the result comes back to Cloudflare
+       * via the open Internet, or bidirectional where both the probe and result come and
+       * go via the interconnect.
+       */
+      direction?: 'unidirectional' | 'bidirectional';
+
+      /**
+       * Determines whether to run healthchecks for a tunnel.
+       */
+      enabled?: boolean;
+
+      /**
+       * How frequent the health check is run. The default value is `mid`.
+       */
+      rate?: MagicTransitAPI.HealthCheckRate;
+
+      /**
+       * The source IPv4 address used for bidirectional health checks. Supported only for
+       * version 1.5 interconnects. It is required when `direction` is `bidirectional`
+       * and must be omitted (and is cleared) when `direction` is `unidirectional`. The
+       * address must be within RFC1918 space, the approved link-local range
+       * 169.254.240.0/20, or the Cloudflare reserved range 198.41.199.224/27.
+       */
+      source?: string;
+
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target. Must be in
+       * object form if the x-magic-new-hc-target header is set to true and string form
+       * if x-magic-new-hc-target is absent or set to false.
+       */
+      target?: HealthCheck.MagicHealthCheckTarget | string;
+
+      /**
+       * The type of healthcheck to run, reply or request. The default value is `reply`.
+       */
+      type?: MagicTransitAPI.HealthCheckType;
+    }
+
+    export namespace HealthCheck {
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target.
+       */
+      export interface MagicHealthCheckTarget {
+        /**
+         * The effective health check target. If 'saved' is empty, then this field will be
+         * populated with the calculated default value on GET requests. Ignored in POST,
+         * PUT, and PATCH requests.
+         */
+        effective?: string;
+
+        /**
+         * The saved health check target. Setting the value to the empty string indicates
+         * that the calculated default value will be used.
+         */
+        saved?: string;
+      }
+    }
+  }
+}
+
+export interface CfInterconnectBulkUpdateResponse {
+  modified?: boolean;
+
+  modified_interconnects?: Array<CfInterconnectBulkUpdateResponse.ModifiedInterconnect>;
+}
+
+export namespace CfInterconnectBulkUpdateResponse {
+  export interface ModifiedInterconnect {
+    /**
+     * Identifier
+     */
+    id?: string;
+
+    /**
+     * True if automatic stateful return routing should be enabled for a tunnel, false
+     * otherwise. Requires the `coupler_integration` account flag to be enabled;
+     * requests setting this to `true` without that flag will be rejected.
+     */
+    automatic_return_routing?: boolean;
+
+    bgp?: ModifiedInterconnect.BGP;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    colo_name?: string;
+
+    /**
+     * The date and time the tunnel was created.
+     */
+    created_on?: string;
+
+    /**
+     * An optional description of the interconnect.
+     */
+    description?: string;
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    gre?: ModifiedInterconnect.GRE;
+
+    health_check?: ModifiedInterconnect.HealthCheck;
+
+    /**
+     * The IPv4 interface address for the interconnect. For MPLS Interconnects, use a
+     * /30 or /31 prefix. For GRE Interconnects, a /30 or /31 prefix may be used.
+     * Version 1.5 interconnects require a /31 prefix and may also use a prefix from
+     * the account's authorized prefixes; otherwise, select the subnet from RFC 1918 or
+     * the approved link-local ranges.
+     */
+    interface_address?: string;
+
+    /**
+     * A 127 bit IPV6 prefix from within the virtual_subnet6 prefix space with the
+     * address being the first IP of the subnet and not same as the address of
+     * virtual_subnet6. Eg if virtual_subnet6 is 2606:54c1:7:0:a9fe:12d2::/127 ,
+     * interface_address6 could be 2606:54c1:7:0:a9fe:12d2:1:200/127
+     */
+    interface_address6?: string;
+
+    /**
+     * The date and time the tunnel was last modified.
+     */
+    modified_on?: string;
+
+    /**
+     * The Maximum Transmission Unit (MTU) in bytes for the interconnect. The minimum
+     * value is 576.
+     */
+    mtu?: number;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    name?: string;
+
+    /**
+     * Immutable interconnect version configured at creation time. One of:
+     *
+     * - "1"
+     * - "1.5"
+     * - "2"
+     */
+    version?: string;
+
+    /**
+     * An identifier that correlates this interconnect with the corresponding V2 CNI
+     * interconnect resource.
+     */
+    virtual_port_reservation_id?: string;
+  }
+
+  export namespace ModifiedInterconnect {
+    export interface BGP {
+      /**
+       * @deprecated Deprecated. Use customer_asn.
+       */
+      as_no?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      cloudflare_endpoint?: string;
+
+      /**
+       * ASN used on the customer end of the BGP session.
+       */
+      customer_asn?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      customer_endpoint?: string;
+
+      /**
+       * ID of the BGP filter profile applied to routes advertised to the customer.
+       */
+      export_filter_id?: string;
+
+      /**
+       * Prefixes in this list will be advertised to the customer device, in addition to
+       * the routes in the Magic routing table.
+       */
+      extra_prefixes?: Array<string>;
+
+      /**
+       * ID of the BGP filter profile applied to routes received from the customer.
+       */
+      import_filter_id?: string;
+
+      /**
+       * MD5 key to use for session authentication.
+       *
+       * Note that _this is not a security measure_. MD5 is not a valid security
+       * mechanism, and the key is not treated as a secret value. This is _only_
+       * supported for preventing misconfiguration, not for defending against malicious
+       * attacks.
+       *
+       * The MD5 key, if set, must be of non-zero length and consist only of the
+       * following types of character:
+       *
+       * - ASCII alphanumerics: `[a-zA-Z0-9]`
+       * - Special characters in the set `'!@#$%^&*()+[]{}<>/.,;:_-~`= \|`
+       *
+       * In other words, MD5 keys may contain any printable ASCII character aside from
+       * newline (0x0A), quotation mark (`"`), vertical tab (0x0B), carriage return
+       * (0x0D), tab (0x09), form feed (0x0C), and the question mark (`?`). Requests
+       * specifying an MD5 key with one or more of these disallowed characters will be
+       * rejected.
+       */
+      md5_key?: string;
+    }
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    export interface GRE {
+      /**
+       * The IP address assigned to the Cloudflare side of the GRE tunnel created as part
+       * of the Interconnect.
+       */
+      cloudflare_endpoint?: string;
+    }
+
+    export interface HealthCheck {
+      /**
+       * The direction of the flow of the healthcheck. Either unidirectional, where the
+       * probe comes to you via the interconnect and the result comes back to Cloudflare
+       * via the open Internet, or bidirectional where both the probe and result come and
+       * go via the interconnect.
+       */
+      direction?: 'unidirectional' | 'bidirectional';
+
+      /**
+       * Determines whether to run healthchecks for a tunnel.
+       */
+      enabled?: boolean;
+
+      /**
+       * How frequent the health check is run. The default value is `mid`.
+       */
+      rate?: MagicTransitAPI.HealthCheckRate;
+
+      /**
+       * The source IPv4 address used for bidirectional health checks. Supported only for
+       * version 1.5 interconnects. It is required when `direction` is `bidirectional`
+       * and must be omitted (and is cleared) when `direction` is `unidirectional`. The
+       * address must be within RFC1918 space, the approved link-local range
+       * 169.254.240.0/20, or the Cloudflare reserved range 198.41.199.224/27.
+       */
+      source?: string;
+
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target. Must be in
+       * object form if the x-magic-new-hc-target header is set to true and string form
+       * if x-magic-new-hc-target is absent or set to false.
+       */
+      target?: HealthCheck.MagicHealthCheckTarget | string;
+
+      /**
+       * The type of healthcheck to run, reply or request. The default value is `reply`.
+       */
+      type?: MagicTransitAPI.HealthCheckType;
+    }
+
+    export namespace HealthCheck {
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target.
+       */
+      export interface MagicHealthCheckTarget {
+        /**
+         * The effective health check target. If 'saved' is empty, then this field will be
+         * populated with the calculated default value on GET requests. Ignored in POST,
+         * PUT, and PATCH requests.
+         */
+        effective?: string;
+
+        /**
+         * The saved health check target. Setting the value to the empty string indicates
+         * that the calculated default value will be used.
+         */
+        saved?: string;
+      }
+    }
+  }
+}
+
+export interface CfInterconnectGetResponse {
+  interconnect?: CfInterconnectGetResponse.Interconnect;
+}
+
+export namespace CfInterconnectGetResponse {
+  export interface Interconnect {
+    /**
+     * Identifier
+     */
+    id?: string;
+
+    /**
+     * True if automatic stateful return routing should be enabled for a tunnel, false
+     * otherwise. Requires the `coupler_integration` account flag to be enabled;
+     * requests setting this to `true` without that flag will be rejected.
+     */
+    automatic_return_routing?: boolean;
+
+    bgp?: Interconnect.BGP;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    colo_name?: string;
+
+    /**
+     * The date and time the tunnel was created.
+     */
+    created_on?: string;
+
+    /**
+     * An optional description of the interconnect.
+     */
+    description?: string;
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    gre?: Interconnect.GRE;
+
+    health_check?: Interconnect.HealthCheck;
+
+    /**
+     * The IPv4 interface address for the interconnect. For MPLS Interconnects, use a
+     * /30 or /31 prefix. For GRE Interconnects, a /30 or /31 prefix may be used.
+     * Version 1.5 interconnects require a /31 prefix and may also use a prefix from
+     * the account's authorized prefixes; otherwise, select the subnet from RFC 1918 or
+     * the approved link-local ranges.
+     */
+    interface_address?: string;
+
+    /**
+     * A 127 bit IPV6 prefix from within the virtual_subnet6 prefix space with the
+     * address being the first IP of the subnet and not same as the address of
+     * virtual_subnet6. Eg if virtual_subnet6 is 2606:54c1:7:0:a9fe:12d2::/127 ,
+     * interface_address6 could be 2606:54c1:7:0:a9fe:12d2:1:200/127
+     */
+    interface_address6?: string;
+
+    /**
+     * The date and time the tunnel was last modified.
+     */
+    modified_on?: string;
+
+    /**
+     * The Maximum Transmission Unit (MTU) in bytes for the interconnect. The minimum
+     * value is 576.
+     */
+    mtu?: number;
+
+    /**
+     * The name of the interconnect. The name cannot share a name with other tunnels.
+     */
+    name?: string;
+
+    /**
+     * Immutable interconnect version configured at creation time. One of:
+     *
+     * - "1"
+     * - "1.5"
+     * - "2"
+     */
+    version?: string;
+
+    /**
+     * An identifier that correlates this interconnect with the corresponding V2 CNI
+     * interconnect resource.
+     */
+    virtual_port_reservation_id?: string;
+  }
+
+  export namespace Interconnect {
+    export interface BGP {
+      /**
+       * @deprecated Deprecated. Use customer_asn.
+       */
+      as_no?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      cloudflare_endpoint?: string;
+
+      /**
+       * ASN used on the customer end of the BGP session.
+       */
+      customer_asn?: number;
+
+      /**
+       * @deprecated Read-only for v1.5; derived from interface_address.
+       */
+      customer_endpoint?: string;
+
+      /**
+       * ID of the BGP filter profile applied to routes advertised to the customer.
+       */
+      export_filter_id?: string;
+
+      /**
+       * Prefixes in this list will be advertised to the customer device, in addition to
+       * the routes in the Magic routing table.
+       */
+      extra_prefixes?: Array<string>;
+
+      /**
+       * ID of the BGP filter profile applied to routes received from the customer.
+       */
+      import_filter_id?: string;
+
+      /**
+       * MD5 key to use for session authentication.
+       *
+       * Note that _this is not a security measure_. MD5 is not a valid security
+       * mechanism, and the key is not treated as a secret value. This is _only_
+       * supported for preventing misconfiguration, not for defending against malicious
+       * attacks.
+       *
+       * The MD5 key, if set, must be of non-zero length and consist only of the
+       * following types of character:
+       *
+       * - ASCII alphanumerics: `[a-zA-Z0-9]`
+       * - Special characters in the set `'!@#$%^&*()+[]{}<>/.,;:_-~`= \|`
+       *
+       * In other words, MD5 keys may contain any printable ASCII character aside from
+       * newline (0x0A), quotation mark (`"`), vertical tab (0x0B), carriage return
+       * (0x0D), tab (0x09), form feed (0x0C), and the question mark (`?`). Requests
+       * specifying an MD5 key with one or more of these disallowed characters will be
+       * rejected.
+       */
+      md5_key?: string;
+    }
+
+    /**
+     * Omitted in responses for version 1.5 interconnects.
+     */
+    export interface GRE {
+      /**
+       * The IP address assigned to the Cloudflare side of the GRE tunnel created as part
+       * of the Interconnect.
+       */
+      cloudflare_endpoint?: string;
+    }
+
+    export interface HealthCheck {
+      /**
+       * The direction of the flow of the healthcheck. Either unidirectional, where the
+       * probe comes to you via the interconnect and the result comes back to Cloudflare
+       * via the open Internet, or bidirectional where both the probe and result come and
+       * go via the interconnect.
+       */
+      direction?: 'unidirectional' | 'bidirectional';
+
+      /**
+       * Determines whether to run healthchecks for a tunnel.
+       */
+      enabled?: boolean;
+
+      /**
+       * How frequent the health check is run. The default value is `mid`.
+       */
+      rate?: MagicTransitAPI.HealthCheckRate;
+
+      /**
+       * The source IPv4 address used for bidirectional health checks. Supported only for
+       * version 1.5 interconnects. It is required when `direction` is `bidirectional`
+       * and must be omitted (and is cleared) when `direction` is `unidirectional`. The
+       * address must be within RFC1918 space, the approved link-local range
+       * 169.254.240.0/20, or the Cloudflare reserved range 198.41.199.224/27.
+       */
+      source?: string;
+
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target. Must be in
+       * object form if the x-magic-new-hc-target header is set to true and string form
+       * if x-magic-new-hc-target is absent or set to false.
+       */
+      target?: HealthCheck.MagicHealthCheckTarget | string;
+
+      /**
+       * The type of healthcheck to run, reply or request. The default value is `reply`.
+       */
+      type?: MagicTransitAPI.HealthCheckType;
+    }
+
+    export namespace HealthCheck {
+      /**
+       * The destination address in a request type health check. After the healthcheck is
+       * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+       * to this address. This field defaults to `customer_gre_endpoint address`. This
+       * field is ignored for bidirectional healthchecks as the interface_address (not
+       * assigned to the Cloudflare side of the tunnel) is used as the target.
+       */
+      export interface MagicHealthCheckTarget {
+        /**
+         * The effective health check target. If 'saved' is empty, then this field will be
+         * populated with the calculated default value on GET requests. Ignored in POST,
+         * PUT, and PATCH requests.
+         */
+        effective?: string;
+
+        /**
+         * The saved health check target. Setting the value to the empty string indicates
+         * that the calculated default value will be used.
+         */
+        saved?: string;
+      }
+    }
+  }
+}
+
+export interface CfInterconnectUpdateParams {
+  /**
+   * Path param: Identifier
+   */
+  account_id: string;
+
+  /**
+   * Body param: True if automatic stateful return routing should be enabled for a
+   * tunnel, false otherwise. Requires the `coupler_integration` account flag to be
+   * enabled; requests setting this to `true` without that flag will be rejected.
+   */
+  automatic_return_routing?: boolean;
+
+  /**
+   * Body param
+   */
+  bgp?: CfInterconnectUpdateParams.BGP;
+
+  /**
+   * Body param: An optional description of the interconnect.
+   */
+  description?: string;
+
+  /**
+   * Body param: Not configurable for version 1.5 interconnects; supplying it returns
+   * an error.
+   */
+  gre?: CfInterconnectUpdateParams.GRE;
+
+  /**
+   * Body param
+   */
+  health_check?: CfInterconnectUpdateParams.HealthCheck;
+
+  /**
+   * Body param: The IPv4 interface address for the interconnect. For MPLS
+   * Interconnects, use a /30 or /31 prefix. For GRE Interconnects, a /30 or /31
+   * prefix may be used. Version 1.5 interconnects require a /31 prefix and may also
+   * use a prefix from the account's authorized prefixes; otherwise, select the
+   * subnet from RFC 1918 or the approved link-local ranges.
+   */
+  interface_address?: string;
+
+  /**
+   * Body param: A 127 bit IPV6 prefix from within the virtual_subnet6 prefix space
+   * with the address being the first IP of the subnet and not same as the address of
+   * virtual_subnet6. Eg if virtual_subnet6 is 2606:54c1:7:0:a9fe:12d2::/127 ,
+   * interface_address6 could be 2606:54c1:7:0:a9fe:12d2:1:200/127
+   */
+  interface_address6?: string;
+
+  /**
+   * Body param: The Maximum Transmission Unit (MTU) in bytes for the interconnect.
+   * The minimum value is 576.
+   */
+  mtu?: number;
+
+  /**
+   * Body param: The name of the interconnect. The name cannot share a name with
+   * other tunnels.
+   */
+  name?: string;
+
+  /**
+   * Header param: If true, the health check target in the request and response
+   * bodies will be presented using the new object format. Defaults to false.
+   */
+  'x-magic-new-hc-target'?: boolean;
+}
+
+export namespace CfInterconnectUpdateParams {
+  export interface BGP {
+    /**
+     * @deprecated Deprecated. Use customer_asn.
+     */
+    as_no?: number;
+
+    /**
+     * @deprecated Read-only for v1.5; derived from interface_address.
+     */
+    cloudflare_endpoint?: string;
+
+    /**
+     * ASN used on the customer end of the BGP session.
+     */
+    customer_asn?: number;
+
+    /**
+     * @deprecated Read-only for v1.5; derived from interface_address.
+     */
+    customer_endpoint?: string;
+
+    /**
+     * ID of the BGP filter profile applied to routes advertised to the customer.
+     */
+    export_filter_id?: string;
+
+    /**
+     * Prefixes in this list will be advertised to the customer device, in addition to
+     * the routes in the Magic routing table.
+     */
+    extra_prefixes?: Array<string>;
+
+    /**
+     * ID of the BGP filter profile applied to routes received from the customer.
+     */
+    import_filter_id?: string;
+
+    /**
+     * MD5 key to use for session authentication.
+     *
+     * Note that _this is not a security measure_. MD5 is not a valid security
+     * mechanism, and the key is not treated as a secret value. This is _only_
+     * supported for preventing misconfiguration, not for defending against malicious
+     * attacks.
+     *
+     * The MD5 key, if set, must be of non-zero length and consist only of the
+     * following types of character:
+     *
+     * - ASCII alphanumerics: `[a-zA-Z0-9]`
+     * - Special characters in the set `'!@#$%^&*()+[]{}<>/.,;:_-~`= \|`
+     *
+     * In other words, MD5 keys may contain any printable ASCII character aside from
+     * newline (0x0A), quotation mark (`"`), vertical tab (0x0B), carriage return
+     * (0x0D), tab (0x09), form feed (0x0C), and the question mark (`?`). Requests
+     * specifying an MD5 key with one or more of these disallowed characters will be
+     * rejected.
+     */
+    md5_key?: string;
+  }
+
+  /**
+   * Not configurable for version 1.5 interconnects; supplying it returns an error.
+   */
+  export interface GRE {
+    /**
+     * The IP address assigned to the Cloudflare side of the GRE tunnel created as part
+     * of the Interconnect.
+     */
+    cloudflare_endpoint?: string;
+  }
+
+  export interface HealthCheck {
+    /**
+     * The direction of the flow of the healthcheck. Either unidirectional, where the
+     * probe comes to you via the interconnect and the result comes back to Cloudflare
+     * via the open Internet, or bidirectional where both the probe and result come and
+     * go via the interconnect.
+     */
+    direction?: 'unidirectional' | 'bidirectional';
+
+    /**
+     * Determines whether to run healthchecks for a tunnel.
+     */
+    enabled?: boolean;
+
+    /**
+     * How frequent the health check is run. The default value is `mid`.
+     */
+    rate?: MagicTransitAPI.HealthCheckRateParam;
+
+    /**
+     * The source IPv4 address used for bidirectional health checks. Supported only for
+     * version 1.5 interconnects. It is required when `direction` is `bidirectional`
+     * and must be omitted (and is cleared) when `direction` is `unidirectional`. The
+     * address must be within RFC1918 space, the approved link-local range
+     * 169.254.240.0/20, or the Cloudflare reserved range 198.41.199.224/27.
+     */
+    source?: string;
+
+    /**
+     * The destination address in a request type health check. After the healthcheck is
+     * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+     * to this address. This field defaults to `customer_gre_endpoint address`. This
+     * field is ignored for bidirectional healthchecks as the interface_address (not
+     * assigned to the Cloudflare side of the tunnel) is used as the target. Must be in
+     * object form if the x-magic-new-hc-target header is set to true and string form
+     * if x-magic-new-hc-target is absent or set to false.
+     */
+    target?: HealthCheck.MagicHealthCheckTarget | string;
+
+    /**
+     * The type of healthcheck to run, reply or request. The default value is `reply`.
+     */
+    type?: MagicTransitAPI.HealthCheckTypeParam;
+  }
+
+  export namespace HealthCheck {
+    /**
+     * The destination address in a request type health check. After the healthcheck is
+     * decapsulated at the customer end of the tunnel, the ICMP echo will be forwarded
+     * to this address. This field defaults to `customer_gre_endpoint address`. This
+     * field is ignored for bidirectional healthchecks as the interface_address (not
+     * assigned to the Cloudflare side of the tunnel) is used as the target.
+     */
+    export interface MagicHealthCheckTarget {
+      /**
+       * The saved health check target. Setting the value to the empty string indicates
+       * that the calculated default value will be used.
+       */
+      saved?: string;
+    }
+  }
+}
+
+export interface CfInterconnectListParams {
+  /**
+   * Path param: Identifier
+   */
+  account_id: string;
+
+  /**
+   * Header param: If true, the health check target in the response body will be
+   * presented using the new object format. Defaults to false.
+   */
+  'x-magic-new-hc-target'?: boolean;
+}
+
+export interface CfInterconnectBulkUpdateParams {
+  /**
+   * Path param: Identifier
+   */
+  account_id: string;
+
+  /**
+   * Body param
+   */
+  body: unknown;
+
+  /**
+   * Header param: If true, the health check target in the request and response
+   * bodies will be presented using the new object format. Defaults to false.
+   */
+  'x-magic-new-hc-target'?: boolean;
+}
+
+export interface CfInterconnectGetParams {
+  /**
+   * Path param: Identifier
+   */
+  account_id: string;
+
+  /**
+   * Header param: If true, the health check target in the response body will be
+   * presented using the new object format. Defaults to false.
+   */
+  'x-magic-new-hc-target'?: boolean;
+}
+
+export declare namespace CfInterconnects {
+  export {
+    type CfInterconnectUpdateResponse as CfInterconnectUpdateResponse,
+    type CfInterconnectListResponse as CfInterconnectListResponse,
+    type CfInterconnectBulkUpdateResponse as CfInterconnectBulkUpdateResponse,
+    type CfInterconnectGetResponse as CfInterconnectGetResponse,
+    type CfInterconnectUpdateParams as CfInterconnectUpdateParams,
+    type CfInterconnectListParams as CfInterconnectListParams,
+    type CfInterconnectBulkUpdateParams as CfInterconnectBulkUpdateParams,
+    type CfInterconnectGetParams as CfInterconnectGetParams,
+  };
+}

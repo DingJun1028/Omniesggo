@@ -1,0 +1,346 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../core/resource';
+import * as VersionsAPI from './versions';
+import {
+  BaseVersions,
+  VersionGetParams,
+  VersionGetResponse,
+  VersionGraphParams,
+  VersionGraphResponse,
+  VersionListParams,
+  VersionListResponse,
+  VersionListResponsesV4PagePaginationArray,
+  Versions,
+} from './versions';
+import * as InstancesAPI from './instances/instances';
+import {
+  BaseInstances,
+  InstanceBulkParams,
+  InstanceBulkResponse,
+  InstanceBulkResponsesSinglePage,
+  InstanceCreateParams,
+  InstanceCreateResponse,
+  InstanceGetParams,
+  InstanceGetResponse,
+  InstanceListParams,
+  InstanceListResponse,
+  InstanceListResponsesV4PagePaginationArray,
+  InstanceStepParams,
+  InstanceStepResponse,
+  Instances,
+} from './instances/instances';
+import { APIPromise } from '../../core/api-promise';
+import { PagePromise, V4PagePaginationArray, type V4PagePaginationArrayParams } from '../../core/pagination';
+import { RequestOptions } from '../../internal/request-options';
+import { path } from '../../internal/utils/path';
+
+export class BaseWorkflows extends APIResource {
+  static override readonly _key: readonly ['workflows'] = Object.freeze(['workflows'] as const);
+
+  /**
+   * Creates a new workflow or updates an existing workflow definition.
+   */
+  update(
+    workflowName: string,
+    params: WorkflowUpdateParams,
+    options?: RequestOptions,
+  ): APIPromise<WorkflowUpdateResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.put(path`/accounts/${account_id}/workflows/${workflowName}`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: WorkflowUpdateResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Lists all workflows configured for the account.
+   */
+  list(
+    params: WorkflowListParams,
+    options?: RequestOptions,
+  ): PagePromise<WorkflowListResponsesV4PagePaginationArray, WorkflowListResponse> {
+    const { account_id, ...query } = params;
+    return this._client.getAPIList(
+      path`/accounts/${account_id}/workflows`,
+      V4PagePaginationArray<WorkflowListResponse>,
+      { query, ...options },
+    );
+  }
+
+  /**
+   * Deletes a Workflow. This only deletes the Workflow and does not delete or modify
+   * any Worker associated to this Workflow or bounded to it.
+   */
+  delete(
+    workflowName: string,
+    params: WorkflowDeleteParams,
+    options?: RequestOptions,
+  ): APIPromise<WorkflowDeleteResponse> {
+    const { account_id } = params;
+    return (
+      this._client.delete(path`/accounts/${account_id}/workflows/${workflowName}`, options) as APIPromise<{
+        result: WorkflowDeleteResponse;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Retrieves configuration and metadata for a specific workflow.
+   */
+  get(
+    workflowName: string,
+    params: WorkflowGetParams,
+    options?: RequestOptions,
+  ): APIPromise<WorkflowGetResponse> {
+    const { account_id } = params;
+    return (
+      this._client.get(path`/accounts/${account_id}/workflows/${workflowName}`, options) as APIPromise<{
+        result: WorkflowGetResponse;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class Workflows extends BaseWorkflows {
+  instances: InstancesAPI.Instances = new InstancesAPI.Instances(this._client);
+  versions: VersionsAPI.Versions = new VersionsAPI.Versions(this._client);
+}
+
+export type WorkflowListResponsesV4PagePaginationArray = V4PagePaginationArray<WorkflowListResponse>;
+
+export interface WorkflowUpdateResponse {
+  id: string;
+
+  class_name: string;
+
+  created_on: string;
+
+  is_deleted: number;
+
+  modified_on: string;
+
+  name: string;
+
+  script_name: string;
+
+  terminator_running: number;
+
+  triggered_on: string | null;
+
+  version_id: string;
+}
+
+export interface WorkflowListResponse {
+  id: string;
+
+  class_name: string;
+
+  created_on: string;
+
+  instances: { [key: string]: number };
+
+  modified_on: string;
+
+  name: string;
+
+  script_name: string;
+
+  triggered_on: string | null;
+
+  schedules?: Array<WorkflowListResponse.Schedule>;
+
+  /**
+   * Whether the bound Worker was deleted, leaving this Workflow inactive.
+   */
+  script_deleted?: boolean;
+}
+
+export namespace WorkflowListResponse {
+  export interface Schedule {
+    cron: string;
+
+    next_instance: string;
+  }
+}
+
+export interface WorkflowDeleteResponse {
+  status: 'ok';
+
+  success: boolean | null;
+}
+
+export interface WorkflowGetResponse {
+  id: string;
+
+  class_name: string;
+
+  created_on: string;
+
+  instances: { [key: string]: number };
+
+  modified_on: string;
+
+  name: string;
+
+  script_name: string;
+
+  triggered_on: string | null;
+
+  schedules?: Array<WorkflowGetResponse.Schedule>;
+
+  /**
+   * Whether the bound Worker was deleted, leaving this Workflow inactive.
+   */
+  script_deleted?: boolean;
+}
+
+export namespace WorkflowGetResponse {
+  export interface Schedule {
+    cron: string;
+
+    next_instance: string;
+  }
+}
+
+export interface WorkflowUpdateParams {
+  /**
+   * Path param
+   */
+  account_id: string;
+
+  /**
+   * Body param
+   */
+  class_name: string;
+
+  /**
+   * Body param
+   */
+  script_name: string;
+
+  /**
+   * Body param
+   */
+  concurrency?: WorkflowUpdateParams.Concurrency;
+
+  /**
+   * Body param: Default retention applied to instances of this version when they do
+   * not set their own retention.
+   */
+  default_retention?: WorkflowUpdateParams.DefaultRetention;
+
+  /**
+   * Body param
+   */
+  limits?: WorkflowUpdateParams.Limits;
+
+  /**
+   * Body param
+   */
+  schedules?: Array<WorkflowUpdateParams.Schedule>;
+}
+
+export namespace WorkflowUpdateParams {
+  export interface Concurrency {
+    /**
+     * Maximum number of instances of this workflow that can run concurrently.
+     * Additional instances are queued and started as running instances complete. Must
+     * not exceed the account concurrency limit.
+     */
+    limit?: number;
+  }
+
+  /**
+   * Default retention applied to instances of this version when they do not set
+   * their own retention.
+   */
+  export interface DefaultRetention {
+    /**
+     * Specifies the duration in milliseconds or as a string like '5 minutes'.
+     */
+    error_retention?: number | string;
+
+    /**
+     * Specifies the duration in milliseconds or as a string like '5 minutes'.
+     */
+    success_retention?: number | string;
+  }
+
+  export interface Limits {
+    steps?: number;
+  }
+
+  export interface Schedule {
+    cron: string;
+  }
+}
+
+export interface WorkflowListParams extends V4PagePaginationArrayParams {
+  /**
+   * Path param
+   */
+  account_id: string;
+
+  /**
+   * Query param: Allows filtering workflows` name.
+   */
+  search?: string;
+}
+
+export interface WorkflowDeleteParams {
+  account_id: string;
+}
+
+export interface WorkflowGetParams {
+  account_id: string;
+}
+
+Workflows.Instances = Instances;
+Workflows.BaseInstances = BaseInstances;
+Workflows.Versions = Versions;
+Workflows.BaseVersions = BaseVersions;
+
+export declare namespace Workflows {
+  export {
+    type WorkflowUpdateResponse as WorkflowUpdateResponse,
+    type WorkflowListResponse as WorkflowListResponse,
+    type WorkflowDeleteResponse as WorkflowDeleteResponse,
+    type WorkflowGetResponse as WorkflowGetResponse,
+    type WorkflowListResponsesV4PagePaginationArray as WorkflowListResponsesV4PagePaginationArray,
+    type WorkflowUpdateParams as WorkflowUpdateParams,
+    type WorkflowListParams as WorkflowListParams,
+    type WorkflowDeleteParams as WorkflowDeleteParams,
+    type WorkflowGetParams as WorkflowGetParams,
+  };
+
+  export {
+    Instances as Instances,
+    BaseInstances as BaseInstances,
+    type InstanceCreateResponse as InstanceCreateResponse,
+    type InstanceListResponse as InstanceListResponse,
+    type InstanceBulkResponse as InstanceBulkResponse,
+    type InstanceGetResponse as InstanceGetResponse,
+    type InstanceStepResponse as InstanceStepResponse,
+    type InstanceListResponsesV4PagePaginationArray as InstanceListResponsesV4PagePaginationArray,
+    type InstanceBulkResponsesSinglePage as InstanceBulkResponsesSinglePage,
+    type InstanceCreateParams as InstanceCreateParams,
+    type InstanceListParams as InstanceListParams,
+    type InstanceBulkParams as InstanceBulkParams,
+    type InstanceGetParams as InstanceGetParams,
+    type InstanceStepParams as InstanceStepParams,
+  };
+
+  export {
+    Versions as Versions,
+    BaseVersions as BaseVersions,
+    type VersionListResponse as VersionListResponse,
+    type VersionGetResponse as VersionGetResponse,
+    type VersionGraphResponse as VersionGraphResponse,
+    type VersionListResponsesV4PagePaginationArray as VersionListResponsesV4PagePaginationArray,
+    type VersionListParams as VersionListParams,
+    type VersionGetParams as VersionGetParams,
+    type VersionGraphParams as VersionGraphParams,
+  };
+}

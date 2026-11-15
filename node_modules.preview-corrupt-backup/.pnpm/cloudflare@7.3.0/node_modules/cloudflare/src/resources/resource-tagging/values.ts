@@ -1,0 +1,96 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../core/resource';
+import { CursorPaginationAfter, type CursorPaginationAfterParams, PagePromise } from '../../core/pagination';
+import { RequestOptions } from '../../internal/request-options';
+import { path } from '../../internal/utils/path';
+
+export class BaseValues extends APIResource {
+  static override readonly _key: readonly ['resourceTagging', 'values'] = Object.freeze([
+    'resourceTagging',
+    'values',
+  ] as const);
+
+  /**
+   * Lists all distinct values for a given tag key, optionally filtered by resource
+   * type.
+   */
+  list(
+    tagKey: string,
+    params: ValueListParams,
+    options?: RequestOptions,
+  ): PagePromise<ValueListResponsesCursorPaginationAfter, ValueListResponse> {
+    const { account_id, ...query } = params;
+    return this._client.getAPIList(
+      path`/accounts/${account_id}/tags/values/${tagKey}`,
+      CursorPaginationAfter<ValueListResponse>,
+      { query, ...options },
+    );
+  }
+}
+export class Values extends BaseValues {}
+
+export type ValueListResponsesCursorPaginationAfter = CursorPaginationAfter<ValueListResponse>;
+
+export type ValueListResponse = string;
+
+export interface ValueListParams extends CursorPaginationAfterParams {
+  /**
+   * Path param: Identifier.
+   */
+  account_id: string;
+
+  /**
+   * Query param: Filter by resource type.
+   */
+  type?:
+    | 'access_application'
+    | 'access_application_policy'
+    | 'access_group'
+    | 'account'
+    | 'account_ruleset'
+    | 'ai_gateway'
+    | 'alerting_policy'
+    | 'alerting_webhook'
+    | 'api_gateway_operation'
+    | 'cloudflared_tunnel'
+    | 'custom_certificate'
+    | 'custom_hostname'
+    | 'cws_deployment'
+    | 'cws_policy'
+    | 'cws_policy_set'
+    | 'cws_workload'
+    | 'd1_database'
+    | 'dns_record'
+    | 'durable_object_namespace'
+    | 'gateway_list'
+    | 'gateway_rule'
+    | 'healthcheck'
+    | 'image'
+    | 'infrastructure_target'
+    | 'kv_namespace'
+    | 'load_balancer'
+    | 'load_balancer_monitor'
+    | 'load_balancer_pool'
+    | 'managed_client_certificate'
+    | 'pages_project'
+    | 'queue'
+    | 'r2_bucket'
+    | 'resource_share'
+    | 'stream_live_input'
+    | 'stream_video'
+    | 'vectorize_index'
+    | 'worker'
+    | 'worker_route'
+    | 'worker_version'
+    | 'zone'
+    | 'zone_ruleset';
+}
+
+export declare namespace Values {
+  export {
+    type ValueListResponse as ValueListResponse,
+    type ValueListResponsesCursorPaginationAfter as ValueListResponsesCursorPaginationAfter,
+    type ValueListParams as ValueListParams,
+  };
+}

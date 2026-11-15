@@ -1,0 +1,742 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../../../../core/resource';
+import * as PoliciesAPI from '../policies';
+import * as CertificatesAPI from './certificates';
+import { BaseCertificates, CertificateEditParams, CertificateGetParams, Certificates } from './certificates';
+import * as ExcludesAPI from './excludes';
+import { BaseExcludes, ExcludeGetParams, ExcludeUpdateParams, Excludes } from './excludes';
+import * as FallbackDomainsAPI from './fallback-domains';
+import {
+  BaseFallbackDomains,
+  FallbackDomainGetParams,
+  FallbackDomainUpdateParams,
+  FallbackDomains,
+} from './fallback-domains';
+import * as IncludesAPI from './includes';
+import { BaseIncludes, IncludeGetParams, IncludeUpdateParams, Includes } from './includes';
+import { APIPromise } from '../../../../../core/api-promise';
+import { RequestOptions } from '../../../../../internal/request-options';
+import { path } from '../../../../../internal/utils/path';
+
+export class BaseDefault extends APIResource {
+  static override readonly _key: readonly ['zeroTrust', 'devices', 'policies', 'default'] = Object.freeze([
+    'zeroTrust',
+    'devices',
+    'policies',
+    'default',
+  ] as const);
+
+  /**
+   * Updates the default device settings profile for an account.
+   *
+   * @example
+   * ```ts
+   * const response =
+   *   await client.zeroTrust.devices.policies.default.edit({
+   *     account_id: '699d98642c564d2e855e9661899b7252',
+   *   });
+   * ```
+   */
+  edit(params: DefaultEditParams, options?: RequestOptions): APIPromise<DefaultEditResponse | null> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.patch(path`/accounts/${account_id}/devices/policy`, { body, ...options }) as APIPromise<{
+        result: DefaultEditResponse | null;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Fetches the default device settings profile for an account.
+   *
+   * @example
+   * ```ts
+   * const _default =
+   *   await client.zeroTrust.devices.policies.default.get({
+   *     account_id: '699d98642c564d2e855e9661899b7252',
+   *   });
+   * ```
+   */
+  get(params: DefaultGetParams, options?: RequestOptions): APIPromise<DefaultGetResponse | null> {
+    const { account_id } = params;
+    return (
+      this._client.get(path`/accounts/${account_id}/devices/policy`, options) as APIPromise<{
+        result: DefaultGetResponse | null;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class Default extends BaseDefault {
+  excludes: ExcludesAPI.Excludes = new ExcludesAPI.Excludes(this._client);
+  includes: IncludesAPI.Includes = new IncludesAPI.Includes(this._client);
+  fallbackDomains: FallbackDomainsAPI.FallbackDomains = new FallbackDomainsAPI.FallbackDomains(this._client);
+  certificates: CertificatesAPI.Certificates = new CertificatesAPI.Certificates(this._client);
+}
+
+export interface DefaultEditResponse {
+  /**
+   * Whether to allow the user to switch WARP between modes.
+   */
+  allow_mode_switch?: boolean;
+
+  /**
+   * Whether to receive update notifications when a new version of the client is
+   * available.
+   */
+  allow_updates?: boolean;
+
+  /**
+   * Whether to allow devices to leave the organization.
+   */
+  allowed_to_leave?: boolean;
+
+  /**
+   * The amount of time in seconds to reconnect after having been disabled.
+   */
+  auto_connect?: number;
+
+  /**
+   * Turn on the captive portal after the specified amount of time.
+   */
+  captive_portal?: number;
+
+  /**
+   * Whether the policy will be applied to matching devices.
+   */
+  default?: boolean;
+
+  /**
+   * If the `dns_server` field of a fallback domain is not present, the client will
+   * fall back to a best guess of the default/system DNS resolvers unless this policy
+   * option is set to `true`.
+   */
+  disable_auto_fallback?: boolean;
+
+  /**
+   * List of DNS search suffixes to apply to clients. Suffixes are evaluated in
+   * order. Use an empty array to clear.
+   */
+  dns_search_suffixes?: Array<DefaultEditResponse.DNSSearchSuffix>;
+
+  /**
+   * Whether the policy will be applied to matching devices.
+   */
+  enabled?: boolean;
+
+  /**
+   * List of routes excluded in the WARP client's tunnel.
+   */
+  exclude?: Array<PoliciesAPI.SplitTunnelExclude>;
+
+  /**
+   * Whether to add Microsoft IPs to Split Tunnel exclusions.
+   */
+  exclude_office_ips?: boolean;
+
+  fallback_domains?: Array<PoliciesAPI.FallbackDomain>;
+
+  gateway_unique_id?: string;
+
+  /**
+   * Global Acceleration settings for China. When configured, WARP clients connect to
+   * the Global Accelerator addresses instead of the default ones. Please contact
+   * your account representative to enable this feature on your account. See
+   * https://developers.cloudflare.com/china-network/concepts/global-acceleration/.
+   */
+  global_acceleration?: DefaultEditResponse.GlobalAcceleration | null;
+
+  /**
+   * List of routes included in the WARP client's tunnel.
+   */
+  include?: Array<PoliciesAPI.SplitTunnelInclude>;
+
+  policy_id?: string;
+
+  /**
+   * The client type to which the device settings profile applies. This field is set
+   * when the profile is created and cannot be changed.
+   */
+  profile_type?: 'warp' | 'browser_extension';
+
+  /**
+   * Determines if the operating system will register WARP's local interface IP with
+   * your on-premises DNS server.
+   */
+  register_interface_ip_with_dns?: boolean;
+
+  /**
+   * Determines whether the WARP client indicates to SCCM that it is inside a VPN
+   * boundary. (Windows only).
+   */
+  sccm_vpn_boundary_support?: boolean;
+
+  service_mode_v2?: DefaultEditResponse.ServiceModeV2;
+
+  /**
+   * The URL to launch when the Send Feedback button is clicked.
+   */
+  support_url?: string;
+
+  /**
+   * Whether to allow the user to turn off the WARP switch and disconnect the client.
+   */
+  switch_locked?: boolean;
+
+  /**
+   * Determines which tunnel protocol to use.
+   */
+  tunnel_protocol?: string;
+
+  /**
+   * Determines whether uninstalling the WARP client requires an override code.
+   * (Windows only).
+   */
+  uninstall_protection?: boolean;
+
+  /**
+   * Virtual network access settings for the device.
+   */
+  virtual_networks?: DefaultEditResponse.VirtualNetworks | null;
+}
+
+export namespace DefaultEditResponse {
+  export interface DNSSearchSuffix {
+    /**
+     * The DNS search suffix to append when resolving short hostnames.
+     */
+    suffix: string;
+
+    /**
+     * A description of the DNS search suffix.
+     */
+    description?: string;
+  }
+
+  /**
+   * Global Acceleration settings for China. When configured, WARP clients connect to
+   * the Global Accelerator addresses instead of the default ones. Please contact
+   * your account representative to enable this feature on your account. See
+   * https://developers.cloudflare.com/china-network/concepts/global-acceleration/.
+   */
+  export interface GlobalAcceleration {
+    /**
+     * IP:port entries for the API endpoints.
+     */
+    api_endpoints: Array<string>;
+
+    /**
+     * Global acceleration settings are used only when "enabled".
+     */
+    enabled: boolean;
+
+    /**
+     * IP:port entries for the MASQUE tunnel endpoints. Either wireguard_endpoints or
+     * masque_endpoints must be provided.
+     */
+    masque_endpoints: Array<string>;
+
+    /**
+     * IP:port entries for the WireGuard tunnel endpoints. Either wireguard_endpoints
+     * or masque_endpoints must be provided.
+     */
+    wireguard_endpoints: Array<string>;
+
+    /**
+     * Automatically switch Global Acceleration regions based on device location.
+     * Defaults to false when not provided.
+     */
+    autoswitch?: boolean;
+  }
+
+  export interface ServiceModeV2 {
+    /**
+     * The mode to run the WARP client under.
+     */
+    mode?: string;
+
+    /**
+     * The port number when used with proxy mode.
+     */
+    port?: number;
+  }
+
+  /**
+   * Virtual network access settings for the device.
+   */
+  export interface VirtualNetworks {
+    /**
+     * List of virtual network IDs the device is allowed to access. When
+     * virtual_networks is set, at least one entry is required.
+     */
+    allowed: Array<string>;
+
+    /**
+     * The default virtual network ID. Must be included in the `allowed` list.
+     */
+    default: string;
+  }
+}
+
+export interface DefaultGetResponse {
+  /**
+   * Whether to allow the user to switch WARP between modes.
+   */
+  allow_mode_switch?: boolean;
+
+  /**
+   * Whether to receive update notifications when a new version of the client is
+   * available.
+   */
+  allow_updates?: boolean;
+
+  /**
+   * Whether to allow devices to leave the organization.
+   */
+  allowed_to_leave?: boolean;
+
+  /**
+   * The amount of time in seconds to reconnect after having been disabled.
+   */
+  auto_connect?: number;
+
+  /**
+   * Turn on the captive portal after the specified amount of time.
+   */
+  captive_portal?: number;
+
+  /**
+   * Whether the policy will be applied to matching devices.
+   */
+  default?: boolean;
+
+  /**
+   * If the `dns_server` field of a fallback domain is not present, the client will
+   * fall back to a best guess of the default/system DNS resolvers unless this policy
+   * option is set to `true`.
+   */
+  disable_auto_fallback?: boolean;
+
+  /**
+   * List of DNS search suffixes to apply to clients. Suffixes are evaluated in
+   * order. Use an empty array to clear.
+   */
+  dns_search_suffixes?: Array<DefaultGetResponse.DNSSearchSuffix>;
+
+  /**
+   * Whether the policy will be applied to matching devices.
+   */
+  enabled?: boolean;
+
+  /**
+   * List of routes excluded in the WARP client's tunnel.
+   */
+  exclude?: Array<PoliciesAPI.SplitTunnelExclude>;
+
+  /**
+   * Whether to add Microsoft IPs to Split Tunnel exclusions.
+   */
+  exclude_office_ips?: boolean;
+
+  fallback_domains?: Array<PoliciesAPI.FallbackDomain>;
+
+  gateway_unique_id?: string;
+
+  /**
+   * Global Acceleration settings for China. When configured, WARP clients connect to
+   * the Global Accelerator addresses instead of the default ones. Please contact
+   * your account representative to enable this feature on your account. See
+   * https://developers.cloudflare.com/china-network/concepts/global-acceleration/.
+   */
+  global_acceleration?: DefaultGetResponse.GlobalAcceleration | null;
+
+  /**
+   * List of routes included in the WARP client's tunnel.
+   */
+  include?: Array<PoliciesAPI.SplitTunnelInclude>;
+
+  policy_id?: string;
+
+  /**
+   * The client type to which the device settings profile applies. This field is set
+   * when the profile is created and cannot be changed.
+   */
+  profile_type?: 'warp' | 'browser_extension';
+
+  /**
+   * Determines if the operating system will register WARP's local interface IP with
+   * your on-premises DNS server.
+   */
+  register_interface_ip_with_dns?: boolean;
+
+  /**
+   * Determines whether the WARP client indicates to SCCM that it is inside a VPN
+   * boundary. (Windows only).
+   */
+  sccm_vpn_boundary_support?: boolean;
+
+  service_mode_v2?: DefaultGetResponse.ServiceModeV2;
+
+  /**
+   * The URL to launch when the Send Feedback button is clicked.
+   */
+  support_url?: string;
+
+  /**
+   * Whether to allow the user to turn off the WARP switch and disconnect the client.
+   */
+  switch_locked?: boolean;
+
+  /**
+   * Determines which tunnel protocol to use.
+   */
+  tunnel_protocol?: string;
+
+  /**
+   * Determines whether uninstalling the WARP client requires an override code.
+   * (Windows only).
+   */
+  uninstall_protection?: boolean;
+
+  /**
+   * Virtual network access settings for the device.
+   */
+  virtual_networks?: DefaultGetResponse.VirtualNetworks | null;
+}
+
+export namespace DefaultGetResponse {
+  export interface DNSSearchSuffix {
+    /**
+     * The DNS search suffix to append when resolving short hostnames.
+     */
+    suffix: string;
+
+    /**
+     * A description of the DNS search suffix.
+     */
+    description?: string;
+  }
+
+  /**
+   * Global Acceleration settings for China. When configured, WARP clients connect to
+   * the Global Accelerator addresses instead of the default ones. Please contact
+   * your account representative to enable this feature on your account. See
+   * https://developers.cloudflare.com/china-network/concepts/global-acceleration/.
+   */
+  export interface GlobalAcceleration {
+    /**
+     * IP:port entries for the API endpoints.
+     */
+    api_endpoints: Array<string>;
+
+    /**
+     * Global acceleration settings are used only when "enabled".
+     */
+    enabled: boolean;
+
+    /**
+     * IP:port entries for the MASQUE tunnel endpoints. Either wireguard_endpoints or
+     * masque_endpoints must be provided.
+     */
+    masque_endpoints: Array<string>;
+
+    /**
+     * IP:port entries for the WireGuard tunnel endpoints. Either wireguard_endpoints
+     * or masque_endpoints must be provided.
+     */
+    wireguard_endpoints: Array<string>;
+
+    /**
+     * Automatically switch Global Acceleration regions based on device location.
+     * Defaults to false when not provided.
+     */
+    autoswitch?: boolean;
+  }
+
+  export interface ServiceModeV2 {
+    /**
+     * The mode to run the WARP client under.
+     */
+    mode?: string;
+
+    /**
+     * The port number when used with proxy mode.
+     */
+    port?: number;
+  }
+
+  /**
+   * Virtual network access settings for the device.
+   */
+  export interface VirtualNetworks {
+    /**
+     * List of virtual network IDs the device is allowed to access. When
+     * virtual_networks is set, at least one entry is required.
+     */
+    allowed: Array<string>;
+
+    /**
+     * The default virtual network ID. Must be included in the `allowed` list.
+     */
+    default: string;
+  }
+}
+
+export interface DefaultEditParams {
+  /**
+   * Path param
+   */
+  account_id: string;
+
+  /**
+   * Body param: Whether to allow the user to switch WARP between modes.
+   */
+  allow_mode_switch?: boolean;
+
+  /**
+   * Body param: Whether to receive update notifications when a new version of the
+   * client is available.
+   */
+  allow_updates?: boolean;
+
+  /**
+   * Body param: Whether to allow devices to leave the organization.
+   */
+  allowed_to_leave?: boolean;
+
+  /**
+   * Body param: The amount of time in seconds to reconnect after having been
+   * disabled.
+   */
+  auto_connect?: number;
+
+  /**
+   * Body param: Turn on the captive portal after the specified amount of time.
+   */
+  captive_portal?: number;
+
+  /**
+   * Body param: If the `dns_server` field of a fallback domain is not present, the
+   * client will fall back to a best guess of the default/system DNS resolvers unless
+   * this policy option is set to `true`.
+   */
+  disable_auto_fallback?: boolean;
+
+  /**
+   * Body param: List of DNS search suffixes to apply to clients. Suffixes are
+   * evaluated in order. Use an empty array to clear.
+   */
+  dns_search_suffixes?: Array<DefaultEditParams.DNSSearchSuffix>;
+
+  /**
+   * Body param: List of routes excluded in the WARP client's tunnel. Both 'exclude'
+   * and 'include' cannot be set in the same request.
+   */
+  exclude?: Array<PoliciesAPI.SplitTunnelExcludeParam>;
+
+  /**
+   * Body param: Whether to add Microsoft IPs to Split Tunnel exclusions.
+   */
+  exclude_office_ips?: boolean;
+
+  /**
+   * Body param: Global Acceleration settings for China. When configured, WARP
+   * clients connect to the Global Accelerator addresses instead of the default ones.
+   * Please contact your account representative to enable this feature on your
+   * account. See
+   * https://developers.cloudflare.com/china-network/concepts/global-acceleration/.
+   */
+  global_acceleration?: DefaultEditParams.GlobalAcceleration | null;
+
+  /**
+   * Body param: List of routes included in the WARP client's tunnel. Both 'exclude'
+   * and 'include' cannot be set in the same request.
+   */
+  include?: Array<PoliciesAPI.SplitTunnelIncludeParam>;
+
+  /**
+   * Body param: The amount of time in minutes a user is allowed access to their LAN.
+   * A value of 0 will allow LAN access until the next WARP reconnection, such as a
+   * reboot or a laptop waking from sleep. Note that this field is omitted from the
+   * response if null or unset.
+   */
+  lan_allow_minutes?: number;
+
+  /**
+   * Body param: The size of the subnet for the local access network. Note that this
+   * field is omitted from the response if null or unset.
+   */
+  lan_allow_subnet_size?: number;
+
+  /**
+   * Body param: Determines if the operating system will register WARP's local
+   * interface IP with your on-premises DNS server.
+   */
+  register_interface_ip_with_dns?: boolean;
+
+  /**
+   * Body param: Determines whether the WARP client indicates to SCCM that it is
+   * inside a VPN boundary. (Windows only).
+   */
+  sccm_vpn_boundary_support?: boolean;
+
+  /**
+   * Body param
+   */
+  service_mode_v2?: DefaultEditParams.ServiceModeV2;
+
+  /**
+   * Body param: The URL to launch when the Send Feedback button is clicked.
+   */
+  support_url?: string;
+
+  /**
+   * Body param: Whether to allow the user to turn off the WARP switch and disconnect
+   * the client.
+   */
+  switch_locked?: boolean;
+
+  /**
+   * Body param: Determines which tunnel protocol to use.
+   */
+  tunnel_protocol?: string;
+
+  /**
+   * Body param: Determines whether uninstalling the WARP client requires an override
+   * code. (Windows only).
+   */
+  uninstall_protection?: boolean;
+
+  /**
+   * Body param: Virtual network access settings for the device.
+   */
+  virtual_networks?: DefaultEditParams.VirtualNetworks | null;
+}
+
+export namespace DefaultEditParams {
+  export interface DNSSearchSuffix {
+    /**
+     * The DNS search suffix to append when resolving short hostnames.
+     */
+    suffix: string;
+
+    /**
+     * A description of the DNS search suffix.
+     */
+    description?: string;
+  }
+
+  /**
+   * Global Acceleration settings for China. When configured, WARP clients connect to
+   * the Global Accelerator addresses instead of the default ones. Please contact
+   * your account representative to enable this feature on your account. See
+   * https://developers.cloudflare.com/china-network/concepts/global-acceleration/.
+   */
+  export interface GlobalAcceleration {
+    /**
+     * IP:port entries for the API endpoints.
+     */
+    api_endpoints: Array<string>;
+
+    /**
+     * Global acceleration settings are used only when "enabled".
+     */
+    enabled: boolean;
+
+    /**
+     * IP:port entries for the MASQUE tunnel endpoints. Either wireguard_endpoints or
+     * masque_endpoints must be provided.
+     */
+    masque_endpoints: Array<string>;
+
+    /**
+     * IP:port entries for the WireGuard tunnel endpoints. Either wireguard_endpoints
+     * or masque_endpoints must be provided.
+     */
+    wireguard_endpoints: Array<string>;
+
+    /**
+     * Automatically switch Global Acceleration regions based on device location.
+     * Defaults to false when not provided.
+     */
+    autoswitch?: boolean;
+  }
+
+  export interface ServiceModeV2 {
+    /**
+     * The mode to run the WARP client under.
+     */
+    mode?: string;
+
+    /**
+     * The port number when used with proxy mode.
+     */
+    port?: number;
+  }
+
+  /**
+   * Virtual network access settings for the device.
+   */
+  export interface VirtualNetworks {
+    /**
+     * List of virtual network IDs the device is allowed to access. When
+     * virtual_networks is set, at least one entry is required.
+     */
+    allowed: Array<string>;
+
+    /**
+     * The default virtual network ID. Must be included in the `allowed` list.
+     */
+    default: string;
+  }
+}
+
+export interface DefaultGetParams {
+  account_id: string;
+}
+
+Default.Excludes = Excludes;
+Default.BaseExcludes = BaseExcludes;
+Default.Includes = Includes;
+Default.BaseIncludes = BaseIncludes;
+Default.FallbackDomains = FallbackDomains;
+Default.BaseFallbackDomains = BaseFallbackDomains;
+Default.Certificates = Certificates;
+Default.BaseCertificates = BaseCertificates;
+
+export declare namespace Default {
+  export {
+    type DefaultEditResponse as DefaultEditResponse,
+    type DefaultGetResponse as DefaultGetResponse,
+    type DefaultEditParams as DefaultEditParams,
+    type DefaultGetParams as DefaultGetParams,
+  };
+
+  export {
+    Excludes as Excludes,
+    BaseExcludes as BaseExcludes,
+    type ExcludeUpdateParams as ExcludeUpdateParams,
+    type ExcludeGetParams as ExcludeGetParams,
+  };
+
+  export {
+    Includes as Includes,
+    BaseIncludes as BaseIncludes,
+    type IncludeUpdateParams as IncludeUpdateParams,
+    type IncludeGetParams as IncludeGetParams,
+  };
+
+  export {
+    FallbackDomains as FallbackDomains,
+    BaseFallbackDomains as BaseFallbackDomains,
+    type FallbackDomainUpdateParams as FallbackDomainUpdateParams,
+    type FallbackDomainGetParams as FallbackDomainGetParams,
+  };
+
+  export {
+    Certificates as Certificates,
+    BaseCertificates as BaseCertificates,
+    type CertificateEditParams as CertificateEditParams,
+    type CertificateGetParams as CertificateGetParams,
+  };
+}

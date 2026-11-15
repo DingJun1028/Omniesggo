@@ -1,0 +1,453 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../core/resource';
+import { APIPromise } from '../../core/api-promise';
+import { buildHeaders } from '../../internal/headers';
+import { RequestOptions } from '../../internal/request-options';
+import { path } from '../../internal/utils/path';
+
+/**
+ * @deprecated Rate limiting API is deprecated in favour of using the Ruleset Engine. See https://developers.cloudflare.com/fundamentals/api/reference/deprecations/#rate-limiting-api-previous-version for full details.
+ */
+export class BaseRateLimits extends APIResource {
+  static override readonly _key: readonly ['rateLimits'] = Object.freeze(['rateLimits'] as const);
+
+  /**
+   * **Deprecated**: This endpoint returns 410 Gone. Please use the Rulesets API
+   * instead.
+   *
+   * @deprecated Rate limiting API is deprecated in favour of using the Ruleset Engine. See https://developers.cloudflare.com/fundamentals/api/reference/deprecations/#rate-limiting-api-previous-version for full details.
+   */
+  create(params: RateLimitCreateParams, options?: RequestOptions): APIPromise<void> {
+    const { zone_id, ...body } = params;
+    return this._client.post(path`/zones/${zone_id}/rate_limits`, {
+      body,
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+
+  /**
+   * **Deprecated**: This endpoint returns 410 Gone. Please use the Rulesets API
+   * instead.
+   *
+   * @deprecated Rate limiting API is deprecated in favour of using the Ruleset Engine. See https://developers.cloudflare.com/fundamentals/api/reference/deprecations/#rate-limiting-api-previous-version for full details.
+   */
+  list(params: RateLimitListParams, options?: RequestOptions): APIPromise<void> {
+    const { zone_id, ...query } = params;
+    return this._client.get(path`/zones/${zone_id}/rate_limits`, {
+      query,
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+
+  /**
+   * **Deprecated**: This endpoint returns 410 Gone. Please use the Rulesets API
+   * instead.
+   *
+   * @deprecated Rate limiting API is deprecated in favour of using the Ruleset Engine. See https://developers.cloudflare.com/fundamentals/api/reference/deprecations/#rate-limiting-api-previous-version for full details.
+   */
+  delete(rateLimitID: string, params: RateLimitDeleteParams, options?: RequestOptions): APIPromise<void> {
+    const { zone_id } = params;
+    return this._client.delete(path`/zones/${zone_id}/rate_limits/${rateLimitID}`, {
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+
+  /**
+   * **Deprecated**: This endpoint returns 410 Gone. Please use the Rulesets API
+   * instead.
+   *
+   * @deprecated Rate limiting API is deprecated in favour of using the Ruleset Engine. See https://developers.cloudflare.com/fundamentals/api/reference/deprecations/#rate-limiting-api-previous-version for full details.
+   */
+  edit(rateLimitID: string, params: RateLimitEditParams, options?: RequestOptions): APIPromise<void> {
+    const { zone_id, ...body } = params;
+    return this._client.put(path`/zones/${zone_id}/rate_limits/${rateLimitID}`, {
+      body,
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+
+  /**
+   * **Deprecated**: This endpoint returns 410 Gone. Please use the Rulesets API
+   * instead.
+   *
+   * @deprecated Rate limiting API is deprecated in favour of using the Ruleset Engine. See https://developers.cloudflare.com/fundamentals/api/reference/deprecations/#rate-limiting-api-previous-version for full details.
+   */
+  get(rateLimitID: string, params: RateLimitGetParams, options?: RequestOptions): APIPromise<void> {
+    const { zone_id } = params;
+    return this._client.get(path`/zones/${zone_id}/rate_limits/${rateLimitID}`, {
+      ...options,
+      headers: buildHeaders([{ Accept: '*/*' }, options?.headers]),
+    });
+  }
+}
+/**
+ * @deprecated Rate limiting API is deprecated in favour of using the Ruleset Engine. See https://developers.cloudflare.com/fundamentals/api/reference/deprecations/#rate-limiting-api-previous-version for full details.
+ */
+export class RateLimits extends BaseRateLimits {}
+
+/**
+ * The action to apply to a matched request. The `log` action is only available on
+ * an Enterprise plan.
+ */
+export type Action =
+  | 'block'
+  | 'challenge'
+  | 'js_challenge'
+  | 'managed_challenge'
+  | 'allow'
+  | 'log'
+  | 'bypass';
+
+export interface RateLimitCreateParams {
+  /**
+   * Path param: Defines an identifier.
+   */
+  zone_id: string;
+
+  /**
+   * Body param: The action to perform when the threshold of matched traffic within
+   * the configured period is exceeded.
+   */
+  action: RateLimitCreateParams.Action;
+
+  /**
+   * Body param: Determines which traffic the rate limit counts towards the
+   * threshold.
+   */
+  match: RateLimitCreateParams.Match;
+
+  /**
+   * Body param: The time in seconds (an integer value) to count matching traffic. If
+   * the count exceeds the configured threshold within this period, Cloudflare will
+   * perform the configured action.
+   */
+  period: number;
+
+  /**
+   * Body param: The threshold that will trigger the configured mitigation action.
+   * Configure this value along with the `period` property to establish a threshold
+   * per period.
+   */
+  threshold: number;
+}
+
+export namespace RateLimitCreateParams {
+  /**
+   * The action to perform when the threshold of matched traffic within the
+   * configured period is exceeded.
+   */
+  export interface Action {
+    /**
+     * The action to perform.
+     */
+    mode?: 'simulate' | 'ban' | 'challenge' | 'js_challenge' | 'managed_challenge';
+
+    /**
+     * A custom content type and reponse to return when the threshold is exceeded. The
+     * custom response configured in this object will override the custom error for the
+     * zone. This object is optional. Notes: If you omit this object, Cloudflare will
+     * use the default HTML error page. If "mode" is "challenge", "managed_challenge",
+     * or "js_challenge", Cloudflare will use the zone challenge pages and you should
+     * not provide the "response" object.
+     */
+    response?: Action.Response;
+
+    /**
+     * The time in seconds during which Cloudflare will perform the mitigation action.
+     * Must be an integer value greater than or equal to the period. Notes: If "mode"
+     * is "challenge", "managed_challenge", or "js_challenge", Cloudflare will use the
+     * zone's Challenge Passage time and you should not provide this value.
+     */
+    timeout?: number;
+  }
+
+  export namespace Action {
+    /**
+     * A custom content type and reponse to return when the threshold is exceeded. The
+     * custom response configured in this object will override the custom error for the
+     * zone. This object is optional. Notes: If you omit this object, Cloudflare will
+     * use the default HTML error page. If "mode" is "challenge", "managed_challenge",
+     * or "js_challenge", Cloudflare will use the zone challenge pages and you should
+     * not provide the "response" object.
+     */
+    export interface Response {
+      /**
+       * The response body to return. The value must conform to the configured content
+       * type.
+       */
+      body?: string;
+
+      /**
+       * The content type of the body. Must be one of the following: `text/plain`,
+       * `text/xml`, or `application/json`.
+       */
+      content_type?: string;
+    }
+  }
+
+  /**
+   * Determines which traffic the rate limit counts towards the threshold.
+   */
+  export interface Match {
+    headers?: Array<Match.Header>;
+
+    request?: Match.Request;
+
+    response?: Match.Response;
+  }
+
+  export namespace Match {
+    export interface Header {
+      /**
+       * The name of the response header to match.
+       */
+      name?: string;
+
+      /**
+       * The operator used when matching: `eq` means "equal" and `ne` means "not equal".
+       */
+      op?: 'eq' | 'ne';
+
+      /**
+       * The value of the response header, which must match exactly.
+       */
+      value?: string;
+    }
+
+    export interface Request {
+      /**
+       * The HTTP methods to match. You can specify a subset (for example,
+       * `['POST','PUT']`) or all methods (`['_ALL_']`). This field is optional when
+       * creating a rate limit.
+       */
+      methods?: Array<'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | '_ALL_'>;
+
+      /**
+       * The HTTP schemes to match. You can specify one scheme (`['HTTPS']`), both
+       * schemes (`['HTTP','HTTPS']`), or all schemes (`['_ALL_']`). This field is
+       * optional.
+       */
+      schemes?: Array<string>;
+
+      /**
+       * The URL pattern to match, composed of a host and a path such as
+       * `example.org/path*`. Normalization is applied before the pattern is matched. `*`
+       * wildcards are expanded to match applicable traffic. Query strings are not
+       * matched. Set the value to `*` to match all traffic to your zone.
+       */
+      url?: string;
+    }
+
+    export interface Response {
+      /**
+       * When true, only the uncached traffic served from your origin servers will count
+       * towards rate limiting. In this case, any cached traffic served by Cloudflare
+       * will not count towards rate limiting. This field is optional. Notes: This field
+       * is deprecated. Instead, use response headers and set "origin_traffic" to "false"
+       * to avoid legacy behaviour interacting with the "response_headers" property.
+       */
+      origin_traffic?: boolean;
+    }
+  }
+}
+
+export interface RateLimitListParams {
+  /**
+   * Path param: Defines an identifier.
+   */
+  zone_id: string;
+
+  /**
+   * Query param: Defines the page number of paginated results.
+   */
+  page?: number;
+
+  /**
+   * Query param: Defines the maximum number of results per page. You can only set
+   * the value to `1` or to a multiple of 5 such as `5`, `10`, `15`, or `20`.
+   */
+  per_page?: number;
+}
+
+export interface RateLimitDeleteParams {
+  /**
+   * Defines an identifier.
+   */
+  zone_id: string;
+}
+
+export interface RateLimitEditParams {
+  /**
+   * Path param: Defines an identifier.
+   */
+  zone_id: string;
+
+  /**
+   * Body param: The action to perform when the threshold of matched traffic within
+   * the configured period is exceeded.
+   */
+  action: RateLimitEditParams.Action;
+
+  /**
+   * Body param: Determines which traffic the rate limit counts towards the
+   * threshold.
+   */
+  match: RateLimitEditParams.Match;
+
+  /**
+   * Body param: The time in seconds (an integer value) to count matching traffic. If
+   * the count exceeds the configured threshold within this period, Cloudflare will
+   * perform the configured action.
+   */
+  period: number;
+
+  /**
+   * Body param: The threshold that will trigger the configured mitigation action.
+   * Configure this value along with the `period` property to establish a threshold
+   * per period.
+   */
+  threshold: number;
+}
+
+export namespace RateLimitEditParams {
+  /**
+   * The action to perform when the threshold of matched traffic within the
+   * configured period is exceeded.
+   */
+  export interface Action {
+    /**
+     * The action to perform.
+     */
+    mode?: 'simulate' | 'ban' | 'challenge' | 'js_challenge' | 'managed_challenge';
+
+    /**
+     * A custom content type and reponse to return when the threshold is exceeded. The
+     * custom response configured in this object will override the custom error for the
+     * zone. This object is optional. Notes: If you omit this object, Cloudflare will
+     * use the default HTML error page. If "mode" is "challenge", "managed_challenge",
+     * or "js_challenge", Cloudflare will use the zone challenge pages and you should
+     * not provide the "response" object.
+     */
+    response?: Action.Response;
+
+    /**
+     * The time in seconds during which Cloudflare will perform the mitigation action.
+     * Must be an integer value greater than or equal to the period. Notes: If "mode"
+     * is "challenge", "managed_challenge", or "js_challenge", Cloudflare will use the
+     * zone's Challenge Passage time and you should not provide this value.
+     */
+    timeout?: number;
+  }
+
+  export namespace Action {
+    /**
+     * A custom content type and reponse to return when the threshold is exceeded. The
+     * custom response configured in this object will override the custom error for the
+     * zone. This object is optional. Notes: If you omit this object, Cloudflare will
+     * use the default HTML error page. If "mode" is "challenge", "managed_challenge",
+     * or "js_challenge", Cloudflare will use the zone challenge pages and you should
+     * not provide the "response" object.
+     */
+    export interface Response {
+      /**
+       * The response body to return. The value must conform to the configured content
+       * type.
+       */
+      body?: string;
+
+      /**
+       * The content type of the body. Must be one of the following: `text/plain`,
+       * `text/xml`, or `application/json`.
+       */
+      content_type?: string;
+    }
+  }
+
+  /**
+   * Determines which traffic the rate limit counts towards the threshold.
+   */
+  export interface Match {
+    headers?: Array<Match.Header>;
+
+    request?: Match.Request;
+
+    response?: Match.Response;
+  }
+
+  export namespace Match {
+    export interface Header {
+      /**
+       * The name of the response header to match.
+       */
+      name?: string;
+
+      /**
+       * The operator used when matching: `eq` means "equal" and `ne` means "not equal".
+       */
+      op?: 'eq' | 'ne';
+
+      /**
+       * The value of the response header, which must match exactly.
+       */
+      value?: string;
+    }
+
+    export interface Request {
+      /**
+       * The HTTP methods to match. You can specify a subset (for example,
+       * `['POST','PUT']`) or all methods (`['_ALL_']`). This field is optional when
+       * creating a rate limit.
+       */
+      methods?: Array<'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | '_ALL_'>;
+
+      /**
+       * The HTTP schemes to match. You can specify one scheme (`['HTTPS']`), both
+       * schemes (`['HTTP','HTTPS']`), or all schemes (`['_ALL_']`). This field is
+       * optional.
+       */
+      schemes?: Array<string>;
+
+      /**
+       * The URL pattern to match, composed of a host and a path such as
+       * `example.org/path*`. Normalization is applied before the pattern is matched. `*`
+       * wildcards are expanded to match applicable traffic. Query strings are not
+       * matched. Set the value to `*` to match all traffic to your zone.
+       */
+      url?: string;
+    }
+
+    export interface Response {
+      /**
+       * When true, only the uncached traffic served from your origin servers will count
+       * towards rate limiting. In this case, any cached traffic served by Cloudflare
+       * will not count towards rate limiting. This field is optional. Notes: This field
+       * is deprecated. Instead, use response headers and set "origin_traffic" to "false"
+       * to avoid legacy behaviour interacting with the "response_headers" property.
+       */
+      origin_traffic?: boolean;
+    }
+  }
+}
+
+export interface RateLimitGetParams {
+  /**
+   * Defines an identifier.
+   */
+  zone_id: string;
+}
+
+export declare namespace RateLimits {
+  export {
+    type Action as Action,
+    type RateLimitCreateParams as RateLimitCreateParams,
+    type RateLimitListParams as RateLimitListParams,
+    type RateLimitDeleteParams as RateLimitDeleteParams,
+    type RateLimitEditParams as RateLimitEditParams,
+    type RateLimitGetParams as RateLimitGetParams,
+  };
+}

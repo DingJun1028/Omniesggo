@@ -1,0 +1,573 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../core/resource';
+import { APIPromise } from '../../core/api-promise';
+import { RequestOptions } from '../../internal/request-options';
+import { path } from '../../internal/utils/path';
+
+export class BaseMessages extends APIResource {
+  static override readonly _key: readonly ['queues', 'messages'] = Object.freeze([
+    'queues',
+    'messages',
+  ] as const);
+
+  /**
+   * Acknowledges successfully processed Queue messages and retries messages that
+   * were not processed successfully.
+   *
+   * @example
+   * ```ts
+   * const response = await client.queues.messages.ack(
+   *   '023e105f4ecef8ad9ca31a8372d0c353',
+   *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * );
+   * ```
+   */
+  ack(queueID: string, params: MessageAckParams, options?: RequestOptions): APIPromise<MessageAckResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.post(path`/accounts/${account_id}/queues/${queueID}/messages/ack`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: MessageAckResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Pushes a batch of messages to a Queue.
+   *
+   * @example
+   * ```ts
+   * const response = await client.queues.messages.bulkPush(
+   *   '023e105f4ecef8ad9ca31a8372d0c353',
+   *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * );
+   * ```
+   */
+  bulkPush(
+    queueID: string,
+    params: MessageBulkPushParams,
+    options?: RequestOptions,
+  ): APIPromise<MessageBulkPushResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.post(path`/accounts/${account_id}/queues/${queueID}/messages/batch`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: MessageBulkPushResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Peek messages from a Queue without leasing them. Each message includes a ref
+   * that can be passed to the purge endpoint, and remains available for subsequent
+   * peek or pull operations until it is purged.
+   *
+   * @example
+   * ```ts
+   * const response = await client.queues.messages.peek(
+   *   '023e105f4ecef8ad9ca31a8372d0c353',
+   *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * );
+   * ```
+   */
+  peek(
+    queueID: string,
+    params: MessagePeekParams,
+    options?: RequestOptions,
+  ): APIPromise<MessagePeekResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.post(path`/accounts/${account_id}/queues/${queueID}/messages/peek`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: MessagePeekResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Pulls a batch of messages from a Queue for an HTTP pull consumer.
+   *
+   * @example
+   * ```ts
+   * const response = await client.queues.messages.pull(
+   *   '023e105f4ecef8ad9ca31a8372d0c353',
+   *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * );
+   * ```
+   */
+  pull(
+    queueID: string,
+    params: MessagePullParams,
+    options?: RequestOptions,
+  ): APIPromise<MessagePullResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.post(path`/accounts/${account_id}/queues/${queueID}/messages/pull`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: MessagePullResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Delete messages from a Queue by using refs returned by the peek endpoint.
+   * Purging messages does not count as delivery and does not affect metrics.
+   *
+   * @example
+   * ```ts
+   * const response = await client.queues.messages.purge(
+   *   '023e105f4ecef8ad9ca31a8372d0c353',
+   *   {
+   *     account_id: '023e105f4ecef8ad9ca31a8372d0c353',
+   *     refs: [
+   *       {
+   *         ref: 'eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIn0..Q8p21d7dceR6vUfwftONdQ.JVqZgAS-Zk7MqmqccYtTHeeMElNHaOMigeWdb8LyMOg.T2_HV99CYzGaQuhTyW8RsgbnpTRZHRM6N7UoSaAKeK0',
+   *       },
+   *     ],
+   *   },
+   * );
+   * ```
+   */
+  purge(
+    queueID: string,
+    params: MessagePurgeParams,
+    options?: RequestOptions,
+  ): APIPromise<MessagePurgeResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.post(path`/accounts/${account_id}/queues/${queueID}/messages/purge`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: MessagePurgeResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Pushes a message to a Queue.
+   *
+   * @example
+   * ```ts
+   * const response = await client.queues.messages.push(
+   *   '023e105f4ecef8ad9ca31a8372d0c353',
+   *   { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   * );
+   * ```
+   */
+  push(
+    queueID: string,
+    params: MessagePushParams,
+    options?: RequestOptions,
+  ): APIPromise<MessagePushResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.post(path`/accounts/${account_id}/queues/${queueID}/messages`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: MessagePushResponse }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class Messages extends BaseMessages {}
+
+export interface MessageAckResponse {
+  /**
+   * The number of messages that were succesfully acknowledged.
+   */
+  ackCount?: number;
+
+  /**
+   * The number of messages that were succesfully retried.
+   */
+  retryCount?: number;
+
+  /**
+   * Map of lease IDs to warning messages encountered during acknowledgement.
+   */
+  warnings?: { [key: string]: string };
+}
+
+export interface MessageBulkPushResponse {
+  metadata?: MessageBulkPushResponse.Metadata;
+}
+
+export namespace MessageBulkPushResponse {
+  export interface Metadata {
+    /**
+     * Best-effort metrics for the queue. Values may be approximate due to the
+     * distributed nature of queues.
+     */
+    metrics?: Metadata.Metrics;
+  }
+
+  export namespace Metadata {
+    /**
+     * Best-effort metrics for the queue. Values may be approximate due to the
+     * distributed nature of queues.
+     */
+    export interface Metrics {
+      /**
+       * The size in bytes of unacknowledged messages in the queue.
+       */
+      backlog_bytes: number;
+
+      /**
+       * The number of unacknowledged messages in the queue.
+       */
+      backlog_count: number;
+
+      /**
+       * Unix timestamp in milliseconds of the oldest unacknowledged message in the
+       * queue. Returns 0 if unknown.
+       */
+      oldest_message_timestamp_ms: number;
+    }
+  }
+}
+
+export interface MessagePeekResponse {
+  messages?: Array<MessagePeekResponse.Message>;
+}
+
+export namespace MessagePeekResponse {
+  export interface Message {
+    id?: string;
+
+    attempts?: number;
+
+    body?: string;
+
+    metadata?: unknown;
+
+    /**
+     * An opaque reference to a peeked message. You must hold on to this value and use
+     * it to purge the message.
+     */
+    ref?: string;
+
+    timestamp_ms?: number;
+  }
+}
+
+export interface MessagePullResponse {
+  /**
+   * The number of unacknowledged messages in the queue.
+   */
+  message_backlog_count?: number;
+
+  messages?: Array<MessagePullResponse.Message>;
+
+  metadata?: MessagePullResponse.Metadata;
+}
+
+export namespace MessagePullResponse {
+  export interface Message {
+    id?: string;
+
+    attempts?: number;
+
+    body?: string;
+
+    /**
+     * An ID that represents an "in-flight" message that has been pulled from a Queue.
+     * You must hold on to this ID and use it to acknowledge this message.
+     */
+    lease_id?: string;
+
+    metadata?: unknown;
+
+    timestamp_ms?: number;
+  }
+
+  export interface Metadata {
+    /**
+     * Best-effort metrics for the queue. Values may be approximate due to the
+     * distributed nature of queues.
+     */
+    metrics?: Metadata.Metrics;
+  }
+
+  export namespace Metadata {
+    /**
+     * Best-effort metrics for the queue. Values may be approximate due to the
+     * distributed nature of queues.
+     */
+    export interface Metrics {
+      /**
+       * The size in bytes of unacknowledged messages in the queue.
+       */
+      backlog_bytes: number;
+
+      /**
+       * The number of unacknowledged messages in the queue.
+       */
+      backlog_count: number;
+
+      /**
+       * Unix timestamp in milliseconds of the oldest unacknowledged message in the
+       * queue. Returns 0 if unknown.
+       */
+      oldest_message_timestamp_ms: number;
+    }
+  }
+}
+
+export interface MessagePurgeResponse {
+  /**
+   * Errors encountered while purging messages.
+   */
+  errors?: Array<MessagePurgeResponse.Error>;
+
+  /**
+   * Map of refs to warning messages encountered during purge.
+   */
+  warnings?: { [key: string]: string };
+}
+
+export namespace MessagePurgeResponse {
+  export interface Error {
+    message?: string;
+  }
+}
+
+export interface MessagePushResponse {
+  metadata?: MessagePushResponse.Metadata;
+}
+
+export namespace MessagePushResponse {
+  export interface Metadata {
+    /**
+     * Best-effort metrics for the queue. Values may be approximate due to the
+     * distributed nature of queues.
+     */
+    metrics?: Metadata.Metrics;
+  }
+
+  export namespace Metadata {
+    /**
+     * Best-effort metrics for the queue. Values may be approximate due to the
+     * distributed nature of queues.
+     */
+    export interface Metrics {
+      /**
+       * The size in bytes of unacknowledged messages in the queue.
+       */
+      backlog_bytes: number;
+
+      /**
+       * The number of unacknowledged messages in the queue.
+       */
+      backlog_count: number;
+
+      /**
+       * Unix timestamp in milliseconds of the oldest unacknowledged message in the
+       * queue. Returns 0 if unknown.
+       */
+      oldest_message_timestamp_ms: number;
+    }
+  }
+}
+
+export interface MessageAckParams {
+  /**
+   * Path param: A Resource identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param
+   */
+  acks?: Array<MessageAckParams.Ack>;
+
+  /**
+   * Body param
+   */
+  retries?: Array<MessageAckParams.Retry>;
+}
+
+export namespace MessageAckParams {
+  export interface Ack {
+    /**
+     * An ID that represents an "in-flight" message that has been pulled from a Queue.
+     * You must hold on to this ID and use it to acknowledge this message.
+     */
+    lease_id?: string;
+  }
+
+  export interface Retry {
+    /**
+     * The number of seconds to delay before making the message available for another
+     * attempt.
+     */
+    delay_seconds?: number;
+
+    /**
+     * An ID that represents an "in-flight" message that has been pulled from a Queue.
+     * You must hold on to this ID and use it to acknowledge this message.
+     */
+    lease_id?: string;
+  }
+}
+
+export interface MessageBulkPushParams {
+  /**
+   * Path param: A Resource identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param: The number of seconds to wait for attempting to deliver this batch
+   * to consumers
+   */
+  delay_seconds?: number;
+
+  /**
+   * Body param
+   */
+  messages?: Array<MessageBulkPushParams.MqQueueMessageText | MessageBulkPushParams.MqQueueMessageJson>;
+}
+
+export namespace MessageBulkPushParams {
+  export interface MqQueueMessageText {
+    body?: string;
+
+    content_type?: 'text';
+
+    /**
+     * The number of seconds to wait for attempting to deliver this message to
+     * consumers
+     */
+    delay_seconds?: number;
+  }
+
+  export interface MqQueueMessageJson {
+    body?: unknown;
+
+    content_type?: 'json';
+
+    /**
+     * The number of seconds to wait for attempting to deliver this message to
+     * consumers
+     */
+    delay_seconds?: number;
+  }
+}
+
+export interface MessagePeekParams {
+  /**
+   * Path param: A Resource identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param: The maximum number of messages to include in a batch.
+   */
+  batch_size?: number;
+}
+
+export interface MessagePullParams {
+  /**
+   * Path param: A Resource identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param: The maximum number of messages to include in a batch.
+   */
+  batch_size?: number;
+
+  /**
+   * Body param: The number of milliseconds that a message is exclusively leased.
+   * After the timeout, the message becomes available for another attempt.
+   */
+  visibility_timeout_ms?: number;
+}
+
+export interface MessagePurgeParams {
+  /**
+   * Path param: A Resource identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param
+   */
+  refs: Array<MessagePurgeParams.Ref>;
+}
+
+export namespace MessagePurgeParams {
+  export interface Ref {
+    /**
+     * An opaque reference to a peeked message. You must hold on to this value and use
+     * it to purge the message.
+     */
+    ref: string;
+  }
+}
+
+export type MessagePushParams = MessagePushParams.MqQueueMessageText | MessagePushParams.MqQueueMessageJson;
+
+export declare namespace MessagePushParams {
+  export interface MqQueueMessageText {
+    /**
+     * Path param: A Resource identifier.
+     */
+    account_id: string;
+
+    /**
+     * Body param
+     */
+    body?: string;
+
+    /**
+     * Body param
+     */
+    content_type?: 'text';
+
+    /**
+     * Body param: The number of seconds to wait for attempting to deliver this message
+     * to consumers
+     */
+    delay_seconds?: number;
+  }
+
+  export interface MqQueueMessageJson {
+    /**
+     * Path param: A Resource identifier.
+     */
+    account_id: string;
+
+    /**
+     * Body param
+     */
+    body?: unknown;
+
+    /**
+     * Body param
+     */
+    content_type?: 'json';
+
+    /**
+     * Body param: The number of seconds to wait for attempting to deliver this message
+     * to consumers
+     */
+    delay_seconds?: number;
+  }
+}
+
+export declare namespace Messages {
+  export {
+    type MessageAckResponse as MessageAckResponse,
+    type MessageBulkPushResponse as MessageBulkPushResponse,
+    type MessagePeekResponse as MessagePeekResponse,
+    type MessagePullResponse as MessagePullResponse,
+    type MessagePurgeResponse as MessagePurgeResponse,
+    type MessagePushResponse as MessagePushResponse,
+    type MessageAckParams as MessageAckParams,
+    type MessageBulkPushParams as MessageBulkPushParams,
+    type MessagePeekParams as MessagePeekParams,
+    type MessagePullParams as MessagePullParams,
+    type MessagePurgeParams as MessagePurgeParams,
+    type MessagePushParams as MessagePushParams,
+  };
+}

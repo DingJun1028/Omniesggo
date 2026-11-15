@@ -1,0 +1,446 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../../../core/resource';
+import * as ItemsAPI from './items';
+import { BaseItems, ItemListParams, Items } from './items';
+import { APIPromise } from '../../../../core/api-promise';
+import { PagePromise, SinglePage, V4PagePaginationArray } from '../../../../core/pagination';
+import { RequestOptions } from '../../../../internal/request-options';
+import { path } from '../../../../internal/utils/path';
+
+export class BaseLists extends APIResource {
+  static override readonly _key: readonly ['zeroTrust', 'gateway', 'lists'] = Object.freeze([
+    'zeroTrust',
+    'gateway',
+    'lists',
+  ] as const);
+
+  /**
+   * Creates a new Zero Trust list.
+   *
+   * @example
+   * ```ts
+   * const list = await client.zeroTrust.gateway.lists.create({
+   *   account_id: '699d98642c564d2e855e9661899b7252',
+   *   name: 'Admin Serial Numbers',
+   *   type: 'SERIAL',
+   * });
+   * ```
+   */
+  create(params: ListCreateParams, options?: RequestOptions): APIPromise<ListCreateResponse> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.post(path`/accounts/${account_id}/gateway/lists`, { body, ...options }) as APIPromise<{
+        result: ListCreateResponse;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Updates a configured Zero Trust list. Skips updating list items if not included
+   * in the payload. A non empty list items will overwrite the existing list.
+   *
+   * @example
+   * ```ts
+   * const gatewayList =
+   *   await client.zeroTrust.gateway.lists.update(
+   *     'f174e90a-fafe-4643-bbbc-4a0ed4fc8415',
+   *     {
+   *       account_id: '699d98642c564d2e855e9661899b7252',
+   *       name: 'Admin Serial Numbers',
+   *     },
+   *   );
+   * ```
+   */
+  update(listID: string, params: ListUpdateParams, options?: RequestOptions): APIPromise<GatewayList> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.put(path`/accounts/${account_id}/gateway/lists/${listID}`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: GatewayList }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Fetch all Zero Trust lists for an account.
+   *
+   * @example
+   * ```ts
+   * // Automatically fetches more pages as needed.
+   * for await (const gatewayList of client.zeroTrust.gateway.lists.list(
+   *   { account_id: '699d98642c564d2e855e9661899b7252' },
+   * )) {
+   *   // ...
+   * }
+   * ```
+   */
+  list(params: ListListParams, options?: RequestOptions): PagePromise<GatewayListsSinglePage, GatewayList> {
+    const { account_id, ...query } = params;
+    return this._client.getAPIList(path`/accounts/${account_id}/gateway/lists`, SinglePage<GatewayList>, {
+      query,
+      ...options,
+    });
+  }
+
+  /**
+   * Deletes a Zero Trust list.
+   *
+   * @example
+   * ```ts
+   * const list = await client.zeroTrust.gateway.lists.delete(
+   *   'f174e90a-fafe-4643-bbbc-4a0ed4fc8415',
+   *   { account_id: '699d98642c564d2e855e9661899b7252' },
+   * );
+   * ```
+   */
+  delete(listID: string, params: ListDeleteParams, options?: RequestOptions): APIPromise<ListDeleteResponse> {
+    const { account_id } = params;
+    return (
+      this._client.delete(path`/accounts/${account_id}/gateway/lists/${listID}`, options) as APIPromise<{
+        result: ListDeleteResponse;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Appends or removes an item from a configured Zero Trust list.
+   *
+   * @example
+   * ```ts
+   * const gatewayList =
+   *   await client.zeroTrust.gateway.lists.edit(
+   *     'f174e90a-fafe-4643-bbbc-4a0ed4fc8415',
+   *     { account_id: '699d98642c564d2e855e9661899b7252' },
+   *   );
+   * ```
+   */
+  edit(listID: string, params: ListEditParams, options?: RequestOptions): APIPromise<GatewayList> {
+    const { account_id, ...body } = params;
+    return (
+      this._client.patch(path`/accounts/${account_id}/gateway/lists/${listID}`, {
+        body,
+        ...options,
+      }) as APIPromise<{ result: GatewayList }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+
+  /**
+   * Fetch a single Zero Trust list.
+   *
+   * @example
+   * ```ts
+   * const gatewayList =
+   *   await client.zeroTrust.gateway.lists.get(
+   *     'f174e90a-fafe-4643-bbbc-4a0ed4fc8415',
+   *     { account_id: '699d98642c564d2e855e9661899b7252' },
+   *   );
+   * ```
+   */
+  get(listID: string, params: ListGetParams, options?: RequestOptions): APIPromise<GatewayList> {
+    const { account_id } = params;
+    return (
+      this._client.get(path`/accounts/${account_id}/gateway/lists/${listID}`, options) as APIPromise<{
+        result: GatewayList;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class Lists extends BaseLists {
+  items: ItemsAPI.Items = new ItemsAPI.Items(this._client);
+}
+
+export type GatewayListsSinglePage = SinglePage<GatewayList>;
+
+export type GatewayItemsV4PagePaginationArray = V4PagePaginationArray<GatewayItem>;
+
+export interface GatewayItem {
+  created_at?: string;
+
+  /**
+   * Provide the list item description (optional).
+   */
+  description?: string;
+
+  /**
+   * Specify the item value.
+   */
+  value?: string;
+}
+
+export interface GatewayList {
+  /**
+   * Identify the API resource with a UUID.
+   */
+  id?: string;
+
+  /**
+   * Indicate the number of items in the list.
+   */
+  count?: number;
+
+  created_at?: string;
+
+  /**
+   * Provide the list description.
+   */
+  description?: string;
+
+  /**
+   * Provide the list items.
+   */
+  items?: Array<GatewayItem>;
+
+  /**
+   * Specify the list name.
+   */
+  name?: string;
+
+  /**
+   * Specify the list type.
+   */
+  type?: 'SERIAL' | 'URL' | 'DOMAIN' | 'EMAIL' | 'IP' | 'CATEGORY' | 'LOCATION' | 'DEVICE' | 'AAGUID';
+
+  updated_at?: string;
+}
+
+export interface ListCreateResponse {
+  /**
+   * Identify the API resource with a UUID.
+   */
+  id?: string;
+
+  created_at?: string;
+
+  /**
+   * Provide the list description.
+   */
+  description?: string;
+
+  /**
+   * Provide the list items.
+   */
+  items?: Array<GatewayItem>;
+
+  /**
+   * Specify the list name.
+   */
+  name?: string;
+
+  /**
+   * Specify the list type.
+   */
+  type?: 'SERIAL' | 'URL' | 'DOMAIN' | 'EMAIL' | 'IP' | 'CATEGORY' | 'LOCATION' | 'DEVICE' | 'AAGUID';
+
+  updated_at?: string;
+}
+
+export type ListDeleteResponse = unknown;
+
+export interface ListCreateParams {
+  /**
+   * Path param: Specify the Cloudflare account identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param: Specify the list name.
+   */
+  name: string;
+
+  /**
+   * Body param: Specify the list type.
+   */
+  type: 'SERIAL' | 'URL' | 'DOMAIN' | 'EMAIL' | 'IP' | 'CATEGORY' | 'LOCATION' | 'DEVICE' | 'AAGUID';
+
+  /**
+   * Body param: Provide the list description.
+   */
+  description?: string;
+
+  /**
+   * Body param: Add items to the list.
+   */
+  items?: Array<ListCreateParams.Item>;
+}
+
+export namespace ListCreateParams {
+  export interface Item {
+    /**
+     * Provide the list item description (optional).
+     */
+    description?: string;
+
+    /**
+     * Specify the item value.
+     */
+    value?: string;
+  }
+}
+
+export interface ListUpdateParams {
+  /**
+   * Path param: Specify the Cloudflare account identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param: Specify the list name.
+   */
+  name: string;
+
+  /**
+   * Body param: Provide the list description.
+   */
+  description?: string;
+
+  /**
+   * Body param: Add items to the list.
+   */
+  items?: Array<ListUpdateParams.Item>;
+}
+
+export namespace ListUpdateParams {
+  export interface Item {
+    /**
+     * Provide the list item description (optional).
+     */
+    description?: string;
+
+    /**
+     * Specify the item value.
+     */
+    value?: string;
+  }
+}
+
+export interface ListListParams {
+  /**
+   * Path param: Specify the Cloudflare account identifier.
+   */
+  account_id: string;
+
+  /**
+   * Query param: Sort direction. Applies to the field named in `order_by`; when
+   * `order_by` is omitted it applies to the default `created_at` ordering. When
+   * `direction` is omitted the default is field-specific: explicitly choosing
+   * `created_at` or `updated_at` defaults to descending (newest first); `name` and
+   * `item_count` default to ascending; and the default `created_at` ordering used
+   * when `order_by` is omitted is ascending (for backwards compatibility).
+   *
+   * - `asc` — ascending.
+   * - `desc` — descending.
+   */
+  direction?: 'asc' | 'desc';
+
+  /**
+   * Query param: Filter the returned lists by one or more `field:value` pairs.
+   * Repeat the parameter to apply multiple filters; they are combined with logical
+   * AND (a list must satisfy every filter to be returned).
+   *
+   * Supported fields and their matching behaviour:
+   *
+   * - `name` — case-insensitive substring match on the list name.
+   * - `id` — substring match on the list ID (UUID), with or without dashes.
+   * - `type` — exact match on the list type. Supersedes the legacy `type` query
+   *   parameter when both are supplied. Must be one of the valid type values.
+   * - `item_count` — exact integer match on the number of items in the list.
+   *
+   * Each entry must match one of the per-field patterns below: the field must be one
+   * of `name`, `id`, `type`, or `item_count`; `name`/`id` accept any value, `type`
+   * is restricted to the valid list type values, and `item_count` must be a
+   * non-negative integer.
+   */
+  filter?: Array<string>;
+
+  /**
+   * Query param: Field to sort the returned lists by. When omitted, results are
+   * ordered by `created_at` in ascending order (i.e. creation order) for backwards
+   * compatibility. Supported values:
+   *
+   * - `name` — sort alphabetically by list name.
+   * - `created_at` — sort by creation time; defaults to descending unless
+   *   `direction` is set.
+   * - `updated_at` — sort by last-modified time; defaults to descending unless
+   *   `direction` is set.
+   * - `item_count` — sort by number of items in the list.
+   */
+  order_by?: 'name' | 'created_at' | 'updated_at' | 'item_count';
+
+  /**
+   * Query param: Case-insensitive substring match on the list name or description.
+   * When combined with `filter`, both must match (logical AND).
+   */
+  search?: string;
+
+  /**
+   * Query param: Specify the list type.
+   */
+  type?: 'SERIAL' | 'URL' | 'DOMAIN' | 'EMAIL' | 'IP' | 'CATEGORY' | 'LOCATION' | 'DEVICE' | 'AAGUID';
+}
+
+export interface ListDeleteParams {
+  /**
+   * Specify the Cloudflare account identifier.
+   */
+  account_id: string;
+}
+
+export interface ListEditParams {
+  /**
+   * Path param: Specify the Cloudflare account identifier.
+   */
+  account_id: string;
+
+  /**
+   * Body param: Add items to the list.
+   */
+  append?: Array<ListEditParams.Append>;
+
+  /**
+   * Body param: Lists of item values you want to remove.
+   */
+  remove?: Array<string>;
+}
+
+export namespace ListEditParams {
+  export interface Append {
+    /**
+     * Provide the list item description (optional).
+     */
+    description?: string;
+
+    /**
+     * Specify the item value.
+     */
+    value?: string;
+  }
+}
+
+export interface ListGetParams {
+  /**
+   * Specify the Cloudflare account identifier.
+   */
+  account_id: string;
+}
+
+Lists.Items = Items;
+Lists.BaseItems = BaseItems;
+
+export declare namespace Lists {
+  export {
+    type GatewayItem as GatewayItem,
+    type GatewayList as GatewayList,
+    type ListCreateResponse as ListCreateResponse,
+    type ListDeleteResponse as ListDeleteResponse,
+    type GatewayListsSinglePage as GatewayListsSinglePage,
+    type ListCreateParams as ListCreateParams,
+    type ListUpdateParams as ListUpdateParams,
+    type ListListParams as ListListParams,
+    type ListDeleteParams as ListDeleteParams,
+    type ListEditParams as ListEditParams,
+    type ListGetParams as ListGetParams,
+  };
+
+  export { Items as Items, BaseItems as BaseItems, type ItemListParams as ItemListParams };
+}

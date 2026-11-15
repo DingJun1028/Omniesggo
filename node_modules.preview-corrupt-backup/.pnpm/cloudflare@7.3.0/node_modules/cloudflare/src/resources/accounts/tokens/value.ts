@@ -1,0 +1,52 @@
+// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
+
+import { APIResource } from '../../../core/resource';
+import * as Shared from '../../shared';
+import { APIPromise } from '../../../core/api-promise';
+import { RequestOptions } from '../../../internal/request-options';
+import { path } from '../../../internal/utils/path';
+
+export class BaseValue extends APIResource {
+  static override readonly _key: readonly ['accounts', 'tokens', 'value'] = Object.freeze([
+    'accounts',
+    'tokens',
+    'value',
+  ] as const);
+
+  /**
+   * Roll the Account Owned API token secret.
+   *
+   * @example
+   * ```ts
+   * const tokenValue =
+   *   await client.accounts.tokens.value.update(
+   *     'ed17574386854bf78a67040be0a770b0',
+   *     { account_id: '023e105f4ecef8ad9ca31a8372d0c353' },
+   *   );
+   * ```
+   */
+  update(
+    tokenID: string,
+    params: ValueUpdateParams,
+    options?: RequestOptions,
+  ): APIPromise<Shared.TokenValue> {
+    const { account_id } = params;
+    return (
+      this._client.put(path`/accounts/${account_id}/tokens/${tokenID}/value`, options) as APIPromise<{
+        result: Shared.TokenValue;
+      }>
+    )._thenUnwrap((obj) => obj.result);
+  }
+}
+export class Value extends BaseValue {}
+
+export interface ValueUpdateParams {
+  /**
+   * Account identifier tag.
+   */
+  account_id: string;
+}
+
+export declare namespace Value {
+  export { type ValueUpdateParams as ValueUpdateParams };
+}
