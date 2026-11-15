@@ -1,19 +1,54 @@
 {
-  "project": "esggo-omni-30-swarm",
-  "source": "JunAikey 萬能元鑰 — 77 筆技能清單 (合並 46+76 至 77)",
-  "total": 75,
-  "generated": "2026-11-15",
-  "best_practice": "awakened",
+  "name": "junaikey-skills-complete-77",
+  "description": "77 筆完整列表（含去重與 probe 排除前的完整數據）",
   "best_practice_tag": "[best-practice:awakened]",
-  "checklist": {
-    "lint_pass": true,
-    "typecheck_pass": true,
-    "test_pass": true,
-    "entropy_threshold": true,
-    "no_known_issues": true,
-    "best_practice_tag": true
+  "total_skill_records": 81,
+  "final_skill_count": 79,
+  "probe_count": 1,
+  "duplicate_count": 1,
+  "5T_distribution": {
+    "Traceable": 4,
+    "Trackable": 42,
+    "Trustworthy": 43
+  },
+  "domain_distribution": {
+    "Development": 2,
+    "測試 (Verify)": 2,
+    "技術 (Foundation)": 10,
+    "技術 (AI/LLM)": 4,
+    "整合": 2,
+    "整合 (Platform/Module)": 31,
+    "安全 (Security)": 1
   },
   "skills": [
+    {
+      "id": 0,
+      "name": "_probe_",
+      "origin": "ncb://probe",
+      "5T": [
+        "Traceable"
+      ],
+      "domain": [
+        "Development"
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
+    },
+    {
+      "id": 0,
+      "name": "_probe_",
+      "origin": "ncb://probe",
+      "5T": [
+        "Traceable"
+      ],
+      "domain": [
+        "Development"
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
+    },
     {
       "id": 1,
       "name": "hermes-state-db-repair",
@@ -23,7 +58,10 @@
       ],
       "domain": [
         "測試 (Verify)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 2,
@@ -35,7 +73,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 3,
@@ -47,7 +88,10 @@
       ],
       "domain": [
         "技術 (AI/LLM)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 4,
@@ -59,7 +103,10 @@
       ],
       "domain": [
         "技術 (AI/LLM)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 5,
@@ -71,7 +118,10 @@
       ],
       "domain": [
         "技術 (AI/LLM)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 6,
@@ -83,7 +133,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 7,
@@ -95,7 +148,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 8,
@@ -107,7 +163,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 9,
@@ -119,7 +178,38 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
+    },
+    {
+      "id": 10,
+      "name": "omnitag-integration (duplicate)",
+      "origin": "ncb://trait-inference",
+      "5T": [
+        "Trackable"
+      ],
+      "domain": [
+        "整合"
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
+    },
+    {
+      "id": 10,
+      "name": "omnitag-integration (duplicate)",
+      "origin": "ncb://trait-inference",
+      "5T": [
+        "Trackable"
+      ],
+      "domain": [
+        "整合"
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 11,
@@ -131,7 +221,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 12,
@@ -143,7 +236,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 13,
@@ -155,7 +251,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 14,
@@ -167,7 +266,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 15,
@@ -179,7 +281,10 @@
       ],
       "domain": [
         "技術 (Foundation)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 16,
@@ -191,7 +296,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 17,
@@ -203,7 +311,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 18,
@@ -215,7 +326,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 19,
@@ -226,7 +340,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 20,
@@ -238,7 +355,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 21,
@@ -250,7 +370,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 22,
@@ -262,7 +385,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 23,
@@ -274,7 +400,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 24,
@@ -286,7 +415,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 25,
@@ -298,7 +430,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 26,
@@ -311,7 +446,10 @@
       "domain": [
         "技術 (AI/LLM)",
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 27,
@@ -323,7 +461,10 @@
       "domain": [
         "安全 (Security)",
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 28,
@@ -335,7 +476,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 29,
@@ -347,7 +491,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 30,
@@ -359,7 +506,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 31,
@@ -371,7 +521,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 32,
@@ -383,7 +536,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 33,
@@ -395,7 +551,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 34,
@@ -407,7 +566,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 35,
@@ -419,7 +581,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 36,
@@ -431,7 +596,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 37,
@@ -443,7 +611,10 @@
       "domain": [
         "整合 (Platform/Module)",
         "測試 (Verify)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 38,
@@ -455,7 +626,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 39,
@@ -466,7 +640,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 40,
@@ -478,7 +655,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 41,
@@ -490,7 +670,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 42,
@@ -502,7 +685,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 43,
@@ -514,7 +700,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 44,
@@ -526,7 +715,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 45,
@@ -538,7 +730,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 46,
@@ -550,7 +745,10 @@
       ],
       "domain": [
         "整合 (Platform/Module)"
-      ]
+      ],
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 47,
@@ -558,35 +756,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Ollama Container",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 48,
@@ -594,35 +766,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Health",
-      "traits": {
-        "Traceable": false,
-        "Trackable": true,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 49,
@@ -630,35 +776,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Hub Decision",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 50,
@@ -666,35 +786,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Container Up",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 51,
@@ -702,35 +796,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Backend Missing Header",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 52,
@@ -738,35 +806,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Hub Container",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 53,
@@ -774,35 +816,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Model",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 54,
@@ -810,35 +826,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "omni",
-      "title": "Agent Arch",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": true,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 55,
@@ -846,35 +836,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Produce Test Coverage",
-      "traits": {
-        "Traceable": false,
-        "Trackable": true,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 56,
@@ -882,35 +846,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Lock 5T",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": true
-      },
-      "domains": {
-        "5T/協作": true,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 57,
@@ -918,35 +856,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "junaikey",
-      "title": "Openrouter Key",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": true,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 58,
@@ -954,35 +866,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Station Launcher Stale Tree",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 59,
@@ -990,35 +876,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Tts 403 Silent Fallback",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 60,
@@ -1026,35 +886,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Server Port Archaeology",
-      "traits": {
-        "Traceable": false,
-        "Trackable": true,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": true,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 61,
@@ -1062,35 +896,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "20261016",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 62,
@@ -1098,35 +906,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Port Fix",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": true
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 63,
@@ -1134,35 +916,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Db Clean",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": true
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 64,
@@ -1170,35 +926,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Key Integration",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": true,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 65,
@@ -1206,35 +936,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "junaikey",
-      "title": "Omni Godmode",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": true,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 66,
@@ -1242,35 +946,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Distance Verification",
-      "traits": {
-        "Traceable": false,
-        "Trackable": true,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": true,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 67,
@@ -1278,35 +956,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Join Pattern",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": true,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 68,
@@ -1314,35 +966,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Sync Pipeline",
-      "traits": {
-        "Traceable": false,
-        "Trackable": true,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": true,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 69,
@@ -1350,35 +976,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Write Verify",
-      "traits": {
-        "Traceable": false,
-        "Trackable": true,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": true,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 70,
@@ -1386,35 +986,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Fix",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": true
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": true,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": true,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 71,
@@ -1422,35 +996,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Validation",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": true,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 72,
@@ -1458,35 +1006,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Offline",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": true,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 73,
@@ -1494,35 +1016,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Gap Matrix Remediation",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": true,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 74,
@@ -1530,35 +1026,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "esggo",
-      "title": "Soul Delivery",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": true,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 75,
@@ -1566,35 +1036,9 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Baseline",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": false,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": true,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
     },
     {
       "id": 76,
@@ -1602,35 +1046,37 @@
       "origin": "local-cache",
       "5T": [],
       "domain": [],
-      "category": "other",
-      "title": "Omnitag",
-      "traits": {
-        "Traceable": false,
-        "Trackable": false,
-        "Tangible": false,
-        "Transparent": false,
-        "Trustworthy": false
-      },
-      "domains": {
-        "5T/協作": true,
-        "策略": false,
-        "技術": false,
-        "創意": false,
-        "營銷": false,
-        "守衛": false,
-        "基礎": false,
-        "維運": false,
-        "安全": false,
-        "資料": false,
-        "測試": false,
-        "部署": false,
-        "整合": false,
-        "維護": false,
-        "支援": false,
-        "品質": false
-      },
-      "has_5t": false,
-      "has_domain": true
+      "is_final": true,
+      "is_probe": false,
+      "is_duplicate": false
+    },
+    {
+      "id": 0,
+      "name": "_probe_",
+      "origin": "ncb://probe",
+      "5T": [
+        "Traceable"
+      ],
+      "domain": [
+        "Development"
+      ],
+      "is_final": false,
+      "is_probe": true,
+      "is_duplicate": false
+    },
+    {
+      "id": 10,
+      "name": "omnitag-integration (duplicate)",
+      "origin": "ncb://trait-inference",
+      "5T": [
+        "Trackable"
+      ],
+      "domain": [
+        "整合"
+      ],
+      "is_final": false,
+      "is_probe": false,
+      "is_duplicate": true
     }
   ]
 }
