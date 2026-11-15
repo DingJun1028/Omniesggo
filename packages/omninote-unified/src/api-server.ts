@@ -86,6 +86,7 @@ export class OmniNoteLocalApiServer {
     "POST /api/drafts": (self, req, res) => self.handleDraftSave(req, res),
     "GET /api/drafts": (self, _req, res) => self.respondDraftsList(res),
     "GET /api/export": (self, _req, res) => self.respondExport(res),
+    "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
     "POST /api/import": (self, req, res) => self.handleImport(req, res),
   };
   readonly storage: OmniStorageAdapter;
@@ -262,6 +263,41 @@ export class OmniNoteLocalApiServer {
 
   private async respondNotesList(res: ServerResponse): Promise<void> {
     return sendJson(res, 200, { ok: true, uuids: await this.storage.listUuids() });
+  }
+
+  /**
+   * 二十七期：全域標籤彙整（唯讀聚合，Tag 語意軸總覽）。
+   * GET /api/tags → { total_notes, tagged_nodes, untagged_nodes, total_tag_occurrences, tags: [{ tag, count }] }
+   * 每節點內重複標籤去重後計數；tags 依字典序穩定排序（無隨機源）；
+   * count 為「含該標籤之節點數」而非出現次數（如實標示）。
+   */
+  private async respondTagsOverview(res: ServerResponse): Promise<void> {
+    const uuids = await this.storage.listUuids();
+    const nodes = (
+      await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
+    ).filter((n): n is UnifiedNode => n !== null);
+    const byTag = new Map<string, number>();
+    let taggedNodes = 0;
+    let occurrences = 0;
+    for (const node of nodes) {
+      const uniq = new Set(node.topology.tags);
+      if (uniq.size > 0) taggedNodes += 1;
+      occurrences += uniq.size;
+      for (const tag of uniq) {
+        byTag.set(tag, (byTag.get(tag) ?? 0) + 1);
+      }
+    }
+    const tags = [...byTag.entries()]
+      .map(([tag, count]) => ({ tag, count }))
+      .sort((a, b) => (a.tag < b.tag ? -1 : a.tag > b.tag ? 1 : 0));
+    return sendJson(res, 200, {
+      ok: true,
+      total_notes: nodes.length,
+      tagged_nodes: taggedNodes,
+      untagged_nodes: nodes.length - taggedNodes,
+      total_tag_occurrences: occurrences,
+      tags,
+    });
   }
 
   private async handleNoteCreate(req: IncomingMessage, res: ServerResponse): Promise<void> {
