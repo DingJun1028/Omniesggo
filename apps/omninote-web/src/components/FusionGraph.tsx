@@ -295,15 +295,17 @@ export function FusionGraph({
       </p>
       {tagAxis !== null && tagAxis.tags.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
-          <span
-            className="cursor-pointer rounded-full border px-2 py-0.5 text-[10px] transition"
+          <button
+            type="button"
+            className="cursor-pointer rounded-full border px-2 py-0.5 text-[10px] text-slate-400 transition hover:border-slate-100/30"
             title="點擊恢復全量圖譜"
             onClick={() => setTagFilter(null)}
           >
             全量
-          </span>
+          </button>
           {tagAxis.tags.map((t) => (
-            <span
+            <button
+              type="button"
               key={t.tag}
               className={`cursor-pointer rounded-full border px-2 py-0.5 text-[10px] transition ${
                 tagFilter === t.tag
@@ -314,7 +316,7 @@ export function FusionGraph({
               onClick={() => setTagFilter(tagFilter === t.tag ? null : t.tag)}
             >
               {t.tag} × {t.count}
-            </span>
+            </button>
           ))}
         </div>
       )}
