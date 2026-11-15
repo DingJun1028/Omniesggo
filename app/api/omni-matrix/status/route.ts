@@ -6,10 +6,10 @@ export async function GET() {
   let totalRecords = 0;
   let latestHashLock = 'None';
   try {
-    const { data: totalUploadsData } = await supabase
+    const { count: uploadCount } = await supabase
       .from('DataBridgeUpload')
       .select('*', { count: 'exact', head: true });
-    totalUploads = (totalUploadsData as number) ?? 0;
+    totalUploads = uploadCount ?? 0;
     const { data: sumData } = await supabase
       .from('DataBridgeUpload')
       .select('_sum.recordCount');

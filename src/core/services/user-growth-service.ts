@@ -42,7 +42,7 @@ class UserGrowthService {
 
   /** Get or create user growth profile */
   async getOrCreateUser(userId: string, email?: string, displayName?: string) {
-    const [existing] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
+    const { data: existing } = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1).maybeSingle();
     if (existing) return existing;
 
     // Genesis OmniSeed for the new user
@@ -75,7 +75,7 @@ class UserGrowthService {
 
   /** Add XP and check for tier upgrade */
   async addXP(userId: string, amount: number, _reason?: string) {
-    const [user] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
+    const { data: user } = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1).maybeSingle();
     if (!user) throw new Error('User not found');
     const newXP = (user.xp as number) + amount;
     const newTotal = (user.totalPoints as number) + amount;
@@ -83,7 +83,7 @@ class UserGrowthService {
     const tierChanged = newTier !== (user.tier as string);
     await supabase.from('UserGrowth').update({ xp: newXP, totalPoints: newTotal, tier: newTier, updatedAt: new Date() }).eq('userId', userId);
     const newLevel = Math.min(99, Math.floor(newXP / 500) + 1);
-    const [lv] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
+    const { data: lv } = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1).maybeSingle();
     if (lv && newLevel > (lv.level as number)) {
       await supabase.from('UserGrowth').update({ level: newLevel }).eq('userId', userId);
     }
@@ -116,7 +116,7 @@ class UserGrowthService {
     const list = (rows as unknown as { userId: string; achievementId: string; unlockedAt: string; }[]) ?? [];
     const out = [];
     for (const r of list) {
-      const [ach] = await supabase.from('Achievement').select('*').eq('id', r.achievementId).limit(1);
+      const { data: ach } = await supabase.from('Achievement').select('*').eq('id', r.achievementId).limit(1).maybeSingle();
       out.push({ ...r, achievement: ach || null });
     }
     return out;
@@ -124,9 +124,9 @@ class UserGrowthService {
 
   /** Unlock an achievement for user */
   async unlockAchievement(userId: string, achievementSlug: string) {
-    const [ach] = await supabase.from('Achievement').select('*').eq('slug', achievementSlug).limit(1);
+    const { data: ach } = await supabase.from('Achievement').select('*').eq('slug', achievementSlug).limit(1).maybeSingle();
     if (!ach) throw new Error('Achievement not found');
-    const [existing] = await supabase.from('UserAchievement').select('*').eq('userId', userId).eq('achievementId', ach.id).limit(1);
+    const { data: existing } = await supabase.from('UserAchievement').select('*').eq('userId', userId).eq('achievementId', ach.id).limit(1).maybeSingle();
     if (existing) return existing;
     const result = await supabase.from('UserAchievement').insert({ userId, achievementId: ach.id }).select().single();
     if (ach.xpReward > 0) {
@@ -155,11 +155,11 @@ class UserGrowthService {
 
   /** Update task progress */
   async updateTaskProgress(userId: string, taskId: string, progress: number) {
-    const [task] = await supabase.from('GrowthTask').select('*').eq('id', taskId).limit(1);
+    const { data: task } = await supabase.from('GrowthTask').select('*').eq('id', taskId).limit(1).maybeSingle();
     if (!task) throw new Error('Task not found');
     const status = progress >= 100 ? 'completed' : progress > 0 ? 'in_progress' : 'pending';
     const completedAt = progress >= 100 ? new Date() : null;
-    const [existing] = await supabase.from('UserTask').select('*').eq('userId', userId).eq('taskId', taskId).limit(1);
+    const { data: existing } = await supabase.from('UserTask').select('*').eq('userId', userId).eq('taskId', taskId).limit(1).maybeSingle();
     if (existing) {
       await supabase.from('UserTask').update({ progress, status, completedAt }).eq('userId', userId).eq('taskId', taskId);
     } else {
@@ -173,7 +173,7 @@ class UserGrowthService {
 
   /** Claim task reward */
   async claimTaskReward(userId: string, taskId: string) {
-    const [ut] = await supabase.from('UserTask').select('*').eq('userId', userId).eq('taskId', taskId).eq('status', 'completed').limit(1);
+    const { data: ut } = await supabase.from('UserTask').select('*').eq('userId', userId).eq('taskId', taskId).eq('status', 'completed').limit(1).maybeSingle();
     if (!ut) throw new Error('Task not completed or not found');
     await supabase.from('UserTask').update({ status: 'claimed', claimedAt: new Date() }).eq('id', ut.id);
     return { claimed: true };
@@ -181,7 +181,7 @@ class UserGrowthService {
 
   /** Update login streak */
   async updateStreak(userId: string) {
-    const [user] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
+    const { data: user } = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1).maybeSingle();
     if (!user) throw new Error('User not found');
     const now = new Date();
     const lastActive = new Date((user as { lastActiveAt: string }).lastActiveAt);
@@ -210,7 +210,7 @@ class UserGrowthService {
 
   /** Toggle subscription */
   async toggleSubscription(userId: string, subType: string, targetId: string) {
-    const [existing] = await supabase.from('Subscription').select('*').eq('userId', userId).eq('subType', subType).eq('targetId', targetId).limit(1);
+    const { data: existing } = await supabase.from('Subscription').select('*').eq('userId', userId).eq('subType', subType).eq('targetId', targetId).limit(1).maybeSingle();
     if (existing) {
       const { data } = await supabase.from('Subscription').update({ isActive: !(existing as { isActive: boolean }).isActive }).eq('id', (existing as { id: string }).id).select().single();
       return { subscribed: !(existing as { isActive: boolean }).isActive };
@@ -222,7 +222,7 @@ class UserGrowthService {
 
   /** Get full user profile with all growth data */
   async getFullProfile(userId: string) {
-    const [user] = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1);
+    const { data: user } = await supabase.from('UserGrowth').select('*').eq('userId', userId).limit(1).maybeSingle();
     if (!user) return null;
     const [ach] = (await supabase.from('UserAchievement').select('*').eq('userId', userId).order('unlockedAt', { ascending: false }).limit(20)) as unknown as { userId: string; achievementId: string; unlockedAt: string; }[];
     const tasks = (await supabase.from('UserTask').select('*').eq('userId', userId).in('status', ['pending', 'in_progress']).order('createdAt', { ascending: false }).limit(10)) as unknown as { userId: string; taskId: string; status: string; progress: number; completedAt?: string | null; }[];

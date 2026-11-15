@@ -7,7 +7,7 @@
  */
 
 import { jsonResponse, jsonErrorInternal } from '@lib/api-utils';
-import { prisma } from '@lib/storage-service';
+import { countCompanyReports } from '@lib/storage-service';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { createHash, randomBytes } from 'crypto';
@@ -121,10 +121,8 @@ export async function GET(): Promise<Response> {
     let realCaseCount: number | null = null;
     let isDbConnected = false;
     try {
-      if (prisma && typeof prisma.companyReport?.count === 'function') {
-        realCaseCount = await prisma.companyReport.count().catch(() => null);
-        if (realCaseCount !== null) isDbConnected = true;
-      }
+      realCaseCount = await countCompanyReports().catch(() => null);
+      if (realCaseCount !== null) isDbConnected = true;
     } catch {
       isDbConnected = false;
     }

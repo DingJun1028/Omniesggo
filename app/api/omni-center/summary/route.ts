@@ -7,7 +7,7 @@
  */
 
 import { jsonResponse } from '@lib/api-utils';
-import { prisma } from '@lib/storage-service';
+import { countCompanyReports, countEsgTags } from '@lib/storage-service';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -15,8 +15,8 @@ export const runtime = 'nodejs';
 export async function GET(): Promise<Response> {
   try {
     const [companyReportCount, esgTagCount] = await Promise.all([
-      prisma.companyReport.count().catch(() => null),
-      prisma.eSGTag.count().catch(() => null),
+      countCompanyReports().catch(() => null),
+      countEsgTags().catch(() => null),
     ]);
 
     const caseCount =

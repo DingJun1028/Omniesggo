@@ -12,11 +12,12 @@ export async function syncGamificationState(
 ) {
   try {
     // Upsert UserGrowth (Supabase: select-then-update / insert)
-    const [existing] = await supabase
+    const { data: existing } = await supabase
       .from('UserGrowth')
       .select('*')
       .eq('userId', userId)
-      .limit(1);
+      .limit(1)
+      .maybeSingle();
 
     if (existing) {
       await supabase

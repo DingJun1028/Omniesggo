@@ -42,6 +42,7 @@ export {
   countAlerts,
   countRegulations,
   countCompanyReports,
+  countEsgTags,
   // ─── 成長紀錄 ─────────────────────────────────────────────
   listUserGrowth,
   updateUserGrowth,

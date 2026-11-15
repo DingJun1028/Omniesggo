@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
 import { parsePDFReport } from '../../../../src/core/pdf/pdf-parser';
-import { JSONB } from '../../../../src/lib/supabase-omni';
 import { jsonError, jsonResponse, jsonErrorInternal } from '@lib/api-utils';
 import { supabase } from '@/lib/supabase-omni';
 

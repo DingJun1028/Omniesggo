@@ -682,8 +682,12 @@ export async function countAlerts(filter?: { where?: Record<string, unknown> }):
         }
       });
     }
-    const { data } = await safeSupabase(() => query);
-    return typeof data === 'number' ? data : 0;
+    const { count, error } = await query;
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return 0;
+    }
+    return typeof count === 'number' ? count : 0;
   } catch (e) {
     console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
     return 0;
@@ -692,14 +696,14 @@ export async function countAlerts(filter?: { where?: Record<string, unknown> }):
 
 export async function countRegulations(): Promise<number> {
   try {
-    const { data, error } = await safeSupabase(() =>
-      supabase.from('regulations').select('*', { count: 'exact', head: true }),
-    );
+    const { count, error } = await supabase
+      .from('regulations')
+      .select('*', { count: 'exact', head: true });
     if (error) {
       console.warn('[Storage-Service] Supabase error:', error.message);
       return 0;
     }
-    return typeof data === 'number' ? data : 0;
+    return typeof count === 'number' ? count : 0;
   } catch (e) {
     console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
     return 0;
@@ -708,14 +712,31 @@ export async function countRegulations(): Promise<number> {
 
 export async function countCompanyReports(): Promise<number> {
   try {
-    const { data, error } = await safeSupabase(() =>
-      supabase.from('company_report').select('*', { count: 'exact', head: true }),
-    );
+    const { count, error } = await supabase
+      .from('company_report')
+      .select('*', { count: 'exact', head: true });
     if (error) {
       console.warn('[Storage-Service] Supabase error:', error.message);
       return 0;
     }
-    return typeof data === 'number' ? data : 0;
+    return typeof count === 'number' ? count : 0;
+  } catch (e) {
+    console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
+    return 0;
+  }
+}
+
+/** ESG 標籤計數（原 Prisma ESGTag → Supabase esg_tags，見 omni-tag-service 表單對應） */
+export async function countEsgTags(): Promise<number> {
+  try {
+    const { count, error } = await supabase
+      .from('esg_tags')
+      .select('*', { count: 'exact', head: true });
+    if (error) {
+      console.warn('[Storage-Service] Supabase error:', error.message);
+      return 0;
+    }
+    return typeof count === 'number' ? count : 0;
   } catch (e) {
     console.warn('[Storage-Service] Supabase exception:', (e as Error).message);
     return 0;

@@ -45,13 +45,14 @@ export class GoogleAuthProvider {
   setCustomParameters(_p: Record<string, string>): void {}
 }
 
-export async function signInWithGoogle(): Promise<LocalUser> {
-  const { data, error } = await supabase.auth.signInWithOAuth({
+export async function signInWithGoogle(): Promise<LocalUser | null> {
+  const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
   });
   if (error) throw error;
-  // Supabase OAuth redirects by default, so user is not immediately returned
-  return mapSupabaseUser(data) as LocalUser;
+  // Supabase OAuth 採 redirect 流程：此時尚未取得 User 物件，
+  // 使用者完成授權後由 onAuthStateChange 寫入 _cachedUser。
+  return null;
 }
 
 export async function signUpWithEmail(

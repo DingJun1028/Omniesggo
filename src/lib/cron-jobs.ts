@@ -145,7 +145,7 @@ async function generateDailyReportJob(): Promise<{
 async function checkUserAchievements(): Promise<{ checked: number; upgrades: number }> {
   let upgrades = 0;
   try {
-    const userGrowths = await listUserGrowth();
+    const userGrowths = await listUserGrowth({});
 
     for (const user of userGrowths) {
       const tiers = [

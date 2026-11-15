@@ -161,7 +161,7 @@ export async function POST(req: Request) {
     // 1. 從 caseType 推斷 ESG 任務類型
     const taskType = inferTaskType(input);
     // 2. 根據任務類型選擇最佳模型路由
-    const routing = routeModel(taskType);
+    const routing = routeModel(taskType.taskType);
     console.log(`[OmniOne] Smart Routing: ${formatRoutingResult(routing)}`);
 
     const ragContext = clientRagContext

@@ -518,6 +518,15 @@ export function routeModel(taskType: string): RoutingResult {
 }
 
 /**
+ * 將路由結果格式化為可稽核字串（5T Transparent：路由決策可追溯、可重現）。
+ */
+export function formatRoutingResult(result: RoutingResult): string {
+  return [result.primary, result.fallback1, result.fallback2]
+    .map((m) => `${m.provider}/${m.model}`)
+    .join(' → ');
+}
+
+/**
  * 根據用戶訊息自動推斷任務類型
  */
 export function inferTaskType(message: string): RouteWithTrigger {
