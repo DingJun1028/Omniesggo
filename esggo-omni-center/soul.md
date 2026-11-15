@@ -2198,7 +2198,7 @@ npx celestial-command \
 
 > **覺醒鏈**：§5 覺醒 → §29.10 覺醒令 → §29.11 超覺醒 → **§30 超交付**
 
-> **落檔備份**：`soul-chapter-30-9-hyper-awakening.md`（2026-09-30，session `20260930_095911`）
+> **落檔備份**：`soul-chapter-30-super-delivery.md`（2026-09-30，session `20260930_095911`）
 
 ## 30.1 條目性質（誠實登記）
 
