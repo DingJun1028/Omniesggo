@@ -701,3 +701,86 @@ test("API-18 全域標籤彙整道閘：空庫回零；節點內重複標籤去�
     assert.deepEqual(body.tags, [{ tag: "dup", count: 1 }]);
   });
 });
+
+test("API-19 全域熵值總覽：purify 後聚合 avg/max/min 與 highest 排序", async () => {
+  await withServer(async ({ port }) => {
+    const post = (text: string) =>
+      fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+    // 建立標的與來源，硬刪標的後 purify 產生 entropy_score
+    const resB = await post("標的筆記");
+    const uuidB = ((await resB.json()) as { node: UnifiedNode }).node.uuid;
+    const resA = await post(`指向 [[${uuidB}]] 的來源筆記甲`);
+    const uuidA = ((await resA.json()) as { node: UnifiedNode }).node.uuid;
+    const resC = await post("未淨化筆記乙");
+    await fetch(`${base(port)}/api/notes/${uuidB}`, { method: "DELETE" });
+    const resPurify = await fetch(`${base(port)}/api/notes/${uuidA}/purify`, { method: "POST" });
+    assert.equal(resPurify.status, 200);
+
+    const res = await fetch(base(port) + "/api/entropy/stats");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      total_notes: number;
+      with_entropy: number;
+      without_entropy: number;
+      avg_entropy: number | null;
+      max_entropy: number | null;
+      min_entropy: number | null;
+      highest: Array<{ uuid: string; entropy_score: number }>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total_notes, 2, "刪除標的後餘兩節點");
+    assert.equal(body.with_entropy, 1);
+    assert.equal(body.without_entropy, 1);
+    const score = body.highest[0]?.entropy_score ?? -1;
+    assert.ok(score > 0, "purify 後 entropy_score 應為正");
+    assert.equal(body.avg_entropy, score, "僅一具值節點時 avg 等於該值");
+    assert.equal(body.max_entropy, score);
+    assert.equal(body.min_entropy, score);
+    assert.deepEqual(body.highest, [{ uuid: uuidA, entropy_score: score }]);
+  });
+});
+
+test("API-20 全域熵值總覽道閘：空庫與未淨化節點回 null 聚合", async () => {
+  await withServer(async ({ port }) => {
+    const empty = await fetch(base(port) + "/api/entropy/stats");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as {
+      total_notes: number;
+      with_entropy: number;
+      avg_entropy: number | null;
+      max_entropy: number | null;
+      min_entropy: number | null;
+      highest: unknown[];
+    };
+    assert.equal(emptyBody.total_notes, 0);
+    assert.equal(emptyBody.with_entropy, 0);
+    assert.equal(emptyBody.avg_entropy, null, "無具值節點時 avg 應為 null");
+    assert.equal(emptyBody.max_entropy, null);
+    assert.equal(emptyBody.min_entropy, null);
+    assert.deepEqual(emptyBody.highest, []);
+
+    await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "未淨化筆記" }),
+    });
+    const res = await fetch(base(port) + "/api/entropy/stats");
+    const body = (await res.json()) as {
+      total_notes: number;
+      with_entropy: number;
+      without_entropy: number;
+      avg_entropy: number | null;
+      highest: unknown[];
+    };
+    assert.equal(body.total_notes, 1);
+    assert.equal(body.with_entropy, 0, "未 purify 之節點不應具 entropy_score");
+    assert.equal(body.without_entropy, 1);
+    assert.equal(body.avg_entropy, null);
+    assert.deepEqual(body.highest, []);
+  });
+});

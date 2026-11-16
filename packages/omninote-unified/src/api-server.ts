@@ -87,6 +87,7 @@ export class OmniNoteLocalApiServer {
     "GET /api/drafts": (self, _req, res) => self.respondDraftsList(res),
     "GET /api/export": (self, _req, res) => self.respondExport(res),
     "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
+    "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
     "POST /api/import": (self, req, res) => self.handleImport(req, res),
   };
   readonly storage: OmniStorageAdapter;
@@ -297,6 +298,37 @@ export class OmniNoteLocalApiServer {
       untagged_nodes: nodes.length - taggedNodes,
       total_tag_occurrences: occurrences,
       tags,
+    });
+  }
+
+  /**
+   * GET /api/entropy/stats → { total_notes, with_entropy, without_entropy, avg_entropy, max_entropy, min_entropy, highest }
+   * 全域熵值總覽（唯讀聚合）：entropy_score 僅於熵減自癒（POST /api/notes/:uuid/purify）後存在；
+   * avg/max/min 僅統計具 entropy_score 之節點，無任何具值節點時三者為 null（如實標示）；
+   * highest 依 entropy_score 降冪、uuid 升冪排序取前 5，無隨機源、同一輸入恆得同一結果。
+   */
+  private async respondEntropyStats(res: ServerResponse): Promise<void> {
+    const uuids = await this.storage.listUuids();
+    const nodes = (
+      await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
+    ).filter((n): n is UnifiedNode => n !== null);
+    const scored = nodes
+      .map((node) => ({ uuid: node.uuid, entropy: node.entropy_score }))
+      .filter((e): e is { uuid: string; entropy: number } => typeof e.entropy === "number");
+    const sum = scored.reduce((acc, e) => acc + e.entropy, 0);
+    const highest = [...scored]
+      .sort((a, b) => (a.entropy !== b.entropy ? b.entropy - a.entropy : a.uuid < b.uuid ? -1 : 1))
+      .slice(0, 5)
+      .map((e) => ({ uuid: e.uuid, entropy_score: e.entropy }));
+    return sendJson(res, 200, {
+      ok: true,
+      total_notes: nodes.length,
+      with_entropy: scored.length,
+      without_entropy: nodes.length - scored.length,
+      avg_entropy: scored.length > 0 ? Number.parseFloat((sum / scored.length).toFixed(4)) : null,
+      max_entropy: scored.length > 0 ? Math.max(...scored.map((e) => e.entropy)) : null,
+      min_entropy: scored.length > 0 ? Math.min(...scored.map((e) => e.entropy)) : null,
+      highest,
     });
   }
 

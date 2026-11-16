@@ -103,6 +103,7 @@ node --experimental-transform-types bin/omninote-server.ts /path/to/notes
 | GET | /api/notes/:uuid/evidence/stats | 證據鏈 hook 別統計（二十三期，唯讀聚合）：回 `{ uuid, node_version, lock_hash, total, by_hook, hooks, first_captured_at, last_captured_at }`；by_hook 為 hook_lifecycle → 筆數映射，hooks 為依入鏈首現順序之清單；captured_at 為字串排序非時間權威（如實標示）；404 若節點不存在 |
 | GET | /api/notes/:uuid/evidence/export | 證據鏈全量匯出（二十五期，唯讀稽核歸檔）：回 `{ format: "evidence_export_v1", uuid, node_version, lock_hash, total, by_hook, hooks, entries, exported_at }`；entries 為入鏈順序全量（無分頁）；exported_at 為伺服器當下時間非鏈內時間權威（如實標示）；快照綁定 node_version 與 lock_hash 供匯出後變更偵測；404 若節點不存在 |
 | GET | /api/tags | 全域標籤彙整（二十七期，唯讀聚合，Tag 語意軸總覽）：回 `{ total_notes, tagged_nodes, untagged_nodes, total_tag_occurrences, tags: [{ tag, count }] }`；每節點內重複標籤去重後計數；count 為含該標籤之節點數而非出現次數（如實標示）；tags 依字典序穩定排序（無隨機源） |
+| GET | /api/entropy/stats | 全域熵值總覽（三十一期，唯讀聚合）：回 `{ total_notes, with_entropy, without_entropy, avg_entropy, max_entropy, min_entropy, highest }`；entropy_score 僅於熵減自癒（POST /api/notes/:uuid/purify）後存在，avg/max/min 僅統計具值節點，無具值節點時三者為 null（如實標示）；highest 依 entropy_score 降冪、uuid 升冪取前 5（無隨機源） |
 | DELETE | /api/notes/:uuid | 刪除節點 |
 | POST | /api/search | 語意搜尋：\`{ query, top_k?, threshold? }\`；嵌入不可用時 \`degraded: true\` 且零結果（503 若未啟用嵌入器） |
 | POST | /api/drafts | 隨時進度草稿存檔：\`{ draft_id, content, origin_tag?, tags? }\` 冪等 upsert（重複呼叫覆寫且 revision 遞增） |
