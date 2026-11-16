@@ -10,20 +10,29 @@
  * is read exclusively from the SONAR_TOKEN environment variable and is never
  * printed, logged, or persisted.
  *
- * Stale-verdict settle window: right after a synchronize push, the
- * SonarCloud API keeps serving the PREVIOUS analysis result until the new
- * Automatic Analysis is indexed, so an immediately observed verdict can
- * belong to the prior head (false ERROR and false OK alike). Verdicts
- * observed before the settle window elapses are therefore recorded but not
- * accepted; polling continues until a verdict is observed at or after the
- * settle deadline. Set --settle 0 to disable.
+ * Stale-verdict guards: right after a synchronize push, the SonarCloud API
+ * keeps serving the PREVIOUS analysis result until the new Automatic
+ * Analysis is indexed, so an observed verdict can belong to the prior head
+ * (false ERROR and false OK alike). Two guards apply:
+ *   1. Settle window (--settle, default 120s): verdicts observed before the
+ *      settle deadline are recorded but never accepted; polling continues.
+ *   2. Fresh-verdict stability (--stability, default 60s): even at or after
+ *      the settle deadline, a verdict is accepted only once it has persisted
+ *      unchanged for the stability window, counted from the later of the
+ *      verdict's first sighting and the settle deadline. A stale verdict
+ *      that flips once the re-analysis lands is caught by the flip; a stale
+ *      verdict that merely outlives the settle deadline (observed 2026-11-16:
+ *      the re-analysis indexed ~154s after push vs a 120s settle, so the
+ *      first post-deadline poll still served the old FAILED verdict) is
+ *      caught by the stability window. Set --settle 0 --stability 0 to
+ *      disable both guards.
  *
  * Usage:
  *   SONAR_TOKEN=... node scripts/sonar-quality-gate.mjs \
  *     --organization dingjun1028 \
  *     --project DingJun1028_Omniesggo \
  *     [--pull-request 123 | --branch main] \
- *     [--timeout 600] [--interval 20] [--settle 120] [--verbose]
+ *     [--timeout 600] [--interval 20] [--settle 120] [--stability 60] [--verbose]
  *
  * Exit codes: 0 = gate PASSED, 1 = gate FAILED, 2 = timeout / API error.
  */
@@ -31,6 +40,7 @@
 const DEFAULT_TIMEOUT_SECONDS = 600;
 const DEFAULT_INTERVAL_SECONDS = 20;
 const DEFAULT_SETTLE_SECONDS = 120;
+const DEFAULT_STABILITY_SECONDS = 60;
 const MAX_ISSUES = 50;
 
 function parseArgs(argv) {
@@ -42,6 +52,7 @@ function parseArgs(argv) {
     timeout: DEFAULT_TIMEOUT_SECONDS,
     interval: DEFAULT_INTERVAL_SECONDS,
     settle: DEFAULT_SETTLE_SECONDS,
+    stability: DEFAULT_STABILITY_SECONDS,
     verbose: false,
   };
   for (let i = 0; i < argv.length; i++) {
@@ -58,6 +69,7 @@ function parseArgs(argv) {
       case "--timeout": args.timeout = Number(next()); break;
       case "--interval": args.interval = Number(next()); break;
       case "--settle": args.settle = Number(next()); break;
+      case "--stability": args.stability = Number(next()); break;
       case "--verbose": args.verbose = true; break;
       case "--help": case "-h":
         console.log("See header comment for usage."); process.exit(0); break;
@@ -70,8 +82,9 @@ function parseArgs(argv) {
   }
   if (args.interval < 5) fail("--interval must be >= 5 seconds");
   if (!Number.isFinite(args.settle) || args.settle < 0) fail("--settle must be >= 0 seconds");
-  if (args.timeout < args.interval + args.settle) {
-    fail("--timeout must be >= --interval + --settle (settle window must fit inside the poll budget)");
+  if (!Number.isFinite(args.stability) || args.stability < 0) fail("--stability must be >= 0 seconds");
+  if (args.timeout < args.interval + args.settle + args.stability) {
+    fail("--timeout must be >= --interval + --settle + --stability (both stale-verdict guards must fit inside the poll budget)");
   }
   return args;
 }
@@ -166,17 +179,43 @@ async function pollGate(args, token) {
   const settleDeadline = startedAt + args.settle * 1000;
   const overallDeadline = startedAt + args.timeout * 1000;
   let lastStatus = null;
+  let verdict = null;      // currently observed verdict value
+  let verdictSince = null; // when this verdict value was first observed
   while (Date.now() < overallDeadline) {
     const t0 = Date.now();
     const projectStatus = await pollOnce(args, token);
     if (projectStatus) {
       lastStatus = projectStatus;
-      const settled = Date.now() >= settleDeadline;
-      const verdictKnown = projectStatus.status !== "UNKNOWN";
-      if (verdictKnown && settled) break;
-      if (verdictKnown && !settled && args.verbose) {
-        const waitMs = Math.max(0, settleDeadline - Date.now());
-        console.log(`  ...verdict ${projectStatus.status} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
+      const value = projectStatus.status;
+      if (value !== verdict) {
+        if (verdict !== null) {
+          console.log(`  ...verdict flipped ${verdict} -> ${value}; fresh analysis observed, waiting for it to hold steady (stale-verdict guard).`);
+        }
+        verdict = value;
+        verdictSince = Date.now();
+      }
+      const now = Date.now();
+      const settled = now >= settleDeadline;
+      // Accept a verdict only once it has persisted unchanged for
+      // --stability seconds, counted from the later of its first sighting
+      // and the settle deadline:
+      //  - counting from the settle deadline rejects a stale verdict that was
+      //    already visible when polling started, no matter how "stable" it
+      //    looks inside the settle window;
+      //  - counting stability from a post-settle flip accepts a fresh verdict
+      //    (e.g. stale ERROR flipping to OK once the re-analysis is indexed)
+      //    as soon as it has held steady for the stability window.
+      const effectiveSince = Math.max(verdictSince, settleDeadline);
+      const stableFor = now - effectiveSince;
+      const verdictKnown = value !== "UNKNOWN";
+      if (verdictKnown && settled && stableFor >= args.stability * 1000) break;
+      if (args.verbose) {
+        if (!settled) {
+          const waitMs = Math.max(0, settleDeadline - now);
+          console.log(`  ...verdict ${value} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
+        } else {
+          console.log(`  ...verdict ${value} stable for ${Math.floor(stableFor / 1000)}s / ${args.stability}s (fresh-verdict stability guard).`);
+        }
       }
     }
     const elapsed = Date.now() - t0;
@@ -214,10 +253,10 @@ async function main() {
   if (!auth?.valid) fail("SONAR_TOKEN was rejected by SonarCloud (authentication/validate).");
 
   const where = args.pullRequest != null ? `PR #${args.pullRequest}` : `branch "${args.branch}"`;
-  console.log(`SonarCloud quality gate: ${args.project} @ ${where} — polling up to ${args.timeout}s (settle ${args.settle}s).`);
+  console.log(`SonarCloud quality gate: ${args.project} @ ${where} — polling up to ${args.timeout}s (settle ${args.settle}s, stability ${args.stability}s).`);
 
   // 2. Poll the gate until the Automatic Analysis has finished computing it,
-  //    trusting only verdicts observed after the stale-verdict settle window.
+  //    trusting only verdicts that survived both stale-verdict guards.
   const lastStatus = await pollGate(args, token);
   if (!lastStatus || lastStatus.status === "UNKNOWN") {
     fail(`quality gate not computed within ${args.timeout}s for ${where}.`);
