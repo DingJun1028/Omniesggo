@@ -202,8 +202,15 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Deploy via SSH
+        id: ssh-deploy
         uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
         timeout-minutes: 90
+        # Deliberately non-fatal: while the VPS outage (issue #274) cannot be fixed
+        # repo-side, a hard failure here would only feed OA-TWINS auto-repair churn.
+        # The swallow is now OBSERVABLE: the outcome-report step below emits a
+        # warning annotation + job summary, so a green check never masquerades as a
+        # completed deployment. Evidence: run 43773859505 (2026-11-15) printed
+        # "Deployment successful" while port 22 was unreachable (issue #274 run #212).
         continue-on-error: true
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -248,13 +255,24 @@ jobs:
             # Cleanup old images
             docker image prune -f
 
-      - name: Notify deployment
-        if: success()
-        run: echo "✅ Deployment successful to ${{ secrets.VPS_HOST }}"
+      - name: Report deploy outcome
+        if: always()
+        run: |
+          OUTCOME="${{ steps.ssh-deploy.outcome }}"
+          if [ "$OUTCOME" = "success" ]; then
+            echo "✅ Deployment successful to ${{ secrets.VPS_HOST }}"
+          else
+            echo "::warning::Deploy via SSH outcome=$OUTCOME — the deployment did NOT complete (VPS SSH unreachable, see issue #274). This job stays green by design during VPS outages: pipeline green does NOT mean the VPS was updated."
+            {
+              echo "## Deploy outcome"
+              echo "- Deploy via SSH outcome: \"$OUTCOME\""
+              echo "- A non-success outcome means the VPS was NOT updated by this run (see issue #274)."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Notify failure
         id: slack-check
-        if: failure()
+        if: ${{ failure() || steps.ssh-deploy.outcome == 'failure' }}
         run: |
           if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
             echo "has_webhook=true" >> $GITHUB_OUTPUT
