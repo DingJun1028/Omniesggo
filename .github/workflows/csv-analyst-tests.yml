@@ -29,7 +29,7 @@ jobs:
         with:
           version: '0.13.5'
           enable-cache: false
-      - name: Install locked dependencies
-        run: uv sync --locked
+      - name: Install locked dependencies without builds
+        run: uv sync --locked --no-build --no-install-project
       - name: Run offline tool tests
-        run: uv run python test_tools.py
+        run: ./.venv/bin/python test_tools.py
