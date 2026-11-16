@@ -18,7 +18,7 @@ export interface ITraceEvent {
   op: string;
   ts: string;
   payload: Record<string, unknown>;
-  hash_lock: string;
+  hash_lock: string | undefined;
   frozen: boolean;
 }
 
@@ -45,7 +45,7 @@ export class EntropyForge {
     return normalized;
   }
 
-  /** 向下相容：沿用原有 lock 語意，並補上 trace_id / source_origin（Trackable） */
+  /** 向下相容：沿用原有 lock 語意（只將 hash_lock ＋ trace_id 套到原物件），不修改序列化內容 */
   static applyHashLock<T>(obj: T, source_origin = 'omni-core'): T {
     if (typeof obj === 'object' && obj !== null) {
       const hash = crypto
@@ -54,19 +54,27 @@ export class EntropyForge {
         .digest('hex');
       Object.assign(obj, {
         hash_lock: hash,
-        source_origin,
         trace_id: this.nextTraceId(),
       });
-      this.recordTrace({
-        trace_id: (obj as Record<string, unknown>).trace_id as string,
-        source_origin,
-        op: 'hash_lock',
-        ts: new Date().toISOString(),
-        payload: { keys: Object.keys(obj) },
-        hash_lock: hash,
-        frozen: true,
-      } as ITraceEvent);
     }
+    const event: ITraceEvent = {
+      trace_id: this.nextTraceId(),
+      source_origin,
+      op: 'hash_lock',
+      ts: new Date().toISOString(),
+      payload: (() => {
+        const out: Record<string, unknown> = {};
+        if (typeof obj === 'object' && obj !== null) {
+          for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+            if (k !== 'hash_lock' && k !== 'trace_id') out[k] = v;
+          }
+        }
+        return out;
+      })(),
+      hash_lock: (obj as Record<string, unknown>).hash_lock as string | undefined,
+      frozen: true,
+    };
+    this.recordTrace(event);
     return Object.freeze(obj) as T;
   }
 
@@ -126,12 +134,16 @@ export class EntropyForge {
     if (typeof stored !== 'string' || !/^[0-9a-f]{64}$/i.test(stored)) {
       return { ok: false, reason: 'bad hash_lock format' };
     }
+    // 排除 hash_lock 自身：只對有效載荷做重新雜湊，避免封鎖鍵自我指涉導致殘缺驗證
+    const payload = Object.fromEntries(
+      Object.entries(obj).filter(([k]) => k !== 'hash_lock')
+    );
     const recomputed = crypto
       .createHash('sha256')
-      .update(JSON.stringify(obj))
+      .update(JSON.stringify(payload))
       .digest('hex');
     const ok = recomputed.toLowerCase() === stored.toLowerCase();
-    return { ok, hash_lock: stored };
+    return { ok, hash_lock: stored, reason: ok ? undefined : 'hash mismatch' };
   }
 
   /** Tangible 反饋記錄（可被外部採集/可見化） */

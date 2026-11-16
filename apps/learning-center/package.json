@@ -1,0 +1,42 @@
+{
+  "name": "berkeley-esg-learning-center",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "check:types-sync": "node scripts/check-types-sync.js",
+    "verify:matrix": "node scripts/verify-matrix.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
+    "lucide-react": "^1.71.0",
+    "minimatch": "11.0.6",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitejs/plugin-react": "^6.3.0",
+    "autoprefixer": "^10.6.2",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "jsdom": "^31.0.0",
+    "postcss": "^8.5.32",
+    "tailwindcss": "^3.4.19",
+    "vite": "^8.3.7",
+    "vitest": "^5.0.5"
+  },
+  "packageManager": "pnpm@11.5.2",
+  "resolutions": {
+    "minimatch": "^11.0.1",
+    "postcss-selector-parser": "^7.1.6"
+  },
+  "overrides": {}
+}

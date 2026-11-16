@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "docs/omnicore/omnbiz-dist3",
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "types": ["node"],
+    "esModuleInterop": true,
+    "allowJs": false,
+    "strict": true
+  },
+  "files": [
+    "../../src/lib/sustain-write/biz-intelligence/types.ts",
+    "../../src/lib/sustain-write/biz-intelligence/engine.ts",
+    "../../src/lib/sustain-write/biz-intelligence/index.ts"
+  ]
+}

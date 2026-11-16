@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "outDir": "docs/omnicore/omnbrain-fix-out",
+    "target": "ES2017",
+    "lib": ["ES2017"],
+    "types": ["node"],
+    "strict": true,
+    "esModuleInterop": true,
+    "allowJs": false,
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "noEmit": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "files": [
+    "src/lib/omni-core/entropy-forge.ts",
+    "src/lib/omni-core/__tests__/entropy-forge.test.ts"
+  ]
+}

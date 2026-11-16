@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "docs/omnicore/omnbiz-dist",
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "types": ["node"]
+  },
+  "files": [
+    "C:/Project/esggo/src/lib/sustain-write/biz-intelligence/types.ts",
+    "C:/Project/esggo/src/lib/sustain-write/biz-intelligence/engine.ts",
+    "C:/Project/esggo/src/lib/sustain-write/biz-intelligence/index.ts"
+  ]
+}

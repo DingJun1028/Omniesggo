@@ -1,0 +1,21 @@
+const biz = require('./omnbiz-fix-out/index.js');
+const { hashLock, sealInsight } = require('./omnbiz-fix-out/engine.js');
+
+const Engine = biz.OmniBizEngine;
+const engine = new Engine();
+engine.addSignal({ id:'s1', category:'market', title:'海苔產銷波動', sourceName:'report-v1', confidence:0.88, relevance:['supply'], detectedAt:new Date().toISOString() });
+engine.addIndustryPoint({ sector:'food', tag:'t1', value:72, origin:'omni-biz' });
+engine.addIndustryPoint({ sector:'food', tag:'t1', value:68, origin:'omni-biz' });
+engine.addIndustryPoint({ sector:'food', tag:'t2', value:55, origin:'omni-biz' });
+const trend = engine.getTrendSeries('food', [1,2,3,5], '份');
+console.log('trendDirection:', biz.trendDirection([1,2,3,5]));
+console.log('trendDirection low:', biz.trendDirection([5,4,3]));
+console.log('gravityTwo:', biz.gravityTwo(1,2));
+console.log('benchmarkPercentile:', engine.benchmarkPercentile('food','t1',72));
+engine.dashboardSnapshot().then(d => console.log('dashboard:', JSON.stringify(d)));
+const locked = hashLock({ a:1, b:[1,2] });
+console.log('hashLock frozen:', Object.isFrozen(locked), '| hash:', locked._hash_lock);
+const ins = engine.deriveInsights();
+console.log('insights:', JSON.stringify(ins.map(i=>({kind:i.kind, dir:(i.payload&&i.payload.direction), tag:(i.payload&&i.payload.tag)}))));
+console.log('sealInsight hash:', sealInsight({category:'market', payload:{n:1}}).evidenceHash);
+console.log('SMOKE_OK');

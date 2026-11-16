@@ -1,0 +1,2 @@
+docs/omnicore/omnbiz-smoke.ts(1,22): error TS2307: Cannot find module './omnbiz-fix-out/index.js' or its corresponding type declarations.
+docs/omnicore/omnbiz-smoke.ts(2,39): error TS2307: Cannot find module './omnbiz-fix-out/engine.js' or its corresponding type declarations.

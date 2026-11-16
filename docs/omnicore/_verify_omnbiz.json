@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.json",
+  "files": [
+    "C:/Project/esggo/docs/omnicore/omni-22-module-implementation-map.md",
+    "C:/Project/esggo/src/lib/sustain-write/biz-intelligence/types.ts",
+    "C:/Project/esggo/src/lib/sustain-write/biz-intelligence/engine.ts",
+    "C:/Project/esggo/src/lib/sustain-write/biz-intelligence/index.ts",
+    "C:/Project/esggo/src/lib/sustain-write/index.ts"
+  ],
+  "noEmit": true
+}
