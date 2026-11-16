@@ -6,6 +6,7 @@ import {
   buildExportUrl,
   deleteDraft,
   deleteNote,
+  fetchEntropyStats,
   fetchTagsOverview,
   importArchive,
   promoteDraft,
@@ -33,6 +34,8 @@ export function NotesBoard({
   // 二十八期：標籤軸徽章（對接 GET /api/tags），點擊切換標籤過濾
   const [tagAxis, setTagAxis] = useState<OmniApiTagsOverview | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
+  // 三十一期：熵值總覽徽章（對接 GET /api/entropy/stats），僅顯示不過濾
+  const [entropy, setEntropy] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,6 +45,18 @@ export function NotesBoard({
       })
       .catch(() => {
         if (!cancelled) setTagAxis(null);
+      });
+    fetchEntropyStats()
+      .then((stats) => {
+        if (cancelled) return;
+        setEntropy(
+          stats.with_entropy === 0
+            ? null
+            : `熵值 ${stats.with_entropy}/${stats.total_notes} · 平均 ${stats.avg_entropy ?? "-"} · 最高 ${stats.max_entropy ?? "-"}`,
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setEntropy(null);
       });
     return () => {
       cancelled = true;
@@ -65,6 +80,14 @@ export function NotesBoard({
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">
         筆記結晶板{(norm.length > 0 || tagFilter !== null) && `（${visible.length}/${notes.length}）`}
       </h2>
+      {entropy !== null && (
+        <p
+          className="mt-1 text-[10px] text-slate-500"
+          title="全域熵值總覽（GET /api/entropy/stats）：entropy_score 僅於熵減自癒（purify）後存在，avg/max 僅統計具值節點"
+        >
+          {entropy}
+        </p>
+      )}
       {tagAxis !== null && tagAxis.tags.length > 0 && (
         <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <span className="text-[10px] text-slate-500" title="全域標籤彙整（GET /api/tags）：count 為含該標籤之節點數">

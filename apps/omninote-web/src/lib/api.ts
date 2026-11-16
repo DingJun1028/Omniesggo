@@ -205,6 +205,23 @@ export async function fetchTagsOverview(): Promise<OmniApiTagsOverview> {
   return request<OmniApiTagsOverview>("/api/tags");
 }
 
+/** 三十一期：全域熵值總覽回應（GET /api/entropy/stats）。 */
+export interface OmniApiEntropyStats {
+  ok: boolean;
+  total_notes: number;
+  with_entropy: number;
+  without_entropy: number;
+  avg_entropy: number | null;
+  max_entropy: number | null;
+  min_entropy: number | null;
+  highest: Array<{ uuid: string; entropy_score: number }>;
+}
+
+/** 全域熵值總覽（唯讀聚合）：entropy_score 僅於熵減自癒後存在；無具值節點時 avg/max/min 為 null（引擎端已如實標示）。 */
+export async function fetchEntropyStats(): Promise<OmniApiEntropyStats> {
+  return request<OmniApiEntropyStats>("/api/entropy/stats");
+}
+
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
   const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",
