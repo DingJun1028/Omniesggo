@@ -5,7 +5,7 @@ import type { OmniApiDraft, OmniApiHealth, OmniApiNode } from "@/lib/api";
 import { buildExportUrl, fetchDrafts, fetchHealth, fetchNotes } from "@/lib/api";
 import { CaptureBar, SketchBar } from "@/components/CaptureBar";
 import { HealthPanel } from "@/components/HealthPanel";
-import { DraftsPanel, NotesBoard, SearchPanel } from "@/components/Panels";
+import { ArchivePanel, DraftsPanel, NotesBoard, SearchPanel } from "@/components/Panels";
 import { NoteDetail } from "@/components/NoteDetail";
 import { FusionGraph } from "@/components/FusionGraph";
 import { CommandPalette, type PaletteAction } from "@/components/CommandPalette";
@@ -135,6 +135,7 @@ export default function HomePage() {
             }}
           />
           <DraftsPanel drafts={drafts} onChanged={() => void refresh()} />
+          <ArchivePanel onChanged={() => void refresh()} />
         </section>
       </div>
 
