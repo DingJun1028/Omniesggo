@@ -1,0 +1,35 @@
+name: csv-analyst-tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'agents/csv-analyst/**'
+      - '.github/workflows/csv-analyst-tests.yml'
+  pull_request:
+    paths:
+      - 'agents/csv-analyst/**'
+      - '.github/workflows/csv-analyst-tests.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: csv-analyst unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: agents/csv-analyst
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2
+        with:
+          version: '0.13.5'
+          enable-cache: false
+      - name: Install locked dependencies
+        run: uv sync --locked
+      - name: Run offline tool tests
+        run: uv run python test_tools.py
