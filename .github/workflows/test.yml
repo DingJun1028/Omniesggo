@@ -36,3 +36,5 @@ jobs:
         run: node scripts/ci-secrets.mjs
       - name: Run G18 junaikey secrets gate tests
         run: node tests/junaikey-secrets.test.mjs
+      - name: Run SonarCloud gate poller stale-verdict guard tests
+        run: node tests/sonar-gate-poller.test.mjs

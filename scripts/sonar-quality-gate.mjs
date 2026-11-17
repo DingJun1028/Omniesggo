@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * SonarCloud Quality Gate checker (Automatic Analysis companion).
  *
@@ -36,6 +37,8 @@
  *
  * Exit codes: 0 = gate PASSED, 1 = gate FAILED, 2 = timeout / API error.
  */
+
+import { pathToFileURL } from "node:url";
 
 const DEFAULT_TIMEOUT_SECONDS = 600;
 const DEFAULT_INTERVAL_SECONDS = 20;
@@ -174,7 +177,22 @@ async function pollOnce(args, token) {
   }
 }
 
-async function pollGate(args, token) {
+function logVerdictFlip(previous, current) {
+  if (previous === null) return;
+  console.log(`  ...verdict flipped ${previous} -> ${current}; fresh analysis observed, waiting for it to hold steady (stale-verdict guard).`);
+}
+
+function logVerdictProgress(args, value, settled, stableFor, settleDeadline, now) {
+  if (!args.verbose) return;
+  if (!settled) {
+    const waitMs = Math.max(0, settleDeadline - now);
+    console.log(`  ...verdict ${value} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
+  } else {
+    console.log(`  ...verdict ${value} stable for ${Math.floor(stableFor / 1000)}s / ${args.stability}s (fresh-verdict stability guard).`);
+  }
+}
+
+export async function pollGate(args, token, pollOnceImpl = pollOnce) {
   const startedAt = Date.now();
   const settleDeadline = startedAt + args.settle * 1000;
   const overallDeadline = startedAt + args.timeout * 1000;
@@ -183,14 +201,12 @@ async function pollGate(args, token) {
   let verdictSince = null; // when this verdict value was first observed
   while (Date.now() < overallDeadline) {
     const t0 = Date.now();
-    const projectStatus = await pollOnce(args, token);
+    const projectStatus = await pollOnceImpl(args, token);
     if (projectStatus) {
       lastStatus = projectStatus;
       const value = projectStatus.status;
       if (value !== verdict) {
-        if (verdict !== null) {
-          console.log(`  ...verdict flipped ${verdict} -> ${value}; fresh analysis observed, waiting for it to hold steady (stale-verdict guard).`);
-        }
+        logVerdictFlip(verdict, value);
         verdict = value;
         verdictSince = Date.now();
       }
@@ -209,14 +225,7 @@ async function pollGate(args, token) {
       const stableFor = now - effectiveSince;
       const verdictKnown = value !== "UNKNOWN";
       if (verdictKnown && settled && stableFor >= args.stability * 1000) break;
-      if (args.verbose) {
-        if (!settled) {
-          const waitMs = Math.max(0, settleDeadline - now);
-          console.log(`  ...verdict ${value} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
-        } else {
-          console.log(`  ...verdict ${value} stable for ${Math.floor(stableFor / 1000)}s / ${args.stability}s (fresh-verdict stability guard).`);
-        }
-      }
+      logVerdictProgress(args, value, settled, stableFor, settleDeadline, now);
     }
     const elapsed = Date.now() - t0;
     await new Promise((r) => setTimeout(r, Math.max(0, args.interval * 1000 - elapsed)));
@@ -278,4 +287,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((err) => fail(err?.message ?? String(err)));
+// Run only when executed directly; tests import pollGate without triggering a poll.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  main().catch((err) => fail(err?.message ?? String(err)));
+}
