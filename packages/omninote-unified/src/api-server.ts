@@ -88,6 +88,7 @@ export class OmniNoteLocalApiServer {
     "GET /api/export": (self, _req, res) => self.respondExport(res),
     "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
     "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
+    "POST /api/notes/tags": (self, req, res) => self.handleBatchTags(req, res),
     "POST /api/import": (self, req, res) => self.handleImport(req, res),
   };
   readonly storage: OmniStorageAdapter;
@@ -330,6 +331,45 @@ export class OmniNoteLocalApiServer {
       min_entropy: scored.length > 0 ? Math.min(...scored.map((e) => e.entropy)) : null,
       highest,
     });
+  }
+
+  /**
+   * 批次標籤操作（三十二期）：POST /api/notes/tags，body { uuids, add?, remove? }。
+   * add 為欲附加之標籤清單（保留既有順序後依序去重附加），remove 為欲移除之標籤清單；
+   * 至少須提供一個非空 add 或 remove；uuids 內不存在之節點如實回報於 missing，不中斷其餘節點；
+   * topology.tags 不參與 nodeLockPayload，lock_hash 不變（雜湊中立，如實標示）。
+   */
+  private async handleBatchTags(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const uuids = Array.isArray(body.uuids) && body.uuids.every((u) => typeof u === "string") ? (body.uuids as string[]) : null;
+    const add = Array.isArray(body.add) && body.add.every((t) => typeof t === "string") ? (body.add as string[]) : null;
+    const remove = Array.isArray(body.remove) && body.remove.every((t) => typeof t === "string") ? (body.remove as string[]) : null;
+    if (uuids === null || uuids.length === 0 || (add === null && remove === null) || (add?.length ?? 0) + (remove?.length ?? 0) === 0) {
+      return sendJson(res, 422, { ok: false, error: "INVALID_BATCH_TAGS" });
+    }
+    const updated: Array<{ uuid: string; tags: string[] }> = [];
+    const missing: string[] = [];
+    let unchanged = 0;
+    for (const uuid of uuids) {
+      const existing = await this.storage.read(uuid);
+      if (existing === null) {
+        missing.push(uuid);
+        continue;
+      }
+      let tags = [...existing.topology.tags];
+      if (remove !== null) tags = tags.filter((t) => !remove.includes(t));
+      if (add !== null) for (const t of add) if (!tags.includes(t)) tags.push(t);
+      if (tags.length === existing.topology.tags.length && tags.every((t, i) => existing.topology.tags[i] === t)) {
+        unchanged += 1;
+        continue;
+      }
+      const next: UnifiedNode = { ...existing, topology: { ...existing.topology, tags } };
+      await this.storage.write(next);
+      if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, next);
+      updated.push({ uuid, tags });
+    }
+    return sendJson(res, 200, { ok: true, updated, missing, unchanged, total: uuids.length });
   }
 
   private async handleNoteCreate(req: IncomingMessage, res: ServerResponse): Promise<void> {

@@ -784,3 +784,76 @@ test("API-20 全域熵值總覽道閘：空庫與未淨化節點回 null 聚合"
     assert.deepEqual(body.highest, []);
   });
 });
+
+test("API-21 批次標籤操作：附加去重、移除、unchanged 計數與 missing 如實回報", async () => {
+  await withServer(async ({ port }) => {
+    const post = (text: string, tags: string[]) =>
+      fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, tags }),
+      });
+    const a = ((await (await post("批次甲", ["alpha"])).json()) as { node: UnifiedNode }).node;
+    const b = ((await (await post("批次乙", ["beta"])).json()) as { node: UnifiedNode }).node;
+    const res = await fetch(base(port) + "/api/notes/tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uuids: [a.uuid, b.uuid, "9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"],
+        add: ["esg", "alpha"],
+        remove: ["beta"],
+      }),
+    });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      updated: Array<{ uuid: string; tags: string[] }>;
+      missing: string[];
+      unchanged: number;
+      total: number;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, 3);
+    assert.equal(body.updated.length, 2);
+    assert.deepEqual(body.missing, ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"]);
+    assert.equal(body.unchanged, 0);
+    const updA = body.updated.find((u) => u.uuid === a.uuid);
+    const updB = body.updated.find((u) => u.uuid === b.uuid);
+    assert.ok(updA && updA.tags.includes("alpha") && updA.tags.includes("esg"), "alpha 應去重保留且附加 esg");
+    assert.ok(updB && !updB.tags.includes("beta") && updB.tags.includes("esg"), "beta 應移除且附加 esg");
+    // 後續讀回驗證落地
+    const reread = (await (await fetch(`${base(port)}/api/notes/${b.uuid}`)).json()) as { node: UnifiedNode };
+    assert.ok(!reread.node.topology.tags.includes("beta"));
+    // 冪等重跑：無 add/remove 變化之節點計入 unchanged
+    const again = await fetch(base(port) + "/api/notes/tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [a.uuid], add: ["esg"] }),
+    });
+    const againBody = (await again.json()) as { updated: unknown[]; unchanged: number };
+    assert.equal(againBody.updated.length, 0, "同標籤重附加應無變更");
+    assert.equal(againBody.unchanged, 1);
+  });
+});
+
+test("API-22 批次標籤操作道閘：空 uuids、無 add/remove、非字串成員皆 422", async () => {
+  await withServer(async ({ port }) => {
+    const cases: unknown[] = [
+      { uuids: [], add: ["x"] },
+      { uuids: ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"] },
+      { uuids: ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"], add: [], remove: [] },
+      { uuids: "not-array", add: ["x"] },
+      { uuids: ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"], add: [1] },
+    ];
+    for (const body of cases) {
+      const res = await fetch(base(port) + "/api/notes/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      assert.equal(res.status, 422, `應 422：${JSON.stringify(body)}`);
+      const j = (await res.json()) as { ok: boolean; error: string };
+      assert.equal(j.error, "INVALID_BATCH_TAGS");
+    }
+  });
+});
