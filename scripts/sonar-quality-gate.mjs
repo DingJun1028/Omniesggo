@@ -177,6 +177,21 @@ async function pollOnce(args, token) {
   }
 }
 
+function logVerdictFlip(previous, current) {
+  if (previous === null) return;
+  console.log(`  ...verdict flipped ${previous} -> ${current}; fresh analysis observed, waiting for it to hold steady (stale-verdict guard).`);
+}
+
+function logVerdictProgress(args, value, settled, stableFor, settleDeadline, now) {
+  if (!args.verbose) return;
+  if (!settled) {
+    const waitMs = Math.max(0, settleDeadline - now);
+    console.log(`  ...verdict ${value} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
+  } else {
+    console.log(`  ...verdict ${value} stable for ${Math.floor(stableFor / 1000)}s / ${args.stability}s (fresh-verdict stability guard).`);
+  }
+}
+
 export async function pollGate(args, token, pollOnceImpl = pollOnce) {
   const startedAt = Date.now();
   const settleDeadline = startedAt + args.settle * 1000;
@@ -191,9 +206,7 @@ export async function pollGate(args, token, pollOnceImpl = pollOnce) {
       lastStatus = projectStatus;
       const value = projectStatus.status;
       if (value !== verdict) {
-        if (verdict !== null) {
-          console.log(`  ...verdict flipped ${verdict} -> ${value}; fresh analysis observed, waiting for it to hold steady (stale-verdict guard).`);
-        }
+        logVerdictFlip(verdict, value);
         verdict = value;
         verdictSince = Date.now();
       }
@@ -212,14 +225,7 @@ export async function pollGate(args, token, pollOnceImpl = pollOnce) {
       const stableFor = now - effectiveSince;
       const verdictKnown = value !== "UNKNOWN";
       if (verdictKnown && settled && stableFor >= args.stability * 1000) break;
-      if (args.verbose) {
-        if (!settled) {
-          const waitMs = Math.max(0, settleDeadline - now);
-          console.log(`  ...verdict ${value} seen inside the settle window; ${Math.ceil(waitMs / 1000)}s left before it can be trusted (stale-verdict guard).`);
-        } else {
-          console.log(`  ...verdict ${value} stable for ${Math.floor(stableFor / 1000)}s / ${args.stability}s (fresh-verdict stability guard).`);
-        }
-      }
+      logVerdictProgress(args, value, settled, stableFor, settleDeadline, now);
     }
     const elapsed = Date.now() - t0;
     await new Promise((r) => setTimeout(r, Math.max(0, args.interval * 1000 - elapsed)));
