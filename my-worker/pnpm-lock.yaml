@@ -13,8 +13,8 @@ importers:
   .:
     dependencies:
       '@notionhq/workers':
-        specifier: ^0.9.6
-        version: 0.9.6(@notionhq/client@5.24.0)
+        specifier: ^0.9.8
+        version: 0.9.8(@notionhq/client@5.24.0)
     devDependencies:
       '@types/node':
         specifier: ^26.6.6
@@ -410,8 +410,8 @@ packages:
     resolution: {integrity: sha512-fd71hjK6QZYggwWdaBeLu4ajBQ4HTK0R6bj7v9GMFhilgsdMRJ5HDHQtKbc8/y6E5XXLYgNpDz78Q+BdXHa1ug==}
     engines: {node: '>=18'}
 
-  '@notionhq/workers@0.9.6':
-    resolution: {integrity: sha512-YE+NbNueRM6I5Xa2hxUqh5NxTWwIL05QC077gg7Z3W/SYazCo6m3SAjR5nP5tz7+MOFi58MuYn0Cn683+k48Cw==}
+  '@notionhq/workers@0.9.8':
+    resolution: {integrity: sha512-fqukyRD/EW0zCpqqO+TZIYrVCPamNYExgBuPlk46EP39/2XHE9siBqk52/uVHDSJ26lIRAz7RxDAmB63iwcPNg==}
     engines: {node: '>=22.0.0', npm: '>=10.9.2'}
     hasBin: true
     peerDependencies:
@@ -1028,7 +1028,7 @@ snapshots:
 
   '@notionhq/client@5.24.0': {}
 
-  '@notionhq/workers@0.9.6(@notionhq/client@5.24.0)':
+  '@notionhq/workers@0.9.8(@notionhq/client@5.24.0)':
     dependencies:
       '@notionhq/client': 5.24.0
       ajv: 8.20.0
