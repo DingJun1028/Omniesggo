@@ -1,6 +1,6 @@
 # 萬能聖典 OmniBook
 
-> **版本**：v1.2.0（內容增修版）｜**發布**：2026-11-16｜**定位**：Omniesggo 總綱性聖典
+> **版本**：v1.3.0（內容增修版）｜**發布**：2026-11-18｜**定位**：Omniesggo 總綱性聖典
 >
 > 2026-11-08 使用者定義本聖典之三重角色：專案正典文件、跨對話代理手冊、知識庫總綱；並裁決採「最佳實踐版本」之版本管理。
 
@@ -49,6 +49,20 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 4. 派遣運維：AutoSwarm 多代理協調、vibe-ci-monitor（自架 worker 部署中）。
 
 ---
+
+### 5. RWD UI/UX 介面設計標準（2026-11-18 入典）
+
+權威 SSOT 為 `ARCHITECTURE.md` §四「UI/UX/RWD 執行標準」與其附錄驗收清單；本節為聖典層摘要與定性，代理開發前端頁面/改版時必須遵守：
+
+- **標竿**：ftg-tours-website 為全倉庫唯一「產品級」RWD 前端（595 個 RWD 前綴、viewport-clamp hero、WCAG 對比度實測工程 2.57:1→5.24:1、webp＋fetchPriority、mobile-first CTA），新站點與改版一律以其為基準。
+- **三視口硬標準**：375（手機）／768（平板）／1280（桌機）零水平捲動、零重疊、CTA 可點區 ≥44px。
+- **可及性**：正文對比度 ≥4.5:1、大字 ≥3:1（FTG 之量測→加層→複測→程式碼註記工程法照抄）。
+- **效能**：LCP <2.5s（webp/avif＋fetchPriority＋loading=lazy）、CLS <0.1（viewport-clamp 高度而非固定 px）。
+- **行動優先**：`flex-col sm:flex-row` 佈局慣例、touch 目標間距、mobile nav 必須有明確返回路徑。
+- **表單規範**：label 上置、helper 下置、44px 輸入、錯誤即時且不清除已填值、送出中 disabled＋spinner、成功態明確；對外表單一律接共用 lead-api（honeypot＋server 端 reCAPTCHA siteverify）。
+- **設計系統收斂**：`packages/ui` 升級為單一設計系統，Phase 1 抽 FTG tokens 為 `@esggo/tailwind-preset`（三站 extend，僅統一色彩/字體/間距）；DESIGN.md 必須對齊實作 token（editorial.* CSS 變數為 SSOT），列為 PR 審查項。
+- **RWD 內容對等**：以 `apps/ftg-tours-website/scripts/rwd-parity.py`（渲染後桌面 vs 手機內容對等量測，非靜態掃描）驗證「手機如同桌面有的每個項目」。
+- **E2E 防護網**：Playwright 增設 desktop/mobile/tablet 三 projects；每站最低覆蓋：首頁載入、主 CTA 可見可點、contact 表單全欄位送出 mock、375 寬零水平捲動斷言（scrollWidth ≤ clientWidth）、i18n 切換字典更換斷言（FTG）。
 
 ## 第二重角色：跨對話代理手冊
 
@@ -123,3 +137,4 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 | v1.0.0 | 2026-11-10 | 創始版：確立三重角色、版本迭代機制（最佳實踐版本）、技術棧政策正典、架構地圖、代理手冊、知識庫總綱。 |
 | v1.1.0 | 2026-11-12 | 內容增修：OESG 五站路線圖全線通車（DAO 落地，PR #216）；CI 環境 pnpm 演進更正為 12.16.1（packageManager 為權威）；RAG mock 佇列錯位假紅修復入向量層條目（PR #219）；外部阻塞快照更新（VPS 定案診斷、OCI 指紋 MISMATCH、main 0f42bd94 全綠結案）。 |
 | v1.2.0 | 2026-11-16 | 內容增修：OmniNote Web 三期功能入架構地圖（FusionGraph 標籤過濾、封存面板匯出匯入、全域熵值總覽與熵值徽章，PR #288/#290/#291）；新增 csv-analyst 代理條目（PR #223，測試納 CI PR #292）；Sonar 品質閘 poller --stability 競態修復（PR #293）與 deploy.yml 假綠修復（PR #289）入品質治理與標準修法。 |
+| v1.3.0 | 2026-11-18 | 內容增修：新增「RWD UI/UX 介面設計標準」正典章節（第一重角色 §5）——以 ftg-tours-website 為標竿，確立三視口硬標準、WCAG 對比度、LCP/CLS 效能門檻、行動優先與表單規範、@esggo/tailwind-preset 設計系統收斂、rwd-parity.py 內容對等量測與 Playwright 三視口 E2E 防護網；SSOT 指向 ARCHITECTURE.md §四。 |
