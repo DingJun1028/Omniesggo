@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 /**
  * SonarCloud Quality Gate checker (Automatic Analysis companion).
  *
@@ -36,6 +37,8 @@
  *
  * Exit codes: 0 = gate PASSED, 1 = gate FAILED, 2 = timeout / API error.
  */
+
+import { pathToFileURL } from "node:url";
 
 const DEFAULT_TIMEOUT_SECONDS = 600;
 const DEFAULT_INTERVAL_SECONDS = 20;
@@ -134,7 +137,7 @@ async function fetchIssues(args, token, qualities) {
       ...(args.pullRequest != null ? { pullRequest: args.pullRequest } : { branch: args.branch }),
       impactSoftwareQualities: q,
       ps: MAX_ISSUES,
-      s: "FILE_LINE", // SonarCloud issues/search 允許之排序值（ISSUE_KEY 非法，回 400）
+      s: "FILE_LINE", // SonarCloud issues/search 允许之排序值（ISSUE_KEY 非法，回 400）
     }, token);
     for (const it of data?.issues ?? []) {
       issues.push({
@@ -174,7 +177,7 @@ async function pollOnce(args, token) {
   }
 }
 
-async function pollGate(args, token) {
+export async function pollGate(args, token, pollOnceImpl = pollOnce) {
   const startedAt = Date.now();
   const settleDeadline = startedAt + args.settle * 1000;
   const overallDeadline = startedAt + args.timeout * 1000;
@@ -183,7 +186,7 @@ async function pollGate(args, token) {
   let verdictSince = null; // when this verdict value was first observed
   while (Date.now() < overallDeadline) {
     const t0 = Date.now();
-    const projectStatus = await pollOnce(args, token);
+    const projectStatus = await pollOnceImpl(args, token);
     if (projectStatus) {
       lastStatus = projectStatus;
       const value = projectStatus.status;
@@ -278,4 +281,7 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((err) => fail(err?.message ?? String(err)));
+// Run only when executed directly; tests import pollGate without triggering a poll.
+if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
+  main().catch((err) => fail(err?.message ?? String(err)));
+}
