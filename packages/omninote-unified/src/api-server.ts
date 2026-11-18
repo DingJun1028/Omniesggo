@@ -87,6 +87,7 @@ export class OmniNoteLocalApiServer {
     "GET /api/drafts": (self, _req, res) => self.respondDraftsList(res),
     "GET /api/export": (self, _req, res) => self.respondExport(res),
     "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
+    "GET /api/graph": (self, _req, res) => self.respondGraphProjection(res),
     "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
     "POST /api/notes/tags": (self, req, res) => self.handleBatchTags(req, res),
     "POST /api/import": (self, req, res) => self.handleImport(req, res),
@@ -339,6 +340,59 @@ export class OmniNoteLocalApiServer {
    * 至少須提供一個非空 add 或 remove；uuids 內不存在之節點如實回報於 missing，不中斷其餘節點；
    * topology.tags 不參與 nodeLockPayload，lock_hash 不變（雜湊中立，如實標示）。
    */
+  /**
+   * 三十四期：伺服器端圖譜投影（唯讀聚合，雙鏈熔合圖譜之單一請求供給端）。
+   * GET /api/graph → { total_nodes, total_edges, unresolved_edges, nodes, edges }
+   * nodes 依 uuid 升冪穩定排序（無隨機源、同一輸入恆得同一結果）；alias 取各節點第一個
+   * 非墓碑 paragraph/heading 區塊之完整內容 trim（與 buildAliasIndex 同規），無則 null（如實標示）。
+   * edges 為拓撲權威 outlinks 之全量投影（依 nodes 順序、outlinks 既有順序輸出）；
+   * resolved 依「現存宇宙即時成員判定」重標註（節點事後刪除則降為未解析），
+   * 與儲存值可能相異屬如實投影（落地重標註屬 POST /api/notes/:uuid/purify 範疇）；
+   * 未解析邊之目標節點不在 nodes 清單（懸浮鏈結由消費端自行呈現）。
+   */
+  private async respondGraphProjection(res: ServerResponse): Promise<void> {
+    const uuids = await this.storage.listUuids();
+    const nodes = (
+      await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
+    ).filter((n): n is UnifiedNode => n !== null);
+    const universe = new Set(nodes.map((n) => n.uuid));
+    const graphNodes = nodes
+      .map((node) => {
+        const first = node.blocks.find((b) => !b.deleted && (b.type === "paragraph" || b.type === "heading"));
+        const alias = first?.content.trim();
+        return {
+          uuid: node.uuid,
+          matrix_phase: node.matrix_phase,
+          alias: alias !== undefined && alias.length > 0 ? alias : null,
+          tags: node.topology.tags,
+        };
+      })
+      .sort((a, b) => (a.uuid < b.uuid ? -1 : a.uuid > b.uuid ? 1 : 0));
+    const byUuid = new Map(nodes.map((n) => [n.uuid, n]));
+    const edges: Array<{ source: string; target: string; wikilink_alias: string; resolved: boolean }> = [];
+    for (const node of graphNodes) {
+      const source = byUuid.get(node.uuid);
+      if (source === undefined) continue;
+      for (const out of source.topology.outlinks) {
+        edges.push({
+          source: source.uuid,
+          target: out.target_uuid,
+          wikilink_alias: out.wikilink_alias,
+          resolved: universe.has(out.target_uuid),
+        });
+      }
+    }
+    const unresolvedEdges = edges.filter((e) => !e.resolved).length;
+    return sendJson(res, 200, {
+      ok: true,
+      total_nodes: graphNodes.length,
+      total_edges: edges.length,
+      unresolved_edges: unresolvedEdges,
+      nodes: graphNodes,
+      edges,
+    });
+  }
+
   private async handleBatchTags(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
     if (body === null) return;

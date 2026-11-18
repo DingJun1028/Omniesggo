@@ -857,3 +857,70 @@ test("API-22 批次標籤操作道閘：空 uuids、無 add/remove、非字串�
     }
   });
 });
+
+test("API-23 伺服器端圖譜投影：節點排序與別名、拓撲權威邊、刪除後未解析重標註", async () => {
+  await withServer(async ({ port }) => {
+    const empty = await fetch(base(port) + "/api/graph");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as {
+      ok: boolean; total_nodes: number; total_edges: number; unresolved_edges: number; nodes: unknown[]; edges: unknown[];
+    };
+    assert.equal(emptyBody.ok, true);
+    assert.equal(emptyBody.total_nodes, 0);
+    assert.equal(emptyBody.total_edges, 0);
+    assert.equal(emptyBody.unresolved_edges, 0);
+    assert.deepEqual(emptyBody.nodes, []);
+    assert.deepEqual(emptyBody.edges, []);
+
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const targetUuid = await post("圖譜目標節點");
+    const sourceUuid = await post("連結 [[圖譜目標節點]]");
+
+    const res = await fetch(base(port) + "/api/graph");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      total_nodes: number;
+      total_edges: number;
+      unresolved_edges: number;
+      nodes: Array<{ uuid: string; matrix_phase: string; alias: string | null; tags: string[] }>;
+      edges: Array<{ source: string; target: string; wikilink_alias: string; resolved: boolean }>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total_nodes, 2);
+    // 節點依 uuid 升冪穩定排序，別名取第一個非墓碑文字區塊
+    const sorted = [...body.nodes.map((n) => n.uuid)].sort();
+    assert.deepEqual(body.nodes.map((n) => n.uuid), sorted, "nodes 應依 uuid 升冪穩定排序");
+    const sourceNode = body.nodes.find((n) => n.uuid === sourceUuid);
+    assert.ok(sourceNode !== undefined);
+    assert.equal(sourceNode.alias, "連結 [[圖譜目標節點]]");
+    assert.equal(sourceNode.matrix_phase, "ALPHA_ORIGIN_CAPTURE");
+    // 拓撲權威邊：source 節點之 outlink 解析為 target uuid
+    assert.equal(body.total_edges, 1);
+    assert.equal(body.unresolved_edges, 0);
+    assert.deepEqual(body.edges, [
+      { source: sourceUuid, target: targetUuid, wikilink_alias: "圖譜目標節點", resolved: true },
+    ]);
+
+    // 目標節點刪除後：現存宇宙即時成員判定，邊降為未解析（resolved 與儲存值相異屬如實投影）
+    const del = await fetch(base(port) + "/api/notes/" + targetUuid, { method: "DELETE" });
+    assert.equal(del.status, 200);
+    const after = await fetch(base(port) + "/api/graph");
+    const afterBody = (await after.json()) as {
+      total_nodes: number; total_edges: number; unresolved_edges: number;
+      edges: Array<{ source: string; target: string; resolved: boolean }>;
+    };
+    assert.equal(afterBody.total_nodes, 1);
+    assert.equal(afterBody.total_edges, 1);
+    assert.equal(afterBody.unresolved_edges, 1);
+    assert.equal(afterBody.edges[0]?.resolved, false, "刪除後邊應即時重標註為未解析");
+  });
+});
