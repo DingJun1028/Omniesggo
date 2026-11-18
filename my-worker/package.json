@@ -10,7 +10,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@notionhq/workers": "^0.9.6"
+    "@notionhq/workers": "^0.9.8"
   },
   "devDependencies": {
     "@types/node": "^26.6.6",
