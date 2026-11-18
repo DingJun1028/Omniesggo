@@ -222,6 +222,7 @@ export interface OmniApiGraphEdge {
 
 export interface OmniApiGraph {
   ok: boolean;
+  filter_tag: string | null;
   total_nodes: number;
   total_edges: number;
   unresolved_edges: number;
@@ -229,8 +230,11 @@ export interface OmniApiGraph {
   edges: OmniApiGraphEdge[];
 }
 
-export async function fetchGraph(): Promise<OmniApiGraph> {
-  return request<OmniApiGraph>("/api/graph");
+/** 三十七期：tag 為可選精確匹配之標籤子圖（GET /api/graph?tag=，三十六期擴充）。 */
+export async function fetchGraph(tag?: string): Promise<OmniApiGraph> {
+  const trimmed = tag?.trim();
+  const qs = trimmed !== undefined && trimmed.length > 0 ? `?tag=${encodeURIComponent(trimmed)}` : "";
+  return request<OmniApiGraph>(`/api/graph${qs}`);
 }
 
 /** 三十一期：全域熵值總覽回應（GET /api/entropy/stats）。 */

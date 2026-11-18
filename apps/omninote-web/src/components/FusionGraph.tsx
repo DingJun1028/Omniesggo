@@ -241,6 +241,7 @@ export function buildFusionGraphFromProjection(
 
   const aliasByUuid = new Map(graph.nodes.map((n) => [n.uuid, n.alias]));
   for (const note of notes) {
+    if (!aliasByUuid.has(note.uuid)) continue; // 伺服器子圖權威：僅投影伺服器回傳之節點
     index.set(note.uuid, nodes.length);
     const serverAlias = aliasByUuid.get(note.uuid);
     const local = noteToGraphNode(note);
@@ -281,14 +282,15 @@ export function FusionGraph({
   // 二十九期：標籤過濾聯動（對接 GET /api/tags），精確標籤匹配，未選時維持全量。
   const [tagAxis, setTagAxis] = useState<OmniApiTagsOverview | null>(null);
   const [tagFilter, setTagFilter] = useState<string | null>(null);
-  // 三十五期：伺服器端圖譜投影（GET /api/graph）；取得失敗降級為客戶端組裝（如實標示）。
+  // 三十五期：伺服器端圖譜投影（GET /api/graph）；三十七期：tagFilter 時改走 ?tag= 伺服器標籤子圖。
+  // 取得失敗降級為客戶端組裝（如實標示）。
   const [serverGraph, setServerGraph] = useState<OmniApiGraph | null>(null);
   const [graphDegraded, setGraphDegraded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     setGraphDegraded(false);
-    fetchGraph()
+    fetchGraph(tagFilter ?? undefined)
       .then((projection) => {
         if (!cancelled) setServerGraph(projection);
       })
@@ -299,7 +301,7 @@ export function FusionGraph({
     return () => {
       cancelled = true;
     };
-  }, [notes]);
+  }, [notes, tagFilter]);
 
   useEffect(() => {
     let cancelled = false;
@@ -315,7 +317,8 @@ export function FusionGraph({
     };
   }, []);
 
-  /** 過濾後之筆記子集：精確標籤匹配（topology.tags.includes），懸浮鏈結節點隨子集重建。 */
+  /** 過濾後之筆記子集：精確標籤匹配（topology.tags.includes）；伺服器子圖模式下作為
+   *  [[雙鏈]] 內容投影之來源子集，降級模式下則為整體圖譜之客戶端過濾依據。 */
   const filteredNotes = useMemo(
     () =>
       tagFilter === null
