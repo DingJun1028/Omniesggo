@@ -222,6 +222,27 @@ export async function fetchEntropyStats(): Promise<OmniApiEntropyStats> {
   return request<OmniApiEntropyStats>("/api/entropy/stats");
 }
 
+/** 三十二期：批次標籤操作回應（POST /api/notes/tags）。 */
+export interface OmniApiBatchTagsReport {
+  ok: boolean;
+  updated: Array<{ uuid: string; tags: string[] }>;
+  missing: string[];
+  unchanged: number;
+  total: number;
+}
+
+/** 批次標籤操作：add 去重附加、remove 移除；missing 為不存在之 uuid 如實回報；unchanged 為無變化節點數。 */
+export async function batchUpdateTags(
+  uuids: string[],
+  add?: string[],
+  remove?: string[],
+): Promise<OmniApiBatchTagsReport> {
+  return request<OmniApiBatchTagsReport>("/api/notes/tags", {
+    method: "POST",
+    body: JSON.stringify({ uuids, add, remove }),
+  });
+}
+
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
   const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",

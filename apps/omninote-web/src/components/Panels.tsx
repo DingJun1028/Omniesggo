@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { OmniApiDraft, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 import {
+  batchUpdateTags,
   buildExportUrl,
   deleteDraft,
   deleteNote,
@@ -62,6 +63,37 @@ export function NotesBoard({
       cancelled = true;
     };
   }, [notes]);
+
+  // 三十三期：批次標籤操作（對接 POST /api/notes/tags），多選節點後附加或移除標籤
+  const [batchSelected, setBatchSelected] = useState<ReadonlySet<string>>(new Set());
+  const [batchTag, setBatchTag] = useState("");
+  const [batchBusy, setBatchBusy] = useState(false);
+  const [batchMessage, setBatchMessage] = useState<string | null>(null);
+
+  /** 三十三期：批次標籤附加/移除；報告之 updated/missing/unchanged 如實顯示，busy 期間防抖。 */
+  const runBatch = async (op: "add" | "remove") => {
+    const tag = batchTag.trim();
+    if (batchBusy || tag.length === 0 || batchSelected.size === 0) return;
+    setBatchBusy(true);
+    setBatchMessage("操作中…");
+    try {
+      const report = await batchUpdateTags(
+        [...batchSelected],
+        op === "add" ? [tag] : undefined,
+        op === "remove" ? [tag] : undefined,
+      );
+      const parts = [`已更新 ${report.updated.length} 則`, `無變化 ${report.unchanged}`];
+      if (report.missing.length > 0) parts.push(`不存在 ${report.missing.length}`);
+      setBatchMessage(parts.join(" · "));
+      setBatchTag("");
+      setBatchSelected(new Set());
+      onChanged();
+    } catch (err) {
+      setBatchMessage(err instanceof Error ? err.message : "批次操作失敗");
+    } finally {
+      setBatchBusy(false);
+    }
+  };
 
   const norm = filter.trim().toLowerCase();
   /** 十九期關鍵字過濾：比對區塊內容與拓撲標籤（大小寫不敏感），與語意檢索面板互補。
@@ -133,6 +165,47 @@ export function NotesBoard({
       ) : visible.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">沒有符合關鍵字的筆記。</p>
       ) : (
+        <>
+        {batchSelected.size > 0 && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-slate-100/10 bg-slate-900/40 p-3">
+            <span className="text-[10px] text-slate-500" title="批次標籤操作（POST /api/notes/tags）：missing 為不存在之節點、unchanged 為無變化節點數，皆如實回報">
+              已選 {batchSelected.size} 則 ·
+            </span>
+            <input
+              className="field max-w-[160px] py-1 text-xs"
+              placeholder="批次標籤…"
+              value={batchTag}
+              onChange={(e) => setBatchTag(e.target.value)}
+              aria-label="批次標籤"
+            />
+            <button
+              type="button"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-omega/60 disabled:opacity-50"
+              disabled={batchBusy || batchTag.trim().length === 0}
+              onClick={() => void runBatch("add")}
+            >
+              附加標籤
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-rose-400/60 disabled:opacity-50"
+              disabled={batchBusy || batchTag.trim().length === 0}
+              onClick={() => void runBatch("remove")}
+            >
+              移除標籤
+            </button>
+            <button
+              type="button"
+              className="text-[10px] text-slate-500 underline decoration-dotted transition hover:text-slate-300"
+              onClick={() => setBatchSelected(new Set())}
+            >
+              清除選取
+            </button>
+            {batchMessage !== null && (
+              <span className="text-[10px] text-slate-400">{batchMessage}</span>
+            )}
+          </div>
+        )}
         <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {visible.map((note) => (
             <article
@@ -142,6 +215,18 @@ export function NotesBoard({
               }`}
             >
               <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  className="size-3.5 accent-omni-alpha"
+                  checked={batchSelected.has(note.uuid)}
+                  onChange={(e) => {
+                    const next = new Set(batchSelected);
+                    if (e.target.checked) next.add(note.uuid);
+                    else next.delete(note.uuid);
+                    setBatchSelected(next);
+                  }}
+                  aria-label="批次選取"
+                />
                 <span className="phase-dot" aria-hidden />
                 <span className="text-[11px] text-slate-400">{note.matrix_phase}</span>
                 <button
@@ -178,6 +263,7 @@ export function NotesBoard({
             </article>
           ))}
         </div>
+        </>
       )}
     </div>
   );
