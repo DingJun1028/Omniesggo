@@ -205,6 +205,34 @@ export async function fetchTagsOverview(): Promise<OmniApiTagsOverview> {
   return request<OmniApiTagsOverview>("/api/tags");
 }
 
+/** 三十五期：伺服器端圖譜投影回應（GET /api/graph，三十四期端點）。 */
+export interface OmniApiGraphNode {
+  uuid: string;
+  matrix_phase: string;
+  alias: string | null;
+  tags: string[];
+}
+
+export interface OmniApiGraphEdge {
+  source: string;
+  target: string;
+  wikilink_alias: string;
+  resolved: boolean;
+}
+
+export interface OmniApiGraph {
+  ok: boolean;
+  total_nodes: number;
+  total_edges: number;
+  unresolved_edges: number;
+  nodes: OmniApiGraphNode[];
+  edges: OmniApiGraphEdge[];
+}
+
+export async function fetchGraph(): Promise<OmniApiGraph> {
+  return request<OmniApiGraph>("/api/graph");
+}
+
 /** 三十一期：全域熵值總覽回應（GET /api/entropy/stats）。 */
 export interface OmniApiEntropyStats {
   ok: boolean;
