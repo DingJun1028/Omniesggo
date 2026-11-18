@@ -23,6 +23,23 @@ const group = (name, tests) => async () => {
   for (const t of tests) await t();
 };
 
+// NFR-01 時間門檻之 CI 暫態停頓防護：共用 runner 可能出現一次性停頓
+// （2026-11-17 PR #298 test(22) 曾於劣化 runner 超過 CI 400ms 門檻假紅，
+// 同 run 疊加 setup-node 快取故障）。CI 環境允許一次重試；持續性效能
+// 回歸將連續兩次超時，仍然失敗，不弱化守門價值。
+const measureFastMs = async (fn) => {
+  const maxMs = process.env.CI ? 400 : 200;
+  const measure = async () => {
+    const start = Date.now();
+    await fn();
+    return Date.now() - start;
+  };
+  const first = await measure();
+  if (!process.env.CI || first <= maxMs) return { ms: first, maxMs };
+  console.log('    (CI 暫態停頓防護：一次重試)');
+  return { ms: await measure(), maxMs };
+};
+
 const setupOps = async () => {
   const tmp = await fs.mkdtemp(path.join(os.tmpdir(), 'canon-'));
   const PATHS = { home: tmp, skills: path.join(tmp, 's.md'), memory: path.join(tmp, 'm.jsonl'), progress: path.join(tmp, 'p.md'), journal: path.join(tmp, 'j.jsonl') };
@@ -181,20 +198,14 @@ const g4 = group('NFR-01 端到端延遲 ≤ 200ms (通典門檻)', [
     for (let i = 0; i < 500; i++) {
       await lb.appendMemory({ ts: `2026-10-08 ${String(i%24).padStart(2,'0')}:00:00`, event: 'test', n: i });
     }
-    const start = Date.now();
-    await ops.recall();
-    const ms = Date.now() - start;
-    const maxMs = process.env.CI ? 400 : 200;
+    const { ms, maxMs } = await measureFastMs(() => ops.recall());
     assert.ok(ms <= maxMs, `readMemory 500 筆耗時 ${ms}ms 超過 ${maxMs}ms 門檻`);
     await fs.rm(tmp, { recursive: true });
   }),
   test('tagSkill 本地 ≤ 200ms', async () => {
     const { tmp, ops } = await setupOps();
     await ops.growSkill('perf-test', 'x', []);
-    const start = Date.now();
-    await ops.tagSkill('perf-test', ['agent:13', 'lifecycle:active', 'platform:vps']);
-    const ms = Date.now() - start;
-    const maxMs = process.env.CI ? 400 : 200;
+    const { ms, maxMs } = await measureFastMs(() => ops.tagSkill('perf-test', ['agent:13', 'lifecycle:active', 'platform:vps']));
     assert.ok(ms <= maxMs, `tagSkill 耗時 ${ms}ms 超過 ${maxMs}ms`);
     await fs.rm(tmp, { recursive: true });
   }),
@@ -202,10 +213,7 @@ const g4 = group('NFR-01 端到端延遲 ≤ 200ms (通典門檻)', [
     const { tmp, ops, PATHS } = await setupOps();
     const lb = createLocalBackend(tmp, PATHS);
     for (let i = 0; i < 50; i++) await lb.appendMemory({ ts: '2026-10-08 10:00:00', event: 'test', tags: [`agent:${String(i).padStart(2,'0')}`] });
-    const start = Date.now();
-    await ops.listTags();
-    const ms = Date.now() - start;
-    const maxMs = process.env.CI ? 400 : 200;
+    const { ms, maxMs } = await measureFastMs(() => ops.listTags());
     assert.ok(ms <= maxMs, `listTags 耗時 ${ms}ms 超過 ${maxMs}ms`);
     await fs.rm(tmp, { recursive: true });
   }),
