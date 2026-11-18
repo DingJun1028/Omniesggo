@@ -1,6 +1,6 @@
 # 萬能聖典 OmniBook
 
-> **版本**：v1.1.0（內容增修版）｜**發布**：2026-11-12｜**定位**：Omniesggo 總綱性聖典
+> **版本**：v1.2.0（內容增修版）｜**發布**：2026-11-16｜**定位**：Omniesggo 總綱性聖典
 >
 > 2026-11-08 使用者定義本聖典之三重角色：專案正典文件、跨對話代理手冊、知識庫總綱；並裁決採「最佳實踐版本」之版本管理。
 
@@ -38,11 +38,12 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 - **OESG 五站路線圖（2026-11-10 全線通車）**：Pulse（碳排脈動）→ Report（報告生成）→ Audit（漂綠稽核）→ Exchange（減量額度掛牌）→ DAO（額度治理交割/註銷）五站全數落地（DAO 為 PR #216，雙花攔截、attestationHash 七方關聯鎖；測試含五站真實管線閉環 Pulse→DAO 單批驗證）。各站復用 12大萬能模組管線，Supabase sink 對應專用資料表（RLS 僅 service_role）。
 - **apps/mcp-gateway**（tzin 0.5.0）：rag_search、query_agent ask/search、bus_events、hive_awards 唯讀契約端點；缺憑證一律 503 優雅降級。
 - **RAG 向量層**：src/lib/rag（Weaviate 物件 ID 確定性 UUID、Ollama 嵌入、ownerId 強制過濾）；Weaviate Cloud 免費沙箱為現行資料層（GraphQL 須於 2027-05-01 前遷移，見 WCD 生命週期記錄）。契約測試之 mock 佇列須與實際 fetch 次序對齊（404→POST 建類別路徑為 4 次 fetch），錯位假紅已由 PR #219 修復。
-- **OmniNote**：零算力 Ollama 本機回環、TypeBox 契約、Block-CRDT、5T 治理、數據氣密艙隱私承諾（向量資料不出本機）。
+- **OmniNote**：零算力 Ollama 本機回環、TypeBox 契約、Block-CRDT、5T 治理、數據氣密艙隱私承諾（向量資料不出本機）。Web 端持續演進：FusionGraph 標籤過濾聯動（二十九期，PR #288）、封存面板匯出與匯入（三十期，PR #290）、全域熵值總覽端點與 Web 熵值徽章（三十一期，PR #291）。
+- **csv-analyst 代理**（agents/csv-analyst，PR #223）：對話式 CSV 資料分析代理；7 項離線單元測試已納 CI（csv-analyst-tests 工作流，PR #292，比照 crewai-run.yml 之 uv sync --locked 慣例）。
 
 ### 4. 品質治理與 CI/CD 體系（四層）
 
-1. 硬閘門：CI Green Gate（PR 權威彙總）、TS Matrix 棘輪（drift 歸零）、Schema Traceability、Soul Lineage 血脈鎖、Sonar 品質閘（token 式 sonar-quality-gate 為權威；Automatic Analysis 之 cancelled 屬既有現象）、Security Audit 週審。
+1. 硬閘門：CI Green Gate（PR 權威彙總）、TS Matrix 棘輪（drift 歸零）、Schema Traceability、Soul Lineage 血脈鎖、Sonar 品質閘（token 式 sonar-quality-gate 為權威；poller 已加 --stability 60s 新鮮裁定安定窗口杜絕 stale-verdict 競態，PR #293；Automatic Analysis 之 cancelled 屬既有現象）、Security Audit 週審；deploy.yml SSH 部署失敗已可觀測化（id ssh-deploy + outcome 回報，杜絕假綠，PR #289）。
 2. 自動修復：OA-TWINS Auto-Repair 八類錯誤自動修復。
 3. 組裝鑄造：OmniFactory、GHCR、Sacred Pipeline、Cloudflare Pages、Oracle VPS 部署。
 4. 派遣運維：AutoSwarm 多代理協調、vibe-ci-monitor（自架 worker 部署中）。
@@ -63,7 +64,7 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 - **lockfile 衝突**：推一次性 lockfile-sync.yml 工作流（paths 自身、pnpm install --no-frozen-lockfile、bot commit 推回、自刪）。
 - **分支與 main 衝突**：branch-sync 工作流（git merge origin/main -X ours → 重生 lockfile → push）；bot 推送後 pull_request 工作流轉 action_required 屬審批機制，以 push_files 重推既有檔同內容解鎖。
 - **Dependabot 誤解 overrides**：root pnpm override 覆寫 direct spec 時 Dependabot 會反覆開 lockfile-only PR，可比照 express 政策衝突結案。
-- **Sonar 品質閘**：失敗必先取 issue 明細（token 查 API）再修，勿盲目假說迭代；pollGate 競態已由 --settle 安定窗口修復。
+- **Sonar 品質閘**：失敗必先取 issue 明細（token 查 API）再修，勿盲目假說迭代；pollGate 競態已由 --settle＋--stability 安定窗口修復（--settle 等待新裁定、--stability 確保裁定持穩後採納，PR #293）。
 - **TS Matrix drift**：本地改名（前綴消歧）＋ `export type { 新名 as 原名 }` 相容別名（PR #96 慣例）。
 
 ### 3. 高頻陷阱摘要
@@ -121,3 +122,4 @@ Omniesggo（DingJun1028/Omniesggo）為 pnpm workspace monorepo（TypeScript）�
 | --- | --- | --- |
 | v1.0.0 | 2026-11-10 | 創始版：確立三重角色、版本迭代機制（最佳實踐版本）、技術棧政策正典、架構地圖、代理手冊、知識庫總綱。 |
 | v1.1.0 | 2026-11-12 | 內容增修：OESG 五站路線圖全線通車（DAO 落地，PR #216）；CI 環境 pnpm 演進更正為 12.16.1（packageManager 為權威）；RAG mock 佇列錯位假紅修復入向量層條目（PR #219）；外部阻塞快照更新（VPS 定案診斷、OCI 指紋 MISMATCH、main 0f42bd94 全綠結案）。 |
+| v1.2.0 | 2026-11-16 | 內容增修：OmniNote Web 三期功能入架構地圖（FusionGraph 標籤過濾、封存面板匯出匯入、全域熵值總覽與熵值徽章，PR #288/#290/#291）；新增 csv-analyst 代理條目（PR #223，測試納 CI PR #292）；Sonar 品質閘 poller --stability 競態修復（PR #293）與 deploy.yml 假綠修復（PR #289）入品質治理與標準修法。 |
