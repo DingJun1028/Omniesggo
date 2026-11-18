@@ -87,7 +87,7 @@ export class OmniNoteLocalApiServer {
     "GET /api/drafts": (self, _req, res) => self.respondDraftsList(res),
     "GET /api/export": (self, _req, res) => self.respondExport(res),
     "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
-    "GET /api/graph": (self, _req, res) => self.respondGraphProjection(res),
+    "GET /api/graph": (self, req, res) => self.respondGraphProjection(req, res),
     "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
     "POST /api/notes/tags": (self, req, res) => self.handleBatchTags(req, res),
     "POST /api/import": (self, req, res) => self.handleImport(req, res),
@@ -349,14 +349,24 @@ export class OmniNoteLocalApiServer {
    * resolved 依「現存宇宙即時成員判定」重標註（節點事後刪除則降為未解析），
    * 與儲存值可能相異屬如實投影（落地重標註屬 POST /api/notes/:uuid/purify 範疇）；
    * 未解析邊之目標節點不在 nodes 清單（懸浮鏈結由消費端自行呈現）。
+   * 三十六期：可選查詢參數 tag（精確匹配）——nodes 限縮為含該標籤之節點（子圖）；
+   * edges 為子圖節點之 outlinks 全量投影，resolved 仍依「全體現存宇宙」即時成員判定
+   * （連向子圖外之現存節點 resolved=true，如實標示 tag 限縮僅作用於 nodes 不作用於邊過濾）；
+   * 回應追加 filter_tag 欄位（未過濾時為 null，如實標示）。
    */
-  private async respondGraphProjection(res: ServerResponse): Promise<void> {
+  private async respondGraphProjection(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const rawQuery = (req.url ?? "").split("?")[1] ?? "";
+    const filterTag = new URLSearchParams(rawQuery).get("tag");
     const uuids = await this.storage.listUuids();
     const nodes = (
       await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
     ).filter((n): n is UnifiedNode => n !== null);
     const universe = new Set(nodes.map((n) => n.uuid));
-    const graphNodes = nodes
+    const subset =
+      filterTag === null
+        ? nodes
+        : nodes.filter((n) => n.topology.tags.includes(filterTag));
+    const graphNodes = subset
       .map((node) => {
         const first = node.blocks.find((b) => !b.deleted && (b.type === "paragraph" || b.type === "heading"));
         const alias = first?.content.trim();
@@ -385,6 +395,7 @@ export class OmniNoteLocalApiServer {
     const unresolvedEdges = edges.filter((e) => !e.resolved).length;
     return sendJson(res, 200, {
       ok: true,
+      filter_tag: filterTag,
       total_nodes: graphNodes.length,
       total_edges: edges.length,
       unresolved_edges: unresolvedEdges,

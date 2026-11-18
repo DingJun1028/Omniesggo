@@ -924,3 +924,54 @@ test("API-23 伺服器端圖譜投影：節點排序與別名、拓撲權威邊�
     assert.equal(afterBody.edges[0]?.resolved, false, "刪除後邊應即時重標註為未解析");
   });
 });
+
+test("API-24 圖譜標籤子圖：tag 精確限縮 nodes、filter_tag 如實標示、resolved 依全體宇宙判定", async () => {
+  await withServer(async ({ port }) => {
+    const post = async (text: string, tags: string[]) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, tags }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const targetUuid = await post("子圖目標節點", ["axis"]);
+    const inUuid = await post("子圖內節點 [[子圖目標節點]]", ["axis"]);
+    await post("子圖外節點 [[子圖目標節點]]", ["other"]);
+
+    // 無 tag：全量投影，filter_tag 為 null（如實標示）
+    const full = await fetch(base(port) + "/api/graph");
+    const fullBody = (await full.json()) as { filter_tag: string | null; total_nodes: number };
+    assert.equal(fullBody.filter_tag, null);
+    assert.equal(fullBody.total_nodes, 3);
+
+    // tag=axis：nodes 限縮為含該標籤之二節點
+    const res = await fetch(base(port) + "/api/graph?tag=axis");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean; filter_tag: string | null; total_nodes: number;
+      nodes: Array<{ uuid: string; tags: string[] }>;
+      edges: Array<{ source: string; target: string; resolved: boolean }>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.filter_tag, "axis");
+    assert.equal(body.total_nodes, 2, "tag 限縮僅保留含該標籤之節點");
+    assert.ok(body.nodes.every((n) => n.tags.includes("axis")));
+    // 邊：子圖內節點之 outlink 解析為子圖內目標（resolved=true）
+    assert.equal(body.edges.length, 1);
+    assert.equal(body.edges[0]?.source, inUuid);
+    assert.equal(body.edges[0]?.target, targetUuid);
+    assert.equal(body.edges[0]?.resolved, true);
+    // 子圖外節點之邊不列入（source 不在子圖）
+    assert.ok(body.edges.every((e) => e.source !== body.nodes.find((n) => n.uuid !== inUuid && n.uuid !== targetUuid)?.uuid));
+
+    // 不存在之標籤：空子圖
+    const none = await fetch(base(port) + "/api/graph?tag=no-such-tag");
+    const noneBody = (await none.json()) as { filter_tag: string | null; total_nodes: number; total_edges: number; nodes: unknown[] };
+    assert.equal(noneBody.filter_tag, "no-such-tag");
+    assert.equal(noneBody.total_nodes, 0);
+    assert.equal(noneBody.total_edges, 0);
+    assert.deepEqual(noneBody.nodes, []);
+  });
+});
