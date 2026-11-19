@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { OmniApiDraft, OmniApiGlobalEvidencePage, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 import {
+  batchProjectAlpha,
   batchUpdateTags,
   batchFuseSigma,
   buildExportUrl,
@@ -97,13 +98,20 @@ export function NotesBoard({
     }
   };
 
-  /** 三十九期：批次熔合 SIGMA（對接 POST /api/notes/phases）；報告 updated/unchanged/skipped/missing 四類如實顯示。 */
-  const runBatchFuse = async () => {
+  /** 三十九期：批次熔合 SIGMA；四十三期：批次逆向投影 ALPHA（共用執行輔助，對接 POST /api/notes/phases）。
+   *  報告 updated/unchanged/skipped/missing 四類如實顯示；操作進行中 busy 防抖。 */
+  const runBatchPhases = async (
+    toPhase: "SIGMA_GRAPH_SYNTHESIS" | "ALPHA_ORIGIN_CAPTURE",
+    failLabel: string,
+  ): Promise<void> => {
     if (batchBusy || batchSelected.size === 0) return;
     setBatchBusy(true);
     setBatchMessage("操作中…");
     try {
-      const report = await batchFuseSigma([...batchSelected]);
+      const report =
+        toPhase === "SIGMA_GRAPH_SYNTHESIS"
+          ? await batchFuseSigma([...batchSelected])
+          : await batchProjectAlpha([...batchSelected]);
       const parts = [`已更新 ${report.updated.length} 則`, `無變化 ${report.unchanged}`];
       if (report.skipped.length > 0) parts.push(`跳過 ${report.skipped.length}`);
       if (report.missing.length > 0) parts.push(`不存在 ${report.missing.length}`);
@@ -111,11 +119,15 @@ export function NotesBoard({
       setBatchSelected(new Set());
       onChanged();
     } catch (err) {
-      setBatchMessage(err instanceof Error ? err.message : "批次熔合失敗");
+      setBatchMessage(err instanceof Error ? err.message : failLabel);
     } finally {
       setBatchBusy(false);
     }
   };
+
+  const runBatchFuse = (): Promise<void> => runBatchPhases("SIGMA_GRAPH_SYNTHESIS", "批次熔合失敗");
+  /** 四十三期：批次逆向投影（to_phase ALPHA_ORIGIN_CAPTURE）：OMEGA 結晶體或 SIGMA 節點逐節點回流 ALPHA 捕獲態。 */
+  const runBatchReverse = (): Promise<void> => runBatchPhases("ALPHA_ORIGIN_CAPTURE", "批次逆向投影失敗");
 
   const norm = filter.trim().toLowerCase();
   /** 十九期關鍵字過濾：比對區塊內容與拓撲標籤（大小寫不敏感），與語意檢索面板互補。
@@ -224,6 +236,15 @@ export function NotesBoard({
               title="批次熔合 SIGMA（POST /api/notes/phases）：OMEGA 結晶體與無非墓碑區塊者如實跳過"
             >
               批次熔合 SIGMA
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-alpha/60 disabled:opacity-50"
+              disabled={batchBusy}
+              onClick={() => void runBatchReverse()}
+              title="批次逆向投影 ALPHA（POST /api/notes/phases to_phase ALPHA_ORIGIN_CAPTURE，四十一期端點擴充）：OMEGA 結晶體或 SIGMA 節點逐節點回流 ALPHA 捕獲態（證據入鏈 ON_REVERSE_PROJECT）；已在 ALPHA 者如實回報無變化"
+            >
+              批次逆向投影 ALPHA
             </button>
             <button
               type="button"
