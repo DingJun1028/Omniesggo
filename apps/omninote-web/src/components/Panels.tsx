@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { OmniApiDraft, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
+import type { OmniApiDraft, OmniApiGlobalEvidencePage, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 import {
   batchUpdateTags,
   batchFuseSigma,
@@ -9,6 +9,7 @@ import {
   deleteDraft,
   deleteNote,
   fetchEntropyStats,
+  fetchGlobalEvidenceTimeline,
   fetchTagsOverview,
   importArchive,
   promoteDraft,
@@ -295,6 +296,126 @@ export function NotesBoard({
         </div>
         </>
       )}
+    </div>
+  );
+}
+
+export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => void }) {
+  const PAGE_SIZE = 20;
+  const [page, setPage] = useState(0);
+  const [hook, setHook] = useState("");
+  const [data, setData] = useState<OmniApiGlobalEvidencePage | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const load = async (target: number): Promise<void> => {
+    if (busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const trimmed = hook.trim();
+      const res = await fetchGlobalEvidenceTimeline({
+        limit: PAGE_SIZE,
+        offset: target * PAGE_SIZE,
+        hook: trimmed.length > 0 ? trimmed : undefined,
+      });
+      setData(res);
+      setPage(target);
+      if (res.total === 0) setMessage("時間軸為空");
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "時間軸載入失敗");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    void load(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const hasPrev = (data?.offset ?? 0) > 0;
+  const hasNext = data !== null && data.offset + data.entries.length < data.total;
+
+  return (
+    <div className="glass p-5">
+      <h2 className="text-sm font-semibold tracking-wide text-slate-200">
+        全域證據時間軸
+        {data !== null && `（${data.total} 筆）`}
+      </h2>
+      <p className="mt-1 text-[10px] text-slate-500">
+        跨節點彙整 · captured_at 升冪（字串排序非時間權威）· 綁定 node_version 與 lock_hash
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <input
+          className="field max-w-[180px] py-1 text-xs"
+          placeholder="hook 精確過濾（如 ON_ALPHA_CAPTURE）"
+          value={hook}
+          onChange={(e) => setHook(e.target.value)}
+          aria-label="證據 hook 過濾"
+        />
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-alpha/60 disabled:opacity-50"
+          disabled={busy}
+          onClick={() => void load(0)}
+          title="GET /api/evidence?hook= 精確匹配；空值為全量"
+        >
+          篩選
+        </button>
+        {busy && <span className="text-[10px] text-slate-500">載入中…</span>}
+      </div>
+      {data !== null && data.entries.length > 0 && (
+        <p className="mt-2 text-[10px] text-slate-500">
+          第 {data.offset + 1}–{data.offset + data.entries.length} 筆 / 共 {data.total} 筆
+        </p>
+      )}
+      {message !== null && <p className="mt-2 text-[10px] text-slate-400">{message}</p>}
+      {data !== null && data.entries.length > 0 && (
+        <ul className="mt-3 space-y-2">
+          {data.entries.map((e, i) => (
+            <li
+              key={`${e.uuid}-${e.entry.captured_at}-${i}`}
+              className="rounded-xl border border-slate-100/10 bg-slate-900/40 p-2.5 text-[11px]"
+              title={`node_version ${e.node_version} · lock_hash ${e.lock_hash}（綁定當下節點狀態）`}
+            >
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  className="rounded bg-omni-alpha/20 px-1.5 py-0.5 text-omni-alpha transition hover:bg-omni-alpha/40"
+                  onClick={() => onJump(e.uuid)}
+                  title="跳轉至該節點"
+                >
+                  {e.uuid.slice(0, 8)}
+                </button>
+                <span className="rounded bg-omni-sigma/20 px-1.5 py-0.5 text-omni-sigma">{e.entry.hook_lifecycle}</span>
+                <span className="text-slate-500">{e.entry.captured_at}</span>
+              </div>
+              <p className="mt-1 text-slate-400">
+                {e.entry.source_origin} · {e.entry.content_hash.slice(0, 12)}…
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-3 flex items-center gap-2">
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 disabled:opacity-40"
+          disabled={busy || !hasPrev}
+          onClick={() => void load(page - 1)}
+        >
+          上一頁
+        </button>
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 disabled:opacity-40"
+          disabled={busy || !hasNext}
+          onClick={() => void load(page + 1)}
+        >
+          下一頁
+        </button>
+      </div>
     </div>
   );
 }
