@@ -441,34 +441,41 @@ export class OmniNoteLocalApiServer {
 
   /**
    * 三十八期：批次相位躍遷（POST /api/notes/phases），body { uuids, to_phase }。
-   * to_phase 本期僅接受 "SIGMA_GRAPH_SYNTHESIS"（批次熔合；crystallize 需逐節點 entity_type、
-   * reverse 屬逆向投影，均不納入批次，如實標示），其餘值 422 INVALID_BATCH_PHASE。
-   * 各節點結果如實分類：missing（不存在）、unchanged（已在 SIGMA，冪等零寫入）、
-   * skipped（OMEGA 結晶體不可熔合 or 無非墓碑區塊，不中斷其餘節點，reason 如實標示）、
-   * updated（熔合後之 [{ uuid, matrix_phase }，鎖鏈重算、證據入鏈、向量重註冊同單節點 sigma 端點）。
+   * 四十一期：to_phase 擴充 "ALPHA_ORIGIN_CAPTURE"（批次逆向投影：OMEGA 結晶體或 SIGMA 節點
+   * 逐節點回流為 ALPHA 捕獲態，同單節點 reverse 端點語義，證據入鏈、鎖鏈重算、向量重註冊；
+   * crystallize 需逐節點 entity_type，不納入批次，如實標示），其餘值 422 INVALID_BATCH_PHASE。
+   * 各節點結果如實分類：missing（不存在）、unchanged（已在目標相位，冪等零寫入）、
+   * （熔合道）skipped（OMEGA 結晶體不可熔合 or 無非墓碑區塊，不中斷其餘節點，reason 如實標示）、
+   * updated（投影後之 [{ uuid, matrix_phase }，同單節點端點語義）。
    */
   private async handleBatchPhases(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
     if (body === null) return;
     const uuids = Array.isArray(body.uuids) && body.uuids.every((u) => typeof u === "string") ? (body.uuids as string[]) : null;
     const toPhase = typeof body.to_phase === "string" ? body.to_phase : "";
-    if (uuids === null || uuids.length === 0 || toPhase !== "SIGMA_GRAPH_SYNTHESIS") {
+    const BATCH_PHASES: ReadonlySet<string> = new Set(["SIGMA_GRAPH_SYNTHESIS", "ALPHA_ORIGIN_CAPTURE"]);
+    if (uuids === null || uuids.length === 0 || !BATCH_PHASES.has(toPhase)) {
       return sendJson(res, 422, { ok: false, error: "INVALID_BATCH_PHASE" });
     }
     const updated: Array<{ uuid: string; matrix_phase: string }> = [];
     const missing: string[] = [];
     const skipped: Array<{ uuid: string; reason: string }> = [];
     let unchanged = 0;
-    const universe = await this.buildUniverse();
-    const aliasIndex = await this.buildAliasIndex();
+    const universe = toPhase === "SIGMA_GRAPH_SYNTHESIS" ? await this.buildUniverse() : new Set<string>();
+    const aliasIndex = toPhase === "SIGMA_GRAPH_SYNTHESIS" ? await this.buildAliasIndex() : new Map<string, string>();
     for (const uuid of uuids) {
       const existing = await this.storage.read(uuid);
       if (existing === null) {
         missing.push(uuid);
         continue;
       }
-      if (existing.matrix_phase === "SIGMA_GRAPH_SYNTHESIS") {
+      if (existing.matrix_phase === toPhase) {
         unchanged += 1;
+        continue;
+      }
+      if (toPhase === "ALPHA_ORIGIN_CAPTURE") {
+        const reversed = await UnifiedMatrixEngine.projectReverseToCapture(existing);
+        await this.commitBatchProjection(reversed, updated);
         continue;
       }
       const active = existing.blocks.filter((b) => !b.deleted);
@@ -486,9 +493,7 @@ export class OmniNoteLocalApiServer {
         UnifiedMatrixEngine.deriveOutlinks(existing.blocks, universe, aliasIndex),
         mergedMarkdown,
       );
-      await this.storage.write(sigma);
-      if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, sigma);
-      updated.push({ uuid, matrix_phase: sigma.matrix_phase });
+      await this.commitBatchProjection(sigma, updated);
     }
     return sendJson(res, 200, {
       ok: true,
@@ -498,6 +503,16 @@ export class OmniNoteLocalApiServer {
       unchanged,
       total: uuids.length,
     });
+  }
+
+  /** 批次投影落地共用輔助（四十一期）：寫入、向量重註冊、彙入 updated，批次兩道（熔合／逆向投影）共用，避免重複區塊。 */
+  private async commitBatchProjection(
+    next: Readonly<UnifiedNode>,
+    updated: Array<{ uuid: string; matrix_phase: string }>,
+  ): Promise<void> {
+    await this.storage.write(next);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, next);
+    updated.push({ uuid: next.uuid, matrix_phase: next.matrix_phase });
   }
 
   private async handleNoteCreate(req: IncomingMessage, res: ServerResponse): Promise<void> {

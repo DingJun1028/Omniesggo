@@ -1040,7 +1040,7 @@ test("API-25 批次相位躍遷：SIGMA 批次熔合、冪等 unchanged、OMEGA 
       { uuids: [], to_phase: "SIGMA_GRAPH_SYNTHESIS" },
       { uuids: [a1] },
       { uuids: [a1], to_phase: "OMEGA_OBJECT_CRYSTAL" },
-      { uuids: [a1], to_phase: "ALPHA_ORIGIN_CAPTURE" },
+      { uuids: [a1], to_phase: "LATERAL_REBASE" },
     ]) {
       const gate = await fetch(base(port) + "/api/notes/phases", {
         method: "POST",
@@ -1053,6 +1053,93 @@ test("API-25 批次相位躍遷：SIGMA 批次熔合、冪等 unchanged、OMEGA 
     }
   });
 });
+
+test("API-27 批次逆向投影（四十一期）：OMEGA 與 SIGMA 逐節點回流 ALPHA、冪等 unchanged、證據入鏈", async () => {
+  await withServer(async ({ port }) => {
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const alphaUuid = await post("原生捕獲節點");
+    const sigmaUuid = await post("批次熔合節點");
+    const omegaUuid = await post("批次結晶節點");
+    // 備妥相位：sigma 熔合、omega 結晶
+    await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [sigmaUuid], to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+    });
+    await fetch(base(port) + "/api/notes/" + omegaUuid + "/crystallize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entity_type: "entity" }),
+    });
+
+    const res = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [sigmaUuid, omegaUuid, alphaUuid, "00000000-0000-4000-8000-000000000000"], to_phase: "ALPHA_ORIGIN_CAPTURE" }),
+    });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      updated: Array<{ uuid: string; matrix_phase: string }>;
+      missing: string[];
+      skipped: Array<{ uuid: string; reason: string }>;
+      unchanged: number;
+      total: number;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, 4);
+    assert.equal(body.updated.length, 2, "OMEGA 與 SIGMA 各一，原生 ALPHA 不入 updated");
+    assert.ok(body.updated.every((u) => u.matrix_phase === "ALPHA_ORIGIN_CAPTURE"));
+    assert.ok(body.updated.some((u) => u.uuid === sigmaUuid) && body.updated.some((u) => u.uuid === omegaUuid));
+    assert.deepEqual(body.skipped, []);
+    assert.equal(body.unchanged, 1, "原生 ALPHA 冪等零寫入");
+    assert.deepEqual(body.missing, ["00000000-0000-4000-8000-000000000000"]);
+
+    // 落地讀回：相位回流 ALPHA，證據鏈含 ON_REVERSE_PROJECT
+    const read = await fetch(base(port) + "/api/notes/" + omegaUuid);
+    const n = ((await read.json()) as {
+      node: { matrix_phase: string; evidence: Array<{ hook_lifecycle: string }> };
+    }).node;
+    assert.equal(n.matrix_phase, "ALPHA_ORIGIN_CAPTURE");
+    assert.ok(n.evidence.some((e) => e.hook_lifecycle === "ON_REVERSE_PROJECT"));
+
+    // 冪等重跑：三個存在節點全數 unchanged
+    const rerun = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [sigmaUuid, omegaUuid, alphaUuid], to_phase: "ALPHA_ORIGIN_CAPTURE" }),
+    });
+    const rerunBody = (await rerun.json()) as { updated: unknown[]; unchanged: number; skipped: unknown[] };
+    assert.equal(rerunBody.updated.length, 0);
+    assert.equal(rerunBody.unchanged, 3);
+    assert.deepEqual(rerunBody.skipped, []);
+
+    // 道閘：非批次目標（crystallize 語義與未知相位）皆 422
+    for (const payload of [
+      { uuids: [alphaUuid], to_phase: "OMEGA_OBJECT_CRYSTAL" },
+      { uuids: [alphaUuid], to_phase: "REVERSE" },
+      { uuids: [] },
+    ]) {
+      const gate = await fetch(base(port) + "/api/notes/phases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, to_phase: payload.to_phase ?? "" }),
+      });
+      const j = (await gate.json()) as { ok: boolean; error: string };
+      assert.equal(gate.status, 422);
+      assert.equal(j.error, "INVALID_BATCH_PHASE");
+    }
+  });
+});
+
 
 test("API-26 全域證據時間軸：跨節點彙整、captured_at 升冪、hook 精確過濾、分頁與道閘", async () => {
   await withServer(async ({ port }) => {
