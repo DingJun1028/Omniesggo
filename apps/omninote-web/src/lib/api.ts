@@ -153,6 +153,37 @@ export async function fetchEvidencePage(
   return request<OmniApiEvidencePage>(`/api/notes/${uuid}/evidence${qs}`);
 }
 
+/** 四十二期：全域證據時間軸條目（GET /api/evidence，四十期端點），entry 內嵌各節點之證據項，uuid／node_version／lock_hash 綁定當下節點狀態。 */
+export interface OmniApiGlobalEvidenceEntry {
+  uuid: string;
+  node_version: string;
+  lock_hash: string;
+  entry: OmniApiEvidence;
+}
+
+/** 四十二期：全域證據時間軸分頁回應（跨節點彙整、captured_at 升冪）。 */
+export interface OmniApiGlobalEvidencePage {
+  ok: boolean;
+  total: number;
+  offset: number;
+  limit: number;
+  entries: OmniApiGlobalEvidenceEntry[];
+}
+
+/** 全域證據時間軸唯讀查詢（四十期端點）：hook 為可選精確匹配（空字串視為無過濾，避免 422）；limit 1..500；offset >= 0。 */
+export async function fetchGlobalEvidenceTimeline(
+  options: { limit?: number; offset?: number; hook?: string } = {},
+): Promise<OmniApiGlobalEvidencePage> {
+  const params = new URLSearchParams();
+  if (options.limit !== undefined) params.set("limit", String(options.limit));
+  if (options.offset !== undefined) params.set("offset", String(options.offset));
+  if (options.hook !== undefined && options.hook.trim().length > 0) {
+    params.set("hook", options.hook.trim());
+  }
+  const qs = params.size > 0 ? `?${params.toString()}` : "";
+  return request<OmniApiGlobalEvidencePage>(`/api/evidence${qs}`);
+}
+
 /** 二十四期：證據鏈 hook 別統計回應（GET /api/notes/:uuid/evidence/stats）。 */
 export interface OmniApiEvidenceStats {
   ok: boolean;
