@@ -88,6 +88,7 @@ export class OmniNoteLocalApiServer {
     "GET /api/export": (self, _req, res) => self.respondExport(res),
     "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
     "GET /api/graph": (self, req, res) => self.respondGraphProjection(req, res),
+    "GET /api/evidence": (self, req, res) => self.respondGlobalEvidenceTimeline(req, res),
     "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
     "POST /api/notes/tags": (self, req, res) => self.handleBatchTags(req, res),
     "POST /api/notes/phases": (self, req, res) => self.handleBatchPhases(req, res),
@@ -572,10 +573,67 @@ export class OmniNoteLocalApiServer {
   }
 
   /**
+   * 四十期：全域證據時間軸（唯讀聚合）。
+   * GET /api/evidence?limit&offset&hook → { total, offset, limit, entries: [{ uuid, node_version, lock_hash, entry }] }
+   * 跨節點彙整全量證據項，依 captured_at 字串升冪穩定排序（字串排序非時間權威，如實標示；
+   * 同值平手依 uuid 升冪、再依節點內入鏈順序，無隨機源、同一輸入恆得同一結果）；
+   * hook 為可選精確匹配；limit 1..500 預設 50、offset >= 0，非法值 422 INVALID_QUERY（與節點級端點同規）；
+   * 道閘檢查先於資料彙整（空庫亦如實回零列）。
+   */
+  private async respondGlobalEvidenceTimeline(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const raw = (req.url ?? "").split("?")[1] ?? "";
+    const params = new URLSearchParams(raw);
+    const limitRaw = params.get("limit");
+    const offsetRaw = params.get("offset");
+    const hook = params.get("hook");
+    let limit = 50;
+    let offset = 0;
+    if (limitRaw !== null) {
+      limit = Number(limitRaw);
+      if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      }
+    }
+    if (offsetRaw !== null) {
+      offset = Number(offsetRaw);
+      if (!Number.isInteger(offset) || offset < 0) {
+        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      }
+    }
+    if (hook !== null && hook.trim().length === 0) {
+      return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+    }
+    const uuids = await this.storage.listUuids();
+    const nodes = (
+      await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
+    ).filter((n): n is UnifiedNode => n !== null);
+    const timeline: Array<{ uuid: string; node_version: string; lock_hash: string; entry: (typeof nodes)[number]["evidence"][number] }> = [];
+    for (const node of nodes) {
+      for (const entry of node.evidence) {
+        if (hook !== null && entry.hook_lifecycle !== hook) continue;
+        timeline.push({ uuid: node.uuid, node_version: node.version, lock_hash: node.lock_hash, entry });
+      }
+    }
+    timeline.sort((a, b) => {
+      if (a.entry.captured_at !== b.entry.captured_at) {
+        return a.entry.captured_at < b.entry.captured_at ? -1 : 1;
+      }
+      if (a.uuid !== b.uuid) return a.uuid < b.uuid ? -1 : 1;
+      return 0;
+    });
+    return sendJson(res, 200, {
+      ok: true,
+      total: timeline.length,
+      offset,
+      limit,
+      entries: timeline.slice(offset, offset + limit),
+    });
+  }
+
+  /**
    * 證據鏈 hook 別聚合共用輔助（二十三期 stats 與二十五期 export 共用）。
    * by_hook 為 hook_lifecycle → 筆數之映射；hooks 為依入鏈順序首次出現排序之清單。
-   */
-  private aggregateEvidenceHooks(evidence: ReadonlyArray<{ hook_lifecycle: string }>): {
+   */  private aggregateEvidenceHooks(evidence: ReadonlyArray<{ hook_lifecycle: string }>): {
     by_hook: Record<string, number>;
     hooks: string[];
   } {
