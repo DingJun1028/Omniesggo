@@ -1053,3 +1053,64 @@ test("API-25 批次相位躍遷：SIGMA 批次熔合、冪等 unchanged、OMEGA 
     }
   });
 });
+
+test("API-26 全域證據時間軸：跨節點彙整、captured_at 升冪、hook 精確過濾、分頁與道閘", async () => {
+  await withServer(async ({ port }) => {
+    // 道閘先於資料彙整：空庫亦如實回零列
+    const empty = await fetch(base(port) + "/api/evidence");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as { ok: boolean; total: number; offset: number; limit: number; entries: unknown[] };
+    assert.equal(emptyBody.ok, true);
+    assert.equal(emptyBody.total, 0);
+    assert.equal(emptyBody.limit, 50);
+    assert.deepEqual(emptyBody.entries, []);
+
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string; version: string; lock_hash: string; evidence: Array<{ hook_lifecycle: string; captured_at: string }> } };
+      return b.node;
+    };
+    const n1 = await post("時間軸一");
+    const n2 = await post("時間軸二");
+
+    const res = await fetch(base(port) + "/api/evidence?limit=500");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean; total: number; offset: number; limit: number;
+      entries: Array<{ uuid: string; node_version: string; lock_hash: string; entry: { hook_lifecycle: string; captured_at: string } }>;
+    };
+    assert.equal(body.total, n1.evidence.length + n2.evidence.length);
+    assert.ok(body.entries.length >= 2);
+    // captured_at 字串升冪穩定排序
+    const times = body.entries.map((e) => e.entry.captured_at);
+    const sorted = [...times].sort();
+    assert.deepEqual(times, sorted, "entries 應依 captured_at 字串升冪排序");
+    // 每筆附 node_version 與 lock_hash 綁定
+    for (const e of body.entries) {
+      assert.ok(typeof e.uuid === "string" && typeof e.node_version === "string" && typeof e.lock_hash === "string");
+    }
+
+    // 分頁：offset+limit 切窗
+    const page = await fetch(base(port) + "/api/evidence?limit=1&offset=1");
+    const pageBody = (await page.json()) as { total: number; entries: unknown[] };
+    assert.equal(pageBody.total, body.total);
+    assert.equal(pageBody.entries.length, 1);
+
+    // hook 精確過濾
+    const hooked = await fetch(base(port) + "/api/evidence?hook=ON_ALPHA_CAPTURE");
+    const hookedBody = (await hooked.json()) as { total: number; entries: Array<{ entry: { hook_lifecycle: string } }> };
+    assert.ok(hookedBody.entries.every((e) => e.entry.hook_lifecycle === "ON_ALPHA_CAPTURE"));
+
+    // 道閘：非法 limit/offset、空 hook 皆 422
+    for (const qs of ["limit=0", "limit=501", "limit=abc", "offset=-1", "hook=%20"]) {
+      const gate = await fetch(base(port) + "/api/evidence?" + qs);
+      const j = (await gate.json()) as { ok: boolean; error: string };
+      assert.equal(gate.status, 422);
+      assert.equal(j.error, "INVALID_QUERY");
+    }
+  });
+});
