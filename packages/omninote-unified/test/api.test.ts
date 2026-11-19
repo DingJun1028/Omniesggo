@@ -1140,7 +1140,6 @@ test("API-27 批次逆向投影（四十一期）：OMEGA 與 SIGMA 逐節點回
   });
 });
 
-
 test("API-26 全域證據時間軸：跨節點彙整、captured_at 升冪、hook 精確過濾、分頁與道閘", async () => {
   await withServer(async ({ port }) => {
     // 道閘先於資料彙整：空庫亦如實回零列
