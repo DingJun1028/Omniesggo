@@ -534,9 +534,13 @@ export class OmniNoteLocalApiServer {
    * 唯讀不落地；limit 1..500（預設 50）、offset >= 0（預設 0）、hook 為可選精確匹配；
    * 回應附 node_version 與 lock_hash 供客戶端綁定當下狀態；非法參數一律 422 INVALID_QUERY。
    */
-  private async respondNoteEvidence(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {
-    const node = await this.storage.read(nodeUuid);
-    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+  /** 證據時間軸查詢參數共用解析（節點級 /api/notes/:uuid/evidence 與全域 /api/evidence 同規）：
+   *  limit 1..500 預設 50、offset >= 0、hook 精確匹配（空字串視為非法）；
+   *  非法值回傳 null（呼叫方應即刻 return，422 已由本輔助發出）。 */
+  private parseEvidenceTimelineQuery(
+    req: IncomingMessage,
+    res: ServerResponse,
+  ): { limit: number; offset: number; hook: string | null } | null {
     const raw = (req.url ?? "").split("?")[1] ?? "";
     const params = new URLSearchParams(raw);
     const limitRaw = params.get("limit");
@@ -547,18 +551,30 @@ export class OmniNoteLocalApiServer {
     if (limitRaw !== null) {
       limit = Number(limitRaw);
       if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
-        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        return null;
       }
     }
     if (offsetRaw !== null) {
       offset = Number(offsetRaw);
       if (!Number.isInteger(offset) || offset < 0) {
-        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        return null;
       }
     }
     if (hook !== null && hook.trim().length === 0) {
-      return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      return null;
     }
+    return { limit, offset, hook };
+  }
+
+  private async respondNoteEvidence(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const query = this.parseEvidenceTimelineQuery(req, res);
+    if (query === null) return;
+    const { limit, offset, hook } = query;
     const chain = hook === null ? node.evidence : node.evidence.filter((e) => e.hook_lifecycle === hook);
     return sendJson(res, 200, {
       ok: true,
@@ -581,28 +597,9 @@ export class OmniNoteLocalApiServer {
    * 道閘檢查先於資料彙整（空庫亦如實回零列）。
    */
   private async respondGlobalEvidenceTimeline(req: IncomingMessage, res: ServerResponse): Promise<void> {
-    const raw = (req.url ?? "").split("?")[1] ?? "";
-    const params = new URLSearchParams(raw);
-    const limitRaw = params.get("limit");
-    const offsetRaw = params.get("offset");
-    const hook = params.get("hook");
-    let limit = 50;
-    let offset = 0;
-    if (limitRaw !== null) {
-      limit = Number(limitRaw);
-      if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
-        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
-      }
-    }
-    if (offsetRaw !== null) {
-      offset = Number(offsetRaw);
-      if (!Number.isInteger(offset) || offset < 0) {
-        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
-      }
-    }
-    if (hook !== null && hook.trim().length === 0) {
-      return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
-    }
+    const query = this.parseEvidenceTimelineQuery(req, res);
+    if (query === null) return;
+    const { limit, offset, hook } = query;
     const uuids = await this.storage.listUuids();
     const nodes = (
       await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
