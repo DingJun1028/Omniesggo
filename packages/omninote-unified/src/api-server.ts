@@ -90,6 +90,7 @@ export class OmniNoteLocalApiServer {
     "GET /api/graph": (self, req, res) => self.respondGraphProjection(req, res),
     "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
     "POST /api/notes/tags": (self, req, res) => self.handleBatchTags(req, res),
+    "POST /api/notes/phases": (self, req, res) => self.handleBatchPhases(req, res),
     "POST /api/import": (self, req, res) => self.handleImport(req, res),
   };
   readonly storage: OmniStorageAdapter;
@@ -435,6 +436,67 @@ export class OmniNoteLocalApiServer {
       updated.push({ uuid, tags });
     }
     return sendJson(res, 200, { ok: true, updated, missing, unchanged, total: uuids.length });
+  }
+
+  /**
+   * 三十八期：批次相位躍遷（POST /api/notes/phases），body { uuids, to_phase }。
+   * to_phase 本期僅接受 "SIGMA_GRAPH_SYNTHESIS"（批次熔合；crystallize 需逐節點 entity_type、
+   * reverse 屬逆向投影，均不納入批次，如實標示），其餘值 422 INVALID_BATCH_PHASE。
+   * 各節點結果如實分類：missing（不存在）、unchanged（已在 SIGMA，冪等零寫入）、
+   * skipped（OMEGA 結晶體不可熔合 or 無非墓碑區塊，不中斷其餘節點，reason 如實標示）、
+   * updated（熔合後之 [{ uuid, matrix_phase }，鎖鏈重算、證據入鏈、向量重註冊同單節點 sigma 端點）。
+   */
+  private async handleBatchPhases(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const uuids = Array.isArray(body.uuids) && body.uuids.every((u) => typeof u === "string") ? (body.uuids as string[]) : null;
+    const toPhase = typeof body.to_phase === "string" ? body.to_phase : "";
+    if (uuids === null || uuids.length === 0 || toPhase !== "SIGMA_GRAPH_SYNTHESIS") {
+      return sendJson(res, 422, { ok: false, error: "INVALID_BATCH_PHASE" });
+    }
+    const updated: Array<{ uuid: string; matrix_phase: string }> = [];
+    const missing: string[] = [];
+    const skipped: Array<{ uuid: string; reason: string }> = [];
+    let unchanged = 0;
+    const universe = await this.buildUniverse();
+    const aliasIndex = await this.buildAliasIndex();
+    for (const uuid of uuids) {
+      const existing = await this.storage.read(uuid);
+      if (existing === null) {
+        missing.push(uuid);
+        continue;
+      }
+      if (existing.matrix_phase === "SIGMA_GRAPH_SYNTHESIS") {
+        unchanged += 1;
+        continue;
+      }
+      const active = existing.blocks.filter((b) => !b.deleted);
+      if (existing.matrix_phase === "OMEGA_OBJECT_CRYSTAL") {
+        skipped.push({ uuid, reason: "OMEGA_OBJECT_CRYSTAL" });
+        continue;
+      }
+      if (active.length === 0) {
+        skipped.push({ uuid, reason: "NO_ACTIVE_BLOCKS" });
+        continue;
+      }
+      const mergedMarkdown = active.map((b) => b.content).join("\n\n");
+      const sigma = await UnifiedMatrixEngine.transitionToSigmaGraph(
+        existing,
+        UnifiedMatrixEngine.deriveOutlinks(existing.blocks, universe, aliasIndex),
+        mergedMarkdown,
+      );
+      await this.storage.write(sigma);
+      if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, sigma);
+      updated.push({ uuid, matrix_phase: sigma.matrix_phase });
+    }
+    return sendJson(res, 200, {
+      ok: true,
+      updated,
+      missing,
+      skipped,
+      unchanged,
+      total: uuids.length,
+    });
   }
 
   private async handleNoteCreate(req: IncomingMessage, res: ServerResponse): Promise<void> {

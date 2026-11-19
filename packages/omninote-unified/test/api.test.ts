@@ -975,3 +975,81 @@ test("API-24 圖譜標籤子圖：tag 精確限縮 nodes、filter_tag 如實標�
     assert.deepEqual(noneBody.nodes, []);
   });
 });
+
+test("API-25 批次相位躍遷：SIGMA 批次熔合、冪等 unchanged、OMEGA 與 missing 如實分類", async () => {
+  await withServer(async ({ port }) => {
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const a1 = await post("批次熔合一");
+    const a2 = await post("批次熔合二");
+    // 結晶一節點為 OMEGA
+    const omegaUuid = await post("結晶實體");
+    await fetch(base(port) + "/api/notes/" + omegaUuid + "/crystallize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entity_type: "entity" }),
+    });
+
+    const res = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [a1, a2, omegaUuid, "00000000-0000-4000-8000-000000000000"], to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+    });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      updated: Array<{ uuid: string; matrix_phase: string }>;
+      missing: string[];
+      skipped: Array<{ uuid: string; reason: string }>;
+      unchanged: number;
+      total: number;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, 4);
+    assert.equal(body.updated.length, 2);
+    assert.ok(body.updated.every((u) => u.matrix_phase === "SIGMA_GRAPH_SYNTHESIS"));
+    assert.ok(body.updated.some((u) => u.uuid === a1) && body.updated.some((u) => u.uuid === a2));
+    assert.deepEqual(body.skipped, [{ uuid: omegaUuid, reason: "OMEGA_OBJECT_CRYSTAL" }]);
+    assert.deepEqual(body.missing, ["00000000-0000-4000-8000-000000000000"]);
+    assert.equal(body.unchanged, 0);
+
+    // 落地讀回：相位與版本遞增
+    const read1 = await fetch(base(port) + "/api/notes/" + a1);
+    const n1 = ((await read1.json()) as { node: { matrix_phase: string; version: string } }).node;
+    assert.equal(n1.matrix_phase, "SIGMA_GRAPH_SYNTHESIS");
+
+    // 冪等重跑：已在 SIGMA 者 unchanged 零寫入
+    const rerun = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [a1, a2], to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+    });
+    const rerunBody = (await rerun.json()) as { updated: unknown[]; unchanged: number };
+    assert.equal(rerunBody.updated.length, 0);
+    assert.equal(rerunBody.unchanged, 2);
+
+    // 道閘：空 uuids、非 SIGMA 目標皆 422
+    for (const payload of [
+      { uuids: [], to_phase: "SIGMA_GRAPH_SYNTHESIS" },
+      { uuids: [a1] },
+      { uuids: [a1], to_phase: "OMEGA_OBJECT_CRYSTAL" },
+      { uuids: [a1], to_phase: "ALPHA_ORIGIN_CAPTURE" },
+    ]) {
+      const gate = await fetch(base(port) + "/api/notes/phases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const j = (await gate.json()) as { ok: boolean; error: string };
+      assert.equal(gate.status, 422);
+      assert.equal(j.error, "INVALID_BATCH_PHASE");
+    }
+  });
+});
