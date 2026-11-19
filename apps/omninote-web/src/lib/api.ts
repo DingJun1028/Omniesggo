@@ -275,6 +275,24 @@ export async function batchUpdateTags(
   });
 }
 
+/** 三十九期：批次相位躍遷回應（POST /api/notes/phases，三十八期端點）。 */
+export interface OmniApiBatchPhasesReport {
+  ok: boolean;
+  updated: Array<{ uuid: string; matrix_phase: string }>;
+  missing: string[];
+  skipped: Array<{ uuid: string; reason: string }>;
+  unchanged: number;
+  total: number;
+}
+
+/** 批次熔合 SIGMA：同單節點 sigma 語義；skipped 之 reason 如實回報（OMEGA 結晶體或無非墓碑區塊）。 */
+export async function batchFuseSigma(uuids: string[]): Promise<OmniApiBatchPhasesReport> {
+  return request<OmniApiBatchPhasesReport>("/api/notes/phases", {
+    method: "POST",
+    body: JSON.stringify({ uuids, to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+  });
+}
+
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {
   const r = await request<{ ok: boolean; node: OmniApiNode }>("/api/notes", {
     method: "POST",

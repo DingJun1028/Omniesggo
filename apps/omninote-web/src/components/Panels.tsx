@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { OmniApiDraft, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 import {
   batchUpdateTags,
+  batchFuseSigma,
   buildExportUrl,
   deleteDraft,
   deleteNote,
@@ -90,6 +91,26 @@ export function NotesBoard({
       onChanged();
     } catch (err) {
       setBatchMessage(err instanceof Error ? err.message : "批次操作失敗");
+    } finally {
+      setBatchBusy(false);
+    }
+  };
+
+  /** 三十九期：批次熔合 SIGMA（對接 POST /api/notes/phases）；報告 updated/unchanged/skipped/missing 四類如實顯示。 */
+  const runBatchFuse = async () => {
+    if (batchBusy || batchSelected.size === 0) return;
+    setBatchBusy(true);
+    setBatchMessage("操作中…");
+    try {
+      const report = await batchFuseSigma([...batchSelected]);
+      const parts = [`已更新 ${report.updated.length} 則`, `無變化 ${report.unchanged}`];
+      if (report.skipped.length > 0) parts.push(`跳過 ${report.skipped.length}`);
+      if (report.missing.length > 0) parts.push(`不存在 ${report.missing.length}`);
+      setBatchMessage(parts.join(" · "));
+      setBatchSelected(new Set());
+      onChanged();
+    } catch (err) {
+      setBatchMessage(err instanceof Error ? err.message : "批次熔合失敗");
     } finally {
       setBatchBusy(false);
     }
@@ -193,6 +214,15 @@ export function NotesBoard({
               onClick={() => void runBatch("remove")}
             >
               移除標籤
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-sigma/60 disabled:opacity-50"
+              disabled={batchBusy}
+              onClick={() => void runBatchFuse()}
+              title="批次熔合 SIGMA（POST /api/notes/phases）：OMEGA 結晶體與無非墓碑區塊者如實跳過"
+            >
+              批次熔合 SIGMA
             </button>
             <button
               type="button"
