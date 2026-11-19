@@ -324,7 +324,11 @@ export async function batchFuseSigma(uuids: string[]): Promise<OmniApiBatchPhase
   });
 }
 
-/** 批次逆向投影（四十三期，對接四十一期端點擴充）：OMEGA 結晶體或 SIGMA 節點逐節點回流 ALPHA 捕獲態，同單節點 reverse 語義；逆向道無 skipped，已在 ALPHA 者不變。 */
+/**
+ * 批次逆向投影（四十三期，對接四十一期 to_phase 擴充）：OMEGA 結晶體或 SIGMA 節點
+ * 逐節點回流為 ALPHA 捕獲態（同單節點 reverse 端點語義，證據入鏈 ON_REVERSE_PROJECT、
+ * lock_hash 重算、向量重註冊）；逆向投影道無 skipped（引擎如實標示）。
+ */
 export async function batchProjectAlpha(uuids: string[]): Promise<OmniApiBatchPhasesReport> {
   return request<OmniApiBatchPhasesReport>("/api/notes/phases", {
     method: "POST",
