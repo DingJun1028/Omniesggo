@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { OmniApiDraft, OmniApiGlobalEvidencePage, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 import {
+  batchProjectAlpha,
   batchUpdateTags,
   batchFuseSigma,
   buildExportUrl,
@@ -21,6 +22,16 @@ const PHASE_CLASS: Record<string, string> = {
   SIGMA_GRAPH_SYNTHESIS: "phase-sigma",
   OMEGA_OBJECT_CRYSTAL: "phase-omega",
 };
+
+/** 批次相位躍遷報告文字化（四十三期去重共用）：熔合道與逆向投影道共用，四類計數如實顯示（零值類省略）。 */
+function formatBatchPhasesReport(
+  report: { updated: unknown[]; unchanged: number; skipped: unknown[]; missing: unknown[] },
+): string {
+  const parts = [`已更新 ${report.updated.length} 則`, `無變化 ${report.unchanged}`];
+  if (report.skipped.length > 0) parts.push(`跳過 ${report.skipped.length}`);
+  if (report.missing.length > 0) parts.push(`不存在 ${report.missing.length}`);
+  return parts.join(" · ");
+}
 
 export function NotesBoard({
   notes,
@@ -104,14 +115,28 @@ export function NotesBoard({
     setBatchMessage("操作中…");
     try {
       const report = await batchFuseSigma([...batchSelected]);
-      const parts = [`已更新 ${report.updated.length} 則`, `無變化 ${report.unchanged}`];
-      if (report.skipped.length > 0) parts.push(`跳過 ${report.skipped.length}`);
-      if (report.missing.length > 0) parts.push(`不存在 ${report.missing.length}`);
-      setBatchMessage(parts.join(" · "));
+      setBatchMessage(formatBatchPhasesReport(report));
       setBatchSelected(new Set());
       onChanged();
     } catch (err) {
       setBatchMessage(err instanceof Error ? err.message : "批次熔合失敗");
+    } finally {
+      setBatchBusy(false);
+    }
+  };
+
+  /** 四十三期：批次逆向投影（對接四十一期 to_phase ALPHA_ORIGIN_CAPTURE）；OMEGA／SIGMA 逐節點回流 ALPHA，逆向道無 skipped，報告如實顯示。 */
+  const runBatchReverse = async () => {
+    if (batchBusy || batchSelected.size === 0) return;
+    setBatchBusy(true);
+    setBatchMessage("操作中…");
+    try {
+      const report = await batchProjectAlpha([...batchSelected]);
+      setBatchMessage(formatBatchPhasesReport(report));
+      setBatchSelected(new Set());
+      onChanged();
+    } catch (err) {
+      setBatchMessage(err instanceof Error ? err.message : "批次逆向投影失敗");
     } finally {
       setBatchBusy(false);
     }
@@ -224,6 +249,15 @@ export function NotesBoard({
               title="批次熔合 SIGMA（POST /api/notes/phases）：OMEGA 結晶體與無非墓碑區塊者如實跳過"
             >
               批次熔合 SIGMA
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-alpha/60 disabled:opacity-50"
+              disabled={batchBusy}
+              onClick={() => void runBatchReverse()}
+              title="批次逆向投影（POST /api/notes/phases，to_phase ALPHA_ORIGIN_CAPTURE）：OMEGA 結晶體或 SIGMA 節點逐節點回流 ALPHA 捕獲態；已在 ALPHA 者不變（無變化）"
+            >
+              批次逆向投影
             </button>
             <button
               type="button"
