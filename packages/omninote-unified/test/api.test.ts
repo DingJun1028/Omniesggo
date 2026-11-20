@@ -1200,7 +1200,6 @@ test("API-26 全域證據時間軸：跨節點彙整、captured_at 升冪、hook
     }
   });
 });
-\n
 
 test("API-28 全域證據 hook 別統計（四十四期）：空庫零列、總數、首現順序與首末 captured_at", async () => {
   await withServer(async ({ port }) => {
