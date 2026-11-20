@@ -1200,3 +1200,57 @@ test("API-26 全域證據時間軸：跨節點彙整、captured_at 升冪、hook
     }
   });
 });
+\n
+
+test("API-28 全域證據 hook 別統計（四十四期）：空庫零列、總數、首現順序與首末 captured_at", async () => {
+  await withServer(async ({ port }) => {
+    // 空庫如實回零與 null
+    const empty = await fetch(base(port) + "/api/evidence/stats");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as {
+      ok: boolean; total: number; by_hook: Record<string, number>; hooks: string[];
+      first_captured_at: string | null; last_captured_at: string | null;
+    };
+    assert.equal(emptyBody.ok, true);
+    assert.equal(emptyBody.total, 0);
+    assert.deepEqual(emptyBody.by_hook, {});
+    assert.deepEqual(emptyBody.hooks, []);
+    assert.equal(emptyBody.first_captured_at, null);
+    assert.equal(emptyBody.last_captured_at, null);
+
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string; evidence: Array<{ hook_lifecycle: string; captured_at: string }> } };
+      return b.node;
+    };
+    const n1 = await post("統計節點一");
+    const n2 = await post("統計節點二");
+    const totalExpected = n1.evidence.length + n2.evidence.length;
+    assert.ok(totalExpected >= 2);
+
+    const res = await fetch(base(port) + "/api/evidence/stats");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean; total: number; by_hook: Record<string, number>; hooks: string[];
+      first_captured_at: string | null; last_captured_at: string | null;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, totalExpected);
+    // by_hook 總和等於 total；hooks 首現順序與節點級彙整一致
+    const sum = Object.values(body.by_hook).reduce((a, b) => a + b, 0);
+    assert.equal(sum, totalExpected);
+    assert.equal(body.hooks.length, Object.keys(body.by_hook).length);
+    for (const h of body.hooks) assert.ok(typeof body.by_hook[h] === "number" && body.by_hook[h] > 0);
+    // ON_ALPHA_CAPTURE 至少 2 筆（兩節點捕獲各一）
+    assert.ok((body.by_hook["ON_ALPHA_CAPTURE"] ?? 0) >= 2);
+    // 首末 captured_at 為字串排序非時間權威：與時間軸首尾一致
+    const timeline = await fetch(base(port) + "/api/evidence?limit=500");
+    const tl = (await timeline.json()) as { entries: Array<{ entry: { captured_at: string } }> };
+    assert.equal(body.first_captured_at, tl.entries[0]?.entry.captured_at ?? null);
+    assert.equal(body.last_captured_at, tl.entries[tl.entries.length - 1]?.entry.captured_at ?? null);
+  });
+});
