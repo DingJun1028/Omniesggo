@@ -329,7 +329,9 @@ export function NotesBoard({
 }
 
 export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => void }) {
-  const PAGE_SIZE = 20;
+  /** 四十六期：每頁筆數選擇（10／20／50）與頁碼視窗跳轉。 */
+  const PAGE_SIZES = [10, 20, 50] as const;
+  const [pageSize, setPageSize] = useState<number>(20);
   const [page, setPage] = useState(0);
   const [hook, setHook] = useState("");
   const [data, setData] = useState<OmniApiGlobalEvidencePage | null>(null);
@@ -340,15 +342,16 @@ export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => v
   const [statsBusy, setStatsBusy] = useState(false);
   const [statsMessage, setStatsMessage] = useState<string | null>(null);
 
-  const load = async (target: number, hookOverride?: string): Promise<void> => {
+  const load = async (target: number, hookOverride?: string, sizeOverride?: number): Promise<void> => {
     if (busy) return;
     setBusy(true);
     setMessage(null);
     try {
       const trimmed = (hookOverride ?? hook).trim();
+      const size = sizeOverride ?? pageSize;
       const res = await fetchGlobalEvidenceTimeline({
-        limit: PAGE_SIZE,
-        offset: target * PAGE_SIZE,
+        limit: size,
+        offset: target * size,
         hook: trimmed.length > 0 ? trimmed : undefined,
       });
       setData(res);
@@ -389,6 +392,27 @@ export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => v
 
   const hasPrev = (data?.offset ?? 0) > 0;
   const hasNext = data !== null && data.offset + data.entries.length < data.total;
+  const totalPages = data !== null ? Math.max(1, Math.ceil(data.total / pageSize)) : 1;
+  const pageWindow: Array<number | "ellipsis"> = [];
+  if (totalPages <= 7) {
+    for (let i = 0; i < totalPages; i++) pageWindow.push(i);
+  } else {
+    pageWindow.push(0);
+    const lo = Math.max(1, page - 1);
+    const hi = Math.min(totalPages - 2, page + 1);
+    if (lo > 1) pageWindow.push("ellipsis");
+    for (let i = lo; i <= hi; i++) pageWindow.push(i);
+    if (hi < totalPages - 2) pageWindow.push("ellipsis");
+    pageWindow.push(totalPages - 1);
+  }
+  const jumpTo = (target: number): void => {
+    if (target >= 0 && target < totalPages) void load(target);
+  };
+  const changePageSize = (size: number): void => {
+    if (!PAGE_SIZES.includes(size as (typeof PAGE_SIZES)[number]) || size === pageSize) return;
+    setPageSize(size);
+    void load(0, undefined, size);
+  };
 
   return (
     <div className="glass p-5">
@@ -487,20 +511,55 @@ export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => v
           ))}
         </ul>
       )}
-      <div className="mt-3 flex items-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="text-[10px] text-slate-400" htmlFor="omni-evidence-page-size">
+          每頁
+        </label>
+        <select
+          id="omni-evidence-page-size"
+          className="rounded-lg border border-slate-100/10 bg-slate-900/60 px-1.5 py-1 text-[10px] text-slate-200 disabled:opacity-50"
+          value={pageSize}
+          disabled={busy}
+          onChange={(e) => changePageSize(Number(e.target.value))}
+          title="每頁筆數（limit 1..500 道閘內之 10／20／50）"
+        >
+          {PAGE_SIZES.map((size) => (
+            <option key={size} value={size}>{size} 筆</option>
+          ))}
+        </select>
         <button
           type="button"
           className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 disabled:opacity-40"
           disabled={busy || !hasPrev}
-          onClick={() => void load(page - 1)}
+          onClick={() => jumpTo(page - 1)}
         >
           上一頁
         </button>
+        {pageWindow.map((item, i) =>
+          item === "ellipsis" ? (
+            <span key={`ellipsis-${i}`} className="px-1 text-[10px] text-slate-500">…</span>
+          ) : (
+            <button
+              key={item}
+              type="button"
+              className={`min-w-[24px] rounded-lg border px-1.5 py-1 text-[10px] transition ${
+                item === page
+                  ? "border-omni-alpha/60 bg-omni-alpha/20 text-omni-alpha"
+                  : "border-slate-100/10 text-slate-300 hover:border-omni-alpha/40"
+              }`}
+              disabled={busy}
+              onClick={() => jumpTo(item)}
+              title={`跳轉至第 ${item + 1} 頁`}
+            >
+              {item + 1}
+            </button>
+          ),
+        )}
         <button
           type="button"
           className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 disabled:opacity-40"
           disabled={busy || !hasNext}
-          onClick={() => void load(page + 1)}
+          onClick={() => jumpTo(page + 1)}
         >
           下一頁
         </button>
