@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { OmniApiDraft, OmniApiGlobalEvidencePage, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
+import type {
+  OmniApiDraft,
+  OmniApiGlobalEvidencePage,
+  OmniApiGlobalEvidenceStats,
+  OmniApiNode,
+  OmniApiTagsOverview,
+} from "@/lib/api";
 import {
   batchProjectAlpha,
   batchUpdateTags,
@@ -10,6 +16,7 @@ import {
   deleteDraft,
   deleteNote,
   fetchEntropyStats,
+  fetchGlobalEvidenceStats,
   fetchGlobalEvidenceTimeline,
   fetchTagsOverview,
   importArchive,
@@ -329,12 +336,16 @@ export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => v
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-  const load = async (target: number): Promise<void> => {
+  const [stats, setStats] = useState<OmniApiGlobalEvidenceStats | null>(null);
+  const [statsBusy, setStatsBusy] = useState(false);
+  const [statsMessage, setStatsMessage] = useState<string | null>(null);
+
+  const load = async (target: number, hookOverride?: string): Promise<void> => {
     if (busy) return;
     setBusy(true);
     setMessage(null);
     try {
-      const trimmed = hook.trim();
+      const trimmed = (hookOverride ?? hook).trim();
       const res = await fetchGlobalEvidenceTimeline({
         limit: PAGE_SIZE,
         offset: target * PAGE_SIZE,
@@ -350,8 +361,29 @@ export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => v
     }
   };
 
+  /** 四十五期：全域證據 hook 別統計（唯讀聚合）；失敗如實顯示不打斷時間軸。 */
+  const loadStats = async (): Promise<void> => {
+    if (statsBusy) return;
+    setStatsBusy(true);
+    setStatsMessage(null);
+    try {
+      setStats(await fetchGlobalEvidenceStats());
+    } catch (err) {
+      setStatsMessage(err instanceof Error ? err.message : "統計載入失敗");
+    } finally {
+      setStatsBusy(false);
+    }
+  };
+
+  /** 點擊徽章即以該 hook 篩選時間軸（同步更新輸入框，避免狀態不同步）。 */
+  const applyHookBadge = (h: string): void => {
+    setHook(h);
+    void load(0, h);
+  };
+
   useEffect(() => {
     void load(0);
+    void loadStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -386,6 +418,42 @@ export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => v
         </button>
         {busy && <span className="text-[10px] text-slate-500">載入中…</span>}
       </div>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 transition hover:border-omni-alpha/60 disabled:opacity-50"
+          disabled={statsBusy}
+          onClick={() => void loadStats()}
+          title="GET /api/evidence/stats 全域 hook 別統計（唯讀聚合）"
+        >
+          {statsBusy ? "統計載入中…" : "hook 別統計"}
+        </button>
+        {stats !== null && (
+          <span className="text-[10px] text-slate-500">
+            共 {stats.total} 筆證據 · 首筆 {stats.first_captured_at ?? "—"} · 末筆 {stats.last_captured_at ?? "—"}（字串排序非時間權威）
+          </span>
+        )}
+        {statsMessage !== null && <span className="text-[10px] text-slate-400">{statsMessage}</span>}
+      </div>
+      {stats !== null && stats.hooks.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {stats.hooks.map((h) => (
+            <button
+              key={h}
+              type="button"
+              className={`rounded-full px-2 py-0.5 text-[10px] transition ${
+                hook.trim() === h
+                  ? "bg-omni-sigma/40 text-omni-sigma"
+                  : "bg-slate-700/50 text-slate-300 hover:bg-slate-600/60"
+              }`}
+              onClick={() => applyHookBadge(h)}
+              title={`${h} × ${stats.by_hook[h] ?? 0} 筆，點擊以該 hook 篩選時間軸`}
+            >
+              {h} × {stats.by_hook[h] ?? 0}
+            </button>
+          ))}
+        </div>
+      )}
       {data !== null && data.entries.length > 0 && (
         <p className="mt-2 text-[10px] text-slate-500">
           第 {data.offset + 1}–{data.offset + data.entries.length} 筆 / 共 {data.total} 筆
