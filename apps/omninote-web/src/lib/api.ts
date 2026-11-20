@@ -184,6 +184,21 @@ export async function fetchGlobalEvidenceTimeline(
   return request<OmniApiGlobalEvidencePage>(`/api/evidence${qs}`);
 }
 
+/** 四十五期：全域證據 hook 別統計回應（GET /api/evidence/stats，四十四期端點），跨節點彙整、無 uuid／node_version 綁定。 */
+export interface OmniApiGlobalEvidenceStats {
+  ok: boolean;
+  total: number;
+  by_hook: Record<string, number>;
+  hooks: string[];
+  first_captured_at: string | null;
+  last_captured_at: string | null;
+}
+
+/** 全域證據 hook 別統計（唯讀聚合）：captured_at 為字串排序非時間權威（引擎端已如實標示）。 */
+export async function fetchGlobalEvidenceStats(): Promise<OmniApiGlobalEvidenceStats> {
+  return request<OmniApiGlobalEvidenceStats>(`/api/evidence/stats`);
+}
+
 /** 二十四期：證據鏈 hook 別統計回應（GET /api/notes/:uuid/evidence/stats）。 */
 export interface OmniApiEvidenceStats {
   ok: boolean;
