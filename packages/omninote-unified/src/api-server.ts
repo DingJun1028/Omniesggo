@@ -7,7 +7,7 @@
  * ============================================================================
  */
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import type { CRDTBlock, SyncDeltaPacket, UnifiedNode } from "./core-types.js";
+import type { CRDTBlock, EvidenceEntry, SyncDeltaPacket, UnifiedNode } from "./core-types.js";
 import { UnifiedMatrixEngine, computeNodeLockHash, sha256 } from "./matrix-engine.js";
 import { sealWithStructuralSharing } from "./perf.js";
 import { OmniStorageAdapter } from "./storage-adapter.js";
@@ -89,6 +89,7 @@ export class OmniNoteLocalApiServer {
     "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
     "GET /api/graph": (self, req, res) => self.respondGraphProjection(req, res),
     "GET /api/evidence": (self, req, res) => self.respondGlobalEvidenceTimeline(req, res),
+    "GET /api/evidence/stats": (self, _req, res) => self.respondGlobalEvidenceStats(res),
     "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
     "POST /api/notes/tags": (self, req, res) => self.handleBatchTags(req, res),
     "POST /api/notes/phases": (self, req, res) => self.handleBatchPhases(req, res),
@@ -615,11 +616,26 @@ export class OmniNoteLocalApiServer {
     const query = this.parseEvidenceTimelineQuery(req, res);
     if (query === null) return;
     const { limit, offset, hook } = query;
+    const timeline = await this.buildGlobalEvidenceTimeline(hook);
+    return sendJson(res, 200, {
+      ok: true,
+      total: timeline.length,
+      offset,
+      limit,
+      entries: timeline.slice(offset, offset + limit),
+    });
+  }
+
+  /** 全域證據時間軸建構共用輔助（四十期時間軸與四十四期 hook 別統計共用，避免重複區塊）：
+   *  跨節點彙整（可選 hook 精確過濾）後依 captured_at 字串升冪穩定排序（同值平手依 uuid 升冪、再依節點內入鏈順序）。 */
+  private async buildGlobalEvidenceTimeline(
+    hook: string | null,
+  ): Promise<Array<{ uuid: string; node_version: string; lock_hash: string; entry: EvidenceEntry }>> {
     const uuids = await this.storage.listUuids();
     const nodes = (
       await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
     ).filter((n): n is UnifiedNode => n !== null);
-    const timeline: Array<{ uuid: string; node_version: string; lock_hash: string; entry: (typeof nodes)[number]["evidence"][number] }> = [];
+    const timeline: Array<{ uuid: string; node_version: string; lock_hash: string; entry: EvidenceEntry }> = [];
     for (const node of nodes) {
       for (const entry of node.evidence) {
         if (hook !== null && entry.hook_lifecycle !== hook) continue;
@@ -633,12 +649,28 @@ export class OmniNoteLocalApiServer {
       if (a.uuid !== b.uuid) return a.uuid < b.uuid ? -1 : 1;
       return 0;
     });
+    return timeline;
+  }
+
+  /**
+   * 四十四期：全域證據 hook 別統計（唯讀聚合，節點級二十三期 stats 之全域版）。
+   * GET /api/evidence/stats → { ok, total, by_hook, hooks, first_captured_at, last_captured_at }
+   * hooks 依時間軸（captured_at 升冪）首現順序；by_hook 為 hook → 筆數映射；
+   * captured_at 取自證據項欄位（字串排序非時間權威，如實標示）；空庫如實回零與 null。
+   */
+  private async respondGlobalEvidenceStats(res: ServerResponse): Promise<void> {
+    const timeline = await this.buildGlobalEvidenceTimeline(null);
+    const entries = timeline.map((item) => item.entry);
+    const { by_hook, hooks } = this.aggregateEvidenceHooks(entries);
+    const first = timeline[0]?.entry.captured_at ?? null;
+    const last = timeline.length > 0 ? timeline[timeline.length - 1]?.entry.captured_at ?? null : null;
     return sendJson(res, 200, {
       ok: true,
-      total: timeline.length,
-      offset,
-      limit,
-      entries: timeline.slice(offset, offset + limit),
+      total: entries.length,
+      by_hook,
+      hooks,
+      first_captured_at: first,
+      last_captured_at: last,
     });
   }
 
