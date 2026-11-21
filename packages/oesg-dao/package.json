@@ -30,6 +30,6 @@
     "@esggo/oesg-pulse": "workspace:*",
     "@esggo/oesg-report": "workspace:*",
     "typescript": "^7.0.2",
-    "vitest": ">=4.1.11 <5"
+    "vitest": ">=4.1.11 <6"
   }
 }
