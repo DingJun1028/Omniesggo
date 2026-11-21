@@ -134,6 +134,24 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
   const run = async () => {
+    // 解析共用 flag: --backend=auto|local|ncb, --clear-cache
+    const userBackend = rest.find(a => a.startsWith('--backend='));
+    const clearCache = rest.includes('--clear-cache');
+    if (userBackend) {
+      const val = userBackend.slice('--backend='.length).toLowerCase();
+      if (['auto', 'local', 'ncb'].includes(val)) {
+        process.env.JUNAKEY_BACKEND = val;
+      } else {
+        console.log('[junaikey] ✗ --backend 接受值: auto | local | ncb');
+        process.exit(1);
+      }
+    }
+
+    // 強制清除 dispatcher cache（若有要求）
+    if (clearCache) {
+      dispatcher.resetCache();
+    }
+
     switch (cmd) {
       case 'awaken': return ops.awaken();
       case 'grow': {
@@ -174,6 +192,7 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         break;
       }
       case 'query': {
+        const requested = process.env.JUNAKEY_BACKEND || 'auto';
         const opts = {};
         for (const a of rest) {
           if (a.startsWith('--tag=')) opts.tag = a.slice(5);
@@ -182,7 +201,7 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
           else if (a.startsWith('--contains=')) opts.contains = a.slice(11);
         }
         const out = await ops.recall(opts);
-        console.log(JSON.stringify(out, null, 2));
+        console.log(JSON.stringify({ requested: requested, count: Array.isArray(out) ? out.length : 1, items: out }, null, 2));
         break;
       }
       case 'search': {
@@ -233,6 +252,7 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         const be = await dispatcher.select();
         console.log(JSON.stringify({
           selected: be.name,
+          requested: process.env.JUNAKEY_BACKEND || 'auto',
           ncbConfigured: !!NCB_TOKEN && !!NCB_PROJECT,
           ncbBase: NCB_BASE, ncbProject: NCB_PROJECT,
           ncbTables: NCB_TABLES,
@@ -242,12 +262,16 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         break;
       }
       case 'doctor': {
+        const requested = process.env.JUNAKEY_BACKEND || 'auto';
+        const active = await dispatcher.select();
         const out = {
-          env: { JUNAKEY_HOME, JUNAKEY_BACKEND, NCB_TOKEN_set: !!NCB_TOKEN, NCB_PROJECT: NCB_PROJECT || '(unset)', NCB_BASE },
+          env: { JUNAKEY_HOME, JUNAKEY_BACKEND: requested, NCB_TOKEN_set: !!NCB_TOKEN, NCB_PROJECT: NCB_PROJECT || '(unset)', NCB_BASE },
           backends: { local: 'available', ncb: 'pending' },
         };
         out.backends.ncb = (await ncbBackend.health?.()) ? 'healthy' : `unhealthy (${ncbBackend.lastError || 'no token'})`;
-        out.activeBackend = (await dispatcher.select()).name;
+        out.activeBackend = active.name;
+        out.requested = requested;
+        out.cacheCleared = false;
         console.log(JSON.stringify(out, null, 2));
         break;
       }

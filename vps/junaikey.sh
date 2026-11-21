@@ -69,6 +69,27 @@ superpowers_reset() {
 }
 
 # --- 執行 ---
+JUNAKEY_BACKEND_FLAG=""
+JUNAKEY_BACKEND_OVERRIDE=""
+
+for arg in "$@"; do
+  case "$arg" in
+    --backend=*)
+      JUNAKEY_BACKEND_OVERRIDE="${arg#*=}"
+      ;;
+    --clear-cache)
+      JUNAKEY_BACKEND_FLAG="--clear-cache"
+      ;;
+    *)
+      ;;
+  esac
+done
+
+# 預設: local（NCB 是外部主機, 本機永久可用）
+if [ -z "$JUNAKEY_BACKEND_OVERRIDE" ]; then
+  JUNAKEY_BACKEND_OVERRIDE="local"
+fi
+
 case "${1:-}" in
   superpowers)
     if [[ $# -lt 2 ]]; then
@@ -85,10 +106,12 @@ case "${1:-}" in
     superpowers_reset
     ;;
   *)
-    # 預設: 傳遞給 junaikey.mjs
-    exec node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
+    # 預設: 傳遞給 junaikey.mjs, 並強制指定 backend
+    if [ -n "$JUNAKEY_BACKEND_FLAG" ]; then
+      exec env JUNAKEY_BACKEND="$JUNAKEY_BACKEND_OVERRIDE" node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
+    else
+      # 傳遞已經有 backend flag 的情況已經由上面處理
+      exec env JUNAKEY_BACKEND="$JUNAKEY_BACKEND_OVERRIDE" node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
+    fi
     ;;
 esac
-
-# 關鍵: 使用 </dev/null 作為輸出重定向, 絕不可將 </dev/null 作為變數值傳遞
-exec node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
