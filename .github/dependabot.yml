@@ -126,12 +126,15 @@ updates:
     ignore:
       - dependency-name: "undici"
 
-  # === npm (/.github/worker-tools — omnigateway-ci-tools) ===
+  # === npm (deploy/worker-tools — omnigateway-ci-tools) ===
   # 2026-10-31 新增（PR #125）：此目錄先前無 config 條目，Dependabot 安全更新
   # 對 wrangler 之傳遞依賴 undici 之修補嘗試因版本鎖定必失敗（failed run 噪音）。
   # 列管後以 ignore 消除噪音；typescript 5.9 / wrangler 直接依賴更新照常啟用。
   - package-ecosystem: "npm"
-    directory: "/.github/worker-tools"
+    directory: "/deploy/worker-tools"
+    # 2026-11-21 決策（issue #259）：自 .github/ 遷出——GitHub 自 2026-05 起
+    # 拒絕 Dependabot 對 .github/ 內 npm/uv 檔案之 PR 建立
+    # （HTTP 400 invalid or unauthorized changes），遷出後 Dependabot 恢復可建 PR。
     schedule:
       interval: "weekly"
       day: "friday"
