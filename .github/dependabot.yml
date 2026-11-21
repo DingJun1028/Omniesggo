@@ -48,7 +48,7 @@ updates:
       # 2026-11-13 決策（比照 DIN-15，PR #251 評估結案）：
       # tailwindcss 3→4 為破壞性大版本（6 個 app 仍在 3.x），PR #251
       # TypeCheck+next build/build/Docker Build Test 全紅。major 不自動開 PR，
-      # 未來遷移 tailwind 4 需先備妥 migration plan 再手動進行。
+      # 未來若要遷移 tailwind 4 需先備妥 migration plan 再手動進行。
       - dependency-name: "tailwindcss"
         update-types:
           - "version-update:semver-major"
@@ -165,6 +165,15 @@ updates:
       - dependency-name: "chromadb"
         versions:
           - "<= 1.0.0"
+    # 2026-11-21 決策（issue #258）：crewai 與 crewai-tools 為成對版本，
+    # Dependabot 分別單獨更新必令 resolver 不滿足（各自要求對方同版，
+    # run #253 等失敗實證）。以 group 令兩者同組、單一 PR 同時升版，
+    # requires-python（>=3.11.5,<3.14）維持不變。
+    groups:
+      crewai-suite:
+        applies-to: version-updates
+        patterns:
+          - "crewai*"
 
 # === 全域安全策略備註 ===
 # - npm/pnpm 用 pnpm 自動處理 lockfile
