@@ -30,7 +30,10 @@ yarn-error.log*
 .env.example
 !vps/.env.example
 !apps/omni-blueprint-hub/.env.example
+!apps/universal-translator/.env.example
 .env.local.sample
+.env*
+!apps/universal-translator/.env.example
 secrets/
 
 # VPS gateway runtime secrets (NEVER commit)
@@ -348,7 +351,6 @@ prisma-backup-*/
 rules-tutorial/
 functions/node_modules/
 
-.env*
 # ?�?� 調試?�物 (?�地 watchdog / trace, 不�??��??�控?? ?�?�
 wd_out.txt
 wd_trace.txt
