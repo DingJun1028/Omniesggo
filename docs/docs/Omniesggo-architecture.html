@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Omniesggo｜萬能十二大架構 × 程式庫地圖</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#080d16;--bg2:#0c1220;--bg3:#111827;--bg4:#1a2236;
+    --cyan:#22d3ee;--blue:#3b82f6;--violet:#a78bfa;--amber:#f59e0b;
+    --green:#34d399;--pink:#f472b6;--red:#ef4444;--white:#e2e8f0;
+    --dim:#64748b;--code-bg:#0f172a;
+    --font-body:'Segoe UI','Microsoft JhengHei','Noto Sans TC',sans-serif;
+    --font-code:'JetBrains Mono','Cascadia Code','Fira Code',monospace;
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--white);font-family:var(--font-body);line-height:1.6;overflow-x:hidden}
+  a{color:var(--cyan);text-decoration:none;transition:color .2s}
+  a:hover{color:var(--green);text-decoration:underline}
+  code,pre{font-family:var(--font-code);font-size:.82em}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
+  .hero{text-align:center;padding:56px 20px 40px;position:relative;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(34,211,238,.08),transparent 70%);pointer-events:none}
+  .hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;background:linear-gradient(135deg,var(--cyan),var(--violet));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;animation:fadeUp .8s ease-out both}
+  .hero .sub{color:var(--dim);font-size:clamp(.85rem,2vw,1rem);max-width:640px;margin:0 auto;animation:fadeUp .8s .15s ease-out both}
+  .hero .badge{display:inline-block;margin-top:14px;padding:4px 14px;border:1px solid var(--cyan);border-radius:20px;font-size:.78rem;color:var(--cyan);animation:fadeUp .8s .3s ease-out both}
+  section{padding:36px 0}
+  .stitle{font-size:clamp(1.1rem,3vw,1.45rem);font-weight:700;margin-bottom:20px;padding-left:14px;border-left:3px solid var(--cyan);animation:fadeUp .6s ease-out both}
+  .stitle span{color:var(--dim);font-size:.82em;font-weight:400;margin-left:8px}
+  .lang-bars{display:flex;flex-direction:column;gap:10px}
+  .lang-row{display:flex;align-items:center;gap:10px;animation:fadeUp .5s ease-out both}
+  .lang-row:nth-child(1){animation-delay:.1s}.lang-row:nth-child(2){animation-delay:.15s}.lang-row:nth-child(3){animation-delay:.2s}.lang-row:nth-child(4){animation-delay:.25s}.lang-row:nth-child(5){animation-delay:.3s}.lang-row:nth-child(6){animation-delay:.35s}.lang-row:nth-child(7){animation-delay:.4s}
+  .lang-label{width:100px;text-align:right;font-size:.85rem;flex-shrink:0}
+  .lang-track{flex:1;height:26px;background:var(--bg3);border-radius:4px;overflow:hidden}
+  .lang-fill{height:100%;border-radius:4px;animation:barGrow 1.2s ease-out both;transform-origin:left}
+  .lang-pct{font-size:.78rem;color:var(--dim);width:48px;text-align:left;flex-shrink:0}
+  @keyframes barGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+  .arch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .arch-card{background:var(--bg3);border-radius:8px;padding:16px 16px 14px 18px;border-left:3px solid var(--cyan);position:relative;animation:riseIn .6s ease-out both;transition:transform .2s,box-shadow .2s}
+  .arch-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.4)}
+  .arch-card .chap{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px}
+  .arch-card h3{font-size:.95rem;font-weight:700;margin-bottom:4px}
+  .arch-card .desc{font-size:.82rem;color:var(--dim);margin-bottom:6px}
+  .arch-card .paths{font-family:var(--font-code);font-size:.72rem}
+  .arch-card .paths a{color:var(--cyan);font-size:.72rem}
+  .arch-card[data-cat="core"]{border-left-color:var(--cyan)}
+  .arch-card[data-cat="agent"]{border-left-color:var(--blue)}
+  .arch-card[data-cat="protocol"]{border-left-color:var(--violet)}
+  .arch-card[data-cat="spirit"]{border-left-color:var(--pink)}
+  .arch-card[data-cat="practice"]{border-left-color:var(--green)}
+  .arch-card[data-cat="lock"]{border-left-color:var(--amber)}
+  .arch-card:nth-child(1){animation-delay:.05s}.arch-card:nth-child(2){animation-delay:.1s}.arch-card:nth-child(3){animation-delay:.15s}.arch-card:nth-child(4){animation-delay:.2s}.arch-card:nth-child(5){animation-delay:.25s}.arch-card:nth-child(6){animation-delay:.3s}.arch-card:nth-child(7){animation-delay:.35s}.arch-card:nth-child(8){animation-delay:.4s}.arch-card:nth-child(9){animation-delay:.45s}.arch-card:nth-child(10){animation-delay:.5s}.arch-card:nth-child(11){animation-delay:.55s}.arch-card:nth-child(12){animation-delay:.6s}
+  @keyframes riseIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  .pipeline{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:8px 0}
+  .pipe-node{flex:1;min-width:150px;background:var(--bg3);border-radius:8px;padding:14px 12px;text-align:center;position:relative;animation:riseIn .6s ease-out both}
+  .pipe-node:nth-child(1){animation-delay:.1s}.pipe-node:nth-child(3){animation-delay:.2s}.pipe-node:nth-child(5){animation-delay:.3s}.pipe-node:nth-child(7){animation-delay:.4s}.pipe-node:nth-child(9){animation-delay:.5s}
+  .pipe-node h4{font-size:.95rem;margin-bottom:4px}
+  .pipe-node .pdesc{font-size:.78rem;color:var(--dim);margin-bottom:6px}
+  .pipe-node .pfile{font-family:var(--font-code);font-size:.68rem}
+  .pipe-node .pfile a{color:var(--cyan);font-size:.68rem}
+  .pipe-connector{width:36px;min-width:36px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .pipe-connector svg{overflow:visible}
+  .pipe-connector line{stroke:var(--cyan);stroke-width:2;stroke-dasharray:6 4;animation:dashFlow 1s linear infinite}
+  .pipe-connector polygon{fill:var(--cyan)}
+  @keyframes dashFlow{to{stroke-dashoffset:-20}}
+  .swarm-table{width:100%;border-collapse:separate;border-spacing:0 6px}
+  .swarm-table th{text-align:left;font-size:.78rem;color:var(--dim);padding:4px 10px;font-weight:400}
+  .swarm-table td{padding:10px 12px;font-size:.85rem;background:var(--bg3);animation:riseIn .5s ease-out both}
+  .swarm-table tr td:first-child{border-radius:6px 0 0 6px;font-weight:700;white-space:nowrap}
+  .swarm-table tr td:last-child{border-radius:0 6px 6px 0}
+  .swarm-table .sw-id{font-family:var(--font-code);font-size:.78rem;color:var(--dim);margin-left:4px;font-weight:400}
+  .swarm-table td a{color:var(--cyan);font-family:var(--font-code);font-size:.72rem}
+  .sw-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle}
+  .swarm-table tbody tr:nth-child(1) td{animation-delay:.1s}
+  .swarm-table tbody tr:nth-child(2) td{animation-delay:.15s}
+  .swarm-table tbody tr:nth-child(3) td{animation-delay:.2s}
+  .swarm-table tbody tr:nth-child(4) td{animation-delay:.25s}
+  .swarm-table tbody tr:nth-child(5) td{animation-delay:.3s}
+  .sysmap{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+  .sysnode{background:var(--bg3);border:1px solid var(--bg4);border-radius:8px;padding:16px;animation:riseIn .5s ease-out both;transition:border-color .2s}
+  .sysnode:hover{border-color:var(--cyan)}
+  .sysnode h4{font-size:.95rem;margin-bottom:6px}
+  .sysnode .snpaths{font-family:var(--font-code);font-size:.72rem;line-height:1.8}
+  .sysnode .snpaths a{color:var(--cyan);font-size:.72rem}
+  .sysnode:nth-child(1){animation-delay:.1s}.sysnode:nth-child(2){animation-delay:.2s}.sysnode:nth-child(3){animation-delay:.3s}.sysnode:nth-child(4){animation-delay:.4s}
+  .pillars{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+  .pillar{background:var(--bg3);border-radius:8px;padding:16px 14px;text-align:center;border-top:3px solid var(--cyan);animation:riseIn .6s ease-out both;transition:transform .2s}
+  .pillar:hover{transform:translateY(-3px)}
+  .pillar .picon{font-size:1.6rem;margin-bottom:6px}
+  .pillar h4{font-size:.88rem;margin-bottom:4px}
+  .pillar .pdesc{font-size:.75rem;color:var(--dim);margin-bottom:6px}
+  .pillar .ppaths{font-family:var(--font-code);font-size:.68rem}
+  .pillar .ppaths a{color:var(--cyan);font-size:.68rem}
+  .pillar:nth-child(1){border-top-color:var(--cyan);animation-delay:.05s}
+  .pillar:nth-child(2){border-top-color:var(--amber);animation-delay:.1s}
+  .pillar:nth-child(3){border-top-color:var(--blue);animation-delay:.15s}
+  .pillar:nth-child(4){border-top-color:var(--violet);animation-delay:.2s}
+  .pillar:nth-child(5){border-top-color:var(--green);animation-delay:.25s}
+  .pillar:nth-child(6){border-top-color:var(--pink);animation-delay:.3s}
+  .reading-list{list-style:none;counter-reset:rlist}
+  .reading-list li{counter-increment:rlist;padding:8px 12px 8px 40px;position:relative;font-size:.88rem;color:var(--dim);animation:fadeUp .5s ease-out both}
+  .reading-list li::before{content:counter(rlist);position:absolute;left:8px;top:8px;width:22px;height:22px;border-radius:50%;background:var(--bg4);color:var(--cyan);font-size:.72rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .reading-list li a{color:var(--cyan)}
+  .reading-list li:nth-child(1){animation-delay:.05s}.reading-list li:nth-child(2){animation-delay:.1s}.reading-list li:nth-child(3){animation-delay:.15s}.reading-list li:nth-child(4){animation-delay:.2s}.reading-list li:nth-child(5){animation-delay:.25s}
+  .footer{text-align:center;padding:36px 20px;color:var(--dim);font-size:.82rem;border-top:1px solid var(--bg4);margin-top:24px}
+  .footer a{color:var(--cyan);margin:0 10px}
+  .footer .flinks{margin-top:8px}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  @media(max-width:640px){
+    .arch-grid{grid-template-columns:1fr}
+    .pipeline{flex-direction:column;align-items:stretch}
+    .pipe-connector{width:auto;height:28px;min-width:0;transform:rotate(90deg)}
+    .pillars{grid-template-columns:repeat(2,1fr)}
+    .sysmap{grid-template-columns:1fr}
+    .swarm-table{font-size:.8rem}
+    .swarm-table td{padding:8px}
+  }
+  @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <h1>Omniesggo｜萬能十二大架構 × 程式庫地圖</h1>
+  <p class="sub">ESG-GO 產品家族 Monorepo — 30 蜂群代理協作架構<br>以 <code>soul.md</code> 為靈魂公約，驅動智庫聖所、符文契約、光之羽翼、煉金熵減、5T 驗算五大陣列</p>
+  <span class="badge">pnpm workspace · TypeScript · Python · 30-Agent Swarm</span>
+</header>
+<div class="wrap">
+
+<!-- 2. Language Distribution -->
+<section>
+  <h2 class="stitle">語言分佈<span>Language Distribution</span></h2>
+  <div class="lang-bars">
+    <div class="lang-row"><span class="lang-label">TypeScript</span><div class="lang-track"><div class="lang-fill" style="width:45.7%;background:var(--blue)"></div></div><span class="lang-pct">45.7%</span></div>
+    <div class="lang-row"><span class="lang-label">Python</span><div class="lang-track"><div class="lang-fill" style="width:20.8%;background:var(--green)"></div></div><span class="lang-pct">20.8%</span></div>
+    <div class="lang-row"><span class="lang-label">HTML</span><div class="lang-track"><div class="lang-fill" style="width:20%;background:var(--amber)"></div></div><span class="lang-pct">20.0%</span></div>
+    <div class="lang-row"><span class="lang-label">JavaScript</span><div class="lang-track"><div class="lang-fill" style="width:9.3%;background:var(--cyan)"></div></div><span class="lang-pct">9.3%</span></div>
+    <div class="lang-row"><span class="lang-label">Shell</span><div class="lang-track"><div class="lang-fill" style="width:1.9%;background:var(--violet)"></div></div><span class="lang-pct">1.9%</span></div>
+    <div class="lang-row"><span class="lang-label">C#</span><div class="lang-track"><div class="lang-fill" style="width:0.8%;background:var(--pink)"></div></div><span class="lang-pct">0.8%</span></div>
+    <div class="lang-row"><span class="lang-label">其他</span><div class="lang-track"><div class="lang-fill" style="width:1.5%;background:var(--dim)"></div></div><span class="lang-pct">1.5%</span></div>
+  </div>
+</section>
+
+<!-- 3. Twelve Grand Architecture -->
+<section>
+  <h2 class="stitle">萬能十二大架構<span>The Twelve Grand Architecture</span></h2>
+  <div class="arch-grid">
+    <div class="arch-card" data-cat="core"><div class="chap">§一</div><h3>靈魂核心公約 Core Dogma</h3><div class="desc">5T 協定 + 4可1不可狀態機</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-core/src/index.ts" target="_blank">packages/omni-core/src/index.ts</a> <code>(IComponentCore, sealComponentCore)</code></div></div>
+    <div class="arch-card" data-cat="agent"><div class="chap">§二</div><h3>30人萬能代理矩陣</h3><div class="desc">5陣列×6代理的MECE分工</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/.agents" target="_blank">.agents/</a>, <a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-agent" target="_blank">packages/omni-agent/</a></div></div>
+    <div class="arch-card" data-cat="protocol"><div class="chap">§三</div><h3>萬有引力協作協定</h3><div class="desc">三步極簡工作流 + IComponentCore 型別</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/shared/types.ts" target="_blank">shared/types.ts</a>, <a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-agent-bus/src/bus.ts" target="_blank">packages/omni-agent-bus/src/bus.ts</a></div></div>
+    <div class="arch-card" data-cat="spirit"><div class="chap">§四</div><h3>蜂群戰歌</h3><div class="desc">靈魂頻率432Hz共振</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/soul.md" target="_blank">soul.md</a> <code>(conceptual)</code></div></div>
+    <div class="arch-card" data-cat="core"><div class="chap">§五</div><h3>啟動命令</h3><div class="desc">蜂群喚醒指令</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/cli/src/omni.mjs" target="_blank">packages/cli/src/omni.mjs</a></div></div>
+    <div class="arch-card" data-cat="practice"><div class="chap">§六</div><h3>最佳實踐覺</h3><div class="desc">五覺＋結界條款＋故障等級</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/.github/workflows" target="_blank">.github/workflows/</a> <code>(CI gates)</code></div></div>
+    <div class="arch-card" data-cat="practice"><div class="chap">§七</div><h3>終始矩陣</h3><div class="desc">以終為始的六柱驗收</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/tools/ts-matrix/verify.mjs" target="_blank">tools/ts-matrix/verify.mjs</a>, <a href="https://github.com/DingJun1028/Omniesggo/blob/main/scripts/verify-terminal-origin.mjs" target="_blank">scripts/verify-terminal-origin.mjs</a></div></div>
+    <div class="arch-card" data-cat="lock"><div class="chap">§八</div><h3>Key-Ω 契約鎖</h3><div class="desc">三鎖階層的不可變簽印</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-core/src/deep-freeze.ts" target="_blank">packages/omni-core/src/deep-freeze.ts</a></div></div>
+    <div class="arch-card" data-cat="spirit"><div class="chap">§九</div><h3>蜂王五詔</h3><div class="desc">真·誠·界·熵·一</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/soul.md" target="_blank">soul.md</a> <code>(governance)</code></div></div>
+    <div class="arch-card" data-cat="agent"><div class="chap">§十</div><h3>熵投週</h3><div class="desc">每週煉金四相（萃鍊凝封）</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/scripts" target="_blank">scripts/</a> <code>(entropy reduction)</code></div></div>
+    <div class="arch-card" data-cat="lock"><div class="chap">§十一</div><h3>5T 驗算與 Hash Lock</h3><div class="desc">SHA-256 + Object.freeze 密典</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-core/src/index.ts" target="_blank">packages/omni-core/src/index.ts</a>, <a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-agent-bus/src/deploy-gate.ts" target="_blank">packages/omni-agent-bus/src/deploy-gate.ts</a></div></div>
+    <div class="arch-card" data-cat="protocol"><div class="chap">§十二</div><h3>結界六柱</h3><div class="desc">記憶·時間·空間·因果·不朽·圓通</div><div class="paths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-agent-bus" target="_blank">packages/omni-agent-bus/</a>, <a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/gateway" target="_blank">apps/gateway/</a>, <a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/tencentdb-memory" target="_blank">apps/tencentdb-memory/</a></div></div>
+  </div>
+</section>
+
+<!-- 4. 5T Pipeline -->
+<section>
+  <h2 class="stitle">5T 協定流向圖<span>5T Protocol Pipeline</span></h2>
+  <div class="pipeline">
+    <div class="pipe-node" style="border-top:2px solid var(--cyan)"><h4 style="color:var(--cyan)">Traceable</h4><div class="pdesc">source_origin 標記溯源</div><div class="pfile"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/shared/types.ts" target="_blank">shared/types.ts</a></div></div>
+    <div class="pipe-connector"><svg width="36" height="20"><line x1="0" y1="10" x2="28" y2="10"/><polygon points="28,6 36,10 28,14"/></svg></div>
+    <div class="pipe-node" style="border-top:2px solid var(--blue)"><h4 style="color:var(--blue)">Trackable</h4><div class="pdesc">生命週期鉤子追蹤</div><div class="pfile"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-agent-bus/src/bus.ts" target="_blank">packages/omni-agent-bus/src/bus.ts</a></div></div>
+    <div class="pipe-connector"><svg width="36" height="20"><line x1="0" y1="10" x2="28" y2="10"/><polygon points="28,6 36,10 28,14"/></svg></div>
+    <div class="pipe-node" style="border-top:2px solid var(--green)"><h4 style="color:var(--green)">Tangible</h4><div class="pdesc">UI/UX 回應 &lt;200ms</div><div class="pfile"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/apps/omnilive/public/index.html" target="_blank">apps/omnilive/public/index.html</a></div></div>
+    <div class="pipe-connector"><svg width="36" height="20"><line x1="0" y1="10" x2="28" y2="10"/><polygon points="28,6 36,10 28,14"/></svg></div>
+    <div class="pipe-node" style="border-top:2px solid var(--amber)"><h4 style="color:var(--amber)">Transparent</h4><div class="pdesc">零幻覺審計稽核</div><div class="pfile"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-agent-bus/src/deploy-gate.ts" target="_blank">packages/omni-agent-bus/src/deploy-gate.ts</a></div></div>
+    <div class="pipe-connector"><svg width="36" height="20"><line x1="0" y1="10" x2="28" y2="10"/><polygon points="28,6 36,10 28,14"/></svg></div>
+    <div class="pipe-node" style="border-top:2px solid var(--violet)"><h4 style="color:var(--violet)">Trustworthy</h4><div class="pdesc">Hash Lock + freeze 封印</div><div class="pfile"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-core/src/deep-freeze.ts" target="_blank">packages/omni-core/src/deep-freeze.ts</a></div></div>
+  </div>
+</section>
+
+<!-- 5. Swarm Matrix -->
+<section>
+  <h2 class="stitle">30 蜂群矩陣<span>5 Arrays × 6 Agents</span></h2>
+  <table class="swarm-table">
+    <thead><tr><th>陣列</th><th>職能說明</th><th>實作路徑</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sw-dot" style="background:var(--cyan)"></span>智庫聖所<span class="sw-id">01–06</span></td><td>記憶召回 &gt;95%，向量知識檢索</td><td><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/tencentdb-memory" target="_blank">apps/tencentdb-memory/</a>, <a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-memory" target="_blank">packages/omni-memory/</a></td></tr>
+      <tr><td><span class="sw-dot" style="background:var(--blue)"></span>符文契約<span class="sw-id">07–12</span></td><td>API鑄造，TypeScript 型別安全</td><td><a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/shared" target="_blank">packages/shared/</a>, <a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-core" target="_blank">packages/omni-core/</a></td></tr>
+      <tr><td><span class="sw-dot" style="background:var(--green)"></span>光之羽翼<span class="sw-id">13–18</span></td><td>自動化背景 Task，ADK 調度</td><td><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/gateway" target="_blank">apps/gateway/</a>, <a href="https://github.com/DingJun1028/Omniesggo/tree/main/.github/workflows" target="_blank">.github/workflows/</a></td></tr>
+      <tr><td><span class="sw-dot" style="background:var(--amber)"></span>煉金熵減<span class="sw-id">19–24</span></td><td>重構，熵值 −3%/週</td><td><a href="https://github.com/DingJun1028/Omniesggo/tree/main/tools/ts-matrix" target="_blank">tools/ts-matrix/</a>, <a href="https://github.com/DingJun1028/Omniesggo/tree/main/scripts" target="_blank">scripts/</a></td></tr>
+      <tr><td><span class="sw-dot" style="background:var(--violet)"></span>5T驗算<span class="sw-id">25–30</span></td><td>ISO 規範驗算，Hash Lock</td><td><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-agent-bus/src/deploy-gate.ts" target="_blank">packages/omni-agent-bus/src/deploy-gate.ts</a></td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- 6. System Map -->
+<section>
+  <h2 class="stitle">系統地圖<span>System Map</span></h2>
+  <div class="sysmap">
+    <div class="sysnode"><h4>🌐 ESGGO 網站</h4><div class="snpaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/app" target="_blank">app/</a><br><a href="https://github.com/DingJun1028/Omniesggo/blob/main/package.json" target="_blank">package.json</a></div></div>
+    <div class="sysnode"><h4>🎙️ 語音產品線</h4><div class="snpaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/omnilive" target="_blank">apps/omnilive/</a><br><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/stt" target="_blank">apps/stt/</a><br><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/universal-translator" target="_blank">apps/universal-translator/</a></div></div>
+    <div class="sysnode"><h4>🤖 代理閘道</h4><div class="snpaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/gateway" target="_blank">apps/gateway/</a><br><a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-agent-bus" target="_blank">packages/omni-agent-bus/</a></div></div>
+    <div class="sysnode"><h4>📦 共用 Workspace</h4><div class="snpaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages" target="_blank">packages/*</a><br><a href="https://github.com/DingJun1028/Omniesggo/blob/main/pnpm-workspace.yaml" target="_blank">pnpm-workspace.yaml</a></div></div>
+  </div>
+</section>
+
+<!-- 7. Six Boundary Pillars -->
+<section>
+  <h2 class="stitle">結界六柱<span>Six Boundary Pillars</span></h2>
+  <div class="pillars">
+    <div class="pillar"><div class="picon">🧠</div><h4>記憶柱</h4><div class="pdesc">召回 &gt;95%<br>BM25 + 向量 hybrid</div><div class="ppaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/tencentdb-memory" target="_blank">apps/tencentdb-memory/</a></div></div>
+    <div class="pillar"><div class="picon">⏳</div><h4>時間柱</h4><div class="pdesc">熵 &lt;0.1<br>每週煉金</div><div class="ppaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/tools/ts-matrix" target="_blank">tools/ts-matrix/</a></div></div>
+    <div class="pillar"><div class="picon">🌍</div><h4>空間柱</h4><div class="pdesc">VPS / Firebase /<br>Gateway 同步</div><div class="ppaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/apps/gateway" target="_blank">apps/gateway/</a>, <a href="https://github.com/DingJun1028/Omniesggo/blob/main/ecosystem.config.cjs" target="_blank">ecosystem.config.cjs</a></div></div>
+    <div class="pillar"><div class="picon">🔗</div><h4>因果柱</h4><div class="pdesc">source_origin<br>溯源追蹤</div><div class="ppaths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/shared/types.ts" target="_blank">shared/types.ts</a></div></div>
+    <div class="pillar"><div class="picon">🔒</div><h4>不朽柱</h4><div class="pdesc">Hash Lock + freeze<br>+ SHA-256</div><div class="ppaths"><a href="https://github.com/DingJun1028/Omniesggo/blob/main/packages/omni-core/src/deep-freeze.ts" target="_blank">packages/omni-core/src/deep-freeze.ts</a></div></div>
+    <div class="pillar"><div class="picon">☯️</div><h4>圓通柱</h4><div class="pdesc">5T 貫穿<br>全域一致</div><div class="ppaths"><a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-agent-bus" target="_blank">packages/omni-agent-bus/</a></div></div>
+  </div>
+</section>
+
+<!-- 8. Reading Order -->
+<section>
+  <h2 class="stitle">建議閱讀順序<span>Suggested Reading Order</span></h2>
+  <ol class="reading-list">
+    <li><a href="https://github.com/DingJun1028/Omniesggo/blob/main/soul.md" target="_blank">soul.md</a> — 靈魂公約：十二大架構、5T 協定、蜂王五詔</li>
+    <li><a href="https://github.com/DingJun1028/Omniesggo/blob/main/ARCHITECTURE.md" target="_blank">ARCHITECTURE.md</a> — 系統架構總覽與模組關係</li>
+    <li><a href="https://github.com/DingJun1028/Omniesggo/blob/main/README.md" target="_blank">README.md</a> — 快速入門、安裝與執行指南</li>
+    <li><a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-core" target="_blank">packages/omni-core/</a> — 核心型別系統 + deep-freeze 實作</li>
+    <li><a href="https://github.com/DingJun1028/Omniesggo/tree/main/packages/omni-agent-bus" target="_blank">packages/omni-agent-bus/</a> — 代理匯流排與部署閘道</li>
+  </ol>
+</section>
+
+</div>
+
+<!-- 9. Footer -->
+<footer class="footer">
+  <div>Omniesggo — ESG-GO 萬能產品家族</div>
+  <div class="flinks">
+    <a href="https://github.com/DingJun1028/Omniesggo" target="_blank">GitHub 倉庫</a>
+    <a href="https://github.com/DingJun1028/Omniesggo/blob/main/soul.md" target="_blank">soul.md</a>
+    <a href="https://github.com/DingJun1028/Omniesggo/blob/main/ARCHITECTURE.md" target="_blank">ARCHITECTURE.md</a>
+  </div>
+</footer>
+</body>
+</html>

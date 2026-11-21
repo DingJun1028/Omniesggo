@@ -7,7 +7,7 @@
 // 將 TagPair 雙向同步進 OMNI_TRUST_LEDGER (hash-chain) + 終始矩陣 sync_matrix。
 //
 // 雙向同步模型 (全域 / 全端 / 全量 / 終始矩陣)：
-//   - 全域 (global):      涵蓋所有實體 (universalTag / tagPair / regulation / profile)
+//   - 全域 (global):      涵蓋所有實體 (OmniTag / tagPair / regulation / profile)
 //   - 全端 (every-end):   所有 entry point (API / cron / 啟動 / agent) 都走同一合約
 //   - 全量 (full-volume): 整表級對帳, 非單筆 per-request
 //   - 雙向 (bidirectional): app->oracle 寫入 + oracle->app 回拉 (hydration)

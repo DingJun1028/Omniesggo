@@ -32,7 +32,14 @@ const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month
 
 export function OmniCalendarView() {
   const [tasks, setTasks] = useState<OmniTask[]>([]);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentDate, setCurrentDate] = useState(() => new Date(2026, 0, 1));
+  const [today, setToday] = useState(() => new Date(2026, 0, 1));
+
+  useEffect(() => {
+    const current = new Date();
+    setCurrentDate(current);
+    setToday(current);
+  }, []);
 
   useEffect(() => {
     if (!db) return;
@@ -72,7 +79,6 @@ export function OmniCalendarView() {
 
   const renderCells = () => {
     const cells = [];
-    const today = new Date();
     const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
     for (let i = 0; i < firstDay; i++) {

@@ -1,0 +1,8 @@
+# zoom-live-caption/k8s/namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: zoom-live-caption
+  labels:
+    app: zoom-live-caption
+    version: v1

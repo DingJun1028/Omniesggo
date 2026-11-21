@@ -125,7 +125,7 @@ model AlertTag {
 
 // ══ Universal Tag — 萬能標籤配對合成層 ══════════════════════
 // 串接 ESGTag (法規分類) + OmniTag (組件信任) 為統一配對層
-model UniversalTag {
+model OmniTag {
   id             String    @id @default(cuid())
   uuid           String? // 5T: 全域唯一識別 (舊資料可為 NULL)
   version        Int       @default(1) // 5T: 版本
@@ -156,8 +156,8 @@ model TagPair {
   lifecycleHooks String? // 5T: 生命週期鉤子
   anchorTagId    String
   evidenceTagId  String?
-  anchor         UniversalTag  @relation("tagPairsAnchor", fields: [anchorTagId], references: [id], onDelete: Cascade)
-  evidence       UniversalTag? @relation("tagPairsEvidence", fields: [evidenceTagId], references: [id], onDelete: SetNull)
+  anchor         OmniTag  @relation("tagPairsAnchor", fields: [anchorTagId], references: [id], onDelete: Cascade)
+  evidence       OmniTag? @relation("tagPairsEvidence", fields: [evidenceTagId], references: [id], onDelete: SetNull)
   entityType     String // regulation/report/alert/component
   entityId       String
   confidence     Float         @default(1.0)

@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { PrismaClient } from '@prisma/client';
+import { createPrismaCompatClient } from '@lib/db/prisma-compat';
 
 async function main() {
   const url = process.env.OMNI_DATABASE_URL || process.argv[2];
@@ -7,7 +7,7 @@ async function main() {
     console.error('Pass OMNI_DATABASE_URL or argv url');
     process.exit(1);
   }
-  const omni = new PrismaClient({
+  const omni = createPrismaCompatClient({
     datasources: { omni: { url } },
   });
   await omni.$connect();

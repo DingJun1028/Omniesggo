@@ -1,0 +1,14 @@
+{
+  "locale": "zh-TW",
+  "version": "1.0.0",
+  "dict": {
+    "app.title": "萬能分身",
+    "app.subtitle": "與人共享，無處不在",
+    "app.welcome": "歡迎來到萬能分身",
+    "nav.home": "首頁",
+    "nav.about": "關於",
+    "nav.contact": "聯絡我們",
+    "btn.submit": "提交",
+    "btn.cancel": "取消"
+  }
+}

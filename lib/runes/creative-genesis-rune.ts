@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：生成跨模組所需的視覺與音訊素材，保持品牌進化美感
  */
 
-export const CreativeGenesisInputSchema = z.object({
-  assetTarget: z.string().describe("資產目標 (如 Icon, Background, Sound)"),
-  evolutionPhase: z.string().describe("進化階段"),
+export const CreativeGenesisInputSchema = Type.Object({
+  assetTarget: Type.String({ description: "資產目標 (如 Icon, Background, Sound)" }),
+  evolutionPhase: Type.String({ description: "進化階段" }),
 });
 
 export const creativeGenesisRune = defineRune({

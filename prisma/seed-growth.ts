@@ -3,9 +3,9 @@
  * Run once to populate initial growth system data
  */
 
-import { PrismaClient } from '@prisma/client';
+import { createPrismaCompatClient } from '@lib/db/prisma-compat';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaCompatClient();
 
 const ACHIEVEMENTS = [
   // ─── Milestone ───

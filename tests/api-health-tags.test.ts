@@ -177,9 +177,9 @@ describe('Zod Validation (zod-validation.ts)', () => {
     expect(result.success).toBe(false);
   });
 
-  it('UniversalTagSchema validates correct data', async () => {
-    const { UniversalTagSchema } = await import('../src/lib/zod-validation');
-    const result = UniversalTagSchema.safeParse({
+  it('OmniTagSchema validates correct data', async () => {
+    const { OmniTagSchema } = await import('../src/lib/zod-validation');
+    const result = OmniTagSchema.safeParse({
       name: 'Carbon Emissions',
       pillar: 'Environmental',
       category: 'Climate',
@@ -187,9 +187,9 @@ describe('Zod Validation (zod-validation.ts)', () => {
     expect(result.success).toBe(true);
   });
 
-  it('UniversalTagSchema rejects invalid pillar', async () => {
-    const { UniversalTagSchema } = await import('../src/lib/zod-validation');
-    const result = UniversalTagSchema.safeParse({
+  it('OmniTagSchema rejects invalid pillar', async () => {
+    const { OmniTagSchema } = await import('../src/lib/zod-validation');
+    const result = OmniTagSchema.safeParse({
       name: 'Test',
       pillar: 'InvalidPillar',
       category: 'Test',
@@ -231,3 +231,4 @@ describe('Middleware', () => {
     expect(typeof mod.middleware).toBe('function');
   });
 });
+

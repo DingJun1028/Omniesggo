@@ -10,6 +10,13 @@ let cachedClient: SupabaseClient | null = null;
  * env vars may be absent. Creating it eagerly makes `createClient` throw
  * ("supabaseUrl is required.") and breaks the build.
  */
+export function hasSupabaseConfig(): boolean {
+  return Boolean(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
+}
+
 export function getSupabaseClient(): SupabaseClient {
   if (cachedClient) return cachedClient;
 

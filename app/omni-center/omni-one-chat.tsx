@@ -107,6 +107,7 @@ function now() {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
+    timeZone: "Asia/Taipei",
   });
 }
 
@@ -125,13 +126,19 @@ export function OmniOneChat() {
       id: "0",
       role: "assistant",
       text: "[OmniOne] 覺醒系統就緒。輸入任何任務，我將分類 → 檢索記憶 → 執行 → 學習。",
-      time: now(),
+      time: "",
     },
   ]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMsgs((current) => current.map((message) => message.id === "0" && !message.time
+      ? { ...message, time: now() }
+      : message));
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });

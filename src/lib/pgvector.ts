@@ -1,22 +1,32 @@
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
 // ============================================================
-// PostgreSQL pgvector 連接與操作模組
+// PostgreSQL pgvector 連接與操作模組（動態載入，避免瀏覽器建置錯誤）
 // ============================================================
 
-import { Pool, PoolClient } from 'pg';
+import type { Pool as PgPool, PoolClient as PgPoolClient } from 'pg';
 
-// ========== 連接池設定 ==========
+type Pool = PgPool;
+type PoolClient = PgPoolClient;
 
-const pool = new Pool({
-  connectionString: process.env.PGVECTOR_URL,
-  max: 20,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
-});
+// 連接池單例（首次使用才動態載入 pg）
+let _pool: Pool | null = null;
 
-pool.on('error', (err) => {
-  console.error('Unexpected pgvector pool error:', err);
-});
+async function getPool(): Promise<Pool> {
+  if (!_pool) {
+    const loadPg = new Function('return import("pg")') as () => Promise<{ Pool: new (options: any) => Pool }>;
+    const { Pool } = await loadPg();
+    _pool = new Pool({
+      connectionString: process.env.PGVECTOR_URL,
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    });
+    _pool.on('error', (err) => {
+      console.error('Unexpected pgvector pool error:', err);
+    });
+  }
+  return _pool;
+}
 
 // ========== 基礎操作 ==========
 
@@ -24,6 +34,7 @@ export async function query<T = unknown>(
   text: string,
   params?: unknown[]
 ): Promise<{ rows: T[]; rowCount: number }> {
+  const pool = await getPool();
   const client = await pool.connect();
   try {
     const result = await client.query(text, params);
@@ -34,6 +45,7 @@ export async function query<T = unknown>(
 }
 
 export async function getClient(): Promise<PoolClient> {
+  const pool = await getPool();
   return pool.connect();
 }
 
@@ -62,7 +74,7 @@ export async function storeEmbedding(
   const result = await query<NoteEmbeddingRow>(
     `INSERT INTO note_embeddings (note_id, embedding, model)
      VALUES ($1, $2, $3)
-     ON CONFLICT (note_id) 
+     ON CONFLICT (note_id)
      DO UPDATE SET embedding = $2, model = $3, updated_at = NOW()
      RETURNING *`,
     [noteId, JSON.stringify(embedding), model]
@@ -104,12 +116,13 @@ export async function findRelatedNotes(
   if (!original) return [];
   const embedding = JSON.parse(original.embedding);
   return semanticSearch(embedding, { limit: limit + 1, threshold, excludeNoteIds: [noteId] })
-    .then(r => r.slice(0, limit));
+    .then((r) => r.slice(0, limit));
 }
 
 export async function batchStoreEmbeddings(
   embeddings: Array<{ noteId: string; embedding: number[]; model?: string }>
 ): Promise<void> {
+  const pool = await getPool();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

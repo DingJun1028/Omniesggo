@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --htb-deepSea: #0a2a4a;
+  --htb-ocean: #1f5fa3;
+  --htb-seaweed: #2d8a4e;
+  --htb-sand: #f5f0e8;
+}
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

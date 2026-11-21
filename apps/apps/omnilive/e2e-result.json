@@ -1,0 +1,33 @@
+{
+  "exitCode": 0,
+  "checks": [
+    {
+      "ok": true,
+      "msg": "已合成英文/中文真實語音 MP3"
+    },
+    {
+      "ok": true,
+      "msg": "apps/stt (faster-whisper) 啟動 /health 可達"
+    },
+    {
+      "ok": true,
+      "msg": "OmniLive 啟動 /health 可達 (:8797)"
+    },
+    {
+      "ok": true,
+      "msg": "[EN] 真實語音辨識+翻譯成功 (英文語音→繁中字幕): 原文=\"Hello, this is a live meeting test for Omni-Live b\" / 字幕=\"您好，這是Omni-Live雙語字幕的直播會議測試。\""
+    },
+    {
+      "ok": true,
+      "msg": "[EN] 5T trace 溯源: edb05ff2c3c32b45"
+    },
+    {
+      "ok": true,
+      "msg": "[ZH] 真實語音辨識+翻譯成功 (繁中語音→英文字幕): 原文=\"歡迎參加線上會議,這是及時雙語字幕測試。\" / 字幕=\"Welcome to the online meeting, this is a timely bi\""
+    },
+    {
+      "ok": true,
+      "msg": "[ZH] 5T trace 溯源: 133db2736a38ebd7"
+    }
+  ]
+}

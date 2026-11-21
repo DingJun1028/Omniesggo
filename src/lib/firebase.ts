@@ -6,8 +6,14 @@
  * 讓既有的 23+ 個依賴 Firebase 語法的元件不需大幅重構即可無縫切換到 Supabase Postgres。
  */
 
-import { supabase } from './supabase-client';
+import { hasSupabaseConfig, supabase } from './supabase-client';
 import { syncEngine } from './supabase-sync-engine';
+
+function requireSupabaseConfig(): void {
+  if (!hasSupabaseConfig()) {
+    throw new Error('此功能需要 Supabase。請設定 NEXT_PUBLIC_SUPABASE_URL 與 NEXT_PUBLIC_SUPABASE_ANON_KEY。');
+  }
+}
 
 type DocData = Record<string, unknown>;
 
@@ -30,6 +36,7 @@ class QueryBuilder {
   }
 
   async get(): Promise<QuerySnapshot> {
+    if (!hasSupabaseConfig()) return new QuerySnapshot([]);
     let q = supabase.from(this.collection).select('*');
     for (const w of this.wheres) {
       if (w.op === '==') q = q.eq(w.field, w.value);
@@ -72,11 +79,13 @@ class DocRef {
   constructor(public collection: string, public id: string) {}
 
   async get(): Promise<{ exists: boolean; id: string; data: () => DocData | null }> {
+    if (!hasSupabaseConfig()) return { exists: false, id: this.id, data: () => null };
     const { data, error } = await supabase.from(this.collection).select('*').eq('id', this.id).single();
     if (error || !data) return { exists: false, id: this.id, data: () => null };
     return { exists: true, id: this.id, data: () => data };
   }
   async set(data: DocData, opts?: { merge?: boolean }): Promise<void> {
+    requireSupabaseConfig();
     if (opts?.merge) {
       syncEngine.pushTask(this.collection, 'UPDATE', { id: this.id, ...data });
     } else {
@@ -84,6 +93,7 @@ class DocRef {
     }
   }
   async delete(): Promise<void> {
+    requireSupabaseConfig();
     syncEngine.pushTask(this.collection, 'DELETE', { id: this.id });
   }
 }
@@ -93,6 +103,7 @@ class CollectionRef {
   doc(id: string): DocRef { return new DocRef(this.name, id); }
   
   async add(data: DocData): Promise<{ id: string }> {
+    requireSupabaseConfig();
     const id = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
     syncEngine.pushTask(this.name, 'INSERT', { id, ...data });
     return { id };
@@ -154,6 +165,12 @@ export function onSnapshot(
   const collectionName = ref instanceof CollectionRef ? ref.name : ref.collection;
   const builder = ref instanceof CollectionRef ? new QueryBuilder(ref.name) : ref;
   
+  // 未設定 Supabase 時只回傳空資料，不偽裝成雲端同步，也不啟動 Realtime。
+  if (!hasSupabaseConfig()) {
+    callback(new QuerySnapshot([]));
+    return () => undefined;
+  }
+
   // 初始載入
   builder.get().then(callback).catch(e => onError?.(e));
 

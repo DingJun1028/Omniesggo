@@ -29,7 +29,7 @@ export async function getPrisma(): Promise<PrismaClient> {
     throw new Error('DATABASE_URL not configured');
   }
 
-  const { PrismaClient: PrismaClass } = await import('@prisma/client');
+  const { PrismaClient: PrismaClass } = await import('@lib/db/prisma-compat');
 
   _prisma = new PrismaClass({
     log: config.app.isDevelopment
@@ -51,7 +51,7 @@ export async function getPrismaOmni(): Promise<PrismaClient> {
     throw new Error('OMNI_DATABASE_URL not configured');
   }
 
-  const { PrismaClient: PrismaClass } = await import('@prisma/client');
+  const { PrismaClient: PrismaClass } = await import('@lib/db/prisma-compat');
 
   _prismaOmni = new PrismaClass({
     log: config.app.isDevelopment ? ['error'] : [],

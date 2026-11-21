@@ -1,0 +1,55 @@
+hub:
+  name: esggo-hub
+  version: 0.1.0
+  description: ESGGO hub config for plugins, workspaces, and deployment targets.
+
+workspaces:
+  - path: C:/Project/esggo
+    branch: feature/aistation-core-modules
+    packageManager: pnpm
+    primary: true
+  - path: C:/Users/dingj/esggo
+    branch: main
+    packageManager: pnpm
+
+plugins:
+  - name: esggo-agents-cli-guide
+    enabled: true
+  - name: esggo-aistation-deployment
+    enabled: true
+  - name: esggo-vps-ops
+    enabled: true
+  - name: esggo-vps-git-deploy
+    enabled: true
+  - name: cloudflare-workers-deploy
+    enabled: true
+  - name: oa-team-soul-canon
+    enabled: true
+  - name: oa-swarm-local-runtime
+    enabled: true
+  - name: superpowers
+    enabled: true
+
+targets:
+  vps:
+    host: esggo-vps
+    deploy:
+      path: /home/ubuntu/deploy-scripts
+      method: git-pull
+  cloudflare:
+    account: DingJun1028
+    tunnel: esggo-tunnel
+
+integrations:
+  aistation:
+    appPath: C:/Project/esggo/apps/aistation
+    entry: apps.aistation.src.cli:main
+    launcher: C:/Project/esggo/scripts/aistation
+  omnilive:
+    appPath: C:/Project/esggo/apps/omnilive
+    port: 8800
+  manual:
+    manual48:
+      md: C:/Project/esggo/docs/manuals/48-omnifactory-manual.md
+      html: C:/Project/esggo/docs/manuals/48-html/index.html
+      viewer: C:/Project/esggo/scripts/oa-cli.ps1

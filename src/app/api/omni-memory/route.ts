@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // A08 OmniMemory API — Phase 2: Full CRUD
 // src/app/api/omni-memory/route.ts
 // 5T Protocol: Trackable · Transparent · Tangible · Trustworthy · Transferful

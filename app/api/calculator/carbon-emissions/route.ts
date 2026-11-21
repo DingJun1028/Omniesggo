@@ -30,13 +30,55 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({}));
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json(
+        { success: false, code: 'INVALID_INPUT', error: '請提供有效的 JSON 物件。' },
+        { status: 400 }
+      );
+    }
+
     const { scope1 = {}, scope2 = {}, scope3 = {} } = body;
+    const scopes = { scope1, scope2, scope3 };
+    const fieldsByScope: Record<string, string[]> = {
+      scope1: ['gasolineLiters', 'dieselLiters', 'naturalGasM3'],
+      scope2: ['electricityKWh', 'customFactor'],
+      scope3: ['businessTravelKm', 'logisticsTonKm'],
+    };
+    const validationErrors: string[] = [];
+
+    for (const [scopeName, fields] of Object.entries(fieldsByScope)) {
+      const scope = scopes[scopeName as keyof typeof scopes];
+      if (!scope || typeof scope !== 'object' || Array.isArray(scope)) {
+        validationErrors.push(`${scopeName} 必須是物件`);
+        continue;
+      }
+      for (const field of fields) {
+        const value = (scope as Record<string, unknown>)[field];
+        if (value === undefined || value === null || value === '') continue;
+        const numericValue = typeof value === 'number' ? value : Number(value);
+        if (!Number.isFinite(numericValue) || numericValue < 0) {
+          validationErrors.push(`${scopeName}.${field} 必須是大於或等於 0 的有限數值`);
+        }
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      return NextResponse.json(
+        { success: false, code: 'INVALID_INPUT', error: '排放活動數據無效。', details: validationErrors },
+        { status: 400 }
+      );
+    }
+
+    const numeric = (scope: Record<string, unknown>, field: string) => {
+      const value = scope[field];
+      return value === undefined || value === null || value === '' ? 0 : Number(value);
+    };
 
     // Scope 1 Calculation
-    const gasoline = Number(scope1.gasolineLiters) || 0;
-    const diesel = Number(scope1.dieselLiters) || 0;
-    const naturalGas = Number(scope1.naturalGasM3) || 0;
+    const gasoline = numeric(scope1, 'gasolineLiters');
+    const diesel = numeric(scope1, 'dieselLiters');
+    const naturalGas = numeric(scope1, 'naturalGasM3');
 
     const scope1Kg =
       gasoline * EMISSION_FACTORS.scope1.gasolineLiters +
@@ -44,17 +86,17 @@ export async function POST(req: Request) {
       naturalGas * EMISSION_FACTORS.scope1.naturalGasM3;
 
     // Scope 2 Calculation
-    const electricity = Number(scope2.electricityKWh) || 0;
+    const electricity = numeric(scope2, 'electricityKWh');
     const scope2Factor =
-      typeof scope2.customFactor === 'number' && scope2.customFactor > 0
-        ? scope2.customFactor
+      scope2.customFactor !== undefined && scope2.customFactor !== null && scope2.customFactor !== ''
+        ? Number(scope2.customFactor)
         : EMISSION_FACTORS.scope2.electricityKWh;
 
     const scope2Kg = electricity * scope2Factor;
 
     // Scope 3 Calculation
-    const travel = Number(scope3.businessTravelKm) || 0;
-    const logistics = Number(scope3.logisticsTonKm) || 0;
+    const travel = numeric(scope3, 'businessTravelKm');
+    const logistics = numeric(scope3, 'logisticsTonKm');
 
     const scope3Kg =
       travel * EMISSION_FACTORS.scope3.businessTravelKm +

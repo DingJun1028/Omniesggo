@@ -1,0 +1,20 @@
+{
+  "stitch-dark": {
+    "ink": "#0e1512", "paper": "#0e1512", "panel": "#141d18", "panel2": "#1b261f",
+    "line": "rgba(243,237,225,.10)", "cream": "#f3ede1", "muted": "#9fb0a4",
+    "green": "#7bb38a", "gold": "#e3c987", "radius": "18px",
+    "heroOpacity": ".5", "heroAfter": "linear-gradient(180deg,rgba(14,21,18,.55),rgba(14,21,18,.92))"
+  },
+  "light": {
+    "ink": "#10243f", "paper": "#fbf8f2", "panel": "#ffffff", "panel2": "#f3ede1",
+    "line": "rgba(16,36,63,.12)", "cream": "#10243f", "muted": "#5d6b63",
+    "green": "#3c6e47", "gold": "#c9a24b", "radius": "16px",
+    "heroOpacity": ".4", "heroAfter": "linear-gradient(160deg,rgba(243,237,225,.4),rgba(251,248,242,.62))"
+  },
+  "midjourney": {
+    "ink": "#1a1224", "paper": "#1a1224", "panel": "#241a30", "panel2": "#2e2240",
+    "line": "rgba(243,237,225,.12)", "cream": "#f3ede1", "muted": "#b9a7cf",
+    "green": "#9b7bb3", "gold": "#e3c987", "radius": "22px",
+    "heroOpacity": ".55", "heroAfter": "linear-gradient(180deg,rgba(26,18,36,.5),rgba(26,18,36,.9))"
+  }
+}

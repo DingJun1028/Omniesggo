@@ -24,6 +24,24 @@ export const DEFAULT_TOPICS: MaterialityTopic[] = [
 ];
 
 export async function GET() {
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json({
+      success: true,
+      data: {
+        id: 'draft',
+        title: '雙重重大性評估矩陣 2026',
+        year: 2026,
+        framework: 'GRI_CSRD',
+        threshold: 3.5,
+        topics: DEFAULT_TOPICS,
+        hashLock: null,
+        createdAt: new Date().toISOString(),
+        persistence: 'unavailable',
+        notice: '目前顯示內建草稿；連結資料庫後才能載入與保存評估紀錄。',
+      },
+    });
+  }
+
   try {
     const latest = await prisma.materialityAssessment.findFirst({
       orderBy: { createdAt: 'desc' },
@@ -55,13 +73,24 @@ export async function GET() {
   } catch (error: any) {
     console.error('Failed to fetch materiality assessment:', error);
     return NextResponse.json(
-      { success: false, error: error.message || '查詢雙重重大性矩陣失敗' },
+      { success: false, code: 'MATERIALITY_READ_FAILED', error: '目前無法載入重大性評估資料，請稍後重試。' },
       { status: 500 }
     );
   }
 }
 
 export async function POST(req: Request) {
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json(
+      {
+        success: false,
+        code: 'DATABASE_NOT_CONFIGURED',
+        error: '資料庫尚未設定，重大性評估無法保存。請先連結資料庫後再試。',
+      },
+      { status: 503 }
+    );
+  }
+
   try {
     const body = await req.json();
     const { title = '雙重重大性評估矩陣 2026', year = 2026, framework = 'GRI_CSRD', threshold = 3.5, topics } = body;
@@ -108,7 +137,7 @@ export async function POST(req: Request) {
   } catch (error: any) {
     console.error('Failed to save materiality assessment:', error);
     return NextResponse.json(
-      { success: false, error: error.message || '儲存雙重重大性矩陣失敗' },
+      { success: false, code: 'MATERIALITY_SAVE_FAILED', error: '重大性評估未能保存，請稍後重試。' },
       { status: 500 }
     );
   }

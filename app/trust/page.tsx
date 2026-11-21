@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import { 
+import {
   Sun, Moon, ShieldCheck, Download, Lock, Copy, Check,
   Search, RefreshCw, Key, FileCheck, Database, ArrowRight,
   Layers, CheckCircle2, ShieldAlert, Cpu, Sparkles, Hash
@@ -172,7 +172,7 @@ export default function DigitalTrustHubPage() {
   const filteredSeals = useMemo(() => {
     if (!searchQuery.trim()) return seals;
     const q = searchQuery.toLowerCase();
-    return seals.filter(s => 
+    return seals.filter(s =>
       s.documentName.toLowerCase().includes(q) ||
       s.hashLock.toLowerCase().includes(q) ||
       s.sourceOrigin.toLowerCase().includes(q)
@@ -180,11 +180,11 @@ export default function DigitalTrustHubPage() {
   }, [seals, searchQuery]);
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 font-sans ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      
+    <div className="min-w-0 w-full space-y-6 sm:space-y-8">
+
       {/* ── 1. 頂部手冊控制列 (Header & Theme Capsule) ── */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-white/10 px-6 py-4">
-        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] px-4 py-4 shadow-sm sm:rounded-3xl sm:px-6 sm:py-5">
+        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
@@ -195,11 +195,11 @@ export default function DigitalTrustHubPage() {
                 5T PROTOCOL HASH LOCK
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--text-1)] dark:text-[var(--text-1)] flex items-center gap-2">
               <ShieldCheck className="w-7 h-7 text-teal-600 dark:text-cyan-400" />
               信任錨定與密碼學存證中心 (Trust Hub)
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+            <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5 font-medium">
               ESGGO 抵禦綠洗終極防線 · 5T 全維度密碼學不可篡改存證 · Merkle 樹零知識證明保險庫
             </p>
           </div>
@@ -207,14 +207,14 @@ export default function DigitalTrustHubPage() {
           {/* 右側操作群 */}
           <div className="flex items-center flex-wrap gap-3">
             {/* 雙主題切換膠囊 */}
-            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-inner">
+            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-[var(--surface-3)] border border-[var(--border)] dark:border-[var(--border)] shadow-inner">
               <button
                 type="button"
                 onClick={() => handleToggleTheme('light')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  theme === 'light' 
-                    ? 'bg-white text-teal-800 shadow-sm font-semibold' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                  theme === 'light'
+                    ? 'bg-[var(--surface-1)] text-teal-800 shadow-sm font-semibold'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-2)] dark:text-[var(--text-3)]'
                 }`}
               >
                 <Sun className="w-3.5 h-3.5 text-amber-500" />
@@ -224,9 +224,9 @@ export default function DigitalTrustHubPage() {
                 type="button"
                 onClick={() => handleToggleTheme('dark')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  theme === 'dark' 
-                    ? 'bg-slate-900 text-teal-300 shadow-sm font-semibold border border-teal-500/30' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                  theme === 'dark'
+                    ? 'bg-[var(--surface-1)] text-teal-300 shadow-sm font-semibold border border-teal-500/30'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-2)] dark:text-[var(--text-3)]'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5 text-teal-300" />
@@ -246,9 +246,9 @@ export default function DigitalTrustHubPage() {
 
             <button
               onClick={fetchSeals}
-              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+              className="px-3.5 py-1.5 rounded-xl bg-[var(--surface-1)] hover:bg-slate-50 text-[var(--text-1)] border border-slate-300 dark:bg-[var(--surface-1)] dark:hover:bg-[var(--surface-3)] dark:text-[var(--text-1)] dark:border-[var(--border-strong)] text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
             >
-              <RefreshCw className="w-3.5 h-3.5 text-slate-500" />
+              <RefreshCw className="w-3.5 h-3.5 text-[var(--text-3)]" />
               重新整理
             </button>
           </div>
@@ -256,66 +256,66 @@ export default function DigitalTrustHubPage() {
       </header>
 
       {/* ── 2. 主內容網格 ── */}
-      <main className="max-w-[1600px] mx-auto p-6 space-y-6">
+      <section className="mx-auto w-full max-w-6xl space-y-5 px-0 sm:space-y-6">
 
         {/* 5T 治理健康度 5 大核心指標 */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between text-xs text-teal-700 dark:text-cyan-400 font-bold mb-1">
               <span>真 (Traceable)</span>
               <span>100%</span>
             </div>
-            <p className="text-xl font-extrabold font-mono text-slate-900 dark:text-slate-100">來源追溯刻印</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">100% 原始數據附帶 sourceOrigin</p>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+            <p className="text-xl font-extrabold font-mono text-[var(--text-1)] dark:text-[var(--text-1)]">來源追溯刻印</p>
+            <p className="text-[11px] text-[var(--text-3)] dark:text-[var(--text-3)] mt-1">100% 原始數據附帶 sourceOrigin</p>
+            <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
               <div className="bg-teal-600 dark:bg-cyan-400 h-full rounded-full" style={{ width: '100%' }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-400 font-bold mb-1">
               <span>善 (Transparent)</span>
               <span>99.8%</span>
             </div>
-            <p className="text-xl font-extrabold font-mono text-slate-900 dark:text-slate-100">演算法透明化</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">ISO-14064 係數公式全公開</p>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+            <p className="text-xl font-extrabold font-mono text-[var(--text-1)] dark:text-[var(--text-1)]">演算法透明化</p>
+            <p className="text-[11px] text-[var(--text-3)] dark:text-[var(--text-3)] mt-1">ISO-14064 係數公式全公開</p>
+            <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
               <div className="bg-emerald-600 dark:bg-emerald-400 h-full rounded-full" style={{ width: '99.8%' }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between text-xs text-blue-700 dark:text-blue-400 font-bold mb-1">
               <span>美 (Tangible)</span>
               <span>100%</span>
             </div>
-            <p className="text-xl font-extrabold font-mono text-slate-900 dark:text-slate-100">純色手冊體驗</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">全站 0 處漸層文字 · 高對比印刷</p>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+            <p className="text-xl font-extrabold font-mono text-[var(--text-1)] dark:text-[var(--text-1)]">純色手冊體驗</p>
+            <p className="text-[11px] text-[var(--text-3)] dark:text-[var(--text-3)] mt-1">全站 0 處漸層文字 · 高對比印刷</p>
+            <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
               <div className="bg-blue-600 dark:bg-blue-400 h-full rounded-full" style={{ width: '100%' }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
+          <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
             <div className="flex items-center justify-between text-xs text-purple-700 dark:text-purple-400 font-bold mb-1">
               <span>信 (Trustworthy)</span>
               <span>100%</span>
             </div>
-            <p className="text-xl font-extrabold font-mono text-slate-900 dark:text-slate-100">Hash Lock 封印</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">SHA-256 密碼學防篡改磐石</p>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+            <p className="text-xl font-extrabold font-mono text-[var(--text-1)] dark:text-[var(--text-1)]">Hash Lock 封印</p>
+            <p className="text-[11px] text-[var(--text-3)] dark:text-[var(--text-3)] mt-1">SHA-256 密碼學防篡改磐石</p>
+            <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
               <div className="bg-purple-600 dark:bg-purple-400 h-full rounded-full" style={{ width: '100%' }} />
             </div>
           </div>
 
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm col-span-2 md:col-span-1">
+          <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm col-span-2 md:col-span-1">
             <div className="flex items-center justify-between text-xs text-rose-700 dark:text-rose-400 font-bold mb-1">
               <span>通 (Transferful)</span>
               <span>99.4%</span>
             </div>
-            <p className="text-xl font-extrabold font-mono text-slate-900 dark:text-slate-100">全生命週期追蹤</p>
-            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Hook 跨端即時連動校驗</p>
-            <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+            <p className="text-xl font-extrabold font-mono text-[var(--text-1)] dark:text-[var(--text-1)]">全生命週期追蹤</p>
+            <p className="text-[11px] text-[var(--text-3)] dark:text-[var(--text-3)] mt-1">Hook 跨端即時連動校驗</p>
+            <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
               <div className="bg-rose-600 dark:bg-rose-400 h-full rounded-full" style={{ width: '99.4%' }} />
             </div>
           </div>
@@ -328,8 +328,8 @@ export default function DigitalTrustHubPage() {
           <div className="lg:col-span-5 space-y-6">
 
             {/* 即時 SHA-256 密碼學驗算工具 */}
-            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 dark:border-slate-800">
+            <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[var(--border)] dark:border-[var(--border)]">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-teal-700 dark:text-cyan-400 flex items-center gap-2">
                   <Hash className="w-4 h-4" /> 即時密碼學驗算工具 (Live SHA-256)
                 </h3>
@@ -337,13 +337,13 @@ export default function DigitalTrustHubPage() {
                   Zero Knowledge
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+              <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mb-3">
                 在瀏覽器本地即時驗算任意特徵值或報告文字之 SHA-256 雜湊鎖，絕不上傳明文。
               </p>
-              
+
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-[var(--text-2)] dark:text-[var(--text-2)] mb-1">
                     輸入檢驗特徵或內容
                   </label>
                   <textarea
@@ -351,13 +351,13 @@ export default function DigitalTrustHubPage() {
                     placeholder="輸入文字、數字或 JSON 特徵..."
                     value={calcInput}
                     onChange={(e) => setCalcInput(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-teal-500"
+                    className="w-full bg-slate-50 dark:bg-[var(--bg)] border border-slate-300 dark:border-[var(--border-strong)] rounded-xl p-2.5 text-xs text-[var(--text-1)] dark:text-[var(--text-1)] font-mono focus:outline-none focus:border-teal-500"
                   />
                 </div>
 
                 {calcHash && (
-                  <div className="p-3 bg-slate-100 dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800">
-                    <div className="flex items-center justify-between text-xs text-slate-500 mb-1 font-mono">
+                  <div className="p-3 bg-slate-100 dark:bg-[var(--bg)] rounded-xl border border-[var(--border)] dark:border-[var(--border)]">
+                    <div className="flex items-center justify-between text-xs text-[var(--text-3)] mb-1 font-mono">
                       <span>SHA-256 輸出雜湊鎖:</span>
                       <button
                         onClick={() => handleCopyHash(calcHash)}
@@ -376,8 +376,8 @@ export default function DigitalTrustHubPage() {
             </div>
 
             {/* 新增 5T 存證封印表單 */}
-            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-200 dark:border-slate-800">
+            <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-6 shadow-sm">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[var(--border)] dark:border-[var(--border)]">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-teal-700 dark:text-cyan-400 flex items-center gap-2">
                   <Lock className="w-4 h-4" /> 執行 5T 密碼學存證封印
                 </h3>
@@ -385,7 +385,7 @@ export default function DigitalTrustHubPage() {
 
               <form onSubmit={handleSeal} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-2)] dark:text-[var(--text-2)] mb-1.5">
                     文件 / 資產名稱
                   </label>
                   <input
@@ -394,12 +394,12 @@ export default function DigitalTrustHubPage() {
                     placeholder="例：2026 Q3 溫室氣體盤查外部查驗聲明"
                     value={docName}
                     onChange={(e) => setDocName(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                    className="w-full bg-slate-50 dark:bg-[var(--bg)] border border-slate-300 dark:border-[var(--border-strong)] rounded-xl p-2.5 text-xs text-[var(--text-1)] dark:text-[var(--text-1)] focus:outline-none focus:border-teal-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-bold text-[var(--text-2)] dark:text-[var(--text-2)] mb-1.5">
                     存證特徵內容 (Payload)
                   </label>
                   <textarea
@@ -408,7 +408,7 @@ export default function DigitalTrustHubPage() {
                     placeholder="貼上文字、盤查清冊結構或 JSON 摘要..."
                     value={docContent}
                     onChange={(e) => setDocContent(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl p-2.5 text-xs text-slate-900 dark:text-slate-100 font-mono focus:outline-none focus:border-teal-500"
+                    className="w-full bg-slate-50 dark:bg-[var(--bg)] border border-slate-300 dark:border-[var(--border-strong)] rounded-xl p-2.5 text-xs text-[var(--text-1)] dark:text-[var(--text-1)] font-mono focus:outline-none focus:border-teal-500"
                   />
                 </div>
 
@@ -427,27 +427,27 @@ export default function DigitalTrustHubPage() {
 
           {/* 右側欄位：密碼學證據金庫清單 (7 cols) */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+            <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-6 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 mb-4 border-b border-[var(--border)] dark:border-[var(--border)]">
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                    <FileCheck className="w-4 h-4 text-teal-600 dark:text-cyan-400" /> 
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-[var(--text-1)] dark:text-[var(--text-1)] flex items-center gap-2">
+                    <FileCheck className="w-4 h-4 text-teal-600 dark:text-cyan-400" />
                     密碼學證據保管箱清單 (Evidence Vault)
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5">
                     共存證 {seals.length} 筆不可篡改紀錄 · 包含 SHA-256 Hash Lock 與 ZKP Proof
                   </p>
                 </div>
 
                 {/* 搜尋列 */}
                 <div className="relative w-full md:w-64">
-                  <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[var(--text-3)]" />
                   <input
                     type="text"
                     placeholder="搜尋文件名稱或雜湊..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-teal-500"
+                    className="w-full pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-[var(--bg)] border border-slate-300 dark:border-[var(--border-strong)] rounded-xl text-xs text-[var(--text-1)] dark:text-[var(--text-1)] focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
@@ -457,32 +457,32 @@ export default function DigitalTrustHubPage() {
                 {filteredSeals.map((seal) => (
                   <div
                     key={seal.id}
-                    className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 text-xs space-y-2 hover:border-teal-500/40 transition-colors"
+                    className="p-4 rounded-xl border border-[var(--border)]/90 dark:border-[var(--border)] bg-slate-50/60 dark:bg-[var(--surface-1)]/80 text-xs space-y-2 hover:border-teal-500/40 transition-colors"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> VERIFIED
                         </span>
-                        <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">
+                        <h4 className="font-bold text-[var(--text-1)] dark:text-[var(--text-1)] text-sm">
                           {seal.documentName}
                         </h4>
                       </div>
-                      <span className="font-mono text-[11px] text-slate-400 shrink-0">
+                      <span className="font-mono text-[11px] text-[var(--text-3)] shrink-0">
                         {new Date(seal.sealedAt).toISOString().replace('T', ' ').substring(0, 19)}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                    <div className="flex items-center gap-2 text-[11px] text-[var(--text-3)] dark:text-[var(--text-3)]">
                       <span>來源模組:</span>
                       <span className="font-mono text-teal-700 dark:text-cyan-400 font-semibold">{seal.sourceOrigin}</span>
                     </div>
 
                     {/* Hash Lock 區塊 */}
-                    <div className="flex items-center justify-between gap-2 bg-white dark:bg-slate-900 p-2.5 rounded-lg border border-slate-200 dark:border-slate-800">
+                    <div className="flex items-center justify-between gap-2 bg-[var(--surface-1)] dark:bg-[var(--surface-1)] p-2.5 rounded-lg border border-[var(--border)] dark:border-[var(--border)]">
                       <div className="flex items-center gap-2 overflow-hidden">
                         <Lock className="w-3.5 h-3.5 text-teal-600 dark:text-cyan-400 shrink-0" />
-                        <span className="font-mono text-[11px] text-slate-600 dark:text-slate-300 truncate">
+                        <span className="font-mono text-[11px] text-[var(--text-3)] dark:text-[var(--text-2)] truncate">
                           {seal.hashLock}
                         </span>
                       </div>
@@ -490,7 +490,7 @@ export default function DigitalTrustHubPage() {
                       <div className="flex items-center gap-2 shrink-0">
                         <button
                           onClick={() => handleCopyHash(seal.hashLock)}
-                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] flex items-center gap-1 transition-colors"
+                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-[var(--surface-3)] dark:hover:bg-slate-700 text-[var(--text-2)] dark:text-[var(--text-2)] text-[11px] flex items-center gap-1 transition-colors"
                           title="複製 Hash Lock"
                         >
                           {copiedHash === seal.hashLock ? (
@@ -503,25 +503,25 @@ export default function DigitalTrustHubPage() {
 
                         <button
                           onClick={() => handleDownloadSealJson(seal)}
-                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-[11px] flex items-center gap-1 transition-colors"
+                          className="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-[var(--surface-3)] dark:hover:bg-slate-700 text-[var(--text-2)] dark:text-[var(--text-2)] text-[11px] flex items-center gap-1 transition-colors"
                           title="下載 JSON 存證"
                         >
-                          <Download className="w-3.5 h-3.5 text-slate-500" />
+                          <Download className="w-3.5 h-3.5 text-[var(--text-3)]" />
                           <span>存證</span>
                         </button>
                       </div>
                     </div>
 
                     {seal.zkpProof && (
-                      <div className="font-mono text-[10px] text-slate-400 truncate">
-                        ZKP 封裝標籤: <span className="text-slate-500 dark:text-slate-400">{seal.zkpProof}</span>
+                      <div className="font-mono text-[10px] text-[var(--text-3)] truncate">
+                        ZKP 封裝標籤: <span className="text-[var(--text-3)] dark:text-[var(--text-3)]">{seal.zkpProof}</span>
                       </div>
                     )}
                   </div>
                 ))}
 
                 {filteredSeals.length === 0 && (
-                  <div className="p-8 text-center text-slate-400 text-xs">
+                  <div className="p-8 text-center text-[var(--text-3)] text-xs">
                     查無符合條件的存證紀錄
                   </div>
                 )}
@@ -531,7 +531,7 @@ export default function DigitalTrustHubPage() {
 
         </div>
 
-      </main>
+      </section>
     </div>
   );
 }

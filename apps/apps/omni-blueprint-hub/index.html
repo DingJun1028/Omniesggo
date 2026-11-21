@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f17">
+<title>萬能即時翻譯 · 控制中樞</title>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#141b29; --panel2:#0e1623; --accent:#36e0c0; --accent2:#7c5cff;
+    --txt:#e8eef7; --muted:#8a97ad; --line:#1f2a3d; --radius:18px; --shadow:0 8px 30px rgba(0,0,0,.45);
+  }
+  html[data-theme="light"]{ --bg:#eef2f7; --panel:#fff; --panel2:#f4f7fb; --txt:#16202e; --muted:#5b687e; --line:#dbe3ee; --shadow:0 8px 30px rgba(20,40,80,.12); }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:radial-gradient(1200px 600px at 80% -10%,#1c2740 0%,var(--bg) 55%);color:var(--txt);
+    min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));transition:.3s}
+  html[data-theme="light"] body{background:radial-gradient(1200px 600px at 80% -10%,#dbe6f5 0%,var(--bg) 55%)}
+  .wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:#06121a;box-shadow:var(--shadow)}
+  h1{font-size:1.05rem;margin:0}
+  .sub{color:var(--muted);font-size:.74rem}
+  .conn{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted)}
+  .dot{width:9px;height:9px;border-radius:50%;background:#3a465c;transition:.2s}
+  .dot.on{background:var(--accent);box-shadow:0 0 0 0 rgba(54,224,192,.6);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(54,224,192,.5)}70%{box-shadow:0 0 0 10px rgba(54,224,192,0)}100%{box-shadow:0 0 0 0 rgba(54,224,192,0)}}
+  .btn{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:10px;padding:7px 11px;font-size:.74rem;transition:.15s;user-select:none}
+  .btn:hover{border-color:var(--accent)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:8px}
+  .card h2{font-size:.92rem;margin:0;display:flex;align-items:center;gap:6px}
+  .cta{display:inline-block;margin-top:4px;padding:10px 14px;border-radius:12px;font-weight:700;font-size:.85rem;text-decoration:none;color:#06121a;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--shadow)}
+  .cta.alt{background:var(--panel2);color:var(--txt);border:1px solid var(--line)}
+  .desc{font-size:.74rem;color:var(--muted);line-height:1.5}
+  .pill{display:inline-block;font-size:.62rem;border:1px solid var(--line);border-radius:7px;padding:2px 7px;color:var(--accent);background:var(--panel2)}
+  .live-box{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:10px;font-size:.82rem;line-height:1.5;max-height:200px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+  .audit{font-size:.66rem;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap}
+  .audit b{color:var(--accent);font-family:ui-monospace,monospace}
+  .full{grid-column:1/-1}
+  .footer{font-size:.68rem;color:var(--muted);text-align:center;padding-top:4px}
+  .t5{display:flex;gap:5px;flex-wrap:wrap}
+  .t5 span{font-size:.6rem;border:1px solid var(--line);border-radius:6px;padding:2px 6px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">萬</div>
+    <div>
+      <h1>萬能即時翻譯 · 控制中樞</h1>
+      <div class="sub">免費自託管 · 取代 Akkadu 付費顯示與共享</div>
+    </div>
+    <div class="conn"><span class="dot" id="dot"></span><span id="conn">連線中…</span></div>
+    <span class="btn" id="theme">🌙 深色</span>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h2>🎙 講者端</h2>
+      <div class="desc">瀏覽器麥克風 → Web Speech 原生轉錄 → 自動多語翻譯推送。零點數、零 App。</div>
+      <a class="cta" href="/studio.html">開啟講者端</a>
+    </div>
+
+    <div class="card">
+      <h2>👁 觀眾端</h2>
+      <div class="desc">RWD 多語便當盒字幕，深色/淺色主題、字級調整、5T 可溯源顯示。</div>
+      <a class="cta" href="/stream?src=studio">開啟觀眾端</a>
+    </div>
+
+    <div class="card full">
+      <h2>📡 即時翻譯流 <span class="pill" id="rate">— evt/s</span></h2>
+      <div class="live-box" id="feed">等待翻譯事件…</div>
+      <div class="audit">
+        <span>5T:</span>
+        <span class="t5"><span>Traceable</span><span>Trackable</span><span>Transparent</span><span>Tangible</span><span>Trustworthy</span></span>
+        <span>· 不可篡改 Hash Lock</span>
+        <span>· 熵 &lt; 0.1</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">萬能蜂群 · OA-Team 30 · 5T 協議貫徹 · 零點數永久可用</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const dot=$('#dot'), conn=$('#conn'), feed=$('#feed'), rateEl=$('#rate');
+const theme=localStorage.getItem('obh-theme')||'dark';
+applyTheme(theme);
+function applyTheme(t){ document.documentElement.dataset.theme=t; $('#theme').textContent=t==='light'?'☀ 淺色':'🌙 深色'; }
+$('#theme').onclick=()=>{ const n=document.documentElement.dataset.theme==='light'?'dark':'light'; applyTheme(n); localStorage.setItem('obh-theme',n); };
+
+let count=0, winStart=Date.now();
+const es=new EventSource('/stream?src=studio');
+es.onopen=()=>{ dot.classList.add('on'); conn.textContent='已連線'; };
+es.onerror=()=>{ dot.classList.remove('on'); conn.textContent='重連中…'; };
+es.addEventListener('translation',e=>{
+  const d=JSON.parse(e.data); count++;
+  const t=new Date(d.timestamp).toLocaleTimeString();
+  const line=`[${t}] ${d.from.toUpperCase()} → ${Object.keys(d.translations).join('/')}\n「${d.text}」\n`;
+  feed.textContent = line + feed.textContent.split('\n\n').slice(0,8).join('\n\n');
+  const dt=(Date.now()-winStart)/1000; rateEl.textContent=(count/dt).toFixed(1)+' evt/s';
+});
+es.addEventListener('heartbeat',()=>{ if(!dot.classList.contains('on')){dot.classList.add('on');conn.textContent='已連線';} });
+</script>
+</body>
+</html>

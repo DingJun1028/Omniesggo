@@ -1,0 +1,50 @@
+{
+  "id": "feedback",
+  "name": "Employee Feedback & Visual Stories",
+  "elementId": "employee-feedback",
+  "filename": "employee-feedback-replacement",
+  "priority": "P1",
+  "owner": "T17 Market Bee + T30 Quality Control Bee",
+  "rwdBreakpoints": [
+    "desktop",
+    "tablet",
+    "mobile",
+    "compact"
+  ],
+  "rwdSizes": [
+    {
+      "breakpoint": "desktop",
+      "dimensions": {
+        "width": 1024,
+        "height": 768
+      },
+      "specFile": "employee-feedback-replacement-desktop.spec.json"
+    },
+    {
+      "breakpoint": "tablet",
+      "dimensions": {
+        "width": 768,
+        "height": 1024
+      },
+      "specFile": "employee-feedback-replacement-tablet.spec.json"
+    },
+    {
+      "breakpoint": "mobile",
+      "dimensions": {
+        "width": 480,
+        "height": 800
+      },
+      "specFile": "employee-feedback-replacement-mobile.spec.json"
+    },
+    {
+      "breakpoint": "compact",
+      "dimensions": {
+        "width": 360,
+        "height": 640
+      },
+      "specFile": "employee-feedback-replacement-compact.spec.json"
+    }
+  ],
+  "fullPreview": "employee-feedback-replacement-desktop-full.png",
+  "status": "ready-for-generation"
+}

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * A08 Phase 1 — OmniMemory & OmniTraceLog Bootstrap Script
  * scripts/create_omni_memory.ts
  *
@@ -6,9 +6,9 @@
  * Run via: npx tsx scripts/create_omni_memory.ts
  */
 
-import { PrismaClient } from "@prisma/client";
+import { createPrismaCompatClient } from '@lib/db/prisma-compat';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaCompatClient();
 
 async function bootstrap() {
   console.log("A08 Bootstrap — creating OmniMemory & OmniTraceLog tables if absent...");

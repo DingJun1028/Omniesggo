@@ -26,7 +26,7 @@ import {
 
 // ── 1. hydration: 啟動從 Oracle 全量回拉, 重組 app 端信任狀態 ──────────
 // Oracle 是信任帳本 source of truth。esggo-core 啟動時 replay 全量 entry,
-// 把 Oracle 已知的 uuid/action 標記回 app (universalTag/tagPair 的 sourceOrigin)。
+// 把 Oracle 已知的 uuid/action 標記回 app (OmniTag/tagPair 的 sourceOrigin)。
 // 注意: Oracle entry 只存 uuid+action+hash, 不存 app 欄位內容;
 //       hydration 僅補齊「Oracle 已確認但 app 本地缺失」的信任標記, 不覆寫 app 既有資料。
 export interface HydrationResult {
@@ -49,7 +49,7 @@ export async function hydrateFromOracle(): Promise<HydrationResult> {
     const uuid = entry.uuid;
     if (!uuid) continue;
     // 在 app 端標記此 uuid 的實體為「Oracle 已確認」(sourceOrigin 補 oracle-confirmed)
-    // 若 app 本地已有該 uuid 的 tagPair/universalTag, 更新其 lifecycleHooks 補 oracleConfirmed 標記
+    // 若 app 本地已有該 uuid 的 tagPair/OmniTag, 更新其 lifecycleHooks 補 oracleConfirmed 標記
     try {
       const existingPair = await prisma.tagPair.findFirst({ where: { uuid } });
       if (existingPair) {

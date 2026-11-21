@@ -157,18 +157,53 @@ export default function OmniBasePage() {
   const [plugins, setPlugins] = useState<PluginInfo[]>([]);
   const [health, setHealth] = useState<HealthInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [_actioning, setActioning] = useState<string | null>(null);
 
   const fetchPlugins = useCallback(async () => {
     try {
       const res = await fetch('/api/omni/plugins');
-      const data = await res.json();
-      if (data.success) {
-        setPlugins(data.plugins);
-        setHealth(data.health);
+      if (!res.ok) throw new Error(`Plugin API returned ${res.status}`);
+      const response: unknown = await res.json();
+      // jsonResponse wraps endpoint payloads as { success, data }, while allowing
+      // direct payloads too for compatibility with older handlers.
+      const envelope = response && typeof response === 'object'
+        ? response as { success?: unknown; data?: unknown }
+        : null;
+      const data = envelope && envelope.data && typeof envelope.data === 'object'
+        ? envelope.data
+        : response;
+      if (data && typeof data === 'object' && 'success' in data && data.success) {
+        const payload = data as { plugins?: unknown; health?: unknown };
+        const safePlugins = Array.isArray(payload.plugins)
+          ? payload.plugins
+              .filter((plugin): plugin is Record<string, unknown> => !!plugin && typeof plugin === 'object')
+              .map((plugin) => ({
+                id: String(plugin.id ?? ''),
+                name: String(plugin.name ?? '未命名外掛'),
+                version: String(plugin.version ?? '—'),
+                description: String(plugin.description ?? ''),
+                lifecycle: String(plugin.lifecycle ?? 'registered'),
+                hooks: Array.isArray(plugin.hooks) ? plugin.hooks.map(String) : [],
+              }))
+              .filter((plugin) => plugin.id.length > 0)
+          : [];
+        const safeHealth = Array.isArray(payload.health)
+          ? payload.health.filter((item): item is HealthInfo => !!item && typeof item === 'object' && 'id' in item && 'status' in item)
+          : [];
+        setPlugins(safePlugins);
+        setHealth(safeHealth);
+        setLoadError(null);
+      } else {
+        const errorMessage = data && typeof data === 'object' && 'error' in data
+          ? String(data.error ?? 'Plugin API returned an invalid response')
+          : 'Plugin API returned an invalid response';
+        throw new Error(errorMessage);
       }
     } catch (e) {
-      console.error('Failed to fetch plugins:', e);
+      const message = e instanceof Error ? e.message : String(e);
+      setLoadError(message);
+      console.error('Failed to fetch plugins:', message);
     } finally {
       setLoading(false);
     }
@@ -194,8 +229,11 @@ export default function OmniBasePage() {
     }
   };
 
-  const enabledCount = plugins.filter(p => p.lifecycle === 'enabled').length;
-  const totalHooks = plugins.reduce((sum, p) => sum + p.hooks.length, 0);
+  // Keep the render path resilient even if state is populated by an unexpected payload.
+  const pluginList = Array.isArray(plugins) ? plugins : [];
+  const healthList = Array.isArray(health) ? health : [];
+  const enabledCount = pluginList.filter(p => p.lifecycle === 'enabled').length;
+  const totalHooks = pluginList.reduce((sum, p) => sum + (Array.isArray(p.hooks) ? p.hooks.length : 0), 0);
 
   return (
     <div style={{ background: SC.bg, minHeight: '100vh', padding: '24px 16px' }}>
@@ -213,7 +251,7 @@ export default function OmniBasePage() {
             萬能基地 · EventBus-driven · Hot-reload · 永續發展無限進化
           </p>
           <div style={{ display: 'flex', gap: 20, marginTop: 12, fontSize: 13, color: SC.textMuted }}>
-            <span>📦 外掛 <strong style={{ color: SC.teal }}>{plugins.length}</strong></span>
+            <span>📦 外掛 <strong style={{ color: SC.teal }}>{pluginList.length}</strong></span>
             <span>✅ 啟用 <strong style={{ color: SC.success }}>{enabledCount}</strong></span>
             <span>🪝 Hooks <strong style={{ color: SC.gold }}>{totalHooks}</strong></span>
           </div>
@@ -224,13 +262,25 @@ export default function OmniBasePage() {
           <div style={{ textAlign: 'center', padding: 48, color: SC.teal }}>
             載入外掛列表中...
           </div>
-        ) : plugins.length > 0 ? (
+        ) : loadError ? (
+          <div role="alert" style={{
+            background: SC.surface,
+            border: `1px solid ${SC.error}66`,
+            borderRadius: 12,
+            padding: 24,
+            color: SC.textSecondary,
+          }}>
+            <strong style={{ display: 'block', color: SC.error, marginBottom: 6 }}>外掛清單載入失敗</strong>
+            <span style={{ fontSize: 13 }}>{loadError}</span>
+            <button onClick={fetchPlugins} style={{ display: 'block', marginTop: 14, padding: '7px 12px', background: SC.teal, color: SC.bg, border: 0, borderRadius: 6, fontWeight: 600, cursor: 'pointer' }}>重新載入</button>
+          </div>
+        ) : pluginList.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {plugins.map(plugin => (
+            {pluginList.map(plugin => (
               <PluginCard
                 key={plugin.id}
                 plugin={plugin}
-                health={health.find(h => h.id === plugin.id)}
+                health={healthList.find(h => h.id === plugin.id)}
                 onAction={handleAction}
               />
             ))}

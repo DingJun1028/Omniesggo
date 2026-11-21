@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Bot, Send, Sparkles, ShieldCheck, Hash, Cpu, RefreshCw } from 'lucide-react';
+import { Bot, Send, ShieldCheck, Hash, Cpu, RefreshCw } from 'lucide-react';
 
 interface ChatMessage {
   id: string;
@@ -18,7 +18,7 @@ export function AIDataChatPanel() {
       id: 'init-1',
       sender: 'ai',
       text: '你好！我是 ESG GO 本地零算力 AI 數據分析助手 (Ollama Engine)。你可以輸入任何關於溫室氣體碳試算、台電 2024 排放係數或 5T 確信的疑問！',
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: '—',
       engine: 'Ollama Local AI (Zero-Cloud-Cost)',
     },
   ]);
@@ -35,11 +35,14 @@ export function AIDataChatPanel() {
     const textToSend = queryText || input;
     if (!textToSend.trim() || loading) return;
 
+    const now = new Date();
+    const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const messageId = `${now.getTime()}-${crypto.randomUUID()}`;
     const userMsg: ChatMessage = {
-      id: `u-${Date.now()}`,
+      id: `u-${messageId}`,
       sender: 'user',
       text: textToSend,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp,
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -64,7 +67,7 @@ export function AIDataChatPanel() {
 
       if (json.success) {
         const aiMsg: ChatMessage = {
-          id: `ai-${Date.now()}`,
+          id: `ai-${messageId}`,
           sender: 'ai',
           text: json.answer,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -77,7 +80,7 @@ export function AIDataChatPanel() {
       }
     } catch (err) {
       const errorMsg: ChatMessage = {
-        id: `err-${Date.now()}`,
+        id: `err-${messageId}`,
         sender: 'ai',
         text: `⚠️ 分析過程發生錯誤: ${(err as Error).message}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

@@ -1,0 +1,44 @@
+name: vps-8642-direct
+on:
+  workflow_dispatch:
+
+jobs:
+  direct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+      VPS_USER: ${{ secrets.VPS_USER }}
+      VPS_HOST: ${{ secrets.VPS_HOST }}
+    steps:
+      - name: Setup SSH agent
+        uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+        with:
+          ssh-private-key: ${{ env.SSH_PRIVATE_KEY || env.VPS_SSH_KEY }}
+      - name: Prepare SSH config
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+          cat > ~/.ssh/config <<EOF
+          Host vps
+            HostName ${VPS_HOST}
+            User ${VPS_USER}
+            Port 22
+            StrictHostKeyChecking no
+            UserKnownHostsFile /dev/null
+            IdentitiesOnly yes
+          EOF
+          echo 'SSH_CONFIG:'
+          cat ~/.ssh/config
+      - name: Run ufw + ss over SSH
+        run: |
+          set -o pipefail
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes vps 'sudo ufw allow from 10.0.0.0/8 to any port 8642' | tee /tmp/ufw.out || true
+          ssh -o BatchMode=yes -o IdentitiesOnly=yes vps 'ss -tlnp | grep 8642 || true' | tee /tmp/ss.out || true
+      - name: Print output
+        run: |
+          echo '--- UFW ---'
+          cat /tmp/ufw.out 2>/dev/null || true
+          echo '--- SS ---'
+          cat /tmp/ss.out 2>/dev/null || true

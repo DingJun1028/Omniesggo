@@ -1,0 +1,49 @@
+# Zoom Live Caption — 即時雙向字幕翻譯器
+# 繁體中文 ↔ 英文，自動偵測雙向
+
+# 音訊設定
+audio:
+  sample_rate: 16000
+  channels: 1
+  block_size: 4000  # 250ms @ 16kHz
+  mic_device: null  # null = 預設，或填裝置名稱
+  loopback_device: null  # null = 預設，或填裝置名稱
+
+# STT 設定 (faster-whisper)
+stt:
+  model: base  # base / small / medium
+  device: cpu
+  compute_type: int8
+  language: null  # null = 自動偵測，或填 zh / en
+
+# 翻譯設定 (Gemini 3.6 Flash — 免費)
+translation:
+  provider: gemini
+  model: gemini-3.6-flash
+  api_key_env: GEMINI_API_KEY  # 從環境變數讀取
+  temperature: 0.1
+  max_tokens: 500
+
+# 顯示設定
+display:
+  overlay_position: top  # top / bottom / window
+  font_size: 24
+  font_color: "#FFFFFF"
+  background_color: "#80000000"
+  max_lines: 2
+  window_width: 800
+  window_height: 200
+
+# 行為設定
+behavior:
+  enabled: true
+  source_language: auto  # auto / zh / en
+  target_languages:
+    - zh
+    - en
+
+# Web 即時分享 (讓其他人用瀏覽器看字幕)
+web_stream:
+  enabled: true
+  http_port: 8080    # 網頁檢視端口
+  ws_port: 8081      # WebSocket 字幕串流端口

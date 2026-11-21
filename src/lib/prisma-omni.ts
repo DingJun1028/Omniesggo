@@ -2,14 +2,14 @@
 // ============================================================
 // OmniDB secondary Prisma client (MySQL)
 // ============================================================
-import { PrismaClient } from '@prisma/client';
+import { createPrismaCompatClient } from '@lib/db/prisma-compat';
 
 let initialized = false;
 
 function createOmniClient() {
   // Create a separate PrismaClient bound to the `db` datasource in schema.prisma.
   // Use OMNI_DATABASE_URL if provided.
-  return new PrismaClient({
+  return createPrismaCompatClient({
     datasources: {
       db: {
         url: process.env.OMNI_DATABASE_URL || process.env.DATABASE_URL || '',

@@ -1,0 +1,19 @@
+{
+  "name": "@esggo/cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/omni.mjs",
+  "bin": {
+    "esggo": "./src/omni.mjs"
+  },
+  "dependencies": {
+    "commander": "^15.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "scripts": {
+    "test": "echo 'no tests defined'"
+  }
+}

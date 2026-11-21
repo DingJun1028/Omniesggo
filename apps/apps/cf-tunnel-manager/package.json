@@ -1,0 +1,18 @@
+{
+  "name": "cf-tunnel-manager",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ESG-GO Cloudflare Tunnel / DNS 宣告式管理器 (OA-Team 萬能蜂群 · 結界六柱 空間柱)",
+  "scripts": {
+    "ensure": "tsx ensure-tunnel.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "cloudflare": "^7.3.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

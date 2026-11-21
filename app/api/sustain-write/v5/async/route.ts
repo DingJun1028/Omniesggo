@@ -10,7 +10,7 @@ import { jsonResponse, jsonError } from '@lib/api-utils';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
-  const { companyId, templateId, noteIds, customCompany, renderOptions } = await req.json();
+  const { companyId, templateId, noteIds, customCompany, renderOptions, reportingYear } = await req.json();
 
   if (!companyId) {
     return jsonError('INVALID_PARAMS', 'companyId is required', 400);
@@ -24,7 +24,11 @@ export async function POST(req: NextRequest) {
 
   // 5T Transparent: renderOptions is carried on the task and consumed by the
   // preview/download renderers. It is NOT dropped here.
-  const taskId = createTask(companyId, templateId, noteIds, customCompany, renderOptions);
+  const currentYear = new Date().getFullYear();
+  const safeReportingYear = Number.isInteger(reportingYear) && reportingYear >= 2000 && reportingYear <= currentYear
+    ? reportingYear
+    : currentYear - 1;
+  const taskId = createTask(companyId, templateId, noteIds, customCompany, renderOptions, safeReportingYear);
   startAsyncTask(taskId, companyId);
 
   return jsonResponse({

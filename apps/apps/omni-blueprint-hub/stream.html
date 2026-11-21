@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f17">
+<title>萬能即時翻譯 · 觀眾端</title>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#141b29; --panel2:#0e1623; --accent:#36e0c0; --accent2:#7c5cff;
+    --txt:#e8eef7; --muted:#8a97ad; --line:#1f2a3d; --radius:18px; --shadow:0 8px 30px rgba(0,0,0,.45);
+    --fs:1.05rem;
+  }
+  html[data-theme="light"]{
+    --bg:#eef2f7; --panel:#ffffff; --panel2:#f4f7fb; --txt:#16202e; --muted:#5b687e;
+    --line:#dbe3ee; --shadow:0 8px 30px rgba(20,40,80,.12);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:radial-gradient(1200px 600px at 80% -10%,#1c2740 0%,var(--bg) 55%);
+    color:var(--txt);min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+    transition:background .3s,color .3s}
+  html[data-theme="light"] body{background:radial-gradient(1200px 600px at 80% -10%,#dbe6f5 0%,var(--bg) 55%)}
+  .wrap{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:grid;place-items:center;font-weight:800;color:#06121a;box-shadow:var(--shadow)}
+  h1{font-size:1.05rem;margin:0}
+  .sub{color:var(--muted);font-size:.74rem}
+  .conn{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted)}
+  .dot{width:9px;height:9px;border-radius:50%;background:#3a465c;transition:.2s}
+  .dot.on{background:var(--accent);box-shadow:0 0 0 0 rgba(54,224,192,.6);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(54,224,192,.5)}70%{box-shadow:0 0 0 10px rgba(54,224,192,0)}100%{box-shadow:0 0 0 0 rgba(54,224,192,0)}}
+  .tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+  .btn{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:10px;
+    padding:7px 11px;font-size:.74rem;transition:.15s;user-select:none}
+  .btn:hover{border-color:var(--accent)}
+  .btn.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#06121a;border-color:transparent;font-weight:700}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:13px;box-shadow:var(--shadow);
+    display:flex;flex-direction:column;gap:7px;min-height:110px;transition:.2s}
+  .card .top{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .flag{font-size:1.25rem}
+  .lang{font-size:.72rem;color:var(--muted);letter-spacing:.4px;font-weight:600}
+  .src-pill{font-size:.6rem;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--accent)}
+  .text{font-size:var(--fs);line-height:1.6;white-space:pre-wrap;word-break:break-word;flex:1}
+  .text.fresh{animation:fade .55s ease}
+  @keyframes fade{from{opacity:.25;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .meta{font-size:.62rem;color:var(--muted);display:flex;gap:7px;flex-wrap:wrap}
+  .hash{font-family:ui-monospace,monospace}
+  .full{grid-column:1/-1;background:linear-gradient(135deg,#102433,#141b29);border-color:#1c3a4d}
+  html[data-theme="light"] .full{background:linear-gradient(135deg,#e3f3ee,#ffffff);border-color:#bfe3d8}
+  .full .text{font-size:calc(var(--fs) + .25rem);font-weight:600}
+  .hidden{display:none!important}
+  .footer{font-size:.68rem;color:var(--muted);text-align:center;padding-top:4px}
+  .empty{color:var(--muted);font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">萬</div>
+    <div>
+      <h1>萬能即時翻譯 · 觀眾端</h1>
+      <div class="sub">免費自託管 · 取代付費顯示</div>
+    </div>
+    <div class="conn"><span class="dot" id="dot"></span><span id="conn">連線中…</span></div>
+  </header>
+
+  <div class="tools">
+    <span class="btn" id="theme" title="切換主題">🌙 深色</span>
+    <span class="btn" id="fsDown" title="字小">A-</span>
+    <span class="btn" id="fsUp" title="字大">A+</span>
+    <span class="btn active" id="autoScroll" title="自動滾動">⬇ 自動</span>
+    <span style="flex:1"></span>
+    <span class="btn" id="hideOriginal" title="隱藏原文">原文</span>
+  </div>
+
+  <div class="grid" id="grid">
+    <div class="card full" id="origCard">
+      <div class="top"><span class="lang">來源 · ORIGINAL</span><span class="src-pill">5T 可溯源</span></div>
+      <div class="text empty" id="original">等待講者開始…</div>
+      <div class="meta" id="ometa"></div>
+    </div>
+  </div>
+
+  <div class="footer">萬能蜂群 · 5T 協議 · Hash Lock 不可篡改 · 零點數永久可用</div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const params = new URLSearchParams(location.search);
+const src = params.get('src') || 'studio';
+const grid = $('#grid');
+const dot = $('#dot'), conn = $('#conn');
+const LANG_NAMES = { 'zh-CN':'中文(簡)','zh-TW':'中文(繁)','en':'English','ja':'日本語','ko':'한국어','es':'Español','fr':'Français','de':'Deutsch' };
+const FLAGS = { 'zh-CN':'🇨🇳','zh-TW':'🇹🇼','en':'🇬🇧','ja':'🇯🇵','ko':'🇰🇷','es':'🇪🇸','fr':'🇫🇷','de':'🇩🇪' };
+const cards = {};
+let autoScroll = true;
+
+// 主題（localStorage 記憶）
+const savedTheme = localStorage.getItem('obh-theme') || 'dark';
+applyTheme(savedTheme);
+function applyTheme(t){ document.documentElement.dataset.theme = t; $('#theme').textContent = t==='light'?'☀ 淺色':'🌙 深色'; }
+$('#theme').onclick = ()=>{ const n = document.documentElement.dataset.theme==='light'?'dark':'light'; applyTheme(n); localStorage.setItem('obh-theme',n); };
+
+// 字級 (A11y)
+let fs = parseFloat(localStorage.getItem('obh-fs')||'1.05');
+applyFs();
+function applyFs(){ fs = Math.min(1.6, Math.max(.85, fs)); document.documentElement.style.setProperty('--fs', fs+'rem'); localStorage.setItem('obh-fs', fs); }
+$('#fsUp').onclick = ()=>{ fs+=.1; applyFs(); };
+$('#fsDown').onclick = ()=>{ fs-=.1; applyFs(); };
+
+// 自動滾動
+$('#autoScroll').onclick = ()=>{ autoScroll=!autoScroll; $('#autoScroll').classList.toggle('active',autoScroll); };
+
+// 隱藏原文
+$('#hideOriginal').onclick = ()=>{ const c=$('#origCard'); c.classList.toggle('hidden'); $('#hideOriginal').classList.toggle('active', c.classList.contains('hidden')); };
+
+function cardFor(code){
+  if(cards[code]) return cards[code];
+  const c = document.createElement('div');
+  c.className = 'card';
+  c.innerHTML = `<div class="top"><span class="flag">${FLAGS[code]||'🌐'}</span><span class="lang">${LANG_NAMES[code]||code}</span></div>
+    <div class="text empty">—</div><div class="meta"></div>`;
+  grid.appendChild(c);
+  cards[code] = { text:c.querySelector('.text'), meta:c.querySelector('.meta') };
+  return cards[code];
+}
+function fresh(el, txt, meta){
+  el.textContent = txt; el.classList.remove('empty','fresh'); void el.offsetWidth; el.classList.add('fresh');
+  if(meta) el.parentElement.querySelector('.meta').innerHTML = meta;
+}
+
+const es = new EventSource(`/stream?src=${encodeURIComponent(src)}`);
+es.onopen = ()=>{ dot.classList.add('on'); conn.textContent='已連線'; };
+es.onerror = ()=>{ dot.classList.remove('on'); conn.textContent='重連中…'; };
+es.addEventListener('translation', e=>{
+  const d = JSON.parse(e.data);
+  const h = `#${d.hash.slice(0,10)}`;
+  const t = new Date(d.timestamp).toLocaleTimeString();
+  fresh($('#original'), d.text, `<span>from ${d.from}</span>·<span class="hash">${h}</span>·<span>${t}</span>·<span>origin ${d.sourceOrigin}</span>`);
+  for(const [code,txt] of Object.entries(d.translations||{})){
+    const card = cardFor(code);
+    fresh(card.text, txt, `<span class="hash">${h}</span>·<span>${t}</span>`);
+  }
+  if(autoScroll) window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});
+});
+es.addEventListener('heartbeat', e=>{ if(!dot.classList.contains('on')){dot.classList.add('on');conn.textContent='已連線';} });
+es.addEventListener('room-status', e=>{ const d=JSON.parse(e.data); conn.textContent = d.broadcast? '房間開播中':'房間待機'; });
+</script>
+</body>
+</html>

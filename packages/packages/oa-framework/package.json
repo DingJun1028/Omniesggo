@@ -1,0 +1,25 @@
+{
+  "name": "@esggo/oa-framework",
+  "version": "0.5.0",
+  "description": "OA 萬能分身元框架 — 整合 ADK + Agent0 + CrewAI + Agent Reach + DeerFlow + 騰訊 Agent 記憶",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "tsx test/registration.smoke.ts && tsx test/smoke.ts && node test/tencent-mem-shared-memory.mjs"
+  },
+  "peerDependencies": {
+    "@google/adk": "*"
+  },
+  "dependencies": {
+    "@everworker/oneringai": "^1.2.3"
+  },
+  "peerDependenciesMeta": {
+    "@google/adk": {
+      "optional": true
+    }
+  },
+  "license": "MIT"
+}

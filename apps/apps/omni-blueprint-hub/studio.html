@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f17">
+<title>萬能即時翻譯 · 講者端</title>
+<style>
+  :root{
+    --bg:#0b0f17; --panel:#141b29; --panel2:#0e1623; --accent:#36e0c0; --accent2:#7c5cff;
+    --txt:#e8eef7; --muted:#8a97ad; --danger:#ff5d6c; --line:#1f2a3d; --radius:18px; --shadow:0 8px 30px rgba(0,0,0,.45);
+  }
+  html[data-theme="light"]{ --bg:#eef2f7; --panel:#fff; --panel2:#f4f7fb; --txt:#16202e; --muted:#5b687e; --line:#dbe3ee; --shadow:0 8px 30px rgba(20,40,80,.12); }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,"PingFang TC","Microsoft JhengHei",sans-serif;
+    background:radial-gradient(1200px 600px at 80% -10%,#1c2740 0%,var(--bg) 55%);color:var(--txt);
+    min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));transition:.3s}
+  html[data-theme="light"] body{background:radial-gradient(1200px 600px at 80% -10%,#dbe6f5 0%,var(--bg) 55%)}
+  .wrap{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-weight:800;color:#06121a;box-shadow:var(--shadow)}
+  h1{font-size:1.05rem;margin:0}
+  .sub{color:var(--muted);font-size:.74rem}
+  .conn{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--muted)}
+  .dot{width:9px;height:9px;border-radius:50%;background:#3a465c;transition:.2s}
+  .dot.on{background:var(--danger);box-shadow:0 0 0 0 rgba(255,93,108,.6);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,93,108,.55)}70%{box-shadow:0 0 0 12px rgba(255,93,108,0)}100%{box-shadow:0 0 0 0 rgba(255,93,108,0)}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+  .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  label{font-size:.74rem;color:var(--muted);display:block;margin-bottom:4px}
+  select,input{background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.9rem;outline:none;width:100%}
+  select:focus,input:focus{border-color:var(--accent)}
+  button{cursor:pointer;border:none;border-radius:12px;padding:12px 18px;font-size:.92rem;font-weight:700;color:#06121a;background:linear-gradient(135deg,var(--accent),var(--accent2));transition:.15s;box-shadow:var(--shadow)}
+  button:active{transform:translateY(1px)}
+  button.live{background:linear-gradient(135deg,#ff5d6c,#ff8a5c)}
+  button.rec{background:linear-gradient(135deg,#36e0c0,#7c5cff)}
+  .btn{cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--txt);border-radius:10px;padding:7px 11px;font-size:.74rem;transition:.15s;user-select:none}
+  .btn:hover{border-color:var(--accent)}
+  .live-dot{width:9px;height:9px;border-radius:50%;background:#3a465c;display:inline-block;margin-right:6px}
+  .live-dot.on{background:var(--danger);animation:pulse 1.4s infinite}
+  #liveTxt{font-size:.82rem;color:var(--muted)}
+  #transcript{flex:1;min-height:120px;max-height:36vh;overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:1.02rem;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+  #transcript .me{color:var(--accent)}
+  #transcript .interim{color:var(--muted);font-style:italic}
+  .status{font-size:.76rem;color:var(--muted);min-height:1.1em}
+  .hint{font-size:.72rem;color:var(--muted);line-height:1.5}
+  .badge{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:3px 8px;font-size:.7rem;color:var(--accent)}
+  code{font-family:ui-monospace,monospace}
+  .aud{color:var(--accent);font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">萬</div>
+    <div>
+      <h1>萬能即時翻譯 · 講者端</h1>
+      <div class="sub">免費自託管 · 語音轉錄 + 多語即時翻譯</div>
+    </div>
+    <div class="conn"><span class="dot" id="dot"></span><span id="liveTxt">待機</span></div>
+  </header>
+
+  <div class="panel">
+    <div class="row">
+      <div style="flex:0 0 140px">
+        <label>來源語言</label>
+        <select id="lang">
+          <option value="en">英文</option><option value="zh-CN">中文(簡)</option>
+          <option value="zh-TW">中文(繁)</option><option value="ja">日文</option>
+          <option value="ko">韓文</option><option value="es">西班牙文</option><option value="fr">法文</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:140px">
+        <label>講者代號</label>
+        <input id="speaker" placeholder="speaker-01" value="speaker-01">
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button id="start" class="live">🎙 開始收音</button>
+        <span class="btn" id="theme" title="切換主題">🌙 深色</span>
+      </div>
+    </div>
+    <div style="margin-top:10px" class="status" id="status">Chrome/Edge 支援 Web Speech API。授權麥克風後即開始轉錄並自動翻譯多語推送。</div>
+  </div>
+
+  <div class="panel" style="display:flex;flex-direction:column;gap:8px">
+    <div class="row"><span class="badge">即時轉錄 → 多語推送</span><span class="hint">語音轉文字後自動翻譯，觀眾端即時顯示</span></div>
+    <div id="transcript" aria-live="polite">（轉錄會顯示在這裡）</div>
+  </div>
+
+  <div class="hint">
+    觀眾收看：<span class="aud" id="audience">/stream?src=studio</span><br>
+    完全免費、不需 Akkadu 點數。翻譯預設 MyMemory 零 key 引擎。
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const startBtn=$('#start'), statusEl=$('#status'), box=$('#transcript'), dot=$('#dot'), liveTxt=$('#liveTxt');
+const API = location.origin + '/speak';
+let recog=null, listening=false;
+
+const savedTheme=localStorage.getItem('obh-theme')||'dark';
+applyTheme(savedTheme);
+function applyTheme(t){ document.documentElement.dataset.theme=t; $('#theme').textContent=t==='light'?'☀ 淺色':'🌙 深色'; }
+$('#theme').onclick=()=>{ const n=document.documentElement.dataset.theme==='light'?'dark':'light'; applyTheme(n); localStorage.setItem('obh-theme',n); };
+
+function setStatus(t){ statusEl.textContent=t; }
+function appendFinal(text){
+  const p=document.createElement('div'); p.className='me'; p.textContent='▸ '+text;
+  box.appendChild(p); box.scrollTop=box.scrollHeight; pushTranslate(text);
+}
+function setInterim(t){
+  let el=$('#interim');
+  if(!el){ el=document.createElement('div'); el.id='interim'; el.className='interim'; box.appendChild(el); }
+  el.textContent='⋯ '+t; box.scrollTop=box.scrollHeight;
+}
+
+async function pushTranslate(text){
+  const from=$('#lang').value, speaker=$('#speaker').value||'speaker';
+  try{
+    const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text,from,src:'studio',speaker})});
+    const d=await r.json();
+    if(!d.ok) setStatus('翻譯端異常: '+(d.error||'?'));
+  }catch(e){ setStatus('推播失敗: '+e.message); }
+}
+
+function start(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ setStatus('此瀏覽器不支援 Web Speech API，請用 Chrome / Edge。'); return; }
+  recog=new SR();
+  recog.lang=$('#lang').value; recog.continuous=true; recog.interimResults=true;
+  recog.onstart=()=>{ listening=true; dot.classList.add('on'); liveTxt.textContent='收音中'; startBtn.textContent='⏹ 停止'; startBtn.className='rec'; setStatus('正在收音…說話即轉錄+翻譯'); };
+  recog.onresult=(e)=>{
+    let interim='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const t=e.results[i][0].transcript;
+      if(e.results[i].isFinal) appendFinal(t.trim()); else interim+=t;
+    }
+    if(interim.trim()) setInterim(interim.trim()); else { const el=$('#interim'); if(el) el.remove(); }
+  };
+  recog.onerror=(e)=>{ setStatus('語音辨識錯誤: '+e.error); if(e.error==='not-allowed') stop(); };
+  recog.onend=()=>{ if(listening){ try{recog.start();}catch{} } };
+  try{ recog.start(); }catch(e){ setStatus('啟動失敗: '+e.message); }
+}
+function stop(){
+  listening=false; dot.classList.remove('on'); liveTxt.textContent='待機';
+  startBtn.textContent='🎙 開始收音'; startBtn.className='live';
+  if(recog) try{recog.stop();}catch{} setStatus('已停止。');
+}
+startBtn.onclick=()=> listening?stop():start();
+$('#audience').textContent=location.origin+'/stream?src=studio';
+</script>
+</body>
+</html>

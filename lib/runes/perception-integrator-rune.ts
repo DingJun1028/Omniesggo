@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：整合所有左翼使徒的輸出，確保前端呈現神聖質感
  */
 
-export const PerceptionIntegratorInputSchema = z.object({
-  subOutputs: z.array(z.string()).describe("各子使徒的輸出結果列表"),
-  targetView: z.string().describe("目標視圖名稱"),
+export const PerceptionIntegratorInputSchema = Type.Object({
+  subOutputs: Type.Array(Type.String(), { description: "各子使徒的輸出結果列表" }),
+  targetView: Type.String({ description: "目標視圖名稱" }),
 });
 
 export const perceptionIntegratorRune = defineRune({

@@ -1,0 +1,28 @@
+/* FTG 2.9 特別版 — ESG SUNSHINE 原子色號光標籤 */
+:root {
+  /* Aqua Cyan Spectrum */
+  --esg-cyan: #00FFFF;
+  --esg-cyan-mid: #00C4D9;
+  --esg-cyan-shadow: #008BA3;
+
+  /* Eternal Gold Spectrum */
+  --esg-gold: #FFD700;
+  --esg-gold-mid: #E6BE00;
+  --esg-gold-shadow: #C9A000;
+
+  /* Surfaces */
+  --paper: #FFFFFF;
+  --paper-dim: #F5F7FA;
+  --ink: #10243f;
+
+  /* Shadows */
+  --shadow: 0 10px 40px rgba(0, 139, 163, 0.12);
+  --shadow-lg: 0 24px 70px rgba(0, 139, 163, 0.18);
+  --shadow-sm: 0 4px 16px rgba(0, 139, 163, 0.08);
+
+  /* Radius */
+  --radius: 18px;
+  --radius-sm: 12px;
+  --maxw: 1140px;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+}

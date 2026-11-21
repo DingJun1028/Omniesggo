@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Sun, Moon, RefreshCw, Download, ShieldCheck, CheckCircle2, 
-  Activity, Eye, Cpu, Radio, Award, Sparkles, Heart, Copy, Check,
+import { useSearchParams } from 'next/navigation';
+import {
+  Sun, Moon, RefreshCw, Download, ShieldCheck, CheckCircle2,
+  Activity, Eye, Cpu, Radio, Sparkles, Heart, Copy, Check,
   BookOpen, Calendar, MessageSquare, Radar, Database, Lock, Wrench, GraduationCap, Clock
 } from 'lucide-react';
 import { OmniNoteCRUD, type NoteData } from './omni-note-crud';
@@ -20,9 +21,11 @@ import { HermesCronStatus } from './hermes-cron-status';
 import { useAgnesApi } from '../../src/components/AgnesProvider';
 import { OmniBaseCard } from '@/components/omni-base-card';
 import { db } from '@lib/firebase';
+import { hasSupabaseConfig } from '../../src/lib/supabase-client';
 import { collection, onSnapshot, query, orderBy } from '@lib/firebase';
 
 type Tab = 'overview' | 'learning' | 'notes' | 'tasks' | 'calendar' | 'chat' | 'fiveT' | 'rag' | 'zkp' | 'omniFn' | 'hermesCron';
+const VALID_TABS: Tab[] = ['overview', 'learning', 'notes', 'tasks', 'calendar', 'chat', 'fiveT', 'rag', 'zkp', 'omniFn', 'hermesCron'];
 
 interface TraceEvent {
   uuid: string;
@@ -79,28 +82,28 @@ const DEMO_NOTES: NoteData[] = [
     title: 'ESG 永續戰略 2026',
     content: 'Q3 目標：完成碳排放基準年建立、供應鏈 ESG 評估框架設計。\n\n## 關鍵里程碑\n- **7月**: GRI 框架確認\n- **9月**: ZKP 封印報告',
     tags: ['ESG', '戰略'],
-    fiveTGate: 'transparent',
-    createdAt: Date.now() - 86400000 * 3,
+    createdAt: 1790899200000,
   },
   {
     id: 'ON-C3D4',
     title: 'OmniOne 覺醒系統記錄',
     content: '已完成 AwakeningCore + MemorySystem + CaseHandler。\n\n`import { omniOne } from "@/sdks/omni-one/src"`',
     tags: ['OmniOne', 'AI', '開發'],
-    fiveTGate: 'trackable',
-    createdAt: Date.now() - 86400000,
+    createdAt: 1791072000000,
   },
 ];
 
 export default function OmniCenterPage() {
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get('tab');
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
-  const [tab, setTab] = useState<Tab>('overview');
+  const [tab, setTab] = useState<Tab>(() => VALID_TABS.includes(requestedTab as Tab) ? requestedTab as Tab : 'overview');
   const [isResonating, setIsResonating] = useState(false);
   const [resonanceRate, setResonanceRate] = useState(98.4);
   const [eventFilter, setEventFilter] = useState<'ALL' | 'SEAL' | 'METABOLISM' | 'AUDIT'>('ALL');
   const [copiedHash, setCopiedHash] = useState<string | null>(null);
   const [traceLogs, setTraceLogs] = useState<TraceEvent[]>(INITIAL_TRACES);
-  
+
   // 原始子組件狀態相容
   const [notes, setNotes] = useState<NoteData[]>(DEMO_NOTES);
   const [zkpCount, setZkpCount] = useState<number>(0);
@@ -108,6 +111,11 @@ export default function OmniCenterPage() {
   const [omniSummary, setOmniSummary] = useState<{ caseCount: number; griIndicatorCount: number } | null>(null);
 
   const { isReady } = useAgnesApi();
+  const isCloudConnected = hasSupabaseConfig();
+
+  useEffect(() => {
+    if (VALID_TABS.includes(requestedTab as Tab)) setTab(requestedTab as Tab);
+  }, [requestedTab, setTab]);
 
   // 初始化主題
   useEffect(() => {
@@ -216,24 +224,24 @@ export default function OmniCenterPage() {
     };
   }, []);
 
-  const filteredTraces = eventFilter === 'ALL' 
-    ? traceLogs 
+  const filteredTraces = eventFilter === 'ALL'
+    ? traceLogs
     : traceLogs.filter(t => t.level === eventFilter);
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 font-sans ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      
+    <div className="min-w-0 w-full space-y-6 bg-[var(--bg)] font-sans text-[var(--text-1)] sm:space-y-8">
+
       {/* ── 1. 頂部手冊控制列 (Header & Theme Capsule) ── */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-white/10 px-6 py-4">
-        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] px-4 py-4 shadow-sm sm:rounded-3xl sm:px-6 sm:py-5">
+        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
                 A01 · OMNI-CENTER
               </span>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse" />
-                SYSTEM ONLINE
+              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${isCloudConnected ? 'bg-emerald-50 text-emerald-800 border-emerald-200/90 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-500/30' : 'bg-amber-50 text-amber-900 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-500/30'}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${isCloudConnected ? 'bg-emerald-600 dark:bg-emerald-400 animate-pulse' : 'bg-amber-500'}`} />
+                {isCloudConnected ? '雲端已連線' : '示範模式 · 雲端未連線'}
               </span>
               {isReady && (
                 <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-mono font-bold bg-purple-50 text-purple-800 border border-purple-200 dark:bg-purple-950/50 dark:text-purple-300 dark:border-purple-500/30">
@@ -241,11 +249,11 @@ export default function OmniCenterPage() {
                 </span>
               )}
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--text-1)] dark:text-[var(--text-1)] flex items-center gap-2">
               <Cpu className="w-7 h-7 text-teal-600 dark:text-cyan-400" />
               萬能中心 (Omni-Core Workbench)
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+            <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5 font-medium">
               ESGGO 永續發展無限進化 · 無作妙德 · 圓通無礙 · 5T 終始矩陣核心
             </p>
           </div>
@@ -253,14 +261,14 @@ export default function OmniCenterPage() {
           {/* 右側操作群 */}
           <div className="flex items-center flex-wrap gap-3">
             {/* 雙主題切換膠囊 */}
-            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-inner">
+            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-[var(--surface-3)] border border-[var(--border)] dark:border-[var(--border)] shadow-inner">
               <button
                 type="button"
                 onClick={() => handleToggleTheme('light')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  theme === 'light' 
-                    ? 'bg-white text-teal-800 shadow-sm font-semibold' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                  theme === 'light'
+                    ? 'bg-[var(--surface-1)] text-teal-800 shadow-sm font-semibold'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-2)] dark:text-[var(--text-3)]'
                 }`}
               >
                 <Sun className="w-3.5 h-3.5 text-amber-500" />
@@ -270,9 +278,9 @@ export default function OmniCenterPage() {
                 type="button"
                 onClick={() => handleToggleTheme('dark')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  theme === 'dark' 
-                    ? 'bg-slate-900 text-teal-300 shadow-sm font-semibold border border-teal-500/30' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                  theme === 'dark'
+                    ? 'bg-[var(--surface-1)] text-teal-300 shadow-sm font-semibold border border-teal-500/30'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-2)] dark:text-[var(--text-3)]'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5 text-teal-300" />
@@ -293,9 +301,9 @@ export default function OmniCenterPage() {
             {/* 匯出報告按鈕 */}
             <button
               onClick={handleExportReport}
-              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 dark:bg-slate-900 dark:hover:bg-slate-800 dark:text-slate-200 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
+              className="px-3.5 py-1.5 rounded-xl bg-[var(--surface-1)] hover:bg-slate-50 text-[var(--text-1)] border border-slate-300 dark:bg-[var(--surface-1)] dark:hover:bg-[var(--surface-3)] dark:text-[var(--text-1)] dark:border-[var(--border-strong)] text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm"
             >
-              <Download className="w-3.5 h-3.5 text-slate-500" />
+              <Download className="w-3.5 h-3.5 text-[var(--text-3)]" />
               匯出 A01 治理報告
             </button>
           </div>
@@ -303,9 +311,9 @@ export default function OmniCenterPage() {
       </header>
 
       {/* ── 2. 子模組導航膠囊列 (Workbench Navigation) ── */}
-      <div className="max-w-[1600px] mx-auto px-6 pt-5">
+      <div className="max-w-6xl mx-auto px-6 pt-5">
         <div className="overflow-x-auto pb-2 scrollbar-hide">
-          <div role="tablist" className="inline-flex gap-1.5 p-1.5 rounded-2xl bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 shadow-sm min-w-max">
+          <div role="tablist" className="inline-flex gap-1.5 p-1.5 rounded-2xl bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] shadow-sm min-w-max">
             {[
               { id: 'overview', label: '六器官戰情總攬', icon: Activity },
               { id: 'learning', label: '學習中心', icon: GraduationCap },
@@ -330,7 +338,7 @@ export default function OmniCenterPage() {
                   className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
                     isActive
                       ? 'bg-teal-50 dark:bg-teal-950/60 text-teal-800 dark:text-cyan-300 border border-teal-200 dark:border-teal-500/40 shadow-sm'
-                      : 'text-slate-600 dark:text-slate-400 hover:text-teal-700 dark:hover:text-teal-300 hover:bg-slate-50 dark:hover:bg-slate-800/40'
+                      : 'text-[var(--text-3)] dark:text-[var(--text-3)] hover:text-teal-700 dark:hover:text-teal-300 hover:bg-slate-50 dark:hover:bg-[var(--surface-2)]'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5" />
@@ -343,20 +351,26 @@ export default function OmniCenterPage() {
       </div>
 
       {/* ── 3. 主內容視圖 ── */}
-      <main className="max-w-[1600px] mx-auto p-6 space-y-6">
+      <section className="mx-auto w-full max-w-6xl space-y-5 px-0 sm:space-y-6">
+        {!isCloudConnected && (
+          <section role="status" className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-950 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-100">
+            <p className="font-semibold">目前以本機示範資料瀏覽</p>
+            <p className="mt-1 text-amber-900/90 dark:text-amber-200/90">Supabase 尚未設定，因此不會載入或同步雲端筆記與憑證；若要啟用持久化功能，請設定 NEXT_PUBLIC_SUPABASE_URL 和 NEXT_PUBLIC_SUPABASE_ANON_KEY。</p>
+          </section>
+        )}
 
         {/* ── 3.1 戰情總攬 (Overview) ── */}
         {tab === 'overview' && (
           <div className="space-y-6">
-            
+
             {/* 六器官狀態矩陣 (Hexa-Core Matrix Grid) */}
-            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
+            <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-6 shadow-sm">
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h2 className="text-sm font-bold uppercase tracking-wider text-teal-700 dark:text-cyan-400">
                     六位一體 · 智慧中樞架構 (Hexa-Core Organ Matrix)
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5">
                     起源對齊、契約剛性與全域無作妙德即時監測
                   </p>
                 </div>
@@ -367,121 +381,121 @@ export default function OmniCenterPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* 1. 全知之眼 (OmniEye) */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-slate-50/50 dark:bg-[var(--surface-1)]/80">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-[var(--text-1)] dark:text-[var(--text-1)]">
                       <Eye className="w-4 h-4 text-teal-600 dark:text-cyan-400" /> 全知之眼 (OmniEye)
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold">
                       感知器
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">數據溯源與即時監控</p>
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mb-2">數據溯源與即時監控</p>
                   <div className="flex items-baseline justify-between font-mono text-xs">
-                    <span className="text-slate-500">來源驗證率</span>
+                    <span className="text-[var(--text-3)]">來源驗證率</span>
                     <span className="font-bold text-teal-700 dark:text-cyan-400 text-sm">99.4%</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-teal-600 dark:bg-cyan-400 h-full rounded-full" style={{ width: '99.4%' }} />
                   </div>
                 </div>
 
                 {/* 2. 全能之核 (OmniCore) */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-slate-50/50 dark:bg-[var(--surface-1)]/80">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-[var(--text-1)] dark:text-[var(--text-1)]">
                       <Cpu className="w-4 h-4 text-teal-600 dark:text-cyan-400" /> 全能之核 (OmniCore)
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 font-bold">
                       指揮器
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">意志執行與代理蜂群調度</p>
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mb-2">意志執行與代理蜂群調度</p>
                   <div className="flex items-baseline justify-between font-mono text-xs">
-                    <span className="text-slate-500">蜂群調度衝突率</span>
+                    <span className="text-[var(--text-3)]">蜂群調度衝突率</span>
                     <span className="font-bold text-emerald-700 dark:text-emerald-400 text-sm">0% (零衝突)</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-emerald-600 dark:bg-emerald-400 h-full rounded-full" style={{ width: '100%' }} />
                   </div>
                 </div>
 
                 {/* 3. 全域之脈 (OmniPulse) */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-slate-50/50 dark:bg-[var(--surface-1)]/80">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-[var(--text-1)] dark:text-[var(--text-1)]">
                       <Radio className="w-4 h-4 text-teal-600 dark:text-cyan-400" /> 全域之脈 (OmniPulse)
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-bold">
                       通信器
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">數據總線與協作流轉</p>
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mb-2">數據總線與協作流轉</p>
                   <div className="flex items-baseline justify-between font-mono text-xs">
-                    <span className="text-slate-500">吞吐 / 平均延遲</span>
+                    <span className="text-[var(--text-3)]">吞吐 / 平均延遲</span>
                     <span className="font-bold text-teal-700 dark:text-cyan-400 text-sm">1.4k msg/s · 12ms</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-teal-600 dark:bg-cyan-400 h-full rounded-full" style={{ width: '94%' }} />
                   </div>
                 </div>
 
                 {/* 4. 全境之骨 (OmniBone) */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-slate-50/50 dark:bg-[var(--surface-1)]/80">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-[var(--text-1)] dark:text-[var(--text-1)]">
                       <ShieldCheck className="w-4 h-4 text-teal-600 dark:text-cyan-400" /> 全境之骨 (OmniBone)
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 font-bold">
                       治理器
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">契約維繫與憲章錨定</p>
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mb-2">契約維繫與憲章錨定</p>
                   <div className="flex items-baseline justify-between font-mono text-xs">
-                    <span className="text-slate-500">5T 契約結構剛性</span>
+                    <span className="text-[var(--text-3)]">5T 契約結構剛性</span>
                     <span className="font-bold text-purple-700 dark:text-purple-400 text-sm">100% 完整</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-purple-600 dark:bg-purple-400 h-full rounded-full" style={{ width: '100%' }} />
                   </div>
                 </div>
 
                 {/* 5. 全息之腦 (OmniBrain) */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-slate-50/50 dark:bg-[var(--surface-1)]/80">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-[var(--text-1)] dark:text-[var(--text-1)]">
                       <Sparkles className="w-4 h-4 text-teal-600 dark:text-cyan-400" /> 全息之腦 (OmniBrain)
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-bold">
                       進化器
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">熵減煉金與架構自癒</p>
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mb-2">熵減煉金與架構自癒</p>
                   <div className="flex items-baseline justify-between font-mono text-xs">
-                    <span className="text-slate-500">技術債系統熵值</span>
+                    <span className="text-[var(--text-3)]">技術債系統熵值</span>
                     <span className="font-bold text-emerald-700 dark:text-emerald-400 text-sm">0.038 (極低熵)</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-emerald-600 dark:bg-emerald-400 h-full rounded-full" style={{ width: '96%' }} />
                   </div>
                 </div>
 
                 {/* 6. 全通之心 (OmniHeart) */}
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40">
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-slate-50/50 dark:bg-[var(--surface-1)]/80">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+                    <span className="text-xs font-bold flex items-center gap-1.5 text-[var(--text-1)] dark:text-[var(--text-1)]">
                       <Heart className="w-4 h-4 text-rose-600 dark:text-rose-400" /> 全通之心 (OmniHeart)
                     </span>
                     <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 font-bold">
                       運行境界
                     </span>
                   </div>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-2">自發治理與無礙圓通</p>
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mb-2">自發治理與無礙圓通</p>
                   <div className="flex items-baseline justify-between font-mono text-xs">
-                    <span className="text-slate-500">無摩擦流轉指數</span>
+                    <span className="text-[var(--text-3)]">無摩擦流轉指數</span>
                     <span className="font-bold text-rose-700 dark:text-rose-400 text-sm">{resonanceRate}%</span>
                   </div>
-                  <div className="w-full bg-slate-200 dark:bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div className="w-full bg-slate-200 dark:bg-[var(--surface-3)] h-1.5 rounded-full mt-2 overflow-hidden">
                     <div className="bg-rose-600 dark:bg-rose-400 h-full rounded-full" style={{ width: `${resonanceRate}%` }} />
                   </div>
                 </div>
@@ -489,13 +503,13 @@ export default function OmniCenterPage() {
             </div>
 
             {/* ── 終始治理事件日誌 (Event Stream & Trace Audit) ── */}
-            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
+            <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-6 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
                 <div>
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100">
+                  <h2 className="text-sm font-bold uppercase tracking-wider text-[var(--text-1)] dark:text-[var(--text-1)]">
                     終始閉環治理日誌 (End-Beginning Trace Stream)
                   </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5">
                     每一筆事件均附帶 UUID、Origin Cause 與 SHA-256 存證雜湊鎖
                   </p>
                 </div>
@@ -509,7 +523,7 @@ export default function OmniCenterPage() {
                       className={`px-3 py-1 rounded-lg border transition-all ${
                         eventFilter === flt
                           ? 'bg-teal-700 text-white dark:bg-cyan-500 dark:text-slate-950 border-transparent shadow-sm'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border-slate-200 dark:border-slate-700'
+                          : 'bg-slate-100 text-[var(--text-3)] dark:bg-[var(--surface-3)] dark:text-[var(--text-3)] border-[var(--border)] dark:border-[var(--border-strong)]'
                       }`}
                     >
                       {flt === 'ALL' ? '全部' : flt}
@@ -523,39 +537,39 @@ export default function OmniCenterPage() {
                 {filteredTraces.map((item) => (
                   <div
                     key={item.uuid}
-                    className="p-4 rounded-xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3"
+                    className="p-4 rounded-xl border border-[var(--border)]/90 dark:border-[var(--border)] bg-slate-50/60 dark:bg-[var(--surface-1)]/80 text-xs flex flex-col md:flex-row md:items-center justify-between gap-3"
                   >
                     <div className="space-y-1.5 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200">
+                        <span className="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-[var(--surface-3)] text-[var(--text-1)] dark:text-[var(--text-1)]">
                           {item.phase}
                         </span>
                         <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded ${
-                          item.level === 'SEAL' 
-                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' 
-                            : item.level === 'METABOLISM' 
-                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' 
+                          item.level === 'SEAL'
+                            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                            : item.level === 'METABOLISM'
+                            ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
                             : 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
                         }`}>
                           {item.level}
                         </span>
-                        <span className="font-mono text-[11px] text-slate-400">{item.timestamp}</span>
+                        <span className="font-mono text-[11px] text-[var(--text-3)]">{item.timestamp}</span>
                         <span className="text-[11px] font-mono text-teal-700 dark:text-cyan-400 font-semibold">{item.sourceOrigin}</span>
                       </div>
-                      <p className="text-slate-800 dark:text-slate-200 font-medium">
+                      <p className="text-[var(--text-1)] dark:text-[var(--text-1)] font-medium">
                         {item.description}
                       </p>
                     </div>
 
                     {/* Hash Lock 區塊 */}
-                    <div className="shrink-0 flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg">
+                    <div className="shrink-0 flex items-center gap-2 bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] px-3 py-1.5 rounded-lg">
                       <Lock className="w-3.5 h-3.5 text-teal-600 dark:text-cyan-400" />
-                      <span className="font-mono text-[10px] text-slate-600 dark:text-slate-300">
+                      <span className="font-mono text-[10px] text-[var(--text-3)] dark:text-[var(--text-2)]">
                         {item.hashLock.slice(0, 10)}...{item.hashLock.slice(-6)}
                       </span>
                       <button
                         onClick={() => handleCopyHash(item.hashLock)}
-                        className="text-slate-400 hover:text-teal-600 dark:hover:text-cyan-300 transition-colors"
+                        className="text-[var(--text-3)] hover:text-teal-600 dark:hover:text-cyan-300 transition-colors"
                         title="複製完整 Hash Lock"
                       >
                         {copiedHash === item.hashLock ? (
@@ -572,20 +586,20 @@ export default function OmniCenterPage() {
 
             {/* 系統統計摘要卡 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
-                <span className="text-xs text-slate-500 dark:text-slate-400">萬能筆記數</span>
+              <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
+                <span className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)]">萬能筆記數</span>
                 <p className="text-2xl font-bold font-mono text-teal-700 dark:text-cyan-400 mt-1">{notes.length}</p>
               </div>
-              <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
-                <span className="text-xs text-slate-500 dark:text-slate-400">OmniOne 案件</span>
+              <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
+                <span className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)]">OmniOne 案件</span>
                 <p className="text-2xl font-bold font-mono text-purple-700 dark:text-purple-400 mt-1">{omniSummary?.caseCount ?? 47}</p>
               </div>
-              <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
-                <span className="text-xs text-slate-500 dark:text-slate-400">5T ZKP 封印存證</span>
+              <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
+                <span className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)]">5T ZKP 封印存證</span>
                 <p className="text-2xl font-bold font-mono text-emerald-700 dark:text-emerald-400 mt-1">{zkpCount}</p>
               </div>
-              <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm">
-                <span className="text-xs text-slate-500 dark:text-slate-400">GRI 指標映射</span>
+              <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-4 shadow-sm">
+                <span className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)]">GRI 指標映射</span>
                 <p className="text-2xl font-bold font-mono text-amber-700 dark:text-amber-400 mt-1">{omniSummary?.griIndicatorCount ?? 142}</p>
               </div>
             </div>
@@ -654,7 +668,7 @@ export default function OmniCenterPage() {
           </div>
         )}
 
-      </main>
+      </section>
     </div>
   );
 }

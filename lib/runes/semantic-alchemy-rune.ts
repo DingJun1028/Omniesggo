@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,10 +6,10 @@ import { defineRune } from '@lib/adk/core';
  * 責任：將複雜的 ESG 法規（GRI, TCFD）煉金為透明且易於理解的邏輯
  */
 
-export const SemanticAlchemyInputSchema = z.object({
-  rawRegulationText: z.string().describe("原始法規文本或指標內容"),
-  targetStandard: z.enum(["GRI", "TCFD", "CSRD", "ISSB"]).describe("目標轉換標準"),
-  simplifyLevel: z.number().min(1).max(10).describe("簡化程度 (1=專業, 10=直覺)"),
+export const SemanticAlchemyInputSchema = Type.Object({
+  rawRegulationText: Type.String({ description: "原始法規文本或指標內容" }),
+  targetStandard: Type.Union([Type.Literal("GRI"), Type.Literal("TCFD"), Type.Literal("CSRD"), Type.Literal("ISSB")], { description: "目標轉換標準" }),
+  simplifyLevel: Type.Number({ minimum: 1, maximum: 10, description: "簡化程度 (1=專業, 10=直覺)" }),
 });
 
 export const semanticAlchemyRune = defineRune({

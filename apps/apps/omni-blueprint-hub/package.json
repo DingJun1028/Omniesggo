@@ -1,0 +1,26 @@
+{
+  "name": "omni-blueprint-hub",
+  "private": true,
+  "version": "0.6.0",
+  "type": "module",
+  "description": "萬能藍圖中心 (Omni-Blueprint Hub) — 自託管即時多語翻譯轉播中樞 · 5T + IComponentCore + 單一資料表 + RWD",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node monitor-server.mjs",
+    "dev": "node --watch monitor-server.mjs",
+    "check": "node --check monitor-server.mjs && node --check translate.mjs && node --check captions-scraper.mjs && node --check _smoke-test.mjs",
+    "test": "node _smoke-test.mjs",
+    "test:prod": "node -e \"process.env.BASE='https://live.esggo.co';import('./_smoke-test.mjs')\"",
+    "health": "node -e \"fetch(process.env.BASE||'http://localhost:8787/healthz').then(r=>r.json()).then(d=>console.log(JSON.stringify(d,null,2)))\"",
+    "scraper": "node captions-scraper.mjs",
+    "typecheck:engine": "tsc --noEmit --module nodenext --target es2022 --skipLibCheck OmniBlueprintHub.ts",
+    "test:plugins": "tsc --module nodenext --target es2022 --skipLibCheck --outDir .compiled hub-engine.ts plugin-registry.ts plugin-types.ts hub-demo.ts plugins/entropy-reducer.ts plugins/conduit-bridge.ts plugins/soul-canon-verifier.ts test-plugins.ts && node .compiled/test-plugins.js",
+    "deploy": "bash deploy.sh"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  },
+  "packageManager": "pnpm@11.5.2"
+}

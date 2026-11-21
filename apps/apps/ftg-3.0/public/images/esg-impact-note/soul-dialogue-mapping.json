@@ -1,0 +1,64 @@
+{
+  "image_group": "soul-dialogue-replacements",
+  "description_zh": "靈魂對話替換圖片 - 團隊共創/領隊團隊/走進自然三組合併",
+  "description_en": "Soul Dialogue Replacement Images - Consolidating team activities, leadership discussion, and nature experience",
+  "rwd_breakpoints": {
+    "desktop": { "width": 1024, "height": 768, "layout": "3-column grid" },
+    "tablet": { "width": 768, "height": 1024, "layout": "2-column grid" },
+    "mobile": { "width": 480, "height": 800, "layout": "single column" },
+    "compact": { "width": 360, "height": 640, "layout": "key info only" }
+  },
+  "images": {
+    "team-dialogue": {
+      "file_desktop": "team-dialogue-soul-replacement.png",
+      "concept_zh": "團隊靈魂對話 - 深刻的聆聽與理解交流",
+      "concept_en": "Team Soul Dialogue - Deep listening and mutual understanding",
+      "replaces": ["永續 戶外團隊日", "團隊共創", "團隊合作任務"],
+      "themes": ["collaboration", "introspection", "connection"],
+      "esg_pillars": ["Social", "Governance"],
+      "5t_compliance": {
+        "traceable": true,
+        "trackable": true,
+        "tangible": true,
+        "transparent": true,
+        "trustworthy": true
+      }
+    },
+    "leadership-dialogue": {
+      "file_desktop": "leadership-soul-replacement.png",
+      "concept_zh": "領隊靈魂對話 - 深刻的眼神交流與內在智慧分享",
+      "concept_en": "Leadership Soul Dialogue - Deep eye contact and inner wisdom sharing",
+      "replaces": ["領隊團隊", "圓桌"],
+      "themes": ["leadership", "wisdom", "authenticity"],
+      "esg_pillars": ["Governance"],
+      "5t_compliance": {
+        "traceable": true,
+        "trackable": true,
+        "tangible": true,
+        "transparent": true,
+        "trustworthy": true
+      }
+    },
+    "nature-dialogue": {
+      "file_desktop": "nature-dialogue-soul-replacement.png",
+      "concept_zh": "與自然靈魂對話 - 行走冥想感受自然之智",
+      "concept_en": "Nature Soul Dialogue - Walking meditation connecting with natural wisdom",
+      "replaces": ["文化體驗", "走進自然", "森林健走"],
+      "themes": ["mindfulness", "nature", "wisdom"],
+      "esg_pillars": ["Environmental"],
+      "5t_compliance": {
+        "traceable": true,
+        "trackable": true,
+        "tangible": true,
+        "transparent": true,
+        "trustworthy": true
+      }
+    }
+  },
+  "deduplication_report": {
+    "total_duplicate_groups": 3,
+    "images_consolidated": 6,
+    "replacement_images_created": 3,
+    "space_saved": "1.2MB (2 duplicate photos removed)"
+  }
+}

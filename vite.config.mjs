@@ -51,6 +51,28 @@ function libPathsFallback() {
   };
 }
 
+// #263：pdf-parse@2.4.5 以延遲 require 拉 @napi-rs/canvas（native skia 綁定），
+// rolldown 會跟進巢狀 require 並嘗試把平台 .node 當文字載入 →
+// [UNLOADABLE_DEPENDENCY] stream did not contain valid UTF-8 → rsc 環境建置失敗。
+// 於建置期將 @napi-rs/canvas 家族（含平台二進位包）標記為 external：
+// .node 不再進入打包管線；執行期語義不變 —— Workers 上 canvas 本就
+// 延遲載入失敗（純文字擷取路徑 getText 不需 canvas，PDF 渲染功能
+// 在 Cloudflare 線上從未可用，與 e618298a 綠燈期行為一致）。
+// client 環境無任何 canvas import，此 resolver 不會被觸發，故不設防護差異。
+function externalNativeCanvas() {
+  return {
+    name: 'esggo:external-native-canvas',
+    enforce: 'pre',
+    resolveId(source) {
+      // '@napi-rs/canvas' 與平台包（如 '@napi-rs/canvas-linux-x64-gnu'）
+      if (/^@napi-rs\/canvas(-[a-z0-9-]+)?$/.test(source)) {
+        return { id: source, external: true };
+      }
+      return null;
+    },
+  };
+}
+
 // vinext + Cloudflare Workers 設定（App Router）。
 // 原名 vite.vinext.config.mjs —— vinext CLI 的 findViteConfigPath 僅依 Vite 預設
 // precedence（vite.config.js > .mjs > .ts）偵測，故改為標準檔名。
@@ -62,6 +84,7 @@ function libPathsFallback() {
 export default defineConfig({
   plugins: [
     libPathsFallback(),
+    externalNativeCanvas(),
     vinext({
       // ISR / data cache 落 KV（vinext 偵測到 ISR 後必填，否則拒絕部署）。
       // binding VINEXT_KV_CACHE 由 wrangler.web.jsonc 定義、namespace 需先建立。

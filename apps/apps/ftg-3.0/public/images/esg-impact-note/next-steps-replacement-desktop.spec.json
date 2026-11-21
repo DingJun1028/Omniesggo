@@ -1,0 +1,19 @@
+{
+  "id": "nextsteps",
+  "name": "Next Steps & Improvement Recommendations",
+  "elementId": "next-steps",
+  "filename": "next-steps-replacement-desktop.png",
+  "breakpoint": "desktop",
+  "dimensions": "1024x768",
+  "priority": "P0",
+  "owner": "T06 Optimization Bee + T05 Risk Bee",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#next-steps",
+  "rwdGuidelines": {
+    "layout": "full",
+    "fontSize": "normal",
+    "elements": "full-content"
+  },
+  "generatedAt": "2026-08-26T01:57:24.301Z",
+  "status": "spec-ready"
+}

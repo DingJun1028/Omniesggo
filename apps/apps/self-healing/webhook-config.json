@@ -1,0 +1,14 @@
+{
+  "name": "web",
+  "config": {
+    "url": "https://self-healing.esggo.co/webhook/github",
+    "content_type": "json",
+    "secret": "REPLACE_WITH_YOUR_SECRET",
+    "insecure_ssl": "0"
+  },
+  "events": [
+    "workflow_run",
+    "push"
+  ],
+  "active": true
+}

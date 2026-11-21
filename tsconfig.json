@@ -34,6 +34,9 @@
         "./src/lib/*",
         "./lib/*"
       ],
+      "@google/genai": [
+        "./src/lib/genai"
+      ],
       "@esggo/shared": [
         "./packages/shared/src"
       ],

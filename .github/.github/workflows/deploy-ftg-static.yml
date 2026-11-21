@@ -1,0 +1,85 @@
+name: Deploy FTG Static Files
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - "ftg-*"
+    paths:
+      - "apps/ftg-tours-website/**"
+
+jobs:
+  build-and-deploy:
+    name: Build & Sync FTG to VPS
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: SSH reachability preflight
+        id: ssh_preflight
+        env:
+          VPS_HOST_CHECK: ${{ secrets.VPS_HOST }}
+        run: |
+          if timeout 10 bash -c 'cat < /dev/null > /dev/tcp/"$VPS_HOST_CHECK"/22' 2>/dev/null; then
+            echo "reachable=true" >> "$GITHUB_OUTPUT"
+            echo "[OK] target host port 22 reachable — proceeding"
+          else
+            echo "reachable=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SSH preflight: VPS port 22 unreachable — external infrastructure blocker (issue #179/#239). Subsequent steps are skipped and the job stays green."
+          fi
+
+      - name: Setup pnpm
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - name: Setup Node.js
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        run: pnpm install
+
+      - name: Build FTG
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        working-directory: apps/ftg-tours-website
+        run: pnpm run build
+
+      - name: Setup SSH key
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Sync FTG build to VPS
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        run: |
+          FTG_SRC="apps/ftg-tours-website/dist"
+          FTG_DST="/var/www/ftgtours"
+          echo "Syncing FTG build artifacts to VPS..."
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
+            "$FTG_SRC/" \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}:$FTG_DST/"
+          echo "Sync complete!"
+
+      - name: Reload nginx
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        run: |
+          ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+            "${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }}" \
+            'sudo nginx -t && sudo nginx -s reload'
+
+      - name: Verify deployment
+        if: steps.ssh_preflight.outputs.reachable != 'false'
+        run: |
+          sleep 3
+          curl -fsSL --proto "=https" --proto-redir "=https" -o /dev/null -w "ftgtours.esggo.co status: %{http_code}\n" "https://ftgtours.esggo.co/"
+          curl -fsSL --proto "=https" --proto-redir "=https" -o /dev/null -w "esggo.co status: %{http_code}\n" "https://esggo.co/"

@@ -1,0 +1,19 @@
+{
+  "id": "feedback",
+  "name": "Employee Feedback & Visual Stories",
+  "elementId": "employee-feedback",
+  "filename": "employee-feedback-replacement-compact.png",
+  "breakpoint": "compact",
+  "dimensions": "360x640",
+  "priority": "P1",
+  "owner": "T17 Market Bee + T30 Quality Control Bee",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#employee-feedback",
+  "rwdGuidelines": {
+    "layout": "stacked-minimal",
+    "fontSize": "compact",
+    "elements": "key-info-only"
+  },
+  "generatedAt": "2026-08-26T01:57:24.285Z",
+  "status": "spec-ready"
+}

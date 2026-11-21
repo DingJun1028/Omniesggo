@@ -1,0 +1,96 @@
+{
+  "timestamp": "2026-08-26T01:57:24.358Z",
+  "summary": {
+    "totalImages": 3,
+    "totalSpecs": 15,
+    "rwdBreakpoints": [
+      "desktop",
+      "tablet",
+      "mobile",
+      "compact"
+    ],
+    "outputDir": "apps/ftg-3.0/public/images/esg-impact-note",
+    "generationMethod": "html2canvas (requires browser runtime)",
+    "note": "PNG files require browser runtime. See README.md for manual generation steps."
+  },
+  "images": [
+    {
+      "id": "feedback",
+      "name": "Employee Feedback & Visual Stories",
+      "filename": "employee-feedback-replacement",
+      "priority": "P1",
+      "owner": "T17 Market Bee + T30 Quality Control Bee",
+      "rwdSizes": [
+        {
+          "breakpoint": "desktop",
+          "dimensions": "1024x768"
+        },
+        {
+          "breakpoint": "tablet",
+          "dimensions": "768x1024"
+        },
+        {
+          "breakpoint": "mobile",
+          "dimensions": "480x800"
+        },
+        {
+          "breakpoint": "compact",
+          "dimensions": "360x640"
+        }
+      ],
+      "preview": "employee-feedback-replacement-desktop-full.png"
+    },
+    {
+      "id": "nextsteps",
+      "name": "Next Steps & Improvement Recommendations",
+      "filename": "next-steps-replacement",
+      "priority": "P0",
+      "owner": "T06 Optimization Bee + T05 Risk Bee",
+      "rwdSizes": [
+        {
+          "breakpoint": "desktop",
+          "dimensions": "1024x768"
+        },
+        {
+          "breakpoint": "tablet",
+          "dimensions": "768x1024"
+        },
+        {
+          "breakpoint": "mobile",
+          "dimensions": "480x800"
+        },
+        {
+          "breakpoint": "compact",
+          "dimensions": "360x640"
+        }
+      ],
+      "preview": "next-steps-replacement-desktop-full.png"
+    },
+    {
+      "id": "activity",
+      "name": "Activity Information & Itinerary Summary",
+      "filename": "activity-info-replacement",
+      "priority": "P1",
+      "owner": "T24 Guard Bee + T20 Operations Bee",
+      "rwdSizes": [
+        {
+          "breakpoint": "desktop",
+          "dimensions": "1024x768"
+        },
+        {
+          "breakpoint": "tablet",
+          "dimensions": "768x1024"
+        },
+        {
+          "breakpoint": "mobile",
+          "dimensions": "480x800"
+        },
+        {
+          "breakpoint": "compact",
+          "dimensions": "360x640"
+        }
+      ],
+      "preview": "activity-info-replacement-desktop-full.png"
+    }
+  ]
+}

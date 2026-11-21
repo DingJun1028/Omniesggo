@@ -1,4 +1,5 @@
-import { z } from "zod";
+// PRD: docs/OMN-PRD-001.md §4.1 FR-04（雙向追蹤/ schema 追溯標註）
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,10 +7,10 @@ import { defineRune } from '@lib/adk/core';
  * 責任：在數據寫入時標註 source_origin 與 Hash Lock，建立不可斷裂的鏈式溯源日誌
  */
 
-export const TracerInputSchema = z.object({
-  dataId: z.string().describe("數據唯一的 ID"),
-  origin: z.string().describe("數據來源 (如 User, API, Internal)"),
-  payload: z.any().describe("數據內容"),
+export const TracerInputSchema = Type.Object({
+  dataId: Type.String({ description: "數據唯一的 ID" }),
+  origin: Type.String({ description: "數據來源 (如 User, API, Internal)" }),
+  payload: Type.Any({ description: "數據內容" }),
 });
 
 export const tracerRune = defineRune({

@@ -1,0 +1,103 @@
+# OmniBitwarden 配置模板 (示例)
+# 複製此文件為 config.yaml 並填入您的金鑰
+
+vault:
+  enabled: true
+  type: bitwarden
+  endpoint: https://vault.esggo.co
+  token: ${OMNIBITWARDEN_TOKEN}
+
+scopes:
+  development:
+    path: .env.local
+    auto_rotate: false
+  production:
+    path: secret-vault/ENV20230818.env
+    auto_rotate: true
+  ci:
+    path: .github/scripts/ci-secrets.yaml
+    auto_rotate: false
+
+secrets:
+  - name: NCBDB_API_TOKEN
+    scope: production
+    auto_rotate: true
+  - name: MISTRAL_API_KEY
+    scope: development
+    auto_rotate: false
+  - name: GROQ_API_KEY
+    scope: development
+    auto_rotate: false
+  - name: MISTRAL_WORKFLOW_KEY
+    scope: development
+    auto_rotate: false
+  - name: OPENAI_API_KEY
+    scope: development
+    auto_rotate: false
+  
+  - name: CLOUDFLARE_API_TOKEN
+    scope: production
+    auto_rotate: false
+  - name: VITE_CLOUDFLARE_ACCOUNT_ID
+    scope: production
+    auto_rotate: false
+  
+  - name: SUPABASE_ANON_KEY
+    scope: production
+    auto_rotate: false
+  - name: SUPABASE_SERVICE_ROLE_KEY
+    scope: production
+    auto_rotate: false
+  - name: DATABASE_URL
+    scope: production
+    auto_rotate: false
+  - name: SUPABASE_URL
+    scope: production
+    auto_rotate: false
+  
+  - name: OMNIMASTER_KEY
+    scope: production
+    auto_rotate: true
+  - name: CONDUIT_PASSWORD
+    scope: production
+    auto_rotate: true
+  - name: JWT_SECRET
+    scope: production
+    auto_rotate: true
+  - name: REFRESH_TOKEN_SECRET
+    scope: production
+    auto_rotate: false
+
+security:
+  mask_output: true
+  mask_length: 8
+  vault_dir: omni-bitwarden
+  file_permissions: "600"
+  rotation:
+    enabled: true
+    interval_days: 90
+    last_rotate: null
+  sensitive_patterns:
+    - "sk-ant-"
+    - "gsk_"
+    - "mstrl_"
+    - "xoxb-"
+    - "xoxa-"
+    - "xoxc-"
+    - "xoxd-"
+    - "keybase-"
+    - "hf_"
+    - "ghp_"
+    - "gho_"
+    - "github_pat_"
+
+integrations:
+  - name: bitwarden
+    type: bitwarden
+    version: 2026.10.1
+  - name: esggo
+    type: omniesggo
+    version: 5.1.0
+  - name: omniskill
+    type: omniskill
+    version: 2.0.0

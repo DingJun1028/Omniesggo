@@ -1,4 +1,5 @@
-import { z } from "zod";
+// PRD: docs/OMN-PRD-001.md §4.1 NFR-03（標籤準確率/ schema 追溯標註）
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +7,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：專門負責 AI 輸出的「零幻覺」審計，強制要求每筆建議皆須有智庫證據佐證
  */
 
-export const HallucinationSlayerInputSchema = z.object({
-  aiAssertion: z.string().describe("AI 生成的斷言或建議內容"),
-  evidenceContext: z.string().describe("智庫中的相關證據背景"),
+export const HallucinationSlayerInputSchema = Type.Object({
+  aiAssertion: Type.String({ description: "AI 生成的斷言或建議內容" }),
+  evidenceContext: Type.String({ description: "智庫中的相關證據背景" }),
 });
 
 export const hallucinationSlayerRune = defineRune({

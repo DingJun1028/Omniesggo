@@ -1,0 +1,31 @@
+{
+  "name": "@esggo/oesg-pulse",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "oesg",
+    "pulse",
+    "carbon-monitoring",
+    "esggo",
+    "iso-14064-1",
+    "5t-protocol"
+  ],
+  "author": "ESG GO Team",
+  "license": "UNLICENSED",
+  "description": "OESG-Pulse 碳排脈動引擎 — OESG 五路線圖首站（Pulse→Report→Audit→Exchange→DAO），複用 12大萬能模組管線：意圖→符文→總線→記憶→驗算→心跳",
+  "dependencies": {
+    "@esggo/omni-arch": "workspace:*",
+    "@esggo/omni-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vitest": ">=4.1.11 <5"
+  }
+}

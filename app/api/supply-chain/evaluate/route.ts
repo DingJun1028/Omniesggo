@@ -6,6 +6,17 @@ const OLLAMA_URL = 'http://127.0.0.1:11434/api/chat';
 const OLLAMA_MODEL = 'qwen2.5:3b-64k';
 
 export async function POST(req: Request) {
+  if (!process.env.DATABASE_URL) {
+    return NextResponse.json(
+      {
+        success: false,
+        code: 'DATABASE_NOT_CONFIGURED',
+        error: '供應鏈資料庫尚未設定，評鑑紀錄無法保存。請先連結資料庫後再試。',
+      },
+      { status: 503 }
+    );
+  }
+
   try {
     const { supplierName, industry = '電子零組件製造', tier = 'Tier 1', rawData } = await req.json();
 
@@ -124,7 +135,11 @@ Respond ONLY with a JSON object in this exact format:
   } catch (error: any) {
     console.error('Failed to evaluate supply chain vendor:', error);
     return NextResponse.json(
-      { success: false, error: error.message || '供應商評鑑失敗' },
+      {
+        success: false,
+        code: 'SUPPLY_CHAIN_EVALUATION_FAILED',
+        error: '供應商評鑑未完成，請稍後重試。',
+      },
       { status: 500 }
     );
   }

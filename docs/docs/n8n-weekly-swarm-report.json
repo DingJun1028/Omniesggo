@@ -1,0 +1,63 @@
+{
+  "name": "Weekly Swarm Report",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "cron",
+      "name": "Cron",
+      "type": "n8n-nodes-base.cron",
+      "position": [100, 100],
+      "cronExpression": "0 8 * * 1"
+    },
+    {
+      "parameters": {
+        "url": "https://esggo.co/api/health?detail=true",
+        "method": "GET"
+      },
+      "id": "health",
+      "name": "Health Check",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [300, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.data.status }}",
+              "operation": "equals",
+              "value2": "healthy"
+            }
+          ]
+        }
+      },
+      "id": "filter",
+      "name": "Only if degraded",
+      "type": "n8n-nodes-base.if",
+      "position": [500, 100]
+    },
+    {
+      "parameters": {
+        "chatId": "{{ $vars.TELEGRAM_CHAT_ID }}",
+        "text": "Swarm health: {{ $json.data.status }}\nChecks: {{ $json.data.checks }}"
+      },
+      "id": "telegram",
+      "name": "Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "position": [700, 100]
+    }
+  ],
+  "connections": {
+    "Cron": {
+      "main": [[{ "node": "Health Check", "type": "main", "index": 0 }]]
+    },
+    "Health Check": {
+      "main": [[{ "node": "Only if degraded", "type": "main", "index": 0 }]]
+    },
+    "Only if degraded": {
+      "main": [
+        [{ "node": "Telegram Alert", "type": "main", "index": 0 }]
+      ]
+    }
+  }
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>指定轉播 · 萬能藍圖共享頁</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1><span class="spark">🔗</span> 指定轉播 <span style="color:var(--txt-2);font-weight:400;font-size:12px;">一台翻譯 · 全員共享</span></h1>
+    <div class="meta">
+      <span>主帳號 <b id="sync-host">--</b></span>
+      <span>閱聽 <b id="sync-viewers">0</b></span>
+    </div>
+  </header>
+
+  <main class="bento">
+    <section class="tile span-2">
+      <h2>共享轉播網址憑證 <span class="tag">5T</span></h2>
+      <div class="badge-row">
+        <span class="badge">Token: <b id="sync-token">--</b></span>
+        <span class="badge">DESIGNATED_URL_BROADCAST</span>
+        <span class="badge">Hash Lock 固化</span>
+      </div>
+      <p class="note">此頁由萬能藍圖中心鑄造。主帳號（講師/翻譯端）的即時翻譯透過單一網址同步廣播至所有訂閱者，內容不可篡改（Trustworthy）且具備完整起點標記（Traceable）。</p>
+    </section>
+
+    <section class="tile span-2">
+      <h2>即時翻譯流 <span class="tag">Streaming</span></h2>
+      <div class="stream" id="sync-feed"></div>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="sync.js"></script>
+</body>
+</html>

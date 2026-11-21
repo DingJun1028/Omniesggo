@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>萬能即時翻譯 · 繁中↔英文 雙向及時字幕 (Gemini 3.5 Live 可選增強)</title>
+<script src="./qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#070b12;--panel:rgba(20,27,41,.72);--panel2:rgba(14,22,35,.6);
+  --accent:#36e0c0;--accent2:#5b8cff;--txt:#eaf1fb;--muted:#8a97ad;--danger:#ff5d6c;--rec:#ff4d5e;
+  --line:rgba(255,255,255,.09);--radius:18px;--gap:clamp(12px,2.6vw,18px);
+  --font:"Segoe UI",system-ui,-apple-system,"PingFang TC","Microsoft JhengHei",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:var(--font);color:var(--txt);min-height:100vh;
+  background:
+    radial-gradient(900px 500px at 85% -5%,rgba(91,140,255,.18),transparent 60%),
+    radial-gradient(700px 500px at 10% 110%,rgba(54,224,192,.16),transparent 55%),
+    var(--bg);
+  display:flex;flex-direction:column;gap:var(--gap);padding:var(--gap);
+  background-attachment:fixed;}
+.topbar{display:flex;align-items:center;justify-content:space-between;max-width:660px;width:100%;margin:0 auto}
+.topbar h1{font-size:1.05rem;margin:0;font-weight:700;letter-spacing:.3px;
+  background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ico-btn{width:38px;height:38px;border-radius:11px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--txt);cursor:pointer;font-size:1.05rem;display:grid;place-items:center;transition:.2s;backdrop-filter:blur(10px)}
+.ico-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+
+.wrap{max-width:660px;width:100%;margin:0 auto;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:0 20px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.05);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);padding:var(--gap);
+  display:flex;flex-direction:column;gap:var(--gap)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.field{display:flex;flex-direction:column;gap:7px}
+.field>span{font-size:.78rem;color:var(--muted);font-weight:600;letter-spacing:.4px}
+
+/* 語言膠囊 chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 15px;border-radius:999px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--muted);cursor:pointer;font-size:.9rem;font-weight:600;transition:.18s;user-select:none;backdrop-filter:blur(8px)}
+.chip:hover{border-color:var(--accent);color:var(--txt)}
+.chip.on{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04130f;border-color:transparent;
+  box-shadow:0 4px 16px rgba(54,224,192,.35)}
+
+.check{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--muted);cursor:pointer;user-select:none}
+.check input{width:17px;height:17px;accent-color:var(--accent)}
+
+/* 音量條 (診斷系統音是否抓到) */
+.meter{position:relative;height:22px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;overflow:hidden;backdrop-filter:blur(8px)}
+.meter-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .08s linear}
+.meter.live .meter-fill{box-shadow:0 0 12px rgba(54,224,192,.5)}
+.meter-tip{position:absolute;inset:0;display:grid;place-items:center;font-size:.72rem;color:var(--muted);pointer-events:none}
+.meter.live .meter-tip{display:none}
+
+/* 狀態 */
+.status{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:9px;min-height:22px}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none;transition:.2s}
+.dot.on{background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pulse 1.6s infinite}
+.dot.err{background:var(--danger)}
+.dot.rec{background:var(--rec);box-shadow:0 0 0 0 rgba(255,77,94,.6);animation:pulse 1.1s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}70%{box-shadow:0 0 0 9px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+
+/* 主按鈕 */
+.btn{font-size:.95rem;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:var(--panel2);
+  color:var(--txt);cursor:pointer;transition:.18s;backdrop-filter:blur(8px)}
+.btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.start-btn{width:100%;font-size:1.15rem;font-weight:800;padding:16px;border-radius:14px;border:0;color:#04130f;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 8px 26px rgba(54,224,192,.32);
+  display:flex;align-items:center;justify-content:center;gap:12px;transition:.2s}
+.start-btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.start-btn.recording{background:linear-gradient(135deg,#ff5d6c,#ff8a5b);color:#fff;box-shadow:0 8px 26px rgba(255,77,94,.4)}
+.start-btn .eq{display:none;gap:3px;align-items:flex-end;height:20px}
+.start-btn.recording .eq{display:flex}
+.start-btn.recording .play-ico{display:none}
+.eq i{width:3px;background:#fff;border-radius:2px;animation:eq 0.9s ease-in-out infinite}
+.eq i:nth-child(1){animation-delay:0s}.eq i:nth-child(2){animation-delay:.15s}.eq i:nth-child(3){animation-delay:.3s}.eq i:nth-child(4){animation-delay:.45s}
+@keyframes eq{0%,100%{height:5px}50%{height:20px}}
+
+/* QR */
+.qrwrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap;
+  background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:14px;backdrop-filter:blur(8px)}
+.qrbox{background:#fff;padding:9px;border-radius:12px;line-height:0;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+.qrinfo{flex:1;min-width:200px;font-size:.82rem;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+.qrinfo b{color:var(--txt);font-size:.9rem}
+.qrinfo .link{color:var(--accent);word-break:break-all;font-size:.74rem;line-height:1.4}
+.copy-btn{align-self:flex-start;font-size:.78rem;padding:5px 11px;border-radius:8px;border:1px solid var(--line);
+  background:transparent;color:var(--accent);cursor:pointer}
+.copy-btn:hover{border-color:var(--accent)}
+
+/* 手動輸入 */
+.manual{display:flex;gap:10px;align-items:flex-end;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:12px;backdrop-filter:blur(8px)}
+.manual textarea{flex:1;min-height:46px;max-height:120px;resize:vertical;background:transparent;border:0;outline:none;color:var(--txt);font-family:var(--font);font-size:.95rem;line-height:1.5}
+.manual textarea::placeholder{color:var(--muted)}
+.manual .send{flex:none;align-self:stretch;display:flex;align-items:center;padding:10px 18px;border-radius:11px;border:0;cursor:pointer;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));color:#04130f;font-weight:700;font-size:.95rem;transition:.15s}
+.manual .send:hover{filter:brightness(1.06)}
+
+/* 字幕卡 */
+.transcript{flex:1;min-height:180px;max-height:46vh;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:4px}
+.transcript::-webkit-scrollbar{width:6px}.transcript::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+.utter{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 13px;
+  animation:slideIn .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.utter .src{color:var(--accent);font-weight:700;font-size:1.04rem;line-height:1.45}
+.utter .trs{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px}
+.utter .trs span{font-size:.84rem;color:var(--muted)}
+.utter .trs b{color:var(--txt);font-weight:700;margin-right:5px}
+.empty{color:var(--muted);text-align:center;padding:30px 10px;font-size:.9rem;opacity:.7}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--danger);color:#fff;
+  padding:10px 18px;border-radius:12px;font-size:.85rem;opacity:0;transition:.3s;pointer-events:none;z-index:60;
+  max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.4)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(max-width:480px){.topbar h1{font-size:.95rem}.start-btn{font-size:1.05rem}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>🖥 萬能即時翻譯 · 繁中↔英文 雙向及時字幕</h1>
+  <button class="ico-btn" id="themeBtn" title="深色/淺色">🌙</button>
+</div>
+<div class="wrap">
+  <div class="field">
+    <span>翻譯成（可多選）</span>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="meter" id="meter"><div class="meter-fill" id="meterFill"></div><span class="meter-tip" id="meterTip">音量表（開始後顯示 Zoom 會議聲音強弱）</span></div>
+  <div class="status"><span class="dot" id="dot"></span><span id="status">點下方按鈕開始，說話即出雙語字幕</span></div>
+  <div class="status" id="geminiBadge" style="margin-top:6px;font-size:.78rem;color:var(--muted)"><span style="opacity:.6">Gemini 3.5 Live Translate：</span><b id="geminiState">檢查中…</b></div>
+  <button id="startBtn" class="start-btn">
+    <span class="play-ico">▶</span>
+    <span class="eq"><i></i><i></i><i></i><i></i></span>
+    <span id="startLabel">開始會議轉譯</span>
+  </button>
+  <div class="row" style="justify-content:center">
+    <button id="testBtn" class="btn" style="font-size:.82rem;padding:7px 14px">🖥 測試系統音（錄 4 秒確認 Zoom 聲音有被擷取）</button>
+  </div>
+  <div class="manual">
+    <textarea id="manualInput" placeholder="或手動輸入文字直接推播字幕（免錄音）…  Enter 送出"></textarea>
+    <button class="send" id="sendBtn">推播字幕</button>
+  </div>
+  <div class="qrwrap" id="qrWrap" style="display:none">
+    <div class="qrbox" id="qrBox"></div>
+    <div class="qrinfo">
+      <b>觀眾掃碼 → 半透明字幕浮層</b>
+      <span>可疊在 Zoom 視窗上方，不擋操作</span>
+      <code class="link" id="roomCode"></code>
+      <button class="copy-btn" id="copyBtn">📋 複製連結</button>
+    </div>
+  </div>
+  <div class="transcript" id="transcript"><div class="empty">尚無字幕 · 開始後 Zoom 會議聲音即時轉為繁中↔英文 雙語字幕</div></div>
+  <details class="gl">
+    <summary>🐞 除錯資訊（轉錄異常時展開看 STT 原始回應）</summary>
+    <div id="debug" style="font-size:.75rem;color:var(--muted);white-space:pre-wrap;word-break:break-all;max-height:140px;overflow:auto;margin-top:6px">— 尚無記錄 —</div>
+  </details>
+  <div class="row">
+    <button id="clearBtn" class="btn">🗑 清除字幕</button>
+    <button id="openOverlayBtn" class="btn">🎬 預覽浮層</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script type="module">
+/// <reference path="./types/generated/esggo-shared.d.ts" />
+const LANGS=[['en','英文'],['zh-TW','繁中'],['ja','日文'],['es','西班牙'],['fr','法文'],['ko','韓文'],['de','德文']];
+const LANG_NAME=Object.fromEntries(LANGS);
+const $=s=>document.querySelector(s);
+const API=location.origin+'/translate';
+
+// 主題
+const themeBtn=$('#themeBtn');
+function applyTheme(t){document.documentElement.dataset.theme=t;themeBtn.textContent=t==='light'?'☀️':'🌙';localStorage.setItem('ut-theme',t);}
+applyTheme(localStorage.getItem('ut-theme')||'dark');
+themeBtn.onclick=()=>applyTheme(document.documentElement.dataset.theme==='light'?'dark':'light');
+
+function setStatus(s,dot){$('#status').textContent=s;if(dot)$('#dot').className='dot '+(dot==='on'?'on':dot==='err'?'err':dot==='rec'?'rec':'');}
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+function dbg(msg){const d=$('#debug');if(d){const ts=new Date().toLocaleTimeString();d.textContent+=`\n[${ts}] ${msg}`;d.scrollTop=d.scrollHeight;}}
+
+// 語言 chips（預設繁中↔英文；用戶仍可在會議中切換目標）
+const active=new Set(['en','zh-TW']);
+const chipsBox=$('#chips');
+LANGS.forEach(([code,name])=>{
+  const c=document.createElement('div');c.className='chip'+(active.has(code)?' on':'');c.textContent=name;c.dataset.code=code;
+  c.onclick=()=>{ if(active.has(code)){ if(active.size>1)active.delete(code); else return; } else active.add(code);
+  c.classList.toggle('on'); };
+  chipsBox.appendChild(c);
+});
+
+// 房間持久化
+const params=new URLSearchParams(location.search);
+let room=params.get('room')||'';
+if(!room){room=Math.random().toString(36).slice(2,8);const u=new URL(location);u.searchParams.set('room',room);history.replaceState(null,'',u);}
+$('#roomCode').textContent='房間: '+room;
+
+// 電腦收音 (系統音) 模式：僅擷取 Zoom 等電腦播放聲音，不含麥克風
+let recognition=null, usingSR=false;
+
+// QR (同源)
+function showQR(){
+  const url=location.origin+'/overlay.html?room='+room;
+  $('#qrWrap').style.display='flex';
+  $('#qrBox').innerHTML='';
+  try{ new QRCode($('#qrBox'),{text:url,width:132,height:132,colorDark:'#000',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.M}); }
+  catch(e){ $('#qrBox').innerHTML='<code style="word-break:break-all;color:#000;font-size:.7rem">'+url+'</code>'; }
+}
+showQR();
+$('#copyBtn').onclick=()=>{navigator.clipboard.writeText(location.origin+'/overlay.html?room='+room).then(()=>toast('已複製觀眾端連結')).catch(()=>toast('複製失敗'));};
+
+// 錄音狀態
+let running=false,stream=null,rec=null,chunks=[],useSys=false,sliceTimer=0;
+// (本版僅支援電腦系統音收音，已移除麥克風輸入)
+async function startSys(){
+  try{const s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});const a=s.getAudioTracks()[0];
+    if(!a){toast('請在分享視窗勾選「分享音訊」');s.getTracks().forEach(t=>t.stop());return null;}
+    // 不停 video track: Chrome 停 video 會讓 display audio 一併失效, 導致錄不到聲音
+    // 原 display stream 的 video 保持活著, audio track 才不會死
+    return s;
+  }catch(e){ toast('請允許擷取畫面，並在分享 Zoom 視窗時勾選「分享音訊」，才能擷取會議聲音'); return null; }
+}
+
+// 即時音量條 (診斷系統音/麥克風是否真的抓到聲音)
+let audioCtx=null, analyser=null, meterRAF=0;
+function startMeter(stream,probeOnly=false){
+  try{
+    audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+    const src=audioCtx.createMediaStreamSource(stream);
+    analyser=audioCtx.createAnalyser();analyser.fftSize=256;
+    src.connect(analyser);
+    const data=new Uint8Array(analyser.frequencyBinCount);
+    const fill=$('#meterFill'), meter=$('#meter'), tip=$('#meterTip');
+    meter.classList.add('live');tip.textContent='偵測聲音中…';
+    const loop=()=>{
+      analyser.getByteTimeDomainData(data);
+      let peak=0; for(const v of data){const d=Math.abs(v-128); if(d>peak)peak=d;}
+      const vol=Math.min(100,Math.round(peak/128*100*1.6));
+      fill.style.width=vol+'%';
+      if(probeOnly&&vol>3){ /* 有聲音, 足夠診斷, 不持續佔用 */ }
+      meterRAF=requestAnimationFrame(loop);
+    };
+    loop();
+  }catch(e){ console.warn('meter init failed',e); }
+}
+function stopMeter(){
+  if(meterRAF)cancelAnimationFrame(meterRAF);meterRAF=0;
+  const meter=$('#meter');if(meter)meter.classList.remove('live');
+  const fill=$('#meterFill');if(fill)fill.style.width='0%';
+}
+
+// 翻譯推播 (含重試, 解決偶發 Failed to fetch / 非 JSON 回應)
+// from: 偵測到的來源語 (zh-TW / en / auto) — 由 onText 依語音自動判定
+async function speakWithRetry(text,from,targets,trs,attempt=0){
+  try{
+    const r=await fetch('/speak',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({text,from,targets,room,speaker:'studio'})});
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    const txt=await r.text();
+    let d; try{ d=JSON.parse(txt); }catch(_){ throw new Error('服務回傳非預期格式（網路/逾時），請重試'); }
+    if(d.translations) trs.innerHTML=Object.entries(d.translations).map(([c,t])=>`<span><b>${LANG_NAME[c]||c}</b>${t}</span>`).join('');
+    else trs.textContent='（無翻譯）';
+  }catch(e){
+    if(attempt<2){ await new Promise(r=>setTimeout(r,1000)); return speakWithRetry(text,from,targets,trs,attempt+1); }
+    trs.innerHTML=`<span style="color:var(--danger)">翻譯失敗：${e.message}（原文已顯示）</span>`;
+  }
+}
+
+function onText(text, detectedLang){
+  // 垃圾轉錄過濾: 純數字/符號/太短 不當字幕
+  const clean=text.replace(/[\s\d.,，。、()（）\-_=+*#@!?]/g,'');
+  if(clean.length<2){ return; }
+  const dl=(detectedLang||'').toLowerCase();
+  // 自動雙向: 繁中↔英文 (講什麼就翻成另一種，精準不混淆)
+  let targets, from;
+  if(dl.startsWith('zh')){ targets=['en']; from='zh-TW'; }
+  else if(dl.startsWith('en')){ targets=['zh-TW']; from='en'; }
+  else { targets=Array.from(active); from='auto'; } // 未知語言: 依用戶選的目標
+  const box=$('#transcript');const empty=box.querySelector('.empty');if(empty)empty.remove();
+  const el=document.createElement('div');el.className='utter';
+  const src=document.createElement('div');src.className='src';src.textContent='▸ '+text;el.appendChild(src);
+  const trs=document.createElement('div');trs.className='trs';trs.textContent='翻譯中…';el.appendChild(trs);
+  box.appendChild(el);box.scrollTop=box.scrollHeight;
+  speakWithRetry(text,from,targets,trs);
+}
+
+// /speech-to-subtitle 回傳結構 ({text, detected, translation, target}) 直接渲染雙語字幕
+// 減少一次請求 (STT+翻譯一次完成), 5T 溯源: trace 已在服務端生成
+function onSubtitle(text, detected, translation, target){
+  const clean=text.replace(/[\s\d.,，。、()（）\-_=+*#@!?]/g,'');
+  if(clean.length<2){ return; }
+  const box=$('#transcript');const empty=box.querySelector('.empty');if(empty)empty.remove();
+  const el=document.createElement('div');el.className='utter';
+  const src=document.createElement('div');src.className='src';src.textContent='▸ '+text;el.appendChild(src);
+  const trs=document.createElement('div');trs.className='trs';trs.textContent=translation||'翻譯中…';el.appendChild(trs);
+  box.appendChild(el);box.scrollTop=box.scrollHeight;
+}
+
+// 字幕區顯示錯誤卡 (轉錄失敗可見, 非僅 toast)
+function showErrorCard(msg){
+  const box=$('#transcript');const empty=box.querySelector('.empty');if(empty)empty.remove();
+  const el=document.createElement('div');el.className='utter';
+  el.innerHTML=`<div class="src" style="color:var(--danger)">⚠️ ${msg}</div>`;
+  box.appendChild(el);box.scrollTop=box.scrollHeight;
+}
+
+async function start(){
+  running=true;
+  $('#startBtn').classList.add('recording');$('#startLabel').textContent='停止轉譯';
+  $('#dot').className='dot rec';
+  // 電腦收音 (系統音) 模式：擷取 Zoom 線上會議聲音 → 伺服器 whisper 即時轉錄 → 繁中↔英文 雙語字幕
+  stream=await startSys();
+  if(!stream){running=false;$('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始會議轉譯';return;}
+  startMeter(stream);
+  // 用純 audio-only stream 錄音 (display stream 的 video 保持活著以保住 audio track)
+  const audioOnly=new MediaStream(stream.getAudioTracks());
+  const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':MediaRecorder.isTypeSupported('audio/aac')?'audio/aac':'audio/ogg';
+  rec=new MediaRecorder(audioOnly,{mimeType:mime});chunks=[];
+  rec.ondataavailable=e=>{ if(e.data&&e.data.size>0)chunks.push(e.data); };
+  rec.onstop=async()=>{
+    if(!chunks.length){ if(running)rec.start(4000); return; }
+    const blob=new Blob(chunks,{type:mime});chunks=[];
+    const buf=await blob.arrayBuffer();
+    if(buf.byteLength===0){ if(running)rec.start(4000); return; }
+    setStatus('🧠 轉錄中…','rec');
+    dbg(`POST /speech-to-subtitle bytes=${buf.byteLength}`);
+    try{
+      const r=await fetch('/speech-to-subtitle'+'?lang=auto',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:buf});
+      const d=await r.json();
+      dbg(`speech-to-subtitle HTTP=${r.status} → ${JSON.stringify(d).slice(0,160)}`);
+      if(d.text&&d.text.trim())onSubtitle(d.text.trim(), d.detected, d.translation, d.target);
+      else if(!r.ok){ const m='轉錄失敗 ('+r.status+')：'+(d.error||'服務異常'); toast(m); showErrorCard(m); }
+      else { const m='未偵測到會議聲音（請在分享 Zoom 視窗時勾選「分享音訊」）'; toast(m); showErrorCard(m); }
+    }catch(err){ const m='轉錄錯誤：'+err.message; toast(m); showErrorCard(m); }
+    if(running)rec.start(4000);
+  };
+  const processSlice=()=>{ // 每 3 秒切一段 → 觸發 onstop 即時轉錄，達成「及時不延遲」
+    if(rec&&rec.state==='recording'){ try{rec.stop();}catch(_){} }
+  };
+  let round=0;
+  rec.start(4000);
+  sliceTimer=setInterval(processSlice,3000);
+  const recClock=setInterval(()=>{ if(running){round++;$('#status').textContent='🖥 擷取 Zoom 會議中 · 第'+round+'輪 (每3秒轉譯)';}else clearInterval(recClock); },3000);
+  setStatus('🖥 擷取 Zoom 會議聲音中… 即時轉為繁中↔英文 雙語字幕','rec');
+}
+function stop(){
+  running=false;usingSR=false;
+  stopMeter();
+  $('#startBtn').classList.remove('recording');$('#startLabel').textContent='開始會議轉譯';
+  $('#dot').className='dot';
+  if(recognition){try{recognition.stop();}catch(_){}recognition=null;}
+  if(sliceTimer){clearInterval(sliceTimer);sliceTimer=0;}
+  if(rec&&rec.state!=='inactive'){try{rec.stop();}catch(_){}}
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+  setStatus('已停止');
+}
+$('#startBtn').onclick=()=>running?stop():start();
+$('#clearBtn').onclick=()=>{const box=$('#transcript');box.innerHTML='<div class="empty">尚無字幕 · 開始後 Zoom 會議聲音即時轉為繁中↔英文 雙語字幕</div>';};
+$('#openOverlayBtn').onclick=()=>window.open(location.origin+'/overlay.html?room='+room,'_blank');
+// 手動輸入推播（免錄音，直接出雙語字幕）
+function sendManual(){
+  const ta=$('#manualInput');const text=ta.value.trim();
+  if(!text){toast('請先輸入文字');return;}
+  onText(text);
+  ta.value='';
+}
+$('#sendBtn').onclick=sendManual;
+$('#manualInput').addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendManual();} });
+
+// 測試麥克風: 錄 4 秒 → 轉錄 → 字幕區顯示原始結果 (不推播觀眾端), 用於診斷音源/STT
+let testing=false;
+$('#testBtn').onclick=async()=>{
+  if(testing||running)return;
+  testing=true;$('#testBtn').disabled=true;$('#testBtn').textContent='🖥 擷取中… 請分享 Zoom 視窗並勾選「分享音訊」';
+  let s=null;
+  try{
+    s=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
+    const a=s.getAudioTracks()[0];
+    if(!a){ toast('未擷取到聲音，請在分享時勾選「分享音訊」'); s.getTracks().forEach(t=>t.stop()); return; }
+    const audioOnly=new MediaStream(s.getAudioTracks());
+    const mime=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?'audio/webm;codecs=opus':MediaRecorder.isTypeSupported('audio/webm')?'audio/webm':MediaRecorder.isTypeSupported('audio/mp4')?'audio/mp4':MediaRecorder.isTypeSupported('audio/aac')?'audio/aac':'audio/ogg';
+    const rec2=new MediaRecorder(audioOnly,{mimeType:mime});const ch=[];
+    rec2.ondataavailable=e=>{if(e.data.size>0)ch.push(e.data);};
+    const done=new Promise(res=>rec2.onstop=res);
+    rec2.start();$('#testBtn').textContent='🖥 擷取中… (4秒)';
+    setTimeout(()=>rec2.stop(),4000);await done;
+    const buf=await new Blob(ch,{type:mime}).arrayBuffer();
+    $('#testBtn').textContent='🧠 轉錄中…';
+    const r=await fetch('/transcribe'+'?lang=auto',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:buf});
+    const d=await r.json();
+    dbg(`[測試] transcribe HTTP=${r.status} → ${JSON.stringify(d).slice(0,160)}`);
+    const box=$('#transcript');const empty=box.querySelector('.empty');if(empty)empty.remove();
+    const el=document.createElement('div');el.className='utter';
+    if(d.text&&d.text.trim()){
+      const clean=d.text.replace(/[\s\d.,，。、()（）\-_=+*#@!?]/g,'');
+      el.innerHTML=`<div class="src">🖥 測試結果：${d.text}</div>`+(clean.length<2?`<div style="color:var(--danger);font-size:.82rem">⚠️ 未擷取到 Zoom 會議聲音，請確認分享時有勾選「分享音訊」且會議正在播放聲音</div>`:`<div style="color:var(--accent);font-size:.82rem">✅ 系統音擷取與轉錄正常，可開始正式會議轉譯</div>`);
+    }else if(!r.ok){ el.innerHTML=`<div class="src" style="color:var(--danger)">⚠️ 轉錄失敗 (${r.status})：${d.error||'服務異常'}</div>`; }
+    else { el.innerHTML=`<div class="src" style="color:var(--danger)">⚠️ 未偵測到語音，請確認 Zoom 會議聲音有被擷取</div>`; }
+    box.appendChild(el);box.scrollTop=box.scrollHeight;
+  }catch(e){ toast('測試失敗：'+e.message); }
+  finally{ if(s)s.getTracks().forEach(t=>t.stop()); testing=false;$('#testBtn').disabled=false;$('#testBtn').textContent='🖥 測試系統音（錄 4 秒確認 Zoom 聲音有被擷取）'; }
+};
+setStatus('點下方按鈕開始，Zoom 會議聲音即時轉為繁中↔英文 雙語字幕');
+
+// Gemini 3.5 Live Translate 狀態徽章 (可選雲端增強, 失敗自動回落免費鏈)
+(async () => {
+  try {
+    const r = await fetch('/gemini-live-3-5/status', { cache: 'no-store' });
+    const d = await r.json();
+    const el = document.getElementById('geminiState');
+    if (d.enabled) {
+      el.textContent = '已啟用 · ' + (d.engine || 'gemini') + '（雲端增強，自動優雅回落）';
+      el.style.color = 'var(--accent)';
+    } else {
+      el.textContent = '未啟用 · 純免費零 key 運作';
+      el.style.color = 'var(--muted)';
+    }
+  } catch (_) {
+    document.getElementById('geminiState').textContent = '狀態取得失敗';
+  }
+})();
+</script>
+</body>
+</html>

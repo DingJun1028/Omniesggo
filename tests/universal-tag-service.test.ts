@@ -1,13 +1,13 @@
 // ============================================================
 // Universal Tag Service — unit tests
-// tests/universal-tag-service.test.ts
+// tests/omni-tag-service.test.ts
 // ============================================================
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     eSGTag: { findMany: vi.fn() },
-    universalTag: { findUnique: vi.fn(), create: vi.fn(), upsert: vi.fn().mockResolvedValue({ id: 'u1' }) },
+    OmniTag: { findUnique: vi.fn(), create: vi.fn(), upsert: vi.fn().mockResolvedValue({ id: 'u1' }) },
     tagPair: { create: vi.fn(), upsert: vi.fn(), findMany: vi.fn() },
   },
 }));
@@ -17,11 +17,11 @@ vi.mock('@/lib/bus', () => ({
   subscribeBusEvent: vi.fn(),
 }));
 
-import { autoPair, syncEsgTags, stripGemma4Thinking, extractJsonValue, splitThinking } from '@/core/tags/universal-tag-service';
+import { autoPair, syncEsgTags, stripGemma4Thinking, extractJsonValue, splitThinking } from '@/core/tags/omni-tag-service';
 import { prisma } from '@/lib/prisma';
 import { publishThought } from '@/lib/bus';
 
-describe('universal-tag-service', () => {
+describe('omni-tag-service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.stubEnv('LOCAL_GEMMA_MODEL', 'test-model');
@@ -44,7 +44,7 @@ describe('universal-tag-service', () => {
     expect(res.labels).toContain('碳排放');
     expect((prisma.tagPair.upsert as unknown as vi.Mock).mock.calls.length).toBe(1);
     // confirm the upserted anchor tag carried the parsed label
-    const upsertCall = (prisma.universalTag.upsert as unknown as vi.Mock).mock.calls[0][0];
+    const upsertCall = (prisma.OmniTag.upsert as unknown as vi.Mock).mock.calls[0][0];
     expect(upsertCall.where.label_kind.label).toBe('碳排放');
     // 思考頻道內容應同步發布到 OmniAgentBus（step=1, agentId=gemma4-local）
     expect((publishThought as unknown as vi.Mock).mock.calls.length).toBe(1);
@@ -72,15 +72,15 @@ describe('universal-tag-service', () => {
     expect(res.reason).toMatch(/no JSON array/);
   });
 
-  it('syncEsgTags creates UniversalTag rows for each ESGTag', async () => {
+  it('syncEsgTags creates OmniTag rows for each ESGTag', async () => {
     (prisma.eSGTag.findMany as unknown as vi.Mock).mockResolvedValue([
       { id: 'e1', name: '碳排', pillar: 'Environmental', category: '碳', description: 'd' },
     ]);
-    (prisma.universalTag.findUnique as unknown as vi.Mock).mockResolvedValue(null);
+    (prisma.OmniTag.findUnique as unknown as vi.Mock).mockResolvedValue(null);
     const res = await syncEsgTags();
     expect(res.synced).toBe(1);
     expect(res.labels).toContain('碳排');
-    expect((prisma.universalTag.create as unknown as vi.Mock).mock.calls.length).toBe(1);
+    expect((prisma.OmniTag.create as unknown as vi.Mock).mock.calls.length).toBe(1);
   });
 
   // ── Gemma 4 輸出解析強化 ──────────────────────────────────
@@ -183,3 +183,4 @@ describe('splitThinking', () => {
     expect(splitThinking(123).clean).toBe('123');
   });
 });
+

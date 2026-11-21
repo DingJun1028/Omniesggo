@@ -12,7 +12,8 @@
  *  - 記憶體 fallback（開發環境）
  */
 
-import { generateV5Report, getV5Companies, V5_CHAPTERS } from './report-generator-v5';
+import { generateFullV5Report } from './report-generator-v5-full';
+import { getV5Companies, V5_CHAPTERS } from './report-generator-v5';
 import { agnesApi, type AgnesResponse } from '@/lib/agnes-api';
 import { createHash } from 'crypto';
 import { adminDb } from '@/lib/firebase-admin';
@@ -44,6 +45,7 @@ export interface TaskProgress {
   readonly taskType?: 'report_generation' | 'grammar_rewrite' | 'ocr_processing';
   readonly templateId?: string;
   readonly noteIds?: readonly string[];
+  readonly reportingYear?: number;
   readonly customCompany?: {
     readonly name: string;
     readonly industry: string;
@@ -166,6 +168,7 @@ export function createTask(
     scope2Tco2e: number;
   },
   renderOptions?: any,
+  reportingYear = new Date().getFullYear() - 1,
 ): string {
   const taskId = `tsk-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const now = new Date().toISOString();
@@ -191,6 +194,7 @@ export function createTask(
     updatedAt: now,
     templateId: templateId || 'gri',
     renderOptions: normalizeRenderOptions(renderOptions),
+    reportingYear,
     ...(noteIds && noteIds.length > 0 ? { noteIds } : {}),
     ...(customCompany ? { customCompany } : {}),
   };
@@ -332,13 +336,12 @@ export function startAsyncTask(
     if (chapterIndex >= totalChapters) {
       // Task complete — generate final report
       try {
-        const report = generateV5Report(companyId);
+        const report = await generateFullV5Report(companyId, 'professional', current.reportingYear);
+        if (!report) throw new Error('找不到此公司的填答或報告資料，無法完成報告生成。');
         const completedAt = new Date().toISOString();
         const durationMs = Date.now() - startTime;
 
-        const trinityHash = createHash('sha256')
-          .update(`${taskId}:${report?.totalWords ?? wordsSoFar}`)
-          .digest('hex');
+        const trinityHash = report.trinityHash;
 
         const result: TaskProgress = {
           ...current,

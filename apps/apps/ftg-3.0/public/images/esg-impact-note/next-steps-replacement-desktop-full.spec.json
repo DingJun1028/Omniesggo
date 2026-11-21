@@ -1,0 +1,11 @@
+{
+  "id": "nextsteps",
+  "name": "Next Steps & Improvement Recommendations",
+  "filename": "next-steps-replacement-desktop-full.png",
+  "dimensions": "1920x1080",
+  "elementId": "next-steps",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#next-steps",
+  "generatedAt": "2026-08-26T01:57:24.353Z",
+  "status": "spec-ready"
+}

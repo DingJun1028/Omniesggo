@@ -1,0 +1,20 @@
+[Unit]
+Description=OmniAgent Bidirectional Sync Engine
+After=network.target omnigateway.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/esggo/apps/gateway/sync
+# Load secrets from the gitignored vaults (never commit). Falls back to process env.
+ExecStartPre=/bin/bash -c 'set -a; [ -f /var/www/esggo/vps/.env.secrets ] && source /var/www/esggo/vps/.env.secrets; [ -f /root/gateway/.env ] && source /root/gateway/.env; set +a'
+ExecStart=/usr/bin/bash -c 'set -a; [ -f /var/www/esggo/vps/.env.secrets ] && source /var/www/esggo/vps/.env.secrets; [ -f /root/gateway/.env ] && source /root/gateway/.env; set +a; exec /usr/bin/node /var/www/esggo/apps/gateway/sync/dist/server.js'
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=120
+StartLimitBurst=10
+StandardOutput=append:/var/log/omni-sync.log
+StandardError=append:/var/log/omni-sync.log
+
+[Install]
+WantedBy=multi-user.target

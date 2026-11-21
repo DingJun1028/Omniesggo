@@ -1,0 +1,25 @@
+{
+  "name": "@esggo/omni-agent-bus",
+  "version": "0.1.0",
+  "description": "OmniAgentBus — OA 萬能代理總線 (事件/訊息骨幹), 串接 oa-framework 7 子框架 + omni-agent 5T Gate + TencentDB Team Memory",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "typecheck:test": "tsc -p tsconfig.test.json",
+    "typecheck:surface": "tsc -p tsconfig.types-smoke.json",
+    "test": "tsx test/smoke.ts && tsx test/deploy-gate.smoke.ts && tsx test/oa-bridge.smoke.ts && tsx test/patterns.smoke.ts && tsx test/conduit.smoke.ts && tsx test/live-run.smoke.ts && tsx test/live-clones.smoke.ts && tsx test/replay.smoke.ts",
+    "test:dist": "tsc && node test/dist-smoke.mjs",
+    "test:surface": "tsc && npm run typecheck:surface",
+    "test:all": "npm run test && npm run test:dist && npm run typecheck:surface"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "dependencies": {
+    "@esggo/oa-framework": "workspace:*"
+  }
+}

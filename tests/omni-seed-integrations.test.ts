@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // 1. Mock Prisma Client to prevent actual database connections
-vi.mock('@prisma/client', () => {
+vi.mock('@lib/db/prisma-compat', () => {
   const mockUserGrowth = {
     findUnique: vi.fn(),
     create: vi.fn(),

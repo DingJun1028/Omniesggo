@@ -64,6 +64,17 @@ export default defineConfig({
       // 兩者皆 import { test } from 'node:test'，由 apps/omnilive 自身的
       // `pnpm test` (= node --test test/*.test.mjs) 執行，覆蓋率不減。
       'apps/omnilive/test/**',
+      // apps/omnlive 為 OmniLive legacy 副本（包名 omnlive-legacy，與現役 omnilive
+      // 並存於 HEAD），test/ 內容與 omnilive 完全相同（git diff --no-index 為空）、
+      // 同為 node:test 撰寫；被根 vitest 抓取時報 "No test suite found in file"
+      // （2026-10-13 本分支 vitest 5 檔紅燈根因：exclude 只擋了 omnilive 沒擋 omnlive）。
+      // 由 `pnpm --filter omnlive-legacy test` (= node --test) 執行，覆蓋率不減。
+      'apps/omnlive/test/**',
+      // omninote-unified 測試以 Node 內建 test runner (node:test + tsx --test) 撰寫，非 vitest
+      // 套件（自帶 package.json test script）。二十七期（PR #277）起 9 檔被根 vitest 抓取時報
+      // 「No test suite found in file」，令神聖契約驗證步驟恆 exit 1（continue-on-error 遮蔽為慢性紅）。
+      // 該套件由 `pnpm --filter @esggo/omninote-unified test` (= tsx --test) 執行，覆蓋率不減。
+      'packages/omninote-unified/test/**',
       // Self-Healing Engine 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
       //   - server.test.mjs → import { test } from 'node:test'，根 vitest 抓取時報
       //                       "No test suite found in file"
@@ -90,6 +101,11 @@ export default defineConfig({
       // 由 `node tests/<檔名>.test.mjs` 在對應工作目錄執行，覆蓋率不減。
       'tests/canon.test.mjs',
       'tests/omnitag.test.mjs',
+      'tests/deploy-contract.test.mjs',
+      'tests/junaikey-secrets.test.mjs',
+      'tests/omni-one.test.mjs',
+      'vps/junaikey/model-resolver.test.mjs',
+      'vps/junaikey/service-resolver.test.mjs',
       'tests/junaikey.test.mjs',
       // oneringai/tests/index.test.ts 為自製測試 harness（自建 TestResult
       // 介面、逐項呼叫，非 vitest suite）：被根 vitest 抓取時報

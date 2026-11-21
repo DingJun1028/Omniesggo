@@ -168,6 +168,7 @@ async function fetchNotes(): Promise<NoteData[]> {
 async function startAsyncReport(
   companyId: string,
   templateId: string,
+  reportingYear: number,
   noteIds?: string[],
   customCompany?: CustomCompanyForm
 ): Promise<{ taskId: string }> {
@@ -177,6 +178,7 @@ async function startAsyncReport(
     body: JSON.stringify({
       companyId,
       templateId,
+      reportingYear,
       ...(noteIds && noteIds.length > 0 ? { noteIds } : {}),
       ...(companyId === CUSTOM_COMPANY_ID && customCompany ? { customCompany } : {}),
     }),
@@ -257,6 +259,7 @@ export default function SustainWriteV5Page() {
   const [customCompanies, setCustomCompanies] = useState<CustomCompanyForm[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateType>('');
+  const [reportingYear, setReportingYear] = useState(new Date().getFullYear() - 1);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [taskProgress, setTaskProgress] = useState<TaskProgress | null>(null);
   const [loading, setLoading] = useState(false);
@@ -361,6 +364,10 @@ export default function SustainWriteV5Page() {
 
   const handleGenerate = async () => {
     if (!selectedCompany || !selectedTemplate) return;
+    if (!Number.isInteger(reportingYear) || reportingYear < 2000 || reportingYear > new Date().getFullYear()) {
+      setError(`報導年度需介於 2000 至 ${new Date().getFullYear()} 年`);
+      return;
+    }
     if (selectedCompany === CUSTOM_COMPANY_ID && !customCompany.name) {
       setError('請填寫自訂公司名稱');
       return;
@@ -376,6 +383,7 @@ export default function SustainWriteV5Page() {
       const { taskId } = await startAsyncReport(
         effectiveCompanyId,
         selectedTemplate,
+        reportingYear,
         selectedNoteIds.length > 0 ? selectedNoteIds : undefined,
         selectedCompany === CUSTOM_COMPANY_ID ? customCompany : undefined
       );
@@ -515,20 +523,20 @@ export default function SustainWriteV5Page() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <StatCard value={28} label="章節數" accent="text-accentTeal" />
-          <StatCard value="280K" label="總字數目標" accent="text-accentGold" />
-          <StatCard value="5T" label="真善美信通" accent="text-accentBlue" />
-          <StatCard value="ZKP" label="零知識證明" accent="text-accentPurple" />
+          <StatCard value={selectedTemplate === 'tcfd-special' ? 12 : selectedTemplate === 'investor-minimal' ? 5 : 28} label="所選模板章節數" accent="text-accentTeal" />
+          <StatCard value="280K" label="參考目標（不以虛構內容補足）" accent="text-accentGold" />
+          <StatCard value="5T" label="章節分類標籤（非確信）" accent="text-accentBlue" />
+          <StatCard value="HASH" label="報告輸出指紋（非確信）" accent="text-accentPurple" />
         </div>
 
         {/* Control Panel */}
         <div className="bg-secondary rounded-lg border border-borderColor p-6 mb-8 shadow-sm">
           <div className="border-l-4 border-accentGold pl-4 mb-4">
             <h2 className="text-base font-semibold text-textPrimary">模板選擇閘門 (Template Selection Gate)</h2>
-            <p className="text-sm text-textSecondary mt-1">選擇報告模板與對象，以解鎖報告生成引擎</p>
+            <p className="text-sm text-textSecondary mt-1">依選定公司目前可取得的填答整理報告；未提供的資料會標示為缺口，不會自動補造績效或確信結果。</p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
             <div className="flex-1">
               <label className="block text-xs font-medium text-textSecondary mb-1">企業實體</label>
               <select
@@ -574,7 +582,22 @@ export default function SustainWriteV5Page() {
                 <option value="investor-minimal">投資人摘要精簡版 (5章)</option>
               </select>
             </div>
+            <div>
+              <label htmlFor="reporting-year" className="block text-xs font-medium text-textSecondary mb-1">報導年度</label>
+              <input
+                id="reporting-year"
+                type="number"
+                min={2000}
+                max={new Date().getFullYear()}
+                value={reportingYear}
+                onChange={event => setReportingYear(Number(event.target.value))}
+                className="w-full rounded-lg border border-borderColor bg-primary px-3 py-2 text-sm text-textPrimary"
+              />
+            </div>
           </div>
+          <p className="mb-4 rounded-md border border-accentGold/30 bg-accentGold/5 p-3 text-xs text-textSecondary">
+            資料來源聲明：目前報告以所選公司題庫中的填答為主。題庫的「建議佐證」不是已上傳單據；實際附件尚未接入公司專屬證據庫。所選 OmniNote 目前也未被讀取或融合，避免把未確認歸屬的共享筆記混入公司報告。
+          </p>
 
           {/* Custom Company Form */}
           {showCustomForm && selectedCompany === CUSTOM_COMPANY_ID && (
@@ -857,8 +880,11 @@ export default function SustainWriteV5Page() {
               <div className="mt-4 p-4 bg-primary rounded-lg border border-borderColor">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
                   <div>
-                    <span className="text-textSecondary">總字數</span>
+                    <span className="text-textSecondary">實際生成字數（280,000 目標）</span>
                     <div className="font-semibold text-textPrimary">{taskProgress.result.totalWords.toLocaleString()}</div>
+                    {taskProgress.result.totalWords < 280000 && (
+                      <p className="mt-1 text-xs text-amber-700">目前資料不足以達目標；未以重複或虛構內容填充。補齊真實資料後可重新生成。</p>
+                    )}
                   </div>
                   <div>
                     <span className="text-textSecondary">標籤數</span>

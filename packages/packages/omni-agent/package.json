@@ -1,0 +1,61 @@
+{
+  "name": "@esggo/omni-agent",
+  "version": "5.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "ts-node src/gates.ts",
+    "build": "tsc",
+    "dev": "ts-node src/index.ts",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint src/ --fix",
+    "lint:full": "eslint src/ --max-warnings 150",
+    "typecheck": "tsc --noEmit",
+    "version": "node scripts/version.js"
+  },
+  "keywords": [
+    "omnijules",
+    "ai-agent",
+    "esggo",
+    "5t-protocol"
+  ],
+  "author": "ESG GO Team",
+  "license": "UNLICENSED",
+  "description": "OmniJules 5T Gate Verification Engine — 5T 閘道驗證核心 (traceable/transparent/tangible/trustworthy/trackable)",
+  "dependencies": {
+    "@esggo/errors": "workspace:*",
+    "@esggo/shared": "workspace:*",
+    "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@typescript-eslint/eslint-plugin": "^8.72.2",
+    "@typescript-eslint/parser": "^8.72.2",
+    "eslint": "^10.12.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.0.0",
+    "vitest": "^5.0.3"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "omni": {
+    "agent": {
+      "name": "OmniJules",
+      "version": "5.1.0",
+      "capabilities": [
+        "ai",
+        "agent",
+        "editor",
+        "devops",
+        "security"
+      ],
+      "protocols": [
+        "5t-protocol",
+        "esggo-standards",
+        "omniskill-codex"
+      ]
+    }
+  }
+}

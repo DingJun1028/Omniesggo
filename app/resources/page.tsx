@@ -161,8 +161,11 @@ function TabButton({
 }) {
   return (
     <button
+      type="button"
+      role="tab"
+      aria-selected={active}
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+      className={`flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#009EB0] focus-visible:ring-offset-2 sm:px-4 ${
         active
           ? 'bg-[#009EB0] text-white shadow-lg shadow-[#009EB0]/25'
           : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'
@@ -239,12 +242,37 @@ export default function ResourcesPage() {
     try {
       const res = await fetch('/api/resources', { signal: AbortSignal.timeout(10000) });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const d: ResourcesData = await res.json();
+      const payload: unknown = await res.json();
+      if (!payload || typeof payload !== 'object') {
+        throw new Error('資源服務回傳格式不正確');
+      }
+      const envelope = payload as { success?: boolean; data?: unknown };
+      const source = envelope.data && typeof envelope.data === 'object' ? envelope.data : payload;
+      const raw = source as Partial<ResourcesData>;
+      const modules = Array.isArray(raw.modules) ? raw.modules : [];
+      const aiModels = Array.isArray(raw.aiModels) ? raw.aiModels : [];
+      const infrastructure = Array.isArray(raw.infrastructure) ? raw.infrastructure : [];
+      const d: ResourcesData = {
+        timestamp: typeof raw.timestamp === 'number' ? raw.timestamp : Date.now(),
+        platform: typeof raw.platform === 'string' ? raw.platform : 'ESGGO',
+        version: typeof raw.version === 'string' ? raw.version : '—',
+        modules,
+        aiModels,
+        infrastructure,
+        summary: {
+          totalModules: modules.length,
+          activeModules: modules.filter((item) => item?.status === 'active').length,
+          totalAIModels: aiModels.reduce((sum, provider) => sum + (Array.isArray(provider?.models) ? provider.models.length : 0), 0),
+          freeAIModels: aiModels.reduce((sum, provider) => sum + (Array.isArray(provider?.models) ? provider.models.filter((model) => model?.tier === 'free').length : 0), 0),
+          totalInfra: infrastructure.length,
+          healthyInfra: infrastructure.filter((item) => item?.status === 'healthy').length,
+        },
+      };
       setData(d);
       setLastUpdate(new Date());
       setError(null);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Failed to load');
+      setError(e instanceof Error ? e.message : '載入資源資料失敗');
     } finally {
       setLoading(false);
     }
@@ -277,9 +305,11 @@ export default function ResourcesPage() {
                 : data.modules.filter(m => m.category === cat).length;
             return (
               <button
+                type="button"
                 key={cat}
+                aria-pressed={moduleFilter === cat}
                 onClick={() => setModuleFilter(cat)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                className={`min-h-11 rounded-lg px-3 py-2 text-xs font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#009EB0] focus-visible:ring-offset-2 ${
                   moduleFilter === cat
                     ? 'bg-[#009EB0] text-white'
                     : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'
@@ -536,16 +566,16 @@ export default function ResourcesPage() {
   // ── Main Render ─────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-gray-50 px-4 py-5 dark:bg-slate-900 sm:px-6 sm:py-6">
+    <div className="mx-auto max-w-7xl">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex min-w-0 items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-[#009EB0] flex items-center justify-center text-white font-bold text-lg">
               R
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-800 dark:text-white">
+              <h1 className="text-lg font-bold text-gray-800 dark:text-white sm:text-xl">
                 系統平台資源項目 ∞ Evolution
               </h1>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -553,27 +583,29 @@ export default function ResourcesPage() {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between gap-3 sm:justify-end">
             {lastUpdate && (
               <span className="text-xs text-gray-400 dark:text-gray-500">
                 {lastUpdate.toLocaleTimeString('zh-TW')}
               </span>
             )}
             <button
+              type="button"
               onClick={() => {
                 setLoading(true);
-                fetchResources();
+                void fetchResources();
               }}
-              className="px-3 py-1.5 text-xs bg-[#009EB0] text-white rounded-lg hover:bg-[#007d8f] transition-colors"
+              disabled={loading}
+              className="min-h-11 rounded-lg bg-[#009EB0] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#007d8f] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#009EB0] focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-60"
             >
-              Refresh
+              {loading ? '載入中…' : '重新整理'}
             </button>
           </div>
         </div>
 
         {/* Summary Stats */}
         {data && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-6">
             <div className="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 p-4 text-center">
               <p className="text-2xl font-bold text-[#009EB0]">{data.summary.totalModules}</p>
               <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1">功能模組</p>
@@ -644,7 +676,7 @@ export default function ResourcesPage() {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex gap-3 mb-6">
+        <div role="tablist" aria-label="資源分類" className="mb-6 flex gap-2 overflow-x-auto pb-1 sm:gap-3">
           <TabButton
             active={activeTab === 'modules'}
             onClick={() => setActiveTab('modules')}
@@ -670,8 +702,9 @@ export default function ResourcesPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="mb-4 px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg text-xs text-yellow-600 dark:text-yellow-400">
-            {error}
+          <div role="alert" className="mb-4 flex flex-col gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200 sm:flex-row sm:items-center sm:justify-between">
+            <p>{error}。可重試載入，或先檢查資源 API。</p>
+            <button type="button" onClick={() => { setLoading(true); void fetchResources(); }} className="min-h-10 rounded-lg border border-amber-300 px-3 font-semibold hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/40">重新載入</button>
           </div>
         )}
 
@@ -689,6 +722,12 @@ export default function ResourcesPage() {
             {activeTab === 'modules' && renderModules()}
             {activeTab === 'ai' && renderAIModels()}
             {activeTab === 'infra' && renderInfrastructure()}
+            {((activeTab === 'modules' && data.modules.length === 0) || (activeTab === 'ai' && data.aiModels.length === 0) || (activeTab === 'infra' && data.infrastructure.length === 0)) && (
+              <div className="rounded-2xl border border-dashed border-gray-300 bg-white px-5 py-12 text-center dark:border-slate-700 dark:bg-slate-800">
+                <p className="text-base font-semibold text-gray-800 dark:text-white">目前沒有可顯示的資源</p>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">資料可能尚未設定，請稍後重新載入。</p>
+              </div>
+            )}
           </>
         )}
 

@@ -4,21 +4,18 @@
  */
 
 import {
-  getAnswersByCompany, getCompanyById, getReportOutline,
+  getAnswersByCompany, getCompanyById,
   getEvidenceGuide, getGRIImpact,
-  TOTAL_COMPANIES, TOTAL_QUESTIONS,
   type Answer, type EvidenceGuide,
 } from '../repositories/sustain-write-answer-database';
 import { V5_CHAPTERS } from './report-assembly-v5';
 import type { V5GeneratedReport, V5ReportChapter } from './report-assembly-v5';
-import { fetchEnterpriseData } from './enterprise-data';
-import { OmniSwarmService } from './omni-swarm-service';
 
 const C_TO_V5: Record<string, number[]> = {
   'C1': [1], 'C2': [2, 15], 'C3': [3], 'C4': [4, 25],
-  'C5': [5, 6, 16, 17], 'C6': [7, 9], 'C7': [8],
-  'C8': [10, 24], 'C9': [11], 'C10': [12, 13],
-  'C11': [19, 27], 'C12': [14, 22, 26, 28],
+  'C5': [5, 6, 16, 17], 'C6': [7], 'C7': [8],
+  'C8': [10, 24], 'C9': [11, 24], 'C10': [12, 13, 14, 22],
+  'C11': [19, 23, 27], 'C12': [14, 26, 28],
 };
 
 export interface ExtendedChapterData extends V5ReportChapter {
@@ -38,6 +35,8 @@ export interface ExtendedChapterData extends V5ReportChapter {
 export interface ExtendedV5Report extends V5GeneratedReport {
   totalQuestions: number;
   totalEvidenceItems: number;
+  targetWords: number;
+  wordTargetMet: boolean;
   completionRate: number;
   outline: {
     summary: string;
@@ -68,21 +67,23 @@ function countChars(text: string): number {
   return chinese + english;
 }
 
-export async function generateFullV5Report(companyId: string, brandTone: string = 'professional'): Promise<ExtendedV5Report | null> {
+function escapeHtml(value: unknown): string {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+export async function generateFullV5Report(companyId: string, brandTone: string = 'professional', reportingYear = new Date().getFullYear() - 1): Promise<ExtendedV5Report | null> {
   const profile = getCompanyById(companyId);
   if (!profile) return null;
   const allAnswers = getAnswersByCompany(companyId);
   if (!allAnswers.length) return null;
-  const outline = getReportOutline(companyId) || null;
-
-  // Integrate Real Enterprise Data and Document Progress
-  const enterpriseData = await fetchEnterpriseData(companyId);
+  // Legacy outline records are shared demo/sample data and are not reliably tied to submitted company documents.
+  // Do not mix them into an individualized report as company facts.
+  const outline = null;
+  const currentYear = new Date().getFullYear();
+  const safeYear = Number.isInteger(reportingYear) && reportingYear >= 2000 && reportingYear <= currentYear ? reportingYear : currentYear - 1;
 
   const chapters: ExtendedChapterData[] = [];
   let totalWords = 0;
-  let totalEvidence = 0;
-  const swarmTrace: string[] = [];
-  const swarmService = new OmniSwarmService();
 
   for (const ch of V5_CHAPTERS) {
     const chAnswers = allAnswers.filter((a: Answer) => {
@@ -108,86 +109,62 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
     // Get GRI mapping
     const griImpact = getGRIImpact(ch.title);
 
-    let toneStyle = '';
-    if (brandTone === 'approachable') {
-      toneStyle = '以親切且平易近人的語氣呈現。';
-    } else if (brandTone === 'professional') {
-      toneStyle = '以專業且嚴謹的語氣呈現。';
-    }
-
     let content = '';
-    content += `<h2>第${ch.num}章 ${ch.title}</h2>`;
-    content += `<p>${enterpriseData.companyName}（以下簡稱${profile.shortName}）營運據點包含${profile.operatingLocations}，主要業務為${profile.mainBusiness}。截至2025年12月31日，員工約${enterpriseData.employeeCount}人，年營收約${enterpriseData.revenue}，年用電量約${profile.electricityKwh.toLocaleString()}kWh，年用水量約${profile.waterTons.toLocaleString()}噸。${profile.shortName}在「${ch.title}」面向依5T協議${ch.fiveTGate}原則進行完整揭露。${toneStyle}</p>`;
+    content += `<h2>第${ch.num}章 ${escapeHtml(ch.title)}</h2>`;
+    content += `<p>${escapeHtml(profile.companyName)}（以下簡稱${escapeHtml(profile.shortName)}），報導期間：${safeYear}年度。資料狀態：試算示範資料（來源資料集為模擬填答，非該公司實際提交）；本章內容僅供流程展示，必須以企業確認的原始單據、數據和說明替換後才可作正式揭露。系統尚無與報導期間綁定的可追溯單據數據，因此不引用示範 profile 的員工、營收、能源或用水數字。5T面向「${escapeHtml(ch.fiveTGate)}」為章節分類，不表示已通過確信。</p>`;
 
     if (chAnswers.length > 0) {
       for (let i = 0; i < chAnswers.length; i++) {
         const a = chAnswers[i];
-        let finalAnswer = a.answer;
-        
-        // Use swarm service for expert rewriting if tone is specified (demo on first answer of chapter 2)
-        if (ch.num === 2 && i === 0 && brandTone) {
-          const refined = await swarmService.refineReportSection(finalAnswer, brandTone);
-          if (refined && typeof refined.content === 'string') {
-            finalAnswer = refined.content;
-            swarmTrace.push(`[章節 2.${i+1}] 已完成 L-Hub 專家潤飾 (ZKP: ${String(refined.uuid)})`);
-          }
-        }
+        const finalAnswer = a.answer;
 
-        content += `<h3>${ch.num}.${i+1} 題目：${a.question}</h3>`;
-        content += `<div class="answer-block">${finalAnswer}</div>`;
-        if (a.gri) content += `<p class="gri-tag">GRI對應: ${a.gri}</p>`;
+        content += `<h3>${ch.num}.${i+1} 題目：${escapeHtml(a.question)}</h3>`;
+        content += `<div class="answer-block">${escapeHtml(finalAnswer)}</div>`;
+        if (a.gri) content += `<p class="gri-tag">GRI對應: ${escapeHtml(a.gri)}</p>`;
         if (a.evidence) {
           content += `<div class="service-teaching-block">`;
           content += `<h4>[教學即服務] 證據要求解析</h4>`;
-          content += `<p><strong>Why:</strong> 此佐證確保揭露資訊具備真實性與可驗證性。</p>`;
-          content += `<p><strong>What:</strong> 需提供：${a.evidence}</p>`;
-          content += `<p><strong>How:</strong> 透過數位化收集並進行 ZKP 封印上鏈，確保數據不可篡改。</p>`;
+          content += `<p><strong>建議佐證：</strong> ${escapeHtml(a.evidence)}</p>`;
+          content += `<p>此欄位為題庫要求的佐證種類，非代表公司已提交或已核驗該附件。</p>`;
           content += `</div>`;
         }
-        if (a.dataAtoms) content += `<p class="atom-tag">Data Atom: ${a.dataAtoms}</p>`;
+        if (a.dataAtoms) content += `<p class="atom-tag">資料項目：${escapeHtml(a.dataAtoms)}</p>`;
+        if (a.dataGap) content += `<p class="data-gap">待補資料：${escapeHtml(a.dataGap)}</p>`;
+        if (!a.answer?.trim()) content += '<p class="data-gap">資料狀態：尚未提供本題回答。</p>';
       }
     }
 
-    content += `<h3>關鍵績效指標</h3>`;
-    content += `<table><thead><tr><th>指標</th><th>2025</th><th>前年度</th><th>目標</th><th>達成率</th></tr></thead><tbody>`;
-    const kpis = [['完成率','92%','85%','95%','97%'],['覆蓋率','88%','80%','90%','98%'],['合規度','100%','98%','100%','100%'],['滿意度','85%','78%','90%','94%'],['訓練時數','45h','40h','50h','90%']];
-    for (const k of kpis) {
-      content += `<tr><td>${k[0]}</td><td>${k[1]}</td><td>${k[2]}</td><td>${k[3]}</td><td>${k[4]}</td></tr>`;
+    content += `<h3>量化指標與資料完整性</h3>`;
+    const answeredMetrics = chAnswers.filter(answer => answer.answer?.trim() && answer.dataAtoms?.trim());
+    if (answeredMetrics.length) {
+      content += '<ul>';
+      for (const metric of answeredMetrics) {
+        content += `<li>${escapeHtml(metric.dataAtoms)}：${escapeHtml(metric.answer)}（資料為公司填答，尚未獨立驗證）</li>`;
+      }
+      content += '</ul>';
+    } else {
+      content += '<p class="data-gap">目前沒有本章可直接引用的量化填答；未提供指標、基準年、計算邊界或目標值均不推測。</p>';
     }
-    content += `</tbody></table>`;
+    const missingAnswers = chAnswers.filter(answer => !answer.answer?.trim());
+    const declaredGaps = chAnswers.filter(answer => Boolean(answer.dataGap?.trim()));
+    content += `<p>本章關聯題數：${chAnswers.length}；有填答：${chAnswers.length - missingAnswers.length}；未填答：${missingAnswers.length}；已登錄缺口：${declaredGaps.length}。</p>`;
+    if (chAnswers.length === 0) content += '<p class="data-gap">本章目前沒有公司填答，請補齊適用性說明與相關單據；不代表公司沒有相關影響或風險。</p>';
+    if (missingAnswers.length || declaredGaps.length) content += '<p class="data-gap">待辦：補充缺漏回答、報導期間、組織/營運邊界、計算方法及可追溯原始附件，再由權責人覆核。</p>';
 
     if (outline && ch.num <= 5) {
       const highlights = [outline.envHighlight, outline.socialHighlight, outline.govHighlight, outline.impactHighlight];
-      if (highlights[ch.num - 1]) {
-        let highlightContent = highlights[ch.num - 1];
-        
-        // L-Hub 合規協作 (Demo on chapter 1)
-        if (ch.num === 1) {
-          const compliance = await swarmService.performComplianceCheck(highlightContent, 'EU CSRD');
-          if (compliance && typeof compliance.content === 'string') {
-            highlightContent += `<br><br><strong>[由 L-Hub 代理集羣協作驗證]</strong><br>${compliance.content}`;
-            swarmTrace.push(`[章節 1 雛形重點] 已完成 EU CSRD 跨國合規比對 (ZKP: ${String(compliance.uuid)})`);
-          }
-        }
-        
-        content += `<h3>報告雛形重點</h3><p>${highlightContent}</p>`;
-      }
+      const highlight = highlights[ch.num - 1];
+      if (highlight?.trim()) content += `<h3>報告雛形重點（待公司確認）</h3><p>${escapeHtml(highlight)}</p>`;
     }
 
-    content += `<h3>5T 協議合規確信 (5T Protocol Assurance)</h3>`;
-    content += `<ul style="font-size: 13px; color: var(--text2);">
-      <li><strong>[Traceable] 可溯源:</strong> 數據來源自企業真實單據 (單據收集進度: ${enterpriseData.documentProgress.collected}/${enterpriseData.documentProgress.totalRequired})</li>
-      <li><strong>[Transparent] 算法透明:</strong> 溫室氣體轉換係數與計算邏輯公開</li>
-      <li><strong>[Tangible] UI感知:</strong> 影響力指標已具象化呈現</li>
-      <li><strong>[Trustworthy] 密碼學綁定:</strong> ZKP Hash Lock 封印完成</li>
-      <li><strong>[Trackable] 生命週期追蹤:</strong> 資料原子 (Data Atom) 已記錄於鏈上</li>
-    </ul>`;
-
-    content += `<p class="zkp-seal">ZKP: ${zkp(content)} | OmniTag: OTG-${String(ch.num).padStart(2,'0')}-2025-${ch.fiveTGate.toUpperCase()} | Trinity: V:sealed U:synced A:verified</p>`;
+    content += '<h3>來源、佐證與覆核狀態</h3>';
+    content += `<p>題庫建議佐證僅作為待提交文件清單。現行資料模型未提供本章實際上傳附件與審核紀錄，因此本章實際附件數為0；不能據此宣稱文件已提交、已查核或已上鏈。</p>`;
+    content += `<p>5T面向：${escapeHtml(ch.fiveTGate)}（分類標籤，非確信結論）。報告內容雜湊：${zkp(content)}。此雜湊僅用於偵測本次輸出是否變動，不代表資料真實性或第三方驗證。</p>`;
 
     const words = countChars(content);
     totalWords += words;
-    totalEvidence += chAnswers.filter((a: Answer) => a.evidence).length;
+    // The question bank's `evidence` field is an evidence requirement, not an uploaded file.
+    // Until real attachment records are connected, do not count it as submitted evidence.
 
     chapters.push({
       id: ch.id,
@@ -198,8 +175,8 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
       content,
       wordCount: words,
       zkpHash: zkp(content),
-      omniTagUuid: `OTG-${String(ch.num).padStart(2,'0')}-2025-${ch.fiveTGate.toUpperCase()}`,
-      evidenceCount: chAnswers.length,
+      omniTagUuid: `OTG-${String(ch.num).padStart(2,'0')}-${safeYear}-${ch.fiveTGate.toUpperCase()}`,
+      evidenceCount: 0,
       questionDetails: questionDetails,
       evidenceGuide,
       griMapping: griImpact?.griMapping || '',
@@ -207,7 +184,9 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
     });
   }
 
-  const completionRate = Math.round((allAnswers.length / (TOTAL_QUESTIONS * (TOTAL_COMPANIES > 0 ? 1 : 0))) * 100) / 100;
+  const companyQuestionCount = allAnswers.length;
+  const answeredQuestionCount = allAnswers.filter(answer => Boolean(answer.answer?.trim())).length;
+  const completionRate = companyQuestionCount ? answeredQuestionCount / companyQuestionCount : 0;
 
   return {
     companyId,
@@ -217,13 +196,16 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
     totalWords,
     totalParagraphs: chapters.reduce((s, c) => s + c.content.split('<p>').length, 0),
     totalOmniTags: chapters.length,
-    totalEvidence,
-    fiveTStatus: { traceable: true, transparent: true, tangible: true, trustworthy: true, trackable: true },
+    totalEvidence: 0,
+    fiveTStatus: { traceable: false, transparent: false, tangible: false, trustworthy: false, trackable: false },
     trinityHash: zkp(String(totalWords) + companyId),
     generatedAt: new Date().toISOString(),
-    reportVersion: '5.0',
-    totalQuestions: TOTAL_QUESTIONS,
-    totalEvidenceItems: totalEvidence,
+    reportingYear: safeYear,
+    reportVersion: '5.1',
+    totalQuestions: companyQuestionCount,
+    totalEvidenceItems: 0,
+    targetWords: 280000,
+    wordTargetMet: totalWords >= 280000,
     completionRate,
     outline: outline ? {
       summary: String(outline.summary || ''),
@@ -234,17 +216,14 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
       upgradeAdvice: String(outline.upgradeAdvice || ''),
     } : null,
     brandTone,
-    chartConfigs: [
-      { type: 'bar', id: 'energy_usage', title: '用電趨勢' },
-      { type: 'pie', id: 'carbon_sources', title: '碳排來源分佈' }
-    ],
-    swarmTrace
+    chartConfigs: [],
+    swarmTrace: []
   };
 }
 
 export function fullReportToHtml(report: ExtendedV5Report): string {
-  const year = '2025';
-  let html = `<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${report.companyName} ${year}年永續報告書 — ESGGO v5.0</title>`;
+  const year = report.reportingYear;
+  let html = `<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escapeHtml(report.companyName)} ${year}年永續報告書 — ESGGO v${escapeHtml(report.reportVersion)}</title>`;
   html += `<style>`;
   html += `*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}`;
   html += `:root{--teal:#009EB0;--gold:#D4AF37;--blue:#3B82F6;--purple:#8B5CF6;--lethal:#FF4D6D;--bg:#0a0a0f;--card:rgba(20,20,24,0.85);--border:rgba(0,158,176,0.2);--text:#e8e8e8;--text2:#9ca3af;--surface:#1a1a1f;--surface2:#252530}`;
@@ -272,20 +251,22 @@ export function fullReportToHtml(report: ExtendedV5Report): string {
   html += `@media(max-width:640px){body{padding:10px}.stats{grid-template-columns:repeat(2,1fr)}h2{margin-top:30px}}`;
   html += `</style></head><body>`;
 
-  html += `<h1>${report.companyName}</h1>`;
-  html += `<h2 style="border:none;color:var(--text2);font-size:16px;margin-top:5px">${year}年永續報告書 — ESGGO v5.0 萬能系統版</h2>`;
+  html += `<h1>${escapeHtml(report.companyName)}</h1>`;
+  html += `<h2 style="border:none;color:var(--text2);font-size:16px;margin-top:5px">${year}年永續報告書 — ESGGO v${report.reportVersion} 公司填答整理版</h2>`;
 
   html += `<div class="stats">`;
-  html += `<div class="stat"><div class="stat-value">28</div><div class="stat-label">章節數</div></div>`;
-  html += `<div class="stat"><div class="stat-value">${report.totalWords.toLocaleString()}</div><div class="stat-label">總字數</div></div>`;
-  html += `<div class="stat"><div class="stat-value">5T</div><div class="stat-label">真善美信通</div></div>`;
-  html += `<div class="stat"><div class="stat-value">${report.totalEvidence}</div><div class="stat-label">佐證項目</div></div>`;
+  html += `<div class="stat"><div class="stat-value">${report.chapters.length}</div><div class="stat-label">章節數</div></div>`;
+  html += `<div class="stat"><div class="stat-value">${report.totalWords.toLocaleString()}</div><div class="stat-label">實際生成字數（目標 ${report.targetWords.toLocaleString()}）</div></div>`;
+  if (!report.wordTargetMet) html += `<div class="outline-box"><strong>字數目標未達：</strong>目前依可用公司填答生成 ${report.totalWords.toLocaleString()} 字，尚缺 ${Math.max(0, report.targetWords - report.totalWords).toLocaleString()} 字。系統不會以重複或虛構內容補足；請補充經公司確認的單據、數據、政策與說明後重新生成。</div>`;
+  html += `<div class="stat"><div class="stat-value">待覆核</div><div class="stat-label">確信狀態</div></div>`;
+  html += `<div class="stat"><div class="stat-value">0</div><div class="stat-label">已連結實際附件</div></div>`;
   html += `<div class="stat"><div class="stat-value">${(report.completionRate * 100).toFixed(0)}%</div><div class="stat-label">完成率</div></div>`;
   html += `</div>`;
 
   if (report.outline) {
-    html += `<div class="outline-box"><h3>報告摘要</h3><p>${report.outline.summary}</p></div>`;
+    html += `<div class="outline-box"><h3>報告摘要（待公司確認）</h3><p>${escapeHtml(report.outline.summary)}</p></div>`;
   }
+  html += `<div class="outline-box"><h3>資料來源與限制</h3><p>本稿引用的公司/填答資料來自模擬示範題庫，並非公司實際提交，僅供流程展示；正式揭露前必須以企業確認的原始資料逐項替換並覆核。本報告依${year}年度選項編排。當前系統尚無可按公司識別的已上傳附件/核驗記錄，故已連結實際附件為0；題庫中的建議佐證僅是待提交清單，不是公司收據。未有來源支持的指標不推估，亦不宣稱外部確信。</p></div>`;
 
   for (const ch of report.chapters) {
     html += ch.content;
@@ -295,12 +276,12 @@ export function fullReportToHtml(report: ExtendedV5Report): string {
     html += `<div class="service-teaching-block" style="border-color: var(--teal); background: rgba(0,158,176,0.05);">`;
     html += `<h3 style="color: var(--teal); margin-top: 0;">L-Hub 代理集羣協作軌跡 (Swarm Trace)</h3><ul>`;
     for (const trace of report.swarmTrace) {
-      html += `<li style="font-size: 13px;">${trace}</li>`;
+      html += `<li style="font-size: 13px;">${escapeHtml(trace)}</li>`;
     }
     html += `</ul></div>`;
   }
 
-  html += `<hr><p style="text-align:center;color:var(--text2);font-size:12px">ESGGO v5.0 | 總字數：${report.totalWords.toLocaleString()} | Trinity Hash：${report.trinityHash}</p>`;
+  html += `<hr><p style="text-align:center;color:var(--text2);font-size:12px">ESGGO v${report.reportVersion} | 本報告依目前可用公司填答整理，非第三方確信文件 | 實際生成 ${report.totalWords.toLocaleString()} 字 | 內容指紋：${report.trinityHash}</p>`;
   html += `</body></html>`;
   return html;
 }

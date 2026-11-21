@@ -1,3 +1,4 @@
+import type { TaskResult } from '../../src/types/sustain-write';
 /**
  * ESGGO Redis State CRUD Operations
  *
@@ -31,13 +32,15 @@ export const TTL = {
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-export type TaskStatus = 'pending' | 'processing' | 'running' | 'completed' | 'failed' | 'cancelled';
+export type RedisTaskStatus = 'pending' | 'processing' | 'running' | 'completed' | 'failed' | 'cancelled';
+// ts-matrix: 對外相容別名 (API 不變)
+export type { RedisTaskStatus as TaskStatus };
 
 export interface TaskState {
   taskId: string;
   companyId: string;
   companyName: string;
-  status: TaskStatus;
+  status: RedisTaskStatus;
   totalChapters: number;
   completedChapters: number[];
   failedChapters: number[];
@@ -58,17 +61,12 @@ export interface ChapterState {
   error?: string;
 }
 
-export interface TaskResult {
-  totalWords: number;
-  totalTags: number;
-  trinityHash: string;
-  durationMs: number;
-  companyId: string;
-}
+// ts-matrix: 收斂至規範型別 (canonical: src/types/sustain-write)
+export type { TaskResult };
 
 export interface ProgressInfo {
   taskId: string;
-  status: TaskStatus;
+  status: RedisTaskStatus;
   completed: number;
   total: number;
   percentage: number;
@@ -324,7 +322,7 @@ export async function getProgress(taskId: string): Promise<ProgressInfo> {
   if (!state) {
     return {
       taskId,
-      status: 'not_found' as unknown as TaskStatus,
+      status: 'not_found' as unknown as RedisTaskStatus,
       completed: 0,
       total: 28,
       percentage: 0,

@@ -1,0 +1,9 @@
+# GitHub webhook secret (from GitHub repo Settings > Webhooks > Add webhook > Secret)
+# Name: WEBHOOK_SECRET (note: must not start with GITHUB_)
+WEBHOOK_SECRET=your_github_webhook_secret_here
+
+# GitHub Personal Access Token (classic or fine-grained) with repo scope
+REPAIR_PAT=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Auto-merge: set to "true" to auto-merge repair PRs (default: false)
+AUTO_MERGE=false

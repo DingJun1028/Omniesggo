@@ -1,0 +1,16 @@
+{
+  "name": "@esggo/self-healing",
+  "version": "0.5.0",
+  "description": "GitHub Actions + Gmail 錯誤自我修復引擎，5T 治理 + OA-Twins 雙蜂組",
+  "type": "module",
+  "main": "server.mjs",
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=18"
+  }
+}

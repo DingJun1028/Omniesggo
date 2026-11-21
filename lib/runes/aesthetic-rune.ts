@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { Type } from "@sinclair/typebox";
 import { defineRune } from '@lib/adk/core';
 
 /**
@@ -6,9 +6,9 @@ import { defineRune } from '@lib/adk/core';
  * 責任：專攻 Beauty，負責「液態玻璃」質感 UI 與動體回饋的實作
  */
 
-export const AestheticInputSchema = z.object({
-  targetElement: z.string().describe("目標 UI 元素名稱"),
-  aestheticStyle: z.enum(["LIQUID_GLASS", "ELITE_MINIMALIST", "NEUMORPHIC"]).describe("美學風格"),
+export const AestheticInputSchema = Type.Object({
+  targetElement: Type.String({ description: "目標 UI 元素名稱" }),
+  aestheticStyle: Type.Union([Type.Literal("LIQUID_GLASS"), Type.Literal("ELITE_MINIMALIST"), Type.Literal("NEUMORPHIC")], { description: "美學風格" }),
 });
 
 export const aestheticRune = defineRune({

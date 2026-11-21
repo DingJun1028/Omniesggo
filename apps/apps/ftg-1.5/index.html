@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FTG Tours 墾趣旅遊 — 企業戶外旅遊與ESG體驗方案</title>
+    <meta name="description" content="FTG Tours 墾趣旅遊專注於企業員工旅遊、團隊建設、家庭日與ESG永續體驗，提供從需求分析到成果報告的完整服務。">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* =========================================================
+           FTG Tours Web 2.0 — RWD Best Practices (Mobile-First)
+           ========================================================= */
+
+        /* 1. CSS Custom Properties */
+        :root {
+            --green-deep: #1e3a2f;
+            --green-primary: #2C4F3E;
+            --green-light: #4a7c5e;
+            --green-pale: #e8f0eb;
+            --orange-accent: #c67b5c;
+            --orange-hover: #b56a4b;
+            --cream: #f9f7f2;
+            --cream-dark: #f0ede4;
+            --text-primary: #2c2c2c;
+            --text-secondary: #5c5c5c;
+            --text-muted: #8a8a8a;
+            --white: #ffffff;
+
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+
+            --radius-sm: 8px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+
+            --transition-fast: 200ms ease;
+            --transition-base: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+            --nav-height: 64px;
+            --section-gap: clamp(60px, 8vw, 100px);
+            --container-max: 1280px;
+        }
+
+        /* 2. Reset & Base (Mobile First) */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: var(--nav-height);
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--white);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        img, video, svg {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+        }
+
+        /* 3. Utilities */
+        .container {
+            width: 92%;
+            max-width: var(--container-max);
+            margin-inline: auto;
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* 4. Navigation (Mobile First) */
+        .nav {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 1000;
+            height: var(--nav-height);
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: saturate(180%) blur(20px);
+            -webkit-backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            transition: background var(--transition-base), box-shadow var(--transition-base);
+        }
+
+        .nav.is-scrolled {
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav__inner {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav__brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: var(--green-primary);
+        }
+
+        .nav__brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--green-primary), var(--green-light));
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .nav__menu {
+            display: none;
+            position: absolute;
+            top: var(--nav-height);
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            padding: 16px;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nav__menu.is-open {
+            display: flex;
+        }
+
+        .nav__link {
+            display: block;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: background var(--transition-fast), color var(--transition-fast);
+        }
+
+        .nav__link:hover,
+        .nav__link.is-active {
+            color: var(--green-primary);
+            background: var(--green-pale);
+        }
+
+        .nav__cta {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--orange-accent);
+            color: white !important;
+            padding: 12px 20px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .nav__cta:hover {
+            background: var(--orange-hover);
+        }
+
+        .nav__toggle {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            border: 0;
+        }
+
+        .nav__toggle span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: currentColor;
+            border-radius: 2px;
+            transition: transform var(--transition-base), opacity var(--transition-base);
+        }
+
+        .nav__toggle[aria-expanded="true"] span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        .nav__toggle[aria-expanded="true"] span:nth-child(2) {
+            opacity: 0;
+        }
+        .nav__toggle[aria-expanded="true"] span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        /* Desktop nav (min-width 768px) */
+        @media (min-width: 768px) {
+            .nav__toggle {
+                display: none;
+            }
+            .nav__menu {
+                display: flex !important;
+                position: static;
+                flex-direction: row;
+                background: transparent;
+                border: 0;
+                padding: 0;
+                gap: 24px;
+                backdrop-filter: none;
+            }
+            .nav__link {
+                padding: 8px 4px;
+            }
+        }
+
+        /* 5. Hero (Mobile First) */
+        .hero {
+            position: relative;
+            min-height: 100svh;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #1e3a2f 0%, #2C4F3E 50%, #3d6b52 100%);
+            overflow: hidden;
+            padding-top: var(--nav-height);
+        }
+
+        .hero__bg {
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1551632811-561732d54616?w=1920&q=80') center/cover no-repeat;
+            opacity: 0.25;
+            mix-blend-mode: luminosity;
+        }
+
+        .hero__particles {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .hero__particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.35);
+            border-radius: 50%;
+            animation: hero-float 18s infinite ease-in-out;
+        }
+
+        @keyframes hero-float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-100vh) translateX(80px); opacity: 0; }
+        }
+
+        .hero__content {
+            position: relative;
+            z-index: 2;
+            width: 92%;
+            max-width: var(--container-max);
+            margin-inline: auto;
+            padding-block: clamp(60px, 10vh, 120px);
+        }
+
+        .hero__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 6px 16px;
+            border-radius: 999px;
+            color: white;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            animation: fade-up 0.6s ease both;
+        }
+
+        .hero__title {
+            font-size: clamp(2rem, 6vw, 3.5rem);
+            font-weight: 900;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 18px;
+            max-width: 22ch;
+            animation: fade-up 0.6s ease 0.08s both;
+        }
+
+        .hero__title span {
+            color: #ffb88c;
+        }
+
+        .hero__desc {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 60ch;
+            margin-bottom: 28px;
+            line-height: 1.75;
+            animation: fade-up 0.6s ease 0.16s both;
+        }
+
+        .hero__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 40px;
+            animation: fade-up 0.6s ease 0.24s both;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 24px;
+            border-radius: 999px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 0;
+            transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+            touch-action: manipulation;
+        }
+
+        .btn--primary {
+            background: var(--orange-accent);
+            color: white;
+            box-shadow: 0 4px 16px rgba(198, 123, 92, 0.3);
+        }
+
+        .btn--primary:hover {
+            background: var(--orange-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn--secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn--secondary:hover {
+            background: rgba(255, 255, 255, 0.18);
+        }
+
+        .hero__tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 40px;
+            animation: fade-up 0.6s ease 0.3s both;
+        }
+
+        .hero__tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 14px;
+            border-radius: 999px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+        }
+
+        .hero__stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding-top: 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fade-up 0.6s ease 0.4s both;
+        }
+
+        .hero__stat h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .hero__stat p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+        }
+
+        @keyframes fade-up {
+            from { opacity: 0; transform: translateY(24px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (min-width: 768px) {
+            .hero__stats {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 32px;
+            }
+        }
+
+        /* 6. Sections */
+        .section {
+            padding-block: var(--section-gap);
+        }
+
+        .section__header {
+            text-align: center;
+            margin-bottom: 44px;
+        }
+
+        .section__label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--orange-accent);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 12px;
+        }
+
+        .section__label::before,
+        .section__label::after {
+            content: '';
+            width: 22px;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.6;
+        }
+
+        .section__title {
+            font-size: clamp(1.6rem, 4vw, 2.5rem);
+            font-weight: 700;
+            color: var(--green-primary);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .section__subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            max-width: 65ch;
+            margin-inline: auto;
+        }
+
+        /* 7. Services */
+        .services {
+            background: var(--white);
+        }
+
+        .services__grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .service-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: transform var(--transition-base), box-shadow var(--transition-base);
+        }
+
+        .service-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .service-card__media {
+            aspect-ratio: 16 / 10;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .service-card__media::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.35), transparent 55%);
+        }
+
+        .service-card__body {
+            padding: 20px;
+        }
+
+        .service-card__tag {
+            display: inline-block;
+            background: var(--green-pale);
+            color: var(--green-primary);
+            padding: 5px 12px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .service-card__title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--green-primary);
+            margin-bottom: 6px;
+        }
+
+        .service-card__desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            margin-bottom: 14px;
+        }
+
+        .service-card__link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--orange-accent);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: gap var(--transition-fast);
+        }
+
+        .service-card__link:hover {
+            gap: 10px;
+        }
+
+        @media (min-width: 640px) {
+            .services__grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .service-card__body {
+                padding: 24px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .services__grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* 8. Features */
+        .features {
+            background: var(--cream);
+        }
+
+        .features__grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .feature {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--radius-md);
+            text-align: center;
+            border: 1px solid rgba(0,0,0,0.04);
+            transition: transform var(--transition-base), box-shadow var(--transition-base);
+        }
+
+        .feature:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature__icon {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 14px;
+            background: var(--green-pale);
+            border-radius: 18px;
+            display: grid;
+            place-items: center;
+            font-size: 1.6rem;
+            transition: transform var(--transition-base), background var(--transition-base);
+        }
+
+        .feature:hover .feature__icon {
+            background: var(--green-primary);
+            transform: scale(1.08) rotate(-4deg);
+        }
+
+        .feature__title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--green-primary);
+            margin-bottom: 6px;
+        }
+
+        .feature__desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (min-width: 480px) {
+            .features__grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .features__grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* 9. Process */
+        .process__steps {
+            display: grid;
+            gap: 18px;
+        }
+
+        .step {
+            position: relative;
+            padding-top: 36px;
+            text-align: center;
+        }
+
+        .step__num {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 44px;
+            height: 44px;
+            background: var(--orange-accent);
+            color: white;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 12px rgba(198, 123, 92, 0.3);
+        }
+
+        .step__title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--green-primary);
+            margin-block: 10px 6px;
+        }
+
+        .step__desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        @media (min-width: 640px) {
+            .process__steps {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .process__steps {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        /* 10. Contact */
+        .contact {
+            background: linear-gradient(135deg, var(--green-primary) 0%, var(--green-deep) 100%);
+            color: white;
+        }
+
+        .contact__grid {
+            display: grid;
+            gap: 36px;
+        }
+
+        .contact__info h2 {
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            font-weight: 700;
+            margin-bottom: 14px;
+            line-height: 1.3;
+        }
+
+        .contact__info p {
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 22px;
+            line-height: 1.75;
+        }
+
+        .contact__features {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .contact__feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.95rem;
+        }
+
+        .contact__feature-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .contact__form {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+        }
+
+        .form__group {
+            margin-bottom: 16px;
+        }
+
+        .form__label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .form__input,
+        .form__select,
+        .form__textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            font: inherit;
+            font-size: 1rem;
+            transition: border-color var(--transition-fast), background var(--transition-fast);
+            min-height: 44px;
+        }
+
+        .form__input::placeholder,
+        .form__textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .form__input:focus,
+        .form__select:focus,
+        .form__textarea:focus {
+            outline: none;
+            border-color: var(--orange-accent);
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .form__textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .form__select option {
+            background: var(--green-primary);
+            color: white;
+        }
+
+        .form__actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .btn--submit {
+            width: 100%;
+            background: var(--orange-accent);
+            color: white;
+            padding: 14px 20px;
+            border: 0;
+            border-radius: 999px;
+            font-weight: 600;
+            transition: background var(--transition-fast), transform var(--transition-fast);
+            min-height: 48px;
+        }
+
+        .btn--submit:hover {
+            background: var(--orange-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn--outline {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            padding: 14px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 999px;
+            font-weight: 600;
+            min-height: 48px;
+        }
+
+        .btn--outline:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        @media (min-width: 768px) {
+            .contact__form {
+                padding: 32px;
+            }
+            .form__actions {
+                flex-direction: row;
+                align-items: center;
+            }
+            .btn--submit,
+            .btn--outline {
+                width: auto;
+                flex: 1;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .contact__grid {
+                grid-template-columns: 1fr 1fr;
+                align-items: start;
+            }
+        }
+
+        /* 11. Footer */
+        .footer {
+            background: var(--green-deep);
+            color: rgba(255, 255, 255, 0.7);
+            padding-block: 48px 24px;
+        }
+
+        .footer__grid {
+            display: grid;
+            gap: 32px;
+        }
+
+        .footer__brand h3 {
+            color: white;
+            font-size: 1.15rem;
+            margin-bottom: 10px;
+        }
+
+        .footer__brand p {
+            line-height: 1.75;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+        }
+
+        .footer__social {
+            display: flex;
+            gap: 10px;
+        }
+
+        .footer__social a {
+            width: 38px;
+            height: 38px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            color: white;
+            font-size: 0.85rem;
+            transition: background var(--transition-fast), transform var(--transition-fast);
+        }
+
+        .footer__social a:hover {
+            background: var(--orange-accent);
+            transform: translateY(-2px);
+        }
+
+        .footer__col h4 {
+            color: white;
+            font-size: 0.95rem;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .footer__col ul {
+            list-style: none;
+        }
+
+        .footer__col li + li {
+            margin-top: 8px;
+        }
+
+        .footer__col a {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            transition: color var(--transition-fast);
+        }
+
+        .footer__col a:hover {
+            color: var(--orange-accent);
+        }
+
+        .footer__bottom {
+            margin-top: 40px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        @media (min-width: 640px) {
+            .footer__grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .footer__grid {
+                grid-template-columns: 2fr 1fr 1fr 1fr;
+            }
+        }
+
+        /* 12. Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+            will-change: opacity, transform;
+        }
+
+        .fade-in.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+            .fade-in {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+            .hero__particle {
+                animation: none;
+            }
+        }
+
+        /* 13. Print */
+        @media print {
+            .nav, .hero__particles, .hero__actions, .contact__form, .footer__social {
+                display: none !important;
+            }
+            body {
+                color: #000;
+                background: #fff;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav" id="navbar">
+        <div class="container nav__inner">
+            <a href="#home" class="nav__brand">
+                <div class="nav__brand-icon" aria-hidden="true">🍃</div>
+                <span>FTG Tours 墾趣旅遊</span>
+            </a>
+
+            <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="開啟選單">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <ul class="nav__menu" id="navMenu">
+                <li><a href="#home" class="nav__link is-active">首頁</a></li>
+                <li><a href="#services" class="nav__link">企業方案</a></li>
+                <li><a href="#features" class="nav__link">服務特色</a></li>
+                <li><a href="#process" class="nav__link">流程</a></li>
+                <li><a href="#contact" class="nav__link nav__cta">立即洽詢</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero__bg" aria-hidden="true"></div>
+        <div class="hero__particles" id="particles" aria-hidden="true"></div>
+        <div class="hero__content">
+            <div class="hero__badge">企業ESG旅遊夥伴</div>
+            <h1 class="hero__title">走進自然，創造<span>更有意義</span>的旅程</h1>
+            <p class="hero__desc">墾趣旅遊 FTG Tours 專注於企業戶外旅遊與團隊建設，結合在地文化、ESG 永續理念，為您的團隊設計獨一無二的成長體驗。</p>
+            <div class="hero__actions">
+                <a href="#services" class="btn btn--primary">探索企業方案</a>
+                <a href="#contact" class="btn btn--secondary">客製化旅遊諮詢</a>
+            </div>
+            <div class="hero__tags">
+                <div class="hero__tag">🌲 自然步道</div>
+                <div class="hero__tag">🏠 地方文化</div>
+                <div class="hero__tag">👥 團隊互動</div>
+                <div class="hero__tag">🌱 ESG 關懷</div>
+            </div>
+            <div class="hero__stats">
+                <div class="hero__stat"><h3>500+</h3><p>企業客戶</p></div>
+                <div class="hero__stat"><h3>15+</h3><p>年專業經驗</p></div>
+                <div class="hero__stat"><h3>98%</h3><p>客戶滿意度</p></div>
+                <div class="hero__stat"><h3>50+</h3><p>合作夥伴</p></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="section services" id="services">
+        <div class="container">
+            <header class="section__header fade-in">
+                <div class="section__label">Our Services</div>
+                <h2 class="section__title">企業戶外旅遊與體驗方案</h2>
+                <p class="section__subtitle">從員工旅遊到家庭日，從團隊建設到主管共識營，我們提供全方位的企業戶外解決方案</p>
+            </header>
+            <div class="services__grid">
+                <article class="service-card fade-in">
+                    <div class="service-card__media" style="background-image:url('https://images.unsplash.com/photo-1551632811-561732d54616?w=800&q=80');" role="img" aria-label="企業員工旅遊"></div>
+                    <div class="service-card__body">
+                        <span class="service-card__tag">員工旅遊</span>
+                        <h3 class="service-card__title">企業員工旅遊</h3>
+                        <p class="service-card__desc">走進自然，放鬆身心，在美麗的山林與海岸間重新連結，提升團隊凝聚力與工作效率。</p>
+                        <a href="#contact" class="service-card__link">了解更多 →</a>
+                    </div>
+                </article>
+                <article class="service-card fade-in">
+                    <div class="service-card__media" style="background-image:url('https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=800&q=80');" role="img" aria-label="企業家庭日"></div>
+                    <div class="service-card__body">
+                        <span class="service-card__tag">家庭日</span>
+                        <h3 class="service-card__title">企業家庭日</h3>
+                        <p class="service-card__desc">以自然教育、親子共學與戶外體驗，讓員工與家人在自然中共享美好時光，增進家庭連結。</p>
+                        <a href="#contact" class="service-card__link">了解更多 →</a>
+                    </div>
+                </article>
+                <article class="service-card fade-in">
+                    <div class="service-card__media" style="background-image:url('https://images.unsplash.com/photo-1511497584788-876760111969?w=800&q=80');" role="img" aria-label="ESG戶外團隊日"></div>
+                    <div class="service-card__body">
+                        <span class="service-card__tag">ESG 團隊建設</span>
+                        <h3 class="service-card__title">ESG 戶外團隊日</h3>
+                        <p class="service-card__desc">結合環境保護、社會責任與公司治理，打造具有永續價值的團隊建設體驗，讓團結更有意義。</p>
+                        <a href="#contact" class="service-card__link">了解更多 →</a>
+                    </div>
+                </article>
+                <article class="service-card fade-in">
+                    <div class="service-card__media" style="background-image:url('https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&q=80');" role="img" aria-label="員工身心平衡旅程"></div>
+                    <div class="service-card__body">
+                        <span class="service-card__tag">健康促進</span>
+                        <h3 class="service-card__title">員工身心平衡旅程</h3>
+                        <p class="service-card__desc">遠離城市喧囂，在森林與自然中找回內在平靜，幫助員工恢復能量，提升身心健康。</p>
+                        <a href="#contact" class="service-card__link">了解更多 →</a>
+                    </div>
+                </article>
+                <article class="service-card fade-in">
+                    <div class="service-card__media" style="background-image:url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80');" role="img" aria-label="高階主管共識旅程"></div>
+                    <div class="service-card__body">
+                        <span class="service-card__tag">高管體驗</span>
+                        <h3 class="service-card__title">高階主管共識旅程</h3>
+                        <p class="service-card__desc">為企業領導者設計的深度對話與策略研討體驗，在自然中沈澱思考，建立共同願景與策略方向。</p>
+                        <a href="#contact" class="service-card__link">了解更多 →</a>
+                    </div>
+                </article>
+                <article class="service-card fade-in">
+                    <div class="service-card__media" style="background-image:url('https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80');" role="img" aria-label="ESG Impact Note"></div>
+                    <div class="service-card__body">
+                        <span class="service-card__tag">ESG 報告</span>
+                        <h3 class="service-card__title">ESG Impact Note</h3>
+                        <p class="service-card__desc">將企業旅遊與團隊建設的成果，整理成專業的 ESG 影響力報告，讓每一次旅程都留下可追溯的價值。</p>
+                        <a href="#contact" class="service-card__link">了解更多 →</a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section features" id="features">
+        <div class="container">
+            <header class="section__header fade-in">
+                <div class="section__label">Why Choose Us</div>
+                <h2 class="section__title">從一趟旅程，看見更多可能</h2>
+                <p class="section__subtitle">墾趣旅遊不只是安排行程，更是為企業創造深遠的影響力與價值</p>
+            </header>
+            <div class="features__grid">
+                <div class="feature fade-in">
+                    <div class="feature__icon" aria-hidden="true">🌲</div>
+                    <h4 class="feature__title">親近自然</h4>
+                    <p class="feature__desc">走進森林、海岸與山脈，讓自然的力量治癒身心，找回工作與生活的平衡。</p>
+                </div>
+                <div class="feature fade-in">
+                    <div class="feature__icon" aria-hidden="true">🤝</div>
+                    <h4 class="feature__title">團隊連結</h4>
+                    <p class="feature__desc">在共同體驗中建立信任與默契，讓團隊關係更緊密，合作更順暢。</p>
+                </div>
+                <div class="feature fade-in">
+                    <div class="feature__icon" aria-hidden="true">🏘️</div>
+                    <h4 class="feature__title">地方連結</h4>
+                    <p class="feature__desc">支持在地文化與小農產業，讓企業旅程成為地方共好的力量。</p>
+                </div>
+                <div class="feature fade-in">
+                    <div class="feature__icon" aria-hidden="true">🌱</div>
+                    <h4 class="feature__title">ESG 關懷</h4>
+                    <p class="feature__desc">將環境保護、社會責任融入旅程設計，實踐企業永續承諾。</p>
+                </div>
+                <div class="feature fade-in">
+                    <div class="feature__icon" aria-hidden="true">📊</div>
+                    <h4 class="feature__title">成果記錄</h4>
+                    <p class="feature__desc">專業紀錄與報告，讓每一次旅程都能留下可分享、可追蹤的成果。</p>
+                </div>
+                <div class="feature fade-in">
+                    <div class="feature__icon" aria-hidden="true">🛡️</div>
+                    <h4 class="feature__title">安全保障</h4>
+                    <p class="feature__desc">完善的安全管理、保險配套與專業嚮導，讓旅程安心無虞。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="section" id="process">
+        <div class="container">
+            <header class="section__header fade-in">
+                <div class="section__label">How We Work</div>
+                <h2 class="section__title">從需求到成行，望趣陪你一起完成</h2>
+                <p class="section__subtitle">專業的服務流程，確保每一趟旅程都完美執行</p>
+            </header>
+            <div class="process__steps">
+                <div class="step fade-in">
+                    <div class="step__num" aria-hidden="true">1</div>
+                    <h4 class="step__title">需求分析</h4>
+                    <p class="step__desc">深入了解企業目標、團隊需求與期待，量身打造專屬方案。</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step__num" aria-hidden="true">2</div>
+                    <h4 class="step__title">提案規劃</h4>
+                    <p class="step__desc">提供詳細的行程規劃、活動設計與資源整合方案。</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step__num" aria-hidden="true">3</div>
+                    <h4 class="step__title">行程確認</h4>
+                    <p class="step__desc">與客戶確認細節，進行行前說明與準備工作。</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step__num" aria-hidden="true">4</div>
+                    <h4 class="step__title">專業執行</h4>
+                    <p class="step__desc">專業團隊現場執行，確保活動流暢、安全、充滿樂趣。</p>
+                </div>
+                <div class="step fade-in">
+                    <div class="step__num" aria-hidden="true">5</div>
+                    <h4 class="step__title">成果整理</h4>
+                    <p class="step__desc">提供旅程紀錄、照片影片與 ESG 影響力報告。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact" id="contact">
+        <div class="container">
+            <div class="contact__grid">
+                <div class="contact__info fade-in">
+                    <h2>準備開始一場<br>更有意義的旅程？</h2>
+                    <p>無論是員工旅遊、家庭日、團隊建設或 ESG 活動，我們都能為您量身打造最適合的體驗方案。</p>
+                    <div class="contact__features">
+                        <div class="contact__feature">
+                            <div class="contact__feature-icon" aria-hidden="true">✅</div>
+                            <span>專屬客製化行程規劃</span>
+                        </div>
+                        <div class="contact__feature">
+                            <div class="contact__feature-icon" aria-hidden="true">✅</div>
+                            <span>專業團隊全程陪同</span>
+                        </div>
+                        <div class="contact__feature">
+                            <div class="contact__feature-icon" aria-hidden="true">✅</div>
+                            <span>完善的安全保障</span>
+                        </div>
+                        <div class="contact__feature">
+                            <div class="contact__feature-icon" aria-hidden="true">✅</div>
+                            <span>ESG 影響力報告</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact__form fade-in">
+                    <form id="contactForm" novalidate>
+                        <div class="form__group">
+                            <label class="form__label" for="company">公司名稱</label>
+                            <input class="form__input" id="company" type="text" placeholder="請輸入公司名稱" required>
+                        </div>
+                        <div class="form__group">
+                            <label class="form__label" for="name">聯絡人</label>
+                            <input class="form__input" id="name" type="text" placeholder="請輸入聯絡人姓名" required>
+                        </div>
+                        <div class="form__group">
+                            <label class="form__label" for="email">Email / 電話</label>
+                            <input class="form__input" id="email" type="text" placeholder="請輸入Email或電話" required>
+                        </div>
+                        <div class="form__group">
+                            <label class="form__label" for="people">預計人數</label>
+                            <select class="form__select" id="people" required>
+                                <option value="">請選擇人數</option>
+                                <option value="10-30">10-30 人</option>
+                                <option value="31-50">31-50 人</option>
+                                <option value="51-100">51-100 人</option>
+                                <option value="101+">100 人以上</option>
+                            </select>
+                        </div>
+                        <div class="form__group">
+                            <label class="form__label" for="activity">活動類型</label>
+                            <select class="form__select" id="activity" required>
+                                <option value="">請選擇活動類型</option>
+                                <option value="team-building">團隊建設</option>
+                                <option value="family-day">企業家庭日</option>
+                                <option value="employee-trip">員工旅遊</option>
+                                <option value="esg-team-day">ESG 團隊日</option>
+                                <option value="wellbeing">身心平衡旅程</option>
+                                <option value="executive">主管共識營</option>
+                            </select>
+                        </div>
+                        <div class="form__group">
+                            <label class="form__label" for="message">需求備註</label>
+                            <textarea class="form__textarea" id="message" placeholder="請描述您的需求、預計時間與其他備註..."></textarea>
+                        </div>
+                        <div class="form__actions">
+                            <button type="submit" class="btn--submit">送出洽詢</button>
+                            <button type="button" class="btn--outline" id="downloadBtn">下載方案簡介</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__grid">
+                <div class="footer__brand">
+                    <h3>🍃 FTG Tours 墾趣旅遊</h3>
+                    <p>專注於企業戶外旅遊與ESG體驗設計，為企業創造有意義的團隊成長旅程。從需求分析到成果報告，我們提供完整服務。</p>
+                    <div class="footer__social">
+                        <a href="#" aria-label="Facebook">FB</a>
+                        <a href="#" aria-label="Instagram">IG</a>
+                        <a href="#" aria-label="Line">Line</a>
+                        <a href="#" aria-label="YouTube">YT</a>
+                    </div>
+                </div>
+                <div class="footer__col">
+                    <h4>服務項目</h4>
+                    <ul>
+                        <li><a href="#services">企業員工旅遊</a></li>
+                        <li><a href="#services">企業家庭日</a></li>
+                        <li><a href="#services">ESG 團隊日</a></li>
+                        <li><a href="#services">ESG Impact Note</a></li>
+                    </ul>
+                </div>
+                <div class="footer__col">
+                    <h4>關於我們</h4>
+                    <ul>
+                        <li><a href="#">公司簡介</a></li>
+                        <li><a href="#">專業團隊</a></li>
+                        <li><a href="#">合作夥伴</a></li>
+                        <li><a href="#">新聞動態</a></li>
+                    </ul>
+                </div>
+                <div class="footer__col">
+                    <h4>聯絡資訊</h4>
+                    <ul>
+                        <li>📞 02-7752-7689</li>
+                        <li>📧 hello@fgtours.com</li>
+                        <li>📍 台北市松山區南京東路三段76號8樓</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer__bottom">
+                <p>© 2025 FTG Tours 墾趣旅遊 版權所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        /* Mobile menu */
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        navToggle.addEventListener('click', () => {
+            const open = navMenu.classList.toggle('is-open');
+            navToggle.setAttribute('aria-expanded', String(open));
+        });
+
+        document.querySelectorAll('.nav__link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('is-open');
+                navToggle.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        /* Navbar scroll state */
+        const navbar = document.getElementById('navbar');
+        const onScroll = () => {
+            navbar.classList.toggle('is-scrolled', window.scrollY > 10);
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+
+        /* Active link by scroll position */
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav__link');
+
+        const updateActiveLink = () => {
+            let current = '';
+            sections.forEach(section => {
+                if (window.scrollY >= section.offsetTop - 160) {
+                    current = section.id;
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.toggle('is-active', link.getAttribute('href') === '#' + current);
+            });
+        };
+        window.addEventListener('scroll', updateActiveLink, { passive: true });
+
+        /* Reveal on scroll */
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+        /* Hero particles */
+        const particles = document.getElementById('particles');
+        for (let i = 0; i < 24; i++) {
+            const dot = document.createElement('div');
+            dot.className = 'hero__particle';
+            dot.style.left = Math.random() * 100 + '%';
+            dot.style.top = Math.random() * 100 + '%';
+            dot.style.animationDelay = Math.random() * 18 + 's';
+            dot.style.animationDuration = (14 + Math.random() * 10) + 's';
+            particles.appendChild(dot);
+        }
+
+        /* Form */
+        document.getElementById('contactForm').addEventListener('submit', e => {
+            e.preventDefault();
+            alert('感謝您的洽詢！我們將盡快與您聯繫。');
+            e.target.reset();
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            alert('方案簡介下載功能即將上線');
+        });
+
+        /* Smooth scroll for anchor links */
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (!href || href === '#') return;
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

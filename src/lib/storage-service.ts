@@ -6,7 +6,8 @@
 // ============================================================
 export { prisma } from './prisma';
 export { getOmniPrisma, withOmni } from './prisma-omni';
-export { query, storeEmbedding, getEmbedding, semanticSearch, storeESGEntity } from './pgvector';
+// Note: pgvector exports are intentionally NOT re-exported here to avoid pulling
+// the 'pg' Node driver into the client bundle. Server code imports './pgvector' directly.
 
 import { createHash } from 'crypto';
 import { prisma } from './prisma';
@@ -104,7 +105,7 @@ export async function storeDelegation(input: {
   validUntil?: string | null;
   description?: string | null;
 }): Promise<StoredDelegation> {
-  // Delegation model not in schema; persist as a UniversalTag-style record
+  // Delegation model not in schema; persist as a OmniTag-style record
   // until schema migration adds a dedicated table.
   return {
     id: `del_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,

@@ -1,17 +1,17 @@
-import { z } from "zod";
+import { type Static, type TSchema } from "@sinclair/typebox";
 
-export interface RuneConfig<T extends z.ZodTypeAny> {
+export interface RuneConfig<T extends TSchema = TSchema> {
   name: string;
   description: string;
   schema: T;
-  execute: (context: any, input: z.infer<T>) => Promise<string>;
+  execute: (context: any, input: Static<T>) => Promise<string>;
 }
 
-export function defineRune<T extends z.ZodTypeAny>(config: RuneConfig<T>) {
+export function defineRune<T extends TSchema>(config: RuneConfig<T>) {
   return config;
 }
 
-export interface AgentConfig {
+export interface AdkAgentConfig {
   name: string;
   role: string;
   model: string;
@@ -20,8 +20,10 @@ export interface AgentConfig {
   equippedRunes: RuneConfig<any>[];
   onStepComplete?: (stepInfo: any) => Promise<void>;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { AdkAgentConfig as AgentConfig };
 
-export function createAgent(config: AgentConfig) {
+export function createAgent(config: AdkAgentConfig) {
   return {
     ...config,
     executeTask: async (input: any, context: any) => {

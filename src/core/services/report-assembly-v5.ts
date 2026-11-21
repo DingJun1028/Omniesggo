@@ -58,7 +58,8 @@ export interface V5GeneratedReport {
   fiveTStatus: { traceable: boolean; transparent: boolean; tangible: boolean; trustworthy: boolean; trackable: boolean };
   trinityHash: string;
   generatedAt: string;
-  reportVersion: '5.0';
+  reportingYear?: number;
+  reportVersion: string;
 }
 
 export function getV5Companies() {

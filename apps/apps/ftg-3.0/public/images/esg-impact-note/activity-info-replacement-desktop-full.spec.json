@@ -1,0 +1,11 @@
+{
+  "id": "activity",
+  "name": "Activity Information & Itinerary Summary",
+  "filename": "activity-info-replacement-desktop-full.png",
+  "dimensions": "1920x1080",
+  "elementId": "activity-info",
+  "sourceTemplate": "apps/ftg-3.0/scripts/generate-esg-images.html",
+  "htmlElement": "#activity-info",
+  "generatedAt": "2026-08-26T01:57:24.355Z",
+  "status": "spec-ready"
+}

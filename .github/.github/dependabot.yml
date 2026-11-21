@@ -1,0 +1,172 @@
+# .github/dependabot.yml
+# Dependabot 設定 + 無 fix 漏洞 ignore 規則
+# 5T: source_origin=.github/dependabot.yml
+# 5T-Trustworthy: 自動掃描但避開無 patch 漏洞以免 spam
+# 2026-10-27 De-Google/De-Prisma：移除 prisma ignore 規則（Prisma 已全面以 Supabase 取代）
+
+version: 2
+
+# 統一 ecosystem 設定
+registries: {}
+
+updates:
+  # === npm/pnpm (esggo root monorepo) ===
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 5
+    # auto-merge 對純 lockfile 更新
+    pull-request-branch-name:
+      separator: "-"
+    labels:
+      - "dependencies"
+      - "security"
+    # === 無 fix 漏洞 ignore (no patch released) ===
+    ignore:
+      # Handlebars 兩條 bypass (upstream 尚未發 patch)
+      - dependency-name: "handlebars"
+        versions:
+          - "> 4.7.0"
+        # 等 upstream 發版再解 ignore
+      - dependency-name: "handlebars"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+        # major/minor 不自動開 PR, 等 patch
+      # === toolchain 不得跨界直升 major（曾升壞 TS7/eslint10）===
+      # 見 skill: toolchain-sweep-repair-5t — 需 migration plan 才升級
+      - dependency-name: "typescript"
+        versions:
+          - ">=6.0.0"
+      - dependency-name: "eslint"
+        versions:
+          - ">=10.0.0"
+      # 2026-11-13 決策（比照 DIN-15，PR #251 評估結案）：
+      # tailwindcss 3→4 為破壞性大版本（6 個 app 仍在 3.x），PR #251
+      # TypeCheck+next build/build/Docker Build Test 全紅。major 不自動開 PR，
+      # 未來遷移 tailwind 4 需先備妥 migration plan 再手動進行。
+      - dependency-name: "tailwindcss"
+        update-types:
+          - "version-update:semver-major"
+    # === 開 PR 自動合併設定 ===
+    groups:
+      minor-and-patch:
+        applies-to: version-updates
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # === npm/pnpm (apps/learning-center) ===
+  - package-ecosystem: "npm"
+    directory: "/apps/learning-center"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "learning-center"
+    # 2026-10-29 決策（DIN-15）：tailwindcss 3→4 為破壞性大版本升級，
+    # PR #84 多項 CI 失敗且遷移風險高，決定維持 3.x，major 不自動開 PR。
+    # 未來若要遷移 tailwind 4，需先備妥 migration plan 再手動進行。
+    ignore:
+      - dependency-name: "tailwindcss"
+        update-types:
+          - "version-update:semver-major"
+      # 2026-10-31 決策（PR #125）：傳遞依賴更新失敗噪音治理。
+      # minimatch / postcss-selector-parser 為 tailwind 3.x + postcss 鏈之
+      # 傳遞依賴，被直接依賴鎖定版本範圍，Dependabot 版本求解必失敗
+      # （每輪排程產生 failed run）。安全修補之正道為升級直接依賴
+      # （tailwindcss 3.x patch / CSS 工具鏈），該路徑保持啟用不變。
+      - dependency-name: "minimatch"
+      - dependency-name: "postcss-selector-parser"
+
+  # === npm/pnpm (oa-swarm) ===
+  - package-ecosystem: "npm"
+    directory: "/oa-swarm"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "oa-swarm"
+    # 2026-10-31 決策（PR #125）：vite 為 vitest ^5.0.5 之傳遞依賴，
+    # vitest 直接鎖定 vite 版本範圍，傳遞更新版本求解必失敗。
+    # 安全修補之正道為升級 vitest（直接依賴），保持啟用不變。
+    ignore:
+      - dependency-name: "vite"
+
+  # === npm/pnpm (my-worker) ===
+  - package-ecosystem: "npm"
+    directory: "/my-worker"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "my-worker"
+    # 2026-10-31 決策（PR #125）：undici 為 wrangler ^4 之傳遞依賴，
+    # wrangler 直接鎖定 undici 版本範圍，傳遞更新版本求解必失敗。
+    # 安全修補之正道為升級 wrangler（直接依賴），保持啟用不變；
+    # wrangler 每次升級即攜帶已修補之 undici。
+    ignore:
+      - dependency-name: "undici"
+
+  # === npm (/.github/worker-tools — omnigateway-ci-tools) ===
+  # 2026-10-31 新增（PR #125）：此目錄先前無 config 條目，Dependabot 安全更新
+  # 對 wrangler 之傳遞依賴 undici 之修補嘗試因版本鎖定必失敗（failed run 噪音）。
+  # 列管後以 ignore 消除噪音；typescript 5.9 / wrangler 直接依賴更新照常啟用。
+  - package-ecosystem: "npm"
+    directory: "/.github/worker-tools"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "worker-tools"
+    ignore:
+      - dependency-name: "undici"
+
+  # === uv (oa-team-crewai) ===
+  # 2026-11-13 決策（PR #231/#232 診斷）：pip ecosystem 只改 pyproject.toml、
+  # 不更新 uv.lock，config-smoke 之 `uv sync --locked` 必紅（lockfile 過期即失敗）。
+  # 改用 uv ecosystem 使 Dependabot 同時更新 uv.lock（Astral 官方支援，
+  # 見 docs.astral.sh/uv/guides/integration/dependabot）。
+  - package-ecosystem: "uv"
+    directory: "/oa-team-crewai"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "04:00"
+      timezone: "Asia/Taipei"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "oa-team-crewai"
+    # ChromaDB 已知無 fix 的 critical (待 patch)
+    ignore:
+      - dependency-name: "chromadb"
+        versions:
+          - "<= 1.0.0"
+
+# === 全域安全策略備註 ===
+# - npm/pnpm 用 pnpm 自動處理 lockfile
+# - oa-team-crewai 由 Dependabot uv ecosystem 同步 pyproject.toml + uv.lock
+# - 5T-AGPL Addendum: 每次升級都跑 pnpm typecheck + uv lock --check

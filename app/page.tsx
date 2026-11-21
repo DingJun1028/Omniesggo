@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { 
-  Hexagon, FileText, Sliders, Building2, TrendingDown, 
+import {
+  Hexagon, FileText, Sliders, Building2, TrendingDown,
   ShieldCheck, Database, ArrowRight, BookOpen, Sparkles,
   Layers, CheckCircle2, Award, Activity
 } from 'lucide-react';
@@ -205,22 +205,22 @@ export default function HomePage() {
   const [selectedSpec, setSelectedSpec] = useState<FacilitySpecInfo | null>(null);
 
   return (
-    <div className="relative min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
-      
+    <div className="relative flex min-w-0 w-full flex-col space-y-6 bg-[var(--bg)] font-sans text-[var(--text-1)] transition-colors duration-300 sm:space-y-8">
+
       {/* ── 英雄視界 (Hero Section) ── */}
-      <section className="relative pt-16 pb-12 px-4 sm:px-6 text-center flex flex-col items-center justify-center">
-        <div className="flex items-center gap-2 mb-4">
+      <section className="relative pt-8 pb-8 px-2 sm:px-4 text-center flex flex-col items-center justify-center">
+        <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
           <OmniBadge variant="teal">OmniSub Editorial Framework</OmniBadge>
           <OmniBadge variant="emerald">5T Canonical Matrix v3.0</OmniBadge>
         </div>
 
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-slate-900 dark:text-slate-100 max-w-4xl">
+        <h1 className="max-w-4xl text-3xl font-black tracking-tight text-[var(--text-1)] dark:text-[var(--text-1)] sm:text-5xl md:text-6xl">
           ESGGO 善向永續設施總匯
         </h1>
-        <p className="text-base sm:text-lg text-teal-800 dark:text-cyan-300 font-bold tracking-widest mt-3">
+        <p className="mt-3 text-sm font-bold tracking-wide text-teal-800 dark:text-cyan-300 sm:text-lg sm:tracking-widest">
           全通之心 · 無作妙德 · 5T 終始矩陣閉環
         </p>
-        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto mt-2 leading-relaxed">
+        <p className="text-xs sm:text-sm text-[var(--text-3)] dark:text-[var(--text-3)] max-w-2xl mx-auto mt-2 leading-relaxed">
           以 5T 協議驅動的 A01~A08 核心永續治理工作台 — 從碳排計算、重大性矩陣到防偽報告，乃至 OmniMemory 自演化記憶引擎，嚴格零文字漸層、全手冊高對比雙主題。
         </p>
 
@@ -229,13 +229,13 @@ export default function HomePage() {
           {FIVE_T.map((t) => (
             <div
               key={t.symbol}
-              className="flex flex-col items-center px-4 py-2.5 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm transition-all hover:border-teal-500/60"
+              className="flex flex-col items-center px-4 py-2.5 rounded-2xl bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] shadow-sm transition-all hover:border-teal-500/60"
             >
               <div className="flex items-center gap-1.5">
                 <span className="text-base font-black text-teal-700 dark:text-cyan-400">{t.symbol}</span>
-                <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{t.zh}</span>
+                <span className="text-xs font-bold text-[var(--text-1)] dark:text-[var(--text-1)]">{t.zh}</span>
               </div>
-              <span className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{t.desc}</span>
+              <span className="text-[10px] text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5">{t.desc}</span>
             </div>
           ))}
         </div>
@@ -243,13 +243,13 @@ export default function HomePage() {
 
       {/* ── A01~A07 核心設施戰情矩陣 (Facilities War Room Grid) ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pb-20 w-full">
-        <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-200 dark:border-slate-800">
+        <div className="mb-6 flex flex-col gap-3 border-b border-[var(--border)] pb-4 dark:border-[var(--border)] sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h2 className="text-xl font-bold text-[var(--text-1)] dark:text-[var(--text-1)] flex items-center gap-2">
               <Layers className="w-5 h-5 text-teal-600 dark:text-cyan-400" />
               A01 ~ A08 核心治理設施矩陣 (Core Facilities Matrix)
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5">
               各設施皆具備完整「終始矩陣功能說明書」與「5T 密碼學 Hash Lock 封印」
             </p>
           </div>
@@ -260,10 +260,10 @@ export default function HomePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {CORE_FACILITIES.map((fac) => (
-            <OmniCard 
+            <OmniCard
               key={fac.code}
               variant="glass"
-              className="flex flex-col justify-between p-6 transition-all duration-300 hover:-translate-y-1 hover:border-teal-500/50"
+              className="flex flex-col justify-between p-4 transition-all duration-300 hover:-translate-y-1 hover:border-teal-500/50 sm:p-6"
             >
               <div>
                 {/* Card Header */}
@@ -278,24 +278,24 @@ export default function HomePage() {
                 </div>
 
                 {/* Facility Titles */}
-                <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">
+                <h3 className="text-lg font-black text-[var(--text-1)] dark:text-[var(--text-1)]">
                   {fac.name}
                 </h3>
-                <p className="text-[11px] font-mono text-slate-500 dark:text-slate-400 mb-3">
+                <p className="text-[11px] font-mono text-[var(--text-3)] dark:text-[var(--text-3)] mb-3">
                   {fac.enName}
                 </p>
 
                 {/* Facility Summary */}
-                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-3 mb-4">
+                <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-2)] leading-relaxed line-clamp-3 mb-4">
                   {fac.summary}
                 </p>
               </div>
 
               {/* Card Action Buttons */}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2">
+              <div className="pt-4 border-t border-[var(--border)] dark:border-[var(--border)] flex items-center justify-between gap-2">
                 <button
                   onClick={() => setSelectedSpec(fac)}
-                  className="px-3 py-1.5 rounded-xl text-xs font-semibold text-teal-700 dark:text-cyan-400 hover:bg-teal-50 dark:hover:bg-slate-800 border border-teal-200 dark:border-slate-700 transition-colors flex items-center gap-1.5"
+                  className="flex min-h-11 items-center gap-1.5 rounded-xl border border-teal-200 px-3 py-2 text-xs font-semibold text-teal-700 transition-colors hover:bg-teal-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:border-[var(--border-strong)] dark:text-cyan-400 dark:hover:bg-[var(--surface-3)]"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
                   終始說明書
@@ -304,7 +304,7 @@ export default function HomePage() {
                 <OmniButton
                   variant="primary"
                   onClick={() => router.push(fac.path)}
-                  className="text-xs py-1.5 px-3"
+                  className="min-h-11 px-3 text-xs"
                 >
                   啟動工作台
                   <ArrowRight className="w-3.5 h-3.5 ml-1" />
@@ -323,7 +323,7 @@ export default function HomePage() {
       />
 
       {/* ── 底部系統狀態 ── */}
-      <footer className="mt-auto border-t border-slate-200 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md px-4 sm:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono text-slate-500 dark:text-slate-400">
+      <footer className="mt-auto border-t border-[var(--border)] dark:border-[var(--border)] bg-[var(--surface-1)] dark:bg-[var(--bg)]/70 backdrop-blur-md px-4 sm:px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-mono text-[var(--text-3)] dark:text-[var(--text-3)]">
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
           <span className="font-bold">OmniCore ♾️ ESGGO · 5T Protocol Active</span>

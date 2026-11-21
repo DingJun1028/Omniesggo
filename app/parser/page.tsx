@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { 
-  FileText, Upload, ShieldCheck, CheckCircle2, 
+import {
+  FileText, Upload, ShieldCheck, CheckCircle2,
   Activity, ArrowRight, Download, Sparkles, AlertCircle, RefreshCw,
   Sun, Moon, ExternalLink, Check, Copy, ListChecks
 } from 'lucide-react';
@@ -93,7 +93,7 @@ export default function EsgReportParserPage() {
   const handleSimulateSample = async () => {
     setIsParsing(true);
     setErrorMessage('');
-    
+
     const sampleText = `
       ESG Sustainability Report 2026
       Scope 1 Direct Carbon Emissions: 14,250 tCO2e
@@ -132,11 +132,11 @@ export default function EsgReportParserPage() {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 font-sans ${theme === 'dark' ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'}`}>
-      
+    <div className="min-w-0 w-full space-y-6 bg-[var(--bg)] font-sans text-[var(--text-1)] sm:space-y-8">
+
       {/* ── 頂部手冊控制列 (Header) ── */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-white/10 px-6 py-4">
-        <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <header className="rounded-2xl border border-[var(--border)] bg-[var(--surface-1)] px-4 py-4 shadow-sm sm:rounded-3xl sm:px-6 sm:py-5">
+        <div className="mx-auto flex max-w-6xl flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-teal-50 text-teal-800 border border-teal-200/90 dark:bg-teal-950/50 dark:text-teal-300 dark:border-teal-500/30">
@@ -146,11 +146,11 @@ export default function EsgReportParserPage() {
                 100% DE-GOOGLE LOCAL ENGINE
               </span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--text-1)] dark:text-[var(--text-1)] flex items-center gap-2">
               <FileText className="w-7 h-7 text-teal-600 dark:text-cyan-400" />
               ESG 報告書智能解析工作台 (OmniParser)
             </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 font-medium">
+            <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-0.5 font-medium">
               非結構化 PDF 本地快速結構化 · 溫室氣體 Scope 1/2/3 自動提取 · 5T 密碼學封印
             </p>
           </div>
@@ -158,14 +158,14 @@ export default function EsgReportParserPage() {
           {/* 右側操作群 */}
           <div className="flex items-center flex-wrap gap-3">
             {/* 雙主題切換膠囊 */}
-            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-inner">
+            <div className="flex items-center p-1 rounded-full bg-slate-100 dark:bg-[var(--surface-3)] border border-[var(--border)] dark:border-[var(--border)] shadow-inner">
               <button
                 type="button"
                 onClick={() => handleToggleTheme('light')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  theme === 'light' 
-                    ? 'bg-white text-teal-800 shadow-sm font-semibold' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                  theme === 'light'
+                    ? 'bg-[var(--surface-1)] text-teal-800 shadow-sm font-semibold'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-2)] dark:text-[var(--text-3)]'
                 }`}
               >
                 <Sun className="w-3.5 h-3.5 text-amber-500" />
@@ -175,9 +175,9 @@ export default function EsgReportParserPage() {
                 type="button"
                 onClick={() => handleToggleTheme('dark')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                  theme === 'dark' 
-                    ? 'bg-slate-900 text-teal-300 shadow-sm font-semibold border border-teal-500/30' 
-                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'
+                  theme === 'dark'
+                    ? 'bg-[var(--surface-1)] text-teal-300 shadow-sm font-semibold border border-teal-500/30'
+                    : 'text-[var(--text-3)] hover:text-[var(--text-2)] dark:text-[var(--text-3)]'
                 }`}
               >
                 <Moon className="w-3.5 h-3.5 text-teal-300" />
@@ -203,7 +203,7 @@ export default function EsgReportParserPage() {
 
       {/* ── 錯誤警示條 ── */}
       {errorMessage && (
-        <div className="max-w-[1600px] mx-auto px-6 mt-4">
+        <div className="max-w-6xl mx-auto px-6 mt-4">
           <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-500/30 text-rose-800 dark:text-rose-300 text-xs font-medium flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0" />
             {errorMessage}
@@ -212,37 +212,37 @@ export default function EsgReportParserPage() {
       )}
 
       {/* ── 主畫面雙欄佈局 (Workbench Layout) ── */}
-      <main className="max-w-[1600px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
+      <section className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-5 px-0 sm:gap-6 lg:grid-cols-12">
+
         {/* 左側：上傳區塊與隱私承諾 (5 cols) */}
         <div className="lg:col-span-5 space-y-4">
-          <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-            <h2 className="font-bold text-sm text-slate-900 dark:text-slate-100 pb-3 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
+          <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-6 shadow-sm">
+            <h2 className="font-bold text-sm text-[var(--text-1)] dark:text-[var(--text-1)] pb-3 border-b border-slate-100 dark:border-[var(--border)] flex items-center gap-2">
               <Upload className="w-4 h-4 text-teal-600 dark:text-cyan-400" />
               上傳 ESG 報告書 (PDF)
             </h2>
 
             {/* 拖曳上傳盒 */}
-            <div className="mt-4 flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-teal-500 dark:hover:border-cyan-400 rounded-xl bg-slate-50 dark:bg-slate-950/40 transition-all cursor-pointer relative">
-              <input 
-                type="file" 
+            <div className="mt-4 flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-300 dark:border-[var(--border-strong)] hover:border-teal-500 dark:hover:border-cyan-400 rounded-xl bg-slate-50 dark:bg-[var(--surface-1)]/80 transition-all cursor-pointer relative">
+              <input
+                type="file"
                 accept=".pdf"
                 onChange={handleFileChange}
                 className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
               />
               <FileText className="w-10 h-10 text-teal-600 dark:text-cyan-400 mb-2" />
-              <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              <p className="text-xs font-bold text-[var(--text-1)] dark:text-[var(--text-1)]">
                 {file ? file.name : '點擊或拖曳 PDF 報告書至此區'}
               </p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-mono">
+              <p className="text-[11px] text-[var(--text-3)] dark:text-[var(--text-3)] mt-1 font-mono">
                 {file ? `${(file.size / 1024 / 1024).toFixed(2)} MB` : '支援最大 50MB 企業 ESG 報告書 PDF'}
               </p>
             </div>
 
             <div className="mt-4">
-              <OmniButton 
-                variant="emerald" 
-                onClick={handleUploadAndParse} 
+              <OmniButton
+                variant="emerald"
+                onClick={handleUploadAndParse}
                 isLoading={isParsing}
                 className="w-full py-2.5 text-xs font-bold shadow-sm"
               >
@@ -252,8 +252,8 @@ export default function EsgReportParserPage() {
             </div>
 
             {/* 隱私保證 */}
-            <div className="mt-5 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-400 space-y-2">
-              <p className="font-bold text-slate-900 dark:text-slate-200 flex items-center gap-1.5">
+            <div className="mt-5 p-4 rounded-xl bg-slate-50 dark:bg-[var(--bg)]/60 border border-[var(--border)]/80 dark:border-[var(--border)] text-xs text-[var(--text-3)] dark:text-[var(--text-3)] space-y-2">
+              <p className="font-bold text-[var(--text-1)] dark:text-[var(--text-1)] flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> 100% De-Google 本地隱私承諾
               </p>
               <p className="text-[11px] leading-relaxed">• PDF 檔案完全在您的本機 Node.js 環境進行解析，無任何數據被發送至雲端廠商。</p>
@@ -264,7 +264,7 @@ export default function EsgReportParserPage() {
 
         {/* 右側：解析結果與 5T 稽核檢核表 (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
-          
+
           {result ? (
             <>
               {/* 5T 狀態橫幅 */}
@@ -276,12 +276,12 @@ export default function EsgReportParserPage() {
                       5T 密碼學封印完成 — {result.fileName}
                     </h3>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="font-mono text-[10px] text-slate-600 dark:text-slate-300">
+                      <span className="font-mono text-[10px] text-[var(--text-3)] dark:text-[var(--text-2)]">
                         Hash Lock: <span className="text-teal-700 dark:text-cyan-300 font-bold">{result.hashLock.slice(0, 16)}...{result.hashLock.slice(-8)}</span>
                       </span>
                       <button
                         onClick={() => handleCopyHash(result.hashLock)}
-                        className="text-slate-400 hover:text-teal-600 dark:hover:text-cyan-300 transition-colors"
+                        className="text-[var(--text-3)] hover:text-teal-600 dark:hover:text-cyan-300 transition-colors"
                         title="複製完整 Hash Lock"
                       >
                         {copiedHash ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
@@ -294,67 +294,67 @@ export default function EsgReportParserPage() {
 
               {/* 排放量三範疇指標卡片 */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
-                  <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Scope 1 直接排放</span>
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-[var(--surface-1)] dark:bg-[var(--surface-1)] shadow-sm">
+                  <span className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] block mb-1">Scope 1 直接排放</span>
                   <div className="text-2xl font-bold font-mono text-teal-700 dark:text-cyan-400">
                     {result.metrics.scope1Tco2e.toLocaleString()}
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono">tCO₂e / 年</span>
+                  <span className="text-[10px] text-[var(--text-3)] font-mono">tCO₂e / 年</span>
                 </div>
 
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
-                  <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Scope 2 能源間接</span>
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-[var(--surface-1)] dark:bg-[var(--surface-1)] shadow-sm">
+                  <span className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] block mb-1">Scope 2 能源間接</span>
                   <div className="text-2xl font-bold font-mono text-emerald-700 dark:text-emerald-400">
                     {result.metrics.scope2Tco2e.toLocaleString()}
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono">tCO₂e / 年</span>
+                  <span className="text-[10px] text-[var(--text-3)] font-mono">tCO₂e / 年</span>
                 </div>
 
-                <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 shadow-sm">
-                  <span className="text-xs text-slate-500 dark:text-slate-400 block mb-1">Scope 3 價值鏈間接</span>
+                <div className="p-4 rounded-xl border border-[var(--border)] dark:border-[var(--border)] bg-[var(--surface-1)] dark:bg-[var(--surface-1)] shadow-sm">
+                  <span className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] block mb-1">Scope 3 價值鏈間接</span>
                   <div className="text-2xl font-bold font-mono text-indigo-700 dark:text-indigo-400">
                     {result.metrics.scope3Tco2e.toLocaleString()}
                   </div>
-                  <span className="text-[10px] text-slate-400 font-mono">tCO₂e / 年</span>
+                  <span className="text-[10px] text-[var(--text-3)] font-mono">tCO₂e / 年</span>
                 </div>
               </div>
 
               {/* 總結算卡片 */}
-              <div className="p-4 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex justify-between items-center text-xs">
-                <span className="font-bold text-slate-700 dark:text-slate-300">年度溫室氣體排放加總:</span>
-                <span className="font-mono text-base font-black text-slate-900 dark:text-slate-100">
+              <div className="p-4 rounded-xl bg-slate-100 dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] flex justify-between items-center text-xs">
+                <span className="font-bold text-[var(--text-2)] dark:text-[var(--text-2)]">年度溫室氣體排放加總:</span>
+                <span className="font-mono text-base font-black text-[var(--text-1)] dark:text-[var(--text-1)]">
                   {result.metrics.totalEmissionsTco2e.toLocaleString()} tCO₂e
                 </span>
               </div>
 
               {/* 5T 智能審計檢核表 (Audit Checklist) */}
-              <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-5 shadow-sm space-y-3">
-                <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center gap-1.5">
+              <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-5 shadow-sm space-y-3">
+                <h4 className="text-xs font-bold text-[var(--text-1)] dark:text-[var(--text-1)] uppercase tracking-wider flex items-center gap-1.5">
                   <ListChecks className="w-4 h-4 text-teal-600 dark:text-cyan-400" />
                   5T 自動審計檢核清單 (Audit Checklist)
                 </h4>
-                
+
                 <div className="space-y-2 text-xs">
-                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                    <span className="text-slate-700 dark:text-slate-300">文檔頁數校驗 (Page Count)</span>
+                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[var(--surface-1)]/80 border border-[var(--border)] dark:border-[var(--border)] flex justify-between items-center">
+                    <span className="text-[var(--text-2)] dark:text-[var(--text-2)]">文檔頁數校驗 (Page Count)</span>
                     <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" /> {result.metrics.pdfPages} 頁一致
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                    <span className="text-slate-700 dark:text-slate-300">文字流密度與 OCR 容錯率</span>
+                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[var(--surface-1)]/80 border border-[var(--border)] dark:border-[var(--border)] flex justify-between items-center">
+                    <span className="text-[var(--text-2)] dark:text-[var(--text-2)]">文字流密度與 OCR 容錯率</span>
                     <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" /> 99.8% 完整度 ({result.metrics.textLength} 字元)
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                    <span className="text-slate-700 dark:text-slate-300">GRI 305 溫室氣體揭露規範</span>
+                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[var(--surface-1)]/80 border border-[var(--border)] dark:border-[var(--border)] flex justify-between items-center">
+                    <span className="text-[var(--text-2)] dark:text-[var(--text-2)]">GRI 305 溫室氣體揭露規範</span>
                     <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" /> 範疇一、二、三全數揭露
                     </span>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 flex justify-between items-center">
-                    <span className="text-slate-700 dark:text-slate-300">不可篡改狀態 (Object Frozen)</span>
+                  <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-[var(--surface-1)]/80 border border-[var(--border)] dark:border-[var(--border)] flex justify-between items-center">
+                    <span className="text-[var(--text-2)] dark:text-[var(--text-2)]">不可篡改狀態 (Object Frozen)</span>
                     <span className="font-mono font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" /> SHA-256 密碼學鎖定
                     </span>
@@ -373,12 +373,12 @@ export default function EsgReportParserPage() {
             </>
           ) : (
             /* 未上傳狀態空面板 */
-            <div className="bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/10 rounded-2xl p-12 shadow-sm flex flex-col items-center justify-center text-center">
-              <FileText className="w-16 h-16 text-slate-300 dark:text-slate-700 mb-3" />
-              <h3 className="font-bold text-slate-700 dark:text-slate-300 text-sm">
+            <div className="bg-[var(--surface-1)] dark:bg-[var(--surface-1)] border border-[var(--border)] dark:border-[var(--border)] rounded-2xl p-12 shadow-sm flex flex-col items-center justify-center text-center">
+              <FileText className="w-16 h-16 text-[var(--text-2)] dark:text-[var(--text-2)] mb-3" />
+              <h3 className="font-bold text-[var(--text-2)] dark:text-[var(--text-2)] text-sm">
                 尚未進行報告書解析
               </h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+              <p className="text-xs text-[var(--text-3)] dark:text-[var(--text-3)] mt-1 max-w-sm">
                 請由左側拖曳上傳 ESG 報告書 PDF，或點擊「帶入範例測試」即時模擬 5T 本地提取與密碼學封印流程。
               </p>
             </div>
@@ -386,7 +386,7 @@ export default function EsgReportParserPage() {
 
         </div>
 
-      </main>
+      </section>
     </div>
   );
 }

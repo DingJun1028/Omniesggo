@@ -1,0 +1,49 @@
+name: TS Matrix 雙向驗證閘 (esggo)
+
+on:
+  push:
+    branches: [main, develop, feat/**]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    name: TS Matrix Drift Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Setup Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run TS Matrix 雙向驗證閘
+        run: node tools/ts-matrix/verify.mjs
+      - name: Upload drift-report.json (Trustworthy 5T evidence)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ts-matrix-drift-report-${{ github.sha }}
+          path: tools/ts-matrix/drift-report.json
+          retention-days: 30
+      - name: Fail on drift
+        if: hashFiles('tools/ts-matrix/drift-report.json') != ''
+        run: |
+          # 棘輪規則：只有「不在基線內的新增 drift」才失敗（既有 75 筆見 baseline.json）
+          read count base total new < <(node -e "
+            const r = require('./tools/ts-matrix/drift-report.json');
+            console.log(r.pass ? '0' : '1', r.reverse.baseline.total, r.reverse.shadowedCount, r.reverse.baseline.newDriftCount);
+          ")
+          if [ "$count" != "0" ] || [ "$new" -gt "0" ]; then
+            echo "::error::TS Matrix 新增 $new 處 type drift（基線 $base 筆 / 現況 $total 筆，只減不增）"
+            exit 1
+          fi
+          echo "✅ TS Matrix 雙向 PASS（基線棘輪 $base 筆，新增 0）"

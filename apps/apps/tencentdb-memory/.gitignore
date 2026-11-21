@@ -1,0 +1,8 @@
+# TDAI MemoryCore / Hub / Proxy — 本地運行產物 (不進 git)
+# 這些是啟動後生成的憑證/配置/狀態，含 admin key 與 runtime config。
+.env
+.env.*
+!.env.example
+.admin-key
+.memory-core-config/
+.proxy-config/

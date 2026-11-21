@@ -1,7 +1,7 @@
 "use server";
 
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { createPrismaCompatClient } from '@lib/db/prisma-compat';
+const prisma = createPrismaCompatClient();
 
 export async function syncGamificationState(
   userId: string,

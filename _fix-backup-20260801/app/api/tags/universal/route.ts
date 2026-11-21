@@ -5,10 +5,10 @@
 import { NextRequest } from 'next/server';
 import { jsonResponse, jsonError } from '@lib/api-utils';
 import { prisma } from '@/lib/prisma';
-import { syncEsgTags, getEntityTags } from '@/core/tags/universal-tag-service';
+import { syncEsgTags, getEntityTags } from '@/core/tags/omni-tag-service';
 
 // GET /api/tags/universal?entityType=&entityId= -> 查詢實體標籤配對
-// GET /api/tags/universal (no params)            -> 列出所有 UniversalTag
+// GET /api/tags/universal (no params)            -> 列出所有 OmniTag
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       return jsonResponse(tags);
     }
 
-    const tags = await prisma.universalTag.findMany({ orderBy: { createdAt: 'desc' } });
+    const tags = await prisma.OmniTag.findMany({ orderBy: { createdAt: 'desc' } });
     return jsonResponse(tags);
   } catch (e) {
     console.error('[universal-tag] GET error:', e);
@@ -42,3 +42,4 @@ export async function POST(request: NextRequest) {
     return jsonError('INTERNAL_ERROR', 'Failed to sync tags', 500);
   }
 }
+
