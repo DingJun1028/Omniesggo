@@ -134,7 +134,7 @@ if result["found"]:
 > 常見注意事項：
 > - `minimatch`（版本 10.x）需升級至 `>=11.0.1` 以修復 CVE-2026-118764（globparts amplification 導致的 DoS）
 > - `glob`（版本 13.x）需升級至 `>=14.0.2` 以修復 CVE-2026-118765（AbortSignal cancellation bypass）
-> - `undici`（版本 7.29.x）在 `.github/worker-tools/package-lock.json` 中需要升級至 `>=7.30.1`
+> - `undici`（版本 7.29.x）在 `deploy/worker-tools/package-lock.json` 中需要升級至 `>=7.30.1`
 > - `postcss-selector-parser`（版本 6.x）需升級至 `>=7.1.6` 以修復 CPU 耗盡漏洞（CVE-2026-118766）
 > - 在 `apps/learning-center/package.json` 中也添加相同的 `resolutions`，因為該子專案有傳遞依賴
 

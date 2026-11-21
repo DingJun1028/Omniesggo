@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import type { OmniApiNode } from "@/lib/api";
+import { useEffect, useMemo, useState } from "react";
+import { fetchGraph, fetchTagsOverview } from "@/lib/api";
+import type { OmniApiGraph, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
 
 const WIKILINK_RE = /\[\[([^\]|]+)(?:\|[^\]]*)?\]\]/g;
 const PHASE_FILL: Record<string, string> = {
@@ -224,6 +225,52 @@ export function buildFusionGraph(notes: OmniApiNode[]): { nodes: GraphNode[]; ed
   return { nodes, edges };
 }
 
+/**
+ * 三十五期：以 GET /api/graph 伺服器投影為權威組裝圖譜。
+ * 節點與拓撲權威 outlink 邊改取伺服器單一請求（alias 為第一個非墓碑文字區塊 trim 內容、
+ * resolved 為現存宇宙即時成員判定）；區塊內容 [[雙鏈]] 灰線與懸浮節點保留客戶端投影（伺服器未含此軸）。
+ */
+export function buildFusionGraphFromProjection(
+  notes: OmniApiNode[],
+  graph: OmniApiGraph
+): { nodes: GraphNode[]; edges: GraphEdge[] } {
+  const nodes: GraphNode[] = [];
+  const edges: GraphEdge[] = [];
+  const index = new Map<string, number>();
+  const unresolvedTargets: string[] = [];
+
+  const aliasByUuid = new Map(graph.nodes.map((n) => [n.uuid, n.alias]));
+  for (const note of notes) {
+    if (!aliasByUuid.has(note.uuid)) continue; // 伺服器子圖權威：僅投影伺服器回傳之節點
+    index.set(note.uuid, nodes.length);
+    const serverAlias = aliasByUuid.get(note.uuid);
+    const local = noteToGraphNode(note);
+    if (serverAlias !== undefined && serverAlias !== null && serverAlias.length > 0) {
+      local.label = serverAlias.slice(0, 14);
+    }
+    nodes.push(local);
+  }
+  for (const edge of graph.edges) {
+    const from = index.get(edge.source);
+    if (from === undefined) continue;
+    const targetAlias = edge.wikilink_alias.trim();
+    const to = index.get(edge.target);
+    if (to !== undefined) {
+      edges.push({ from, to, kind: "outlink", resolved: edge.resolved, alias: targetAlias });
+    } else if (!edge.resolved) {
+      // 未解析且標的不在現存宇宙：如實收集為懸浮節點（與內容投影同軸）。
+      const label = targetAlias.length > 0 ? targetAlias : edge.target.slice(0, 8);
+      unresolvedTargets.push(label);
+    }
+  }
+  for (const note of notes) {
+    collectWikilinkEdges(note, index, edges, unresolvedTargets);
+  }
+  appendUnresolvedNodes([...new Set(unresolvedTargets)], nodes, index);
+  applyForceLayout(nodes, edges);
+  return { nodes, edges };
+}
+
 export function FusionGraph({
   notes,
   onSelect,
@@ -231,8 +278,62 @@ export function FusionGraph({
   notes: OmniApiNode[];
   onSelect: (uuid: string) => void;
 }) {
-  const graph = useMemo(() => buildFusionGraph(notes), [notes]);
   const [hovered, setHovered] = useState<number | null>(null);
+  // 二十九期：標籤過濾聯動（對接 GET /api/tags），精確標籤匹配，未選時維持全量。
+  const [tagAxis, setTagAxis] = useState<OmniApiTagsOverview | null>(null);
+  const [tagFilter, setTagFilter] = useState<string | null>(null);
+  // 三十五期：伺服器端圖譜投影（GET /api/graph）；三十七期：tagFilter 時改走 ?tag= 伺服器標籤子圖。
+  // 取得失敗降級為客戶端組裝（如實標示）。
+  const [serverGraph, setServerGraph] = useState<OmniApiGraph | null>(null);
+  const [graphDegraded, setGraphDegraded] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setGraphDegraded(false);
+    fetchGraph(tagFilter ?? undefined)
+      .then((projection) => {
+        if (!cancelled) setServerGraph(projection);
+      })
+      .catch(() => {
+        if (!cancelled) setGraphDegraded(true);
+        // 圖譜投影為權威輔助，取得失敗靜默降級為客戶端組裝，不打斷主流程。
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [notes, tagFilter]);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchTagsOverview()
+      .then((overview) => {
+        if (!cancelled) setTagAxis(overview);
+      })
+      .catch(() => {
+        // 標籤軸為輔助資訊，取得失敗時靜默降級為全量圖譜，不打斷主流程。
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  /** 過濾後之筆記子集：精確標籤匹配（topology.tags.includes）；伺服器子圖模式下作為
+   *  [[雙鏈]] 內容投影之來源子集，降級模式下則為整體圖譜之客戶端過濾依據。 */
+  const filteredNotes = useMemo(
+    () =>
+      tagFilter === null
+        ? notes
+        : notes.filter((note) => note.topology.tags.includes(tagFilter)),
+    [notes, tagFilter]
+  );
+
+  const graph = useMemo(
+    () =>
+      serverGraph !== null
+        ? buildFusionGraphFromProjection(filteredNotes, serverGraph)
+        : buildFusionGraph(filteredNotes),
+    [filteredNotes, serverGraph]
+  );
 
   /** 鄰接表：節點索引 → 相鄰節點索引集合（十八期懸停聚焦依據）。 */
   const neighbors = useMemo(() => {
@@ -259,11 +360,42 @@ export function FusionGraph({
   return (
     <div className="glass p-5">
       <h2 className="text-sm font-semibold tracking-wide text-slate-200">
-        雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結）
+        雙鏈熔合圖譜（{graph.nodes.length} 節點 · {graph.edges.length} 鏈結
+        {tagFilter !== null && ` · 標籤過濾：${tagFilter}`})
       </h2>
       <p className="mt-1 text-[10px] text-slate-500">
+        {graphDegraded
+          ? "圖譜投影端點不可達，已降級為客戶端組裝（如實標示） · "
+          : "節點與拓撲邊由 GET /api/graph 伺服器投影供給 · "}
         實線=拓撲 outlinks（未解析虛線，邊中點標示 wikilink 別名）· 灰線=內容 [[雙鏈]] 投影 · 力導向佈局（連結越多半徑越大）
       </p>
+      {tagAxis !== null && tagAxis.tags.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          <button
+            type="button"
+            className="cursor-pointer rounded-full border px-2 py-0.5 text-[10px] text-slate-400 transition hover:border-slate-100/30"
+            title="點擊恢復全量圖譜"
+            onClick={() => setTagFilter(null)}
+          >
+            全量
+          </button>
+          {tagAxis.tags.map((t) => (
+            <button
+              type="button"
+              key={t.tag}
+              className={`cursor-pointer rounded-full border px-2 py-0.5 text-[10px] transition ${
+                tagFilter === t.tag
+                  ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
+                  : "border-slate-100/10 text-slate-400 hover:border-slate-100/30"
+              }`}
+              title={`點擊以 ${t.tag} 過濾圖譜節點（count 為含該標籤之節點數）`}
+              onClick={() => setTagFilter(tagFilter === t.tag ? null : t.tag)}
+            >
+              {t.tag} × {t.count}
+            </button>
+          ))}
+        </div>
+      )}
       {graph.nodes.length === 0 ? (
         <p className="mt-3 text-xs text-slate-400">尚無節點可繪製。</p>
       ) : (

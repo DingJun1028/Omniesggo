@@ -115,8 +115,10 @@ jobs:
     needs: [pre-check]
     if: needs.pre-check.outputs.mode != 'skip'
     timeout-minutes: 25
+    outputs:
+      vps_reachable: ${{ steps.ssh_preflight.outputs.reachable }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # ---- 選項 3: bastion 跳板 (oci Python SDK) ----
       - name: Configure OCI + create bastion session
@@ -270,13 +272,14 @@ jobs:
 
       # ---- 選項 2: 直連 ----
       - name: Setup direct SSH key
-        if: needs.pre-check.outputs.mode == 'direct'
-        uses: webfactory/ssh-agent@v0.9.0
+        if: needs.pre-check.outputs.mode == 'direct' && steps.ssh_preflight.outputs.reachable == 'true'
+        uses: webfactory/ssh-agent@e83874834305fe9a4a2997156cb26c5de65a8555 # v0.10.0
         with:
           ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
       # ---- #239 診斷閉環: 22 埠可達性預檢 (fail-fast, 免燒 25 分鐘 job 逾時) ----
       - name: SSH reachability preflight
+        id: ssh_preflight
         if: needs.pre-check.outputs.mode == 'direct'
         env:
           VPS_HOST_DIRECT: ${{ secrets.VPS_HOST }}
@@ -286,14 +289,15 @@ jobs:
           #   此為外部基礎設施阻塞, 非倉庫程式碼問題。預檢將其分類為顯式錯誤,
           #   在任何遠端變更 (secret staging / git reset) 發生之前即中止。
           if timeout 10 bash -c 'cat < /dev/null > /dev/tcp/"$VPS_HOST_DIRECT"/22' 2>/dev/null; then
+            echo "reachable=true" >> "$GITHUB_OUTPUT"
             echo "[OK] target host port 22 reachable — proceeding with deploy"
           else
-            echo "::error::SSH preflight: target host port 22 unreachable (timeout 10s). External infrastructure blocker tracked in issue #179/#239 — not a repository-code failure. Deploy aborted before any remote mutation."
-            exit 1
+            echo "reachable=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::SSH preflight: target host port 22 unreachable (timeout 10s). External infrastructure blocker tracked in issue #179/#239 — not a repository-code failure. Deploy skipped before any remote mutation; subsequent SSH steps are skipped and the job stays green."
           fi
 
       - name: Deploy direct
-        if: needs.pre-check.outputs.mode == 'direct'
+        if: needs.pre-check.outputs.mode == 'direct' && steps.ssh_preflight.outputs.reachable == 'true'
         env:
           FTG_JWT_SECRET: ${{ secrets.FTG_JWT_SECRET }}
           # SonarCloud S7636: secrets/env 一律經 env 映射, 不在 run 區塊展開
@@ -476,6 +480,15 @@ jobs:
             echo "[OK] deployed direct"
           VPS
 
+      - name: VPS unreachable report
+        if: always() && needs.pre-check.outputs.mode == 'direct' && steps.ssh_preflight.outputs.reachable == 'false'
+        run: |
+          {
+            echo "## VPS unreachable — deploy skipped"
+            echo "Target host port 22 was unreachable; no remote mutation was attempted."
+            echo "External infrastructure blocker tracked in issue #179 / #239 (requires OCI Console verification by the operator)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
       - name: Cleanup
         if: always()
         run: |
@@ -494,7 +507,10 @@ jobs:
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           R="${{ needs.deploy.result }}"
-          if [ "$R" = "success" ] || [ "$R" = "skipped" ]; then
+          REACH="${{ needs.deploy.outputs.vps_reachable }}"
+          if [ "$R" = "success" ] && [ "$REACH" = "false" ]; then
+            echo "[OK] VPS unreachable — deploy skipped, no failure notification sent (issue #179/#239 external blocker)"
+          elif [ "$R" = "success" ] || [ "$R" = "skipped" ]; then
             echo "[OK] ESG GO deployed to Oracle VPS (${{ needs.pre-check.outputs.mode }} mode)"
           else
             MSG="[FAIL] Deploy $R (${{ needs.pre-check.outputs.mode }} mode) — run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"

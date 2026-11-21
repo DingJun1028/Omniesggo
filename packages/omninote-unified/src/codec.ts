@@ -35,6 +35,9 @@ export class LocalMarkdownHomomorphicCodec {
       properties: node.properties,
       evidence: node.evidence,
       lock_hash: node.lock_hash,
+      // 三十一期補洞：entropy_score 隨節點落地（原序列化遺漏，purify 後寫入再讀取即遺失）；
+      // lock_hash 權威欄位（nodeLockPayload）不含 entropy_score，落地屬雜湊中立。
+      ...(node.entropy_score !== undefined ? { entropy_score: node.entropy_score } : {}),
       blocks_meta: node.blocks.map((b) => ({
         block_id: b.block_id,
         type: b.type,
@@ -152,6 +155,8 @@ export class LocalMarkdownHomomorphicCodec {
       properties: meta.properties || {},
       evidence: Array.isArray(meta.evidence) ? meta.evidence : [],
       lock_hash: "0".repeat(64),
+      // 三十一期補洞：自 frontmatter 還原 entropy_score（僅在磁碟有值時，lock_hash 不受影響）
+      ...(typeof meta.entropy_score === "number" ? { entropy_score: meta.entropy_score } : {}),
     };
 
     const computedHash = await computeNodeLockHash(reconstructed);

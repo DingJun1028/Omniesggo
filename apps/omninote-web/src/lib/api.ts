@@ -153,6 +153,52 @@ export async function fetchEvidencePage(
   return request<OmniApiEvidencePage>(`/api/notes/${uuid}/evidence${qs}`);
 }
 
+/** 四十二期：全域證據時間軸條目（GET /api/evidence，四十期端點），entry 內嵌各節點之證據項，uuid／node_version／lock_hash 綁定當下節點狀態。 */
+export interface OmniApiGlobalEvidenceEntry {
+  uuid: string;
+  node_version: string;
+  lock_hash: string;
+  entry: OmniApiEvidence;
+}
+
+/** 四十二期：全域證據時間軸分頁回應（跨節點彙整、captured_at 升冪）。 */
+export interface OmniApiGlobalEvidencePage {
+  ok: boolean;
+  total: number;
+  offset: number;
+  limit: number;
+  entries: OmniApiGlobalEvidenceEntry[];
+}
+
+/** 全域證據時間軸唯讀查詢（四十期端點）：hook 為可選精確匹配（空字串視為無過濾，避免 422）；limit 1..500；offset >= 0。 */
+export async function fetchGlobalEvidenceTimeline(
+  options: { limit?: number; offset?: number; hook?: string } = {},
+): Promise<OmniApiGlobalEvidencePage> {
+  const params = new URLSearchParams();
+  if (options.limit !== undefined) params.set("limit", String(options.limit));
+  if (options.offset !== undefined) params.set("offset", String(options.offset));
+  if (options.hook !== undefined && options.hook.trim().length > 0) {
+    params.set("hook", options.hook.trim());
+  }
+  const qs = params.size > 0 ? `?${params.toString()}` : "";
+  return request<OmniApiGlobalEvidencePage>(`/api/evidence${qs}`);
+}
+
+/** 四十五期：全域證據 hook 別統計回應（GET /api/evidence/stats，四十四期端點），跨節點彙整、無 uuid／node_version 綁定。 */
+export interface OmniApiGlobalEvidenceStats {
+  ok: boolean;
+  total: number;
+  by_hook: Record<string, number>;
+  hooks: string[];
+  first_captured_at: string | null;
+  last_captured_at: string | null;
+}
+
+/** 全域證據 hook 別統計（唯讀聚合）：captured_at 為字串排序非時間權威（引擎端已如實標示）。 */
+export async function fetchGlobalEvidenceStats(): Promise<OmniApiGlobalEvidenceStats> {
+  return request<OmniApiGlobalEvidenceStats>(`/api/evidence/stats`);
+}
+
 /** 二十四期：證據鏈 hook 別統計回應（GET /api/notes/:uuid/evidence/stats）。 */
 export interface OmniApiEvidenceStats {
   ok: boolean;
@@ -188,6 +234,121 @@ export interface OmniApiEvidenceExport {
 /** 證據鏈全量匯出（唯讀稽核歸檔）：exported_at 為伺服器當下時間非鏈內時間權威（引擎端已如實標示）。 */
 export async function fetchEvidenceExport(uuid: string): Promise<OmniApiEvidenceExport> {
   return request<OmniApiEvidenceExport>(`/api/notes/${uuid}/evidence/export`);
+}
+
+/** 二十八期：全域標籤彙整回應（GET /api/tags）。 */
+export interface OmniApiTagsOverview {
+  ok: boolean;
+  total_notes: number;
+  tagged_nodes: number;
+  untagged_nodes: number;
+  total_tag_occurrences: number;
+  tags: Array<{ tag: string; count: number }>;
+}
+
+/** 全域標籤彙整（唯讀聚合）：tags 依字典序穩定排序；count 為含該標籤之節點數（引擎端已如實標示）。 */
+export async function fetchTagsOverview(): Promise<OmniApiTagsOverview> {
+  return request<OmniApiTagsOverview>("/api/tags");
+}
+
+/** 三十五期：伺服器端圖譜投影回應（GET /api/graph，三十四期端點）。 */
+export interface OmniApiGraphNode {
+  uuid: string;
+  matrix_phase: string;
+  alias: string | null;
+  tags: string[];
+}
+
+export interface OmniApiGraphEdge {
+  source: string;
+  target: string;
+  wikilink_alias: string;
+  resolved: boolean;
+}
+
+export interface OmniApiGraph {
+  ok: boolean;
+  filter_tag: string | null;
+  total_nodes: number;
+  total_edges: number;
+  unresolved_edges: number;
+  nodes: OmniApiGraphNode[];
+  edges: OmniApiGraphEdge[];
+}
+
+/** 三十七期：tag 為可選精確匹配之標籤子圖（GET /api/graph?tag=，三十六期擴充）。 */
+export async function fetchGraph(tag?: string): Promise<OmniApiGraph> {
+  const trimmed = tag?.trim();
+  const qs = trimmed !== undefined && trimmed.length > 0 ? `?tag=${encodeURIComponent(trimmed)}` : "";
+  return request<OmniApiGraph>(`/api/graph${qs}`);
+}
+
+/** 三十一期：全域熵值總覽回應（GET /api/entropy/stats）。 */
+export interface OmniApiEntropyStats {
+  ok: boolean;
+  total_notes: number;
+  with_entropy: number;
+  without_entropy: number;
+  avg_entropy: number | null;
+  max_entropy: number | null;
+  min_entropy: number | null;
+  highest: Array<{ uuid: string; entropy_score: number }>;
+}
+
+/** 全域熵值總覽（唯讀聚合）：entropy_score 僅於熵減自癒後存在；無具值節點時 avg/max/min 為 null（引擎端已如實標示）。 */
+export async function fetchEntropyStats(): Promise<OmniApiEntropyStats> {
+  return request<OmniApiEntropyStats>("/api/entropy/stats");
+}
+
+/** 三十二期：批次標籤操作回應（POST /api/notes/tags）。 */
+export interface OmniApiBatchTagsReport {
+  ok: boolean;
+  updated: Array<{ uuid: string; tags: string[] }>;
+  missing: string[];
+  unchanged: number;
+  total: number;
+}
+
+/** 批次標籤操作：add 去重附加、remove 移除；missing 為不存在之 uuid 如實回報；unchanged 為無變化節點數。 */
+export async function batchUpdateTags(
+  uuids: string[],
+  add?: string[],
+  remove?: string[],
+): Promise<OmniApiBatchTagsReport> {
+  return request<OmniApiBatchTagsReport>("/api/notes/tags", {
+    method: "POST",
+    body: JSON.stringify({ uuids, add, remove }),
+  });
+}
+
+/** 三十九期：批次相位躍遷回應（POST /api/notes/phases，三十八期端點）。 */
+export interface OmniApiBatchPhasesReport {
+  ok: boolean;
+  updated: Array<{ uuid: string; matrix_phase: string }>;
+  missing: string[];
+  skipped: Array<{ uuid: string; reason: string }>;
+  unchanged: number;
+  total: number;
+}
+
+/** 批次熔合 SIGMA：同單節點 sigma 語義；skipped 之 reason 如實回報（OMEGA 結晶體或無非墓碑區塊）。 */
+export async function batchFuseSigma(uuids: string[]): Promise<OmniApiBatchPhasesReport> {
+  return request<OmniApiBatchPhasesReport>("/api/notes/phases", {
+    method: "POST",
+    body: JSON.stringify({ uuids, to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+  });
+}
+
+/**
+ * 批次逆向投影（四十三期，對接四十一期 to_phase 擴充）：OMEGA 結晶體或 SIGMA 節點
+ * 逐節點回流為 ALPHA 捕獲態（同單節點 reverse 端點語義，證據入鏈 ON_REVERSE_PROJECT、
+ * lock_hash 重算、向量重註冊）；逆向投影道無 skipped（引擎如實標示）。
+ */
+export async function batchProjectAlpha(uuids: string[]): Promise<OmniApiBatchPhasesReport> {
+  return request<OmniApiBatchPhasesReport>("/api/notes/phases", {
+    method: "POST",
+    body: JSON.stringify({ uuids, to_phase: "ALPHA_ORIGIN_CAPTURE" }),
+  });
 }
 
 export async function captureNote(text: string, tags: string[]): Promise<OmniApiNode> {

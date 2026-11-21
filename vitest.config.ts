@@ -36,14 +36,6 @@ export default defineConfig({
       'apps/gateway/sync/dist/__test__/**',
       // 隔離 .kilo 下的舊 worktree 測試，它們引用已不存在的 @/lib/* 路徑，會污染本分支 CI
       '**/.kilo/**',
-      // 同上，但 .worktrees/ 是「活躍背景代理」的暫存 worktree（非棄置副本）：
-      // 以 `pnpm vitest run tests/api-health-tags.test.ts` 實測，正式碼 20/20 全綠，
-      // 卻因同名測試檔在 .worktrees/t_34bbb3ce/ 下重跑而多出 2 個 Prisma engine
-      // unhandled rejection（該 worktree 有獨立 node_modules 解析），使 exit code 變 1 ——
-      // 「自己分支的 CI 紅燈來自別人的暫存目錄」，違反確定性與熵減治理。
-      // 暫存目錄生命週期歸屬呼叫它的代理，不應被根 vitest 掃描。
-      '**/.worktrees/**',
-      '.worktrees/**',
       // esggo-omni-center 是獨立子專案（自帶 vitest.config.ts 與 test script，非 workspace 成員），
       // 由它自己的 node_modules 解析依賴；被根 vitest 抓取時 firebase ESM 出口解析失敗。
       // 於其目錄執行 `pnpm install && pnpm test` 驗證。
@@ -78,12 +70,11 @@ export default defineConfig({
       // （2026-10-13 本分支 vitest 5 檔紅燈根因：exclude 只擋了 omnilive 沒擋 omnlive）。
       // 由 `pnpm --filter omnlive-legacy test` (= node --test) 執行，覆蓋率不減。
       'apps/omnlive/test/**',
-      // apps/omnlive-offline 是 OmniLive 第三個同源副本（package name omnilive-offline，
-      // description 自述 "legacy/unofficial leftover (name clash fix)"），test/ 同為
-      // node:test 撰寫。同款根因：只擋了 omnilive / omnlive 沒擋 omnlive-offline，
-      // 被根 vitest 抓取時報 "No test suite found in file"（2026-10-17 實測 5 檔紅燈）。
-      // 由其自身 `pnpm test`（= node --test "test/**/*.test.mjs"）執行，覆蓋率不減。
-      'apps/omnlive-offline/test/**',
+      // omninote-unified 測試以 Node 內建 test runner (node:test + tsx --test) 撰寫，非 vitest
+      // 套件（自帶 package.json test script）。二十七期（PR #277）起 9 檔被根 vitest 抓取時報
+      // 「No test suite found in file」，令神聖契約驗證步驟恆 exit 1（continue-on-error 遮蔽為慢性紅）。
+      // 該套件由 `pnpm --filter @esggo/omninote-unified test` (= tsx --test) 執行，覆蓋率不減。
+      'packages/omninote-unified/test/**',
       // Self-Healing Engine 測試以 Node 內建 test runner (node:test) 撰寫，非 vitest 套件：
       //   - server.test.mjs → import { test } from 'node:test'，根 vitest 抓取時報
       //                       "No test suite found in file"
@@ -116,13 +107,6 @@ export default defineConfig({
       'vps/junaikey/model-resolver.test.mjs',
       'vps/junaikey/service-resolver.test.mjs',
       'tests/junaikey.test.mjs',
-      // 以下 tests/*.test.mjs 為 Node 內建腳本式驗證（頂層 assert + process.exit），非 vitest 套件：
-      // （deploy-contract / junaikey-secrets / omni-one 亦同，這三檔在 exclude 漏列，已補回）
-      'tests/deploy-contract.test.mjs',
-      'tests/junaikey-secrets.test.mjs',
-      'tests/omni-one.test.mjs',
-      // 由 `node --test vps/junaikey/*.test.mjs` 執行，覆蓋率不減。
-      'vps/junaikey/*.test.mjs',
       // oneringai/tests/index.test.ts 為自製測試 harness（自建 TestResult
       // 介面、逐項呼叫，非 vitest suite）：被根 vitest 抓取時報
       // "No test suite found in file"。其 vitest 套件在 tests/unit/，

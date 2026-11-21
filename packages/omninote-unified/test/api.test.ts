@@ -701,3 +701,555 @@ test("API-18 全域標籤彙整道閘：空庫回零；節點內重複標籤去�
     assert.deepEqual(body.tags, [{ tag: "dup", count: 1 }]);
   });
 });
+
+test("API-19 全域熵值總覽：purify 後聚合 avg/max/min 與 highest 排序", async () => {
+  await withServer(async ({ port }) => {
+    const post = (text: string) =>
+      fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+    // 建立標的與來源，硬刪標的後 purify 產生 entropy_score
+    const resB = await post("標的筆記");
+    const uuidB = ((await resB.json()) as { node: UnifiedNode }).node.uuid;
+    const resA = await post(`指向 [[${uuidB}]] 的來源筆記甲`);
+    const uuidA = ((await resA.json()) as { node: UnifiedNode }).node.uuid;
+    const resC = await post("未淨化筆記乙");
+    await fetch(`${base(port)}/api/notes/${uuidB}`, { method: "DELETE" });
+    const resPurify = await fetch(`${base(port)}/api/notes/${uuidA}/purify`, { method: "POST" });
+    assert.equal(resPurify.status, 200);
+
+    const res = await fetch(base(port) + "/api/entropy/stats");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      total_notes: number;
+      with_entropy: number;
+      without_entropy: number;
+      avg_entropy: number | null;
+      max_entropy: number | null;
+      min_entropy: number | null;
+      highest: Array<{ uuid: string; entropy_score: number }>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total_notes, 2, "刪除標的後餘兩節點");
+    assert.equal(body.with_entropy, 1);
+    assert.equal(body.without_entropy, 1);
+    const score = body.highest[0]?.entropy_score ?? -1;
+    assert.ok(score > 0, "purify 後 entropy_score 應為正");
+    assert.equal(body.avg_entropy, score, "僅一具值節點時 avg 等於該值");
+    assert.equal(body.max_entropy, score);
+    assert.equal(body.min_entropy, score);
+    assert.deepEqual(body.highest, [{ uuid: uuidA, entropy_score: score }]);
+  });
+});
+
+test("API-20 全域熵值總覽道閘：空庫與未淨化節點回 null 聚合", async () => {
+  await withServer(async ({ port }) => {
+    const empty = await fetch(base(port) + "/api/entropy/stats");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as {
+      total_notes: number;
+      with_entropy: number;
+      avg_entropy: number | null;
+      max_entropy: number | null;
+      min_entropy: number | null;
+      highest: unknown[];
+    };
+    assert.equal(emptyBody.total_notes, 0);
+    assert.equal(emptyBody.with_entropy, 0);
+    assert.equal(emptyBody.avg_entropy, null, "無具值節點時 avg 應為 null");
+    assert.equal(emptyBody.max_entropy, null);
+    assert.equal(emptyBody.min_entropy, null);
+    assert.deepEqual(emptyBody.highest, []);
+
+    await fetch(base(port) + "/api/notes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: "未淨化筆記" }),
+    });
+    const res = await fetch(base(port) + "/api/entropy/stats");
+    const body = (await res.json()) as {
+      total_notes: number;
+      with_entropy: number;
+      without_entropy: number;
+      avg_entropy: number | null;
+      highest: unknown[];
+    };
+    assert.equal(body.total_notes, 1);
+    assert.equal(body.with_entropy, 0, "未 purify 之節點不應具 entropy_score");
+    assert.equal(body.without_entropy, 1);
+    assert.equal(body.avg_entropy, null);
+    assert.deepEqual(body.highest, []);
+  });
+});
+
+test("API-21 批次標籤操作：附加去重、移除、unchanged 計數與 missing 如實回報", async () => {
+  await withServer(async ({ port }) => {
+    const post = (text: string, tags: string[]) =>
+      fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, tags }),
+      });
+    const a = ((await (await post("批次甲", ["alpha"])).json()) as { node: UnifiedNode }).node;
+    const b = ((await (await post("批次乙", ["beta"])).json()) as { node: UnifiedNode }).node;
+    const res = await fetch(base(port) + "/api/notes/tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uuids: [a.uuid, b.uuid, "9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"],
+        add: ["esg", "alpha"],
+        remove: ["beta"],
+      }),
+    });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      updated: Array<{ uuid: string; tags: string[] }>;
+      missing: string[];
+      unchanged: number;
+      total: number;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, 3);
+    assert.equal(body.updated.length, 2);
+    assert.deepEqual(body.missing, ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"]);
+    assert.equal(body.unchanged, 0);
+    const updA = body.updated.find((u) => u.uuid === a.uuid);
+    const updB = body.updated.find((u) => u.uuid === b.uuid);
+    assert.ok(updA && updA.tags.includes("alpha") && updA.tags.includes("esg"), "alpha 應去重保留且附加 esg");
+    assert.ok(updB && !updB.tags.includes("beta") && updB.tags.includes("esg"), "beta 應移除且附加 esg");
+    // 後續讀回驗證落地
+    const reread = (await (await fetch(`${base(port)}/api/notes/${b.uuid}`)).json()) as { node: UnifiedNode };
+    assert.ok(!reread.node.topology.tags.includes("beta"));
+    // 冪等重跑：無 add/remove 變化之節點計入 unchanged
+    const again = await fetch(base(port) + "/api/notes/tags", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [a.uuid], add: ["esg"] }),
+    });
+    const againBody = (await again.json()) as { updated: unknown[]; unchanged: number };
+    assert.equal(againBody.updated.length, 0, "同標籤重附加應無變更");
+    assert.equal(againBody.unchanged, 1);
+  });
+});
+
+test("API-22 批次標籤操作道閘：空 uuids、無 add/remove、非字串成員皆 422", async () => {
+  await withServer(async ({ port }) => {
+    const cases: unknown[] = [
+      { uuids: [], add: ["x"] },
+      { uuids: ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"] },
+      { uuids: ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"], add: [], remove: [] },
+      { uuids: "not-array", add: ["x"] },
+      { uuids: ["9a8b7c6d-5e4f-4a3b-9c2d-1e0f9a8b7c6d"], add: [1] },
+    ];
+    for (const body of cases) {
+      const res = await fetch(base(port) + "/api/notes/tags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      assert.equal(res.status, 422, `應 422：${JSON.stringify(body)}`);
+      const j = (await res.json()) as { ok: boolean; error: string };
+      assert.equal(j.error, "INVALID_BATCH_TAGS");
+    }
+  });
+});
+
+test("API-23 伺服器端圖譜投影：節點排序與別名、拓撲權威邊、刪除後未解析重標註", async () => {
+  await withServer(async ({ port }) => {
+    const empty = await fetch(base(port) + "/api/graph");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as {
+      ok: boolean; total_nodes: number; total_edges: number; unresolved_edges: number; nodes: unknown[]; edges: unknown[];
+    };
+    assert.equal(emptyBody.ok, true);
+    assert.equal(emptyBody.total_nodes, 0);
+    assert.equal(emptyBody.total_edges, 0);
+    assert.equal(emptyBody.unresolved_edges, 0);
+    assert.deepEqual(emptyBody.nodes, []);
+    assert.deepEqual(emptyBody.edges, []);
+
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const targetUuid = await post("圖譜目標節點");
+    const sourceUuid = await post("連結 [[圖譜目標節點]]");
+
+    const res = await fetch(base(port) + "/api/graph");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      total_nodes: number;
+      total_edges: number;
+      unresolved_edges: number;
+      nodes: Array<{ uuid: string; matrix_phase: string; alias: string | null; tags: string[] }>;
+      edges: Array<{ source: string; target: string; wikilink_alias: string; resolved: boolean }>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total_nodes, 2);
+    // 節點依 uuid 升冪穩定排序，別名取第一個非墓碑文字區塊
+    const sorted = [...body.nodes.map((n) => n.uuid)].sort();
+    assert.deepEqual(body.nodes.map((n) => n.uuid), sorted, "nodes 應依 uuid 升冪穩定排序");
+    const sourceNode = body.nodes.find((n) => n.uuid === sourceUuid);
+    assert.ok(sourceNode !== undefined);
+    assert.equal(sourceNode.alias, "連結 [[圖譜目標節點]]");
+    assert.equal(sourceNode.matrix_phase, "ALPHA_ORIGIN_CAPTURE");
+    // 拓撲權威邊：source 節點之 outlink 解析為 target uuid
+    assert.equal(body.total_edges, 1);
+    assert.equal(body.unresolved_edges, 0);
+    assert.deepEqual(body.edges, [
+      { source: sourceUuid, target: targetUuid, wikilink_alias: "圖譜目標節點", resolved: true },
+    ]);
+
+    // 目標節點刪除後：現存宇宙即時成員判定，邊降為未解析（resolved 與儲存值相異屬如實投影）
+    const del = await fetch(base(port) + "/api/notes/" + targetUuid, { method: "DELETE" });
+    assert.equal(del.status, 200);
+    const after = await fetch(base(port) + "/api/graph");
+    const afterBody = (await after.json()) as {
+      total_nodes: number; total_edges: number; unresolved_edges: number;
+      edges: Array<{ source: string; target: string; resolved: boolean }>;
+    };
+    assert.equal(afterBody.total_nodes, 1);
+    assert.equal(afterBody.total_edges, 1);
+    assert.equal(afterBody.unresolved_edges, 1);
+    assert.equal(afterBody.edges[0]?.resolved, false, "刪除後邊應即時重標註為未解析");
+  });
+});
+
+test("API-24 圖譜標籤子圖：tag 精確限縮 nodes、filter_tag 如實標示、resolved 依全體宇宙判定", async () => {
+  await withServer(async ({ port }) => {
+    const post = async (text: string, tags: string[]) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, tags }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const targetUuid = await post("子圖目標節點", ["axis"]);
+    const inUuid = await post("子圖內節點 [[子圖目標節點]]", ["axis"]);
+    await post("子圖外節點 [[子圖目標節點]]", ["other"]);
+
+    // 無 tag：全量投影，filter_tag 為 null（如實標示）
+    const full = await fetch(base(port) + "/api/graph");
+    const fullBody = (await full.json()) as { filter_tag: string | null; total_nodes: number };
+    assert.equal(fullBody.filter_tag, null);
+    assert.equal(fullBody.total_nodes, 3);
+
+    // tag=axis：nodes 限縮為含該標籤之二節點
+    const res = await fetch(base(port) + "/api/graph?tag=axis");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean; filter_tag: string | null; total_nodes: number;
+      nodes: Array<{ uuid: string; tags: string[] }>;
+      edges: Array<{ source: string; target: string; resolved: boolean }>;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.filter_tag, "axis");
+    assert.equal(body.total_nodes, 2, "tag 限縮僅保留含該標籤之節點");
+    assert.ok(body.nodes.every((n) => n.tags.includes("axis")));
+    // 邊：子圖內節點之 outlink 解析為子圖內目標（resolved=true）
+    assert.equal(body.edges.length, 1);
+    assert.equal(body.edges[0]?.source, inUuid);
+    assert.equal(body.edges[0]?.target, targetUuid);
+    assert.equal(body.edges[0]?.resolved, true);
+    // 子圖外節點之邊不列入（source 不在子圖）
+    assert.ok(body.edges.every((e) => e.source !== body.nodes.find((n) => n.uuid !== inUuid && n.uuid !== targetUuid)?.uuid));
+
+    // 不存在之標籤：空子圖
+    const none = await fetch(base(port) + "/api/graph?tag=no-such-tag");
+    const noneBody = (await none.json()) as { filter_tag: string | null; total_nodes: number; total_edges: number; nodes: unknown[] };
+    assert.equal(noneBody.filter_tag, "no-such-tag");
+    assert.equal(noneBody.total_nodes, 0);
+    assert.equal(noneBody.total_edges, 0);
+    assert.deepEqual(noneBody.nodes, []);
+  });
+});
+
+test("API-25 批次相位躍遷：SIGMA 批次熔合、冪等 unchanged、OMEGA 與 missing 如實分類", async () => {
+  await withServer(async ({ port }) => {
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const a1 = await post("批次熔合一");
+    const a2 = await post("批次熔合二");
+    // 結晶一節點為 OMEGA
+    const omegaUuid = await post("結晶實體");
+    await fetch(base(port) + "/api/notes/" + omegaUuid + "/crystallize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entity_type: "entity" }),
+    });
+
+    const res = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [a1, a2, omegaUuid, "00000000-0000-4000-8000-000000000000"], to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+    });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      updated: Array<{ uuid: string; matrix_phase: string }>;
+      missing: string[];
+      skipped: Array<{ uuid: string; reason: string }>;
+      unchanged: number;
+      total: number;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, 4);
+    assert.equal(body.updated.length, 2);
+    assert.ok(body.updated.every((u) => u.matrix_phase === "SIGMA_GRAPH_SYNTHESIS"));
+    assert.ok(body.updated.some((u) => u.uuid === a1) && body.updated.some((u) => u.uuid === a2));
+    assert.deepEqual(body.skipped, [{ uuid: omegaUuid, reason: "OMEGA_OBJECT_CRYSTAL" }]);
+    assert.deepEqual(body.missing, ["00000000-0000-4000-8000-000000000000"]);
+    assert.equal(body.unchanged, 0);
+
+    // 落地讀回：相位與版本遞增
+    const read1 = await fetch(base(port) + "/api/notes/" + a1);
+    const n1 = ((await read1.json()) as { node: { matrix_phase: string; version: string } }).node;
+    assert.equal(n1.matrix_phase, "SIGMA_GRAPH_SYNTHESIS");
+
+    // 冪等重跑：已在 SIGMA 者 unchanged 零寫入
+    const rerun = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [a1, a2], to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+    });
+    const rerunBody = (await rerun.json()) as { updated: unknown[]; unchanged: number };
+    assert.equal(rerunBody.updated.length, 0);
+    assert.equal(rerunBody.unchanged, 2);
+
+    // 道閘：空 uuids、非 SIGMA 目標皆 422
+    for (const payload of [
+      { uuids: [], to_phase: "SIGMA_GRAPH_SYNTHESIS" },
+      { uuids: [a1] },
+      { uuids: [a1], to_phase: "OMEGA_OBJECT_CRYSTAL" },
+      { uuids: [a1], to_phase: "LATERAL_REBASE" },
+    ]) {
+      const gate = await fetch(base(port) + "/api/notes/phases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const j = (await gate.json()) as { ok: boolean; error: string };
+      assert.equal(gate.status, 422);
+      assert.equal(j.error, "INVALID_BATCH_PHASE");
+    }
+  });
+});
+
+test("API-27 批次逆向投影（四十一期）：OMEGA 與 SIGMA 逐節點回流 ALPHA、冪等 unchanged、證據入鏈", async () => {
+  await withServer(async ({ port }) => {
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string } };
+      return b.node.uuid;
+    };
+    const alphaUuid = await post("原生捕獲節點");
+    const sigmaUuid = await post("批次熔合節點");
+    const omegaUuid = await post("批次結晶節點");
+    // 備妥相位：sigma 熔合、omega 結晶
+    await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [sigmaUuid], to_phase: "SIGMA_GRAPH_SYNTHESIS" }),
+    });
+    await fetch(base(port) + "/api/notes/" + omegaUuid + "/crystallize", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ entity_type: "entity" }),
+    });
+
+    const res = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [sigmaUuid, omegaUuid, alphaUuid, "00000000-0000-4000-8000-000000000000"], to_phase: "ALPHA_ORIGIN_CAPTURE" }),
+    });
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean;
+      updated: Array<{ uuid: string; matrix_phase: string }>;
+      missing: string[];
+      skipped: Array<{ uuid: string; reason: string }>;
+      unchanged: number;
+      total: number;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, 4);
+    assert.equal(body.updated.length, 2, "OMEGA 與 SIGMA 各一，原生 ALPHA 不入 updated");
+    assert.ok(body.updated.every((u) => u.matrix_phase === "ALPHA_ORIGIN_CAPTURE"));
+    assert.ok(body.updated.some((u) => u.uuid === sigmaUuid) && body.updated.some((u) => u.uuid === omegaUuid));
+    assert.deepEqual(body.skipped, []);
+    assert.equal(body.unchanged, 1, "原生 ALPHA 冪等零寫入");
+    assert.deepEqual(body.missing, ["00000000-0000-4000-8000-000000000000"]);
+
+    // 落地讀回：相位回流 ALPHA，證據鏈含 ON_REVERSE_PROJECT
+    const read = await fetch(base(port) + "/api/notes/" + omegaUuid);
+    const n = ((await read.json()) as {
+      node: { matrix_phase: string; evidence: Array<{ hook_lifecycle: string }> };
+    }).node;
+    assert.equal(n.matrix_phase, "ALPHA_ORIGIN_CAPTURE");
+    assert.ok(n.evidence.some((e) => e.hook_lifecycle === "ON_REVERSE_PROJECT"));
+
+    // 冪等重跑：三個存在節點全數 unchanged
+    const rerun = await fetch(base(port) + "/api/notes/phases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ uuids: [sigmaUuid, omegaUuid, alphaUuid], to_phase: "ALPHA_ORIGIN_CAPTURE" }),
+    });
+    const rerunBody = (await rerun.json()) as { updated: unknown[]; unchanged: number; skipped: unknown[] };
+    assert.equal(rerunBody.updated.length, 0);
+    assert.equal(rerunBody.unchanged, 3);
+    assert.deepEqual(rerunBody.skipped, []);
+
+    // 道閘：非批次目標（crystallize 語義與未知相位）皆 422
+    for (const payload of [
+      { uuids: [alphaUuid], to_phase: "OMEGA_OBJECT_CRYSTAL" },
+      { uuids: [alphaUuid], to_phase: "REVERSE" },
+      { uuids: [] },
+    ]) {
+      const gate = await fetch(base(port) + "/api/notes/phases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...payload, to_phase: payload.to_phase ?? "" }),
+      });
+      const j = (await gate.json()) as { ok: boolean; error: string };
+      assert.equal(gate.status, 422);
+      assert.equal(j.error, "INVALID_BATCH_PHASE");
+    }
+  });
+});
+
+test("API-26 全域證據時間軸：跨節點彙整、captured_at 升冪、hook 精確過濾、分頁與道閘", async () => {
+  await withServer(async ({ port }) => {
+    // 道閘先於資料彙整：空庫亦如實回零列
+    const empty = await fetch(base(port) + "/api/evidence");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as { ok: boolean; total: number; offset: number; limit: number; entries: unknown[] };
+    assert.equal(emptyBody.ok, true);
+    assert.equal(emptyBody.total, 0);
+    assert.equal(emptyBody.limit, 50);
+    assert.deepEqual(emptyBody.entries, []);
+
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string; version: string; lock_hash: string; evidence: Array<{ hook_lifecycle: string; captured_at: string }> } };
+      return b.node;
+    };
+    const n1 = await post("時間軸一");
+    const n2 = await post("時間軸二");
+
+    const res = await fetch(base(port) + "/api/evidence?limit=500");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean; total: number; offset: number; limit: number;
+      entries: Array<{ uuid: string; node_version: string; lock_hash: string; entry: { hook_lifecycle: string; captured_at: string } }>;
+    };
+    assert.equal(body.total, n1.evidence.length + n2.evidence.length);
+    assert.ok(body.entries.length >= 2);
+    // captured_at 字串升冪穩定排序
+    const times = body.entries.map((e) => e.entry.captured_at);
+    const sorted = [...times].sort();
+    assert.deepEqual(times, sorted, "entries 應依 captured_at 字串升冪排序");
+    // 每筆附 node_version 與 lock_hash 綁定
+    for (const e of body.entries) {
+      assert.ok(typeof e.uuid === "string" && typeof e.node_version === "string" && typeof e.lock_hash === "string");
+    }
+
+    // 分頁：offset+limit 切窗
+    const page = await fetch(base(port) + "/api/evidence?limit=1&offset=1");
+    const pageBody = (await page.json()) as { total: number; entries: unknown[] };
+    assert.equal(pageBody.total, body.total);
+    assert.equal(pageBody.entries.length, 1);
+
+    // hook 精確過濾
+    const hooked = await fetch(base(port) + "/api/evidence?hook=ON_ALPHA_CAPTURE");
+    const hookedBody = (await hooked.json()) as { total: number; entries: Array<{ entry: { hook_lifecycle: string } }> };
+    assert.ok(hookedBody.entries.every((e) => e.entry.hook_lifecycle === "ON_ALPHA_CAPTURE"));
+
+    // 道閘：非法 limit/offset、空 hook 皆 422
+    for (const qs of ["limit=0", "limit=501", "limit=abc", "offset=-1", "hook=%20"]) {
+      const gate = await fetch(base(port) + "/api/evidence?" + qs);
+      const j = (await gate.json()) as { ok: boolean; error: string };
+      assert.equal(gate.status, 422);
+      assert.equal(j.error, "INVALID_QUERY");
+    }
+  });
+});
+
+test("API-28 全域證據 hook 別統計（四十四期）：空庫零列、總數、首現順序與首末 captured_at", async () => {
+  await withServer(async ({ port }) => {
+    // 空庫如實回零與 null
+    const empty = await fetch(base(port) + "/api/evidence/stats");
+    assert.equal(empty.status, 200);
+    const emptyBody = (await empty.json()) as {
+      ok: boolean; total: number; by_hook: Record<string, number>; hooks: string[];
+      first_captured_at: string | null; last_captured_at: string | null;
+    };
+    assert.equal(emptyBody.ok, true);
+    assert.equal(emptyBody.total, 0);
+    assert.deepEqual(emptyBody.by_hook, {});
+    assert.deepEqual(emptyBody.hooks, []);
+    assert.equal(emptyBody.first_captured_at, null);
+    assert.equal(emptyBody.last_captured_at, null);
+
+    const post = async (text: string) => {
+      const r = await fetch(base(port) + "/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      const b = (await r.json()) as { node: { uuid: string; evidence: Array<{ hook_lifecycle: string; captured_at: string }> } };
+      return b.node;
+    };
+    const n1 = await post("統計節點一");
+    const n2 = await post("統計節點二");
+    const totalExpected = n1.evidence.length + n2.evidence.length;
+    assert.ok(totalExpected >= 2);
+
+    const res = await fetch(base(port) + "/api/evidence/stats");
+    assert.equal(res.status, 200);
+    const body = (await res.json()) as {
+      ok: boolean; total: number; by_hook: Record<string, number>; hooks: string[];
+      first_captured_at: string | null; last_captured_at: string | null;
+    };
+    assert.equal(body.ok, true);
+    assert.equal(body.total, totalExpected);
+    // by_hook 總和等於 total；hooks 首現順序與節點級彙整一致
+    const sum = Object.values(body.by_hook).reduce((a, b) => a + b, 0);
+    assert.equal(sum, totalExpected);
+    assert.equal(body.hooks.length, Object.keys(body.by_hook).length);
+    for (const h of body.hooks) assert.ok(typeof body.by_hook[h] === "number" && body.by_hook[h] > 0);
+    // ON_ALPHA_CAPTURE 至少 2 筆（兩節點捕獲各一）
+    assert.ok((body.by_hook["ON_ALPHA_CAPTURE"] ?? 0) >= 2);
+    // 首末 captured_at 為字串排序非時間權威：與時間軸首尾一致
+    const timeline = await fetch(base(port) + "/api/evidence?limit=500");
+    const tl = (await timeline.json()) as { entries: Array<{ entry: { captured_at: string } }> };
+    assert.equal(body.first_captured_at, tl.entries[0]?.entry.captured_at ?? null);
+    assert.equal(body.last_captured_at, tl.entries[tl.entries.length - 1]?.entry.captured_at ?? null);
+  });
+});

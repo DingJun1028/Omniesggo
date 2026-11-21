@@ -11,15 +11,17 @@ jobs:
     name: 60 員軍團觸達驗證
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      # check-soul-lineage.mjs 以 git log 回溯版本血脈，需完整歷史（fetch-depth: 0）。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      # verify-oa-gap.mjs 與 check-soul-lineage.mjs 皆僅依賴 Node 內建模組，
+      # 毋須 pnpm install；撤除 pnpm 層以消除 setup-node cache: pnpm 之
+      # 間歇性 "Could not get pnpm cache folder path" 假紅
+      # （2026-11-17 PR #298 劣化 runner 實證），並縮短作業時間。
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
       - name: 驗證 60 員觸達
         run: node oa-swarm/scripts/verify-oa-gap.mjs
       - name: 驗證 soul-lineage 血脈
@@ -29,15 +31,12 @@ jobs:
     name: Schema 追溯閘
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-        with:
-          fetch-depth: 0
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      # generate-schema-traceability.mjs 零外部依賴；與 schema-traceability.yml
+      # 之獨立工作流同型（checkout＋setup-node＋node），毋須 pnpm install。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
       - name: TypeBox Schema 追溯驗證
         run: node scripts/generate-schema-traceability.mjs --check
 
@@ -45,11 +44,11 @@ jobs:
     name: Agent Registry 冒煙測試
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
-      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22
           cache: pnpm
