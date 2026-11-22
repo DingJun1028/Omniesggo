@@ -85,9 +85,9 @@ for arg in "$@"; do
   esac
 done
 
-# 預設: local（NCB 是外部主機, 本機永久可用）
+# 預設: auto（NCB 憑證就緒且健康則 ncb，否則 local fallback）
 if [ -z "$JUNAKEY_BACKEND_OVERRIDE" ]; then
-  JUNAKEY_BACKEND_OVERRIDE="local"
+  JUNAKEY_BACKEND_OVERRIDE="auto"
 fi
 
 case "${1:-}" in
