@@ -1,42 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateV5Report, reportV5ToHtml, reportV5ToMarkdown } from '@/core/services/report-generator-v5';
-import { jsonError, jsonErrorInternal } from '@lib/api-utils';
+import { jsonError } from '@lib/api-utils';
+import { getTaskReport } from '@lib/redis';
+import { fullReportToHtml, type ExtendedV5Report } from '@/core/services/report-generator-v5-full';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const companyId = searchParams.get('companyId');
+  const taskId = searchParams.get('taskId');
+  if (!taskId) return jsonError('INVALID_PARAMS', 'taskId is required', 400);
+  const snapshot = await getTaskReport(taskId);
+  if (!snapshot) return jsonError('NOT_FOUND', '報告快照不存在或已過期', 404);
   const format = searchParams.get('format') || 'html';
-
-  if (!companyId) {
-    return jsonError('INVALID_PARAMS', 'companyId is required', 400);
-  }
-
-  try {
-    const report = generateV5Report(companyId);
-    if (!report) {
-      return jsonError('NOT_FOUND', 'Report could not be generated', 404);
-    }
-
-    if (format === 'md' || format === 'markdown') {
-      const mdContent = reportV5ToMarkdown(report);
-      return new NextResponse(mdContent, {
-        headers: {
-          'Content-Type': 'text/plain; charset=utf-8',
-        },
-      });
-    }
-
-    // Default to HTML
-    const htmlContent = reportV5ToHtml(report);
-    return new NextResponse(htmlContent, {
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-      },
-    });
-
-  } catch (error: unknown) {
-    return jsonErrorInternal(error, 'INTERNAL_ERROR', 500);
-  }
+  if (format === 'html') return new NextResponse(fullReportToHtml(snapshot.report as ExtendedV5Report), { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  if (format === 'json') return NextResponse.json(snapshot);
+  return jsonError('INVALID_PARAMS', 'format must be html or json', 400);
 }

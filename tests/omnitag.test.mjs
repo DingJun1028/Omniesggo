@@ -225,7 +225,7 @@ const g3 = group('operations v2: inheritance / prune / merge', [
     d.select = async () => lb;
     const ops = createOperations({ dispatcher: d, NCB_BASE: '', NCB_PROJECT: '', JUNAKEY_HOME: tmp });
     await ops.growSkill('oracle-master', 'oracle 主操作', []);
-    await ops.tagSkill('oracle-master', ['agent:13', 'best-practice:结界']);
+    await ops.tagSkill('oracle-master', ['agent:13', 'best-practice:結界']);
     await ops.growSkill('oci-bv-attach', 'oci boot volume attach', []);
     await ops.tagSkill('oci-bv-attach', ['agent:13']);  // 同 agent,沒結界
     await ops.growSkill('ssh-fix', 'ssh fix', []);
@@ -238,9 +238,9 @@ const g3 = group('operations v2: inheritance / prune / merge', [
     const r = await ops.applyBoundaryInheritance();
     assert.equal(r.inherited, 1);
     const oci = await ops.recallSkill('oci-bv-attach');
-    assert.ok(oci.traits.includes('best-practice:结界'));
+    assert.ok(oci.traits.includes('best-practice:結界'));
     const ssh = await ops.recallSkill('ssh-fix');
-    assert.ok(!ssh.traits.includes('best-practice:结界'));  // 不同 agent 不繼承
+    assert.ok(!ssh.traits.includes('best-practice:結界'));  // 不同 agent 不繼承
     await fs.rm(tmp, { recursive: true });
   }),
   test('pruneSkills: 限制最多 2 個,保留最新', async () => {

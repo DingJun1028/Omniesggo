@@ -1,54 +1,40 @@
 // ============================================================
-// src/db.js — 資料層（Firebase Firestore + localStorage fallback）
+// src/db.js — 資料層（Supabase + localStorage fallback）
 // ------------------------------------------------------------
 // 設計目標：
-//   1) 永久儲存：寫入 Firestore，部署後跨裝置共有
+//   1) 永久儲存：寫入 Supabase，部署後跨裝置共有
 //   2) 大附件：前端 base64 data URL 內嵌進文件
-//   3) 認證：保留匿名登入 + 支援 Google / 登出
+//   3) 認證：Supabase 匿名登入 + 登出
 //   4) 用戶資料：user profile 於登入後建立/讀取/更新
 //   5) 助教配對：助教->學員配對檔案的 CRUD + 訂閱
 //   6) Oracle：後端 proxy 對接；（純 optional，沒有後端時不破壞機能不能用）
 // ============================================================
 
-import { initializeApp } from 'firebase/app';
 import {
-  getAuth,
-  signInAnonymously,
-  onAuthStateChanged,
-  GoogleAuthProvider,
-  signInWithPopup,
-  signOut as firebaseSignOut,
-  getIdTokenResult,
-} from 'firebase/auth';
-import {
-  initializeFirestore,
-  persistentLocalCache,
-  collection,
-  onSnapshot,
-  doc,
-  setDoc,
-  deleteDoc,
-  serverTimestamp,
-  FirestoreError,
-  getDoc,
-  query,
-  where,
-  getDocs,
-  writeBatch,
-} from 'firebase/firestore';
+  supabaseEnabled,
+  supaAuthInit,
+  supaSignOut,
+  supaAddSubmission,
+  supaSubscribeSubmissions,
+  supaDeleteSubmission,
+  supaGetProfile,
+  supaUpsertProfile,
+  supaGetTA,
+  supaUpsertTA,
+  supaSetPairing,
+  supaUpdatePairing,
+  supaDeletePairing,
+  supaLoadPairing,
+  supaListPairingsForMentor,
+  supaListPairingsForMentee,
+  supaSubscribePairings,
+} from './supabase-db';
 
-/** @type {import('firebase/app').FirebaseOptions} */
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FB_API_KEY,
-  authDomain: import.meta.env.VITE_FB_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FB_PROJECT_ID,
-  messagingSenderId: import.meta.env.VITE_FB_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FB_APP_ID,
-  storageBucket: import.meta.env.VITE_FB_STORAGE_BUCKET,
-};
+/** Supabase 啟用旗標（國策: 非 Google）。false 時退回 localStorage。 */
+export const useSupabase = supabaseEnabled;
 
 export const APP_ID = (
-  import.meta.env.VITE_FB_APP_ID_SLUG || 'esggo-learning-center'
+  import.meta.env.VITE_APP_ID_SLUG || 'esggo-learning-center'
 ).trim();
 
 export const emitTelemetry = (event, payload = {}) => {
@@ -58,43 +44,14 @@ export const emitTelemetry = (event, payload = {}) => {
 };
 
 export const DataError = Object.freeze({
-  CONFIG_INVALID: new Error('Firebase 設定無效，請檢查 .env 是否已填入。'),
-  DOCUMENT_TOO_LARGE: new Error('文件大小超過 Firestore 上限 1MB。'),
+  DOCUMENT_TOO_LARGE: new Error('提交內容大小超過上限。'),
   UNAUTHENTICATED: new Error('使用者尚未登入。'),
   UNAUTHORIZED: new Error('缺少管理員權限。'),
 });
 
-let app = null;
-let auth = null;
-let db = null;
-/** @type {boolean} Whether Firebase is active. */
-export let useFirebase = false;
-
-const isConfigComplete = () =>
-  !!(
-    firebaseConfig.apiKey &&
-    firebaseConfig.projectId &&
-    firebaseConfig.appId &&
-    String(firebaseConfig.apiKey).indexOf('xxxx') === -1
-  );
-
-if (isConfigComplete()) {
-  try {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    db = initializeFirestore(app, {
-      localCache: persistentLocalCache({}),
-    });
-    useFirebase = true;
-  } catch (error) {
-    console.warn('Firebase init failed, falling back to local storage', error);
-    useFirebase = false;
-  }
-}
-
 const LOCAL_KEY = `berkeley_submissions_${APP_ID}`;
 const LOCAL_PROFILE_PREFIX = `berkeley_profile_${APP_ID}_`;
-const LOCAL_MENTOR_PREFIX = `berkeley_mentor_${APP_ID}_`;
+const LOCAL_TA_PREFIX = `berkeley_ta_${APP_ID}_`;
 const LOCAL_PAIRING_PREFIX = `berkeley_pairing_${APP_ID}`;
 
 const isRecordTooLarge = async (files) => {
@@ -105,11 +62,11 @@ const isRecordTooLarge = async (files) => {
   }
 };
 
-/** @type {Set<() => void>} */
-const localListeners = new Set();
+/** @type {Set<(items: any[]) => void>} */
+export const localListeners = new Set();
 
 /** @param {any[]} items */
-const notifyLocal = () => {
+export const notifyLocal = () => {
   const next = loadLocal()
     .slice()
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -142,61 +99,15 @@ export const loadLocal = () => {
 
 /** @param {(user: { uid: string; isLocal?: boolean }) => void} cb @returns {() => void} */
 export const initAuth = (cb) => {
-  if (!useFirebase || !auth) {
-    cb({ uid: `local-user-${APP_ID}`, isLocal: true });
-    return () => {};
-  }
-
-  const unsubscribe = onAuthStateChanged(
-    auth,
-    async (user) => {
-      if (user) {
-        cb(user);
-        return;
-      }
-      try {
-        await signInAnonymously(auth);
-      } catch (error) {
-        console.error('Anonymous auth failed', error);
-        emitTelemetry('auth_error', { code: error?.code });
-      }
-    },
-    (error) => {
-      console.error('Auth state change error', error);
-      emitTelemetry('auth_state_error', { code: error?.code });
-    }
-  );
-
-  return unsubscribe;
+  if (useSupabase) return supaAuthInit(cb);
+  cb({ uid: `local-user-${APP_ID}`, isLocal: true });
+  return () => {};
 };
 
-/** Open the Google sign-in flow. */
-export const signInWithGoogle = async () => {
-  if (!useFirebase || !auth) {
-    throw DataError.CONFIG_INVALID;
-  }
-  try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
-  } catch (error) {
-    console.error('Google sign-in failed', error);
-    emitTelemetry('sign_in_error', { code: error?.code });
-    if (String(error?.code) === 'auth/operation-not-allowed') {
-      throw new Error('Google 登入已停用：請至 Firebase Console → Authentication → Sign-in method 開啟 Google provider。');
-    }
-    throw error;
-  }
-};
-
-/** Sign out the current Firebase user. */
+/** Sign out the current user. */
 export const signOut = async () => {
-  if (!useFirebase || !auth) return false;
-  try {
-    await firebaseSignOut(auth);
-    return true;
-  } catch (error) {
-    console.error('Sign out failed', error);
-    return false;
-  }
+  if (useSupabase) return supaSignOut();
+  return true;
 };
 
 /**
@@ -230,7 +141,7 @@ export const uploadFiles = async (files) => {
   );
 };
 
-function toDocumentPayload(submission, attachments, id) {
+function toDocumentPayload(submission, attachments) {
   if (!submission?.userId) {
     throw DataError.UNAUTHENTICATED;
   }
@@ -242,7 +153,7 @@ function toDocumentPayload(submission, attachments, id) {
       ...(submission.data || {}),
       attachments: attachments || [],
     },
-    createdAt: serverTimestamp(),
+    createdAt: new Date().toISOString(),
   };
 }
 
@@ -253,18 +164,19 @@ function toDocumentPayload(submission, attachments, id) {
  * @param {string} [id]
  */
 export const addSubmission = async (submission, attachments, id) => {
-  const docId = id || String(Date.now());
-  const payload = toDocumentPayload(submission, attachments, docId);
-
-  if (useFirebase && db) {
-    await setDoc(doc(db, 'platforms', APP_ID, 'submissions', docId), payload);
-  } else {
-    const item = { id: docId, ...payload, createdAt: new Date().toISOString() };
-    const all = loadLocal();
-    all.push(item);
-    saveLocal(all);
-    notifyLocal();
+  if (useSupabase) {
+    const docId = await supaAddSubmission(submission, attachments, id);
+    emitTelemetry('submission_created', { type: submission.type, id: docId });
+    return docId;
   }
+  const docId = id || String(Date.now());
+  const payload = toDocumentPayload(submission, attachments);
+
+  const item = { id: docId, ...payload };
+  const all = loadLocal();
+  all.push(item);
+  saveLocal(all);
+  notifyLocal();
 
   emitTelemetry('submission_created', { type: submission.type, id: docId });
   return docId;
@@ -272,37 +184,7 @@ export const addSubmission = async (submission, attachments, id) => {
 
 /** Subscribe to submissions in real time. @param {(items: any[]) => void} onData @returns {() => void} */
 export const subscribeSubmissions = (userId, onData) => {
-  if (useFirebase && db) {
-    const collectionRef = collection(db, 'platforms', APP_ID, 'submissions');
-    const unsubscribe = onSnapshot(
-      collectionRef,
-      (snapshot) => {
-        const items = snapshot.docs.map((document) => {
-          const data = document.data();
-          let createdAt = data.createdAt;
-          if (createdAt && typeof createdAt.toDate === 'function') {
-            createdAt = createdAt.toDate().toISOString();
-          }
-          return {
-            id: document.id,
-            userId: data.userId,
-            type: data.type,
-            data: data.data,
-            createdAt,
-          };
-        });
-        items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-        onData(items);
-      },
-      (error) => {
-        console.error('Submission snapshot error', error);
-        if (error instanceof FirestoreError) {
-          emitTelemetry('subscription_error', { code: error.code });
-        }
-      }
-    );
-    return unsubscribe;
-  }
+  if (useSupabase) return supaSubscribeSubmissions(onData);
 
   const onNext = (data) => onData(data);
   localListeners.add(onNext);
@@ -316,13 +198,14 @@ export const subscribeSubmissions = (userId, onData) => {
 
 /** Delete a submission by id. @param {string} id */
 export const deleteSubmission = async (id) => {
-  if (useFirebase && db) {
-    await deleteDoc(doc(db, 'platforms', APP_ID, 'submissions', id));
-  } else {
-    const all = loadLocal().filter((item) => item.id !== id);
-    saveLocal(all);
-    notifyLocal();
+  if (useSupabase) {
+    await supaDeleteSubmission(id);
+    emitTelemetry('submission_deleted', { id });
+    return;
   }
+  const all = loadLocal().filter((item) => item.id !== id);
+  saveLocal(all);
+  notifyLocal();
 
   emitTelemetry('submission_deleted', { id });
 };
@@ -340,42 +223,24 @@ export const clearLocal = (confirm = false) => {
 // User profile（登入後補資料/角色/聯絡資訊）
 // ============================================================
 
-const profileRef = (uid) => doc(db, 'platforms', APP_ID, 'profiles', uid);
 const profileLocalStorageKey = (uid) => `${LOCAL_PROFILE_PREFIX}${uid}`;
-
-const defaultProfile = () => ({
-  displayName: '',
-  email: '',
-  role: 'student',
-  org: '',
-  status: 'active',
-  updatedAt: new Date().toISOString(),
-});
 
 /** Merge updated fields onto saved profile. @returns {Promise<any>} */
 export const upsertProfile = async (uid, updates = {}) => {
-  const payload = defaultProfile();
-  let current = null;
-
-  if (useFirebase && db) {
-    const snap = await getDoc(profileRef(uid));
-    if (snap.exists()) {
-      current = snap.data();
-    }
-  } else {
-    try {
-      current = JSON.parse(localStorage.getItem(profileLocalStorageKey(uid)) || '{}');
-    } catch {
-      current = {};
-    }
+  if (useSupabase) {
+    const next = await supaUpsertProfile(uid, updates);
+    emitTelemetry('profile_upsert', { uid, role: next.role });
+    return next;
+  }
+  let current;
+  try {
+    current = JSON.parse(localStorage.getItem(profileLocalStorageKey(uid)) || '{}');
+  } catch {
+    current = {};
   }
 
   const next = { ...current, ...updates, updatedAt: new Date().toISOString() };
-  if (useFirebase && db) {
-    await setDoc(profileRef(uid), next, { merge: true });
-  } else {
-    localStorage.setItem(profileLocalStorageKey(uid), JSON.stringify(next));
-  }
+  localStorage.setItem(profileLocalStorageKey(uid), JSON.stringify(next));
 
   emitTelemetry('profile_upsert', { uid, role: next.role });
   return next;
@@ -384,13 +249,7 @@ export const upsertProfile = async (uid, updates = {}) => {
 /** Get current user profile. @returns {Promise<any>} */
 export const getProfile = async (uid) => {
   if (!uid) return null;
-  if (useFirebase && db) {
-    const snap = await getDoc(profileRef(uid));
-    if (snap.exists()) {
-      return snap.data();
-    }
-    return null;
-  }
+  if (useSupabase) return supaGetProfile(uid);
 
   try {
     return JSON.parse(localStorage.getItem(profileLocalStorageKey(uid)) || '{}');
@@ -402,40 +261,24 @@ export const getProfile = async (uid) => {
 // ============================================================
 // TA / Mentee 身份標記（support pairing 主資料）
 // ============================================================
-const LOCAL_TA_PREFIX = `berkeley_ta_${APP_ID}_`;
-const taRef = (uid) => doc(db, 'platforms', APP_ID, 'tas', uid);
 const taLocalStorageKey = (uid) => `${LOCAL_TA_PREFIX}${uid}`;
-
-const defaultTA = () => ({
-  isTA: false,
-  bio: '',
-  slots: [],
-  assignedStudents: [],
-  updatedAt: new Date().toISOString(),
-});
 
 /** Register or update TA profile. @returns {Promise<any>} */
 export const upsertTAProfile = async (uid, updates = {}) => {
-  const payload = defaultTA();
-  let current = null;
-
-  if (useFirebase && db) {
-    const snap = await getDoc(taRef(uid));
-    if (snap.exists()) current = snap.data();
-  } else {
-    try {
-      current = JSON.parse(localStorage.getItem(taLocalStorageKey(uid)) || '{}');
-    } catch {
-      current = {};
-    }
+  if (useSupabase) {
+    const next = await supaUpsertTA(uid, updates);
+    emitTelemetry('ta_upsert', { uid, isTA: next.isTA });
+    return next;
+  }
+  let current;
+  try {
+    current = JSON.parse(localStorage.getItem(taLocalStorageKey(uid)) || '{}');
+  } catch {
+    current = {};
   }
 
   const next = { ...current, ...updates, updatedAt: new Date().toISOString() };
-  if (useFirebase && db) {
-    await setDoc(taRef(uid), next, { merge: true });
-  } else {
-    localStorage.setItem(taLocalStorageKey(uid), JSON.stringify(next));
-  }
+  localStorage.setItem(taLocalStorageKey(uid), JSON.stringify(next));
 
   emitTelemetry('ta_upsert', { uid, isTA: next.isTA });
   return next;
@@ -444,11 +287,7 @@ export const upsertTAProfile = async (uid, updates = {}) => {
 /** Get TA profile. @returns {Promise<any>} */
 export const getTAProfile = async (uid) => {
   if (!uid) return null;
-  if (useFirebase && db) {
-    const snap = await getDoc(taRef(uid));
-    if (snap.exists()) return snap.data();
-    return null;
-  }
+  if (useSupabase) return supaGetTA(uid);
 
   try {
     return JSON.parse(localStorage.getItem(taLocalStorageKey(uid)) || '{}');
@@ -500,6 +339,11 @@ function pairingDocId(mentorUid, menteeUid) {
 export const requestPairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
   const next = newPairingPayload(mentorUid, menteeUid);
+  if (useSupabase) {
+    await supaSetPairing(docId, next);
+    emitTelemetry('pairing_request', { mentorUid, menteeUid });
+    return docId;
+  }
   await setPairing(docId, next);
   emitTelemetry('pairing_request', { mentorUid, menteeUid });
   return docId;
@@ -509,24 +353,28 @@ export const createPairingRequest = requestPairing;
 
 export const acceptPairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  await updatePairing(docId, { status: PAIRING_STATUS.ASSIGNED, updatedAt: new Date().toISOString() });
+  const patch = { status: PAIRING_STATUS.ASSIGNED, updatedAt: new Date().toISOString() };
+  if (useSupabase) {
+    await supaUpdatePairing(docId, patch);
+    return docId;
+  }
+  await updatePairing(docId, patch);
   return docId;
 };
 
 export const declinePairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  await updatePairing(docId, { status: PAIRING_STATUS.DECLINED, updatedAt: new Date().toISOString() });
+  const patch = { status: PAIRING_STATUS.DECLINED, updatedAt: new Date().toISOString() };
+  if (useSupabase) {
+    await supaUpdatePairing(docId, patch);
+    return docId;
+  }
+  await updatePairing(docId, patch);
   return docId;
 };
 
 /** 建立/覆寫整筆 pairing @param {string} id @param {any} payload */
 const setPairing = async (id, payload) => {
-  if (useFirebase && db) {
-    const ref = doc(db, 'platforms', APP_ID, 'pairings', id);
-    await setDoc(ref, payload);
-    return;
-  }
-
   const storeKey = pairingCollectionLocalStoragePrefix() + id;
   localStorage.setItem(storeKey, JSON.stringify(payload));
   emitPairingLocalEvent();
@@ -534,12 +382,6 @@ const setPairing = async (id, payload) => {
 
 /** 更新部分欄位 @param {string} id @param {Partial<any>} patch */
 const updatePairing = async (id, patch) => {
-  if (useFirebase && db) {
-    const ref = doc(db, 'platforms', APP_ID, 'pairings', id);
-    await setDoc(ref, patch, { merge: true });
-    return;
-  }
-
   const storeKey = pairingCollectionLocalStoragePrefix() + id;
   const current = JSON.parse(localStorage.getItem(storeKey) || '{}');
   const next = { ...current, ...patch };
@@ -549,12 +391,12 @@ const updatePairing = async (id, patch) => {
 
 export const deletePairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  if (useFirebase && db) {
-    await deleteDoc(doc(db, 'platforms', APP_ID, 'pairings', docId));
-  } else {
-    localStorage.removeItem(pairingCollectionLocalStoragePrefix() + docId);
-    emitPairingLocalEvent();
+  if (useSupabase) {
+    await supaDeletePairing(docId);
+    return docId;
   }
+  localStorage.removeItem(pairingCollectionLocalStoragePrefix() + docId);
+  emitPairingLocalEvent();
 
   return docId;
 };
@@ -564,13 +406,7 @@ export const removePairing = deletePairing;
 /** Load pairing by ids. @returns {Promise<any | null>} */
 export const loadPairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  if (useFirebase && db) {
-    const snap = await getDoc(doc(db, 'platforms', APP_ID, 'pairings', docId));
-    if (snap.exists()) {
-      return { id: snap.id, ...snap.data() };
-    }
-    return null;
-  }
+  if (useSupabase) return supaLoadPairing(docId);
 
   try {
     const raw = localStorage.getItem(pairingCollectionLocalStoragePrefix() + docId);
@@ -581,12 +417,7 @@ export const loadPairing = async (mentorUid, menteeUid) => {
 };
 
 export const listPairingsForMentor = async (mentorUid) => {
-  if (useFirebase && db) {
-    const ref = collection(db, 'platforms', APP_ID, 'pairings');
-    const q = query(ref, where('mentorUid', '==', mentorUid));
-    const snap = await getDocs(q);
-    return snap.docs.map((document) => ({ id: document.id, ...document.data() }));
-  }
+  if (useSupabase) return supaListPairingsForMentor(mentorUid);
 
   const out = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -607,12 +438,7 @@ export const listPairingsForMentor = async (mentorUid) => {
 };
 
 export const listPairingsForMentee = async (menteeUid) => {
-  if (useFirebase && db) {
-    const ref = collection(db, 'platforms', APP_ID, 'pairings');
-    const q = query(ref, where('menteeUid', '==', menteeUid));
-    const snap = await getDocs(q);
-    return snap.docs.map((document) => ({ id: document.id, ...document.data() }));
-  }
+  if (useSupabase) return supaListPairingsForMentee(menteeUid);
 
   const out = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -648,26 +474,7 @@ const emitPairingLocalEvent = () => {
 
 /** Subscribe to all pairings. @returns {() => void} */
 export const subscribePairings = (onData) => {
-  if (useFirebase && db) {
-    const collectionRef = collection(db, 'platforms', APP_ID, 'pairings');
-    const unsubscribe = onSnapshot(
-      collectionRef,
-      (snapshot) => {
-        const items = snapshot.docs.map((document) => ({
-          id: document.id,
-          ...document.data(),
-        }));
-        onData(items);
-      },
-      (error) => {
-        console.error('Pairing snapshot error', error);
-        if (error instanceof FirestoreError) {
-          emitTelemetry('pairing_subscription_error', { code: error.code });
-        }
-      }
-    );
-    return unsubscribe;
-  }
+  if (useSupabase) return supaSubscribePairings(onData);
 
   const next = (store) => onData(store);
   pairingLocalListeners.add(next);
@@ -696,34 +503,13 @@ const pairingCollectionLocalStoragePrefix = () => `${LOCAL_PAIRING_PREFIX}_`;
 // ============================================================
 // Oracle Always Free proxy helpers（optional）
 // 這是一套 pure-JS 的選用型 adapter：有 VITE_ORACLE_API_BASE 就會用 proxy；
-// 完全沒有 proxy 時，所有呼叫都會 fallback 到 Firestore 或 localStorage。
+// 完全沒有 proxy 時，所有呼叫都會 fallback 到 localStorage。
 // ============================================================
 
 const ORACLE_API_BASE = (import.meta.env.VITE_ORACLE_API_BASE || '').trim();
 const USE_ORACLE = String(import.meta.env.VITE_USE_ORACLE || 'false').toLowerCase() === 'true';
 
 const isOracleEnabled = () => USE_ORACLE && Boolean(ORACLE_API_BASE);
-
-/**
- * 預留 Oracle adapter：把 whatever export/import 需求做 proxy 化。
- * 目前不會主動叫 Oracle，僅符合「永遠可控」的設計。
- *
- * export const exportToOracleCsv = async (records, locale = 'zh-TW') => {
- *   if (!isOracleEnabled()) {
- *     throw new Error('Oracle proxy 未啟用');
- *   }
- *   const res = await fetch(`${ORACLE_API_BASE}/exports?locale=${encodeURIComponent(locale)}`, {
- *     method: 'POST',
- *     headers: { 'Content-Type': 'application/json' },
- *     body: JSON.stringify({ records }),
- *   });
- *   if (!res.ok) {
- *     const text = await res.text();
- *     throw new Error(`Oracle export failed ${res.status}: ${text}`);
- *   }
- *   return res.json();
- * };
- */
 
 export const fetchOracleHealth = async () => {
   if (!isOracleEnabled()) {
@@ -740,5 +526,3 @@ export const fetchOracleHealth = async () => {
     return { enabled: true, healthy: false, reason: error?.message || String(error) };
   }
 };
-
-export { auth, db };

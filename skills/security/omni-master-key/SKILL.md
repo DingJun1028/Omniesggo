@@ -7,7 +7,7 @@ license: MIT
 platforms: [windows, linux, macos]
 metadata:
   hermes:
-    tags: [secrets, vault, bitwarden, credential, bridge, unified, omni-master-key, 萬能元鑰, 秘密聖櫃]
+    tags: [secrets, vault, bitwarden, credential, bridge, unified, omni-master-key, 萬能元鑰, 祕密聖櫃]
     related: [secret-vault-credential-ops, hermes-bitwarden-integration, credential-exposure-response]
 ---
 
@@ -321,15 +321,15 @@ sys.exit(0 if FAIL == 0 else 1)
 ## JunAikey 萬能元鑰 — Agent Growth Layer (代理成長層) + 萬能永憶
 
 > **層級位置**：`JunAikey` 在 `OmniKey` / `OmniMasterKey` 之上，為「代理成長層」。
-> 它**不取代**秘密庫；秘密庫管「憑證」，JunAikey 管「記憶、技能、進度、閉環」。
+> 它**不取代**祕密庫；祕密庫管「憑證」，JunAikey 管「記憶、技能、進度、閉環」。
 > 對外亦稱 **萬能永憶**（所有代理共同記憶層）。
 
 ```
    L0  JunAikey 萬能元鑰 / 萬能永憶
         │  永恆習得 / 被動自主 / 共享記憶 / 全自動閉環
         │  NCBDB primary + local fallback
-   L1  OmniKey              ← 最高憑證權威（萬能元鑰 秘密庫最高層）
-   L2  OmniMasterKey        ← 憑證存取層（萬能鑰匙 秘密庫管理）
+   L1  OmniKey              ← 最高憑證權威（萬能元鑰 祕密庫最高層）
+   L2  OmniMasterKey        ← 憑證存取層（萬能鑰匙 祕密庫管理）
    L3  SUMMON_LAYERS L2-L5  ← 標籤 → 同步 → 共鳴 → 糾纏
    L4  (已部署的代理與服務)
 ```
@@ -716,7 +716,7 @@ node /path/to/vps/junaikey.mjs reflect "task done" --learn=gotcha-1
 | | OmniKey / OmniMasterKey (本 skill 上半) | JunAikey / 萬能永憶 (本章) |
 |---|---|---|
 | 管 | 憑證（API key、密碼、token） | 記憶、技能、進度 |
-| 層 | L1/L2 秘密庫 | L0 代理成長 |
+| 層 | L1/L2 祕密庫 | L0 代理成長 |
 | 載體 | env vars + secret-vault + Bitwarden | **NCBDB (primary)** + filesystem (fallback) |
 | 風險 | 洩漏 = 立即資安事件 | 損壞 = 上下文遺失（可重建） |
 | 生命週期 | 短（rotate） | 長（accumulate） |
@@ -736,3 +736,42 @@ node /path/to/vps/junaikey.mjs reflect "task done" --learn=gotcha-1
 - `1password-service-accounts` — alternative vault backend (not used here)
 - `best-practice-awakening` — 覺醒結界（被動 OS 級結界，與 JunAikey 互補：前者管「執行姿態」，後者管「成長記憶」）
 - `omnitag` — 萬能標籤（JunAikey 的 memory 條目可附帶 omnitag 以利 cross-skill 檢索）
+
+## Auto-discovery of required secrets (自動找尋需要設定的 secrets)
+
+萬能元鑰 not only reads secrets on demand; it **proactively discovers which secrets a project requires** and reports them, so nothing is missed before deployment.
+
+1. **Scan** the repo for key holes (`{{ZKP:KEY}}` / `__ZKP_KEY__`), `.env.example`, config schemas, and CI manifests.
+2. **Build the required set** of secret names referenced anywhere.
+3. **Compare** against vault + Bitwarden (via `omni_get_secret`); report `present` / `missing` (names only, never values).
+4. **Pair** missing ones via the `zkp-key-hole` auto-pairing flow, sourcing from 萬能金庫 → OmniBitwarden cascade.
+5. **Tag** each discovered requirement with OmniTag (`security:confidential`, `platform:*`, `lifecycle:active`) for traceability.
+
+Report format: `required: N, present: P, missing: M, paired: K`. No secret value is ever printed.
+
+Example required secrets (illustrative, not exhaustive):
+- `SUPABASE_URL` — Supabase project URL
+- `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY` — Supabase keys
+- `DATABASE_URL` — Postgres connection string
+
+## Core principle (核心功能)
+
+> 擁有一切問題的解答 — the key to the unknown: like the key to the door, the answer to the question.
+
+- **以終為始**: define the final desired secure state first, then work backward to fill every required secret.
+- **始終如一**: the same resolution path (vault → Bitwarden → mask) applies everywhere, every time.
+- **無始無終**: secrets are never stored in their final form in tracked files; only holes and masked references persist.
+- **善向永續**: rotate, scrub, and audit so the system remains sustainable and leak-free across sessions.
+
+Verification: re-run discovery; `missing: 0` and `leaked: 0`.
+
+## Persistence / sync table (萬能永憶)
+
+Auto-discovery and pairing results may be persisted to the shared memory layer (JunAikey / NCBDB) for cross-agent continuity:
+
+- **Table name**: `skill_sync` (default; override via `SKILL_SYNC_TABLE` env var).
+- **Content stored**: requirement names, source provenance, counts, OmniTag labels, timestamps — **never secret values** (ZKP desensitized).
+- **Backend**: NCBDB primary, local `~/.junaikey/` fallback (append-only).
+- **Access**: via JunAikey `remember()` / `growSkill()`; all agents read the same `skill_sync` table.
+
+This keeps the "key to the unknown" state shared across sessions and agents without leaking secrets.

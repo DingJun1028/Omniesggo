@@ -27,7 +27,7 @@ const MODEL_TABLES: Record<string, string> = {
   regulationTag: 'RegulationTag',
   reportTag: 'ReportTag',
   alertTag: 'AlertTag',
-  OmniTag: 'OmniTag',
+  universalTag: 'UniversalTag',
   tagPair: 'TagPair',
   crawlHistory: 'CrawlHistory',
   alert: 'Alert',
@@ -80,13 +80,13 @@ const RELATIONS: Record<string, Record<string, { table: string; type: 'many' | '
     alert: { table: 'alert', type: 'one', fk: 'alertId' },
     tag: { table: 'eSGTag', type: 'one', fk: 'tagId' },
   },
-  OmniTag: {
+  universalTag: {
     pairsAnchor: { table: 'tagPair', type: 'many', fk: 'anchorTagId' },
     pairsEvidence: { table: 'tagPair', type: 'many', fk: 'evidenceTagId' },
   },
   tagPair: {
-    anchor: { table: 'OmniTag', type: 'one', fk: 'anchorTagId' },
-    evidence: { table: 'OmniTag', type: 'one', fk: 'evidenceTagId' },
+    anchor: { table: 'universalTag', type: 'one', fk: 'anchorTagId' },
+    evidence: { table: 'universalTag', type: 'one', fk: 'evidenceTagId' },
   },
   crawlHistory: {
     regulation: { table: 'regulation', type: 'one', fk: 'regulationId' },
@@ -481,9 +481,7 @@ class ModelDelegate {
 let _pool: any = null;
 async function getPool(): Promise<any> {
   if (_pool) return _pool;
-  // Turbopack 會靜態捆綁 import('pg');用 eval/new Function 避免被捆綁至客戶端
-  const loadPg = new Function('return import("pg")') as () => Promise<{ Pool: any }>;
-  const { Pool } = await loadPg();
+  const { Pool } = await import('pg');
   _pool = new Pool({
     connectionString:
       process.env.DATABASE_URL ||

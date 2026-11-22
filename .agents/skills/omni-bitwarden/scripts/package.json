@@ -1,0 +1,20 @@
+{
+  "name": "omni-bitwarden",
+  "version": "1.0.0",
+  "description": "萬能金庫系統（OmniBitwarden）— 融合 Bitwarden 的通用憑證存取與安全金鑰管理",
+  "type": "module",
+  "main": "omni-bitwarden.ts",
+  "scripts": {
+    "verify": "tsx scripts/verify-omni-bitwarden.ts",
+    "update": "tsx scripts/omni-bitwarden-update.ts",
+    "rotate": "tsx scripts/omni-bitwarden-update.ts rotate",
+    "sync": "tsx scripts/omni-bitwarden.ts sync"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.52"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0"
+  }
+}

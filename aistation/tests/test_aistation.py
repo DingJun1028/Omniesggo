@@ -50,7 +50,7 @@ from aistation.orchestrator import AISTationOrchestrator, PipelineResult
 MOCK_5T_OUTPUT = (
     "【來源/source_origin】renderer:ffmpeg | 引用 soul.md §8 AI Station 模組 5\n"
     "【透明/揭露】引擎: ffmpeg | fallback rendering used | 合規率 100%\n"
-    "【量化/達成】已渲染合成视频，建立影片文件 1 個，完成渲染任務\n"
+    "【量化/達成】已渲染合成影片，建立影片檔案 1 個，完成渲染任務\n"
     "【信任/封印】SHA-256 Hash Lock: abc1234567890abcdef，寫入即凍結\n"
     "【追蹤/期間】2026 年度 | 日期 2026-08-28 | lifecycle monitor 啟用\n"
     "\nVideo file: /test/output.mp4"

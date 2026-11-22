@@ -21,12 +21,14 @@ import { getDefaultJournal } from './journal';
 import { getDelegationMetrics, type DelegationMetricsSnapshot } from './metrics';
 
 /** 健康狀態等級 */
-export type HealthLevel = 'healthy' | 'degraded' | 'unhealthy';
+export type DelegationHealthLevel = 'healthy' | 'degraded' | 'unhealthy';
+// ts-matrix: 對外相容別名 (API 不變)
+export type { DelegationHealthLevel as HealthLevel };
 
 /** 單項檢查結果 */
 export interface HealthCheckItem {
   name: string;
-  status: HealthLevel;
+  status: DelegationHealthLevel;
   message: string;
   /** 附加指標（可選） */
   metrics?: Record<string, unknown>;
@@ -34,7 +36,7 @@ export interface HealthCheckItem {
 
 /** 完整健康報告 */
 export interface HealthReport {
-  status: HealthLevel;
+  status: DelegationHealthLevel;
   timestamp: string;
   uptime: number;
   checks: HealthCheckItem[];
@@ -303,7 +305,7 @@ function checkAlertHealth(metrics: DelegationMetricsSnapshot): HealthCheckItem {
   };
 }
 
-function deriveOverallStatus(checks: HealthCheckItem[]): HealthLevel {
+function deriveOverallStatus(checks: HealthCheckItem[]): DelegationHealthLevel {
   if (checks.some((c) => c.status === 'unhealthy')) return 'unhealthy';
   if (checks.some((c) => c.status === 'degraded')) return 'degraded';
   return 'healthy';

@@ -2,7 +2,7 @@
 
 > 日期：2026-08-29
 > 版本：ESG GO v0.5.0 (InfoOne Core + Self-Healing Engine + FTG Journey)
-> 状态：生産部署完成
+> 狀態：生産部署完成
 
 ---
 
@@ -212,7 +212,7 @@ ftg-journey-web/
 
 ---
 
-## 五、秘密聖櫃（Secret Vault）
+## 五、祕密聖櫃（Secret Vault）
 
 | 檔案 | 説明 |
 |------|------|

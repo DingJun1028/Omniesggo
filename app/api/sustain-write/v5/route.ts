@@ -1,40 +1,22 @@
-// app/api/sustain-write/v5/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { generateV5Report, reportV5ToHtml, reportV5ToMarkdown, getV5Companies } from '@/core/services/report-generator-v5';
 import { generateFullV5Report, fullReportToHtml } from '@/core/services/report-generator-v5-full';
+import { getV5Companies } from '@/core/services/report-generator-v5';
 import { jsonResponse, jsonError } from '@lib/api-utils';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
-  const companies = getV5Companies();
-  return jsonResponse({ version: '5.0', companies, totalChapters: 28 });
+  return jsonResponse({ version: '5.0', companies: getV5Companies(), totalChapters: 28 });
 }
 
 export async function POST(req: NextRequest) {
-  const { companyId, format = 'json', mode = 'standard', brandTone = 'professional' } = await req.json();
-
-  if (mode === 'full') {
-    const report = await generateFullV5Report(companyId, brandTone);
-    if (!report) return jsonError('COMPANY_NOT_FOUND');
-    if (format === 'html') {
-      return new NextResponse(fullReportToHtml(report), {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      });
-    }
-    return jsonResponse(report);
-  }
-
-  const report = generateV5Report(companyId);
-  if (!report) return jsonError('COMPANY_NOT_FOUND');
-
-  if (format === 'html') {
-    return new NextResponse(reportV5ToHtml(report), {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' }
-    });
-  }
-  if (format === 'markdown') {
-    return new NextResponse(reportV5ToMarkdown(report), {
-      headers: { 'Content-Type': 'text/plain; charset=utf-8' }
-    });
-  }
+  const { companyId, format = 'json', brandTone = 'professional', reportingYear } = await req.json();
+  if (!companyId) return jsonError('INVALID_PARAMS', 'companyId is required', 400);
+  const currentYear = new Date().getFullYear();
+  const year = Number.isInteger(reportingYear) && reportingYear >= 2000 && reportingYear <= currentYear ? reportingYear : currentYear - 1;
+  const report = await generateFullV5Report(companyId, brandTone, year);
+  if (!report) return jsonError('COMPANY_NOT_FOUND', 'No report data available for this company', 404);
+  if (format === 'html') return new NextResponse(fullReportToHtml(report), { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+  if (format !== 'json') return jsonError('INVALID_PARAMS', 'format must be json or html', 400);
   return jsonResponse(report);
 }

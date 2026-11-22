@@ -29,7 +29,7 @@ iCloud vault（OMN canon，20 檔 / 252 連結 / 0 斷鏈）/ 免費同步。
 | 1 | Hermes x Obsidian 全方位指南 | 清涼遊俠（內容平台貼文，無 URL 提供） | 2026-05-27 | AI 生成體教學文 |
 | 2 | Obsidian AI 第二大腦完整指南 | NxCode Team（nxcode.io）| 2026-02-21 | 行銷文（no-code 平台自帶 CTA）|
 | 3 | How I set up Obsidian Second Brain for My Hermes Agent | Fahd Mirza（= moghalsaif，obsidian.procss.online）| 2026-08 起 | 個人實戰教程 + LiveSync 架構 |
-| 4 | 【全网最细】Hermes+Obsidian+本地LLM 知識庫（BV13ZLw6TEon）| 吴恩达Agent-（B 站，非吳恩達本人）| 2026-05-18 | 教學影片（無字幕、描述空）|
+| 4 | 【全網最細】Hermes+Obsidian+本地LLM 知識庫（BV13ZLw6TEon）| 吳恩達Agent-（B 站，非吳恩達本人）| 2026-05-18 | 教學影片（無字幕、描述空）|
 
 ---
 
@@ -54,9 +54,9 @@ iCloud vault（OMN canon，20 檔 / 252 連結 / 0 斷鏈）/ 免費同步。
 - 啟示：手機端若有更高同步需求 → 納入 LiveSync 評估計畫。
 
 ### 2.4 B 站《Hermes+Obsidian+本地LLM 知識庫》（BV13ZLw6TEon）
-- 描述 = 標題重複、**無字幕**（player/v2.subtitles=[]）→ 無法逐字稽核；標題「全网最细／99% 弯路」為流量文套路。
+- 描述 = 標題重複、**無字幕**（player/v2.subtitles=[]）→ 無法逐字稽核；標題「全網最細／99% 彎路」為流量文套路。
 - 標題骨架（安裝 Hermes + 本地 LLM + LLM-Wiki 自動整理）＝本機已走完之路。
-- ✅ 已用 Jina/API 取得 metadata：UP 主「吴恩达Agent-」、4912 播放 / 174 讚 / 632 收藏。
+- ✅ 已用 Jina/API 取得 metadata：UP 主「吳恩達Agent-」、4912 播放 / 174 讚 / 632 收藏。
 
 ---
 

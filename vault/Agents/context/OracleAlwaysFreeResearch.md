@@ -34,7 +34,7 @@ access: public-research
 - 2 實例免費，各 1OCPU/20GB/20session
 - 對應 OA 需求：RAG 零幻覺 + 信任帳本 + 生命週期日誌
 - 部署需 OCI CLI / 控制台操作（tenancy OCID, compartment, wallet）
-- 待辦：寫 Terraform/OCI CLI 部署腳本（需用户提供 OCID 或確認 CLI 配置）
+- 待辦：寫 Terraform/OCI CLI 部署指令碼（需使用者提供 OCID 或確認 CLI 配置）
 
 ## 下一步建議
 1. 資產化本研究（soul §27 + 本筆記）— 防未來 session 誤判額度

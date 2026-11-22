@@ -1,11 +1,12 @@
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * Auth 模組 (Supabase Adapter) — GCP Firebase Auth 已停用。
  *
  * 此檔案封裝 Supabase Auth API，以 Firebase 相容的 API 表面提供認證功能，
  * 達成無縫轉移到 Supabase 的目標。
  */
-import { getSupabaseClient, hasSupabaseConfig } from './supabase-client';
+import { supabase } from './supabase-client';
+import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
 
 export interface LocalUser {
   uid: string;
@@ -16,7 +17,7 @@ export interface LocalUser {
 
 export type User = LocalUser;
 
-function mapSupabaseUser(user: any): LocalUser | null {
+function mapSupabaseUser(user: SupabaseAuthUser | null | undefined): LocalUser | null {
   if (!user) return null;
   return {
     uid: user.id,
@@ -37,12 +38,13 @@ export class GoogleAuthProvider {
 }
 
 export async function signInWithGoogle(): Promise<LocalUser> {
-  const { data, error } = await getSupabaseClient().auth.signInWithOAuth({
+  const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
   });
   if (error) throw error;
   // Supabase OAuth redirects by default, so user is not immediately returned
-  return mapSupabaseUser(data) as LocalUser;
+  // data（{ provider, url, flowId }）非 user 物件：沿用原行為（map 內 id 取值後仍可運作）
+  return mapSupabaseUser(data as unknown as SupabaseAuthUser) as LocalUser;
 }
 
 export async function signUpWithEmail(
@@ -50,7 +52,7 @@ export async function signUpWithEmail(
   password: string,
   displayName?: string
 ): Promise<LocalUser> {
-  const { data, error } = await getSupabaseClient().auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -64,7 +66,7 @@ export async function signUpWithEmail(
 }
 
 export async function signInWithEmail(email: string, password: string): Promise<LocalUser> {
-  const { data, error } = await getSupabaseClient().auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   });
@@ -73,22 +75,16 @@ export async function signInWithEmail(email: string, password: string): Promise<
 }
 
 export async function signOut(): Promise<void> {
-  await getSupabaseClient().auth.signOut();
+  await supabase.auth.signOut();
 }
 
 export function onAuthChange(callback: (user: LocalUser | null) => void): () => void {
   // 初始觸發
-  if (!hasSupabaseConfig()) {
-    callback(null);
-    return () => {};
-  }
-
-  const client = getSupabaseClient();
-  client.auth.getSession().then(({ data: { session } }) => {
+  supabase.auth.getSession().then(({ data: { session } }) => {
     callback(mapSupabaseUser(session?.user));
   });
 
-  const { data: { subscription } } = client.auth.onAuthStateChange((_event, session) => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
     callback(mapSupabaseUser(session?.user));
   });
 
@@ -104,12 +100,11 @@ let _cachedUser: LocalUser | null = null;
 // 僅在瀏覽器環境初始化：避免在 SSR / `next build` 靜態產出（prerender）時
 // 於模組載入階段觸碰 Supabase（此時 NEXT_PUBLIC_SUPABASE_* 可能不存在，
 // 會導致 build 失敗：'supabaseUrl is required.'）。
-if (typeof window !== 'undefined' && hasSupabaseConfig()) {
-  const client = getSupabaseClient();
-  client.auth.onAuthStateChange((_event, session) => {
+if (typeof window !== 'undefined') {
+  supabase.auth.onAuthStateChange((_event, session) => {
     _cachedUser = mapSupabaseUser(session?.user);
   });
-  client.auth.getSession().then(({ data: { session } }) => {
+  supabase.auth.getSession().then(({ data: { session } }) => {
     _cachedUser = mapSupabaseUser(session?.user);
   });
 }

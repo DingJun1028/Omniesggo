@@ -1,7 +1,7 @@
 """
 AI Station — Email Newsletter Dispatch Integration
 
-Aligns with soul.md §9.9 電子報發送能力整合 and §10.4 AI Station 生産線最佳實踪.
+Aligns with soul.md §9.9 電子報傳送能力整合 and §10.4 AI Station 生産線最佳實蹤.
 
 Dispatch channels:
   1. Email (SMTP)        — primary newsletter delivery

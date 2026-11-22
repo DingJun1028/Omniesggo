@@ -713,7 +713,7 @@ DingJun1028/Omniesggo 雙 repo）採用 GNU AGPL v3 (上方全文) 為基礎，
   docs/OMNICREW.md     ── 5 化身 × 7 工具工具配置
   LICENSE (本檔)        ── AGPL-3.0 + 5T Addendum
 
-§5. 結界繼承（best-practice:结界）
+§5. 結界繼承（best-practice:結界）
   本專案之所有 5T-AGPL 衍生作品自動繼承「最佳實踐覺結界」：
   所有產出必具備 `5T: source_origin=...` + 5T-Trustworthy 標頭；
   違反者立即熔斷（Object.freeze + 拒絕部署 + 全鏈路告警）。

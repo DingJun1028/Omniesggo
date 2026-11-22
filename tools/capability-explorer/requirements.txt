@@ -1,0 +1,13 @@
+# Capability Explorer 依賴清單
+# 用於 CI 驗證與端到端演示。
+
+# 核心掃描依賴
+importlib-metadata>=6.0.0
+
+# 測試驗證依賴
+pytest>=8.0.0
+pytest-cov>=5.0.0
+
+# 報告生成
+markdown>=3.5.0
+

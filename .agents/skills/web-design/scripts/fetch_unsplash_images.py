@@ -96,14 +96,14 @@ def get_images_by_category(category, count=3, width=800, height=600, strict=True
             break
 
     keyword_map = {
-        "人物": "portrait", "头像": "portrait", "team": "portrait", "avatar": "portrait",
-        "办公": "workspace", "工作": "workspace", "desk": "workspace", "office": "workspace",
-        "代码": "technology", "编程": "technology", "ai": "technology", "tech": "technology",
-        "风景": "nature", "山": "nature", "海": "nature", "forest": "nature",
+        "人物": "portrait", "頭像": "portrait", "team": "portrait", "avatar": "portrait",
+        "辦公": "workspace", "工作": "workspace", "desk": "workspace", "office": "workspace",
+        "程式碼": "technology", "程式設計": "technology", "ai": "technology", "tech": "technology",
+        "風景": "nature", "山": "nature", "海": "nature", "forest": "nature",
         "抽象": "abstract", "背景": "abstract", "gradient": "abstract", "texture": "abstract",
-        "产品": "product", "展示": "product", "mockup": "product",
+        "產品": "product", "展示": "product", "mockup": "product",
         "美食": "food", "餐": "food", "coffee": "food",
-        "商务": "business", "会议": "business", "meeting": "business",
+        "商務": "business", "會議": "business", "meeting": "business",
         "首屏": "hero", "banner": "hero", "cover": "hero",
     }
 
@@ -125,26 +125,26 @@ def get_images_by_category(category, count=3, width=800, height=600, strict=True
 
 def main():
     parser = argparse.ArgumentParser(description="Generate remote placeholder image candidates")
-    parser.add_argument("--keywords", type=str, required=True, help="图片关键词（逗号分隔）")
-    parser.add_argument("--count", type=int, default=3, help="每个关键词获取的图片数量")
-    parser.add_argument("--size", type=str, default="800x600", help="图片尺寸 WxH")
-    parser.add_argument("--format", type=str, choices=["text", "json"], default="text", help="输出格式")
+    parser.add_argument("--keywords", type=str, required=True, help="圖片關鍵詞（逗號分隔）")
+    parser.add_argument("--count", type=int, default=3, help="每個關鍵詞獲取的圖片數量")
+    parser.add_argument("--size", type=str, default="800x600", help="圖片尺寸 WxH")
+    parser.add_argument("--format", type=str, choices=["text", "json"], default="text", help="輸出格式")
     parser.add_argument(
         "--use-case",
         type=str,
         required=True,
         choices=["placeholder", "wireframe", "internal-mock"],
-        help="用途声明。仅允许占位、线框或内部 mock 场景。",
+        help="用途宣告。僅允許佔位、線框或內部 mock 場景。",
     )
     parser.add_argument(
         "--ack-remote-placeholders",
         action="store_true",
-        help="确认当前任务允许使用远程占位图候选，而不是用户素材或本地 assets。",
+        help="確認當前任務允許使用遠端佔點陣圖候選，而不是使用者素材或本地 assets。",
     )
     parser.add_argument(
         "--loose",
         action="store_true",
-        help="允许在关键词无法匹配时回退到 abstract。默认严格匹配，避免给出不相关图片。",
+        help="允許在關鍵詞無法匹配時回退到 abstract。預設嚴格匹配，避免給出不相關圖片。",
     )
     args = parser.parse_args()
 

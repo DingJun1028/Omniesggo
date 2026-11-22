@@ -1,5 +1,5 @@
 /**
- * 5T 合規事件驅動架構 (增量優化版) — 圣典 §12.1.1
+ * 5T 合規事件驅動架構 (增量最佳化版) — 聖典 §12.1.1
  * Traceable: 記錄事件來源 | Trackable: 事件流增量寫入
  * Transparent: 廣播可查 | Trustworthy: Object.freeze 防篡改
  */

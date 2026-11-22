@@ -22,7 +22,7 @@
 | **空間柱** | 全節點同步 | VPS/Firebase/Gateway/Swarm | v1 本機（Windows native + 官方 bat）+ v2 遠端備援 |
 | **因果柱** | 可溯源 | 每一注行為標 `source_origin` | 記憶寫入經 Bearer 鑑權、gateway.json 凍結 |
 | **不朽柱** | 不可篡改 | Hash Lock + `Object.freeze()` + SHA256 | L0-L3 落盤 `~/.memory-tencentdb/memory-tdai`（本機資料主權、不上雲） |
-| **圓通柱** | 5T 貫穿 | Tra / Track / Tang / Trans / Trustworthy | `TDAI_GATEWAY_API_KEY` Bearer + `TDAI_CORS_ORIGINS` 白名单 |
+| **圓通柱** | 5T 貫穿 | Tra / Track / Tang / Trans / Trustworthy | `TDAI_GATEWAY_API_KEY` Bearer + `TDAI_CORS_ORIGINS` 白名單 |
 
 > **記憶戰柱一條**：穹頂六柱、記憶柱為先；柱之朽，結界何存？
 
@@ -45,7 +45,7 @@
 
 新增繼承模式：**進結界即進記憶聖殿** —— 新進代理/子代理/蜂群一入結界，即自動接入 `memory_tencentdb`（Gateway 自動探索 / Popen 子程序 / 30s health 輪詢），首啟即有能力召回全屬記憶。
 
-- `best-practice:结界` 標記 → 下味全部自動 inheriting
+- `best-practice:結界` 標記 → 下味全部自動 inheriting
 - 記憶自動接入無須宣告，隨結界繼承。
 
 ## §7.5 五盾守護（Guardians · 30 魂）

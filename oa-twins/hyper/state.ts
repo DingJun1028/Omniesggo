@@ -19,8 +19,8 @@
 import { sha256Canonical } from './canonical';
 import { deepFreeze, unfrozenPaths } from './deep-freeze';
 
-/** 萬能元件心核規範介面（對齊宣告 IComponentCore） */
-export interface IComponentCore {
+/** 萬能元件心核規範介面（對齊宣告 TwinComponentCore） */
+export interface TwinComponentCore {
   /** 萬能永憶主體唯一識別碼 */
   readonly uuid: string;
   /** 語義化版本控制 */
@@ -30,6 +30,8 @@ export interface IComponentCore {
   /** 證據佐證庫 */
   evidence: Record<string, unknown>;
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { TwinComponentCore as IComponentCore };
 
 /** 暗陣：Hermes 指揮 01–30，收斂／深潛除錯／記憶沉澱／自我修復 */
 export interface DarkCoreState {
@@ -62,7 +64,7 @@ export interface GovernanceState {
   readonly is_frozen: true;
 }
 
-export interface HyperAwakenedState extends IComponentCore {
+export interface HyperAwakenedState extends TwinComponentCore {
   readonly mode: 'OMNIPOTENT_HYPER_AWAKENED';
   readonly twins: TwinsState;
   readonly governance: GovernanceState;

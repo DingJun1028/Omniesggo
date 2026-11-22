@@ -23,7 +23,7 @@
 | 語言選擇器 = `i18n.available()` 動態掃 `*.json` 檔名 stem | `dictophone/i18n.py` dis |
 | 顯示名 = 該 locale 內 `lang.<code>` 鍵 | picker: `tr('lang.'+code)` |
 | CLI 固定俄文 (與 ui_lang 無關), GUI 才吃 ui_lang | cli vs i18n 分流 |
-| cn 模型吐簡體, 需 s2t 才合繁體介面 | 實測「测试 万能…」 |
+| cn 模型吐簡體, 需 s2t 才合繁體介面 | 實測「測試 萬能…」 |
 
 ## 第三奧義：繁中補丁三步 (已全數驗證)
 

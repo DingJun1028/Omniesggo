@@ -206,7 +206,7 @@ class TextParserModule(AISTationModule):
         style_name = task["style_name"]
         ref_author = task["reference_author"]
         
-        chinese_prompt = f"风格名称：#{style_num} · {style_name}。主题：{theme}。参考作者/风格名称：{ref_author}。"
+        chinese_prompt = f"風格名稱：#{style_num} · {style_name}。主題：{theme}。參考作者/風格名稱：{ref_author}。"
         english_prompt = f"Style name: #{style_num} · {style_name}. Theme: {theme}. Reference author/style name: {ref_author}."
         
         new_content = dict(artifact.content)

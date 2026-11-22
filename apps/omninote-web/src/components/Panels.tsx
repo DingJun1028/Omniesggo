@@ -1,13 +1,23 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { OmniApiDraft, OmniApiNode, OmniApiTagsOverview } from "@/lib/api";
+import type {
+  OmniApiDraft,
+  OmniApiGlobalEvidencePage,
+  OmniApiGlobalEvidenceStats,
+  OmniApiNode,
+  OmniApiTagsOverview,
+} from "@/lib/api";
 import {
+  batchProjectAlpha,
   batchUpdateTags,
+  batchFuseSigma,
   buildExportUrl,
   deleteDraft,
   deleteNote,
   fetchEntropyStats,
+  fetchGlobalEvidenceStats,
+  fetchGlobalEvidenceTimeline,
   fetchTagsOverview,
   importArchive,
   promoteDraft,
@@ -94,6 +104,37 @@ export function NotesBoard({
       setBatchBusy(false);
     }
   };
+
+  /** 三十九期：批次熔合 SIGMA；四十三期：批次逆向投影 ALPHA（共用執行輔助，對接 POST /api/notes/phases）。
+   *  報告 updated/unchanged/skipped/missing 四類如實顯示；操作進行中 busy 防抖。 */
+  const runBatchPhases = async (
+    toPhase: "SIGMA_GRAPH_SYNTHESIS" | "ALPHA_ORIGIN_CAPTURE",
+    failLabel: string,
+  ): Promise<void> => {
+    if (batchBusy || batchSelected.size === 0) return;
+    setBatchBusy(true);
+    setBatchMessage("操作中…");
+    try {
+      const report =
+        toPhase === "SIGMA_GRAPH_SYNTHESIS"
+          ? await batchFuseSigma([...batchSelected])
+          : await batchProjectAlpha([...batchSelected]);
+      const parts = [`已更新 ${report.updated.length} 則`, `無變化 ${report.unchanged}`];
+      if (report.skipped.length > 0) parts.push(`跳過 ${report.skipped.length}`);
+      if (report.missing.length > 0) parts.push(`不存在 ${report.missing.length}`);
+      setBatchMessage(parts.join(" · "));
+      setBatchSelected(new Set());
+      onChanged();
+    } catch (err) {
+      setBatchMessage(err instanceof Error ? err.message : failLabel);
+    } finally {
+      setBatchBusy(false);
+    }
+  };
+
+  const runBatchFuse = (): Promise<void> => runBatchPhases("SIGMA_GRAPH_SYNTHESIS", "批次熔合失敗");
+  /** 四十三期：批次逆向投影（to_phase ALPHA_ORIGIN_CAPTURE）：OMEGA 結晶體或 SIGMA 節點逐節點回流 ALPHA 捕獲態。 */
+  const runBatchReverse = (): Promise<void> => runBatchPhases("ALPHA_ORIGIN_CAPTURE", "批次逆向投影失敗");
 
   const norm = filter.trim().toLowerCase();
   /** 十九期關鍵字過濾：比對區塊內容與拓撲標籤（大小寫不敏感），與語意檢索面板互補。
@@ -196,6 +237,24 @@ export function NotesBoard({
             </button>
             <button
               type="button"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-sigma/60 disabled:opacity-50"
+              disabled={batchBusy}
+              onClick={() => void runBatchFuse()}
+              title="批次熔合 SIGMA（POST /api/notes/phases）：OMEGA 結晶體與無非墓碑區塊者如實跳過"
+            >
+              批次熔合 SIGMA
+            </button>
+            <button
+              type="button"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-alpha/60 disabled:opacity-50"
+              disabled={batchBusy}
+              onClick={() => void runBatchReverse()}
+              title="批次逆向投影 ALPHA（POST /api/notes/phases to_phase ALPHA_ORIGIN_CAPTURE，四十一期端點擴充）：OMEGA 結晶體或 SIGMA 節點逐節點回流 ALPHA 捕獲態（證據入鏈 ON_REVERSE_PROJECT）；已在 ALPHA 者如實回報無變化"
+            >
+              批次逆向投影 ALPHA
+            </button>
+            <button
+              type="button"
               className="text-[10px] text-slate-500 underline decoration-dotted transition hover:text-slate-300"
               onClick={() => setBatchSelected(new Set())}
             >
@@ -265,6 +324,246 @@ export function NotesBoard({
         </div>
         </>
       )}
+    </div>
+  );
+}
+
+export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => void }) {
+  /** 四十六期：每頁筆數選擇（10／20／50）與頁碼視窗跳轉。 */
+  const PAGE_SIZES = [10, 20, 50] as const;
+  const [pageSize, setPageSize] = useState<number>(20);
+  const [page, setPage] = useState(0);
+  const [hook, setHook] = useState("");
+  const [data, setData] = useState<OmniApiGlobalEvidencePage | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const [stats, setStats] = useState<OmniApiGlobalEvidenceStats | null>(null);
+  const [statsBusy, setStatsBusy] = useState(false);
+  const [statsMessage, setStatsMessage] = useState<string | null>(null);
+
+  const load = async (target: number, hookOverride?: string, sizeOverride?: number): Promise<void> => {
+    if (busy) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const trimmed = (hookOverride ?? hook).trim();
+      const size = sizeOverride ?? pageSize;
+      const res = await fetchGlobalEvidenceTimeline({
+        limit: size,
+        offset: target * size,
+        hook: trimmed.length > 0 ? trimmed : undefined,
+      });
+      setData(res);
+      setPage(target);
+      if (res.total === 0) setMessage("時間軸為空");
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "時間軸載入失敗");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** 四十五期：全域證據 hook 別統計（唯讀聚合）；失敗如實顯示不打斷時間軸。 */
+  const loadStats = async (): Promise<void> => {
+    if (statsBusy) return;
+    setStatsBusy(true);
+    setStatsMessage(null);
+    try {
+      setStats(await fetchGlobalEvidenceStats());
+    } catch (err) {
+      setStatsMessage(err instanceof Error ? err.message : "統計載入失敗");
+    } finally {
+      setStatsBusy(false);
+    }
+  };
+
+  /** 點擊徽章即以該 hook 篩選時間軸（同步更新輸入框，避免狀態不同步）。 */
+  const applyHookBadge = (h: string): void => {
+    setHook(h);
+    void load(0, h);
+  };
+
+  useEffect(() => {
+    void load(0);
+    void loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const hasPrev = (data?.offset ?? 0) > 0;
+  const hasNext = data !== null && data.offset + data.entries.length < data.total;
+  const totalPages = data !== null ? Math.max(1, Math.ceil(data.total / pageSize)) : 1;
+  const pageWindow: Array<number | "ellipsis"> = [];
+  if (totalPages <= 7) {
+    for (let i = 0; i < totalPages; i++) pageWindow.push(i);
+  } else {
+    pageWindow.push(0);
+    const lo = Math.max(1, page - 1);
+    const hi = Math.min(totalPages - 2, page + 1);
+    if (lo > 1) pageWindow.push("ellipsis");
+    for (let i = lo; i <= hi; i++) pageWindow.push(i);
+    if (hi < totalPages - 2) pageWindow.push("ellipsis");
+    pageWindow.push(totalPages - 1);
+  }
+  const jumpTo = (target: number): void => {
+    if (target >= 0 && target < totalPages) void load(target);
+  };
+  const changePageSize = (size: number): void => {
+    if (!PAGE_SIZES.includes(size as (typeof PAGE_SIZES)[number]) || size === pageSize) return;
+    setPageSize(size);
+    void load(0, undefined, size);
+  };
+
+  return (
+    <div className="glass p-5">
+      <h2 className="text-sm font-semibold tracking-wide text-slate-200">
+        全域證據時間軸
+        {data !== null && `（${data.total} 筆）`}
+      </h2>
+      <p className="mt-1 text-[10px] text-slate-500">
+        跨節點彙整 · captured_at 升冪（字串排序非時間權威）· 綁定 node_version 與 lock_hash
+      </p>
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <input
+          className="field max-w-[180px] py-1 text-xs"
+          placeholder="hook 精確過濾（如 ON_ALPHA_CAPTURE）"
+          value={hook}
+          onChange={(e) => setHook(e.target.value)}
+          aria-label="證據 hook 過濾"
+        />
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-omni-alpha/60 disabled:opacity-50"
+          disabled={busy}
+          onClick={() => void load(0)}
+          title="GET /api/evidence?hook= 精確匹配；空值為全量"
+        >
+          篩選
+        </button>
+        {busy && <span className="text-[10px] text-slate-500">載入中…</span>}
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 transition hover:border-omni-alpha/60 disabled:opacity-50"
+          disabled={statsBusy}
+          onClick={() => void loadStats()}
+          title="GET /api/evidence/stats 全域 hook 別統計（唯讀聚合）"
+        >
+          {statsBusy ? "統計載入中…" : "hook 別統計"}
+        </button>
+        {stats !== null && (
+          <span className="text-[10px] text-slate-500">
+            共 {stats.total} 筆證據 · 首筆 {stats.first_captured_at ?? "—"} · 末筆 {stats.last_captured_at ?? "—"}（字串排序非時間權威）
+          </span>
+        )}
+        {statsMessage !== null && <span className="text-[10px] text-slate-400">{statsMessage}</span>}
+      </div>
+      {stats !== null && stats.hooks.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {stats.hooks.map((h) => (
+            <button
+              key={h}
+              type="button"
+              className={`rounded-full px-2 py-0.5 text-[10px] transition ${
+                hook.trim() === h
+                  ? "bg-omni-sigma/40 text-omni-sigma"
+                  : "bg-slate-700/50 text-slate-300 hover:bg-slate-600/60"
+              }`}
+              onClick={() => applyHookBadge(h)}
+              title={`${h} × ${stats.by_hook[h] ?? 0} 筆，點擊以該 hook 篩選時間軸`}
+            >
+              {h} × {stats.by_hook[h] ?? 0}
+            </button>
+          ))}
+        </div>
+      )}
+      {data !== null && data.entries.length > 0 && (
+        <p className="mt-2 text-[10px] text-slate-500">
+          第 {data.offset + 1}–{data.offset + data.entries.length} 筆 / 共 {data.total} 筆
+        </p>
+      )}
+      {message !== null && <p className="mt-2 text-[10px] text-slate-400">{message}</p>}
+      {data !== null && data.entries.length > 0 && (
+        <ul className="mt-3 space-y-2">
+          {data.entries.map((e, i) => (
+            <li
+              key={`${e.uuid}-${e.entry.captured_at}-${i}`}
+              className="rounded-xl border border-slate-100/10 bg-slate-900/40 p-2.5 text-[11px]"
+              title={`node_version ${e.node_version} · lock_hash ${e.lock_hash}（綁定當下節點狀態）`}
+            >
+              <div className="flex flex-wrap items-center gap-1.5">
+                <button
+                  type="button"
+                  className="rounded bg-omni-alpha/20 px-1.5 py-0.5 text-omni-alpha transition hover:bg-omni-alpha/40"
+                  onClick={() => onJump(e.uuid)}
+                  title="跳轉至該節點"
+                >
+                  {e.uuid.slice(0, 8)}
+                </button>
+                <span className="rounded bg-omni-sigma/20 px-1.5 py-0.5 text-omni-sigma">{e.entry.hook_lifecycle}</span>
+                <span className="text-slate-500">{e.entry.captured_at}</span>
+              </div>
+              <p className="mt-1 text-slate-400">
+                {e.entry.source_origin} · {e.entry.content_hash.slice(0, 12)}…
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <label className="text-[10px] text-slate-400" htmlFor="omni-evidence-page-size">
+          每頁
+        </label>
+        <select
+          id="omni-evidence-page-size"
+          className="rounded-lg border border-slate-100/10 bg-slate-900/60 px-1.5 py-1 text-[10px] text-slate-200 disabled:opacity-50"
+          value={pageSize}
+          disabled={busy}
+          onChange={(e) => changePageSize(Number(e.target.value))}
+          title="每頁筆數（limit 1..500 道閘內之 10／20／50）"
+        >
+          {PAGE_SIZES.map((size) => (
+            <option key={size} value={size}>{size} 筆</option>
+          ))}
+        </select>
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 disabled:opacity-40"
+          disabled={busy || !hasPrev}
+          onClick={() => jumpTo(page - 1)}
+        >
+          上一頁
+        </button>
+        {pageWindow.map((item, i) =>
+          item === "ellipsis" ? (
+            <span key={`ellipsis-${i}`} className="px-1 text-[10px] text-slate-500">…</span>
+          ) : (
+            <button
+              key={item}
+              type="button"
+              className={`min-w-[24px] rounded-lg border px-1.5 py-1 text-[10px] transition ${
+                item === page
+                  ? "border-omni-alpha/60 bg-omni-alpha/20 text-omni-alpha"
+                  : "border-slate-100/10 text-slate-300 hover:border-omni-alpha/40"
+              }`}
+              disabled={busy}
+              onClick={() => jumpTo(item)}
+              title={`跳轉至第 ${item + 1} 頁`}
+            >
+              {item + 1}
+            </button>
+          ),
+        )}
+        <button
+          type="button"
+          className="rounded-lg border border-slate-100/10 px-2.5 py-1 text-[10px] text-slate-300 disabled:opacity-40"
+          disabled={busy || !hasNext}
+          onClick={() => jumpTo(page + 1)}
+        >
+          下一頁
+        </button>
+      </div>
     </div>
   );
 }

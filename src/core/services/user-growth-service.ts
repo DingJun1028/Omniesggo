@@ -5,7 +5,7 @@
  * XP thresholds: 0 / 1000 / 5000 / 20000 / 100000
  */
 
-import { createPrismaCompatClient } from '@lib/db/prisma-compat';
+import { PrismaClient, createPrismaCompatClient } from '../../lib/db/prisma-compat';
 import { plantOmniSeed, IOmniSeed } from '../sonnar/omni-seed';
 import { trinityHash } from '../sonnar/hash-lock';
 

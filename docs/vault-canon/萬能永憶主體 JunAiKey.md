@@ -2,7 +2,7 @@
 title: 萬能永憶主體 JunAiKey
 canon_id: OMN-005
 date: 2026-10-09
-tags: [best-practice:结界][unit-of-learning][canon][junaikey]
+tags: [best-practice:結界][unit-of-learning][canon][junaikey]
 canonical: [[AI Research Index]]
 ---
 

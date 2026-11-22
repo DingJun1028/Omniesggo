@@ -31,7 +31,7 @@
 - **騰訊記憶**：TencentDB Agent Memory（`memory_tencentdb` provider + Node Gateway 8420）
   - Engine：Groq 免費（`openai/gpt-oss-20b`，帶前綴）；私備援 VPS Gemma4 E4B
   - 雙路徑：v1 本機（Windows native + 官方 bat + HERMES_HOME 覆寫）/ v2 遠端（VPS Gateway client）
-  - 安全：`TDAI_GATEWAY_API_KEY` Bearer + CORS 白名单 + 本機落盤 `~/.memory-tencentdb/memory-tdai`
+  - 安全：`TDAI_GATEWAY_API_KEY` Bearer + CORS 白名單 + 本機落盤 `~/.memory-tencentdb/memory-tdai`
 
 ## 實作引用（重建來源）
 - skill esggo-oa-team-swarm：部署/結界/VPS/CI/secrets/監控 Cron

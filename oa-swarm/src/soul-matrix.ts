@@ -43,7 +43,7 @@ export const SOUL_MATRIX: SoulAgent[] = [
   { id: 24, title: '萬能調研蜂', tags: ['#用戶研究', '#需求分析'], array: 'marketing', task: '進行用戶調研，產出可驗證調研報告。' },
   // 守衛組 (25-30)
   { id: 25, title: '萬能測場蜂', tags: ['#現場測評', '#回饋收集'], array: 'guard', task: '收集現場回饋，建立可追蹤測評數據。' },
-  { id: 26, title: '萬能追蹤蜂', tags: ['#競品監控', '#動態追踪'], array: 'guard', task: '監控競品動態，確保監控數據可溯源。' },
+  { id: 26, title: '萬能追蹤蜂', tags: ['#競品監控', '#動態追蹤'], array: 'guard', task: '監控競品動態，確保監控資料可溯源。' },
   { id: 27, title: '萬能安全蜂', tags: ['#資安防護', '#數據保護'], array: 'guard', task: '保障系統安全，建立可信賴安全監控。' },
   { id: 28, title: '萬能維護蜂', tags: ['#系統維護', '#故障排除'], array: 'guard', task: '維護系統運行，確保維護記錄可追蹤。' },
   { id: 29, title: '萬能支援蜂', tags: ['#技術支援', '#問題解決'], array: 'guard', task: '提供技術支援，建立可溯源支援記錄。' },

@@ -1,3 +1,4 @@
+import type { ArrayKey, HiveSide } from '../../shared/types.js';
 /// <reference path="../types/generated/esggo-shared.d.ts" />
 /**
  * OA-Team 雙蜂戰隊 60 員矩陣 (Dual-Hive 60 Colony)
@@ -8,8 +9,10 @@
  */
 import type { ISoulAgent } from '../types/generated/esggo-shared.js';
 
-export type HiveSide = 'local' | 'vps';
-export type ArrayKey = 'sanctum' | 'rune' | 'wing' | 'alchemy' | 'audit';
+// ts-matrix: 收斂至規範型別 (canonical: shared/types)
+export type { HiveSide };
+// ts-matrix: 收斂至規範型別 (canonical: shared/types)
+export type { ArrayKey };
 
 export interface SoulAgent60 extends ISoulAgent {
   id: number;
@@ -88,7 +91,7 @@ export const SOUL_MATRIX_60: SoulAgent60[] = [
   A('萬能調優蜂后', ['#參數調優', '#A/B'], 'alchemy', 'vps', '參數調優與 A/B 測試。'),
   // 5T 驗算 25-30 / 55-60
   A('萬能測場蜂', ['#現場測評', '#回饋收集'], 'audit', 'local', '現場回饋收集。'),
-  A('萬能追蹤蜂', ['#競品監控', '#動態追踪'], 'audit', 'local', '競品動態監控。'),
+  A('萬能追蹤蜂', ['#競品監控', '#動態追蹤'], 'audit', 'local', '競品動態監控。'),
   A('萬能安全蜂', ['#資安防護', '#數據保護'], 'audit', 'local', '資安防護系統。'),
   A('萬能維護蜂', ['#系統維護', '#故障排除'], 'audit', 'local', '系統維護運行。'),
   A('萬能支援蜂', ['#技術支援', '#問題解決'], 'audit', 'local', '技術支援解決。'),

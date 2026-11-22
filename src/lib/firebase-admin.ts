@@ -1,5 +1,5 @@
 import adminDb from './local-store';
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * Firebase Admin 相容層 (本地模式) — GCP Firebase 已停用，改為本地資料層。
  *

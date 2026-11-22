@@ -1,17 +1,13 @@
+import { useSupabase, APP_ID, emitTelemetry } from '../db';
 import {
-  doc,
-  setDoc,
-  deleteDoc,
-  onSnapshot,
-  collection,
-  query,
-  where,
-  getDocs,
-  getDoc,
-  FirestoreError,
-} from 'firebase/firestore';
-
-import { useFirebase, APP_ID, db, emitTelemetry } from '../db';
+  supaSetPairing,
+  supaUpdatePairing,
+  supaDeletePairing,
+  supaLoadPairing,
+  supaListPairingsForMentor,
+  supaListPairingsForMentee,
+  supaSubscribePairings,
+} from '../supabase-db';
 
 const PAIRING_STATUS = Object.freeze({ PENDING: 'pending', ASSIGNED: 'assigned', DECLINED: 'declined' });
 
@@ -31,6 +27,11 @@ const newPairingPayload = (mentorUid, menteeUid, status = PAIRING_STATUS.PENDING
 export const createPairingRequest = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
   const next = newPairingPayload(mentorUid, menteeUid);
+  if (useSupabase) {
+    await supaSetPairing(docId, next);
+    emitTelemetry('pairing_request', { mentorUid, menteeUid });
+    return docId;
+  }
   await setPairing(docId, next);
   emitTelemetry('pairing_request', { mentorUid, menteeUid });
   return docId;
@@ -38,46 +39,47 @@ export const createPairingRequest = async (mentorUid, menteeUid) => {
 
 export const acceptPairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  await updatePairing(docId, { status: PAIRING_STATUS.ASSIGNED, updatedAt: new Date().toISOString() });
+  const patch = { status: PAIRING_STATUS.ASSIGNED, updatedAt: new Date().toISOString() };
+  if (useSupabase) {
+    await supaUpdatePairing(docId, patch);
+    return docId;
+  }
+  await updatePairing(docId, patch);
   return docId;
 };
 
 export const declinePairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  await updatePairing(docId, { status: PAIRING_STATUS.DECLINED, updatedAt: new Date().toISOString() });
+  const patch = { status: PAIRING_STATUS.DECLINED, updatedAt: new Date().toISOString() };
+  if (useSupabase) {
+    await supaUpdatePairing(docId, patch);
+    return docId;
+  }
+  await updatePairing(docId, patch);
   return docId;
 };
 
 export const removePairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  if (useFirebase && db) {
-    await deleteDoc(doc(db, 'platforms', APP_ID, 'pairings', docId));
-  } else {
-    localStorage.removeItem(storeKeyFor(docId));
-    emitPairingLocalEvent();
+  if (useSupabase) {
+    await supaDeletePairing(docId);
+    return docId;
   }
+  localStorage.removeItem(storeKeyFor(docId));
+  emitPairingLocalEvent();
   return docId;
 };
 
 export const loadPairing = async (mentorUid, menteeUid) => {
   const docId = pairingDocId(mentorUid, menteeUid);
-  if (useFirebase && db) {
-    const snap = await getDoc(doc(db, 'platforms', APP_ID, 'pairings', docId));
-    if (snap.exists()) return { id: snap.id, ...snap.data() };
-    return null;
-  }
+  if (useSupabase) return supaLoadPairing(docId);
 
   try { const raw = localStorage.getItem(storeKeyFor(docId)); return raw ? JSON.parse(raw) : null; }
   catch { return null; }
 };
 
 export const listPairingsForMentor = async (mentorUid) => {
-  if (useFirebase && db) {
-    const ref = collection(db, 'platforms', APP_ID, 'pairings');
-    const q = query(ref, where('mentorUid', '==', mentorUid));
-    const snap = await getDocs(q);
-    return snap.docs.map((document) => ({ id: document.id, ...document.data() }));
-  }
+  if (useSupabase) return supaListPairingsForMentor(mentorUid);
 
   const out = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -92,12 +94,7 @@ export const listPairingsForMentor = async (mentorUid) => {
 };
 
 export const listPairingsForMentee = async (menteeUid) => {
-  if (useFirebase && db) {
-    const ref = collection(db, 'platforms', APP_ID, 'pairings');
-    const q = query(ref, where('menteeUid', '==', menteeUid));
-    const snap = await getDocs(q);
-    return snap.docs.map((document) => ({ id: document.id, ...document.data() }));
-  }
+  if (useSupabase) return supaListPairingsForMentee(menteeUid);
 
   const out = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -112,18 +109,7 @@ export const listPairingsForMentee = async (menteeUid) => {
 };
 
 export const subscribePairings = (onData) => {
-  if (useFirebase && db) {
-    const collectionRef = collection(db, 'platforms', APP_ID, 'pairings');
-    const unsubscribe = onSnapshot(
-      collectionRef,
-      (snapshot) => onData(snapshot.docs.map((document) => ({ id: document.id, ...document.data() }))),
-      (error) => {
-        console.error('Pairing snapshot error', error);
-        if (error instanceof FirestoreError) emitTelemetry('pairing_subscription_error', { code: error.code });
-      }
-    );
-    return unsubscribe;
-  }
+  if (useSupabase) return supaSubscribePairings(onData);
 
   const listeners = window.__pairingLocalListeners || (window.__pairingLocalListeners = new Set());
   const next = () => {
@@ -143,19 +129,11 @@ export const subscribePairings = (onData) => {
 };
 
 const setPairing = async (id, payload) => {
-  if (useFirebase && db) {
-    await setDoc(doc(db, 'platforms', APP_ID, 'pairings', id), payload);
-    return;
-  }
   localStorage.setItem(storeKeyFor(id), JSON.stringify(payload));
   emitPairingLocalEvent();
 };
 
 const updatePairing = async (id, patch) => {
-  if (useFirebase && db) {
-    await setDoc(doc(db, 'platforms', APP_ID, 'pairings', id), patch, { merge: true });
-    return;
-  }
   const current = JSON.parse(localStorage.getItem(storeKeyFor(id)) || '{}');
   const next = { ...current, ...patch };
   localStorage.setItem(storeKeyFor(id), JSON.stringify(next));

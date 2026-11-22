@@ -2,12 +2,23 @@
 // ============================================================
 // 公開 API operations: awaken, grow, remember, reflect, forget, prune, search, tag
 // ============================================================
-import { MANTRA, SKILL_TRAITS, DEFAULT_MEMORY_RETENTION } from './schema.mjs';
+import { MANTRA, SKILL_TRAITS, DEFAULT_MEMORY_RETENTION, SUPERPOWERS_STAGES } from './schema.mjs';
 import {
   parseTag, validateOmniTag, detectConflicts, normalizeTag,
   filterTags, getValuesByKey, aggregateTags, calculateBoundaryInheritance,
   OMNITAG_DIMENSIONS, ROUTING_PRIORITY,
 } from './tags.mjs';
+import { createModelResolver } from './model-resolver.mjs';
+import { createServiceResolver } from './service-resolver.mjs';
+
+// NCB memory schema 限欄位 (ts/event/summary/tags/sourceOrigin/task),
+// stage/status 不可直寫 (400 Unknown column);兩 backend 統一以 summary
+// 前綴 `<stage>:<status>` 編碼存取,讀取時由此 helper 解析還原。
+function stageStatusOf(e) {
+  if (e && e.stage) return { stage: e.stage, status: e.status };
+  const m = /^([a-z0-9]+):(start|done|blocked|skipped)/.exec(String(e?.summary || ''));
+  return m ? { stage: m[1], status: m[2] } : { stage: undefined, status: undefined };
+}
 
 export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HOME }) {
   let _skillsCache = null;
@@ -28,6 +39,7 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
 
   async function awaken({ silent = false } = {}) {
     _invalidateSkillsCache();
+    const bootstrap = await superpowersBootstrap({ silent });
     const be = await dispatcher.select();
     const skills = await be.readSkills();
     const recent = await be.readMemory({ limit: 20 });
@@ -42,12 +54,14 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
       recentMemories: recent,
       progress,
       mantra: MANTRA,
+      // superpowers 啟動引導
+      superpowers: bootstrap,
     };
     try {
       await be.appendMemory({
         event: 'awaken', ts: new Date().toISOString(),
         summary: `skills=${skills.length} memories=${recent.length} backend=${be.name}`,
-        tags: ['audit', be.name],
+        tags: ['audit', be.name, 'superpowers:bootstrap'],
       });
     } catch (e) { if (!silent) console.warn(`[JunAikey] memory audit skipped: ${(e?.message || e).toString().slice(0, 120)}`); }
     try { await be.appendJournal({ kind: 'awaken', skills: skills.length, memories: recent.length, backend: be.name }); } catch {}
@@ -58,8 +72,52 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
       console.log(`  skills loaded: ${skills.length}`);
       console.log(`  recent mems  : ${recent.length}`);
       console.log(`  mantra       : ${MANTRA}`);
+      if (!bootstrap.skipped) {
+        console.log(`  superpowers  : bootstrapping ${bootstrap.stageLabel}`);
+      } else {
+        console.log(`  superpowers  : already bootstrapped (stage=${bootstrap.stage})`);
+      }
     }
     return result;
+  }
+
+  // ── Superpowers 啟動引導 (Bootstrap) ────────────────────
+  // 每次 session 透過 `awaken` 進入時,先在超能力 7 階段中點亮「腦力激盪」旗標,
+  // 形成被動恆久覺醒 (passive-habitual awakening) 的超能力記載。
+  async function superpowersBootstrap({ silent = false } = {}) {
+    const be = await dispatcher.select();
+    // 取最近 3 筆 superpowers 階段記錄,看是否已有 brainstorming 記錄
+    const recent = await be.readMemory({ event: 'superpowers_stage', limit: 3 });
+    const stagesSeen = recent.map(r => stageStatusOf(r).stage);
+    if (stagesSeen.includes('brainstorming')) {
+      return { bootstrappedAt: new Date().toISOString(), backend: be.name, skipped: true, stage: 'brainstorming', stageLabel: '腦力激盪' };
+    }
+    const now = new Date().toISOString();
+    const entry = {
+      ts: now,
+      kind: 'superpowers_bootstrap',
+      stage: 'brainstorming',
+      stageLabel: '腦力激盪',
+      status: 'start',
+      source: 'session_awaken',
+      backend: be.name,
+    };
+    try {
+      await be.appendJournal(entry);
+    } catch {
+      /* 最佳努力 */
+    }
+    try {
+      await be.appendMemory({
+        event: 'superpowers_stage',
+        ts: now,
+        summary: 'brainstorming:start (session_awaken)',
+        tags: ['superpowers', 'superpowers:brainstorming', be.name],
+      });
+    } catch (e) {
+      if (!silent) console.warn(`[JunAikey] superpowers bootstrap skipped: ${(e?.message || e).toString().slice(0, 120)}`);
+    }
+    return { bootstrappedAt: now, backend: be.name, skipped: false, stage: 'brainstorming', stageLabel: '腦力激盪' };
   }
 
   async function loadSkills({ bypassCache = false } = {}) {
@@ -88,6 +146,13 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
 
   async function remember(event) {
     const entry = { ts: new Date().toISOString(), ...(event && typeof event === 'object' ? event : { event }) };
+    // 過濾 junaikey_memory 表未定義的欄位 (只保留 ts/event/summary/grownSkills/tags)。
+    // 若使用者傳入 'task'/'rc' 等非表欄位,會在此被捨棄,避免 "Unknown column" 400。
+    const valid = new Set(['event', 'summary', 'grownSkills', 'tags']);
+    for (const k of Object.keys(entry)) {
+      if (k === 'ts') continue; // ts 由本函式新增,保留
+      if (!valid.has(k)) delete entry[k];
+    }
     const be = await dispatcher.select();
     const result = await be.appendMemory(entry);
     return { ...entry, _backend: be.name, _ncbResult: be.name === 'ncb' ? result : undefined };
@@ -171,13 +236,20 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
     });
     if (query) filtered = filtered.filter(item => item.tags.length > 0);
 
-    // aggregate
-    const allTags = filtered.flatMap(i => i.tags);
+    // aggregate: single pass O(N) indexing
     const counts = new Map();
-    for (const t of allTags) counts.set(t, (counts.get(t) || 0) + 1);
+    const itemsByTag = new Map();
+    for (const item of filtered) {
+      const id = item.name || item.event || item.ts;
+      for (const t of item.tags) {
+        counts.set(t, (counts.get(t) || 0) + 1);
+        if (!itemsByTag.has(t)) itemsByTag.set(t, []);
+        itemsByTag.get(t).push(id);
+      }
+    }
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
-      .map(([tag, count]) => ({ tag, count, items: filtered.filter(i => i.tags.includes(tag)).map(i => i.name || i.event || i.ts) }));
+      .map(([tag, count]) => ({ tag, count, items: itemsByTag.get(tag) || [] }));
   }
 
   async function findByTag(tag) {
@@ -218,7 +290,7 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
     for (const { name } of needs) {
       const s = byName.get(name);
       if (s) {
-        s.traits = [...new Set([...(s.traits || []), 'best-practice:结界'])];
+        s.traits = [...new Set([...(s.traits || []), 'best-practice:結界'])];
         s.updatedAt = new Date().toISOString();
       }
     }
@@ -346,22 +418,10 @@ export function createOperations({ dispatcher, NCB_BASE, NCB_PROJECT, JUNAKEY_HO
 
   // ── FR-03 智慧標籤生成 (LLM 自動標記) ──
   // 用本地 LLM (Ollama) 從 text 生 OmniTag;若無 LLM 可用,返回空陣列
-  async function autoTagFromLLM(text, { model = 'qwen2.5:3b-64k', maxTags = 5, ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434' } = {}) {
-    if (!text || text.length < 10) return { tags: [], reason: 'text too short' };
-    const prompt = `從以下中文/英文內容提取最多 ${maxTags} 個 OmniTag (格式: key:value)。OmniTag 維度: security(public/internal/confidential/restricted), agent(01-30), squad(智庫聖所/符文契約/光之羽翼/煉金熵減/5T驗算), lifecycle(draft/active/frozen/archived), priority(p0/p1/p2/p3), platform(esggo/omni/vps/ncb/hermes/cloudflare), best-practice(awakened/结界/draft)。
-
-內容:
-"""
-${text.slice(0, 2000)}
-"""
-
-請只輸出 tags,每行一個,例如:
-agent:13
-lifecycle:active
-platform:vps
-不要其他說明文字。`;
+  // 內部: 單次 ollama /api/generate 呼叫, 失敗即 throw (供眾鑰之首接續重試)
+  async function _ollamaGenerate(model, prompt, ollamaUrl) {
     const ac = new AbortController();
-    const t = setTimeout(() => ac.abort(), 60000);
+    const t = setTimeout(() => ac.abort(), 60000); // 60s 容納冷載入 (3b 模型冷載入 ~8s)
     try {
       const r = await fetch(`${ollamaUrl}/api/generate`, {
         method: 'POST',
@@ -376,18 +436,55 @@ platform:vps
         signal: ac.signal,
       });
       clearTimeout(t);
-      if (!r.ok) return { tags: [], reason: `ollama HTTP ${r.status}` };
+      if (!r.ok) throw new Error(`ollama HTTP ${r.status}`);
       const j = await r.json();
-      const text = (j.response || '').trim();
-      const tags = text.split('\n').map(s => s.trim()).filter(s => /^[a-z\-]+:[a-z0-9一-龥]+$/i.test(s));
-      const valid = tags.filter(t => {
-        const v = validateOmniTag(t);
-        return v.valid;
-      });
-      return { tags: valid, raw: text, model };
+      return (j.response || '').trim();
     } catch (e) {
       clearTimeout(t);
-      return { tags: [], reason: e.name === 'AbortError' ? 'timeout 60s' : e.message };
+      throw (e.name === 'AbortError') ? new Error('timeout 60s') : e;
+    }
+  }
+
+  function _parseOmniTags(raw) {
+    const tags = raw.split('\n').map(s => s.trim()).filter(s => /^[a-z\-]+:[a-z0-9一-龥]+$/i.test(s));
+    return tags.filter(t => validateOmniTag(t).valid);
+  }
+
+  async function autoTagFromLLM(text, { model = 'qwen2.5:3b-64k', maxTags = 5, ollamaUrl = process.env.OLLAMA_URL || 'http://localhost:11434', autoFallback = true } = {}) {
+    if (!text || text.length < 10) return { tags: [], reason: 'text too short' };
+    const prompt = `從以下中文/英文內容提取最多 ${maxTags} 個 OmniTag (格式: key:value)。OmniTag 維度: security(public/internal/confidential/restricted), agent(01-30), squad(智庫聖所/符文契約/光之羽翼/煉金熵減/5T驗算), lifecycle(draft/active/frozen/archived), priority(p0/p1/p2/p3), platform(esggo/omni/vps/ncb/hermes/cloudflare), best-practice(awakened/結界/draft)。
+
+內容:
+"""
+${text.slice(0, 2000)}
+"""
+
+請只輸出 tags,每行一個,例如:
+agent:13
+lifecycle:active
+platform:vps
+不要其他說明文字。`;
+    // ── 眾鑰之首自動接續: 先試指定模型; 不可用 → resolveModel 選免費備援鏈 → 重試接續 ──
+    try {
+      const raw = await _ollamaGenerate(model, prompt, ollamaUrl);
+      return { tags: _parseOmniTags(raw), raw, model };
+    } catch (firstErr) {
+      if (!autoFallback) return { tags: [], reason: firstErr.message };
+      const resolved = await resolveModel({ preferred: model, remember: false });
+      if (!resolved.ok || resolved.selectedModel === model) {
+        return { tags: [], reason: firstErr.message, fellBack: false, resolveReason: resolved.reason || 'no alternative' };
+      }
+      try {
+        const raw = await _ollamaGenerate(resolved.selectedModel, prompt, ollamaUrl);
+        return {
+          tags: _parseOmniTags(raw), raw,
+          model: resolved.selectedModel,          // 實際使用的權威模型
+          fellBack: true, fromModel: model,       // 透明標示已接續
+          probeChain: resolved.probeChain,        // 5T Traceable
+        };
+      } catch (secondErr) {
+        return { tags: [], reason: secondErr.message, fellBack: true, fromModel: model };
+      }
     }
   }
 
@@ -432,6 +529,133 @@ platform:vps
     return entry;
   }
 
+  // ── Superpowers 7 階段追蹤 ───────────────────────────────
+  // 把上游 Superpowers 的 7 階段編碼方法論注入 junaikey 成長層：
+  // 每個階段以 'superpowers:stage:<id>' 標籤 + journal 記錄，形成 closed-loop。
+  // 可透過 `listSuperPowersStages()` 串流每階段的進度與證據，驅動進化。
+  async function trackSuperPowersStage(stageId, status, { source = 'cli', sourceOrigin = '', notes = '' } = {}) {
+    const validIds = SUPERPOWERS_STAGES.map(s => s.id);
+    if (!validIds.includes(stageId)) {
+      throw new Error(
+        `trackSuperPowersStage: 未知階段 "${stageId}"。合法值: ${validIds.join(', ')}`
+      );
+    }
+    const be = await dispatcher.select();
+    const entry = {
+      ts: new Date().toISOString(),
+      kind: 'superpowers_stage',
+      stage: stageId,
+      stageLabel: SUPERPOWERS_STAGES.find(s => s.id === stageId)?.label || stageId,
+      status, // 'start' | 'done' | 'blocked' | 'skipped'
+      source,
+      sourceOrigin,
+      notes,
+      backend: be.name,
+    };
+    // 1) 寫入 journal（審計軌跡，Traceable/Trackable）
+    await be.appendJournal(entry);
+    // 2) 同步寫入 memory（可被 searchMemory 找回，Trustworthy）
+    const summary = [
+      `${stageId}:${status}`,
+      source ? `source=${source}` : '',
+      sourceOrigin ? `origin=${sourceOrigin}` : '',
+      notes ? `notes=${notes}` : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    await be.appendMemory({
+      event: 'superpowers_stage',
+      ts: entry.ts,
+      summary,
+      tags: ['superpowers', `superpowers:${stageId}`, be.name],
+    });
+    return entry;
+  }
+
+  async function listSuperPowersStages({ stage, status, limit = 50 } = {}) {
+    const be = await dispatcher.select();
+    const all = await be.readMemory({ event: 'superpowers_stage', limit });
+    let filtered = all;
+    if (stage) filtered = filtered.filter(e => stageStatusOf(e).stage === stage);
+    if (status) filtered = filtered.filter(e => stageStatusOf(e).status === status);
+    return filtered
+      .map(e => {
+        const { stage: st, status: stt } = stageStatusOf(e);
+        return {
+          ...e,
+          stage: st,
+          status: stt,
+          stageLabel: SUPERPOWERS_STAGES.find(s => s.id === st)?.label || st,
+          stageOrder: SUPERPOWERS_STAGES.find(s => s.id === st)?.order || 0,
+        };
+      })
+      .sort((a, b) => (a.stageOrder || 0) - (b.stageOrder || 0));
+  }
+
+  async function resetSuperPowersStages() {
+    const be = await dispatcher.select();
+    const now = new Date().toISOString();
+    const resetEntry = {
+      ts: now,
+      kind: 'superpowers_reset',
+      summary: 'all superpowers stages reset to not_started',
+      backend: be.name,
+    };
+    await be.appendJournal(resetEntry);
+    await be.appendMemory({
+      event: 'superpowers_reset',
+      ts: now,
+      summary: 'all superpowers stages reset',
+      tags: ['superpowers', 'superpowers:reset', be.name],
+    });
+    return resetEntry;
+  }
+
+  // ── 🔑 眾鑰之首 — 模型存取權威 (L3) ──────────────────────
+  // 當前模型不可用時,自動降級到免費備援鏈並選定權威模型。
+  // 5T: probeChain 記錄實測軌跡; 選定結果 Object.freeze; 寫 NCB memory (Trackable)。
+  async function resolveModel({ preferred = null, remember: doRemember = true } = {}) {
+    const resolver = createModelResolver({});
+    const result = await resolver.resolve(preferred);
+    if (doRemember) {
+      try {
+        const be = await dispatcher.select();
+        await be.appendMemory({
+          event: 'model-resolve',
+          ts: new Date().toISOString(),
+          summary: result.ok
+            ? `selected ${result.selectedBackend}/${result.selectedModel} · probeChain=${result.probeChain.length}`
+            : `unavailable · probeChain=${result.probeChain.length}`,
+          tags: ['model-resolver', result.selectedBackend || 'none', be.name],
+        });
+      } catch { /* NCB 不可達不阻塞 */ }
+    }
+    return result;
+  }
+
+  // ── 🔑 眾鑰之首 — 外部服務存取權威 (L3 泛化, 2026-10-15) ──
+  // tts/visual/storage/llm 的雲端金鑰增強不可用時,自動接續免費模組。
+  // 5T: probeChain 記錄實測軌跡; 選定結果 Object.freeze; 寫 NCB memory (Trackable)。
+  // 對應 AI Station §9 七模組的雲端增強優雅回落。
+  async function resolveService(name, { preferred = null, remember: doRemember = true } = {}) {
+    const resolver = createServiceResolver({});
+    const result = await resolver.resolve(name, { preferred });
+    if (doRemember) {
+      try {
+        const be = await dispatcher.select();
+        await be.appendMemory({
+          event: 'service-resolve',
+          ts: new Date().toISOString(),
+          summary: result.ok
+            ? `${name}: selected ${result.selectedProvider} · probeChain=${result.probeChain.length}`
+            : `${name}: unavailable · probeChain=${result.probeChain.length}`,
+          tags: ['service-resolver', name, result.selectedProvider || 'none', be.name],
+        });
+      } catch { /* NCB 不可達不阻塞 */ }
+    }
+    return result;
+  }
+
   return {
     awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills,
     remember, recall, searchMemory, pruneMemory,
@@ -440,6 +664,14 @@ platform:vps
     validateTag, checkTagConflicts,
     applyBoundaryInheritance, pruneSkills, mergeSkills,
     getLineage, promoteSkill, getSedimentationStats, autoTagFromLLM,
+    // ── 🔑 眾鑰之首 — 模型存取權威 (L3) ──
+    resolveModel,
+    // ── 🔑 眾鑰之首 — 服務存取權威 (L3 泛化) ──
+    resolveService,
     _invalidateSkillsCache,
+    // ── Superpowers 7 階段追蹤（融合入口）─────────────────────────
+    trackSuperPowersStage,
+    listSuperPowersStages,
+    resetSuperPowersStages,
   };
 }

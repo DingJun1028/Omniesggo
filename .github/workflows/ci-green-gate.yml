@@ -38,10 +38,12 @@ jobs:
   green-gate:
     name: CI Green Gate
     runs-on: ubuntu-latest
-    # 讓出空間給真正的 CI/auto-repair 先產出 checks，再做判定
-    timeout-minutes: 20
+    # gate 會輪詢等待其他 checks 完成（GREEN_GATE_WAIT=3600s）。job 逾時
+    # 必須長於該等待上限，否則 gate 會在等待途中被砍（step=cancelled），
+    # 永遠走不到判定區 —— 一個輸出不了判定的閘。故 20 → 65。
+    timeout-minutes: 65
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # 必須檢查 PR 的 head commit，不是 merge commit，
           # 否則會去查一個沒有任何 checks 的 commit 而誤判。
@@ -61,7 +63,7 @@ jobs:
           GREEN_GATE_SELF: 'CI Green Gate'
           # pull_request 事件下，同 commit 的其他 checks 可能仍在跑；
           # 給它們時間完成，避免過早判定。
-          GREEN_GATE_WAIT: '600'
+          GREEN_GATE_WAIT: '3600'
         run: bash .hermes/auto-repair/ci-gate.sh "${{ github.event.pull_request.head.sha }}"
 
       - name: Summary

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { FileText, ChevronDown, ChevronUp, X, Wand2 } from 'lucide-react';
-import { jsPDF } from 'jspdf';
 import { UniversalOmniConsole } from '../../omni-center/universal-omni-console';
 import { db } from '@lib/firebase';
 import { doc, setDoc } from '@lib/firebase';
@@ -70,6 +69,15 @@ interface TaskProgress {
     durationMs: number;
     companyId: string;
   };
+}
+
+interface ReportHistoryItem {
+  taskId: string;
+  companyId: string;
+  companyName: string;
+  reportingYear: number;
+  totalWords: number;
+  generatedAt: string;
 }
 
 interface EvidenceCard {
@@ -262,6 +270,8 @@ export default function SustainWriteV5Page() {
   const [reportingYear, setReportingYear] = useState(new Date().getFullYear() - 1);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [taskProgress, setTaskProgress] = useState<TaskProgress | null>(null);
+  const [reportHistory, setReportHistory] = useState<ReportHistoryItem[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -307,6 +317,23 @@ export default function SustainWriteV5Page() {
     });
   };
 
+  const loadReportHistory = useCallback(async (companyId?: string) => {
+    setHistoryLoading(true);
+    try {
+      const query = companyId ? `?companyId=${encodeURIComponent(companyId)}` : '';
+      const response = await fetch(`/api/sustain-write/v5/reports${query}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error('歷史載入失敗');
+      const payload = await response.json();
+      setReportHistory(Array.isArray(payload.reports) ? payload.reports : []);
+    } catch {
+      setReportHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadReportHistory(); }, [loadReportHistory]);
+
   // Load companies on mount
   useEffect(() => {
     fetchCompanies()
@@ -337,6 +364,7 @@ export default function SustainWriteV5Page() {
         if (progress.status === 'completed' || progress.status === 'failed') {
           if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
           setLoading(false);
+          if (progress.status === 'completed') void loadReportHistory(progress.result?.companyId);
         }
       } catch {
         if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
@@ -344,7 +372,7 @@ export default function SustainWriteV5Page() {
         setError('查詢進度失敗');
       }
     }, 500);
-  }, []);
+  }, [loadReportHistory]);
 
   // Load evidence when company selected
   useEffect(() => {
@@ -395,13 +423,13 @@ export default function SustainWriteV5Page() {
   };
 
   const handleDownload = (format: 'html' | 'md') => {
-    if (!taskProgress?.result?.companyId) return;
-    window.open(`/api/sustain-write/v5/download?companyId=${taskProgress.result.companyId}&format=${format}`, '_blank');
+    if (!taskProgress?.taskId || taskProgress.status !== 'completed') return;
+    window.open(`/api/sustain-write/v5/reports/${encodeURIComponent(taskProgress.taskId)}?format=${format}`, '_blank');
   };
 
   const handlePreview = async (format: 'html' | 'md') => {
-    if (!taskProgress?.result?.companyId) return;
-    
+    if (!taskProgress?.taskId || taskProgress.status !== 'completed') return;
+
     if (previewFormat === format && previewContent) {
       setPreviewContent(null);
       setPreviewFormat(null);
@@ -411,7 +439,8 @@ export default function SustainWriteV5Page() {
     setPreviewLoading(true);
     setPreviewFormat(format);
     try {
-      const res = await fetch(`/api/sustain-write/v5/preview?companyId=${taskProgress.result.companyId}&format=${format}`);
+      const reportFormat = format === 'md' ? 'markdown' : 'html';
+      const res = await fetch(`/api/sustain-write/v5/reports/${encodeURIComponent(taskProgress.taskId)}?format=${reportFormat}`, { cache: 'no-store' });
       if (!res.ok) throw new Error('Preview failed');
       const text = await res.text();
       setPreviewContent(text);
@@ -750,7 +779,7 @@ export default function SustainWriteV5Page() {
                 萬能筆記參考 (OmniNote Reference)
               </h2>
               <p className="text-sm text-textSecondary mt-1">
-                選擇萬能筆記作為報告生成的參考資料，AI 將融合筆記內容於 ESG 報告中
+                筆記目前尚未接上公司專屬歸屬與報告來源；選取項目不會被寫入報告，避免混入未核實資料。
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -872,7 +901,7 @@ export default function SustainWriteV5Page() {
             {/* Show reference notes info */}
             {taskProgress.noteIds && taskProgress.noteIds.length > 0 && (
               <div className="mt-3 text-xs text-accentPurple">
-                參考筆記：{taskProgress.noteIds.length} 則已融合
+                已選取 {taskProgress.noteIds.length} 則筆記；目前未納入報告（尚未完成公司歸屬驗證）。
               </div>
             )}
 
@@ -895,8 +924,8 @@ export default function SustainWriteV5Page() {
                     <div className="font-semibold text-textPrimary">{(taskProgress.result.durationMs / 1000).toFixed(1)}s</div>
                   </div>
                   <div>
-                    <span className="text-textSecondary">Trinity Hash</span>
-                    <div className="font-mono text-xs text-textPrimary truncate">{taskProgress.result.trinityHash}</div>
+                    <span className="text-textSecondary">報告快照 ID</span>
+                    <div className="font-mono text-xs text-textPrimary truncate">{taskProgress.taskId}</div>
                   </div>
                 </div>
 
@@ -938,97 +967,7 @@ export default function SustainWriteV5Page() {
                       >
                         ⬇️ 下載 Markdown
                       </button>
-                      <button
-                        onClick={() => {
-                          if (!taskProgress?.result?.companyId) return;
-                          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                          doc.setFillColor(2, 6, 23);
-                          doc.rect(0, 0, 210, 45, 'F');
-                          doc.setTextColor(6, 182, 212);
-                          doc.setFontSize(22);
-                          doc.setFont('helvetica', 'bold');
-                          doc.text('5T ESG SUSTAINABILITY REPORT', 15, 20);
-                          doc.setTextColor(248, 250, 252);
-                          doc.setFontSize(12);
-                          doc.setFont('helvetica', 'normal');
-                          doc.text(`Company: ${selectedCompany || 'Corporate Entity'} | Template: ${selectedTemplate || 'GRI'}`, 15, 28);
-                          doc.setTextColor(16, 185, 129);
-                          doc.setFontSize(10);
-                          doc.text(`Trinity Hash: ${taskProgress.result.trinityHash.slice(0, 32)}...`, 15, 36);
-                          
-                          doc.setTextColor(15, 23, 42);
-                          doc.setFontSize(11);
-                          doc.setFont('helvetica', 'bold');
-                          doc.text('Report Generation Audit Summary', 15, 55);
-                          doc.setFontSize(10);
-                          doc.setFont('helvetica', 'normal');
-                          doc.text(`Task ID: ${taskProgress.taskId}`, 15, 63);
-                          doc.text(`Total Words Generated: ${taskProgress.result.totalWords.toLocaleString()} words`, 15, 70);
-                          doc.text(`5T Decisions Count: ${taskProgress.decisionsCount}`, 15, 77);
-                          doc.text(`Generation Duration: ${(taskProgress.result.durationMs / 1000).toFixed(1)}s`, 15, 84);
-                          
-                          doc.save(`5T_ESG_Report_${taskProgress.result.companyId}.pdf`);
-                        }}
-                        className="px-4 py-2 text-sm font-medium rounded bg-secondary border border-accentGreen/50 text-accentGreen hover:bg-accentGreen/10 transition-colors font-bold"
-                      >
-                        📄 下載 PDF 報告
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (!taskProgress?.result?.companyId) return;
-                          const data = {
-                            taskId: taskProgress.taskId,
-                            companyId: taskProgress.result.companyId,
-                            templateId: taskProgress.templateId,
-                            status: taskProgress.status,
-                            totalWords: taskProgress.result.totalWords,
-                            totalTags: taskProgress.result.totalTags,
-                            trinityHash: taskProgress.result.trinityHash,
-                            durationMs: taskProgress.result.durationMs,
-                            noteIds: taskProgress.noteIds,
-                            customCompany: taskProgress.customCompany,
-                            exportedAt: new Date().toISOString(),
-                          };
-                          const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `sustain-report-${taskProgress.result.companyId}.json`;
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        }}
-                        className="px-4 py-2 text-sm font-medium rounded bg-secondary border border-borderColor text-accentBlue hover:border-accentBlue transition-colors"
-                      >
-                        JSON
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (!taskProgress?.result?.companyId) return;
-                          const headers = ['task_id', 'company_id', 'template', 'status', 'total_words', 'total_tags', 'trinity_hash', 'duration_ms', 'exported_at'];
-                          const row = [
-                            taskProgress.taskId,
-                            taskProgress.result.companyId,
-                            taskProgress.templateId || 'gri',
-                            taskProgress.status,
-                            taskProgress.result.totalWords.toString(),
-                            taskProgress.result.totalTags.toString(),
-                            taskProgress.result.trinityHash,
-                            taskProgress.result.durationMs.toString(),
-                            new Date().toISOString(),
-                          ];
-                          const csv = [headers.join(','), row.join(',')].join('\n');
-                          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-                          const url = URL.createObjectURL(blob);
-                          const a = document.createElement('a');
-                          a.href = url;
-                          a.download = `sustain-report-${taskProgress.result.companyId}.csv`;
-                          a.click();
-                          URL.revokeObjectURL(url);
-                        }}
-                        className="px-4 py-2 text-sm font-medium rounded bg-secondary border border-borderColor text-accentGold hover:border-accentGold transition-colors"
-                      >
-                        CSV
-                      </button>
+
                       <button
                         onClick={evolveReport}
                         disabled={evolving}
@@ -1074,7 +1013,7 @@ export default function SustainWriteV5Page() {
               </h2>
               <p className="text-sm text-textSecondary mt-1">匯入的佐證資料清單與 ESGSonnar 萃取的知識小卡 (Why, What, How)</p>
             </div>
-            
+
             <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
               {loadingEvidence ? (
                 <div className="text-sm text-textSecondary text-center py-4">載入單據與知識點中...</div>
@@ -1131,8 +1070,49 @@ export default function SustainWriteV5Page() {
           </div>
         )}
 
+        {/* Report history */}
+        <section className="bg-secondary rounded-lg border border-borderColor p-5 mb-8 shadow-sm" aria-labelledby="report-history-title">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+            <div>
+              <h2 id="report-history-title" className="text-base font-semibold text-textPrimary">報告紀錄</h2>
+              <p className="text-xs text-textSecondary mt-1">生成快照保留最多 7 日；Redis 未配置時僅於目前服務程序記憶體有效，非永久檔案庫。</p>
+            </div>
+            <button type="button" onClick={() => void loadReportHistory(selectedCompany || undefined)} className="px-3 py-2 rounded border border-borderColor text-sm text-textPrimary hover:bg-primary" disabled={historyLoading}>
+              {historyLoading ? '載入中…' : '重新整理'}
+            </button>
+          </div>
+          {reportHistory.length === 0 ? (
+            <p className="text-sm text-textSecondary py-5 text-center">{historyLoading ? '正在載入報告紀錄…' : '目前沒有可用的已完成報告快照。'}</p>
+          ) : (
+            <div className="space-y-2">
+              {reportHistory.map((item) => (
+                <div key={item.taskId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-borderColor bg-primary p-3">
+                  <div className="min-w-0">
+                    <div className="font-medium text-textPrimary truncate">{item.companyName} · {item.reportingYear} 年</div>
+                    <div className="text-xs text-textSecondary mt-1">實際字數 {item.totalWords.toLocaleString()} · {new Date(item.generatedAt).toLocaleString()}</div>
+                    <div className="text-[11px] text-textSecondary mt-1 font-mono truncate">{item.taskId}</div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <button type="button" onClick={async () => {
+                      setPreviewLoading(true);
+                      try {
+                        const response = await fetch(`/api/sustain-write/v5/reports/${encodeURIComponent(item.taskId)}?format=html`, { cache: 'no-store' });
+                        if (!response.ok) throw new Error('快照不存在或已過期');
+                        setPreviewContent(await response.text());
+                        setPreviewFormat('html');
+                      } catch { alert('無法載入報告快照，可能已過期'); }
+                      finally { setPreviewLoading(false); }
+                    }} className="px-3 py-2 rounded bg-accentBlue/10 text-accentBlue text-sm hover:bg-accentBlue/20">預覽</button>
+                    <a href={`/api/sustain-write/v5/reports/${encodeURIComponent(item.taskId)}?format=markdown`} className="px-3 py-2 rounded bg-accentTeal/10 text-accentTeal text-sm hover:bg-accentTeal/20">下載 MD</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Preview Panel */}
-        {previewContent && taskProgress?.status === 'completed' && (
+        {previewContent && (
           <div className="bg-secondary rounded-lg border border-borderColor p-6 mb-8 shadow-sm transition-all">
             <div className="flex items-center justify-between mb-4 pb-4 border-b border-borderColor">
               <h3 className="text-base font-semibold text-textPrimary">
@@ -1148,7 +1128,7 @@ export default function SustainWriteV5Page() {
                 ✕ 關閉
               </button>
             </div>
-            
+
             <div className="w-full bg-primary rounded border border-borderColor overflow-hidden" style={{ minHeight: '600px', maxHeight: '800px', overflowY: 'auto' }}>
               {previewFormat === 'html' ? (
                 <iframe

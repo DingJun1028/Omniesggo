@@ -1,0 +1,13 @@
+[project]
+name = "csv-analyst"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "mistralai-agents>=1.1.2",
+    "pandas>=3.1.1",
+]
+
+[tool.mistralai.agents]
+entrypoint = "main:agent"

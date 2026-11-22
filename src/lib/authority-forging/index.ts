@@ -29,7 +29,7 @@ export interface ForgingStep {
 export interface ForgingSafety {
   /** Declares whether outbound network is required — 是否需要對外網路 */
   network?: boolean;
-  /** Secret NAMES only; values are never accepted by this API — 僅秘密名稱 */
+  /** Secret NAMES only; values are never accepted by this API — 僅祕密名稱 */
   secrets?: string[];
   maxDurationMs?: number;
 }
@@ -50,7 +50,7 @@ export interface ForgedScript {
   digest: string;
   /** Topological execution order (step IDs) — 拓撲執行順序 */
   order: string[];
-  /** Secrets referenced by NAME only — 僅秘密名稱，絕無值 */
+  /** Secrets referenced by NAME only — 僅祕密名稱，絕無值 */
   secrets: string[];
 }
 

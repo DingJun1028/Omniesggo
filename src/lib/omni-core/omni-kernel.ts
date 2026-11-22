@@ -1,4 +1,4 @@
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * OmniKernel v1.0 — 萬能中心核心引擎
  *
@@ -50,6 +50,11 @@ export const OMNI_TOPICS = {
   OMNI_ONE_CASE_ROUTED:  'omni:one:case_routed',
   OMNI_ONE_RESULT:       'omni:one:result',
   OMNI_ONE_LEARNED:      'omni:one:learned',
+  // Knowledge Base
+  KB_REGISTERED:           'omni:kb:registered',
+  KB_SYNCED:               'omni:kb:synced',
+  KB_SEALED:               'omni:kb:sealed',
+  KB_VERIFIED:             'omni:kb:verified',
   // System
   FIVE_T_GATE_PASSED:    'omni:fiveT:gate_passed',
   ENTROPY_REDUCED:       'omni:entropy:reduced',

@@ -60,7 +60,7 @@ GRANT CONNECT, RESOURCE, CREATE TABLE, UNLIMITED TABLESPACE TO omni_trust;
 
 CREATE TABLE omni_trust.entry (
   seq         NUMBER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  prev_hash   VARCHAR2(128),                   -- 前一笔 hash（鏈）
+  prev_hash   VARCHAR2(128),                   -- 前一筆 hash（鏈）
   curr_hash   VARCHAR2(128),                   -- 本筆 hash = H(prev_hash|action|uuid|timestamp)
   uuid        VARCHAR2(64),
   action      VARCHAR2(64),                    -- 信任動作

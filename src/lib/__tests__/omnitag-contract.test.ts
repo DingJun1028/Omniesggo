@@ -9,7 +9,7 @@ const compliantTag: OmniTagSet = {
   lifecycle: 'active',
   priority: 'p2',
   platform: 'esggo',
-  bestPractice: '结界',
+  bestPractice: '結界',
 };
 
 describe('§20.5 OmniTag Contract Validator', () => {
@@ -55,7 +55,7 @@ describe('§20.5 OmniTag Contract Validator', () => {
     expect(r.valid).toBe(true);
   });
 
-  it('rule 3: barrier inheritance detected via best-practice:结界', () => {
+  it('rule 3: barrier inheritance detected via best-practice:結界', () => {
     expect(isBarrierInherited(compliantTag)).toBe(true);
     expect(isBarrierInherited({ ...compliantTag, bestPractice: 'awakened' })).toBe(false);
   });

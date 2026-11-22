@@ -5,7 +5,7 @@
 
 import { NextRequest } from 'next/server';
 import { parsePDFReport } from '../../../../src/core/pdf/pdf-parser';
-import { createPrismaCompatClient } from '@lib/db/prisma-compat';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import { jsonError, jsonResponse, jsonErrorInternal } from '@lib/api-utils';
 
 const prisma = createPrismaCompatClient();

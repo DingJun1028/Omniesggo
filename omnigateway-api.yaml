@@ -16,7 +16,7 @@ info:
     - lifecycle:active
     - p1
     - platform:cloudflare
-    - best-practice:结界
+    - best-practice:結界
   x-5t:
     traceable: "每一請求產生 requestId (x-request-id) 並經 cf-aig-metadata 傳遞"
     trackable: "源站稽核 sink 記錄 ts/method/path/clientIp/userAgent/requestId/status"

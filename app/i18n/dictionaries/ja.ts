@@ -5,6 +5,7 @@ const ja: Dictionary = {
   'brand.name': 'ESGGO',
   'brand.tagline': '深貫広通、継ぎ目なく接続',
   'brand.full': 'ESGGO — 永続的発展の無限進化',
+  'brand.short': 'ESGGO',
   'brand.omniautovideo': 'OmniAutoVideo 万能自動映像',
   'brand.omniautovideo.tagline': 'AI 自動映像生成、クラウドコストゼロ',
 

@@ -6,7 +6,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createPrismaCompatClient } from '@lib/db/prisma-compat';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import { jsonResponse, jsonError } from '@lib/api-utils';
 
 const prisma = createPrismaCompatClient();

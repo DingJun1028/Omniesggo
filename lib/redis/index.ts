@@ -38,6 +38,9 @@ export {
   getProgressInfo,
   setReportCache,
   getReportCache,
+  setTaskReport,
+  getTaskReport,
+  listTaskReports,
   clearTaskCache,
   cleanupStaleTasks,
 } from './state';
@@ -49,4 +52,5 @@ export type {
   ChapterState,
   TaskResult,
   ProgressInfo,
+  TaskReportSnapshot,
 } from './state';

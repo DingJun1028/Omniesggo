@@ -3,13 +3,14 @@
 # Powered by OA-Team 30 Soul Canon v0.5
 
 import asyncio
+from datetime import datetime
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import FastAPI, BackgroundTasks
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 
-from parsers.dna_parser import parse_script_dna
+from parsers.dna_parser import parse_script_dna, generate_subtitles
 from synthesizers.speech import synthesize_speech
 from visuals.image_gen import generate_visuals
 from renderers.video import render_video
@@ -59,25 +60,37 @@ async def produce_video(request: ProductionRequest, background_tasks: Background
     )
 
 def produce_pipeline(script: str, voice: str, brand: str, video_id: str) -> dict:
-    """Full 7-module production pipeline"""
-    # Module 2: Text Parsing
-    dna = parse_script_dna(script)
-    
+    """Full 7-module production pipeline.
+
+    Modules 2-5 consume the flat beat-list contract produced by
+    ``parse_script_dna`` (see ``src/parsers/dna_parser.py``): a list of
+    ``{\"type\": ..., \"content\": ...}`` beats.  There is no longer a
+    ``{\"content\",\"scenes\",\"subtitles\"}`` dict shape.
+    """
+    # Module 2: Text Parsing → flat beat list
+    beats = parse_script_dna(script)  # list[dict]  ({"type", "content"})
+
     # Module 3: Speech Synthesis
-    audio_path = synthesize_speech(dna["content"], voice)
-    
+    script_content = " ".join(b.get("content", "") for b in beats)
+    audio_path = synthesize_speech(script_content, voice)
+
     # Module 4: Visual Generation
-    visuals = generate_visuals(dna["scenes"], brand)
-    
+    visuals = generate_visuals([b.get("content", "") for b in beats], brand)
+
     # Module 5: Video Rendering
-    video_path = render_video(audio_path, visuals, dna["subtitles"])
-    
+    subtitles = generate_subtitles(beats)
+    video_path = render_video(audio_path, visuals, subtitles)
+
     # Module 6: Storage (local default)
     # Module 7: Evidence logging
     return {
         "video_id": video_id,
         "video_path": video_path,
-        "dna": dna,
+        "audio_path": audio_path,
+        "subtitles": subtitles,
+        "visuals_count": len(visuals),
+        "beat_count": len(beats),
+        "dna": beats,
         "module1": "input_processed",
         "module2": "dna_extracted",
         "module3": "audio_synced",
@@ -85,7 +98,7 @@ def produce_pipeline(script: str, voice: str, brand: str, video_id: str) -> dict
         "module5": "video_rendered",
         "module6": "stored_locally",
         "module7": "evidence_logged",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 if __name__ == "__main__":

@@ -9,13 +9,14 @@
     "preview": "vite preview --port 4173"
   },
   "dependencies": {
-    "vue": "^3.5.43",
-    "vue-router": "^5.4.0"
+    "vue": "^3.5.45",
+    "vue-router": "^5.5.1"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^6.0.9",
-    "autoprefixer": "^10.6.1",
+    "@tailwindcss/vite": "^4.3.5",
+    "@vitejs/plugin-vue": "^6.0.11",
+    "autoprefixer": "^10.6.2",
     "tailwindcss": "^4.3.3",
-    "vite": "^8.3.3"
+    "vite": "^8.3.8"
   }
 }

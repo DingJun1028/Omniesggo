@@ -298,7 +298,7 @@ const CHAPTER_CONTENT: Record<string, ChapterData> = {
     strategies: {
       title: "決策引領 (Leadership)",
       points: [
-        { label: "獨立性 (Independence)", desc: "確保外部董事能客观審視經營狀況。" },
+        { label: "獨立性 (Independence)", desc: "確保外部董事能客觀審視經營狀況。" },
         { label: "韌性 (Resilience)", desc: "將氣候風險納入董事會層級的常態議題。" }
       ]
     },

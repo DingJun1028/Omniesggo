@@ -12,10 +12,10 @@
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^5.20260728.1",
-    "@types/node": "^26.1.2",
-    "hono": "^4.12.32",
+    "@cloudflare/workers-types": "^5.20261112.1",
+    "@types/node": "^26.6.5",
+    "hono": "^4.13.18",
     "typescript": "^7.0.2",
-    "wrangler": "^4.113.0"
+    "wrangler": "^4.164.0"
   }
 }

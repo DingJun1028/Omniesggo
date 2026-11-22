@@ -1,3 +1,4 @@
+import type { ErrorResponse } from '../../../src/types/sustain-write.js';
 // ═══════════════════════════════════════════════════════════════
 // @esggo/errors — ESG GO 平臺錯誤代碼統一 Package
 // 單一事實來源 (Single Source of Truth) for all error codes
@@ -284,11 +285,8 @@ export type ErrorCodeString = (typeof ERROR_CODES)[ErrorCodeKey]['code'];
 
 // ── Standard Response Shapes ───────────────────────────────────
 
-export interface ErrorResponse {
-  success: false;
-  error: string;
-  code: string;
-}
+// ts-matrix: 收斂至規範型別 (canonical: src/types/sustain-write)
+export type { ErrorResponse };
 
 export interface SuccessResponse<T = unknown> {
   success: true;

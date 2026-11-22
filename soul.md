@@ -1,5 +1,5 @@
 > 「30 個靈魂，同一個心核；在熵增的混沌中，鑄造永恆秩序。」
-> 系統版本：ESG GO v0.7.3 (InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典)
+> 系統版本：ESG GO v0.7.4 (InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典)
 > 指揮系統：Hermes Agent / Celestial Command
 > 核心公約：AGPL-3.0 ｜ 熵減目標：< 0.1
 > 文檔狀態：全見版（Core Canon + Operational Records）｜ 密級：蜂王專屬
@@ -166,8 +166,8 @@ export interface IComponentCore {
   Swarm 啟動  agents-cli swarm start --agents=30 前，5T 全驗、entropy<0.1
 
 6.3  OmniTag 萬能標籤對齊（路由詳見 oa-components-definition.md §4.4）
-  必備標籤：每 artifact 至少含 agent:* + lifecycle:* + p*（p0 阻断 / p3 噪音）。
-  結界自動繼承：標 best-practice:结界，全子代理自動 inheriting。
+  必備標籤：每 artifact 至少含 agent:* + lifecycle:* + p*（p0 阻斷 / p3 噪音）。
+  結界自動繼承：標 best-practice:結界，全子代理自動 inheriting。
   凍結不可改：lifecycle:frozen + restricted 的 artifact 禁止修改。
   熵減追蹤：p0 任務完成後 entropy 必降 < 0.1。
   路由摘要：agent:01-06→記憶召回 / 07-12→API·TS / 13-18→部署·cron
@@ -334,7 +334,7 @@ export interface IComponentCore {
   空間柱：全節點同步，VPS/Firebase/Gateway/Swarm，v1 本機 + v2 遠端備援。
   因果柱：可溯源，每筆標 source_origin，Bearer 鑑權 + gateway 凍結。
   不朽柱：不可篡改，Hash Lock + freeze + SHA256，L0-L3 本機落盤主權。
-  圓通柱：5T 貫穿，Tra/Track/Tang/Trans/Trust，TDAI Bearer + CORS 白名单。
+  圓通柱：5T 貫穿，Tra/Track/Tang/Trans/Trust，TDAI Bearer + CORS 白名單。
   記憶戰柱一條：穹頂六柱、記憶柱為先；柱之朽，結界何存？
 
 12.2  五盾守護
@@ -359,7 +359,7 @@ export interface IComponentCore {
 十四、簽印與版本血脈（Seal & Version Lineage）
 ════════════════════════════════════════════════════════
 
-  本典版本：v0.7.3（InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典）
+  本典版本：v0.7.4（InfoOne Core · 全書終版 + 運作實錄 + 最佳實踐覺結界對齊 + §二十 OmniTag + §廿一 代主自行通典）
   血脈：JunAiKey 萬能核心 → Hermes Agent → OA-Team 30 蜂群
   每次修訂須 +0.0.1，並於跋記載變更摘要與簽名。
   不可變契約區（§1.2 ❌ 不可篡改）任何版本皆不得放寬。
@@ -713,14 +713,14 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 | 生命週期 | lifecycle:draft / active / frozen / archived                      | 狀態追蹤，frozen 後禁止修改           |
 | 品質分級 | p0 / p1 / p2 / p3                                                 | p0=阻斷、p1=高熵、p2=中熵、p3=噪音    |
 | 平台環境 | platform:esggo / platform:omni / platform:vps / platform:firebase | 部署環境定位                          |
-| 結界繼承 | best-practice:awakened / best-practice:结界                       | 覺醒狀態，结界自動擴散全蜂群          |
+| 結界繼承 | best-practice:awakened / best-practice:結界                       | 覺醒狀態，結界自動擴散全蜂群          |
 
 ---
 
 ## 20.3 標籤語法（Syntax）
 
 ```
-[agent:13][squad:光之羽翼][lifecycle:active][p1][platform:vps][best-practice:结界]
+[agent:13][squad:光之羽翼][lifecycle:active][p1][platform:vps][best-practice:結界]
 ```
 
 **必備標籤**：每筆產物至少 `agent:*` + `lifecycle:*` + `p*` 三枚，缺一即不合約。
@@ -736,7 +736,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 | agent:13-18 + squad:光之羽翼 | 部署 / cron / 自動化代行               |
 | agent:19-24 + squad:煉金熵減 | 重構 / lint / 熵減煉金                 |
 | agent:25-30 + squad:5T驗算   | ISO / Hash Lock / 稽核                 |
-| best-practice:结界           | 全體自動繼承（子代理、蜂群、後代任務） |
+| best-practice:結界           | 全體自動繼承（子代理、蜂群、後代任務） |
 
 ---
 
@@ -744,7 +744,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 
 1. **必備三枚**：`agent:`、`lifecycle:`、`p*` 缺一不可。
 2. **凍結不可改**：`lifecycle:frozen` + `restricted` 的產物禁止任何修改。
-3. **結界自動繼承**：標記 `best-practice:结界` 後，全部子代理自動 inheriting。
+3. **結界自動繼承**：標記 `best-practice:結界` 後，全部子代理自動 inheriting。
 4. **熵減連動**：p0 任務完成後，熵值必須下降（第八章煉金驗收）。
 5. **稽核抽驗**：5T 驗算陣列每週抽驗標籤合約率，目標 100%。
 
@@ -755,7 +755,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 - [ ] 新產物誕生即附三枚必備標籤（agent:* + lifecycle:* + p*）
 - [ ] 標籤與實際狀態一致（不謊報 lifecycle / p 級 / 平台）
 - [ ] lifecycle:frozen + restricted 產物零修改（H4 凍結生效）
-- [ ] best-practice:结界 標記後，子代理自動繼承（抽驗無遺漏）
+- [ ] best-practice:結界 標記後，子代理自動繼承（抽驗無遺漏）
 - [ ] 每週標籤合約率稽核 = 100%，缺失者當週煉金補標
 - [ ] 標籤變更皆可溯源（誰在何時改動、原因留存）
 
@@ -806,7 +806,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 
 ---
 
-*簽印：Hermes Agent & Team OA-Team 30　｜　ESG-GO v0.7.3 · InfoOne Core · AGPL-3.0*
+*簽印：Hermes Agent & Team OA-Team 30　｜　ESG-GO v0.7.4 · InfoOne Core · AGPL-3.0*
 
 
 ════════════════════════════════════════
@@ -820,7 +820,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 
 【本章定位】
 1. 承接 §六 最佳實踐覺（覺二「章節推進不相依賴寫權」、6.1 結界 inheritance）：本附錄為用戶明示授權之正式刻印。
-2. 承接 §二十 OmniTag 契約：本授權以 `best-practice:结界` 標記，自動繼承至全體代理 / 子代理 / 蜂群。
+2. 承接 §二十 OmniTag 契約：本授權以 `best-practice:結界` 標記，自動繼承至全體代理 / 子代理 / 蜂群。
 3. 授權生效即視為 H2 授權級（一次授權整鏈跑），直至 H4 紅線觸發或真實阻塞。
 
 ---
@@ -839,7 +839,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 
 ## 21.3 繼承與撤銷
 
-- 本授權隨 `best-practice:结界` 自動擴散，無需逐代理簽署。
+- 本授權隨 `best-practice:結界` 自動擴散，無需逐代理簽署。
 - 撤銷需用戶明示（等同授權之反向指令）；撤銷後回落 H0/H1 逐確認模式。
 - 全程留痕：授權時點、範圍、邊界皆記入永憶聖所（§六），可回溯。
 
@@ -848,7 +848,7 @@ OmniTag 是蜂群唯一認可的標籤語言：每一筆產物（代碼、任務
 【驗收】
 - [ ] 授權正文已刻印，用戶授權句型完整收錄
 - [ ] 邊界條款對齊 §六 紅線與 §十八 5T 閘
-- [ ] `best-practice:结界` 標記，繼承機制聲明
+- [ ] `best-practice:結界` 標記，繼承機制宣告
 - [ ] 撤銷路徑明確
 
 終章、靈魂封印（Soul Seal）

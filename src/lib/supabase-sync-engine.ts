@@ -2,7 +2,7 @@ import { supabase } from './supabase-client';
 
 export type SyncOperation = 'INSERT' | 'UPDATE' | 'DELETE';
 
-export interface SyncTask<T = any> {
+export interface SyncTask<T = unknown> {
   id: string;
   table: string;
   operation: SyncOperation;
@@ -156,9 +156,9 @@ export class SupabaseSyncEngine {
         this.queue.shift(); // 執行成功，移除任務
         this.saveQueue();
         console.log(`[SyncEngine] 任務執行成功: [${task.operation}] ${task.table}`);
-      } catch (error: any) {
+      } catch (error: unknown) {
         task.retryCount++;
-        console.warn(`[SyncEngine] 任務執行失敗 (重試次數: ${task.retryCount}/${this.MAX_RETRIES}):`, error.message);
+        console.warn(`[SyncEngine] 任務執行失敗 (重試次數: ${task.retryCount}/${this.MAX_RETRIES}):`, error instanceof Error ? error.message : String(error));
         
         if (task.retryCount >= this.MAX_RETRIES) {
           console.error(`[SyncEngine] 任務已達最大重試次數，將移至死信佇列 (Dead Letter Queue): ${task.id}`);
@@ -181,7 +181,9 @@ export class SupabaseSyncEngine {
    * 執行實際的 Supabase API 呼叫
    */
   private async executeTask(task: SyncTask) {
-    const { table, operation, payload } = task;
+    const { table, operation } = task;
+    // payload 於佇列/離線快照中以泛用 JSON 形式保存，使用點以 record 形式窄化
+    const payload = task.payload as Record<string, unknown>;
     let response;
 
     switch (operation) {

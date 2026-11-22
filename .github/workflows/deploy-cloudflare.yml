@@ -14,7 +14,6 @@ on:
       - "packages/**"
       - "apps/**"
       - "public/**"
-      - "prisma/**"
       - "next.config.*"
       - "vite.config.mjs"
       - "wrangler.web.jsonc"
@@ -37,18 +36,20 @@ jobs:
     env:
       # Cloudflare account（非機密；對應本機 wrangler whoami 登入帳戶）
       CLOUDFLARE_ACCOUNT_ID: d9d7ecd92cbad6d858fba3e529b9cb7b
-      DEPLOY_WORKER_URL: https://esggo-web.dingjunhong1028.workers.dev
+      # 公開網站域名（CF 取代 Vercel）：CNAME → esggo-web workers.dev（proxied），
+      # 不經 Cloudflare Access「All Workers」層（該層僅匹配 workers.dev hostname）。
+      DEPLOY_WORKER_URL: https://web.esggo.co
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
         with:
-          version: '11.5.2'
+          version: '12.16.1'
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: '22'
           cache: 'pnpm'
@@ -59,6 +60,67 @@ jobs:
           echo "[diag] node=$(node -v) pnpm=$(pnpm -v) start=$(date -u +%FT%TZ)"
           pnpm install --frozen-lockfile
           echo "[diag] install ok end=$(date -u +%FT%TZ)"
+
+      - name: Ensure public DNS
+        timeout-minutes: 3
+        env:
+          CF_TOKEN: ${{ secrets.CF_DNS_EDIT_TOKEN }}
+          CF_ZONE: ${{ secrets.CF_ZONE_ID }}
+        run: |
+          # 確保 web.esggo.co CNAME 存在（冪等）
+          if [ -n "$CF_TOKEN" ] && [ -n "$CF_ZONE" ]; then
+            existing=$(curl -sS -H "Authorization: Bearer $CF_TOKEN" \
+              "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records?name=web.esggo.co&type=CNAME")
+            if echo "$existing" | grep -q '"count":0\|"count": 0'; then
+              curl -sS -X POST -H "Authorization: Bearer $CF_TOKEN" -H "Content-Type: application/json" \
+                --data '{"type":"CNAME","name":"web.esggo.co","content":"esggo-web.dingjunhong1028.workers.dev","proxied":true,"ttl":1}' \
+                "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/dns_records" | grep -q '"success":true\|"success": true' \
+                && echo "[diag] dns record created" || echo "::warning::dns record create failed (may already exist)"
+            else
+              echo "[diag] dns record already exists"
+            fi
+          else
+            echo "::warning::CF_DNS_EDIT_TOKEN/CF_ZONE_ID missing, skip dns ensure"
+          fi
+
+      - name: Ensure esggo-web Access bypass
+        timeout-minutes: 3
+        env:
+          TOKEN_A: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          TOKEN_B: ${{ secrets.CF_DNS_EDIT_TOKEN }}
+          CF_ACCOUNT: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          # account 級 all_workers Access 會擋 web.esggo.co（實測 302 CF_AppSession）。
+          # 官方解法：worker 級 bypass app 覆蓋 account 級 fallback（Access hierarchy）。
+          body='{"type":"self_hosted","name":"esggo-web public bypass","destinations":[{"type":"worker","worker_id":"esggo-web"}],"policies":[{"name":"public bypass","decision":"bypass","include":[{"everyone":{}}]}]}'
+          for tok_name in TOKEN_A TOKEN_B; do
+            eval tok=\$$tok_name
+            if [ -z "$tok" ]; then echo "[diag] $tok_name empty, skip"; continue; fi
+            list=$(curl -sS -H "Authorization: Bearer $tok" \
+              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/access/apps?per_page=100")
+            if ! echo "$list" | grep -q '"success":true\|"success": true'; then
+              echo "[diag] $tok_name GET failed: $(echo "$list" | head -c 300)"
+              continue
+            fi
+            if echo "$list" | grep -q 'esggo-web public bypass'; then
+              echo "[diag] bypass app already exists (via $tok_name)"; exit 0
+            fi
+            # Dashboard 手動建的 bypass app 名稱可能不同 — 偵測任一 worker 級 destination
+            if echo "$list" | grep -q '"type"[: ]*"worker"' && echo "$list" | grep -q 'esggo-web'; then
+              echo "[diag] worker-level bypass app detected via $tok_name"; exit 0
+            fi
+            res=$(curl -sS -X POST -H "Authorization: Bearer $tok" -H "Content-Type: application/json" \
+              --data "$body" \
+              "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT/access/apps")
+            echo "[diag] POST result: $res"
+            if echo "$res" | grep -q '"success":true\|"success": true'; then
+              echo "[diag] bypass app created"; exit 0
+            fi
+          done
+          # 沒有 Access 寫權（auth.forbidden 1010）時不擋部署——最終閘交給
+          # Verify worker endpoint（Access 302 會被判定失敗）。
+          echo "::warning::cannot ensure bypass via API (no Access Apps+Policies edit) — rely on dashboard bypass + verify gate"
+          exit 0
 
       - name: Deploy to Cloudflare Workers
         timeout-minutes: 9
@@ -72,23 +134,60 @@ jobs:
             exit 1
           fi
           echo "[diag] deploy start=$(date -u +%FT%TZ)"
-          pnpm run deploy:cloudflare
+          # #263 診斷閉環：部署輸出必須顯式落軌——wrangler/vinext 失敗原因（如 API error 10013）
+          # 以 workflow command annotation 匿名可見，避免「exit code 1」黑箱迫使猜測迭代。
+          set +e
+          pnpm run deploy:cloudflare 2>&1 | tee deploy-output.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc" -ne 0 ]; then
+            tail_lines=$(tail -n 40 deploy-output.log | sed -z 's/\r//g; s/%/%25/g; s/\n/%0A/g')
+            echo "::error::deploy:cloudflare failed (exit $rc). Last 40 lines of output:%0A${tail_lines}"
+            exit 1
+          fi
           echo "[diag] deploy done end=$(date -u +%FT%TZ)"
+
+      - name: Set DATABASE_URL secret (esggo-web)
+        timeout-minutes: 3
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN || secrets.CF_API_TOKEN }}
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          # 必須在 deploy 之後：versions 工作流要求「最新版本已部署」才能改 secret；
+          # 且顯式 --config 指向 esggo-web（預設會誤抓 wrangler.toml 的 esggo worker）。
+          # SUPABASE_DATABASE_URL 為選用 secret：未設定時跳過並警告，不讓部署流程失敗。
+          if [ -z "$SUPABASE_DATABASE_URL" ]; then
+            echo "::warning::SUPABASE_DATABASE_URL secret not configured, skipping DATABASE_URL secret update (existing worker secret is kept)"
+            exit 0
+          fi
+          echo "$SUPABASE_DATABASE_URL" | npx wrangler secret put DATABASE_URL --config wrangler.web.jsonc
+          echo "[diag] DATABASE_URL secret set on esggo-web"
 
       - name: Verify worker endpoint
         if: success()
         timeout-minutes: 3
         run: |
           # 果因消除：部署宣告成功後必須實測端點，避免「綠燈但站掛」的靜默失敗。
+          # 嚴格化：Access 登入跳轉（cloudflareaccess.com）視同失敗——公開站不得被 Access 擋。
+          # 用 GET + User-Agent（原本的 HEAD 請求在 runner 上穩定回 403），並印出回應標頭
+          # 以辨識 403 的來源（Access、WAF/Bot 規則或 worker 本身）。判定規則不變：僅 2xx/3xx 通過。
           for i in $(seq 1 6); do
-            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "$DEPLOY_WORKER_URL/" || echo 000)
+            headers=$(curl -sS -D - -o /dev/null -A "Mozilla/5.0 (compatible; esggo-deploy-verify/1.0)" --max-time 20 "$DEPLOY_WORKER_URL/" || true)
+            code=$(echo "$headers" | head -n1 | awk '{print $2}')
             echo "[diag] health attempt $i: $code at $(date -u +%FT%TZ)"
+            echo "$headers" | tr -d '\r' | grep -iE '^(server|cf-ray|cf-mitigated|location|content-type):' | sed 's/^/[diag]   /' || true
+            if echo "$headers" | grep -qi "cloudflareaccess.com"; then
+              echo "[diag] blocked by Cloudflare Access, retrying..."
+              sleep 10
+              continue
+            fi
             case "$code" in
-              2*|3*) echo "✅ worker reachable ($code)"; exit 0 ;;
+              2*) echo "✅ worker reachable ($code)"; exit 0 ;;
+              3*) echo "✅ worker reachable ($code)"; exit 0 ;;
             esac
             sleep 10
           done
-          echo "::error::worker endpoint not reachable: $DEPLOY_WORKER_URL"
+          echo "::error::worker endpoint not reachable (or Access-blocked): $DEPLOY_WORKER_URL"
           exit 1
 
       - name: Notify

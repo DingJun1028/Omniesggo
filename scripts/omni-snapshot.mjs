@@ -1,18 +1,22 @@
 /**
  * ESG GO 5T System Snapshot & Cryptographic Verification Script
- * 100% De-Google Architecture (Supabase PostgreSQL + Prisma ORM + Local Node.js)
- * 
+ * 100% De-Google Architecture (Supabase PostgreSQL + Local Node.js)
+ *
  * Usage:
  *   node scripts/omni-snapshot.mjs             (Create 5T system snapshot)
  *   node scripts/omni-snapshot.mjs --verify    (Verify 5T hash lock integrity across all records)
  */
 
-import { PrismaClient } from '@prisma/client';
+import pg from 'pg';
 import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 
-const prisma = new PrismaClient();
+const pool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL || process.env.SUPABASE_DB_URL || '',
+  max: 5,
+  connectionTimeoutMillis: 5000,
+});
 
 async function runSnapshot() {
   const isVerifyMode = process.argv.includes('--verify');
@@ -26,10 +30,10 @@ async function runSnapshot() {
     let uploadRecords = [];
 
     try {
-      materialityRecords = await prisma.materialityAssessment.findMany({ orderBy: { createdAt: 'desc' } });
-      roadmapRecords = await prisma.netZeroRoadmap.findMany({ orderBy: { createdAt: 'desc' } });
-      vendorRecords = await prisma.supplyChainVendor.findMany({ orderBy: { createdAt: 'desc' } });
-      uploadRecords = await prisma.dataBridgeUpload.findMany({ orderBy: { createdAt: 'desc' } });
+      materialityRecords = (await pool.query('SELECT * FROM public."MaterialityAssessment" ORDER BY "createdAt" DESC')).rows;
+      roadmapRecords = (await pool.query('SELECT * FROM public."NetZeroRoadmap" ORDER BY "createdAt" DESC')).rows;
+      vendorRecords = (await pool.query('SELECT * FROM public."SupplyChainVendor" ORDER BY "createdAt" DESC')).rows;
+      uploadRecords = (await pool.query('SELECT * FROM public."DataBridgeUpload" ORDER BY "createdAt" DESC')).rows;
     } catch (dbError) {
       console.warn('[omni-snapshot] ⚠️ Database connection unconfigured/offline, generating local memory snapshot fallback.');
     }
@@ -46,7 +50,7 @@ async function runSnapshot() {
       ...roadmapRecords.map(r => r.hashLock),
       ...vendorRecords.map(r => r.hashLock),
       ...uploadRecords.map(r => r.hashLock),
-    ].sort();
+    ].filter(Boolean).sort();
 
     const masterHashPayload = allHashLocks.join(':');
     const masterHashLock = crypto.createHash('sha256').update(masterHashPayload || 'empty-snapshot').digest('hex');
@@ -54,7 +58,7 @@ async function runSnapshot() {
     console.log(`\n[omni-snapshot] 🔒 Master SHA-256 Hash Lock: ${masterHashLock}`);
 
     if (isVerifyMode) {
-      console.log(`[omni-snapshot] ✓ 5T Cryptographic Integrity Verification PASSED. Zero tampered records.`);
+      console.log('[omni-snapshot] ✓ 5T Cryptographic Integrity Verification PASSED. Zero tampered records.');
       process.exit(0);
     }
 
@@ -93,7 +97,7 @@ async function runSnapshot() {
     console.error('[omni-snapshot] ❌ Error:', error);
     process.exit(1);
   } finally {
-    await prisma.$disconnect();
+    await pool.end();
   }
 }
 

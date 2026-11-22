@@ -5,7 +5,7 @@
  * 對齊 verifyOmniTagContract 邏輯校驗合約率，目標 100%。
  * 零外部依賴（僅 fs + path）。
  *
- * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:结界]
+ * [agent:25][squad:5T驗算][lifecycle:active][p2][platform:esggo][best-practice:結界]
  */
 
 import { readFileSync, writeFileSync, readdirSync, existsSync, statSync } from 'fs';
@@ -31,7 +31,7 @@ export function parseOmniTagHeader(content: string): Record<string, string> | nu
   let m: RegExpExecArray | null;
   TAG_RE.lastIndex = 0;
   while ((m = TAG_RE.exec(head)) !== null) {
-    // 保留完整標籤值 (含 namespace 前綴)，如 agent:25 / best-practice:结界
+    // 保留完整標籤值 (含 namespace 字首)，如 agent:25 / best-practice:結界
     tags[m[1]] = `${m[1]}:${m[2]}`;
   }
   // §20.3 簡寫: [p0]~[p3] 無冒號，對齊 priority 維度
@@ -132,7 +132,7 @@ export function suggestOmniTag(filePath: string): Record<string, string> | null 
     lifecycle: 'active',
     p: priority,
     platform: 'esggo',
-    'best-practice': '结界',
+    'best-practice': '結界',
   };
 }
 

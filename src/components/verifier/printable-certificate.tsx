@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ShieldCheck, Award, Printer, CheckCircle2, Lock, Sparkles } from 'lucide-react';
 
 export interface ICertificateData {
@@ -30,9 +30,13 @@ export function PrintableCertificate({ data, onClose }: Props) {
     window.print();
   };
 
-  const sealedDateStr = data.sealedAt
-    ? new Date(data.sealedAt).toLocaleString('zh-TW')
-    : '未提供';
+  const sealedDateStr = useMemo(
+    () =>
+      typeof data.sealedAt === 'number'
+        ? new Date(data.sealedAt).toLocaleString('zh-TW')
+        : new Date(data.sealedAt || Date.now()).toLocaleString('zh-TW'),
+    [data.sealedAt]
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">

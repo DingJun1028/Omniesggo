@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createPrismaCompatClient } from '@lib/db/prisma-compat';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 import crypto from 'crypto';
 
 const prisma = createPrismaCompatClient();

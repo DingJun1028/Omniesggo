@@ -1,0 +1,57 @@
+name: 5T Auto Verify
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  verify-60-agents:
+    name: 60 員軍團觸達驗證
+    runs-on: ubuntu-latest
+    steps:
+      # check-soul-lineage.mjs 以 git log 回溯版本血脈，需完整歷史（fetch-depth: 0）。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      # verify-oa-gap.mjs 與 check-soul-lineage.mjs 皆僅依賴 Node 內建模組，
+      # 毋須 pnpm install；撤除 pnpm 層以消除 setup-node cache: pnpm 之
+      # 間歇性 "Could not get pnpm cache folder path" 假紅
+      # （2026-11-17 PR #298 劣化 runner 實證），並縮短作業時間。
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: 驗證 60 員觸達
+        run: node oa-swarm/scripts/verify-oa-gap.mjs
+      - name: 驗證 soul-lineage 血脈
+        run: node scripts/check-soul-lineage.mjs
+
+  verify-schema-traceability:
+    name: Schema 追溯閘
+    runs-on: ubuntu-latest
+    steps:
+      # generate-schema-traceability.mjs 零外部依賴；與 schema-traceability.yml
+      # 之獨立工作流同型（checkout＋setup-node＋node），毋須 pnpm install。
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: TypeBox Schema 追溯驗證
+        run: node scripts/generate-schema-traceability.mjs --check
+
+  verify-agent-registry:
+    name: Agent Registry 冒煙測試
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Agent Registry Smoke Test
+        run: pnpm exec tsx packages/omni-agent-bus/test/registry.smoke.ts

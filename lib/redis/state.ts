@@ -423,6 +423,29 @@ export async function getReportCache(
   return memoryFallback.get(key);
 }
 
+// Task-scoped report snapshots; operational history only, not permanent archival storage.
+export interface TaskReportSnapshot { taskId: string; companyId: string; companyName: string; reportingYear: number; totalWords: number; generatedAt: string; report: unknown; }
+function taskReportKey(taskId: string): string { return [PREFIX, 'task-report:', taskId].join(''); }
+export async function setTaskReport(snapshot: TaskReportSnapshot): Promise<void> {
+  const key = taskReportKey(snapshot.taskId);
+  memoryFallback.set(key, snapshot, TTL.TASK_STATE);
+  try { const redis = await getRedis(); if (redis) await redis.setex(key, TTL.TASK_STATE, safeStringify(snapshot)); }
+  catch (error) { console.warn('[Redis State] Report snapshot fell back to memory:', error instanceof Error ? error.message : error); }
+}
+export async function getTaskReport(taskId: string): Promise<TaskReportSnapshot | null> {
+  const key = taskReportKey(taskId);
+  try { const redis = await getRedis(); if (redis) { const parsed = safeParse<TaskReportSnapshot>(await redis.get(key)); if (parsed) return parsed; } }
+  catch (error) { console.warn('[Redis State] Report read fell back to memory:', error instanceof Error ? error.message : error); }
+  return memoryFallback.get(key) as TaskReportSnapshot | null;
+}
+export async function listTaskReports(companyId?: string, limit = 50): Promise<Omit<TaskReportSnapshot, 'report'>[]> {
+  const prefix = PREFIX + 'task-report:';
+  const found = new Map<string, TaskReportSnapshot>();
+  try { const redis = await getRedis(); if (redis) for (const key of await redis.keys(prefix + '*')) { const value = safeParse<TaskReportSnapshot>(await redis.get(key)); if (value) found.set(value.taskId, value); } }
+  catch (error) { console.warn('[Redis State] Report list fell back to memory:', error instanceof Error ? error.message : error); }
+  for (const key of memoryFallback.keys(prefix)) { const value = memoryFallback.get(key) as TaskReportSnapshot | null; if (value) found.set(value.taskId, value); }
+  return [...found.values()].filter((item) => !companyId || item.companyId === companyId).sort((a,b) => b.generatedAt.localeCompare(a.generatedAt)).slice(0, Math.max(1, Math.min(100, limit))).map(({report: _report, ...metadata}) => metadata);
+}
 // ═══════════════════════════════════════════════════════════════════════════════
 // Bulk Cleanup
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -447,10 +470,12 @@ export async function clearTaskCache(taskId: string): Promise<void> {
   // Delete task key + progress key
   const tKey = taskKey(taskId);
   const pKey = progressKey(taskId);
+  const rKey = taskReportKey(taskId);
 
   if (redis) {
     await redis.del(tKey);
     await redis.del(pKey);
+    await redis.del(rKey);
     // Also delete any chapter keys that might remain (wildcard scan)
     try {
       const pattern = `${PREFIX}chapter:${taskId}:*`;
@@ -461,6 +486,7 @@ export async function clearTaskCache(taskId: string): Promise<void> {
 
   memoryFallback.del(tKey);
   memoryFallback.del(pKey);
+  memoryFallback.del(rKey);
 }
 
 /**

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // ============================================================
-// Oracle 雙向同步協調器 — 終始矩陣 / hydration / 定時對帳
+// Oracle 雙向同步協調器 — 終始永續矩陣 / hydration / 定時對帳
 // src/core/tags/oracle-sync-matrix.ts
 // ============================================================
 // 全域全端全量雙向同步的協調層：
@@ -79,7 +79,7 @@ async function collectAppOriginSeq(): Promise<Array<{ uuid: string; originSeq: n
   });
   // uuid 可能為 NULL (舊資料), 過濾避免下游 string|null 型別錯誤
   return pairs
-    .filter((p): p is { uuid: string; createdAt: Date } => !!p.uuid)
+    .filter((p: { uuid: string | null; createdAt: Date }): p is { uuid: string; createdAt: Date } => !!p.uuid)
     .map((p: { uuid: string; createdAt: Date }, i: number) => ({ uuid: p.uuid, originSeq: i + 1 }));
 }
 

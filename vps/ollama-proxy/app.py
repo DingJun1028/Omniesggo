@@ -4,7 +4,7 @@ Ollama Proxy (方式 B) — FastAPI 自管代理, 帶 API Key 驗證
 
 功能:
   - 擋在 Ollama (127.0.0.1:11434) 前面
-  - 所有請求需帶 X-API-Key header (值從環境變數 OLLAMA_PROXY_KEY 讀, 該變數存於秘密聖櫃 ENV20230818.env)
+  - 所有請求需帶 X-API-Key header (值從環境變數 OLLAMA_PROXY_KEY 讀, 該變數存於祕密聖櫃 ENV20230818.env)
   - 轉發所有路徑到 Ollama, 支援流式 (SSE)
 
 部署 (VPS):

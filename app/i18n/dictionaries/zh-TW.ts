@@ -5,6 +5,7 @@ const zhTW: Dictionary = {
   'brand.name': 'ESGGO',
   'brand.tagline': '深貫廣通 無縫接軌',
   'brand.full': 'ESGGO 永續發展無限進化',
+  'brand.short': 'ESGGO',
   'brand.omniautovideo': 'OmniAutoVideo 萬能自動影音',
   'brand.omniautovideo.tagline': 'AI 自動生成影音 零雲端成本',
 

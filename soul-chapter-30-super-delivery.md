@@ -99,7 +99,7 @@ B 測試層  tests/*.test.ts 30 · src/**/*.test.ts 28
 C 部署層  docker-compose.yml ✓ · Dockerfile ✓ · .github/workflows/ 20 檔
 D 安全層  error leak = 2（route 回應本體洩漏 error.message）
 E 數據層  prisma/schema.prisma ✓ · migrations ✓
-G 治理層  .githooks/{pre-commit, commit-msg} ✓ · untracked 秘密掃描 = 0
+G 治理層  .githooks/{pre-commit, commit-msg} ✓ · untracked 祕密掃描 = 0
 ```
 
 ### 發現（誠實登記：回報數 ≠ 實際數）

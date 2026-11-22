@@ -8,7 +8,7 @@ export interface ReportOptions {
   companyName?: string;
 }
 
-export interface ReportChapter {
+export interface RepositoryReportChapter {
   id: string;
   number: number;
   title: string;
@@ -18,6 +18,8 @@ export interface ReportChapter {
   griIndicators: string[];
   dataQuality: 'high' | 'medium' | 'low';
 }
+// ts-matrix: 對外相容別名 (API 不變)
+export type { RepositoryReportChapter as ReportChapter };
 
 export interface GRIIndex {
   standard: string;
@@ -35,7 +37,7 @@ export interface GeneratedReport {
   generatedAt: string;
   reportYear: number;
   language: 'zh' | 'en';
-  chapters: ReportChapter[];
+  chapters: RepositoryReportChapter[];
   griIndex: GRIIndex[];
   totalWordCount: number;
   metadata: {

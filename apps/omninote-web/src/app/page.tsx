@@ -5,7 +5,7 @@ import type { OmniApiDraft, OmniApiHealth, OmniApiNode } from "@/lib/api";
 import { buildExportUrl, fetchDrafts, fetchHealth, fetchNotes } from "@/lib/api";
 import { CaptureBar, SketchBar } from "@/components/CaptureBar";
 import { HealthPanel } from "@/components/HealthPanel";
-import { ArchivePanel, DraftsPanel, NotesBoard, SearchPanel } from "@/components/Panels";
+import { ArchivePanel, DraftsPanel, GlobalEvidenceTimeline, NotesBoard, SearchPanel } from "@/components/Panels";
 import { NoteDetail } from "@/components/NoteDetail";
 import { FusionGraph } from "@/components/FusionGraph";
 import { CommandPalette, type PaletteAction } from "@/components/CommandPalette";
@@ -99,6 +99,12 @@ export default function HomePage() {
         <section className="space-y-4">
           <HealthPanel health={health} error={error} />
           <SearchPanel
+            onJump={(uuid) => {
+              setSelectedUuid(uuid);
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+          <GlobalEvidenceTimeline
             onJump={(uuid) => {
               setSelectedUuid(uuid);
               window.scrollTo({ top: 0, behavior: "smooth" });

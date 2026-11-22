@@ -14,7 +14,7 @@ ZONE="esggo.co"
 HOSTNAME="omnitranslation.esggo.co"
 BACKEND="127.0.0.1:8788"   # universal-translator v1.7.0（萬能即時翻譯）
 
-# 金鑰來源：本機秘密聖櫃（只讀，不外傳）
+# 金鑰來源：本機祕密聖櫃（只讀，不外傳）
 VAULT="C:/Users/dingj/secret-vault/ENV20230818.env"
 
 run() { if [[ $APPLY -eq 1 ]]; then eval "$@"; else echo "  [DRY-RUN] $*"; fi }

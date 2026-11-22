@@ -179,10 +179,10 @@ agents:
       lifecycle: active
       priority: p1
       platform: omni
-      best-practice: 结界
+      best-practice: 結界
       extended:
         - "inheritance:maintain"
-    tags: "[security:internal][agent:06][squad:智庫聖所][lifecycle:active][p1][platform:omni][best-practice:结界]"
+    tags: "[security:internal][agent:06][squad:智庫聖所][lifecycle:active][p1][platform:omni][best-practice:結界]"
 
 # -----------------------------------------------------------------------------
 # Agents 07-12 : 符文契約 (Rune Contract)
@@ -326,11 +326,11 @@ agents:
       lifecycle: active
       priority: p2
       platform: vps
-      best-practice: 结界
+      best-practice: 結界
       extended:
         - "docker:compose"
         - "docker:healthcheck"
-    tags: "[security:internal][agent:14][squad:光之羽翼][lifecycle:active][p2][platform:vps][best-practice:结界]"
+    tags: "[security:internal][agent:14][squad:光之羽翼][lifecycle:active][p2][platform:vps][best-practice:結界]"
 
   - id: "15"
     name: CI/CD 匠
@@ -344,11 +344,11 @@ agents:
       lifecycle: active
       priority: p0
       platform: esggo
-      best-practice: 结界
+      best-practice: 結界
       extended:
         - "ci:github-actions"
         - "cd:pipeline"
-    tags: "[security:public][agent:15][squad:光之羽翼][lifecycle:active][p0][platform:esggo][best-practice:结界]"
+    tags: "[security:public][agent:15][squad:光之羽翼][lifecycle:active][p0][platform:esggo][best-practice:結界]"
 
   - id: "16"
     name: Cron 師
@@ -475,11 +475,11 @@ agents:
       lifecycle: active
       priority: p1
       platform: omni
-      best-practice: 结界
+      best-practice: 結界
       extended:
         - "entropy: baseline"
         - "entropy-threshold: <0.1"
-    tags: "[security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:omni][best-practice:结界][entropy:baseline]"
+    tags: "[security:internal][agent:22][squad:煉金熵減][lifecycle:active][p1][platform:omni][best-practice:結界][entropy:baseline]"
 
   - id: "23"
     name: 清理長
@@ -549,11 +549,11 @@ agents:
       lifecycle: frozen
       priority: p0
       platform: omni
-      best-practice: 结界
+      best-practice: 結界
       extended:
         - "hashlock:freeze"
         - "hexlock:immutable"
-    tags: "[security:restricted][agent:26][squad:5T驗算][lifecycle:frozen][p0][platform:omni][best-practice:结界]"
+    tags: "[security:restricted][agent:26][squad:5T驗算][lifecycle:frozen][p0][platform:omni][best-practice:結界]"
 
   - id: "27"
     name: UUID 師
@@ -585,11 +585,11 @@ agents:
       lifecycle: active
       priority: p0
       platform: omni
-      best-practice: 结界
+      best-practice: 結界
       extended:
         - "dispatch:queue"
         - "dispatch:load-balance"
-    tags: "[security:internal][agent:28][squad:5T驗算][lifecycle:active][p0][platform:omni][best-practice:结界]"
+    tags: "[security:internal][agent:28][squad:5T驗算][lifecycle:active][p0][platform:omni][best-practice:結界]"
 
   - id: "29"
     name: 品質官
@@ -621,11 +621,11 @@ agents:
       lifecycle: active
       priority: p0
       platform: omni
-      best-practice: 结界
+      best-practice: 結界
       extended:
         - "recovery:rollback"
         - "recovery:degrade"
-    tags: "[security:internal][agent:30][squad:5T驗算][lifecycle:active][p0][platform:omni][best-practice:结界]"
+    tags: "[security:internal][agent:30][squad:5T驗算][lifecycle:active][p0][platform:omni][best-practice:結界]"
 
 # =============================================================================
 # OmniTag 萬能標籤系統 — six MECE dimensions + routing + validation
@@ -653,14 +653,14 @@ omnitag:
     - key: priority
       name: 品質/熵減
       values: [p0, p1, p2, p3]
-      description: "P0=阻断項、P3=噪音"
+      description: "P0=阻斷項、P3=噪音"
     - key: platform
       name: 平台/環境
       values: [esggo, omni, vps, firebase, vercel, github]
       description: 部署環境
     - key: best-practice
       name: 結界/繼承
-      values: [awakened, "结界", draft]
+      values: [awakened, "結界", draft]
       description: 最佳實踐覺狀態
 
   validation_rules:
@@ -668,7 +668,7 @@ omnitag:
       rule: 必備 Tag：每個 artifact 至少要有 agent:* + lifecycle:* + p*
       blocking: true
     - id: inheritance-spread
-      rule: 結界自動繼承：一旦標記 best-practice:结界，全部子代理自動 inheriting
+      rule: 結界自動繼承：一旦標記 best-practice:結界，全部子代理自動 inheriting
       blocking: true
     - id: frozen-immutable
       rule: 凍結不可改：lifecycle:frozen + restricted 禁止修改
@@ -689,7 +689,7 @@ omnitag:
   routing_engine:
     priority:
       - "1. security:restricted"
-      - "2. best-practice:结界"
+      - "2. best-practice:結界"
       - "3. p0"
       - "4. agent:*"
       - "5. squad:*"
@@ -711,7 +711,7 @@ omnitag:
       - match: "[agent:25-30][squad:5T驗算]"
         target: ISO / Hash Lock / 稽核
         gateway_agent: "25"
-      - match: "[best-practice:结界]"
+      - match: "[best-practice:結界]"
         target: 全部自動 inheriting
         gateway_agent: "06"
       - match: "[security:restricted]"
@@ -761,8 +761,8 @@ best_practice_awakening:
   inheritance: # 結界 Inheritance
     spread_rule: |
       Agent A 獲得 best-practice:awakened
-        - Agent A-1 自動繼承 (best-practice:结界)
-        - Agent A-2 自動繼承 (best-practice:结界)
+        - Agent A-1 自動繼承 (best-practice:結界)
+        - Agent A-2 自動繼承 (best-practice:結界)
           - Agent A-2-a 自動繼承
           - Agent A-2-b 自動繼承
         - Artifact from A 自動標記
@@ -777,7 +777,7 @@ best_practice_awakening:
       agent_29: 品質官 — 完整 checklist（每天）
       agent_28: 調度長 — 最佳實踐基準更新（每週）
     inheritance_sources: ["06", "14", "15", "22", "26", "28", "30"]
-    inherited_tag: "best-practice:结界"
+    inherited_tag: "best-practice:結界"
     source_tag: "best-practice:awakened"
     revocation:
       - 熵值持續 > 0.15 超過 24h：自動撤銷結界，降級為 draft
@@ -829,7 +829,7 @@ startup:
       command: entropy < 0.1
     - id: barrier_active
       check: 結界激活
-      command: best-practice:结界 inheritance 生效
+      command: best-practice:結界 inheritance 生效
 
 # =============================================================================
 # 自我演化協議 — Self-Evolution Protocol
@@ -879,9 +879,9 @@ deployment:
       deliver: all
     - name: esggo-monitor-docker-status
       schedule: "0 */2 * * *"
-      tags: "[agent:14][squad:光之羽翼][p2][platform:vps][best-practice:结界]"
+      tags: "[agent:14][squad:光之羽翼][p2][platform:vps][best-practice:結界]"
       deliver: all
     - name: esggo-daily-report
       schedule: "0 18 * * *"
-      tags: "[agent:28][squad:5T驗算][p3][platform:omni][best-practice:结界]"
+      tags: "[agent:28][squad:5T驗算][p3][platform:omni][best-practice:結界]"
       deliver: all

@@ -17,7 +17,6 @@
 import { Type, type Static, type TSchema } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 import { NextRequest, NextResponse } from 'next/server';
-import { defineSchema } from '@lib/typebox-combo';
 
 // ─── Helpers ────────────────────────────────────────────────────────
 
@@ -134,7 +133,6 @@ export const ESGReportSchema = Type.Object({
 });
 
 export type ESGReportInput = Static<typeof ESGReportSchema>;
-export const ESGReportCombo = defineSchema(ESGReportSchema);
 
 /** Delegation request validation */
 export const DelegationRequestSchema = Type.Object({
@@ -152,7 +150,7 @@ export const DelegationRequestSchema = Type.Object({
 export type DelegationRequestInput = Static<typeof DelegationRequestSchema>;
 
 /** Universal tag creation validation */
-export const OmniTagSchema = Type.Object({
+export const UniversalTagSchema = Type.Object({
   name: Type.String({ minLength: 1, maxLength: 100 }),
   pillar: Type.Union([Type.Literal('Environmental'), Type.Literal('Social'), Type.Literal('Governance')]),
   category: Type.String({ minLength: 1, maxLength: 50 }),
@@ -160,7 +158,4 @@ export const OmniTagSchema = Type.Object({
   source: Type.Optional(Type.String()),
 });
 
-export type OmniTagInput = Static<typeof OmniTagSchema>;
-
-export const OmniTagCombo = defineSchema(OmniTagSchema);
-export const DelegationRequestCombo = defineSchema(DelegationRequestSchema);
+export type UniversalTagInput = Static<typeof UniversalTagSchema>;

@@ -7,7 +7,7 @@
  * ============================================================================
  */
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
-import type { CRDTBlock, SyncDeltaPacket, UnifiedNode } from "./core-types.js";
+import type { CRDTBlock, EvidenceEntry, SyncDeltaPacket, UnifiedNode } from "./core-types.js";
 import { UnifiedMatrixEngine, computeNodeLockHash, sha256 } from "./matrix-engine.js";
 import { sealWithStructuralSharing } from "./perf.js";
 import { OmniStorageAdapter } from "./storage-adapter.js";
@@ -88,8 +88,11 @@ export class OmniNoteLocalApiServer {
     "GET /api/export": (self, _req, res) => self.respondExport(res),
     "GET /api/tags": (self, _req, res) => self.respondTagsOverview(res),
     "GET /api/graph": (self, req, res) => self.respondGraphProjection(req, res),
+    "GET /api/evidence": (self, req, res) => self.respondGlobalEvidenceTimeline(req, res),
+    "GET /api/evidence/stats": (self, _req, res) => self.respondGlobalEvidenceStats(res),
     "GET /api/entropy/stats": (self, _req, res) => self.respondEntropyStats(res),
     "POST /api/notes/tags": (self, req, res) => self.handleBatchTags(req, res),
+    "POST /api/notes/phases": (self, req, res) => self.handleBatchPhases(req, res),
     "POST /api/import": (self, req, res) => self.handleImport(req, res),
   };
   readonly storage: OmniStorageAdapter;
@@ -437,6 +440,82 @@ export class OmniNoteLocalApiServer {
     return sendJson(res, 200, { ok: true, updated, missing, unchanged, total: uuids.length });
   }
 
+  /**
+   * 三十八期：批次相位躍遷（POST /api/notes/phases），body { uuids, to_phase }。
+   * 四十一期：to_phase 擴充 "ALPHA_ORIGIN_CAPTURE"（批次逆向投影：OMEGA 結晶體或 SIGMA 節點
+   * 逐節點回流為 ALPHA 捕獲態，同單節點 reverse 端點語義，證據入鏈、鎖鏈重算、向量重註冊；
+   * crystallize 需逐節點 entity_type，不納入批次，如實標示），其餘值 422 INVALID_BATCH_PHASE。
+   * 各節點結果如實分類：missing（不存在）、unchanged（已在目標相位，冪等零寫入）、
+   * （熔合道）skipped（OMEGA 結晶體不可熔合 or 無非墓碑區塊，不中斷其餘節點，reason 如實標示）、
+   * updated（投影後之 [{ uuid, matrix_phase }，同單節點端點語義）。
+   */
+  private async handleBatchPhases(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
+    if (body === null) return;
+    const uuids = Array.isArray(body.uuids) && body.uuids.every((u) => typeof u === "string") ? (body.uuids as string[]) : null;
+    const toPhase = typeof body.to_phase === "string" ? body.to_phase : "";
+    const BATCH_PHASES: ReadonlySet<string> = new Set(["SIGMA_GRAPH_SYNTHESIS", "ALPHA_ORIGIN_CAPTURE"]);
+    if (uuids === null || uuids.length === 0 || !BATCH_PHASES.has(toPhase)) {
+      return sendJson(res, 422, { ok: false, error: "INVALID_BATCH_PHASE" });
+    }
+    const updated: Array<{ uuid: string; matrix_phase: string }> = [];
+    const missing: string[] = [];
+    const skipped: Array<{ uuid: string; reason: string }> = [];
+    let unchanged = 0;
+    const universe = toPhase === "SIGMA_GRAPH_SYNTHESIS" ? await this.buildUniverse() : new Set<string>();
+    const aliasIndex = toPhase === "SIGMA_GRAPH_SYNTHESIS" ? await this.buildAliasIndex() : new Map<string, string>();
+    for (const uuid of uuids) {
+      const existing = await this.storage.read(uuid);
+      if (existing === null) {
+        missing.push(uuid);
+        continue;
+      }
+      if (existing.matrix_phase === toPhase) {
+        unchanged += 1;
+        continue;
+      }
+      if (toPhase === "ALPHA_ORIGIN_CAPTURE") {
+        const reversed = await UnifiedMatrixEngine.projectReverseToCapture(existing);
+        await this.commitBatchProjection(reversed, updated);
+        continue;
+      }
+      const active = existing.blocks.filter((b) => !b.deleted);
+      if (existing.matrix_phase === "OMEGA_OBJECT_CRYSTAL") {
+        skipped.push({ uuid, reason: "OMEGA_OBJECT_CRYSTAL" });
+        continue;
+      }
+      if (active.length === 0) {
+        skipped.push({ uuid, reason: "NO_ACTIVE_BLOCKS" });
+        continue;
+      }
+      const mergedMarkdown = active.map((b) => b.content).join("\n\n");
+      const sigma = await UnifiedMatrixEngine.transitionToSigmaGraph(
+        existing,
+        UnifiedMatrixEngine.deriveOutlinks(existing.blocks, universe, aliasIndex),
+        mergedMarkdown,
+      );
+      await this.commitBatchProjection(sigma, updated);
+    }
+    return sendJson(res, 200, {
+      ok: true,
+      updated,
+      missing,
+      skipped,
+      unchanged,
+      total: uuids.length,
+    });
+  }
+
+  /** 批次投影落地共用輔助（四十一期）：寫入、向量重註冊、彙入 updated，批次兩道（熔合／逆向投影）共用，避免重複區塊。 */
+  private async commitBatchProjection(
+    next: Readonly<UnifiedNode>,
+    updated: Array<{ uuid: string; matrix_phase: string }>,
+  ): Promise<void> {
+    await this.storage.write(next);
+    if (this.embedder !== undefined) await this.embedder.registerNodeBlocks(this.vectorStore, next);
+    updated.push({ uuid: next.uuid, matrix_phase: next.matrix_phase });
+  }
+
   private async handleNoteCreate(req: IncomingMessage, res: ServerResponse): Promise<void> {
     const body = this.parseJsonOr422(await readBody(req, this.maxBodyBytes), res);
     if (body === null) return;
@@ -471,9 +550,13 @@ export class OmniNoteLocalApiServer {
    * 唯讀不落地；limit 1..500（預設 50）、offset >= 0（預設 0）、hook 為可選精確匹配；
    * 回應附 node_version 與 lock_hash 供客戶端綁定當下狀態；非法參數一律 422 INVALID_QUERY。
    */
-  private async respondNoteEvidence(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {
-    const node = await this.storage.read(nodeUuid);
-    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+  /** 證據時間軸查詢參數共用解析（節點級 /api/notes/:uuid/evidence 與全域 /api/evidence 同規）：
+   *  limit 1..500 預設 50、offset >= 0、hook 精確匹配（空字串視為非法）；
+   *  非法值回傳 null（呼叫方應即刻 return，422 已由本輔助發出）。 */
+  private parseEvidenceTimelineQuery(
+    req: IncomingMessage,
+    res: ServerResponse,
+  ): { limit: number; offset: number; hook: string | null } | null {
     const raw = (req.url ?? "").split("?")[1] ?? "";
     const params = new URLSearchParams(raw);
     const limitRaw = params.get("limit");
@@ -484,18 +567,30 @@ export class OmniNoteLocalApiServer {
     if (limitRaw !== null) {
       limit = Number(limitRaw);
       if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
-        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        return null;
       }
     }
     if (offsetRaw !== null) {
       offset = Number(offsetRaw);
       if (!Number.isInteger(offset) || offset < 0) {
-        return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+        return null;
       }
     }
     if (hook !== null && hook.trim().length === 0) {
-      return sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      sendJson(res, 422, { ok: false, error: "INVALID_QUERY" });
+      return null;
     }
+    return { limit, offset, hook };
+  }
+
+  private async respondNoteEvidence(req: IncomingMessage, res: ServerResponse, nodeUuid: string): Promise<void> {
+    const node = await this.storage.read(nodeUuid);
+    if (node === null) return sendJson(res, 404, { ok: false, error: "NODE_NOT_FOUND" });
+    const query = this.parseEvidenceTimelineQuery(req, res);
+    if (query === null) return;
+    const { limit, offset, hook } = query;
     const chain = hook === null ? node.evidence : node.evidence.filter((e) => e.hook_lifecycle === hook);
     return sendJson(res, 200, {
       ok: true,
@@ -510,10 +605,79 @@ export class OmniNoteLocalApiServer {
   }
 
   /**
+   * 四十期：全域證據時間軸（唯讀聚合）。
+   * GET /api/evidence?limit&offset&hook → { total, offset, limit, entries: [{ uuid, node_version, lock_hash, entry }] }
+   * 跨節點彙整全量證據項，依 captured_at 字串升冪穩定排序（字串排序非時間權威，如實標示；
+   * 同值平手依 uuid 升冪、再依節點內入鏈順序，無隨機源、同一輸入恆得同一結果）；
+   * hook 為可選精確匹配；limit 1..500 預設 50、offset >= 0，非法值 422 INVALID_QUERY（與節點級端點同規）；
+   * 道閘檢查先於資料彙整（空庫亦如實回零列）。
+   */
+  private async respondGlobalEvidenceTimeline(req: IncomingMessage, res: ServerResponse): Promise<void> {
+    const query = this.parseEvidenceTimelineQuery(req, res);
+    if (query === null) return;
+    const { limit, offset, hook } = query;
+    const timeline = await this.buildGlobalEvidenceTimeline(hook);
+    return sendJson(res, 200, {
+      ok: true,
+      total: timeline.length,
+      offset,
+      limit,
+      entries: timeline.slice(offset, offset + limit),
+    });
+  }
+
+  /** 全域證據時間軸建構共用輔助（四十期時間軸與四十四期 hook 別統計共用，避免重複區塊）：
+   *  跨節點彙整（可選 hook 精確過濾）後依 captured_at 字串升冪穩定排序（同值平手依 uuid 升冪、再依節點內入鏈順序）。 */
+  private async buildGlobalEvidenceTimeline(
+    hook: string | null,
+  ): Promise<Array<{ uuid: string; node_version: string; lock_hash: string; entry: EvidenceEntry }>> {
+    const uuids = await this.storage.listUuids();
+    const nodes = (
+      await Promise.all(uuids.map((uuid) => this.storage.read(uuid)))
+    ).filter((n): n is UnifiedNode => n !== null);
+    const timeline: Array<{ uuid: string; node_version: string; lock_hash: string; entry: EvidenceEntry }> = [];
+    for (const node of nodes) {
+      for (const entry of node.evidence) {
+        if (hook !== null && entry.hook_lifecycle !== hook) continue;
+        timeline.push({ uuid: node.uuid, node_version: node.version, lock_hash: node.lock_hash, entry });
+      }
+    }
+    timeline.sort((a, b) => {
+      if (a.entry.captured_at !== b.entry.captured_at) {
+        return a.entry.captured_at < b.entry.captured_at ? -1 : 1;
+      }
+      if (a.uuid !== b.uuid) return a.uuid < b.uuid ? -1 : 1;
+      return 0;
+    });
+    return timeline;
+  }
+
+  /**
+   * 四十四期：全域證據 hook 別統計（唯讀聚合，節點級二十三期 stats 之全域版）。
+   * GET /api/evidence/stats → { ok, total, by_hook, hooks, first_captured_at, last_captured_at }
+   * hooks 依時間軸（captured_at 升冪）首現順序；by_hook 為 hook → 筆數映射；
+   * captured_at 取自證據項欄位（字串排序非時間權威，如實標示）；空庫如實回零與 null。
+   */
+  private async respondGlobalEvidenceStats(res: ServerResponse): Promise<void> {
+    const timeline = await this.buildGlobalEvidenceTimeline(null);
+    const entries = timeline.map((item) => item.entry);
+    const { by_hook, hooks } = this.aggregateEvidenceHooks(entries);
+    const first = timeline[0]?.entry.captured_at ?? null;
+    const last = timeline.length > 0 ? timeline[timeline.length - 1]?.entry.captured_at ?? null : null;
+    return sendJson(res, 200, {
+      ok: true,
+      total: entries.length,
+      by_hook,
+      hooks,
+      first_captured_at: first,
+      last_captured_at: last,
+    });
+  }
+
+  /**
    * 證據鏈 hook 別聚合共用輔助（二十三期 stats 與二十五期 export 共用）。
    * by_hook 為 hook_lifecycle → 筆數之映射；hooks 為依入鏈順序首次出現排序之清單。
-   */
-  private aggregateEvidenceHooks(evidence: ReadonlyArray<{ hook_lifecycle: string }>): {
+   */  private aggregateEvidenceHooks(evidence: ReadonlyArray<{ hook_lifecycle: string }>): {
     by_hook: Record<string, number>;
     hooks: string[];
   } {

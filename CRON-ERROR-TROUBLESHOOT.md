@@ -66,7 +66,7 @@
 
 2. **Python 依賴**
    ```bash
-   python -c "import requests; print('ok')"   # 脚本可能用 requests 呼叫 OpenCode API
+   python -c "import requests; print('ok')"   # 指令碼可能用 requests 呼叫 OpenCode API
    pip show requests
    ```
    → 缺一併 `pip install`。

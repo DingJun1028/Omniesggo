@@ -78,7 +78,7 @@ export const TERMS = {
     notFound: { zh: 找不到資源, en: Resource not found },
     serverError: { zh: 伺服器錯誤, en: Internal server error },
     validation: { zh: 欄位驗證失敗, en: Validation failed },
-   rateLimit: { zh: 連線過於频繁，請稍後再試。, en: Rate limit exceeded. Please retry later. },
+   rateLimit: { zh: 連線過於頻繁，請稍後再試。, en: Rate limit exceeded. Please retry later. },
   },
 } as const;
 

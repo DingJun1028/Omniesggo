@@ -229,14 +229,14 @@ export const CSRD_TEMPLATE: ReportTemplate = {
       id: 'CSRD-Environmental',
       title: '環境議題 (ESRS E1-E5)',
       titleEn: 'Environmental (ESRS E1-E5)',
-      description: '氣候變遷、污染、水資源、生物多樣性、循环經济',
+      description: '氣候變遷、汙染、水資源、生物多樣性、迴圈經濟',
       required: true,
       fields: [
         { id: 'climate_change', name: '氣候變遷 (E1)', nameEn: 'Climate Change (E1)', type: 'textarea', required: true },
         { id: 'pollution', name: '污染 (E2)', nameEn: 'Pollution (E2)', type: 'textarea', required: true },
         { id: 'water', name: '水資源 (E3)', nameEn: 'Water (E3)', type: 'textarea', required: true },
         { id: 'biodiversity', name: '生物多樣性 (E4)', nameEn: 'Biodiversity (E4)', type: 'textarea', required: true },
-        { id: 'circular_economy', name: '循环經济 (E5)', nameEn: 'Circular Economy (E5)', type: 'textarea', required: true },
+        { id: 'circular_economy', name: '迴圈經濟 (E5)', nameEn: 'Circular Economy (E5)', type: 'textarea', required: true },
       ],
     },
     {

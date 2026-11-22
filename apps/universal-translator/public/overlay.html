@@ -256,7 +256,7 @@ async function startSys(){
     if(!a.length){ // 沒拿到音訊軌道
       s.getTracks().forEach(t=>t.stop());
       setDiag('dShare','ok'); setDiag('dAudio','err','沒抓到音訊軌道');
-      $('#dMsg').innerHTML='❗ Windows 版 Chrome 抓系統音秘訣：<br>1) 分享時選「<b>整個螢幕</b>」或「<b>Chrome 分頁</b>」<br>2) 務必勾選底下的「<b>分享音訊</b>」<br>3) <b>不要</b>選「應用程式視窗」(Zoom 視窗) — 那在 Windows 抓不到聲音<br>若仍抓不到，改用「🎤 麥克風」模式（允許權限即可）';
+      $('#dMsg').innerHTML='❗ Windows 版 Chrome 抓系統音祕訣：<br>1) 分享時選「<b>整個螢幕</b>」或「<b>Chrome 分頁</b>」<br>2) 務必勾選底下的「<b>分享音訊</b>」<br>3) <b>不要</b>選「應用程式視窗」(Zoom 視窗) — 那在 Windows 抓不到聲音<br>若仍抓不到，改用「🎤 麥克風」模式（允許許可權即可）';
       openDiag();
       toast('沒抓到系統音：請選「整個螢幕」並勾選「分享音訊」');
       return null;

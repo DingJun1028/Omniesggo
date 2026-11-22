@@ -55,7 +55,7 @@ async function runDemo() {
     const converter = await router.modelConverter; // Hypothetical access
     if (newModel && router.modelConverter) {
       console.log(`   想要嘗試將 ${newModel.id} 轉換格式`);
-      console.log('   （实际转换需要实际模型文件）');
+      console.log('   （實際轉換需要實際模型檔案）');
     }
 
     // 完成

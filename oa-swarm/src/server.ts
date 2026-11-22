@@ -7,8 +7,9 @@ import { readFileSync } from 'node:fs';
 import { SwarmCore } from './swarm-core.js';
 import { SOUL_MATRIX_60, ARRAY_NAMES, LOCAL_AGENTS, VPS_AGENTS } from './soul-matrix-60.js';
 import { VoiceBridge } from './s2s-bridge.js';
+import { RuneEngine } from './runes.js';
 
-export function createServerApp(core: SwarmCore, port = 8788) {
+export function createServerApp(core: SwarmCore, port = 8788, runes?: RuneEngine) {
   const sseClients = new Set<(d: string) => void>();
   const voice = new VoiceBridge(core);
 
@@ -120,6 +121,154 @@ export function createServerApp(core: SwarmCore, port = 8788) {
     if (url.pathname === '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true, state: core.getState() }));
+      return;
+    }
+
+    // 共享任務狀態 (代理A即時看到代理B的狀態)
+    if (url.pathname === '/task/state') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify(core.getTaskState()));
+      return;
+    }
+
+    // 代理上報任務
+    if (url.pathname === '/task/report' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', async () => {
+        try {
+          const { agentId, task, source } = JSON.parse(body || '{}');
+          const r = await core.reportTask(agentId, task || '', source || 'api');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: true, state: r }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e) }));
+        }
+      });
+      return;
+    }
+
+    // 代理上報幫助請求
+    if (url.pathname === '/task/help' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', async () => {
+        try {
+          const { agentId, helpNeeded, reason, source } = JSON.parse(body || '{}');
+          const r = await core.requestHelp(agentId, helpNeeded || '', reason || '', source || 'api');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: true, state: r }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e) }));
+        }
+      });
+      return;
+    }
+
+    // 代理確認任務完成
+    if (url.pathname === '/task/complete' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', async () => {
+        try {
+          const { agentId, result, source } = JSON.parse(body || '{}');
+          const r = await core.completeTask(agentId, result || '', source || 'api');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: true, state: r }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e) }));
+        }
+      });
+      return;
+    }
+
+    // 代理確認問題解決
+    if (url.pathname === '/task/resolve' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', async () => {
+        try {
+          const { agentId, source } = JSON.parse(body || '{}');
+          const r = await core.resolveHelp(agentId, source || 'api');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: true, state: r }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e) }));
+        }
+      });
+      return;
+    }
+
+    // 代理自聲明空閒
+    if (url.pathname === '/task/idle' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', async () => {
+        try {
+          const { agentId, source } = JSON.parse(body || '{}');
+          const r = await core.setIdle(agentId, source || 'api');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: true, state: r }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e) }));
+        }
+      });
+      return;
+    }
+    // SSE 訂閱 (共享任務狀態)
+    if (url.pathname === '/task/subscribe') {
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+      });
+
+      const send = (d: string) => res.write(`data: ${d}
+
+`);
+      // 訂閱蜂群狀態並轉發為任務狀態 (核心 subscribe 只支持 SwarmState)
+      core.subscribe((s: import('./swarm-core.js').SwarmState) => {
+        const taskState = s as unknown as import('./task-state.js').SwarmTaskState;
+        send(JSON.stringify({ taskState }));
+      });
+      send(JSON.stringify({ taskState: core.getTaskState() }));
+      req.on('close', () => {
+        // 客戶端斷開時從 SSE 集移除
+        sseClients.delete(send);
+      });
+      return;
+    }
+    // 無有奧義 # 符文技藝 — 列表/狀態/執行
+    if (url.pathname === '/runes' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ ok: true, runes: runes?.list() ?? [], proficiency: runes?.proficiencySnapshot() ?? {} }));
+      return;
+    }
+    if (url.pathname === '/runes/state' && req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      res.end(JSON.stringify({ ok: true, state: runes?.state() ?? null }));
+      return;
+    }
+    if (url.pathname === '/runes/run' && req.method === 'POST') {
+      let body = '';
+      req.on('data', (c) => (body += c));
+      req.on('end', async () => {
+        try {
+          if (!runes) throw new Error('rune engine not initialized');
+          const spec = JSON.parse(body || '{}');
+          const r = await runes.run(spec);
+          res.writeHead(r.ok ? 200 : 400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: r.ok, result: r }));
+        } catch (e) {
+          res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ ok: false, error: String(e) }));
+        }
+      });
       return;
     }
 

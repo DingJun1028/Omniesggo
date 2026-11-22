@@ -114,7 +114,7 @@
 1. 講者建立 `DESIGNATED_URL_BROADCAST` 藍圖
 2. 系統生成專屬共享網址：`https://esggo.app/live-sync?host=email&token=5T-XXXX`
 3. 觀眾打開該連結即可收到翻譯
-4. 一台翻譯 → 全員共享（节省翻譯 API 調用）
+4. 一臺翻譯 → 全員共享（節省翻譯 API 呼叫）
 
 ---
 

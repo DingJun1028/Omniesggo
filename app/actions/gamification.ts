@@ -1,6 +1,6 @@
 "use server";
 
-import { createPrismaCompatClient } from '@lib/db/prisma-compat';
+import { PrismaClient, createPrismaCompatClient } from '@lib/db/prisma-compat';
 const prisma = createPrismaCompatClient();
 
 export async function syncGamificationState(

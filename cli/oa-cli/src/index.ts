@@ -1,4 +1,4 @@
-// [agent:15][squad:光之羽翼][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:15][squad:光之羽翼][lifecycle:active][p2][platform:esggo][best-practice:結界]
 import { program } from 'commander';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -137,7 +137,7 @@ program
   .option('--squad <name>', '陣列歸屬 智庫聖所/符文契約/光之羽翼/煉金熵減/5T驗算')
   .option('--security <level>', '安全分級 public/internal/confidential/restricted')
   .option('--platform <env>', '平台環境 esggo/omni/vps/firebase')
-  .option('--best-practice <state>', '結界繼承 awakened/结界')
+  .option('--best-practice <state>', '結界繼承 awakened/結界')
   .option('--content <json>', '待簽印內容 (JSON 字串)，用於產生 Hash Lock')
   .option('--entity <id>', '實體識別碼，預設自動生成')
   .option('--persist', '寫入即凍結：將過閘產物持久化至 OmniTag Registry (§20.6)')

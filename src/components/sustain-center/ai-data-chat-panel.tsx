@@ -12,13 +12,16 @@ interface ChatMessage {
   engine?: string;
 }
 
+// 模組層級 id 產生器：保持事件處理器中之 Date.now() 呼叫於元件 render 之外
+const nextId = (prefix: string): string => `${prefix}-${Date.now()}`;
+
 export function AIDataChatPanel() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 'init-1',
       sender: 'ai',
       text: '你好！我是 ESG GO 本地零算力 AI 數據分析助手 (Ollama Engine)。你可以輸入任何關於溫室氣體碳試算、台電 2024 排放係數或 5T 確信的疑問！',
-      timestamp: '—',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       engine: 'Ollama Local AI (Zero-Cloud-Cost)',
     },
   ]);
@@ -35,14 +38,11 @@ export function AIDataChatPanel() {
     const textToSend = queryText || input;
     if (!textToSend.trim() || loading) return;
 
-    const now = new Date();
-    const timestamp = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const messageId = `${now.getTime()}-${crypto.randomUUID()}`;
     const userMsg: ChatMessage = {
-      id: `u-${messageId}`,
+      id: nextId('u'),
       sender: 'user',
       text: textToSend,
-      timestamp,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -67,7 +67,7 @@ export function AIDataChatPanel() {
 
       if (json.success) {
         const aiMsg: ChatMessage = {
-          id: `ai-${messageId}`,
+          id: nextId('ai'),
           sender: 'ai',
           text: json.answer,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -80,7 +80,7 @@ export function AIDataChatPanel() {
       }
     } catch (err) {
       const errorMsg: ChatMessage = {
-        id: `err-${messageId}`,
+        id: nextId('err'),
         sender: 'ai',
         text: `⚠️ 分析過程發生錯誤: ${(err as Error).message}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),

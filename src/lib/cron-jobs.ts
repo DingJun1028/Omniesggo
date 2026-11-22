@@ -1,4 +1,4 @@
-// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:结界]
+// [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 /**
  * ESGGO Cron Jobs — 自動化任務調度器
  *
@@ -16,7 +16,7 @@ if (!HAS_DATABASE_URL) {
   console.warn('[Cron] DATABASE_URL is not set; skipping Prisma-dependent background jobs until a Postgres datasource is configured.');
 }
 
-// 雙向 Oracle 同步協調器 (全域全端全量終始矩陣)
+// 雙向 Oracle 同步協調器 (全域全端全量終始永續矩陣)
 import { runBidirectionalSync, hydrateFromOracle } from '../core/tags/oracle-sync-matrix';
 
 // ============================================================
@@ -294,7 +294,7 @@ const jobs: CronJob[] = [
     isRunning: false,
   },
   {
-    // 全域全端全量雙向同步 — 終始矩陣對帳 (Oracle <-> app)
+    // 全域全端全量雙向同步 — 終始永續矩陣對帳 (Oracle <-> app)
     name: 'oracle-bidirectional-sync',
     schedule: 10 * 60 * 1000, // 每 10 分鐘對帳一次
     task: async () => {
