@@ -265,3 +265,6 @@ export class OmniUI {
 }
 
 export const omniUI = new OmniUI();
+
+// ── 12大萬能架構渲染橋 (2026-11-22, 承接 @esggo/omni-arch OmniComponent 契約) ──
+export * from './component-bridge';

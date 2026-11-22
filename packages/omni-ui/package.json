@@ -1,6 +1,6 @@
 {
   "name": "@esggo/omni-ui",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "main": "src/index.ts",
@@ -14,12 +14,14 @@
     "esggo",
     "liquid-glass",
     "floating-core",
-    "beauty-visual"
+    "beauty-visual",
+    "omni-component-bridge"
   ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
-  "description": "OmniUI v1.0 — Liquid Glass Renderer + Floating Core + Metric Visualizer (Beauty)",
+  "description": "OmniUI v1.1 — Liquid Glass Renderer + Floating Core + Metric Visualizer + OmniComponent 渲染橋 (12大萬能架構維度二套件層顯化)",
   "dependencies": {
+    "@esggo/omni-arch": "workspace:*",
     "@esggo/omni-core": "workspace:*",
     "@esggo/omni-tag": "workspace:*",
     "@esggo/shared": "workspace:*"
