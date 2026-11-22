@@ -7,8 +7,8 @@
     <style>
 /* ================================================================
    樣式來源 Style source：
-   本段為 Omniesggo 套件樣式表之逐位元組鏡像（junaikey-ui.css v1.1，
-   @esggo/tailwind-preset@0.2.1，exports "./junaikey-ui"）。
+   本段為 Omniesggo 套件樣式表之逐位元組鏡像（junaikey-ui.css v1.2，
+   @esggo/tailwind-preset@0.2.2，exports "./junaikey-ui"）。
    正典位置：Omniesggo packages/tailwind-preset/src/junaikey-ui.css
    monorepo 內引入：import '@esggo/tailwind-preset/junaikey-ui'
    本沙箱畫布無法解析 node 套件路徑，故以鏡像內嵌；任何修改以正典為準，
@@ -16,9 +16,9 @@
    ================================================================ */
 /* ==========================================================================
    JunAiKey UI — Clean SaaS Monochrome 可重用樣式表
-   Reusable component stylesheet · v1.1 · 繁中/EN 雙語
+   Reusable component stylesheet · v1.2 · 繁中/EN 雙語
    用法 Usage：
-     1. 於 <html> 設定 data-theme="light"（淺色）或 data-theme="dark"（深色）
+     1. 於 html 根元素設定 data-theme="light"（淺色）或 data-theme="dark"（深色）
      2. 引入本樣式表（monorepo 內經套件匯入路徑 @esggo/tailwind-preset/junaikey-ui），套用對應 class 名稱即可
    ========================================================================== */
 
@@ -1124,7 +1124,7 @@ body {
       document.addEventListener('keydown', e => {
         if (e.key === 'Escape') { closeNew(); notifPop.classList.remove('open'); }
       });
-      function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      function esc(s) { return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;'); }
       let jakSeq = 53;
       const statusMap = { todo: '待辦', progress: '進行中', review: '審查中' };
       formNew.addEventListener('submit', e => {
@@ -1142,7 +1142,7 @@ body {
           '<span class="i-title"><span class="ref">JAK-' + (jakSeq++) + '</span> ' + esc(title) + '</span>' +
           '<span class="i-proj">' + esc(project) + '</span>' +
           '<span class="status ' + stVal + '">' + statusMap[stVal] + '</span>' +
-          '<span class="i-due">' + (due ? due.replace(/-/g, '/') : '未設定 None') + '</span>';
+          '<span class="i-due">' + (due ? due.replaceAll('-', '/') : '未設定 None') + '</span>';
         const createdCard = document.getElementById('p-created').querySelector('.card');
         createdCard.querySelector('h3').insertAdjacentElement('afterend', row);
         const kpiBig = document.querySelector('#p-summary .kpi .big');
@@ -1222,6 +1222,9 @@ body {
       avatarBtn.addEventListener('click', e => {
         e.stopPropagation();
         avatarMenu.classList.toggle('open');
+      });
+      avatarBtn.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); avatarBtn.click(); }
       });
       avatarMenu.addEventListener('click', e => e.stopPropagation());
       avatarMenu.querySelectorAll('.menu-item').forEach(mi => mi.addEventListener('click', () => {
