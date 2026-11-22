@@ -40,8 +40,7 @@ try {
 
 const PATHS = {
   home: JUNAKEY_HOME,
-  skills: path.join(JUNAKEY_HOME
-, 'skills.md'),
+  skills: path.join(JUNAKEY_HOME, 'skills.md'),
   memory: path.join(JUNAKEY_HOME, 'memory.jsonl'),
   progress: path.join(JUNAKEY_HOME, 'progress.md'),
   journal: path.join(JUNAKEY_HOME, 'journal.jsonl'),
@@ -88,8 +87,7 @@ const { awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills, re
 export {
   JunAikey, JUNAKEY_HOME, JUNAKEY_BACKEND, PATHS,
   MANTRA, SKILL_TRAITS, NCB_TABLES, DEFAULT_MEMORY_RETENTION,
-  localBac
-kend, ncbBackend,
+  localBackend, ncbBackend,
   awaken, loadSkills, growSkill, recallSkill, forgetSkill, dedupSkills,
   remember, recall, searchMemory, pruneMemory,
   setProgress, getProgress, reflect,
@@ -124,8 +122,7 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
   node vps/junaikey.mjs inherit [--dry-run]                    # 結界 inheritance
   node vps/junaikey.mjs prune-skills [--max=200] [--keep=name1,name2]
   node vps/junaikey.mjs merge-skills <src> <dst> [--new-name=N]  # 合併
-  node vp
-s/junaikey.mjs lineage [--target=NAME] [--tag=TAG]      # 查血緣 (FR-05)
+  node vps/junaikey.mjs lineage [--target=NAME] [--tag=TAG]      # 查血緣 (FR-05)
   node vps/junaikey.mjs promote <skill-name> <L2|L3|L4|L5>       # 提升沉澱層級 (F-04)
   node vps/junaikey.mjs sed-stats                                # L1-L5 統計 (OR-01)
   node vps/junaikey.mjs auto-tag <text-or-file> [--model=X]       # LLM 自動標籤 (FR-03, 眾鑰之首自動接續)
@@ -171,8 +168,7 @@ s/junaikey.mjs lineage [--target=NAME] [--tag=TAG]      # 查血緣 (FR-05)
         const name = rest[0];
         if (!name) { console.log(usage); process.exit(1); }
         const rec = await ops.recallSkill(name);
-        console.log
-(rec ? JSON.stringify(rec, null, 2) : '(not found)');
+        console.log(rec ? JSON.stringify(rec, null, 2) : '(not found)');
         break;
       }
       case 'forget': {
@@ -222,8 +218,7 @@ s/junaikey.mjs lineage [--target=NAME] [--tag=TAG]      # 查血緣 (FR-05)
       case 'progress': {
         const active = rest[0] || '';
         const notes = rest.slice(1).join(' ') || '';
-        const r = await ops.setProgress(a
-ctive, notes);
+        const r = await ops.setProgress(active, notes);
         console.log(JSON.stringify(r, null, 2));
         break;
       }
@@ -273,8 +268,7 @@ ctive, notes);
           env: { JUNAKEY_HOME, JUNAKEY_BACKEND: requested, NCB_TOKEN_set: !!NCB_TOKEN, NCB_PROJECT: NCB_PROJECT || '(unset)', NCB_BASE },
           backends: { local: 'available', ncb: 'pending' },
         };
-        ou
-t.backends.ncb = (await ncbBackend.health?.()) ? 'healthy' : `unhealthy (${ncbBackend.lastError || 'no token'})`;
+        out.backends.ncb = (await ncbBackend.health?.()) ? 'healthy' : `unhealthy (${ncbBackend.lastError || 'no token'})`;
         out.activeBackend = active.name;
         out.requested = requested;
         out.cacheCleared = false;
@@ -319,8 +313,7 @@ t.backends.ncb = (await ncbBackend.health?.()) ? 'healthy' : `unhealthy (${ncbBa
           if (a.startsWith('--type=')) opts.type = a.slice(7);
           else if (a.startsWith('--query=')) opts.query = a.slice(8);
         }
-        const list
- = await ops.listTags(opts);
+        const list = await ops.listTags(opts);
         console.log(JSON.stringify(list, null, 2));
         break;
       }
@@ -372,8 +365,7 @@ t.backends.ncb = (await ncbBackend.health?.()) ? 'healthy' : `unhealthy (${ncbBa
           if (a.startsWith('--target=')) opts.target = a.slice(9);
           else if (a.startsWith('--tag=')) opts.tag = a.slice(6);
           else if (a.startsWith('--op=')) opts.op = a.slice(5);
-          else if (a.startsWith('--
-since=')) opts.since = a.slice(8);
+          else if (a.startsWith('--since=')) opts.since = a.slice(8);
         }
         const r = await ops.getLineage(opts);
         console.log(JSON.stringify(r.slice(0, 50), null, 2));
@@ -421,7 +413,6 @@ since=')) opts.since = a.slice(8);
         }
         const entry = await ops.trackSuperPowersStage(stage, status, opts);
         console.log(JSON.stringify(entry, null, 2));
-
         break;
       }
       case 'listSuperPowersStages': {

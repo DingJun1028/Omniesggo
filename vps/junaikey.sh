@@ -53,8 +53,7 @@ superpowers_track() {
   fi
   if ! echo "start,done,blocked,skipped" | grep -qw "$status"; then
     echo "[junaikey] ✗ 未知狀態: $status。合法值: start,done,blocked,skipped" >&2
-  
-  return 2
+    return 2
   fi
   node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" trackSuperPowersStage "$stage" "$status" --source="$source" --sourceOrigin="$sourceOrigin" --notes="$notes" </dev/null
 }
