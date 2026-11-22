@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://ftgtours.esggo.co/sitemap.xml
