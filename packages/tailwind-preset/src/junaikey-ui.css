@@ -179,6 +179,11 @@ body {
 .toast.error { border-left-color: var(--danger); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
+/* 尊重減少動態偏好 Respect reduced-motion preference（css:S9440） */
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+}
+
 /* ---------- 15. 空狀態 Empty state ---------- */
 .empty-state { text-align: center; padding: 26px 12px; color: var(--gray-500); font-size: 13px; }
 .empty-state svg { opacity: .45; margin-bottom: 8px; }
