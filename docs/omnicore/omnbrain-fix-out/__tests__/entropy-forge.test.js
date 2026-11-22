@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { EntropyForge } from '../entropy-forge';
 describe('EntropyForge G6 OmniBrain', () => {
     beforeEach(() => {
         EntropyForge.traceEvents.length = 0;

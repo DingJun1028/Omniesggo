@@ -1,7 +1,6 @@
 // [agent:9][squad:符文契約][lifecycle:active][p2][platform:esggo][best-practice:結界]
 import { randomUUID, createHash } from 'crypto';
 import type {
-  Category,
   CompetitorSnapshot,
   IndustryDataPoint,
   MarketSignal,
@@ -77,7 +76,7 @@ export class OmniBizEngine {
   }
 
   /** Tangible：趨勢線（外露給視覺化層使用） */
-  getTrendSeries(label: string, values: number[], unit: string): TrendSeries {
+  getTrendSeries(label: string, values: number[], _unit: string): TrendSeries {
     const points = values.map((v, i) => ({ date: `2026-W${String(i + 1).padStart(2, '0')}`, value: v }));
     const series: TrendSeries = Object.freeze({ label, points });
     this.trendSeries.push(series);

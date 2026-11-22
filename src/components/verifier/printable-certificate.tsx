@@ -3,6 +3,8 @@
 import React, { useMemo } from 'react';
 import { ShieldCheck, Award, Printer, CheckCircle2, Lock, Sparkles } from 'lucide-react';
 
+const FALLBACK_SEALED_AT = 0; // 印章未設定時的靜態回退（pure，避開 render 時呼叫 Date.now）
+
 export interface ICertificateData {
   uuid: string;
   recordType?: string;
@@ -34,7 +36,7 @@ export function PrintableCertificate({ data, onClose }: Props) {
     () =>
       typeof data.sealedAt === 'number'
         ? new Date(data.sealedAt).toLocaleString('zh-TW')
-        : new Date(data.sealedAt || Date.now()).toLocaleString('zh-TW'),
+        : new Date(data.sealedAt || FALLBACK_SEALED_AT).toLocaleString('zh-TW'),
     [data.sealedAt]
   );
 

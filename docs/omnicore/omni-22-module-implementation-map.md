@@ -18,7 +18,7 @@
 | G3 | **OmniCore** 全能之核 | 意志執行、事件總線 | `src/impl/core.ts` + `omni-agent-bus.ts` | `[X]` | Trackable 事件追蹤 |
 | G4 | **OmniPulse** 全域之脈 | 數據總線、脈動協調 | `src/agents/twelve-omni/omni-bus.ts` + `omni-bus-v2.ts` | `[X]` | Trackable 脈動 |
 | G5 | **OmniBone** 全境之骨 | 契約維繫、型別契約 | `src/lib/omni-core/contracts.ts` + `celestial-core-processor.ts` | `[X]` | Transparent 型別契約零幻覺 |
-| G6 | **OmniBrain** 全息之腦 | 熵減煉金、架構重構 | `src/lib/omni-core/entropy-forge.ts` + `omni-kernel.ts` | `[✗]` - 僅 34 行單檔 | Trustworthy Hash Lock + Object.freeze |
+| G6 | **OmniBrain** 全像之腦 | 熵減煉金、架構重構 | `src/lib/omni-core/omni-kernel.ts` | `[✗]` - 僅 34 行單檔 | Trustworthy Hash Lock + Object.freeze |
 | G7 | **OmniSoul** 萬能靈魂 | 意志 / 價值對齊 | `src/types/omni-soul.ts` | `[X]` 介面 | Traceable 決策記錄 |
 | G8 | **OmniKey** 萬能密鑰 | 密碼學金鑰管理 | `src/types/omni-key.ts` | `[X]` | Trustworthy 密鑰綁定 |
 

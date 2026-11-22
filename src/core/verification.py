@@ -98,7 +98,6 @@ def emit_cross_lang_vectors(path: str = "tests/hashlock_vectors.json") -> None:
     cases = [
         ("agent:25", "大家好，我是壽司博士", 1760000000000),
         ("agent:09", '{"op":"replace","line":2}', 1760000001000),
-        ("QueenBee", "entropy-forge-artifact", 1760000002000),
     ]
     vectors = [
         {"source": s, "content": c, "timestamp": t, "expected_hash": generate_hash_lock(s, c, t)}

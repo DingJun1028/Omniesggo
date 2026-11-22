@@ -123,6 +123,50 @@ export async function listDelegations(): Promise<StoredDelegation[]> {
   return [];
 }
 
+// ─── Regulations ──────────────────────────────────────────────
+
+export async function listRegulations(args: { where?: any; take?: number }): Promise<any[]> {
+  return prisma.regulation.findMany({
+    where: args.where,
+    take: args.take ?? 100,
+    orderBy: { crawledAt: 'desc' },
+  });
+}
+
+// ─── Company Reports ──────────────────────────────────────────
+
+export async function listCompanyReports(args: { where?: any; take?: number }): Promise<any[]> {
+  return prisma.companyReport.findMany({
+    where: args.where,
+    take: args.take ?? 100,
+    orderBy: { crawledAt: 'desc' },
+  });
+}
+
+// ─── Alerts ───────────────────────────────────────────────────
+
+export async function listAlerts(args: { where?: any; take?: number }): Promise<any[]> {
+  return prisma.alert.findMany({
+    where: args.where,
+    take: args.take ?? 100,
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+export async function countAlerts(args: { where?: any }): Promise<number> {
+  return prisma.alert.count({ where: args.where });
+}
+
+// ─── Crawl History ────────────────────────────────────────────
+
+export async function listCrawlHistory(args: { where?: any; take?: number }): Promise<any[]> {
+  return prisma.crawlHistory.findMany({
+    where: args.where,
+    take: args.take ?? 100,
+    orderBy: { timestamp: 'desc' },
+  });
+}
+
 // ─── OmniCenter / OmniCore Persistence ────────────────────────
 
 export interface OmniCaseRecord {
@@ -273,4 +317,273 @@ export async function deleteOmniNote(id: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+// ─── Daily Reports ────────────────────────────────────────────
+
+export interface DailyReportItemDTO {
+  id: string;
+  itemType: string;
+  title: string;
+  summary: string;
+  sourceName: string | null;
+  sourceUrl: string | null;
+  severity: string;
+  esgPillar: string;
+  orderIndex: number;
+}
+
+export interface DailyReportDTO {
+  id: string;
+  reportDate: string;
+  title: string;
+  summary: string;
+  highlights: string[];
+  tagStats: Record<string, number>;
+  sourceCount: number;
+  alertCount: number;
+  topSources: string[];
+  status: string;
+  publishedAt: string | null;
+  editorNote: string | null;
+  items: DailyReportItemDTO[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function getDailyReport(args: { where?: any }): Promise<DailyReportDTO | null> {
+  const row = await prisma.dailyReport.findUnique({ where: args.where });
+  if (!row) return null;
+  return {
+    id: row.id,
+    reportDate: row.reportDate.toISOString(),
+    title: row.title,
+    summary: row.summary,
+    highlights: JSON.parse(row.highlights || '[]'),
+    tagStats: JSON.parse(row.tagStats || '{}'),
+    sourceCount: row.sourceCount,
+    alertCount: row.alertCount,
+    topSources: JSON.parse(row.topSources || '[]'),
+    status: row.status,
+    publishedAt: row.publishedAt?.toISOString() || null,
+    editorNote: row.editorNote,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export async function createDailyReport(args: { data: any }): Promise<DailyReportDTO> {
+  const row = await prisma.dailyReport.create({
+    data: {
+      ...args.data,
+      highlights: args.data.highlights ?? '[]',
+      tagStats: args.data.tagStats ?? '{}',
+      topSources: args.data.topSources ?? '[]',
+      reportDate: args.data.reportDate instanceof Date ? args.data.reportDate : new Date(args.data.reportDate),
+      sourceCount: args.data.sourceCount ?? 0,
+      alertCount: args.data.alertCount ?? 0,
+    },
+  });
+  return {
+    id: row.id,
+    reportDate: row.reportDate.toISOString(),
+    title: row.title,
+    summary: row.summary,
+    highlights: JSON.parse(row.highlights || '[]'),
+    tagStats: JSON.parse(row.tagStats || '{}'),
+    sourceCount: row.sourceCount,
+    alertCount: row.alertCount,
+    topSources: JSON.parse(row.topSources || '[]'),
+    status: row.status,
+    publishedAt: row.publishedAt?.toISOString() || null,
+    editorNote: row.editorNote,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export async function updateDailyReport(args: { where: any; data: any }): Promise<DailyReportDTO | null> {
+  const row = await prisma.dailyReport.update({
+    where: args.where,
+    data: {
+      ...args.data,
+      highlights: args.data.highlights ?? undefined,
+      tagStats: args.data.tagStats ?? undefined,
+      topSources: args.data.topSources ?? undefined,
+      sourceCount: args.data.sourceCount ?? undefined,
+      alertCount: args.data.alertCount ?? undefined,
+      updatedAt: args.data.updatedAt ?? new Date(),
+    },
+  });
+  if (!row) return null;
+  return {
+    id: row.id,
+    reportDate: row.reportDate.toISOString(),
+    title: row.title,
+    summary: row.summary,
+    highlights: JSON.parse(row.highlights || '[]'),
+    tagStats: JSON.parse(row.tagStats || '{}'),
+    sourceCount: row.sourceCount,
+    alertCount: row.alertCount,
+    topSources: JSON.parse(row.topSources || '[]'),
+    status: row.status,
+    publishedAt: row.publishedAt?.toISOString() || null,
+    editorNote: row.editorNote,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export async function deleteDailyReportItems(args: { where: any }): Promise<{ count: number }> {
+  return prisma.dailyReportItem.deleteMany({ where: args.where });
+}
+
+export async function createDailyReportItem(args: { data: any }): Promise<DailyReportDTO> {
+  const row = await prisma.dailyReportItem.create({
+    data: {
+      ...args.data,
+      reportId: args.data.reportId,
+      alertId: args.data.alertId ?? null,
+      itemType: args.data.itemType,
+      title: args.data.title,
+      summary: args.data.summary ?? '',
+      sourceName: args.data.sourceName ?? null,
+      sourceUrl: args.data.sourceUrl ?? null,
+      severity: args.data.severity ?? 'low',
+      esgPillar: args.data.esgPillar ?? '',
+      orderIndex: args.data.orderIndex ?? 0,
+    },
+  });
+  return {
+    id: row.id,
+    itemType: row.itemType,
+    title: row.title,
+    summary: row.summary,
+    sourceName: row.sourceName,
+    sourceUrl: row.sourceUrl,
+    severity: row.severity,
+    esgPillar: row.esgPillar,
+    orderIndex: row.orderIndex,
+  };
+}
+
+export async function listDailyReportItems(args: { where?: any; orderBy?: any }): Promise<DailyReportDTO[]> {
+  const rows = await prisma.dailyReportItem.findMany({
+    where: args.where,
+    orderBy: args.orderBy,
+    take: 1000,
+  });
+  return rows.map(r => ({
+    id: r.id,
+    itemType: r.itemType,
+    title: r.title,
+    summary: r.summary,
+    sourceName: r.sourceName,
+    sourceUrl: r.sourceUrl,
+    severity: r.severity,
+    esgPillar: r.esgPillar,
+    orderIndex: r.orderIndex,
+  }));
+}
+
+export async function listDailyReports(args: { where?: any; orderBy?: any; take?: number; select?: any }): Promise<DailyReportDTO[]> {
+  const rows = await prisma.dailyReport.findMany({
+    where: args.where,
+    orderBy: args.orderBy,
+    take: args.take ?? 100,
+  });
+  return rows.map(r => ({
+    id: r.id,
+    reportDate: r.reportDate.toISOString(),
+    title: r.title,
+    summary: r.summary,
+    highlights: JSON.parse(r.highlights || '[]'),
+    tagStats: JSON.parse(r.tagStats || '{}'),
+    sourceCount: r.sourceCount,
+    alertCount: r.alertCount,
+    topSources: JSON.parse(r.topSources || '[]'),
+    status: r.status,
+    publishedAt: r.publishedAt?.toISOString() || null,
+    editorNote: r.editorNote,
+    createdAt: r.createdAt.toISOString(),
+    updatedAt: r.updatedAt.toISOString(),
+  }));
+}
+
+// ─── Tag Pairs ────────────────────────────────────────────────
+
+export async function findTagPair(args: { where: any }): Promise<any | null> {
+  return prisma.tagPair.findUnique({ where: args.where });
+}
+
+export async function updateTagPair(args: { id: string; data: any }): Promise<any | null> {
+  return prisma.tagPair.update({
+    where: { id: args.id },
+    data: args.data,
+  });
+}
+
+export async function listTagPairs(args: { where?: any; take?: number }): Promise<any[]> {
+  return prisma.tagPair.findMany({
+    where: args.where,
+    take: args.take ?? 1000,
+    orderBy: { createdAt: 'desc' },
+  });
+}
+
+// ─── Alerts (extended) ────────────────────────────────────────
+
+export async function createAlert(input: {
+  sourceId: string;
+  sourceName: string;
+  alertType: string;
+  severity: string;
+  title: string;
+  summary: string;
+  url: string;
+  hash: string;
+  esgPillar: string;
+}): Promise<any> {
+  return prisma.alert.create({
+    data: {
+      sourceId: input.sourceId,
+      sourceName: input.sourceName,
+      alertType: input.alertType,
+      severity: input.severity,
+      title: input.title,
+      summary: input.summary,
+      url: input.url,
+      hash: input.hash,
+      esgPillar: input.esgPillar,
+    },
+  });
+}
+
+// ─── User Growth ──────────────────────────────────────────────
+
+export async function countRegulations(): Promise<number> {
+  return prisma.regulation.count();
+}
+
+export async function countCompanyReports(): Promise<number> {
+  return prisma.companyReport.count();
+}
+
+export async function countEsgTags(): Promise<number> {
+  return prisma.eSGTag.count();
+}
+
+export async function listUserGrowth(args: { where?: any; take?: number }): Promise<any[]> {
+  return prisma.userGrowth.findMany({
+    where: args.where,
+    take: args.take ?? 1000,
+    orderBy: { joinedAt: 'desc' },
+  });
+}
+
+export async function updateUserGrowth(args: { id: string; data: any }): Promise<any | null> {
+  return prisma.userGrowth.update({
+    where: { id: args.id },
+    data: args.data,
+  });
 }

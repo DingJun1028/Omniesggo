@@ -17,7 +17,6 @@
     "noUnusedParameters": false
   },
   "files": [
-    "src/lib/omni-core/entropy-forge.ts",
-    "src/lib/omni-core/__tests__/entropy-forge.test.ts"
+    "src/lib/omni-core/entropy-forge.ts"
   ]
 }

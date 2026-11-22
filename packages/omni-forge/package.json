@@ -12,13 +12,12 @@
   "keywords": [
     "omni-forge",
     "esggo",
-    "entropy-forge",
     "immutable-seal",
     "trust-object-freeze"
   ],
   "author": "ESG GO Team",
   "license": "UNLICENSED",
-  "description": "OmniForge v1.0 — 熵減煉金 + 合約 Linter + 不可篡改刻印 (Trust Object.freeze)",
+  "description": "OmniForge v1.0 — 不可篡改刻印 (Trust Object.freeze)",
   "dependencies": {
     "@esggo/omni-core": "workspace:*",
     "@esggo/shared": "workspace:*"

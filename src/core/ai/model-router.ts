@@ -443,12 +443,7 @@ export class TriggerRegistry {
 
 export const triggerRegistry = new TriggerRegistry();
 
-const TRIGGER_LEVEL_WEIGHT: Record<TriggerLevel, number> = {
-  [TriggerLevel.P0]: 1.0,
-  [TriggerLevel.P1]: 0.8,
-  [TriggerLevel.P2]: 0.5,
-  [TriggerLevel.P3]: 0.2,
-};
+
 
 export function triggerScoreToLevel(score: number): TriggerLevel {
   if (score >= 0.8) return TriggerLevel.P0;
@@ -651,7 +646,7 @@ function freeProviderByModel(modelId: string): FreeProviderConfig | undefined {
  * - 其餘 provider 皆為 OpenAI-compatible Chat Completions 介面。
  */
 /** 呼叫 Cloudflare AI 端點（stub，待實作） */
-async function callCloudflareAI(model: string, messages: ChatMessage[], options: { maxTokens?: number; temperature?: number }): Promise<{ result: { response: string } }> {
+async function callCloudflareAI(_model: string, _messages: ChatMessage[], _options: { maxTokens?: number; temperature?: number }): Promise<{ result: { response: string } }> {
   throw new Error('[callCloudflareAI] 尚未實作：需要 Cloudflare AI 端點配置（API key 環境變數）');
 }
 

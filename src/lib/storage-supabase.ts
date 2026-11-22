@@ -630,7 +630,7 @@ export async function findTagPair(filter: {
 
 export async function updateTagPair(input: { id: string; data: Record<string, unknown> }): Promise<any | null> {
   try {
-    const { data, error } = await safeSupabase(() =>
+    const { data } = await safeSupabase(() =>
       supabase.from('tag_pair').update(input.data).eq('id', input.id).select('*').single(),
     );
     return data?.[0] ?? null;
@@ -818,7 +818,7 @@ export async function listCrawlHistoryByDate(filter: { where?: Record<string, un
 // ─── 格式化路由結果 (formatRoutingResult) ───────────────────────
 export async function formatRoutingResult(input: Record<string, unknown>): Promise<string> {
   try {
-    const { data, error } = await safeSupabase(() =>
+    const { data } = await safeSupabase(() =>
       supabase.from('routing_result').insert(input).select('id').single(),
     );
     return data?.[0]?.id ?? 'unknown';

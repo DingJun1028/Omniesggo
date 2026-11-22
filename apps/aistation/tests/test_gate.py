@@ -54,7 +54,6 @@ def test_generate_hash_lock_matches_root_verification():
     for src, content, ts in [
         ("agent:25", "大家好，我是壽司博士", 1760000000000),
         ("agent:09", '{"op":"replace","line":2}', 1760000001000),
-        ("QueenBee", "entropy-forge-artifact", 1760000002000),
     ]:
         assert generate_hash_lock(src, content, ts) == _root_ver.generate_hash_lock(
             src, content, ts

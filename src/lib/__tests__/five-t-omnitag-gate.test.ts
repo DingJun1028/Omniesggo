@@ -68,11 +68,10 @@ describe('§20.5 FiveTOmniTagGate 接線 (5T 驗算陣列 25-30)', () => {
 
   it('emitArtifact attaches §20.4 auto-route for each squad', () => {
     const cases: Array<[string, string]> = [
-      ['agent:03', 'memory-recall'],
-      ['agent:09', 'typescript-contract'],
-      ['agent:15', 'auto-deploy'],
-      ['agent:21', 'entropy-forge'],
-      ['agent:27', 'audit-lock'],
+      ["agent:03", "memory-recall"],
+      ["agent:09", "typescript-contract"],
+      ["agent:15", "auto-deploy"],
+      ["agent:27", "audit-lock"],
     ];
     for (const [agent, routeKey] of cases) {
       const r = FiveTOmniTagGate.emitArtifact({

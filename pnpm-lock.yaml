@@ -753,6 +753,8 @@ importers:
 
   apps/omnlive: {}
 
+  apps/omnlive-offline: {}
+
   apps/oneringai:
     dependencies:
       '@everworker/oneringai':
@@ -1258,11 +1260,7 @@ importers:
         specifier: ^7.0.2
         version: 7.0.2
 
-  packages/tailwind-preset:
-    dependencies:
-      tailwindcss:
-        specifier: ^3.4.19
-        version: 3.4.19(tsx@4.23.15)(yaml@2.9.1)
+  packages/tailwind-preset: {}
 
   packages/ui:
     dependencies:

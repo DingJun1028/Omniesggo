@@ -1,0 +1,13 @@
+{
+  "name": "@esggo/tailwind-preset",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "esggo shared Tailwind preset (single source of brand colors)",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src"
+  ]
+}

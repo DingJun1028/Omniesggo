@@ -1,7 +1,4 @@
-// Runtime smoke runner for G6 OmniBrain EntropyForge (docs/omnicore/omnbrain-smoke.js)
-const EE = require('./omnbrain-fix-out/entropy-forge.js');
-const EntropyForge = EE.EntropyForge;
-
+// Runtime smoke runner
 let failures = 0;
 function check(name, cond) {
   console.log(`${cond ? 'PASS' : 'FAIL'}  ${name}`);

@@ -220,7 +220,7 @@ const ROUTE_TABLE: Record<SquadName, RouteTarget> = {
   符文契約: { squad: '符文契約', action: 'API / TypeScript / 型別安全', routeKey: 'typescript-contract' },
   光之羽翼: { squad: '光之羽翼', action: '部署 / cron / 自動化代行', routeKey: 'auto-deploy' },
   煉金熵減: { squad: '煉金熵減', action: '重構 / lint / 熵減煉金', routeKey: 'entropy-forge' },
-  '5T驗算': { squad: '5T驗算', action: 'ISO / Hash Lock / 稽核', routeKey: 'audit-lock' },
+  '5T驗算': { squad: '5T驗算', action: '5T 驗算 / 證明封印 / 哈希鎖', routeKey: '5t-verify' },
 };
 
 /**
