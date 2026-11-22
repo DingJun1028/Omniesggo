@@ -1,0 +1,190 @@
+/* ==========================================================================
+   JunAiKey UI — Clean SaaS Monochrome 可重用樣式表
+   Reusable component stylesheet · v1.0 · 繁中/EN 雙語
+   用法 Usage：
+     1. 於 <html> 設定 data-theme="light"（淺色）或 data-theme="dark"（深色）
+     2. 引入本樣式表，套用對應 class 名稱即可
+   ========================================================================== */
+
+/* ---------- 1. 設計代幣 Design tokens（淺色 Light） ---------- */
+:root {
+  --primary: #007b7b;            /* 品牌主色 Brand teal */
+  --primary-hover: #006969;
+  --primary-active: #005255;
+  --primary-soft: rgba(0, 123, 123, 0.10);
+  --surface: #f5f5f5;
+  --border: #e0e0e0;
+  --focus: #007b7b;              /* 焦點環 Focus ring */
+  --gray-900: #212121;           /* 主要文字 Primary text */
+  --gray-700: #616161;           /* 次要文字 Secondary text */
+  --gray-500: #9e9e9e;           /* 輔助文字 Tertiary text */
+  --gray-300: #e0e0e0;           /* 邊框/分隔 Border, divider */
+  --gray-100: #f5f5f5;           /* 軌道/底 Track, well */
+  --gray-50: #fafafa;            /* 頁面背景 Page background */
+  --white: #ffffff;              /* 卡片表面 Card surface */
+  --success: #2e7d32;
+  --warning: #c9a227;
+  --danger: #c62828;
+
+  --font-sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-full: 24px;
+  --elev-1: 0 2px 4px -1px rgba(0,0,0,.08);
+  --elev-2: 0 4px 8px -2px rgba(0,0,0,.10);
+  --elev-3: 0 8px 16px -2px rgba(0,0,0,.12);
+}
+
+/* ---------- 2. 設計代幣（深色 Dark） ---------- */
+[data-theme="dark"] {
+  --primary: #2dd4bf;
+  --primary-hover: #5eead4;
+  --primary-active: #14b8a6;
+  --primary-soft: rgba(45, 212, 191, 0.14);
+  --focus: #2dd4bf;
+  --gray-900: #f2f2f4;
+  --gray-700: #c4c4cc;
+  --gray-500: #8b8b94;
+  --gray-300: #3a3b45;
+  --gray-100: #26262e;
+  --gray-50: #1a1a20;
+  --white: #22222a;
+  --surface: #26262e;
+  --border: #34353f;
+  --success: #58c96f;
+  --warning: #d9b23c;
+  --danger: #ee7777;
+  --elev-1: 0 2px 4px -1px rgba(0,0,0,.45);
+  --elev-2: 0 4px 8px -2px rgba(0,0,0,.5);
+  --elev-3: 0 8px 16px -2px rgba(0,0,0,.55);
+}
+[data-theme="dark"] .btn-primary { color: #0c3833; }        /* 深色下主要按鈕文字轉深 Primary button text turns dark */
+
+/* ---------- 3. 基礎 Base ---------- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  color: var(--gray-900);
+  background: var(--gray-50);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 雙語次要文字 Bilingual secondary text（主中文 + 較小較淡英文） */
+.en { font-size: .85em; opacity: .65; font-weight: 500; letter-spacing: 0; text-transform: none; }
+
+/* ---------- 4. 按鈕 Buttons ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: var(--r-md); border: 1px solid transparent; cursor: pointer; transition: background-color .12s ease, transform .06s ease; }
+.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:active { background: var(--primary-active); transform: translateY(1px); }
+.btn-secondary { background: var(--gray-300); color: var(--gray-900); }
+.btn-secondary:hover { background: var(--gray-500); }
+.btn-tertiary { background: var(--white); color: var(--gray-900); border-color: var(--gray-900); }
+.btn-tertiary:hover { background: var(--gray-50); }
+.btn-ghost { background: var(--white); color: var(--gray-700); border-color: var(--border); }
+.btn-ghost:hover { background: var(--gray-50); color: var(--gray-900); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ---------- 5. 表單欄位 Form fields ---------- */
+.field { margin-bottom: 12px; }
+.field > label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.field input, .field select { width: 100%; font-family: var(--font-sans); font-size: 13px; color: var(--gray-900); background: var(--white); border: 1px solid var(--gray-300); border-radius: var(--r-md); padding: 8px 10px; transition: border-color .12s, box-shadow .12s; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px rgba(0,123,123,.18); }
+.field input::placeholder { color: var(--gray-500); }
+
+/* 搜尋框 Search box（含 kbd 提示） */
+.search { display: flex; align-items: center; gap: 8px; background: var(--gray-50); border: 1px solid var(--border); border-radius: var(--r-md); padding: 7px 12px; color: var(--gray-500); font-size: 13px; }
+.search:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(0,123,123,.15); background: var(--white); }
+.search input { border: none; outline: none; background: transparent; font-family: var(--font-sans); font-size: 13px; color: var(--gray-900); width: 100%; }
+.search input::placeholder { color: var(--gray-500); }
+.search kbd { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--gray-300); border-radius: var(--r-sm); padding: 0 5px; color: var(--gray-500); margin-left: auto; }
+
+/* ---------- 6. 分頁標籤 Tabs ---------- */
+.tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin: 12px 0 20px; }
+.tab { font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--gray-500); background: none; border: none; border-bottom: 2px solid transparent; padding: 9px 2px; cursor: pointer; transition: color .12s, border-color .12s; }
+.tab:hover { color: var(--gray-900); }
+.tab[aria-selected="true"] { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
+
+/* ---------- 7. 卡片 Cards ---------- */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--elev-1); padding: 18px; }
+.card h3 { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gray-700); margin-bottom: 14px; }
+.card h3 .en { text-transform: none; letter-spacing: 0; }
+
+/* ---------- 8. 狀態徽章 Status pills 與 Badges ---------- */
+.status { font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; border-radius: var(--r-full); padding: 2px 9px; white-space: nowrap; }
+.status.todo { color: var(--gray-700); background: var(--gray-100); }          /* 待辦 To do */
+.status.progress { color: var(--primary); background: var(--primary-soft); }  /* 進行中 In progress */
+.status.review { color: var(--warning); background: rgba(201,162,39,.12); }    /* 審查中 In review */
+.status.done { color: var(--success); background: rgba(46,125,50,.10); }      /* 已完成 Done */
+
+.badge { display: inline-block; margin-left: 8px; font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; border-radius: var(--r-full); padding: 1px 8px; vertical-align: 1px; }
+.badge.assigned { color: var(--primary); background: var(--primary-soft); }
+.badge.comment { color: var(--gray-700); background: var(--gray-100); }
+.badge.done { color: var(--success); background: rgba(46,125,50,.10); }
+.badge.moved { color: var(--warning); background: rgba(201,162,39,.12); }
+
+/* ---------- 9. 過濾膠囊 Filter chips ---------- */
+.filter-chip { font-family: var(--font-sans); font-size: 12px; color: var(--gray-700); background: var(--white); border: 1px solid var(--border); border-radius: var(--r-full); padding: 5px 12px; cursor: pointer; }
+.filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+.filter-chip .en { text-transform: none; letter-spacing: 0; }
+
+/* ---------- 10. 導覽項目 Navigation items ---------- */
+.nav-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; border: none; background: none; font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--gray-900); padding: 7px 10px; border-radius: var(--r-md); cursor: pointer; text-align: left; }
+.nav-item:hover { background: var(--gray-100); }
+.nav-item.active { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.nav-row { display: flex; align-items: baseline; gap: 6px; min-width: 0; flex: 1 1 auto; overflow: hidden; white-space: nowrap; }
+.nav-row .en { overflow: hidden; text-overflow: ellipsis; }
+.nav-item .count { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); background: var(--gray-100); border-radius: var(--r-full); padding: 1px 8px; }
+.nav-item.active .count { background: var(--white); color: var(--primary); border: 1px solid var(--border); }
+
+/* ---------- 11. 圖示按鈕列 Icon rail buttons ---------- */
+.rail-btn { width: 34px; height: 34px; flex: none; border: none; border-radius: var(--r-md); background: none; color: var(--gray-500); display: grid; place-items: center; cursor: pointer; transition: background-color .12s, color .12s; }
+.rail-btn:hover { background: var(--gray-100); color: var(--gray-900); }
+.rail-btn.active { background: var(--primary-soft); color: var(--primary); }
+.rail-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- 12. 下拉選單與彈出面板 Menus & popovers ---------- */
+.rel-wrap { position: relative; }
+.menu { position: absolute; right: 0; top: calc(100% + 8px); background: var(--white); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--elev-3); min-width: 180px; padding: 6px; opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity .12s, transform .12s, visibility .12s; z-index: 40; }
+.menu.open { opacity: 1; visibility: visible; transform: none; }
+.menu-item { display: flex; align-items: center; gap: 6px; width: 100%; border: none; background: none; font-family: var(--font-sans); font-size: 13px; color: var(--gray-900); padding: 7px 10px; border-radius: var(--r-sm); cursor: pointer; text-align: left; }
+.menu-item:hover { background: var(--gray-100); }
+.menu-item.danger { color: var(--danger); }
+.menu-sep { height: 1px; background: var(--gray-100); margin: 5px 8px; }
+.chk { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 0; cursor: pointer; font-weight: 500; }
+.chk input { accent-color: var(--primary); }
+
+/* ---------- 13. 對話框 Dialog ---------- */
+.overlay { position: fixed; inset: 0; background: rgba(33,33,33,.42); display: none; place-items: center; z-index: 60; padding: 20px; }
+.overlay.open { display: grid; }
+[data-theme="dark"] .overlay { background: rgba(0,0,0,.55); }
+.dialog { background: var(--white); border-radius: var(--r-xl); box-shadow: var(--elev-3); width: min(480px, 100%); padding: 22px; }
+.dlg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.dlg-head h2 { font-size: 16px; font-weight: 700; }
+.dlg-close { border: none; background: none; font-size: 18px; color: var(--gray-500); cursor: pointer; border-radius: var(--r-sm); width: 28px; height: 28px; line-height: 1; }
+.dlg-close:hover { background: var(--gray-100); color: var(--gray-900); }
+.dlg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+
+/* ---------- 14. Toast 提示 Notifications ---------- */
+.toast-area { position: fixed; right: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 8px; z-index: 50; max-width: 340px; }
+.toast { font-size: 13px; border: 1px solid var(--border); border-left: 4px solid var(--primary); background: var(--white); color: var(--gray-900); border-radius: var(--r-md); padding: 10px 14px; box-shadow: var(--elev-2); animation: toast-in .18s ease; }
+.toast.success { border-left-color: var(--success); }
+.toast.warning { border-left-color: var(--warning); }
+.toast.error { border-left-color: var(--danger); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---------- 15. 空狀態 Empty state ---------- */
+.empty-state { text-align: center; padding: 26px 12px; color: var(--gray-500); font-size: 13px; }
+.empty-state svg { opacity: .45; margin-bottom: 8px; }
+
+/* ---------- 16. 頭像 Avatars ---------- */
+.avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; font-size: 12px; font-weight: 700; border: 1px solid var(--border); }
+.m-ava { width: 28px; height: 28px; border-radius: 50%; background: var(--gray-100); border: 1px solid var(--border); color: var(--gray-700); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+
+/* ---------- 17. 品牌標記 Logo mark ---------- */
+.logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.logo-mark { width: 26px; height: 26px; border-radius: var(--r-sm); background: var(--gray-900); color: var(--white); display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; }
