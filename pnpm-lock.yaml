@@ -1219,6 +1219,9 @@ importers:
 
   packages/omni-ui:
     dependencies:
+      '@esggo/omni-arch':
+        specifier: workspace:*
+        version: link:../omni-arch
       '@esggo/omni-core':
         specifier: workspace:*
         version: link:../omni-core
