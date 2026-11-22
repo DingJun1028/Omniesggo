@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JunAiKey 儀表板 · Clean SaaS Monochrome</title>
+    <style>
+/* ================================================================
+   樣式來源 Style source：
+   本段為 Omniesggo 套件樣式表之逐位元組鏡像（junaikey-ui.css v1.2，
+   @esggo/tailwind-preset@0.2.2，exports "./junaikey-ui"）。
+   正典位置：Omniesggo packages/tailwind-preset/src/junaikey-ui.css
+   monorepo 內引入：import '@esggo/tailwind-preset/junaikey-ui'
+   本沙箱畫布無法解析 node 套件路徑，故以鏡像內嵌；任何修改以正典為準，
+   另一側（樣式表畫布／倉庫 PR）同步。
+   ================================================================ */
+/* ==========================================================================
+   JunAiKey UI — Clean SaaS Monochrome 可重用樣式表
+   Reusable component stylesheet · v1.2 · 繁中/EN 雙語
+   用法 Usage：
+     1. 於 html 根元素設定 data-theme="light"（淺色）或 data-theme="dark"（深色）
+     2. 引入本樣式表（monorepo 內經套件匯入路徑 @esggo/tailwind-preset/junaikey-ui），套用對應 class 名稱即可
+   ========================================================================== */
+
+/* ---------- 1. 設計代幣 Design tokens（淺色 Light） ---------- */
+:root {
+  --primary: #007b7b;            /* 品牌主色 Brand teal */
+  --primary-hover: #006969;
+  --primary-active: #005255;
+  --primary-soft: rgba(0, 123, 123, 0.10);
+  --surface: #f5f5f5;
+  --border: #e0e0e0;
+  --focus: #007b7b;              /* 焦點環 Focus ring */
+  --gray-900: #212121;           /* 主要文字 Primary text */
+  --gray-700: #616161;           /* 次要文字 Secondary text */
+  --gray-500: #9e9e9e;           /* 輔助文字 Tertiary text */
+  --gray-400: #bdbdbd;           /* 次階互動色 Secondary interactive（次要按鈕懸停） */
+  --gray-300: #e0e0e0;           /* 邊框/分隔 Border, divider */
+  --gray-100: #f5f5f5;           /* 軌道/底 Track, well */
+  --gray-50: #fafafa;            /* 頁面背景 Page background */
+  --white: #ffffff;              /* 卡片表面 Card surface */
+  --success: #2e7d32;
+  --warning: #c9a227;
+  --danger: #c62828;
+
+  --font-sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  --r-sm: 4px; --r-md: 8px; --r-lg: 12px; --r-xl: 16px; --r-full: 24px;
+  --elev-1: 0 2px 4px -1px rgba(0,0,0,.08);
+  --elev-2: 0 4px 8px -2px rgba(0,0,0,.10);
+  --elev-3: 0 8px 16px -2px rgba(0,0,0,.12);
+}
+
+/* ---------- 2. 設計代幣（深色 Dark） ---------- */
+[data-theme="dark"] {
+  --primary: #2dd4bf;
+  --primary-hover: #5eead4;
+  --primary-active: #14b8a6;
+  --primary-soft: rgba(45, 212, 191, 0.14);
+  --focus: #2dd4bf;
+  --gray-900: #f2f2f4;
+  --gray-700: #c4c4cc;
+  --gray-500: #8b8b94;
+  --gray-400: #4a4b55;
+  --gray-300: #3a3b45;
+  --gray-100: #26262e;
+  --gray-50: #1a1a20;
+  --white: #22222a;
+  --surface: #26262e;
+  --border: #34353f;
+  --success: #58c96f;
+  --warning: #d9b23c;
+  --danger: #ee7777;
+  --elev-1: 0 2px 4px -1px rgba(0,0,0,.45);
+  --elev-2: 0 4px 8px -2px rgba(0,0,0,.5);
+  --elev-3: 0 8px 16px -2px rgba(0,0,0,.55);
+}
+[data-theme="dark"] .btn-primary { color: #0c3833; }        /* 深色下主要按鈕文字轉深 Primary button text turns dark */
+
+/* ---------- 3. 基礎 Base ---------- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: var(--font-sans);
+  color: var(--gray-900);
+  background: var(--gray-50);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 雙語次要文字 Bilingual secondary text（主中文 + 較小較淡英文） */
+.en { font-size: .85em; opacity: .65; font-weight: 500; letter-spacing: 0; text-transform: none; }
+
+/* ---------- 4. 按鈕 Buttons ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; padding: 7px 14px; border-radius: var(--r-md); border: 1px solid transparent; cursor: pointer; transition: background-color .12s ease, transform .06s ease; }
+.btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.btn-primary { background: var(--primary); color: var(--white); }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:active { background: var(--primary-active); transform: translateY(1px); }
+.btn-secondary { background: var(--gray-300); color: var(--gray-900); }
+.btn-secondary:hover { background: var(--gray-400); }
+.btn-tertiary { background: var(--white); color: var(--gray-900); border-color: var(--gray-900); }
+.btn-tertiary:hover { background: var(--gray-50); }
+.btn-ghost { background: var(--white); color: var(--gray-700); border-color: var(--border); }
+.btn-ghost:hover { background: var(--gray-50); color: var(--gray-900); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ---------- 5. 表單欄位 Form fields ---------- */
+.field { margin-bottom: 12px; }
+.field > label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.field input, .field select { width: 100%; font-family: var(--font-sans); font-size: 13px; color: var(--gray-900); background: var(--white); border: 1px solid var(--gray-300); border-radius: var(--r-md); padding: 8px 10px; transition: border-color .12s, box-shadow .12s; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--focus); box-shadow: 0 0 0 3px rgba(0,123,123,.18); }
+.field input::placeholder { color: var(--gray-500); }
+
+/* 搜尋框 Search box（含 kbd 提示） */
+.search { display: flex; align-items: center; gap: 8px; background: var(--gray-50); border: 1px solid var(--border); border-radius: var(--r-md); padding: 7px 12px; color: var(--gray-500); font-size: 13px; }
+.search:focus-within { border-color: var(--focus); box-shadow: 0 0 0 3px rgba(0,123,123,.15); background: var(--white); }
+.search input { border: none; outline: none; background: transparent; font-family: var(--font-sans); font-size: 13px; color: var(--gray-900); width: 100%; }
+.search input::placeholder { color: var(--gray-500); }
+.search kbd { font-family: var(--font-mono); font-size: 10px; border: 1px solid var(--gray-300); border-radius: var(--r-sm); padding: 0 5px; color: var(--gray-500); margin-left: auto; }
+
+/* ---------- 6. 分頁標籤 Tabs ---------- */
+.tabs { display: flex; gap: 24px; border-bottom: 1px solid var(--border); margin: 12px 0 20px; }
+.tab { font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--gray-500); background: none; border: none; border-bottom: 2px solid transparent; padding: 9px 2px; cursor: pointer; transition: color .12s, border-color .12s; }
+.tab:hover { color: var(--gray-900); }
+.tab[aria-selected="true"] { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+.tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: var(--r-sm); }
+
+/* ---------- 7. 卡片 Cards ---------- */
+.card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--elev-1); padding: 18px; }
+.card h3 { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--gray-700); margin-bottom: 14px; }
+.card h3 .en { text-transform: none; letter-spacing: 0; }
+
+/* ---------- 8. 狀態徽章 Status pills 與 Badges ---------- */
+.status { font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; border-radius: var(--r-full); padding: 2px 9px; white-space: nowrap; }
+.status.todo { color: var(--gray-700); background: var(--gray-100); }          /* 待辦 To do */
+.status.progress { color: var(--primary); background: var(--primary-soft); }  /* 進行中 In progress */
+.status.review { color: var(--warning); background: rgba(201,162,39,.12); }    /* 審查中 In review */
+.status.done { color: var(--success); background: rgba(46,125,50,.10); }      /* 已完成 Done */
+
+.badge { display: inline-block; margin-left: 8px; font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; border-radius: var(--r-full); padding: 1px 8px; vertical-align: 1px; }
+.badge.assigned { color: var(--primary); background: var(--primary-soft); }
+.badge.comment { color: var(--gray-700); background: var(--gray-100); }
+.badge.done { color: var(--success); background: rgba(46,125,50,.10); }
+.badge.moved { color: var(--warning); background: rgba(201,162,39,.12); }
+
+/* ---------- 9. 過濾膠囊 Filter chips ---------- */
+.filter-chip { font-family: var(--font-sans); font-size: 12px; color: var(--gray-700); background: var(--white); border: 1px solid var(--border); border-radius: var(--r-full); padding: 5px 12px; cursor: pointer; }
+.filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+.filter-chip .en { text-transform: none; letter-spacing: 0; }
+
+/* ---------- 10. 導覽項目 Navigation items ---------- */
+.nav-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; border: none; background: none; font-family: var(--font-sans); font-size: 13px; font-weight: 500; color: var(--gray-900); padding: 7px 10px; border-radius: var(--r-md); cursor: pointer; text-align: left; }
+.nav-item:hover { background: var(--gray-100); }
+.nav-item.active { background: var(--primary-soft); color: var(--primary); font-weight: 600; }
+.nav-row { display: flex; align-items: baseline; gap: 6px; min-width: 0; flex: 1 1 auto; overflow: hidden; white-space: nowrap; }
+.nav-row .en { overflow: hidden; text-overflow: ellipsis; }
+.nav-item .count { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); background: var(--gray-100); border-radius: var(--r-full); padding: 1px 8px; }
+.nav-item.active .count { background: var(--white); color: var(--primary); border: 1px solid var(--border); }
+
+/* ---------- 11. 圖示按鈕列 Icon rail buttons ---------- */
+.rail-btn { width: 34px; height: 34px; flex: none; border: none; border-radius: var(--r-md); background: none; color: var(--gray-500); display: grid; place-items: center; cursor: pointer; transition: background-color .12s, color .12s; }
+.rail-btn:hover { background: var(--gray-100); color: var(--gray-900); }
+.rail-btn.active { background: var(--primary-soft); color: var(--primary); }
+.rail-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- 12. 下拉選單與彈出面板 Menus & popovers ---------- */
+.rel-wrap { position: relative; }
+.menu { position: absolute; right: 0; top: calc(100% + 8px); background: var(--white); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--elev-3); min-width: 180px; padding: 6px; opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity .12s, transform .12s, visibility .12s; z-index: 40; }
+.menu.open { opacity: 1; visibility: visible; transform: none; }
+.menu-item { display: flex; align-items: center; gap: 6px; width: 100%; border: none; background: none; font-family: var(--font-sans); font-size: 13px; color: var(--gray-900); padding: 7px 10px; border-radius: var(--r-sm); cursor: pointer; text-align: left; }
+.menu-item:hover { background: var(--gray-100); }
+.menu-item.danger { color: var(--danger); }
+.menu-sep { height: 1px; background: var(--gray-100); margin: 5px 8px; }
+.chk { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 5px 0; cursor: pointer; font-weight: 500; }
+.chk input { accent-color: var(--primary); }
+
+/* ---------- 13. 對話框 Dialog ---------- */
+.overlay { position: fixed; inset: 0; background: rgba(33,33,33,.42); display: none; place-items: center; z-index: 60; padding: 20px; }
+.overlay.open { display: grid; }
+[data-theme="dark"] .overlay { background: rgba(0,0,0,.55); }
+.dialog { background: var(--white); border-radius: var(--r-xl); box-shadow: var(--elev-3); width: min(480px, 100%); padding: 22px; }
+.dlg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.dlg-head h2 { font-size: 16px; font-weight: 700; }
+.dlg-close { border: none; background: none; font-size: 18px; color: var(--gray-500); cursor: pointer; border-radius: var(--r-sm); width: 28px; height: 28px; line-height: 1; }
+.dlg-close:hover { background: var(--gray-100); color: var(--gray-900); }
+.dlg-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+
+/* ---------- 14. Toast 提示 Notifications ---------- */
+.toast-area { position: fixed; right: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 8px; z-index: 50; max-width: 340px; }
+.toast { font-size: 13px; border: 1px solid var(--border); border-left: 4px solid var(--primary); background: var(--white); color: var(--gray-900); border-radius: var(--r-md); padding: 10px 14px; box-shadow: var(--elev-2); animation: toast-in .18s ease; }
+.toast.success { border-left-color: var(--success); }
+.toast.warning { border-left-color: var(--warning); }
+.toast.error { border-left-color: var(--danger); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* 尊重減少動態偏好 Respect reduced-motion preference（css:S9440） */
+@media (prefers-reduced-motion: reduce) {
+  .toast { animation: none; }
+}
+
+/* ---------- 15. 空狀態 Empty state ---------- */
+.empty-state { text-align: center; padding: 26px 12px; color: var(--gray-500); font-size: 13px; }
+.empty-state svg { opacity: .45; margin-bottom: 8px; }
+
+/* ---------- 16. 頭像 Avatars ---------- */
+.avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--primary-soft); color: var(--primary); display: grid; place-items: center; font-size: 12px; font-weight: 700; border: 1px solid var(--border); }
+.m-ava { width: 28px; height: 28px; border-radius: 50%; background: var(--gray-100); border: 1px solid var(--border); color: var(--gray-700); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+
+/* ---------- 17. 品牌標記 Logo mark ---------- */
+.logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.logo-mark { width: 26px; height: 26px; border-radius: var(--r-sm); background: var(--gray-900); color: var(--white); display: grid; place-items: center; font-family: var(--font-mono); font-size: 13px; }
+/* ================================================================
+   以下為儀表板應用層 App layer：
+   版面（Shell／圖示欄／側欄／主區／右欄）、面板內容排版、
+   狀態切換類別（.open/.show/.collapsed）、深色主題之應用級覆寫。
+   元件與代幣層已由上方套件鏡像提供。
+   ================================================================ */
+
+      /* ============ Shell ============ */
+      .shell { display: grid; grid-template-columns: 48px 232px minmax(0, 1fr) 296px; grid-template-rows: 56px 1fr; height: 100vh; }
+
+      /* ============ Icon rail (extreme left) ============ */
+      .icon-rail { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 0; background: var(--gray-50); border-right: 1px solid var(--border); overflow-y: auto; }
+      .icon-rail .rail-div { width: 20px; height: 1px; background: var(--gray-300); margin: 10px 0; flex: none; }
+      .rail-btn svg { display: block; }
+
+      /* Topbar */
+      .topbar { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 0 20px; background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
+      .topbar .divider { width: 1px; height: 22px; background: var(--border); }
+      .crumb { font-size: 13px; color: var(--gray-500); }
+      .crumb strong { color: var(--gray-900); font-weight: 600; }
+      .search { flex: 1; max-width: 420px; }
+      .top-actions { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+      /* ============ Sidebar ============ */
+      .sidebar { background: var(--gray-50); border-right: 1px solid var(--border); padding: 16px 12px; overflow-y: auto; }
+      .side-block { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 8px; margin-bottom: 12px; box-shadow: var(--elev-1); }
+      .side-head { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--gray-500); letter-spacing: .04em; text-transform: uppercase; padding: 4px 8px 8px; }
+      .side-head .caret { font-size: 9px; color: var(--gray-500); }
+      .new-item { display: flex; align-items: center; gap: 8px; width: 100%; border: 1px dashed var(--gray-300); border-radius: var(--r-md); background: var(--gray-50); color: var(--gray-700); font-family: var(--font-sans); font-size: 13px; font-weight: 500; padding: 8px 10px; margin-bottom: 6px; cursor: pointer; }
+      .new-item:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-soft); }
+      .side-head .en, .trial .en, .rail h4 .en, .kpi .delta .en { text-transform: none; letter-spacing: 0; }
+      .try-list .nav-item { color: var(--gray-700); }
+      .try-list .nav-item .plus { color: var(--primary); font-weight: 700; }
+      .subnav { padding-left: 14px; border-left: 1px solid var(--gray-100); margin-left: 12px; }
+      .subnav.collapsed { display: none; }
+      .side-status { display: flex; align-items: center; justify-content: space-between; padding: 10px 8px 4px; font-size: 12px; color: var(--gray-500); }
+      .side-status .tz { font-family: var(--font-mono); font-size: 11px; }
+      .trial .trial-row { display: flex; align-items: center; gap: 8px; padding: 4px 8px 8px; font-size: 13px; font-weight: 600; color: var(--gray-900); }
+      .trial .flame { color: var(--warning); flex: none; }
+      .trial .trial-txt { color: var(--gray-700); }
+      .trial .free-tag { margin-left: auto; font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--primary); background: var(--primary-soft); border-radius: var(--r-full); padding: 1px 8px; }
+
+      /* ============ Main ============ */
+      .main { overflow-y: auto; padding: 24px; background: var(--gray-50); }
+      .page-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 4px; }
+      .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+      .live { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--gray-700); }
+      .live .pip { width: 7px; height: 7px; border-radius: 50%; background: var(--danger); animation: pulse 1.6s infinite; }
+      .live svg { opacity: .6; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .35; } }
+      .filters { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+      /* Tab panels（切換行為屬應用層） */
+      .tab-panel { display: none; }
+      .tab-panel.show { display: block; }
+
+      /* Grid 與 KPI */
+      .grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+      .span-4 { grid-column: span 4; }
+      .span-6 { grid-column: span 6; }
+      .kpi .big { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; }
+      .kpi .sub { font-size: 12px; color: var(--gray-500); margin-top: 4px; }
+      .kpi .delta { display: inline-block; font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--primary); background: var(--primary-soft); border-radius: var(--r-full); padding: 2px 9px; margin-top: 10px; }
+
+      /* Workload lanes */
+      .lane { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+      .lane:last-child { border-bottom: none; }
+      .lane .due { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); }
+      .lane .qty { font-weight: 700; font-size: 14px; }
+      .lane-bar { display: flex; gap: 3px; }
+      .lane-bar i { display: block; width: 7px; height: 16px; border-radius: 2px; background: var(--gray-300); }
+      .lane-bar i.done { background: var(--primary); }
+      .lane-bar i.part { background: rgba(0,123,123,.35); }
+
+      /* Capacity stacked bar */
+      .cap-bar { display: flex; height: 12px; border-radius: var(--r-full); overflow: hidden; border: 1px solid var(--gray-100); margin: 10px 0 8px; }
+      .cap-bar .logged { width: 50%; background: var(--primary); }
+      .cap-bar .planned { width: 30%; background: rgba(0,123,123,.45); }
+      .cap-bar .free { width: 20%; background: var(--gray-300); }
+      .cap-legend { display: flex; gap: 16px; font-size: 12px; color: var(--gray-700); flex-wrap: wrap; }
+      .cap-legend .k { display: inline-flex; align-items: center; gap: 6px; }
+      .cap-legend .dot { width: 8px; height: 8px; border-radius: 2px; }
+      .cap-note { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); margin-top: 12px; }
+
+      /* Team performance bars */
+      .perf-row { display: grid; grid-template-columns: 56px 1fr 44px; align-items: center; gap: 12px; padding: 8px 0; font-size: 13px; }
+      .perf-track { position: relative; height: 14px; background: var(--gray-100); border-radius: var(--r-full); overflow: hidden; }
+      .perf-fill { height: 100%; background: var(--primary); border-radius: var(--r-full); transition: width .6s ease; }
+      .perf-row.warn .perf-fill { background: var(--warning); }
+      .perf-val { font-family: var(--font-mono); font-size: 12px; color: var(--gray-700); text-align: right; }
+      .perf-target { position: relative; height: 0; border-top: 1px dashed var(--gray-500); margin: 4px 0 2px 68px; width: calc(100% - 112px); }
+      .perf-target span { position: absolute; right: 0; top: -16px; font-family: var(--font-mono); font-size: 10px; color: var(--gray-500); }
+
+      /* Activity feed */
+      .act { display: grid; grid-template-columns: 30px 1fr auto; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+      .act:last-child { border-bottom: none; }
+      .act .m-ava { width: 28px; height: 28px; border-radius: 50%; background: var(--gray-100); border: 1px solid var(--border); color: var(--gray-700); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+      .act .txt { font-size: 13px; color: var(--gray-900); }
+      .act .txt .ref { font-family: var(--font-mono); font-size: 12px; color: var(--primary); }
+      .act .when { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); white-space: nowrap; }
+
+      /* ============ Right rail ============ */
+      .rail { background: var(--white); border-left: 1px solid var(--border); padding: 18px 16px; overflow-y: auto; }
+      .profile { text-align: center; padding: 6px 0 16px; border-bottom: 1px solid var(--gray-100); }
+      .profile .p-ava { width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%; background: var(--primary-soft); border: 1px solid var(--border); color: var(--primary); display: grid; place-items: center; font-size: 20px; font-weight: 700; }
+      .profile .p-name { font-size: 15px; font-weight: 700; }
+      .profile .p-handle { font-family: var(--font-mono); font-size: 12px; color: var(--gray-500); }
+      .online { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--success); background: rgba(46,125,50,.10); border-radius: var(--r-full); padding: 2px 10px; margin-top: 8px; }
+      .online .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+      .p-meta { display: flex; justify-content: center; gap: 14px; font-size: 11px; color: var(--gray-500); margin-top: 8px; font-family: var(--font-mono); }
+
+      .rail h4 { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gray-500); margin: 18px 0 10px; }
+      .ring-wrap { display: flex; align-items: center; gap: 14px; }
+      .ring { width: 64px; height: 64px; flex: none; }
+      .ring .fg { stroke: var(--primary); }
+      .ring .ring-bg { stroke: var(--gray-100); }
+      .ring-txt { font-size: 13px; color: var(--gray-700); }
+      .ring-txt b { display: block; font-size: 15px; color: var(--gray-900); }
+      .days-left { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); margin-top: 10px; }
+
+      .up-item { display: grid; grid-template-columns: 14px 1fr auto; gap: 8px; align-items: baseline; font-size: 13px; padding: 7px 0; cursor: pointer; }
+      .up-item:hover span:nth-child(2) { color: var(--primary); }
+      .up-item .tick { color: var(--primary); font-weight: 700; }
+      .up-item .when { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); white-space: nowrap; }
+
+      .recap-card { margin-top: 18px; background: var(--gray-50); border: 1px dashed var(--gray-300); border-radius: var(--r-lg); padding: 14px; }
+      .recap-card h5 { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+      .recap-card p { font-size: 12px; color: var(--gray-700); margin-bottom: 12px; }
+      .recap-card .later { display: inline-block; margin-top: 8px; font-size: 12px; color: var(--gray-500); text-decoration: underline; cursor: pointer; }
+      .recap-card .later:hover { color: var(--gray-900); }
+
+      /* Work item rows */
+      .item-row { display: grid; grid-template-columns: 30px 1fr auto auto auto; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray-100); font-size: 13px; }
+      .item-row:last-of-type { border-bottom: none; }
+      .i-ava { width: 28px; height: 28px; border-radius: 50%; background: var(--gray-100); border: 1px solid var(--border); color: var(--gray-700); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+      .i-title { min-width: 0; }
+      .i-title .ref { font-family: var(--font-mono); font-size: 12px; color: var(--primary); margin-right: 6px; }
+      .i-proj { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); white-space: nowrap; }
+      .i-due { font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); white-space: nowrap; }
+
+      /* Empty state（顯式切換行為屬應用層） */
+      .empty-state { display: none; }
+      .empty-state.show { display: block; }
+
+      /* Filter popover（過濾彈出面板屬應用版面） */
+      .popover { position: absolute; right: 0; top: calc(100% + 8px); background: var(--white); border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--elev-3); padding: 10px 12px; min-width: 176px; z-index: 40; display: none; }
+      .popover.open { display: block; }
+
+      /* Search hint line */
+      .search-hint { display: none; font-family: var(--font-mono); font-size: 11px; color: var(--gray-500); margin: -6px 0 12px 2px; }
+      .search-hint.show { display: block; }
+
+      /* 深色主題之應用級覆寫（代幣層已在上方鏡像提供） */
+      [data-theme="dark"] .dialog .field input,
+      [data-theme="dark"] .dialog .field select { background: var(--gray-50); }
+      [data-theme="dark"] select option { background: #22222a; color: var(--gray-900); }
+
+      /* Notifications popover */
+      .notif-pop { position: fixed; left: 56px; top: 60px; width: 300px; background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--elev-3); z-index: 55; display: none; }
+      .notif-pop.open { display: block; }
+      .notif-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-bottom: 1px solid var(--gray-100); }
+      .notif-head h4 { font-size: 13px; font-weight: 700; }
+      .notif-head .mark-read { border: none; background: none; font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--primary); cursor: pointer; }
+      .notif-head .mark-read:hover { text-decoration: underline; }
+      .notif-item { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--gray-100); font-size: 12px; align-items: start; }
+      .notif-item:last-child { border-bottom: none; }
+      .notif-item .m-ava { width: 28px; height: 28px; border-radius: 50%; background: var(--gray-100); border: 1px solid var(--border); color: var(--gray-700); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+      .notif-item .n-txt { color: var(--gray-900); }
+      .notif-item .n-when { font-family: var(--font-mono); font-size: 10px; color: var(--gray-500); white-space: nowrap; }
+      .notif-item.unread .n-txt { font-weight: 600; }
+      .notif-item.unread .n-txt::after { content: '●'; color: var(--primary); font-size: 8px; margin-left: 6px; vertical-align: 2px; }
+
+      /* ================================================================
+         響應式 Responsive — Omniesggo 三視口硬標準（README §6）
+         desktop 1280 / tablet 768 / mobile 375：
+         零水平捲動（scrollWidth ≤ clientWidth）、觸控目標 ≥ 44×44px
+         ================================================================ */
+      /* 網格防溢流保險（任何視口） */
+      .grid > *, .item-row > *, .lane > * { min-width: 0; }
+
+      /* 互動偏好：減少動態時停用應用層動畫（與鏡像層 S9440 防護同義） */
+      @media (prefers-reduced-motion: reduce) {
+        .live .pip { animation: none; }
+        .perf-fill { transition: none; }
+      }
+
+      /* ≤1280 桌面收窄 */
+      @media (max-width: 1280px) {
+        .shell { grid-template-columns: 48px 208px minmax(0, 1fr) 264px; }
+        .main { padding: 20px; }
+        .grid { gap: 14px; }
+        /* 明細列改緊湊雙列版型：半寬卡片下固定欄總和（專案＋狀態＋期限約 250px）會壓縮標題欄，故 ≤1280 一律重排（頭像跨列、標題＋狀態首列、專案＋期限次列） */
+        .item-row { grid-template-columns: 28px minmax(0, 1fr) auto; row-gap: 4px; }
+        .i-ava { grid-row: 1 / 3; }
+        .i-title { grid-column: 2; grid-row: 1; }
+        .item-row > .status { grid-column: 3; grid-row: 1; align-self: center; }
+        .i-proj { grid-column: 2; grid-row: 2; }
+        .i-due { grid-column: 3; grid-row: 2; align-self: center; }
+      }
+
+      /* ≤1024 小型桌面／平板橫向：右欄下折為主區下方資訊帶 */
+      @media (max-width: 1024px) {
+        .shell { grid-template-columns: 48px 208px minmax(0, 1fr); grid-template-rows: 56px minmax(0, 1fr) auto; height: auto; min-height: 100vh; }
+        .icon-rail { grid-column: 1; grid-row: 2; }
+        .sidebar { grid-column: 2; grid-row: 2; }
+        .main { grid-column: 3; grid-row: 2; overflow: visible; }
+        .rail { grid-column: 2 / 4; grid-row: 3; border-left: none; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 18px 16px 26px; }
+        .rail > * { width: 100%; max-width: 440px; }
+      }
+
+      /* ≤768 平板：單欄堆疊、圖示列轉水平、側欄轉雙欄、觸控目標 ≥ 44px */
+      @media (max-width: 768px) {
+        .shell { display: block; height: auto; min-height: 100vh; }
+        .topbar { flex-wrap: wrap; gap: 10px 8px; padding: 10px 14px; }
+        .topbar .divider, .topbar .crumb { display: none; }
+        .topbar .logo { order: 1; }
+        .topbar .top-actions { order: 2; }
+        .topbar .search { order: 3; flex: 1 1 100%; max-width: none; margin-top: 4px; }
+
+        .icon-rail { flex-direction: row; justify-content: flex-start; gap: 2px; padding: 6px 10px; border-right: none; border-bottom: 1px solid var(--border); overflow: visible; }
+        .icon-rail .rail-div { width: 16px; height: 20px; margin: 0 8px; }
+        .rail-btn { width: 44px; height: 44px; }
+
+        .sidebar { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; padding: 14px; overflow: visible; border-right: none; border-bottom: 1px solid var(--border); }
+        .sidebar .side-block { margin-bottom: 0; min-width: 0; }
+
+        .main { overflow: visible; padding: 16px 14px 28px; }
+        .page-head { gap: 10px; }
+        .filters { margin-left: 0; }
+        .tabs { gap: 16px; margin: 10px 0 16px; overflow-x: auto; }
+        .tab { white-space: nowrap; padding: 12px 2px; }
+        .grid { gap: 12px; }
+        .span-4 { grid-column: span 6; }
+        .span-6 { grid-column: span 12; }
+        .btn, .filter-chip { min-height: 44px; }
+        .btn, .dlg-close { min-width: 44px; min-height: 44px; }
+        .tab, .nav-item, .new-item, .menu-item { min-height: 44px; }
+        .topbar .avatar { width: 44px; height: 44px; }
+        .chk { padding: 10px 0; min-height: 44px; }
+
+        .notif-pop { left: 12px; right: 12px; width: auto; top: 118px; max-height: 60vh; overflow-y: auto; }
+        .popover { max-width: calc(100vw - 28px); }
+
+        .rail { display: flex; flex-direction: column; align-items: center; border-top: 1px solid var(--border); padding: 18px 14px 26px; }
+        .rail > * { width: 100%; max-width: 440px; }
+      }
+
+      /* ≤480 行動（375 標準視口）：內容單欄化、資料列重排 */
+      @media (max-width: 480px) {
+        .topbar [data-action="share"] { display: none; }
+        .page-title { font-size: 19px; }
+        .grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+        .span-4, .span-6 { grid-column: auto; }
+        .kpi .big { font-size: 24px; }
+        .card { padding: 14px; }
+
+        /* 工作列 lanes：名稱獨占首列，計量膠囊與期限次列 */
+        .lane { grid-template-columns: minmax(0, 1fr) auto auto; row-gap: 4px; }
+        .lane > span:first-child { grid-column: 1 / -1; }
+
+        /* 活動紀錄：時間折至文字欄下方 */
+        .act { grid-template-columns: 28px minmax(0, 1fr); }
+        .act .when { grid-column: 2; }
+
+        .perf-target { margin-left: 56px; width: calc(100% - 100px); }
+
+        .dlg-row { grid-template-columns: 1fr; }
+        .dialog { padding: 18px; }
+        .overlay { padding: 12px; }
+        .overlay .dialog { width: 100%; }
+        .toast-area { left: 12px; right: 12px; max-width: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <!-- ============ Top bar ============ -->
+      <div class="topbar">
+        <div class="logo"><span class="logo-mark">J</span> JunAiKey</div>
+        <div class="divider"></div>
+        <div class="crumb"><strong>儀表板 <span class="en">Dashboard</span></strong></div>
+        <div class="search">
+          <span aria-hidden="true">⌕</span>
+          <input type="search" placeholder="搜尋工作、文件、成員 Search tasks, docs, people" aria-label="搜尋 Search" />
+          <kbd>/</kbd>
+        </div>
+        <div class="top-actions">
+          <button class="btn btn-ghost btn-sm" data-action="export" type="button">匯出 Export</button>
+          <button class="btn btn-ghost btn-sm" data-action="share" type="button">分享 Share</button>
+          <button class="btn btn-tertiary btn-sm" data-action="invite" type="button">邀請 Invite</button>
+          <button class="btn btn-ghost btn-sm" id="theme-toggle" type="button" aria-pressed="false" title="切換深色模式 Toggle dark mode">
+            <svg id="icon-moon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+            <svg id="icon-sun" style="display:none;" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          </button>
+          <div class="rel-wrap">
+            <span class="avatar" id="avatar-btn" title="Yasir Ahmad Noori" role="button" tabindex="0" aria-haspopup="menu" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); this.click(); }">YA</span>
+            <div class="menu" id="avatar-menu" role="menu" aria-label="帳戶選單 Account menu">
+              <button class="menu-item" type="button">個人檔案 <span class="en">Profile</span></button>
+              <button class="menu-item" type="button">帳號設定 <span class="en">Settings</span></button>
+              <button class="menu-item" type="button">切換語言 <span class="en">Language</span></button>
+              <div class="menu-sep" role="separator"></div>
+              <button class="menu-item danger" type="button">登出 <span class="en">Sign out</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ Icon rail (leftmost) ============ -->
+      <nav class="icon-rail" aria-label="應用程式圖示列 App icon rail">
+        <button class="rail-btn" type="button" title="JunAiKey">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+            <path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M3 7l9 5 9-5"/><path d="M12 12v10"/>
+          </svg>
+        </button>
+        <button class="rail-btn active" type="button" title="工作區切換器 Workspace switcher">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+            <rect x="3.5" y="3.5" width="4.6" height="4.6" rx="1"/><rect x="9.7" y="3.5" width="4.6" height="4.6" rx="1"/><rect x="15.9" y="3.5" width="4.6" height="4.6" rx="1"/>
+            <rect x="3.5" y="9.7" width="4.6" height="4.6" rx="1"/><rect x="9.7" y="9.7" width="4.6" height="4.6" rx="1"/><rect x="15.9" y="9.7" width="4.6" height="4.6" rx="1"/>
+            <rect x="3.5" y="15.9" width="4.6" height="4.6" rx="1"/><rect x="9.7" y="15.9" width="4.6" height="4.6" rx="1"/><rect x="15.9" y="15.9" width="4.6" height="4.6" rx="1"/>
+          </svg>
+        </button>
+        <div class="rail-div" role="separator" aria-hidden="true"></div>
+        <button class="rail-btn" type="button" title="首頁 Home">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+            <path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.2V21h14V9.2"/>
+          </svg>
+        </button>
+        <button class="rail-btn" type="button" title="搜尋 Search">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>
+          </svg>
+        </button>
+        <button class="rail-btn" type="button" title="通知 Notifications">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>
+          </svg>
+        </button>
+        <button class="rail-btn" type="button" title="收件匣 Inbox">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+            <path d="M22 12h-6l-2 3a2 2 0 0 1-4 0l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>
+          </svg>
+        </button>
+        <button class="rail-btn" type="button" title="日曆 Calendar">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+        </button>
+      </nav>
+
+      <!-- ============ Left sidebar ============ -->
+      <nav class="sidebar" aria-label="工作區 Workspace">
+        <div class="side-block">
+          <div class="side-head"><span>專案 Projects</span><span class="caret">▼</span></div>
+          <button class="new-item" type="button"><span class="nav-row">+ 新增工作項目 <span class="en">New work item</span></span></button>
+          <button class="nav-item" type="button"><span class="nav-row">首頁 <span class="en">Home</span></span></button>
+          <button class="nav-item" type="button"><span class="nav-row">草稿 <span class="en">Drafts</span></span><span class="count">3</span></button>
+          <button class="nav-item active" type="button"><span class="nav-row">您的工作 <span class="en">Your work</span></span><span class="count">12</span></button>
+          <button class="nav-item" type="button"><span class="nav-row">便利貼 <span class="en">Stickies</span></span><span class="count">3</span></button>
+        </div>
+
+        <div class="side-block">
+          <div class="side-head"><span>工作區 Workspace</span></div>
+          <button class="nav-item" type="button"><span class="nav-row">專案 <span class="en">Projects</span></span><span class="caret">▼</span></button>
+          <button class="nav-item" type="button" aria-label="更多 More"><span class="nav-row">更多 <span class="en">More</span> …</span></button>
+        </div>
+
+        <div class="side-block">
+          <div class="side-head"><span>專案 PROJECTS</span></div>
+          <button class="nav-item" type="button"><span class="nav-row">JunAiKey Core</span><span class="count">3</span></button>
+          <div class="subnav">
+            <button class="nav-item" type="button"><span class="nav-row">總覽 <span class="en">Overview</span></span></button>
+            <button class="nav-item" type="button"><span class="nav-row">工作項目 <span class="en">Work items</span></span><span class="count">35</span></button>
+            <button class="nav-item" type="button"><span class="nav-row">週期 <span class="en">Cycles</span></span></button>
+            <button class="nav-item" type="button"><span class="nav-row">模組 <span class="en">Modules</span></span></button>
+            <button class="nav-item" type="button"><span class="nav-row">檢視 <span class="en">Views</span></span></button>
+            <button class="nav-item" type="button"><span class="nav-row">頁面 <span class="en">Pages</span></span></button>
+            <button class="nav-item" type="button"><span class="nav-row">收件 <span class="en">Intake</span></span></button>
+          </div>
+        </div>
+
+        <div class="side-block try-list">
+          <div class="side-head"><span>試用 TRY</span></div>
+          <button class="nav-item" type="button"><span class="plus">+</span><span class="nav-row">串接 GitHub <span class="en">Connect</span></span></button>
+          <button class="nav-item" type="button"><span class="plus">+</span><span class="nav-row">串接 Slack <span class="en">Connect</span></span></button>
+          <button class="nav-item" type="button"><span class="plus">+</span><span class="nav-row">試用 JunAiKey AI</span></button>
+        </div>
+
+        <div class="side-block trial">
+          <div class="trial-row">
+            <svg class="flame" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 1c2 3-3.5 4.5-3.5 8.5a5 5 0 0 0 10 0C14.5 6 10 4.5 8 1zm.2 12.4a2.4 2.4 0 0 1-2.4-2.4c0-1.6 1.5-2.2 2.4-3.6.9 1.4 2.4 2 2.4 3.6a2.4 2.4 0 0 1-2.4 2.4z" fill="currentColor"/></svg>
+            <span class="trial-txt" title="Ends in 7 days">倒數 7 天</span>
+            <span class="free-tag">Free</span>
+          </div>
+          <div class="side-status"><span>當地時間 <span class="en">Local time</span></span><span class="tz">07:20</span></div>
+          <button class="btn btn-primary btn-sm" data-action="upgrade" type="button" style="width:100%; margin-top:8px;">升級 Upgrade</button>
+        </div>
+      </nav>
+
+      <!-- ============ Main ============ -->
+      <main class="main">
+        <div class="page-head">
+          <div class="page-title">您的工作 <span class="en">Your work</span></div>
+          <span class="live"><span class="pip"></span><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg> 剛剛更新 <span class="en">Updated just now</span> · 即時 Live</span>
+          <div class="filters">
+            <button class="filter-chip" id="chip-range" type="button">最近 7 天 <span class="en">Last 7 days</span> ▾</button>
+            <div class="rel-wrap">
+              <button class="filter-chip" id="chip-filter" type="button" aria-haspopup="menu">篩選 <span class="en">Filter</span> ⌄</button>
+              <div class="popover" id="filter-pop" role="menu" aria-label="進階篩選 Advanced filter">
+                <label class="chk"><input type="checkbox" data-f="status" checked /> 狀態 <span class="en">Status</span></label>
+                <label class="chk"><input type="checkbox" data-f="assignee" checked /> 指派人 <span class="en">Assignee</span></label>
+                <label class="chk"><input type="checkbox" data-f="due" /> 到期日 <span class="en">Due date</span></label>
+                <label class="chk"><input type="checkbox" data-f="project" /> 專案 <span class="en">Project</span></label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-hint" id="search-hint" aria-live="polite"></div>
+
+        <div class="tabs" role="tablist" aria-label="工作檢視 Views">
+          <button class="tab" role="tab" aria-selected="true" data-panel="p-summary" type="button">摘要 <span class="en">Summary</span></button>
+          <button class="tab" role="tab" aria-selected="false" data-panel="p-assigned" type="button">已指派 <span class="en">Assigned</span></button>
+          <button class="tab" role="tab" aria-selected="false" data-panel="p-created" type="button">已建立 <span class="en">Created</span></button>
+          <button class="tab" role="tab" aria-selected="false" data-panel="p-subscribed" type="button">已追蹤 <span class="en">Subscribed</span></button>
+          <button class="tab" role="tab" aria-selected="false" data-panel="p-activity" type="button">活動 <span class="en">Activity</span></button>
+        </div>
+
+        <!-- Summary panel -->
+        <div class="tab-panel show" id="p-summary">
+          <div class="grid">
+            <section class="card kpi span-4">
+              <h3>已建立項目 <span class="en">Created</span></h3>
+              <div class="big">15</div>
+              <div class="sub">涵蓋本週所有專案 across all projects</div>
+              <span class="delta">+3 本週 this week</span>
+            </section>
+            <section class="card kpi span-4">
+              <h3>已指派項目 <span class="en">Assigned</span></h3>
+              <div class="big">12</div>
+              <div class="sub">您目前擁有之進行中項目</div>
+              <span class="delta">+2 今日到期 due today</span>
+            </section>
+            <section class="card kpi span-4">
+              <h3>已追蹤項目 <span class="en">Subscribed</span></h3>
+              <div class="big">20</div>
+              <div class="sub">關注更新中 following for updates</div>
+              <span class="delta">+5 新增 new</span>
+            </section>
+
+            <section class="card span-6">
+              <h3>工作量 <span class="en">Workload</span></h3>
+              <div class="lane"><span>待辦 <span class="en">Backlog</span></span><span class="lane-bar"><i></i><i></i></span><span class="qty">2</span><span class="due">期限 11/12</span></div>
+              <div class="lane"><span>尚未開始 <span class="en">Not started</span></span><span class="lane-bar"><i></i></span><span class="qty">1</span><span class="due">期限 11/14</span></div>
+              <div class="lane"><span>進行中 <span class="en">Working on</span></span><span class="lane-bar"><i class="part"></i><i class="part"></i><i class="part"></i></span><span class="qty">3</span><span class="due">期限 11/15</span></div>
+              <div class="lane"><span>已完成 <span class="en">Completed</span></span><span class="lane-bar"><i class="done"></i><i class="done"></i><i class="done"></i><i class="done"></i></span><span class="qty">4</span><span class="due">期限 11/16</span></div>
+            </section>
+
+            <section class="card span-6">
+              <h3>週期容量 <span class="en">Cycle capacity</span></h3>
+              <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                <span style="font-size:14px; font-weight:600;">Sprint 14</span>
+                <span class="due" style="font-family:var(--font-mono); font-size:11px; color:var(--gray-500);">剩餘 6 天</span>
+              </div>
+              <div class="cap-bar" role="img" aria-label="容量：已登錄 50%，已計畫 30%，閒置 20%">
+                <div class="logged"></div><div class="planned"></div><div class="free"></div>
+              </div>
+              <div class="cap-legend">
+                <span class="k"><span class="dot" style="background:var(--primary);"></span>已登錄 Logged 120h · 50%</span>
+                <span class="k"><span class="dot" style="background:rgba(0,123,123,.45);"></span>已計畫 Planned 72h · 30%</span>
+                <span class="k"><span class="dot" style="background:var(--gray-300);"></span>閒置 Free 48h · 20%</span>
+              </div>
+              <div class="cap-note">團隊總容量 Team capacity：240h</div>
+            </section>
+
+            <section class="card span-6">
+              <h3>團隊效能 <span class="en">Team performance</span></h3>
+              <div class="perf-target"><span>目標 Target 70%</span></div>
+              <div class="perf-row"><span>Maya</span><div class="perf-track"><div class="perf-fill" style="width:19%;"></div></div><span class="perf-val">19%</span></div>
+              <div class="perf-row"><span>Jon</span><div class="perf-track"><div class="perf-fill" style="width:66%;"></div></div><span class="perf-val">66%</span></div>
+              <div class="perf-row warn"><span>Priya</span><div class="perf-track"><div class="perf-fill" style="width:8%;"></div></div><span class="perf-val">8%</span></div>
+              <div class="perf-row"><span>Alex</span><div class="perf-track"><div class="perf-fill" style="width:34%;"></div></div><span class="perf-val">34%</span></div>
+              <div style="margin-top:12px; font-family:var(--font-mono); font-size:11px; color:var(--gray-500);">完成 / 指派比 completed vs assigned · 目標 target 70%</div>
+            </section>
+
+            <section class="card span-6">
+              <h3>近期活動 <span class="en">Recent activity</span></h3>
+              <div class="act">
+                <div class="m-ava">YA</div>
+                <div class="txt">您將 alexsmith 指派至 <span class="ref">JAK-39</span> 載入狀態規範 <span class="en">Loading state guidelines</span>
+                  <span class="badge assigned">指派 Assigned</span>
+                  <div class="when" style="margin-top:2px;">JunAiKey Core</div>
+                </div>
+                <div class="when">5 分鐘前</div>
+              </div>
+              <div class="act">
+                <div class="m-ava">JD</div>
+                <div class="txt">Jon D. 留言於 <span class="ref">JAK-41</span> 引導流程空狀態 <span class="en">Onboarding empty state</span>
+                  <span class="badge comment">留言 Comment</span>
+                  <div class="when" style="margin-top:2px;">JunAiKey Core</div>
+                </div>
+                <div class="when">34 分鐘前</div>
+              </div>
+              <div class="act">
+                <div class="m-ava">BK</div>
+                <div class="txt">Ben K. 已完成 <span class="ref">JAK-27</span> 招募流程檢視 <span class="en">Hiring pipeline review</span>
+                  <span class="badge done">完成 Done</span>
+                  <div class="when" style="margin-top:2px;">招募 Hiring</div>
+                </div>
+                <div class="when">1 小時前</div>
+              </div>
+              <div class="act">
+                <div class="m-ava">SM</div>
+                <div class="txt">Sara M. 將留存目標 <span class="en">Retention objective</span> 移至需關注 <span class="en">Attention</span>
+                  <span class="badge moved">搬移 Moved</span>
+                  <div class="when" style="margin-top:2px;">成長 Growth</div>
+                </div>
+                <div class="when">2 小時前</div>
+              </div>
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="M8.5 11h5"/></svg><br />
+                找不到符合的活動 <span class="en">No matching activity</span>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Assigned panel -->
+        <div class="tab-panel" id="p-assigned">
+          <section class="card"><h3>已指派 <span class="en">Assigned</span></h3>
+            <div class="item-row">
+              <span class="i-ava">YA</span>
+              <span class="i-title"><span class="ref">JAK-39</span> 載入狀態規範 <span class="en">Loading state guidelines</span></span>
+              <span class="i-proj">JunAiKey Core</span>
+              <span class="status progress" title="In progress">進行中</span>
+              <span class="i-due">今日 Today</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">BK</span>
+              <span class="i-title"><span class="ref">JAK-44</span> 請款 Webhook 重試 <span class="en">Billing webhook retries</span></span>
+              <span class="i-proj">付款 Payments</span>
+              <span class="status todo" title="To do">待辦</span>
+              <span class="i-due">週二 Tue</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">JD</span>
+              <span class="i-title"><span class="ref">JAK-48</span> 設定空狀態 <span class="en">Settings empty state</span></span>
+              <span class="i-proj">JunAiKey Core</span>
+              <span class="status todo" title="To do">待辦</span>
+              <span class="i-due">週三 Wed</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">SM</span>
+              <span class="i-title"><span class="ref">JAK-51</span> 通知偏好設定 <span class="en">Notification preferences</span></span>
+              <span class="i-proj">JunAiKey Web</span>
+              <span class="status review" title="In review">審查中</span>
+              <span class="i-due">週四 Thu</span>
+            </div>
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="M8.5 11h5"/></svg><br />
+              找不到符合的項目 <span class="en">No matching items</span>
+            </div>
+          </section>
+        </div>
+        <!-- Created panel -->
+        <div class="tab-panel" id="p-created">
+          <section class="card"><h3>已建立 <span class="en">Created</span></h3>
+            <div class="item-row">
+              <span class="i-ava">YA</span>
+              <span class="i-title"><span class="ref">JAK-41</span> 引導流程空狀態 <span class="en">Onboarding empty state</span></span>
+              <span class="i-proj">JunAiKey Core</span>
+              <span class="status progress" title="In progress">進行中</span>
+              <span class="i-due">11/14</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">YA</span>
+              <span class="i-title"><span class="ref">JAK-45</span> 週期報告範本 <span class="en">Cycle report template</span></span>
+              <span class="i-proj">文件 Docs</span>
+              <span class="status todo" title="To do">待辦</span>
+              <span class="i-due">11/18</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">JD</span>
+              <span class="i-title"><span class="ref">JAK-52</span> 儀表板空狀態 <span class="en">Dashboard empty state</span></span>
+              <span class="i-proj">JunAiKey Web</span>
+              <span class="status review" title="In review">審查中</span>
+              <span class="i-due">11/19</span>
+            </div>
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="M8.5 11h5"/></svg><br />
+              找不到符合的項目 <span class="en">No matching items</span>
+            </div>
+          </section>
+        </div>
+        <!-- Subscribed panel -->
+        <div class="tab-panel" id="p-subscribed">
+          <section class="card"><h3>已追蹤 <span class="en">Subscribed</span></h3>
+            <div class="item-row">
+              <span class="i-ava">BK</span>
+              <span class="i-title"><span class="ref">JAK-27</span> 招募流程檢視 <span class="en">Hiring pipeline review</span></span>
+              <span class="i-proj">招募 Hiring</span>
+              <span class="status done" title="Done">已完成</span>
+              <span class="i-due">已關閉</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">SM</span>
+              <span class="i-title">留存目標 <span class="en">Retention objective</span></span>
+              <span class="i-proj">成長 Growth</span>
+              <span class="status progress" title="In progress">進行中</span>
+              <span class="i-due">11/20</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">JD</span>
+              <span class="i-title"><span class="ref">JAK-41</span> 引導流程空狀態 <span class="en">Onboarding empty state</span></span>
+              <span class="i-proj">JunAiKey Core</span>
+              <span class="status progress" title="In progress">進行中</span>
+              <span class="i-due">11/14</span>
+            </div>
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="M8.5 11h5"/></svg><br />
+              找不到符合的項目 <span class="en">No matching items</span>
+            </div>
+          </section>
+        </div>
+        <!-- Activity panel -->
+        <div class="tab-panel" id="p-activity">
+          <section class="card"><h3>活動記錄 <span class="en">Activity log</span></h3>
+            <div class="item-row">
+              <span class="i-ava">YA</span>
+              <span class="i-title">您將 alexsmith 指派至 <span class="ref">JAK-39</span></span>
+              <span class="i-proj">JunAiKey Core</span>
+              <span class="badge assigned">指派 Assigned</span>
+              <span class="i-due">5 分鐘前</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">JD</span>
+              <span class="i-title">Jon D. 留言於 <span class="ref">JAK-41</span></span>
+              <span class="i-proj">JunAiKey Core</span>
+              <span class="badge comment">留言 Comment</span>
+              <span class="i-due">34 分鐘前</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">BK</span>
+              <span class="i-title">Ben K. 已完成 <span class="ref">JAK-27</span></span>
+              <span class="i-proj">招募 Hiring</span>
+              <span class="badge done">完成 Done</span>
+              <span class="i-due">1 小時前</span>
+            </div>
+            <div class="item-row">
+              <span class="i-ava">SM</span>
+              <span class="i-title">Sara M. 搬移留存目標 <span class="en">Retention objective</span></span>
+              <span class="i-proj">成長 Growth</span>
+              <span class="badge moved">搬移 Moved</span>
+              <span class="i-due">2 小時前</span>
+            </div>
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/><path d="M8.5 11h5"/></svg><br />
+              找不到符合的活動 <span class="en">No matching activity</span>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- ============ Right rail ============ -->
+      <aside class="rail">
+        <div class="profile">
+          <div class="p-ava">YA</div>
+          <div class="p-name">Yasir Ahmad Noori</div>
+          <div class="p-handle">@yasirnoori</div>
+          <div class="online"><span class="pip"></span>線上 Online</div>
+          <div class="p-meta"><span>加入 Joined 2026/8/20</span><span>07:20 UTC</span></div>
+        </div>
+
+        <h4>Sprint 14 進度 <span class="en">progress</span></h4>
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 64 64" aria-hidden="true">
+            <circle class="ring-bg" cx="32" cy="32" r="26" fill="none" stroke-width="8"/>
+            <circle class="fg" cx="32" cy="32" r="26" fill="none" stroke-width="8"
+              stroke-linecap="round" stroke-dasharray="163.4 63" transform="rotate(-90 32 32)"/>
+          </svg>
+          <div class="ring-txt"><b>71% 已完成</b>Sprint 14 · 週期 Cycle</div>
+        </div>
+        <div class="days-left">剩餘 6 天 · 結束 11/16</div>
+
+        <h4>即將到來 <span class="en">Upcoming</span></h4>
+        <div class="up-item"><span class="tick">•</span><span>Sprint 14 檢視會議 <span class="en">review</span></span><span class="when">今日 3:00 PM</span></div>
+        <div class="up-item"><span class="tick">•</span><span>客戶 CRM 演示 <span class="en">Client CRM demo</span></span><span class="when">週四 10:30 AM</span></div>
+        <div class="up-item"><span class="tick">•</span><span>團隊站會 <span class="en">Team standup</span></span><span class="when">每日 9:30 AM</span></div>
+
+        <div class="recap-card">
+          <h5>您的一週摘要 <span class="en">Your week, summarized</span></h5>
+          <p>已關閉 6 項、今日到期 2 項。在站會前快速回顧本週。 <span class="en">6 items closed and 2 due today.</span></p>
+          <button class="btn btn-primary btn-sm" id="btn-recap" type="button">+ 產生摘要 <span class="en">Generate recap</span></button>
+          <div class="later">稍後 Later</div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Notifications popover (bell icon) -->
+    <div class="notif-pop" id="notif-pop" role="menu" aria-label="通知 Notifications">
+      <div class="notif-head">
+        <h4>通知 <span class="en">Notifications</span></h4>
+        <button class="mark-read" id="btn-read" type="button">全部標記已讀 <span class="en">Mark all read</span></button>
+      </div>
+      <div class="notif-item unread">
+        <span class="m-ava">YA</span>
+        <span class="n-txt">您將 alexsmith 指派至 JAK-39</span>
+        <span class="n-when">5m</span>
+      </div>
+      <div class="notif-item unread">
+        <span class="m-ava">JD</span>
+        <span class="n-txt">Jon D. 留言於 JAK-41</span>
+        <span class="n-when">34m</span>
+      </div>
+      <div class="notif-item">
+        <span class="m-ava">BK</span>
+        <span class="n-txt">Ben K. 已完成 JAK-27</span>
+        <span class="n-when">1h</span>
+      </div>
+      <div class="notif-item">
+        <span class="m-ava">SM</span>
+        <span class="n-txt">Sara M. 搬移留存目標 Retention objective</span>
+        <span class="n-when">2h</span>
+      </div>
+    </div>
+
+    <!-- New work item dialog -->
+    <div class="overlay" id="overlay-new" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+      <form class="dialog" id="form-new">
+        <div class="dlg-head">
+          <h2 id="dlg-title">新增工作項目 <span class="en">New work item</span></h2>
+          <button class="dlg-close" id="dlg-close" type="button" aria-label="關閉 Close">×</button>
+        </div>
+        <div class="field">
+          <label for="f-title">標題 <span class="en">Title</span></label>
+          <input id="f-title" type="text" placeholder="輸入項目標題 e.g. 設計審查 Design review" required />
+        </div>
+        <div class="dlg-row">
+          <div class="field">
+            <label for="f-project">專案 <span class="en">Project</span></label>
+            <select id="f-project">
+              <option>JunAiKey Core</option>
+              <option>付款 Payments</option>
+              <option>文件 Docs</option>
+              <option>JunAiKey Web</option>
+              <option>招募 Hiring</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-assignee">負責人 <span class="en">Assignee</span></label>
+            <select id="f-assignee">
+              <option value="YA">您 You</option>
+              <option value="JD">Jon D.</option>
+              <option value="PR">Priya</option>
+              <option value="AL">Alex</option>
+              <option value="BK">Ben K.</option>
+              <option value="SM">Sara M.</option>
+            </select>
+          </div>
+        </div>
+        <div class="dlg-row">
+          <div class="field">
+            <label for="f-status">狀態 <span class="en">Status</span></label>
+            <select id="f-status">
+              <option value="todo">待辦 To do</option>
+              <option value="progress">進行中 In progress</option>
+              <option value="review">審查中 In review</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-due">到期日 <span class="en">Due date</span></label>
+            <input id="f-due" type="date" />
+          </div>
+        </div>
+        <div class="dlg-actions">
+          <button class="btn btn-secondary" id="btn-cancel" type="button">取消 Cancel</button>
+          <button class="btn btn-primary" type="submit">建立 Create</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      /* ---------- Toast system ---------- */
+      const toastArea = document.createElement('div');
+      toastArea.className = 'toast-area';
+      toastArea.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toastArea);
+      function toast(msg, kind) {
+        const t = document.createElement('div');
+        t.className = 'toast' + (kind ? ' ' + kind : '');
+        t.textContent = msg;
+        toastArea.appendChild(t);
+        setTimeout(() => t.remove(), 2600);
+      }
+
+      /* ---------- 1. Main tabs ---------- */
+      const tabs = Array.from(document.querySelectorAll('.tab'));
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+          tab.setAttribute('aria-selected', 'true');
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+          document.getElementById(tab.dataset.panel).classList.add('show');
+        });
+        tab.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+            next.focus(); next.click();
+          }
+        });
+      });
+
+      /* ---------- 2. Search: live filter with match count & empty states ---------- */
+      const searchInput = document.querySelector('.search input');
+      const searchHint = document.getElementById('search-hint');
+      function applySearch() {
+        const q = searchInput.value.trim().toLowerCase();
+        let total = 0;
+        document.querySelectorAll('.act, .lane, .item-row').forEach(row => {
+          const show = !q || row.textContent.toLowerCase().includes(q);
+          row.style.display = show ? '' : 'none';
+          if (show) total++;
+        });
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+          const rows = panel.querySelectorAll('.act, .lane, .item-row');
+          const visible = Array.from(rows).filter(r => r.style.display !== 'none').length;
+          const empty = panel.querySelector('.empty-state');
+          if (empty) empty.classList.toggle('show', !!q && rows.length > 0 && visible === 0);
+        });
+        searchHint.textContent = q ? ('顯示 Displaying ' + total + ' 項 · 符合 matching "' + searchInput.value.trim() + '"') : '';
+        searchHint.classList.toggle('show', !!q);
+      }
+      searchInput.addEventListener('input', applySearch);
+      searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') toast(searchInput.value.trim() ? '顯示「' + searchInput.value.trim() + '」的搜尋結果 Showing results' : '請輸入搜尋關鍵字 Please enter a keyword', searchInput.value.trim() ? 'success' : 'warning');
+      });
+
+      /* ---------- 3. Icon rail (single-select with linked actions) ---------- */
+      const railBtns = Array.from(document.querySelectorAll('.rail-btn'));
+      const notifPop = document.getElementById('notif-pop');
+      railBtns.forEach(btn => btn.addEventListener('click', e => {
+        if (btn.title.indexOf('通知') === 0) {
+          e.stopPropagation();
+          notifPop.classList.toggle('open');
+          railBtns.forEach(b => { if (b.title.indexOf('工作區') !== 0) b.classList.remove('active'); });
+          btn.classList.toggle('active');
+          return;
+        }
+        railBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.title.indexOf('搜尋') === 0) { searchInput.focus(); toast('已聚焦搜尋框 Search focused', 'success'); return; }
+        if (btn.title.indexOf('首頁') === 0) {
+          const firstBlock = document.querySelector('.side-block');
+          firstBlock.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+          const homeBtn = firstBlock.querySelector('.nav-item');
+          if (homeBtn) homeBtn.classList.add('active');
+          toast('已返回首頁 Home opened', 'success');
+          return;
+        }
+        toast('已開啟：' + btn.title);
+      }));
+
+      /* ---------- 4. Sidebar navigation ---------- */
+      document.querySelectorAll('.side-block').forEach(block => {
+        const items = Array.from(block.querySelectorAll('.nav-item'));
+        items.forEach(item => item.addEventListener('click', () => {
+          const sub = item.nextElementSibling;
+          if (sub && sub.classList.contains('subnav')) {
+            /* Collapse / expand the group (JunAiKey Core) */
+            sub.classList.toggle('collapsed');
+            const caret = item.querySelector('.caret');
+            if (caret) caret.textContent = sub.classList.contains('collapsed') ? '▶' : '▼';
+            toast(sub.classList.contains('collapsed') ? '已收合 JunAiKey Core' : '已展開 JunAiKey Core');
+            return;
+          }
+          if (item.querySelector('.caret')) { toast('已開啟選單：' + item.textContent.trim().replace(/\s+/g, ' ')); return; }
+          items.forEach(s => s.classList.remove('active'));
+          item.classList.add('active');
+        }));
+      });
+
+      /* ---------- 5. Topbar + trial actions (data-action based) ---------- */
+      const actionMsgs = {
+        export: '匯出已啟動，報表稍後下載 Export started',
+        share: '分享連結已複製 Share link copied',
+        invite: '邀請視窗已開啟 Invite dialog opened',
+        upgrade: '升級方案已開啟 Upgrade plans · 試用倒數 7 天'
+      };
+      document.querySelectorAll('[data-action]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const msg = actionMsgs[btn.dataset.action];
+          if (btn.dataset.action === 'share') {
+            try { navigator.clipboard && navigator.clipboard.writeText('https://junaikey.example/your-work'); } catch (e) {}
+            toast(msg, 'success'); return;
+          }
+          toast(msg, btn.dataset.action === 'upgrade' ? 'warning' : 'success');
+        }));
+
+      /* ---------- 6. New work item dialog ---------- */
+      const overlayNew = document.getElementById('overlay-new');
+      const formNew = document.getElementById('form-new');
+      const fTitle = document.getElementById('f-title');
+      document.querySelector('.new-item').addEventListener('click', () => {
+        overlayNew.classList.add('open');
+        setTimeout(() => fTitle.focus(), 30);
+        toast('新增工作項目視窗已開啟 New work item dialog opened');
+      });
+      function closeNew() { overlayNew.classList.remove('open'); formNew.reset(); }
+      document.getElementById('dlg-close').addEventListener('click', closeNew);
+      document.getElementById('btn-cancel').addEventListener('click', closeNew);
+      overlayNew.addEventListener('click', e => { if (e.target === overlayNew) closeNew(); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeNew(); notifPop.classList.remove('open'); }
+      });
+      function esc(s) { return s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;'); }
+      let jakSeq = 53;
+      const statusMap = { todo: '待辦', progress: '進行中', review: '審查中' };
+      formNew.addEventListener('submit', e => {
+        e.preventDefault();
+        const title = fTitle.value.trim();
+        if (!title) { toast('請輸入項目標題 Title is required', 'warning'); fTitle.focus(); return; }
+        const project = document.getElementById('f-project').value;
+        const av = document.getElementById('f-assignee').value;
+        const stVal = document.getElementById('f-status').value;
+        const due = document.getElementById('f-due').value;
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML =
+          '<span class="i-ava">' + av + '</span>' +
+          '<span class="i-title"><span class="ref">JAK-' + (jakSeq++) + '</span> ' + esc(title) + '</span>' +
+          '<span class="i-proj">' + esc(project) + '</span>' +
+          '<span class="status ' + stVal + '">' + statusMap[stVal] + '</span>' +
+          '<span class="i-due">' + (due ? due.replaceAll('-', '/') : '未設定 None') + '</span>';
+        const createdCard = document.getElementById('p-created').querySelector('.card');
+        createdCard.querySelector('h3').insertAdjacentElement('afterend', row);
+        const kpiBig = document.querySelector('#p-summary .kpi .big');
+        kpiBig.textContent = String(Number(kpiBig.textContent) + 1);
+        closeNew();
+        toast('已建立工作項目 Work item created：' + title, 'success');
+      });
+
+      /* ---------- 6b. Notifications: mark all read ---------- */
+      document.getElementById('btn-read').addEventListener('click', () => {
+        notifPop.querySelectorAll('.notif-item').forEach(n => n.classList.remove('unread'));
+        toast('全部通知已標記為已讀 All notifications marked as read', 'success');
+      });
+
+      /* ---------- 7. Recap card: generate / dismiss ---------- */      const recapCard = document.querySelector('.recap-card');
+      document.getElementById('btn-recap').addEventListener('click', () => {
+        recapCard.innerHTML =
+          '<h5>您的一週摘要 <span class="en">Your week, summarized</span></h5>' +
+          '<p>已建立 15 項 · 已指派 12 項 · 追蹤 20 項。已關閉 6 項、今日到期 2 項。Priya 可能需要支援：完成率 8%，低於 70% 目標。</p>' +
+          '<span class="later" id="btn-dismiss">關閉 Dismiss</span>';
+        recapCard.style.borderStyle = 'solid';
+        recapCard.style.borderColor = 'var(--primary)';
+        document.getElementById('btn-dismiss').addEventListener('click', () => {
+          recapCard.style.display = 'none';
+          toast('摘要已關閉 Recap dismissed', 'success');
+        });
+        toast('已由 JunAiKey AI 產生摘要 Recap generated', 'success');
+      });
+      recapCard.querySelector('.later').addEventListener('click', () => {
+        recapCard.style.display = 'none';
+        toast('摘要卡片已關閉 Recap card dismissed');
+      });
+
+      /* ---------- 8. Upcoming events ---------- */
+      document.querySelectorAll('.up-item').forEach(item =>
+        item.addEventListener('click', () =>
+          toast(item.textContent.trim().replace(/\s+/g, ' ') + ' · 活動詳情已開啟 Event details opened')));
+
+      /* ---------- 9. Keyboard shortcut: "/" focuses search ---------- */
+      document.addEventListener('keydown', e => {
+        if (e.key === '/' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+
+      /* ---------- 10. Date range chip: cycle ranges ---------- */
+      const ranges = [
+        { zh: '最近 7 天', en: 'Last 7 days' },
+        { zh: '最近 30 天', en: 'Last 30 days' },
+        { zh: '全部時間', en: 'All time' }
+      ];
+      const chipRange = document.getElementById('chip-range');
+      let rangeIdx = 0;
+      chipRange.addEventListener('click', () => {
+        rangeIdx = (rangeIdx + 1) % ranges.length;
+        chipRange.innerHTML = ranges[rangeIdx].zh + ' <span class="en">' + ranges[rangeIdx].en + '</span> ▾';
+        toast('已套用日期範圍 Date range applied：' + ranges[rangeIdx].zh + ' ' + ranges[rangeIdx].en, 'success');
+      });
+
+      /* ---------- 11. Advanced filter popover ---------- */
+      const chipFilter = document.getElementById('chip-filter');
+      const filterPop = document.getElementById('filter-pop');
+      chipFilter.addEventListener('click', e => {
+        e.stopPropagation();
+        filterPop.classList.toggle('open');
+      });
+      filterPop.addEventListener('click', e => e.stopPropagation());
+      filterPop.querySelectorAll('input').forEach(cb => cb.addEventListener('change', () => {
+        const on = filterPop.querySelectorAll('input:checked').length;
+        toast('篩選條件已更新 Filter updated：' + on + ' 項啟用 enabled', 'success');
+      }));
+
+      /* ---------- 12. Avatar account menu ---------- */
+      const avatarBtn = document.getElementById('avatar-btn');
+      const avatarMenu = document.getElementById('avatar-menu');
+      avatarBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        avatarMenu.classList.toggle('open');
+      });
+      avatarMenu.addEventListener('click', e => e.stopPropagation());
+      avatarMenu.querySelectorAll('.menu-item').forEach(mi => mi.addEventListener('click', () => {
+        avatarMenu.classList.remove('open');
+        const isSignout = mi.classList.contains('danger');
+        toast(isSignout ? '已登出 Signed out · 感謝使用 JunAiKey' : '已開啟 Opened：' + mi.textContent.trim().replace(/\s+/g, ' '), isSignout ? 'warning' : 'success');
+      }));
+      document.addEventListener('click', e => {
+        if (!avatarMenu.contains(e.target) && e.target !== avatarBtn) avatarMenu.classList.remove('open');
+        if (!filterPop.contains(e.target) && e.target !== chipFilter) filterPop.classList.remove('open');
+        if (!notifPop.contains(e.target)) notifPop.classList.remove('open');
+      });
+
+      /* ---------- 13. Theme toggle (light / dark) ---------- */
+      const themeToggle = document.getElementById('theme-toggle');
+      const iconMoon = document.getElementById('icon-moon');
+      const iconSun = document.getElementById('icon-sun');
+      function setTheme(dark) {
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        themeToggle.setAttribute('aria-pressed', String(dark));
+        iconMoon.style.display = dark ? 'none' : 'block';
+        iconSun.style.display = dark ? 'block' : 'none';
+        try { localStorage.setItem('junaikey-theme', dark ? 'dark' : 'light'); } catch (err) {}
+      }
+      let darkSaved = false;
+      try { darkSaved = localStorage.getItem('junaikey-theme') === 'dark'; } catch (err) {}
+      setTheme(darkSaved);
+      themeToggle.addEventListener('click', () => {
+        const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+        setTheme(dark);
+        toast(dark ? '深色模式已開啟 Dark mode on' : '淺色模式已開啟 Light mode on', 'success');
+      });
+    </script>
+  </body>
+</html>
