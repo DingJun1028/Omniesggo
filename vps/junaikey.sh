@@ -53,7 +53,8 @@ superpowers_track() {
   fi
   if ! echo "start,done,blocked,skipped" | grep -qw "$status"; then
     echo "[junaikey] ✗ 未知狀態: $status。合法值: start,done,blocked,skipped" >&2
-    return 2
+  
+  return 2
   fi
   node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" trackSuperPowersStage "$stage" "$status" --source="$source" --sourceOrigin="$sourceOrigin" --notes="$notes" </dev/null
 }
@@ -69,6 +70,27 @@ superpowers_reset() {
 }
 
 # --- 執行 ---
+JUNAKEY_BACKEND_FLAG=""
+JUNAKEY_BACKEND_OVERRIDE=""
+
+for arg in "$@"; do
+  case "$arg" in
+    --backend=*)
+      JUNAKEY_BACKEND_OVERRIDE="${arg#*=}"
+      ;;
+    --clear-cache)
+      JUNAKEY_BACKEND_FLAG="--clear-cache"
+      ;;
+    *)
+      ;;
+  esac
+done
+
+# 預設: auto（NCB 憑證就緒且健康則 ncb，否則 local fallback）
+if [ -z "$JUNAKEY_BACKEND_OVERRIDE" ]; then
+  JUNAKEY_BACKEND_OVERRIDE="auto"
+fi
+
 case "${1:-}" in
   superpowers)
     if [[ $# -lt 2 ]]; then
@@ -85,10 +107,12 @@ case "${1:-}" in
     superpowers_reset
     ;;
   *)
-    # 預設: 傳遞給 junaikey.mjs
-    exec node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
+    # 預設: 傳遞給 junaikey.mjs, 並強制指定 backend
+    if [ -n "$JUNAKEY_BACKEND_FLAG" ]; then
+      exec env JUNAKEY_BACKEND="$JUNAKEY_BACKEND_OVERRIDE" node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
+    else
+      # 傳遞已經有 backend flag 的情況已經由上面處理
+      exec env JUNAKEY_BACKEND="$JUNAKEY_BACKEND_OVERRIDE" node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
+    fi
     ;;
 esac
-
-# 關鍵: 使用 </dev/null 作為輸出重定向, 絕不可將 </dev/null 作為變數值傳遞
-exec node --env-file="$SECRET_VAULT" "$JUNAIKEY_MJS" "$@" </dev/null
