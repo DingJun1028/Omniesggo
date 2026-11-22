@@ -908,3 +908,352 @@ body {
       </aside>
     </div>
 
+    <!-- Notifications popover (bell icon) -->
+    <div class="notif-pop" id="notif-pop" role="menu" aria-label="通知 Notifications">
+      <div class="notif-head">
+        <h4>通知 <span class="en">Notifications</span></h4>
+        <button class="mark-read" id="btn-read" type="button">全部標記已讀 <span class="en">Mark all read</span></button>
+      </div>
+      <div class="notif-item unread">
+        <span class="m-ava">YA</span>
+        <span class="n-txt">您將 alexsmith 指派至 JAK-39</span>
+        <span class="n-when">5m</span>
+      </div>
+      <div class="notif-item unread">
+        <span class="m-ava">JD</span>
+        <span class="n-txt">Jon D. 留言於 JAK-41</span>
+        <span class="n-when">34m</span>
+      </div>
+      <div class="notif-item">
+        <span class="m-ava">BK</span>
+        <span class="n-txt">Ben K. 已完成 JAK-27</span>
+        <span class="n-when">1h</span>
+      </div>
+      <div class="notif-item">
+        <span class="m-ava">SM</span>
+        <span class="n-txt">Sara M. 搬移留存目標 Retention objective</span>
+        <span class="n-when">2h</span>
+      </div>
+    </div>
+
+    <!-- New work item dialog -->
+    <div class="overlay" id="overlay-new" role="dialog" aria-modal="true" aria-labelledby="dlg-title">
+      <form class="dialog" id="form-new">
+        <div class="dlg-head">
+          <h2 id="dlg-title">新增工作項目 <span class="en">New work item</span></h2>
+          <button class="dlg-close" id="dlg-close" type="button" aria-label="關閉 Close">×</button>
+        </div>
+        <div class="field">
+          <label for="f-title">標題 <span class="en">Title</span></label>
+          <input id="f-title" type="text" placeholder="輸入項目標題 e.g. 設計審查 Design review" required />
+        </div>
+        <div class="dlg-row">
+          <div class="field">
+            <label for="f-project">專案 <span class="en">Project</span></label>
+            <select id="f-project">
+              <option>JunAiKey Core</option>
+              <option>付款 Payments</option>
+              <option>文件 Docs</option>
+              <option>JunAiKey Web</option>
+              <option>招募 Hiring</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-assignee">負責人 <span class="en">Assignee</span></label>
+            <select id="f-assignee">
+              <option value="YA">您 You</option>
+              <option value="JD">Jon D.</option>
+              <option value="PR">Priya</option>
+              <option value="AL">Alex</option>
+              <option value="BK">Ben K.</option>
+              <option value="SM">Sara M.</option>
+            </select>
+          </div>
+        </div>
+        <div class="dlg-row">
+          <div class="field">
+            <label for="f-status">狀態 <span class="en">Status</span></label>
+            <select id="f-status">
+              <option value="todo">待辦 To do</option>
+              <option value="progress">進行中 In progress</option>
+              <option value="review">審查中 In review</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-due">到期日 <span class="en">Due date</span></label>
+            <input id="f-due" type="date" />
+          </div>
+        </div>
+        <div class="dlg-actions">
+          <button class="btn btn-secondary" id="btn-cancel" type="button">取消 Cancel</button>
+          <button class="btn btn-primary" type="submit">建立 Create</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      /* ---------- Toast system ---------- */
+      const toastArea = document.createElement('div');
+      toastArea.className = 'toast-area';
+      toastArea.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toastArea);
+      function toast(msg, kind) {
+        const t = document.createElement('div');
+        t.className = 'toast' + (kind ? ' ' + kind : '');
+        t.textContent = msg;
+        toastArea.appendChild(t);
+        setTimeout(() => t.remove(), 2600);
+      }
+
+      /* ---------- 1. Main tabs ---------- */
+      const tabs = Array.from(document.querySelectorAll('.tab'));
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+          tab.setAttribute('aria-selected', 'true');
+          document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('show'));
+          document.getElementById(tab.dataset.panel).classList.add('show');
+        });
+        tab.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+            const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+            next.focus(); next.click();
+          }
+        });
+      });
+
+      /* ---------- 2. Search: live filter with match count & empty states ---------- */
+      const searchInput = document.querySelector('.search input');
+      const searchHint = document.getElementById('search-hint');
+      function applySearch() {
+        const q = searchInput.value.trim().toLowerCase();
+        let total = 0;
+        document.querySelectorAll('.act, .lane, .item-row').forEach(row => {
+          const show = !q || row.textContent.toLowerCase().includes(q);
+          row.style.display = show ? '' : 'none';
+          if (show) total++;
+        });
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+          const rows = panel.querySelectorAll('.act, .lane, .item-row');
+          const visible = Array.from(rows).filter(r => r.style.display !== 'none').length;
+          const empty = panel.querySelector('.empty-state');
+          if (empty) empty.classList.toggle('show', !!q && rows.length > 0 && visible === 0);
+        });
+        searchHint.textContent = q ? ('顯示 Displaying ' + total + ' 項 · 符合 matching "' + searchInput.value.trim() + '"') : '';
+        searchHint.classList.toggle('show', !!q);
+      }
+      searchInput.addEventListener('input', applySearch);
+      searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') toast(searchInput.value.trim() ? '顯示「' + searchInput.value.trim() + '」的搜尋結果 Showing results' : '請輸入搜尋關鍵字 Please enter a keyword', searchInput.value.trim() ? 'success' : 'warning');
+      });
+
+      /* ---------- 3. Icon rail (single-select with linked actions) ---------- */
+      const railBtns = Array.from(document.querySelectorAll('.rail-btn'));
+      const notifPop = document.getElementById('notif-pop');
+      railBtns.forEach(btn => btn.addEventListener('click', e => {
+        if (btn.title.indexOf('通知') === 0) {
+          e.stopPropagation();
+          notifPop.classList.toggle('open');
+          railBtns.forEach(b => { if (b.title.indexOf('工作區') !== 0) b.classList.remove('active'); });
+          btn.classList.toggle('active');
+          return;
+        }
+        railBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (btn.title.indexOf('搜尋') === 0) { searchInput.focus(); toast('已聚焦搜尋框 Search focused', 'success'); return; }
+        if (btn.title.indexOf('首頁') === 0) {
+          const firstBlock = document.querySelector('.side-block');
+          firstBlock.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+          const homeBtn = firstBlock.querySelector('.nav-item');
+          if (homeBtn) homeBtn.classList.add('active');
+          toast('已返回首頁 Home opened', 'success');
+          return;
+        }
+        toast('已開啟：' + btn.title);
+      }));
+
+      /* ---------- 4. Sidebar navigation ---------- */
+      document.querySelectorAll('.side-block').forEach(block => {
+        const items = Array.from(block.querySelectorAll('.nav-item'));
+        items.forEach(item => item.addEventListener('click', () => {
+          const sub = item.nextElementSibling;
+          if (sub && sub.classList.contains('subnav')) {
+            /* Collapse / expand the group (JunAiKey Core) */
+            sub.classList.toggle('collapsed');
+            const caret = item.querySelector('.caret');
+            if (caret) caret.textContent = sub.classList.contains('collapsed') ? '▶' : '▼';
+            toast(sub.classList.contains('collapsed') ? '已收合 JunAiKey Core' : '已展開 JunAiKey Core');
+            return;
+          }
+          if (item.querySelector('.caret')) { toast('已開啟選單：' + item.textContent.trim().replace(/\s+/g, ' ')); return; }
+          items.forEach(s => s.classList.remove('active'));
+          item.classList.add('active');
+        }));
+      });
+
+      /* ---------- 5. Topbar + trial actions (data-action based) ---------- */
+      const actionMsgs = {
+        export: '匯出已啟動，報表稍後下載 Export started',
+        share: '分享連結已複製 Share link copied',
+        invite: '邀請視窗已開啟 Invite dialog opened',
+        upgrade: '升級方案已開啟 Upgrade plans · 試用倒數 7 天'
+      };
+      document.querySelectorAll('[data-action]').forEach(btn =>
+        btn.addEventListener('click', () => {
+          const msg = actionMsgs[btn.dataset.action];
+          if (btn.dataset.action === 'share') {
+            try { navigator.clipboard && navigator.clipboard.writeText('https://junaikey.example/your-work'); } catch (e) {}
+            toast(msg, 'success'); return;
+          }
+          toast(msg, btn.dataset.action === 'upgrade' ? 'warning' : 'success');
+        }));
+
+      /* ---------- 6. New work item dialog ---------- */
+      const overlayNew = document.getElementById('overlay-new');
+      const formNew = document.getElementById('form-new');
+      const fTitle = document.getElementById('f-title');
+      document.querySelector('.new-item').addEventListener('click', () => {
+        overlayNew.classList.add('open');
+        setTimeout(() => fTitle.focus(), 30);
+        toast('新增工作項目視窗已開啟 New work item dialog opened');
+      });
+      function closeNew() { overlayNew.classList.remove('open'); formNew.reset(); }
+      document.getElementById('dlg-close').addEventListener('click', closeNew);
+      document.getElementById('btn-cancel').addEventListener('click', closeNew);
+      overlayNew.addEventListener('click', e => { if (e.target === overlayNew) closeNew(); });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') { closeNew(); notifPop.classList.remove('open'); }
+      });
+      function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+      let jakSeq = 53;
+      const statusMap = { todo: '待辦', progress: '進行中', review: '審查中' };
+      formNew.addEventListener('submit', e => {
+        e.preventDefault();
+        const title = fTitle.value.trim();
+        if (!title) { toast('請輸入項目標題 Title is required', 'warning'); fTitle.focus(); return; }
+        const project = document.getElementById('f-project').value;
+        const av = document.getElementById('f-assignee').value;
+        const stVal = document.getElementById('f-status').value;
+        const due = document.getElementById('f-due').value;
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML =
+          '<span class="i-ava">' + av + '</span>' +
+          '<span class="i-title"><span class="ref">JAK-' + (jakSeq++) + '</span> ' + esc(title) + '</span>' +
+          '<span class="i-proj">' + esc(project) + '</span>' +
+          '<span class="status ' + stVal + '">' + statusMap[stVal] + '</span>' +
+          '<span class="i-due">' + (due ? due.replace(/-/g, '/') : '未設定 None') + '</span>';
+        const createdCard = document.getElementById('p-created').querySelector('.card');
+        createdCard.querySelector('h3').insertAdjacentElement('afterend', row);
+        const kpiBig = document.querySelector('#p-summary .kpi .big');
+        kpiBig.textContent = String(Number(kpiBig.textContent) + 1);
+        closeNew();
+        toast('已建立工作項目 Work item created：' + title, 'success');
+      });
+
+      /* ---------- 6b. Notifications: mark all read ---------- */
+      document.getElementById('btn-read').addEventListener('click', () => {
+        notifPop.querySelectorAll('.notif-item').forEach(n => n.classList.remove('unread'));
+        toast('全部通知已標記為已讀 All notifications marked as read', 'success');
+      });
+
+      /* ---------- 7. Recap card: generate / dismiss ---------- */      const recapCard = document.querySelector('.recap-card');
+      document.getElementById('btn-recap').addEventListener('click', () => {
+        recapCard.innerHTML =
+          '<h5>您的一週摘要 <span class="en">Your week, summarized</span></h5>' +
+          '<p>已建立 15 項 · 已指派 12 項 · 追蹤 20 項。已關閉 6 項、今日到期 2 項。Priya 可能需要支援：完成率 8%，低於 70% 目標。</p>' +
+          '<span class="later" id="btn-dismiss">關閉 Dismiss</span>';
+        recapCard.style.borderStyle = 'solid';
+        recapCard.style.borderColor = 'var(--primary)';
+        document.getElementById('btn-dismiss').addEventListener('click', () => {
+          recapCard.style.display = 'none';
+          toast('摘要已關閉 Recap dismissed', 'success');
+        });
+        toast('已由 JunAiKey AI 產生摘要 Recap generated', 'success');
+      });
+      recapCard.querySelector('.later').addEventListener('click', () => {
+        recapCard.style.display = 'none';
+        toast('摘要卡片已關閉 Recap card dismissed');
+      });
+
+      /* ---------- 8. Upcoming events ---------- */
+      document.querySelectorAll('.up-item').forEach(item =>
+        item.addEventListener('click', () =>
+          toast(item.textContent.trim().replace(/\s+/g, ' ') + ' · 活動詳情已開啟 Event details opened')));
+
+      /* ---------- 9. Keyboard shortcut: "/" focuses search ---------- */
+      document.addEventListener('keydown', e => {
+        if (e.key === '/' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) {
+          e.preventDefault();
+          searchInput.focus();
+        }
+      });
+
+      /* ---------- 10. Date range chip: cycle ranges ---------- */
+      const ranges = [
+        { zh: '最近 7 天', en: 'Last 7 days' },
+        { zh: '最近 30 天', en: 'Last 30 days' },
+        { zh: '全部時間', en: 'All time' }
+      ];
+      const chipRange = document.getElementById('chip-range');
+      let rangeIdx = 0;
+      chipRange.addEventListener('click', () => {
+        rangeIdx = (rangeIdx + 1) % ranges.length;
+        chipRange.innerHTML = ranges[rangeIdx].zh + ' <span class="en">' + ranges[rangeIdx].en + '</span> ▾';
+        toast('已套用日期範圍 Date range applied：' + ranges[rangeIdx].zh + ' ' + ranges[rangeIdx].en, 'success');
+      });
+
+      /* ---------- 11. Advanced filter popover ---------- */
+      const chipFilter = document.getElementById('chip-filter');
+      const filterPop = document.getElementById('filter-pop');
+      chipFilter.addEventListener('click', e => {
+        e.stopPropagation();
+        filterPop.classList.toggle('open');
+      });
+      filterPop.addEventListener('click', e => e.stopPropagation());
+      filterPop.querySelectorAll('input').forEach(cb => cb.addEventListener('change', () => {
+        const on = filterPop.querySelectorAll('input:checked').length;
+        toast('篩選條件已更新 Filter updated：' + on + ' 項啟用 enabled', 'success');
+      }));
+
+      /* ---------- 12. Avatar account menu ---------- */
+      const avatarBtn = document.getElementById('avatar-btn');
+      const avatarMenu = document.getElementById('avatar-menu');
+      avatarBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        avatarMenu.classList.toggle('open');
+      });
+      avatarMenu.addEventListener('click', e => e.stopPropagation());
+      avatarMenu.querySelectorAll('.menu-item').forEach(mi => mi.addEventListener('click', () => {
+        avatarMenu.classList.remove('open');
+        const isSignout = mi.classList.contains('danger');
+        toast(isSignout ? '已登出 Signed out · 感謝使用 JunAiKey' : '已開啟 Opened：' + mi.textContent.trim().replace(/\s+/g, ' '), isSignout ? 'warning' : 'success');
+      }));
+      document.addEventListener('click', e => {
+        if (!avatarMenu.contains(e.target) && e.target !== avatarBtn) avatarMenu.classList.remove('open');
+        if (!filterPop.contains(e.target) && e.target !== chipFilter) filterPop.classList.remove('open');
+        if (!notifPop.contains(e.target)) notifPop.classList.remove('open');
+      });
+
+      /* ---------- 13. Theme toggle (light / dark) ---------- */
+      const themeToggle = document.getElementById('theme-toggle');
+      const iconMoon = document.getElementById('icon-moon');
+      const iconSun = document.getElementById('icon-sun');
+      function setTheme(dark) {
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        themeToggle.setAttribute('aria-pressed', String(dark));
+        iconMoon.style.display = dark ? 'none' : 'block';
+        iconSun.style.display = dark ? 'block' : 'none';
+        try { localStorage.setItem('junaikey-theme', dark ? 'dark' : 'light'); } catch (err) {}
+      }
+      let darkSaved = false;
+      try { darkSaved = localStorage.getItem('junaikey-theme') === 'dark'; } catch (err) {}
+      setTheme(darkSaved);
+      themeToggle.addEventListener('click', () => {
+        const dark = document.documentElement.getAttribute('data-theme') !== 'dark';
+        setTheme(dark);
+        toast(dark ? '深色模式已開啟 Dark mode on' : '淺色模式已開啟 Light mode on', 'success');
+      });
+    </script>
+  </body>
+</html>
