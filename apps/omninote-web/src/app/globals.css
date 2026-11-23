@@ -93,6 +93,10 @@ body {
   color: var(--danger);
   background: rgba(238, 119, 119, 0.12);
 }
+/* JunAiKey .filter-chip 語意延伸 Semantic extensions（選中態，色彩由代幣衍生 selected states derive from tokens） */
+.filter-chip.chip-on { color: var(--primary); background: var(--primary-soft); border-color: var(--primary); }
+.filter-chip.chip-on-success { color: var(--success); background: rgba(88, 201, 111, 0.12); border-color: var(--success); }
+.filter-chip.chip-on-warning { color: var(--warning); background: rgba(217, 178, 60, 0.12); border-color: var(--warning); }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
