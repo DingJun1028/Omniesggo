@@ -49,4 +49,15 @@ jobs:
 
       - name: 🧪 執行明暗雙規格三視口 E2E
         # webServer 由 playwright.config.ts 啟動 pnpm run dev @ 127.0.0.1:3000
-        run: playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts
+        run: |
+          set +e
+          playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts --reporter=line > pw-run.log 2>&1
+          code=$?
+          cat pw-run.log
+          exit $code
+
+      - name: 🔍 E2E 失敗摘要 (公開註記)
+        # 匿名不可及原始日誌，故將失敗測試列表以 error 註記公開輸出
+        if: failure()
+        run: |
+          node -e "const t=require('fs').readFileSync('pw-run.log','utf8').split(/\n/);const m=t.filter(l=>/^\s*\d+\)/.test(l)||/^\s*Error:/.test(l)||/webServer|Timed out|browser has been closed/.test(l)).slice(0,10);if(!m.length){console.log('::error title=E2E 失敗摘要::無測試級錯誤行，請檢視原始日誌')}m.forEach(l=>console.log('::error title=E2E 失敗摘要::'+l.trim().slice(0,240)))"
