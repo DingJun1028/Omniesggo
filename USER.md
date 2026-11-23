@@ -1,7 +1,7 @@
-# 廖俊弘（DingJun）使用者檔案
+# 洪鼎竣（DingJun）使用者檔案
 
 ## 基本資料
-- **名稱**：廖俊弘（DingJun / Jun Hong）
+- **名稱**：洪鼎竣（DingJun / Jun Hong）
 - **電子郵件**：dingjunhong1028@gmail.com
 - **GitHub**：DingJun1028
 - **專案**：ESG-GO（Omniesggo）——ESG報表平台、雙語語音工具、30代理群架構
