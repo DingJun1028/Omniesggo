@@ -1,0 +1,67 @@
+name: JunAiKey E2E Visual (Playwright 三視口)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/junaikey-dashboard.html'
+      - 'packages/tailwind-preset/**'
+      - 'e2e/junaikey-dashboard*.spec.ts'
+      - 'playwright.config.ts'
+      - '.github/workflows/junaikey-e2e-visual.yml'
+  pull_request:
+    paths:
+      - 'public/junaikey-dashboard.html'
+      - 'packages/tailwind-preset/**'
+      - 'e2e/junaikey-dashboard*.spec.ts'
+      - 'playwright.config.ts'
+      - '.github/workflows/junaikey-e2e-visual.yml'
+  workflow_dispatch:
+
+jobs:
+  e2e-visual:
+    name: 🎭 JunAiKey E2E Visual (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: 📥 召喚源碼 (Checkout)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - name: ⚙️ 構築結界 (Setup Node.js)
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: 📦 注入依賴 (Install dependencies, frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: 🎭 工作區一次性安裝 Playwright v1.65.1
+        # @playwright/test 不在根依賴：改於本 job 工作區一次性安裝（ephemeral，-w 明示 workspace 根），
+        # 變動僅存於 CI 工作區，不落倉庫 package.json／pnpm-lock.yaml；釘選精確版本。
+        # CLI 以 pnpm exec 呼叫（非 npx，免隨需安裝與其生命週期腳本）。
+        run: |
+          pnpm add -w -D @playwright/test@1.65.1
+          pnpm exec playwright install --with-deps chromium
+
+      - name: 🧪 執行明暗雙規格三視口 E2E
+        # webServer 由 playwright.config.ts 啟動 pnpm run dev @ 127.0.0.1:3000
+        run: |
+          set +e
+          pnpm exec playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts --reporter=line > pw-run.log 2>&1
+          code=$?
+          cat pw-run.log
+          exit $code
+
+      - name: 🔍 E2E 失敗摘要 (公開註記)
+        # 匿名不可及原始日誌，故將失敗測試列表以 error 註記公開輸出
+        if: failure()
+        run: |
+          if [ ! -f pw-run.log ]; then
+            echo "::error title=E2E 失敗摘要::無 pw-run.log（E2E 步驟未執行），請檢視原始日誌"
+            exit 0
+          fi
+          node -e "const t=require('fs').readFileSync('pw-run.log','utf8').split(/\n/);const m=t.filter(l=>/^\s*\d+\)/.test(l)||/^\s*Error:/.test(l)||/webServer|Timed out|browser has been closed|Cannot find module/.test(l)).slice(0,10);if(!m.length){console.log('::error title=E2E 失敗摘要::無測試級錯誤行，請檢視原始日誌')}m.forEach(l=>console.log('::error title=E2E 失敗摘要::'+l.trim().slice(0,240)))"
