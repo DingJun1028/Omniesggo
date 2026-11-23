@@ -1,12 +1,13 @@
 {
   "name": "@esggo/tailwind-preset",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./junaikey-ui": "./src/junaikey-ui.css"
+    "./junaikey-ui": "./src/junaikey-ui.css",
+    "./junaikey-layout": "./src/junaikey-layout.css"
   },
   "peerDependencies": {
     "tailwindcss": "^3.4.19"
