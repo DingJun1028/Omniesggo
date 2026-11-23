@@ -18,6 +18,8 @@ const C_TO_V5: Record<string, number[]> = {
   'C11': [19, 23, 27], 'C12': [14, 26, 28],
 };
 
+export interface CompanyDocumentEvidence { id: string; companyId: string; fileName: string; reportingYear: number | null; uploadedAt: string; mimeType: string; text: string; hashLock: string; }
+
 export interface ExtendedChapterData extends V5ReportChapter {
   questionDetails: ReadonlyArray<{
     questionId: string;
@@ -71,7 +73,7 @@ function escapeHtml(value: unknown): string {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-export async function generateFullV5Report(companyId: string, brandTone: string = 'professional', reportingYear = new Date().getFullYear() - 1): Promise<ExtendedV5Report | null> {
+export async function generateFullV5Report(companyId: string, brandTone: string = 'professional', reportingYear = new Date().getFullYear() - 1, documents: readonly CompanyDocumentEvidence[] = []): Promise<ExtendedV5Report | null> {
   const profile = getCompanyById(companyId);
   if (!profile) return null;
   const allAnswers = getAnswersByCompany(companyId);
@@ -82,6 +84,7 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
   const currentYear = new Date().getFullYear();
   const safeYear = Number.isInteger(reportingYear) && reportingYear >= 2000 && reportingYear <= currentYear ? reportingYear : currentYear - 1;
 
+  const yearDocuments = documents.filter(document => document.companyId === companyId && (document.reportingYear === null || document.reportingYear === safeYear));
   const chapters: ExtendedChapterData[] = [];
   let totalWords = 0;
 
@@ -111,7 +114,7 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
 
     let content = '';
     content += `<h2>第${ch.num}章 ${escapeHtml(ch.title)}</h2>`;
-    content += `<p>${escapeHtml(profile.companyName)}（以下簡稱${escapeHtml(profile.shortName)}），報導期間：${safeYear}年度。資料狀態：試算示範資料（來源資料集為模擬填答，非該公司實際提交）；本章內容僅供流程展示，必須以企業確認的原始單據、數據和說明替換後才可作正式揭露。系統尚無與報導期間綁定的可追溯單據數據，因此不引用示範 profile 的員工、營收、能源或用水數字。5T面向「${escapeHtml(ch.fiveTGate)}」為章節分類，不表示已通過確信。</p>`;
+    content += `<p>${escapeHtml(profile.companyName)}（以下簡稱${escapeHtml(profile.shortName)}），報導期間：${safeYear}年度。題庫填答來源狀態：試算示範資料（模擬填答，非該公司實際提交）；僅下列明確列名附件屬於此公司上傳的文件，其文字仍須權責人覆核。未引用示範 profile 指標。5T面向「${escapeHtml(ch.fiveTGate)}」為章節分類，不表示已通過確信。</p>`;
 
     if (chAnswers.length > 0) {
       for (let i = 0; i < chAnswers.length; i++) {
@@ -157,14 +160,22 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
       if (highlight?.trim()) content += `<h3>報告雛形重點（待公司確認）</h3><p>${escapeHtml(highlight)}</p>`;
     }
 
-    content += '<h3>來源、佐證與覆核狀態</h3>';
-    content += `<p>題庫建議佐證僅作為待提交文件清單。現行資料模型未提供本章實際上傳附件與審核紀錄，因此本章實際附件數為0；不能據此宣稱文件已提交、已查核或已上鏈。</p>`;
+    // Until OCR results carry reviewed topic mappings, attach each uploaded document once to the evidence register chapter.
+    // Other chapters point to the register rather than duplicating or guessing the document's subject.
+    const chapterDocuments = ch.num === 1 ? yearDocuments : [];
+    content += '<h3>公司上傳單據與來源追溯</h3>';
+    if (chapterDocuments.length) {
+      for (const document of chapterDocuments) {
+        content += `<article class="uploaded-evidence"><h4>上傳文件：${escapeHtml(document.fileName)}</h4><p>文件 ID：${escapeHtml(document.id)}；年度：${document.reportingYear ?? '未標記'}；上傳時間：${escapeHtml(document.uploadedAt)}；來源指紋：${escapeHtml(document.hashLock)}</p><blockquote>${escapeHtml(document.text.slice(0, 4000))}</blockquote><p>OCR 擷取文字，尚未人工覆核；不得視為已查證揭露。</p></article>`;
+      }
+    } else {
+      content += '<p class="data-gap">本章尚無符合此公司的已保存上傳附件；題庫佐證要求只是建議文件類別，非已提交單據。</p>';
+    }
+    content += `<p>本章匹配附件數：${chapterDocuments.length}。上傳附件不等同第三方查證或已核准數據。</p>`;
     content += `<p>5T面向：${escapeHtml(ch.fiveTGate)}（分類標籤，非確信結論）。報告內容雜湊：${zkp(content)}。此雜湊僅用於偵測本次輸出是否變動，不代表資料真實性或第三方驗證。</p>`;
 
     const words = countChars(content);
     totalWords += words;
-    // The question bank's `evidence` field is an evidence requirement, not an uploaded file.
-    // Until real attachment records are connected, do not count it as submitted evidence.
 
     chapters.push({
       id: ch.id,
@@ -176,7 +187,7 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
       wordCount: words,
       zkpHash: zkp(content),
       omniTagUuid: `OTG-${String(ch.num).padStart(2,'0')}-${safeYear}-${ch.fiveTGate.toUpperCase()}`,
-      evidenceCount: 0,
+      evidenceCount: chapterDocuments.length,
       questionDetails: questionDetails,
       evidenceGuide,
       griMapping: griImpact?.griMapping || '',
@@ -196,14 +207,14 @@ export async function generateFullV5Report(companyId: string, brandTone: string 
     totalWords,
     totalParagraphs: chapters.reduce((s, c) => s + c.content.split('<p>').length, 0),
     totalOmniTags: chapters.length,
-    totalEvidence: 0,
+    totalEvidence: yearDocuments.length,
     fiveTStatus: { traceable: false, transparent: false, tangible: false, trustworthy: false, trackable: false },
     trinityHash: zkp(String(totalWords) + companyId),
     generatedAt: new Date().toISOString(),
     reportingYear: safeYear,
     reportVersion: '5.1',
     totalQuestions: companyQuestionCount,
-    totalEvidenceItems: 0,
+    totalEvidenceItems: yearDocuments.length,
     targetWords: 280000,
     wordTargetMet: totalWords >= 280000,
     completionRate,

@@ -158,13 +158,19 @@ export default function OmniBasePage() {
   const [health, setHealth] = useState<HealthInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [_actioning, setActioning] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [actioning, setActioning] = useState<string | null>(null);
 
   const fetchPlugins = useCallback(async () => {
     try {
-      const res = await fetch('/api/omni/plugins');
-      if (!res.ok) throw new Error(`Plugin API returned ${res.status}`);
-      const response: unknown = await res.json();
+      const res = await fetch('/api/omni/plugins', { cache: 'no-store' });
+      const response: unknown = await res.json().catch(() => null);
+      if (!res.ok) {
+        const message = response && typeof response === 'object' && 'error' in response
+          ? String(response.error)
+          : `Plugin API returned ${res.status}`;
+        throw new Error(message);
+      }
       // jsonResponse wraps endpoint payloads as { success, data }, while allowing
       // direct payloads too for compatibility with older handlers.
       const envelope = response && typeof response === 'object'
@@ -216,14 +222,26 @@ export default function OmniBasePage() {
   const handleAction = async (id: string, action: string) => {
     try {
       setActioning(id);
-      await fetch('/api/omni/plugins', {
+      setActionError(null);
+      const res = await fetch('/api/omni/plugins', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pluginId: id, action }),
       });
+      const response: unknown = await res.json().catch(() => null);
+      const envelope = response && typeof response === 'object'
+        ? response as { success?: unknown; data?: unknown; error?: unknown }
+        : null;
+      const data = envelope?.data && typeof envelope.data === 'object'
+        ? envelope.data as { success?: unknown; error?: unknown }
+        : envelope;
+      if (!res.ok || !data?.success) {
+        throw new Error(typeof data?.error === 'string' ? data.error : `Plugin action failed (${res.status})`);
+      }
       await fetchPlugins();
     } catch (e) {
-      console.error('Action failed:', e);
+      const message = e instanceof Error ? e.message : String(e);
+      setActionError(message);
     } finally {
       setActioning(null);
     }
@@ -258,6 +276,11 @@ export default function OmniBasePage() {
         </header>
 
         {/* Plugin List */}
+        {actionError && (
+          <div role="alert" style={{ marginBottom: 16, color: SC.error, background: SC.surface, border: `1px solid ${SC.error}66`, borderRadius: 8, padding: 12 }}>
+            外掛操作失敗：{actionError}
+          </div>
+        )}
         {loading ? (
           <div style={{ textAlign: 'center', padding: 48, color: SC.teal }}>
             載入外掛列表中...
@@ -277,12 +300,13 @@ export default function OmniBasePage() {
         ) : pluginList.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {pluginList.map(plugin => (
-              <PluginCard
-                key={plugin.id}
-                plugin={plugin}
-                health={healthList.find(h => h.id === plugin.id)}
-                onAction={handleAction}
-              />
+              <div key={plugin.id} aria-busy={actioning === plugin.id} style={{ opacity: actioning === plugin.id ? 0.65 : 1, pointerEvents: actioning === plugin.id ? 'none' : 'auto' }}>
+                <PluginCard
+                  plugin={plugin}
+                  health={healthList.find(h => h.id === plugin.id)}
+                  onAction={handleAction}
+                />
+              </div>
             ))}
           </div>
         ) : (

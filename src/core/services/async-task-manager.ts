@@ -25,6 +25,7 @@ import {
   setProgressInfo,
   cleanupStaleTasks,
   setTaskReport,
+  listCompanyDocuments,
   type TaskState,
 } from '@lib/redis';
 
@@ -342,7 +343,13 @@ export function startAsyncTask(
     if (chapterIndex >= totalChapters) {
       // Task complete — generate final report
       try {
-        const report = await generateFullV5Report(companyId, 'professional', current.reportingYear ?? new Date().getFullYear() - 1);
+        const reportingYear = current.reportingYear ?? new Date().getFullYear() - 1;
+        const storedDocuments = await listCompanyDocuments(companyId);
+        const report = await generateFullV5Report(companyId, 'professional', reportingYear, storedDocuments.map(({ document, ...metadata }) => ({
+          ...metadata,
+          text: (document as { ocrResult?: { text?: string } }).ocrResult?.text ?? '',
+          hashLock: (document as { hashLock?: string }).hashLock ?? '',
+        })));
         if (!report) throw new Error('無法依公司資料產生報告');
         const completedAt = new Date().toISOString();
         const durationMs = Date.now() - startTime;

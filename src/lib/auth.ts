@@ -5,7 +5,7 @@
  * 此檔案封裝 Supabase Auth API，以 Firebase 相容的 API 表面提供認證功能，
  * 達成無縫轉移到 Supabase 的目標。
  */
-import { supabase } from './supabase-client';
+import { hasSupabaseConfig, supabase } from './supabase-client';
 import type { User as SupabaseAuthUser } from '@supabase/supabase-js';
 
 export interface LocalUser {
@@ -37,7 +37,16 @@ export class GoogleAuthProvider {
   setCustomParameters(_p: Record<string, string>): void {}
 }
 
+function requireSupabaseConfig(): void {
+  if (!hasSupabaseConfig()) {
+    throw new Error(
+      '登入功能尚未設定。請設定 NEXT_PUBLIC_SUPABASE_URL 與 NEXT_PUBLIC_SUPABASE_ANON_KEY。',
+    );
+  }
+}
+
 export async function signInWithGoogle(): Promise<LocalUser> {
+  requireSupabaseConfig();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
   });
@@ -52,6 +61,7 @@ export async function signUpWithEmail(
   password: string,
   displayName?: string
 ): Promise<LocalUser> {
+  requireSupabaseConfig();
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -66,6 +76,7 @@ export async function signUpWithEmail(
 }
 
 export async function signInWithEmail(email: string, password: string): Promise<LocalUser> {
+  requireSupabaseConfig();
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
@@ -75,14 +86,25 @@ export async function signInWithEmail(email: string, password: string): Promise<
 }
 
 export async function signOut(): Promise<void> {
+  if (!hasSupabaseConfig()) {
+    _cachedUser = null;
+    return;
+  }
   await supabase.auth.signOut();
 }
 
 export function onAuthChange(callback: (user: LocalUser | null) => void): () => void {
+  // 主站可在 Auth 尚未配置時正常瀏覽；回報訪客狀態，不觸碰 Supabase proxy。
+  if (!hasSupabaseConfig()) {
+    _cachedUser = null;
+    callback(null);
+    return () => {};
+  }
+
   // 初始觸發
   supabase.auth.getSession().then(({ data: { session } }) => {
     callback(mapSupabaseUser(session?.user));
-  });
+  }).catch(() => callback(null));
 
   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
     callback(mapSupabaseUser(session?.user));
@@ -100,12 +122,14 @@ let _cachedUser: LocalUser | null = null;
 // 僅在瀏覽器環境初始化：避免在 SSR / `next build` 靜態產出（prerender）時
 // 於模組載入階段觸碰 Supabase（此時 NEXT_PUBLIC_SUPABASE_* 可能不存在，
 // 會導致 build 失敗：'supabaseUrl is required.'）。
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && hasSupabaseConfig()) {
   supabase.auth.onAuthStateChange((_event, session) => {
     _cachedUser = mapSupabaseUser(session?.user);
   });
   supabase.auth.getSession().then(({ data: { session } }) => {
     _cachedUser = mapSupabaseUser(session?.user);
+  }).catch(() => {
+    _cachedUser = null;
   });
 }
 

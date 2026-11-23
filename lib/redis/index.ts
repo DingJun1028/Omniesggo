@@ -40,6 +40,8 @@ export {
   getReportCache,
   setTaskReport,
   getTaskReport,
+  setCompanyDocument,
+  listCompanyDocuments,
   listTaskReports,
   clearTaskCache,
   cleanupStaleTasks,
@@ -53,4 +55,5 @@ export type {
   TaskResult,
   ProgressInfo,
   TaskReportSnapshot,
+  CompanyDocumentSnapshot,
 } from './state';

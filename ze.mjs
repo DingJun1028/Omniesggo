@@ -21,7 +21,13 @@ if (!cmd) {
   console.log('  ze scan            # 金鑰掃描');
   console.log('  ze encoding        # 編碼閘道');
   console.log('  ze secret          # 安全金鑰通道');
-  console.log('  ze hermes          # Hermes 連線健檢');
+  console.log('  ze hermes          # Hermes 完全集成');
+  console.log('  ze harden          # 自我修復：安全加固');
+  console.log('  ze scan-secrets    # 金鑰掃描');
+  console.log('  ze moondream [ask] # 視覺能力（Moondream）');
+  console.log('  ze reach-agent     # ReachAgent pipeline 狀態');
+  console.log('  ze checklist       # 永恆覺醒清單');
+  console.log('  ze self-learn      # 萬能進化（scan|draft|check|self-learn）');
   process.exit(0);
 }
 
@@ -57,6 +63,12 @@ else if (cmd === 'secret') {
   console.log('⚠️ 安全金鑰通道：請使用 `vault seal`（DPAPI 加密）。');
   process.exit(0);
 }
-else if (cmd === 'hermes') done(run(esggo, ['hermes']));
+else if (cmd === 'hermes') done(run(path.join(dir, 'scripts', 'ze-hermes.mjs'), args));
 else if (cmd === 'status') done(run(esggo, ['status']));
+else if (cmd === 'harden') done(run(path.join(dir, 'scripts', 'ze-harden.mjs')));
+else if (cmd === 'scan-secrets') done(run(path.join(dir, 'scripts', 'ze-scan-secrets.mjs')));
+else if (cmd === 'moondream') done(run(path.join(dir, 'scripts', 'ze-moondream.mjs'), args));
+else if (cmd === 'reach-agent') done(run(path.join(dir, 'scripts', 'ze-reach-agent.mjs')));
+else if (cmd === 'checklist') { const r = spawnSync('powershell', ['scripts/checklist.ps1'], { stdio: 'inherit' }); process.exit(r.status ?? 1); }
+else if (cmd === 'self-learn') { const r = spawnSync('powershell', ['scripts/self-learn.ps1', ...args], { stdio: 'inherit' }); process.exit(r.status ?? 1); }
 else done(run(esggo, [cmd, ...args]));

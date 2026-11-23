@@ -20,7 +20,7 @@ describe('individualized sustainability report data integrity', () => {
       const html = fullReportToHtml(report!);
       expect(html).toContain('2024年永續報告書');
       expect(html).toContain('模擬示範題庫');
-      expect(html).toContain('已連結實際附件為0');
+      expect(html).toContain('本章尚無符合此公司的已保存上傳附件');
       expect(html).toContain('字數目標未達');
       expect(html).not.toContain('92%');
       expect(html).not.toContain('A:verified');
@@ -32,6 +32,23 @@ describe('individualized sustainability report data integrity', () => {
     expect(generated[0]?.chapters.map(chapter => chapter.content).join('')).not.toBe(
       generated[1]?.chapters.map(chapter => chapter.content).join(''),
     );
+  });
+
+  it('includes only documents belonging to this company and reporting year, escaped and traceable', async () => {
+    const documents = [
+      { id: 'doc-match', companyId: 'DEMO-01', fileName: 'electricity-2024.csv', reportingYear: 2024, uploadedAt: '2025-01-01T00:00:00.000Z', mimeType: 'text/csv', text: 'kWh, 1200 <script>alert(1)</script>', hashLock: 'sha256:abc' },
+      { id: 'doc-other-company', companyId: 'DEMO-02', fileName: 'private.csv', reportingYear: 2024, uploadedAt: '2025-01-01T00:00:00.000Z', mimeType: 'text/csv', text: 'OTHER_COMPANY_SECRET', hashLock: 'sha256:def' },
+      { id: 'doc-other-year', companyId: 'DEMO-01', fileName: 'old.csv', reportingYear: 2023, uploadedAt: '2024-01-01T00:00:00.000Z', mimeType: 'text/csv', text: 'OLD_PERIOD_SECRET', hashLock: 'sha256:ghi' },
+    ];
+    const report = await generateFullV5Report('DEMO-01', 'professional', 2024, documents);
+    expect(report?.totalEvidence).toBe(1);
+    expect(report?.totalEvidenceItems).toBe(1);
+    const html = fullReportToHtml(report!);
+    expect(html).toContain('electricity-2024.csv');
+    expect(html).toContain('sha256:abc');
+    expect(html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
+    expect(html).not.toContain('OTHER_COMPANY_SECRET');
+    expect(html).not.toContain('OLD_PERIOD_SECRET');
   });
 
   it('does not claim the 280K target is reached when the supplied report is short', async () => {

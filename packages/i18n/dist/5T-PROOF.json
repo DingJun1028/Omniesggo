@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "timestamp": "2026-10-16T08:31:57.115Z",
+  "timestamp": "2026-11-23T02:54:41.915Z",
   "locales": [
     "en",
     "zh-TW"
@@ -9,7 +9,7 @@
     "en": "edf276bfc651263ac515de977cbb4f7de2f870f6c80f2c6caf0a52435c1f321f",
     "zh-TW": "e6b4ad4a77db1cf4d00d093102d0e3c9e37bcc6bb10750c3e5d0bedbf02eaf34"
   },
-  "canonSha256": "1f58b293a41c66c09bcd7d4527af834474d4c4d7543048a3e6c1c26137587cb2",
+  "canonSha256": "5c2fedf5889c8072254616ba351ab4f2d51d80494f5b18f8b1b6117d99a9551b",
   "checks": [
     {
       "name": "T1 i18n/en.json exists",

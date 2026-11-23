@@ -31,14 +31,28 @@ export async function GET() {
 
 // POST — action on plugin (enable/disable)
 export async function POST(req: NextRequest) {
+  let body: unknown;
   try {
-    const { action, pluginId } = await req.json();
-    if (!action || !pluginId) {
-      return jsonError('INVALID_PARAMS', 'action and pluginId required', 400);
-    }
+    body = await req.json();
+  } catch {
+    return jsonError('INVALID_PARAMS', 'Request body must be valid JSON', 400);
+  }
 
-    const registry = getPluginRegistry();
+  if (!body || typeof body !== 'object') {
+    return jsonError('INVALID_PARAMS', 'Request body must be a JSON object', 400);
+  }
 
+  const { action, pluginId } = body as { action?: unknown; pluginId?: unknown };
+  if (typeof action !== 'string' || typeof pluginId !== 'string' || !action || !pluginId) {
+    return jsonError('INVALID_PARAMS', 'action and pluginId are required strings', 400);
+  }
+
+  const registry = getPluginRegistry();
+  if (!registry.get(pluginId)) {
+    return jsonError('NOT_FOUND', 'Plugin not found', 404);
+  }
+
+  try {
     switch (action) {
       case 'enable':
         await registry.enable(pluginId);
@@ -54,7 +68,6 @@ export async function POST(req: NextRequest) {
     }
 
     return jsonResponse({
-      success: true,
       plugin: registry.get(pluginId)?.manifest,
       lifecycle: registry.get(pluginId)?.lifecycle,
     });

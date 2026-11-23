@@ -1,42 +1,36 @@
 import { NextRequest } from 'next/server';
-import { getAnswersByCompany, QUESTIONS } from '@/core/repositories/sustain-write-answer-database';
-import { createHash } from 'crypto';
-import { jsonResponse, jsonError } from '@lib/api-utils';
+import { listCompanyDocuments } from '@lib/redis';
+import { getCompanyById } from '@/core/repositories/sustain-write-answer-database';
+import { jsonError, jsonResponse } from '@lib/api-utils';
 
 export async function GET(req: NextRequest) {
-  const searchParams = req.nextUrl.searchParams;
-  const companyId = searchParams.get('companyId');
-  if (!companyId) {
-    return jsonError('INVALID_PARAMS', 'Missing companyId', 400);
-  }
+  const companyId = req.nextUrl.searchParams.get('companyId')?.trim();
+  if (!companyId) return jsonError('INVALID_PARAMS', 'Missing companyId', 400);
+  if (!getCompanyById(companyId)) return jsonError('INVALID_PARAMS', 'Unknown companyId', 400);
 
-  const answers = getAnswersByCompany(companyId);
-  if (!answers || answers.length === 0) {
-    return jsonResponse({ evidence: [] });
-  }
-
-  const evidenceList = answers.map((ans, index) => {
-    const q = QUESTIONS.find((q) => q.questionId === ans.questionId);
-    
-    // HashLock for simulation of ZKP seal
-    const payload = JSON.stringify({
-      uuid: ans.questionId,
-      timestamp: Date.now(),
-      company: ans.companyId
-    });
-    const hashLock = createHash('sha256').update(payload).digest('hex');
-
+  const documents = await listCompanyDocuments(companyId);
+  const evidence = documents.map(({ document, ...metadata }) => {
+    const processed = document as {
+      ocrResult?: { text?: string; confidence?: number };
+      knowledgePoint?: { why?: string; what?: string; how?: string; tags?: string[] };
+      hashLock?: string;
+    };
+    const text = processed.ocrResult?.text ?? '';
     return {
-      id: ans.questionId || `ev-${index}`,
-      chapter: ans.chapter,
-      receiptName: ans.evidence || q?.evidence || '未指定佐證文件',
-      why: q?.whyToFill || '確保符合 GRI 準則與 5T 驗證標準，提升資料可溯源性。',
-      what: q?.whatToFill || ans.answer?.substring(0, 50) + '...' || '無說明',
-      how: q?.aiHelp || '可透過內部管理系統或第三方查驗機構取得相關數據。',
-      tags: [ans.chapter.split(' ')[0], q?.griMapping || 'ESG'].filter(Boolean),
-      hashLock
+      id: metadata.id,
+      companyId: metadata.companyId,
+      chapter: metadata.reportingYear ? `${metadata.reportingYear} 年單據` : '年度未標記',
+      receiptName: metadata.fileName,
+      reportingYear: metadata.reportingYear,
+      uploadedAt: metadata.uploadedAt,
+      why: processed.knowledgePoint?.why || '由公司上傳文件取得；內容尚待人工覆核。',
+      what: text.slice(0, 500),
+      how: `OCR 信心 ${Math.round((processed.ocrResult?.confidence ?? 0) * 100)}%；請核對原始文件。`,
+      tags: processed.knowledgePoint?.tags ?? [],
+      hashLock: processed.hashLock ?? '',
+      source: 'company-upload',
     };
   });
 
-  return jsonResponse({ evidence: evidenceList });
+  return jsonResponse({ evidence, submittedDocumentCount: evidence.length, storageTtlDays: 7, permanentArchive: false });
 }

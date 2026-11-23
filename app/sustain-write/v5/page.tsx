@@ -272,6 +272,9 @@ export default function SustainWriteV5Page() {
   const [taskProgress, setTaskProgress] = useState<TaskProgress | null>(null);
   const [reportHistory, setReportHistory] = useState<ReportHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
+  const [documentUploadMessage, setDocumentUploadMessage] = useState<string | null>(null);
+  const documentInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -374,6 +377,33 @@ export default function SustainWriteV5Page() {
     }, 500);
   }, [loadReportHistory]);
 
+  const handleDocumentUpload = async (file?: File) => {
+    if (!file || !selectedCompany || selectedCompany === CUSTOM_COMPANY_ID || selectedCompany.startsWith('custom-saved-')) return;
+    setUploadingDocument(true);
+    setDocumentUploadMessage(null);
+    const form = new FormData();
+    form.set('file', file);
+    form.set('companyId', selectedCompany);
+    form.set('reportingYear', String(reportingYear));
+    try {
+      const response = await fetch('/api/sustain-write/v5/documents', { method: 'POST', body: form });
+      const payload = await response.json().catch(() => null);
+      const result = payload?.data ?? payload;
+      if (!response.ok || payload?.success === false) throw new Error(payload?.error || result?.error || `上傳失敗 (${response.status})`);
+      const isPlainText = /\.(csv|txt)$/i.test(file.name);
+      setDocumentUploadMessage(`已接收 ${result?.fileName ?? file.name}；${isPlainText ? '原始文字已保存，請人工覆核。' : 'OCR 文字已擷取，請人工覆核。'} 附件保存最長 7 日。`);
+      const evidenceResponse = await fetch(`/api/sustain-write/v5/evidence?companyId=${encodeURIComponent(selectedCompany)}`, { cache: 'no-store' });
+      const evidencePayload = await evidenceResponse.json();
+      const evidenceData = evidencePayload?.data ?? evidencePayload;
+      if (evidenceResponse.ok) setEvidenceCards(Array.isArray(evidenceData?.evidence) ? evidenceData.evidence : []);
+    } catch (cause) {
+      setDocumentUploadMessage(cause instanceof Error ? cause.message : '文件上傳失敗');
+    } finally {
+      setUploadingDocument(false);
+      if (documentInputRef.current) documentInputRef.current.value = '';
+    }
+  };
+
   // Load evidence when company selected
   useEffect(() => {
     if (!selectedCompany || selectedCompany === CUSTOM_COMPANY_ID) {
@@ -381,10 +411,11 @@ export default function SustainWriteV5Page() {
       return;
     }
     setLoadingEvidence(true);
-    fetch(`/api/sustain-write/v5/evidence?companyId=${selectedCompany}`)
+    fetch(`/api/sustain-write/v5/evidence?companyId=${encodeURIComponent(selectedCompany)}`, { cache: 'no-store' })
       .then(res => res.json())
-      .then(data => {
-        if (data.evidence) setEvidenceCards(data.evidence);
+      .then(payload => {
+        const data = payload?.data ?? payload;
+        if (Array.isArray(data?.evidence)) setEvidenceCards(data.evidence);
       })
       .catch(console.error)
       .finally(() => setLoadingEvidence(false));
@@ -625,8 +656,16 @@ export default function SustainWriteV5Page() {
             </div>
           </div>
           <p className="mb-4 rounded-md border border-accentGold/30 bg-accentGold/5 p-3 text-xs text-textSecondary">
-            資料來源聲明：目前報告以所選公司題庫中的填答為主。題庫的「建議佐證」不是已上傳單據；實際附件尚未接入公司專屬證據庫。所選 OmniNote 目前也未被讀取或融合，避免把未確認歸屬的共享筆記混入公司報告。
+            資料來源聲明：題庫填答仍是示範資料；實際上傳附件會按公司與報導年度隔離，列入報告來源登錄表。附件保留最長 7 日，OCR 文字須人工覆核；未上傳就不會宣稱已收到。OmniNote 尚未與公司關聯，不會混入報告。
           </p>
+          <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-borderColor bg-primary p-4">
+            <input ref={documentInputRef} type="file" accept=".pdf,.csv,.txt,application/pdf,text/csv,text/plain" className="sr-only" onChange={event => void handleDocumentUpload(event.target.files?.[0])} disabled={!selectedCompany || selectedCompany === CUSTOM_COMPANY_ID || uploadingDocument} />
+            <button type="button" onClick={() => documentInputRef.current?.click()} disabled={!selectedCompany || selectedCompany === CUSTOM_COMPANY_ID || uploadingDocument} className="rounded-lg bg-accentTeal px-4 py-2 text-sm font-medium text-white disabled:opacity-50">
+              {uploadingDocument ? '正在上傳並解析…' : '上傳公司單據（PDF／CSV／TXT）'}
+            </button>
+            <span className="text-xs text-textSecondary">先選公司和報導年度；單檔上限 10 MB。CSV/TXT 直接保存原文；PDF 需可用 OCR，否則不會記為證據。</span>
+            {documentUploadMessage && <p role="status" className="w-full text-sm text-textSecondary">{documentUploadMessage}</p>}
+          </div>
 
           {/* Custom Company Form */}
           {showCustomForm && selectedCompany === CUSTOM_COMPANY_ID && (

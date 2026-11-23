@@ -423,6 +423,33 @@ export async function getReportCache(
   return memoryFallback.get(key);
 }
 
+export interface CompanyDocumentSnapshot { id: string; companyId: string; fileName: string; mimeType: string; reportingYear: number | null; uploadedAt: string; document: unknown; }
+const companyDocumentKey = (companyId: string, id: string) => `${PREFIX}company-document:${encodeURIComponent(companyId)}:${id}`;
+export async function setCompanyDocument(snapshot: CompanyDocumentSnapshot): Promise<void> {
+  const key = companyDocumentKey(snapshot.companyId, snapshot.id);
+  memoryFallback.set(key, snapshot, TTL.TASK_STATE);
+  const redis = await getRedis();
+  if (redis) await redis.setex(key, TTL.TASK_STATE, safeStringify(snapshot));
+}
+export async function listCompanyDocuments(companyId: string): Promise<CompanyDocumentSnapshot[]> {
+  const prefix = `${PREFIX}company-document:${encodeURIComponent(companyId)}:`;
+  const found = new Map<string, CompanyDocumentSnapshot>();
+  try {
+    const redis = await getRedis();
+    if (redis) for (const key of await redis.keys(`${prefix}*`)) {
+      const item = safeParse<CompanyDocumentSnapshot>(await redis.get(key));
+      if (item?.companyId === companyId) found.set(item.id, item);
+    }
+  } catch (error) {
+    console.warn('[Redis State] Company document list fell back to memory:', error instanceof Error ? error.message : error);
+  }
+  for (const key of memoryFallback.keys(prefix)) {
+    const item = memoryFallback.get(key) as CompanyDocumentSnapshot | null;
+    if (item?.companyId === companyId) found.set(item.id, item);
+  }
+  return [...found.values()].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+}
+
 // Task-scoped report snapshots; operational history only, not permanent archival storage.
 export interface TaskReportSnapshot { taskId: string; companyId: string; companyName: string; reportingYear: number; totalWords: number; generatedAt: string; report: unknown; }
 function taskReportKey(taskId: string): string { return [PREFIX, 'task-report:', taskId].join(''); }
