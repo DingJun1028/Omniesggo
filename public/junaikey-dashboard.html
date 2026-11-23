@@ -283,12 +283,12 @@ body {
       .lane-bar { display: flex; gap: 3px; }
       .lane-bar i { display: block; width: 7px; height: 16px; border-radius: 2px; background: var(--gray-300); }
       .lane-bar i.done { background: var(--primary); }
-      .lane-bar i.part { background: rgba(0,123,123,.35); }
+      .lane-bar i.part { background: color-mix(in srgb, var(--primary) 35%, transparent); } /* 主題色衍生 Token-derived */
 
       /* Capacity stacked bar */
       .cap-bar { display: flex; height: 12px; border-radius: var(--r-full); overflow: hidden; border: 1px solid var(--gray-100); margin: 10px 0 8px; }
       .cap-bar .logged { width: 50%; background: var(--primary); }
-      .cap-bar .planned { width: 30%; background: rgba(0,123,123,.45); }
+      .cap-bar .planned { width: 30%; background: color-mix(in srgb, var(--primary) 45%, transparent); }
       .cap-bar .free { width: 20%; background: var(--gray-300); }
       .cap-legend { display: flex; gap: 16px; font-size: 12px; color: var(--gray-700); flex-wrap: wrap; }
       .cap-legend .k { display: inline-flex; align-items: center; gap: 6px; }
@@ -318,7 +318,7 @@ body {
       .profile .p-ava { width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%; background: var(--primary-soft); border: 1px solid var(--border); color: var(--primary); display: grid; place-items: center; font-size: 20px; font-weight: 700; }
       .profile .p-name { font-size: 15px; font-weight: 700; }
       .profile .p-handle { font-family: var(--font-mono); font-size: 12px; color: var(--gray-500); }
-      .online { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--success); background: rgba(46,125,50,.10); border-radius: var(--r-full); padding: 2px 10px; margin-top: 8px; }
+      .online { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--success); background: color-mix(in srgb, var(--success) 10%, transparent); border-radius: var(--r-full); padding: 2px 10px; margin-top: 8px; }
       .online .pip { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
       .p-meta { display: flex; justify-content: center; gap: 14px; font-size: 11px; color: var(--gray-500); margin-top: 8px; font-family: var(--font-mono); }
 
@@ -366,7 +366,7 @@ body {
       /* 深色主題之應用級覆寫（代幣層已在上方鏡像提供） */
       [data-theme="dark"] .dialog .field input,
       [data-theme="dark"] .dialog .field select { background: var(--gray-50); }
-      [data-theme="dark"] select option { background: #22222a; color: var(--gray-900); }
+      [data-theme="dark"] select option { background: var(--white); color: var(--gray-900); }
 
       /* Notifications popover */
       .notif-pop { position: fixed; left: 56px; top: 60px; width: 300px; background: var(--white); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--elev-3); z-index: 55; display: none; }
@@ -430,7 +430,7 @@ body {
         .topbar .top-actions { order: 2; }
         .topbar .search { order: 3; flex: 1 1 100%; max-width: none; margin-top: 4px; }
 
-        .icon-rail { flex-direction: row; justify-content: flex-start; gap: 2px; padding: 6px 10px; border-right: none; border-bottom: 1px solid var(--border); overflow: visible; }
+        .icon-rail { flex-direction: row; justify-content: flex-start; flex-wrap: wrap; gap: 2px; padding: 6px 10px; border-right: none; border-bottom: 1px solid var(--border); overflow: visible; }
         .icon-rail .rail-div { width: 16px; height: 20px; margin: 0 8px; }
         .rail-btn { width: 44px; height: 44px; }
 
@@ -450,6 +450,7 @@ body {
         .tab, .nav-item, .new-item, .menu-item { min-height: 44px; }
         .topbar .avatar { width: 44px; height: 44px; }
         .chk { padding: 10px 0; min-height: 44px; }
+        .notif-head .mark-read, .recap-card .later { min-width: 44px; min-height: 44px; padding: 10px 8px; }
 
         .notif-pop { left: 12px; right: 12px; width: auto; top: 118px; max-height: 60vh; overflow-y: auto; }
         .popover { max-width: calc(100vw - 28px); }
