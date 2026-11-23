@@ -13,18 +13,13 @@ export function HealthPanel({
     <div className="glass p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold tracking-wide text-slate-200">本機回環引擎</h2>
-        <span
-          className={`text-xs px-2 py-0.5 rounded-full ${
-            error !== null
-              ? "bg-rose-500/15 text-rose-300"
-              : "bg-emerald-500/15 text-emerald-300"
-          }`}
-        >
+        {/* JunAiKey .status 語意徽章 Semantic status pill（online/offline 由 globals.css 代幣衍生） */}
+        <span className={`status ${error !== null ? "offline" : "online"}`}>
           {error !== null ? "離線" : "在線"}
         </span>
       </div>
       {error !== null ? (
-        <p className="mt-3 text-xs leading-5 text-rose-300/90">{error}</p>
+        <p className="mt-3 text-xs leading-5 text-[color:var(--danger)] opacity-90">{error}</p>
       ) : (
         <div className="mt-4 grid grid-cols-3 gap-3">
           <Stat label="節點" value={health?.nodes ?? "…"} />
