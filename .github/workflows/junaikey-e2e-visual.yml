@@ -1,0 +1,51 @@
+name: JunAiKey E2E Visual (Playwright 三視口)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'public/junaikey-dashboard.html'
+      - 'packages/tailwind-preset/**'
+      - 'e2e/junaikey-dashboard*.spec.ts'
+      - 'playwright.config.ts'
+      - '.github/workflows/junaikey-e2e-visual.yml'
+  pull_request:
+    paths:
+      - 'public/junaikey-dashboard.html'
+      - 'packages/tailwind-preset/**'
+      - 'e2e/junaikey-dashboard*.spec.ts'
+      - 'playwright.config.ts'
+      - '.github/workflows/junaikey-e2e-visual.yml'
+  workflow_dispatch:
+
+jobs:
+  e2e-visual:
+    name: 🎭 JunAiKey E2E Visual (Playwright)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: 📥 召喚源碼 (Checkout)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+
+      - name: ⚙️ 構築結界 (Setup Node.js)
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: 📦 注入依賴 (Install dependencies, frozen lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: 🎭 臨時安裝 Playwright (不落鎖檔)
+        # @playwright/test 不在根依賴（避免變動 pnpm-lock.yaml 與 pnpm.overrides 釘選政策），
+        # CI 內臨時安裝即可執行規格；pnpm.overrides 之政策釘選靠既有鎖檔於 install 步驟生效。
+        run: |
+          pnpm add -D @playwright/test --no-frozen-lockfile
+          npx playwright install --with-deps chromium
+
+      - name: 🧪 執行明暗雙規格三視口 E2E
+        # webServer 由 playwright.config.ts 啟動 pnpm run dev @ 127.0.0.1:3000
+        run: npx playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts
