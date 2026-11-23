@@ -39,19 +39,19 @@ jobs:
       - name: 📦 注入依賴 (Install dependencies, frozen lockfile)
         run: pnpm install --frozen-lockfile
 
-      - name: 🎭 臨時安裝 Playwright v1.65.1 (不落鎖檔)
-        # @playwright/test 不在根依賴：若入根依賴將變動 pnpm-lock.yaml 與 pnpm.overrides 釘選政策。
-        # 故以全域安裝釘選之精確版本，不觸碰工作區 package.json／鎖檔；
-        # 亦不經 npx（隨需安裝可執行任意生命週期腳本，Sonar 安全評級 hotspot）。
+      - name: 🎭 工作區一次性安裝 Playwright v1.65.1
+        # @playwright/test 不在根依賴：改於本 job 工作區一次性安裝（ephemeral），
+        # 變動僅存於 CI 工作區，不落倉庫 package.json／pnpm-lock.yaml；釘選精確版本。
+        # CLI 以 pnpm exec 呼叫（非 npx，免隨需安裝與其生命週期腳本）。
         run: |
-          npm install -g @playwright/test@1.65.1
-          playwright install --with-deps chromium
+          pnpm add -D @playwright/test@1.65.1
+          pnpm exec playwright install --with-deps chromium
 
       - name: 🧪 執行明暗雙規格三視口 E2E
         # webServer 由 playwright.config.ts 啟動 pnpm run dev @ 127.0.0.1:3000
         run: |
           set +e
-          playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts --reporter=line > pw-run.log 2>&1
+          pnpm exec playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts --reporter=line > pw-run.log 2>&1
           code=$?
           cat pw-run.log
           exit $code
@@ -60,4 +60,4 @@ jobs:
         # 匿名不可及原始日誌，故將失敗測試列表以 error 註記公開輸出
         if: failure()
         run: |
-          node -e "const t=require('fs').readFileSync('pw-run.log','utf8').split(/\n/);const m=t.filter(l=>/^\s*\d+\)/.test(l)||/^\s*Error:/.test(l)||/webServer|Timed out|browser has been closed/.test(l)).slice(0,10);if(!m.length){console.log('::error title=E2E 失敗摘要::無測試級錯誤行，請檢視原始日誌')}m.forEach(l=>console.log('::error title=E2E 失敗摘要::'+l.trim().slice(0,240)))"
+          node -e "const t=require('fs').readFileSync('pw-run.log','utf8').split(/\n/);const m=t.filter(l=>/^\s*\d+\)/.test(l)||/^\s*Error:/.test(l)||/webServer|Timed out|browser has been closed|Cannot find module/.test(l)).slice(0,10);if(!m.length){console.log('::error title=E2E 失敗摘要::無測試級錯誤行，請檢視原始日誌')}m.forEach(l=>console.log('::error title=E2E 失敗摘要::'+l.trim().slice(0,240)))"
