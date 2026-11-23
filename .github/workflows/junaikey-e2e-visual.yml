@@ -39,13 +39,14 @@ jobs:
       - name: 📦 注入依賴 (Install dependencies, frozen lockfile)
         run: pnpm install --frozen-lockfile
 
-      - name: 🎭 臨時安裝 Playwright (不落鎖檔)
-        # @playwright/test 不在根依賴（避免變動 pnpm-lock.yaml 與 pnpm.overrides 釘選政策），
-        # CI 內臨時安裝即可執行規格；pnpm.overrides 之政策釘選靠既有鎖檔於 install 步驟生效。
+      - name: 🎭 臨時安裝 Playwright v1.65.1 (不落鎖檔)
+        # @playwright/test 不在根依賴：若入根依賴將變動 pnpm-lock.yaml 與 pnpm.overrides 釘選政策。
+        # 故以全域安裝釘選之精確版本，不觸碰工作區 package.json／鎖檔；
+        # 亦不經 npx（隨需安裝可執行任意生命週期腳本，Sonar 安全評級 hotspot）。
         run: |
-          pnpm add -D @playwright/test --no-frozen-lockfile
-          npx playwright install --with-deps chromium
+          npm install -g @playwright/test@1.65.1
+          playwright install --with-deps chromium
 
       - name: 🧪 執行明暗雙規格三視口 E2E
         # webServer 由 playwright.config.ts 啟動 pnpm run dev @ 127.0.0.1:3000
-        run: npx playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts
+        run: playwright test e2e/junaikey-dashboard.spec.ts e2e/junaikey-dashboard-dark.spec.ts
