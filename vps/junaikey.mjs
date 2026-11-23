@@ -108,7 +108,7 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
   node vps/junaikey.mjs dedup
   node vps/junaikey.mjs remember '<json-event>'
   node vps/junaikey.mjs query [--tag=X] [--event=X] [--limit=N] [--contains=needle]
-  node vps/junaikey.mjs search <query>             # NCB /search 端點
+  node vps/junaikey.mjs search --event=X --tag=Y      # NCB /read 欄位查詢 (search 端點已停用)
   node vps/junaikey.mjs progress "<active-task>" ["<notes>"]
   node vps/junaikey.mjs get-progress
   node vps/junaikey.mjs reflect "<summary>" [--learn=name1,name2]
@@ -195,10 +195,10 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
         const requested = process.env.JUNAKEY_BACKEND || 'auto';
         const opts = {};
         for (const a of rest) {
-          if (a.startsWith('--tag=')) opts.tag = a.slice(5);
-          else if (a.startsWith('--event=')) opts.event = a.slice(8);
-          else if (a.startsWith('--limit=')) opts.limit = a.slice(8);
-          else if (a.startsWith('--contains=')) opts.contains = a.slice(11);
+          if (a.startsWith('--tag=')) opts.tag = a.slice('--tag='.length);
+          else if (a.startsWith('--event=')) opts.event = a.slice('--event='.length);
+          else if (a.startsWith('--limit=')) opts.limit = a.slice('--limit='.length);
+          else if (a.startsWith('--contains=')) opts.contains = a.slice('--contains='.length);
         }
         const out = await ops.recall(opts);
         console.log(JSON.stringify({ requested: requested, count: Array.isArray(out) ? out.length : 1, items: out }, null, 2));
@@ -207,9 +207,9 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
       case 'search': {
         const opts = {};
         for (const a of rest) {
-          if (a.startsWith('--tag=')) opts.tag = a.slice(5);
-          else if (a.startsWith('--event=')) opts.event = a.slice(8);
-          else if (a.startsWith('--limit=')) opts.limit = a.slice(8);
+          if (a.startsWith('--tag=')) opts.tag = a.slice('--tag='.length);
+          else if (a.startsWith('--event=')) opts.event = a.slice('--event='.length);
+          else if (a.startsWith('--limit=')) opts.limit = a.slice('--limit='.length);
         }
         const out = await ops.searchMemory(opts);
         console.log(JSON.stringify(out, null, 2));
@@ -239,9 +239,9 @@ if (import.meta.url === `file:///${process.argv[1]?.replace(/\\/g, '/')}`) {
       case 'prune': {
         const opts = {};
         for (const a of rest) {
-          if (a.startsWith('--max=')) opts.maxRecords = parseInt(a.slice(5), 10);
-          else if (a.startsWith('--before=')) opts.before = a.slice(9);
-          else if (a.startsWith('--keep-event=')) opts.keepEvent = a.slice(13);
+          if (a.startsWith('--max=')) opts.maxRecords = parseInt(a.slice('--max='.length), 10);
+          else if (a.startsWith('--before=')) opts.before = a.slice('--before='.length);
+          else if (a.startsWith('--keep-event=')) opts.keepEvent = a.slice('--keep-event='.length);
         }
         const removed = await ops.pruneMemory(opts);
         console.log(`✓ pruned ${removed} record(s)`);
