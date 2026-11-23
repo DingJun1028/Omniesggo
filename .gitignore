@@ -437,3 +437,6 @@ oa-swarm/data/
 
 # runtime notes store (universal notes /api/notes)
 data/notes.json
+
+# Base44 sandbox placeholders (no real secrets) — must be committed
+!.env.base44-defaults

@@ -1,0 +1,42 @@
+# Base44 sandbox run environment for the esggo monorepo.
+# Runs the root Next.js app from the cloned source with live reload.
+services:
+  web:
+    image: node:22
+    working_dir: /app
+    command:
+      - sh
+      - -ec
+      - |
+        corepack enable
+        pnpm install --frozen-lockfile --prefer-offline
+        exec pnpm exec next dev -H 0.0.0.0 -p 3000
+    ports:
+      - "3000:3000"
+    environment:
+      - BASE44_PREVIEW_MODE
+      - BASE44_PUBLIC_HOST_SUFFIX
+      - BASE44_SANDBOX_HOST_DOMAIN
+      - NEXT_TELEMETRY_DISABLED=1
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
+    env_file:
+      - ./.env.base44-defaults
+      - /run/base44/app.env
+    volumes:
+      - .:/app
+      - pnpm-store:/root/.local/share/pnpm/store
+    restart: on-failure
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/', {signal: AbortSignal.timeout(4000)}).then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+      interval: 15s
+      timeout: 5s
+      start_period: 300s
+      retries: 10
+
+volumes:
+  pnpm-store:

@@ -1,0 +1,62 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d",
+  "secrets": [
+    {
+      "name": "JWT_SECRET",
+      "description": "Session/auth token signing key used by the Next.js API routes.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "LOCAL_JWT_SECRET",
+      "description": "Local development JWT signing key.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "DATABASE_URL",
+      "description": "Postgres connection string for raw SQL paths (pg). Optional: the Supabase-compat data layer is lazy and the app boots without it.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SUPABASE_URL",
+      "description": "Supabase project URL for the Prisma-compat data layer (optional; queries fail lazily when absent).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SUPABASE_SERVICE_ROLE_KEY",
+      "description": "Supabase service role key used server-side by the data layer.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "SUPABASE_ANON_KEY",
+      "description": "Supabase anonymous key (fallback connection key).",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_URL",
+      "description": "Supabase URL exposed to the browser client.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+      "description": "Supabase anonymous key exposed to the browser client.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NCBDB_API_TOKEN",
+      "description": "NoCodeBackend API token used by vps/junaikey memory backends.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "NCBDB_PROJECT_ID",
+      "description": "NoCodeBackend project/instance id used by vps/junaikey.",
+      "requiredAtBoot": false
+    },
+    {
+      "name": "OMNIMASTER_KEY",
+      "description": "OmniMasterKey secret used by Junaikey secret access.",
+      "requiredAtBoot": false
+    }
+  ]
+}

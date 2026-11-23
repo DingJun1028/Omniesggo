@@ -12,6 +12,10 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   turbopack: {},
+  // Base44 sandbox preview: allow the proxied preview origin to load dev assets/HMR.
+  ...(process.env.BASE44_PREVIEW_MODE === '1' && process.env.BASE44_PUBLIC_HOST_SUFFIX
+    ? { allowedDevOrigins: [`3000-${process.env.BASE44_PUBLIC_HOST_SUFFIX}`] }
+    : {}),
   // Allow access to remote image placeholder.
   images: {
     remotePatterns: [
