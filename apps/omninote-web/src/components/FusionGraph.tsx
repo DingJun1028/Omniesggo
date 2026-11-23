@@ -373,7 +373,7 @@ export function FusionGraph({
         <div className="mt-2 flex flex-wrap gap-1">
           <button
             type="button"
-            className="cursor-pointer rounded-full border px-2 py-0.5 text-[10px] text-slate-400 transition hover:border-slate-100/30"
+            className="filter-chip px-2 py-0.5 text-[10px]"
             title="點擊恢復全量圖譜"
             onClick={() => setTagFilter(null)}
           >
@@ -383,10 +383,8 @@ export function FusionGraph({
             <button
               type="button"
               key={t.tag}
-              className={`cursor-pointer rounded-full border px-2 py-0.5 text-[10px] transition ${
-                tagFilter === t.tag
-                  ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
-                  : "border-slate-100/10 text-slate-400 hover:border-slate-100/30"
+              className={`filter-chip px-2 py-0.5 text-[10px] ${
+                tagFilter === t.tag ? "chip-on" : ""
               }`}
               title={`點擊以 ${t.tag} 過濾圖譜節點（count 為含該標籤之節點數）`}
               onClick={() => setTagFilter(tagFilter === t.tag ? null : t.tag)}

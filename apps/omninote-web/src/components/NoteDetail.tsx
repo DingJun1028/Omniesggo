@@ -438,7 +438,7 @@ export function NoteDetail({
         />
         <button
           type="button"
-          className="shrink-0 rounded-xl bg-omni-alpha/90 px-4 py-2 text-sm text-slate-950 transition hover:bg-omni-alpha disabled:opacity-50"
+          className="btn btn-primary shrink-0 disabled:opacity-50"
           disabled={busy || content.trim().length === 0}
           onClick={() => void append()}
         >
@@ -541,7 +541,7 @@ export function NoteDetail({
           )}
         </div>
         {evidenceError !== null && (
-          <p className="mt-1 text-[10px] text-amber-300/90">{evidenceError}</p>
+          <p className="mt-1 text-[10px] text-[color:var(--warning)] opacity-90">{evidenceError}</p>
         )}
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <button
@@ -588,10 +588,10 @@ export function NoteDetail({
           )}
         </div>
         {statsError !== null && (
-          <p className="mt-1 text-[10px] text-amber-300/90">{statsError}</p>
+          <p className="mt-1 text-[10px] text-[color:var(--warning)] opacity-90">{statsError}</p>
         )}
         {exportError !== null && (
-          <p className="mt-1 text-[10px] text-amber-300/90">{exportError}</p>
+          <p className="mt-1 text-[10px] text-[color:var(--warning)] opacity-90">{exportError}</p>
         )}
         {(() => {
           const entries = evidencePage !== null ? evidencePage.entries : note.evidence;

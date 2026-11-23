@@ -229,7 +229,7 @@ export function NotesBoard({
             </button>
             <button
               type="button"
-              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-rose-400/60 disabled:opacity-50"
+              className="rounded-lg border border-slate-100/10 px-3 py-1 text-xs text-slate-200 transition hover:border-[color:var(--danger)] disabled:opacity-50"
               disabled={batchBusy || batchTag.trim().length === 0}
               onClick={() => void runBatch("remove")}
             >
@@ -290,7 +290,7 @@ export function NotesBoard({
                 <span className="text-[11px] text-slate-400">{note.matrix_phase}</span>
                 <button
                   type="button"
-                  className="ml-auto text-[11px] text-slate-500 transition hover:text-rose-300"
+                  className="ml-auto text-[11px] text-slate-500 transition hover:text-[color:var(--danger)]"
                   onClick={() => void deleteNote(note.uuid).then(onChanged).catch(() => undefined)}
                   aria-label="刪除筆記"
                 >
@@ -465,10 +465,8 @@ export function GlobalEvidenceTimeline({ onJump }: { onJump: (uuid: string) => v
             <button
               key={h}
               type="button"
-              className={`rounded-full px-2 py-0.5 text-[10px] transition ${
-                hook.trim() === h
-                  ? "bg-omni-sigma/40 text-omni-sigma"
-                  : "bg-slate-700/50 text-slate-300 hover:bg-slate-600/60"
+              className={`filter-chip px-2 py-0.5 text-[10px] ${
+                hook.trim() === h ? "chip-on" : ""
               }`}
               onClick={() => applyHookBadge(h)}
               title={`${h} × ${stats.by_hook[h] ?? 0} 筆，點擊以該 hook 篩選時間軸`}
@@ -606,14 +604,14 @@ export function SearchPanel({ onJump }: { onJump: (uuid: string) => void }) {
         />
         <button
           type="button"
-          className="shrink-0 rounded-xl bg-omni-sigma/90 px-4 py-2 text-sm text-slate-100 transition hover:bg-omni-sigma"
+          className="btn btn-primary shrink-0"
           onClick={() => void run()}
         >
           熔合
         </button>
       </div>
       {message !== null && (
-        <p className="mt-2 text-xs text-amber-300/90">
+        <p className="mt-2 text-xs text-[color:var(--warning)] opacity-90">
           {message}
           {reason !== null && ` — ${reason}`}
         </p>
@@ -693,7 +691,7 @@ export function DraftsPanel({
                   </button>
                   <button
                     type="button"
-                    className="text-[11px] text-slate-500 transition hover:text-rose-300"
+                    className="text-[11px] text-slate-500 transition hover:text-[color:var(--danger)]"
                     onClick={() => void deleteDraft(d.draft_id).then(onChanged).catch(() => undefined)}
                   >
                     刪除
@@ -796,10 +794,8 @@ export function ArchivePanel({ onChanged }: { onChanged: () => void }) {
         <div className="flex items-center gap-1 text-[10px] text-slate-400">
           <button
             type="button"
-            className={`rounded-full border px-2 py-0.5 transition ${
-              conflict === "skip"
-                ? "border-emerald-400/70 bg-emerald-400/10 text-emerald-200"
-                : "border-slate-100/10 hover:border-slate-100/30"
+            className={`filter-chip px-2 py-0.5 text-[10px] ${
+              conflict === "skip" ? "chip-on-success" : ""
             }`}
             title="既有節點且 lock_hash 相異時保留既有"
             onClick={() => setConflict("skip")}
@@ -808,10 +804,8 @@ export function ArchivePanel({ onChanged }: { onChanged: () => void }) {
           </button>
           <button
             type="button"
-            className={`rounded-full border px-2 py-0.5 transition ${
-              conflict === "overwrite"
-                ? "border-amber-400/70 bg-amber-400/10 text-amber-200"
-                : "border-slate-100/10 hover:border-slate-100/30"
+            className={`filter-chip px-2 py-0.5 text-[10px] ${
+              conflict === "overwrite" ? "chip-on-warning" : ""
             }`}
             title="既有節點且 lock_hash 相異時覆寫"
             onClick={() => setConflict("overwrite")}

@@ -73,7 +73,7 @@ export default function HomePage() {
         </p>
         <button
           type="button"
-          className="ml-auto rounded-lg border border-slate-500/30 px-3 py-1.5 text-xs text-slate-300 transition hover:border-omni-alpha/60 hover:text-slate-100"
+          className="btn btn-ghost btn-sm ml-auto"
           onClick={() => setPaletteOpen(true)}
         >
           ⌘K 指令面板
