@@ -36,8 +36,9 @@ jobs:
         run: pnpm run lint
 
       - name: 🧪 神聖契約驗證 (Unit Tests)
-        # 5T-Traceable: 測試失敗不阻斷 CI (ts-matrix 已收斂新 shadow, 測試 DB 需本機)
-        continue-on-error: true
+        # 5T-Traceable: 2026-11-23 移除 continue-on-error（使用者裁決，改阻塞覆蓋）；
+        # 實證 main d23bd0c（run 45131017383）此步驟全綠，含 junaikey-layout 7 項單元測試；
+        # 日後新增需本機 DB 之測試應以環境守衛處理，不得回復遮蔽
         # 這裡會執行 IComponentCore 的 Object.freeze 與 Hash Lock 測試
         run: pnpm vitest run
 
