@@ -40,11 +40,11 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: 🎭 工作區一次性安裝 Playwright v1.65.1
-        # @playwright/test 不在根依賴：改於本 job 工作區一次性安裝（ephemeral），
+        # @playwright/test 不在根依賴：改於本 job 工作區一次性安裝（ephemeral，-w 明示 workspace 根），
         # 變動僅存於 CI 工作區，不落倉庫 package.json／pnpm-lock.yaml；釘選精確版本。
         # CLI 以 pnpm exec 呼叫（非 npx，免隨需安裝與其生命週期腳本）。
         run: |
-          pnpm add -D @playwright/test@1.65.1
+          pnpm add -w -D @playwright/test@1.65.1
           pnpm exec playwright install --with-deps chromium
 
       - name: 🧪 執行明暗雙規格三視口 E2E
@@ -60,4 +60,8 @@ jobs:
         # 匿名不可及原始日誌，故將失敗測試列表以 error 註記公開輸出
         if: failure()
         run: |
+          if [ ! -f pw-run.log ]; then
+            echo "::error title=E2E 失敗摘要::無 pw-run.log（E2E 步驟未執行），請檢視原始日誌"
+            exit 0
+          fi
           node -e "const t=require('fs').readFileSync('pw-run.log','utf8').split(/\n/);const m=t.filter(l=>/^\s*\d+\)/.test(l)||/^\s*Error:/.test(l)||/webServer|Timed out|browser has been closed|Cannot find module/.test(l)).slice(0,10);if(!m.length){console.log('::error title=E2E 失敗摘要::無測試級錯誤行，請檢視原始日誌')}m.forEach(l=>console.log('::error title=E2E 失敗摘要::'+l.trim().slice(0,240)))"
