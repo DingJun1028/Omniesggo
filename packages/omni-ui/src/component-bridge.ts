@@ -52,7 +52,8 @@ export class OmniUIError extends Error {
  *
  * 與 @esggo/omni-core verifySeal 之差異 (如實揭露):
  * sealComponentCore 對「整個描述子」(含 kind/props/theme/effect) 計算 SHA-256,
- * 故複核亦須以同鍵序重組完整物件 (排除 seal 證據本身) 後比對。
+ * 故複核以展開運算子保留 seal 當下之原始鍵序重組 (排除 seal 證據本身) 後比對。
+ * (手動逐欄位重組會改變 JSON 鍵序導致失配 — PR #337 缺陷之堵修)
  */
 export function verifyDescriptorSeal(descriptor: Readonly<ComponentDescriptor>): boolean {
   if (!Object.isFrozen(descriptor) || !Object.isFrozen(descriptor.evidence)) {
@@ -62,16 +63,10 @@ export function verifyDescriptorSeal(descriptor: Readonly<ComponentDescriptor>):
   if (!seal || seal.standard !== '5T-PROOF') {
     return false;
   }
-  // 以 seal 當下之鍵序重組 (核心欄位在前, kind/props/theme/effect 其後)
+  // 展開保留原始鍵序 (evidence 原位抽換為 seal 前內容), 與 sealComponentCore
+  // 計算 seal.hash 當下之物件完全同構
   const cloned = {
-    uuid: descriptor.uuid,
-    version: descriptor.version,
-    timestamp: descriptor.timestamp,
-    source_origin: descriptor.source_origin,
-    kind: descriptor.kind,
-    props: descriptor.props,
-    theme: descriptor.theme,
-    effect: descriptor.effect,
+    ...descriptor,
     evidence: descriptor.evidence.slice(0, -1),
   };
   return computeHash(cloned) === seal.hash;

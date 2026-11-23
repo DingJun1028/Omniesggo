@@ -17,6 +17,7 @@
     "react-router-dom": "^7.18.5"
   },
   "devDependencies": {
+    "@esggo/tailwind-preset": "workspace:*",
     "@vitejs/plugin-react": "^6.3.0",
     "autoprefixer": "^10.6.2",
     "postcss": "^8.5.33",
