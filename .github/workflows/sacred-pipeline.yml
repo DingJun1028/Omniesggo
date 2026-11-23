@@ -35,10 +35,18 @@ jobs:
         continue-on-error: true
         run: pnpm run lint
 
-      - name: 🧪 神聖契約驗證 (Unit Tests)
-        # 5T-Traceable: 測試失敗不阻斷 CI (ts-matrix 已收斂新 shadow, 測試 DB 需本機)
+      - name: 🧪 神聖契約驗證 (Unit Tests, 阻塞覆蓋)
+        # 5T-Traceable: 2026-11-23 使用者裁決改阻塞（含 junaikey-layout 7 項單元測試）。
+        # 阻塞範圍＝CI 環境確定安全之子集（同 package.json check 之核心契約組＋tailwind-preset 包）。
+        # 全量套件含 flaky／需本機依賴之測試（vitest.config.ts 註明同 commit 連跑失敗數
+        # 5→1→0 跳動；本 PR 首跑 Unit Tests 步驟紅、install/lint 綠，即為實證），
+        # 移至下一步驟以不阻斷方式全量報告，防不穩定閘阻斷無關 PR，亦不回復慢性遮蔽。
+        run: pnpm vitest run src/impl/__tests__/core.test.ts src/agents/twelve-omni/__tests__ packages/tailwind-preset
+
+      - name: 🧪 全量單元測試報告 (Full unit test report, 不阻斷)
+        # 全量執行供觀測（含 junaikey-ui/layout 以外之全部測試），紅燈不阻斷；
+        # 慢性紅項目依觀察紀錄列管整治，而非以遮蔽換取綠燈。
         continue-on-error: true
-        # 這裡會執行 IComponentCore 的 Object.freeze 與 Hash Lock 測試
         run: pnpm vitest run
 
   # 階段二：神跡顯現 (Docker 映像檔鑄造)
