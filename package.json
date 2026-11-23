@@ -16,7 +16,7 @@
     "dev": "next dev",
     "build": "cross-env NEXT_TELEMETRY_DISABLED=1 NODE_OPTIONS=--max-old-space-size=1536 tsx scripts/validate-env.ts 2>/dev/null || true && next build",
     "dev:vinext": "vite dev --config vite.config.mjs",
-    "build:vinext": "vite build --config vite.config.mjs",
+    "build:vinext": "vite build --config vite.config.mjs && node -e \"const fs=require('fs');const p='dist/server/ssr/index.mjs';if(fs.existsSync(p))fs.copyFileSync(p,'dist/server/ssr/index.js');\"",
     "deploy:cloudflare": "vinext-cloudflare deploy",
     "start": "bash -c 'set -a; source .env 2>/dev/null; set +a; next start -H 0.0.0.0'",
     "lint": "ts-node scripts/celestial-gate.ts",

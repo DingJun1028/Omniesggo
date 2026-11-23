@@ -16,7 +16,7 @@
   // 公開站不經 Cloudflare Access「All Workers」保護層（該層僅匹配 workers.dev hostname）。
   "routes": [
     {
-      "pattern": "web.esggo.co",
+      "pattern": "web.esggo.co/*",
       "zone_name": "esggo.co"
     }
   ]
