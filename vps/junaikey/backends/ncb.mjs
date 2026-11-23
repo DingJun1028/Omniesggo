@@ -5,7 +5,7 @@
 //   POST   /create/{table}?instance={project}      — create
 //   GET    /read/{table}?instance={project}        — list (paginated)
 //   GET    /read/{table}/{id}?instance={project}   — read by id
-//   POST   /search/{table}?instance={project}      — search (body: filters)
+//   GET    /read/{table}?instance={project}&<field>=<v> — filter (2026-11-23: POST /search 已停用)
 //   PUT    /update/{table}/{id}?instance={project} — update by id
 //   DELETE /delete/{table}/{id}?instance={project} — delete by id
 //   POST   /bulk/create/{table}?instance={project} — bulk insert
@@ -100,9 +100,28 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
     return rows.length;
   }
 
-  async function _search(table, body = {}) {
-    const r = await _req(`/search/${table}`, { method: 'POST', body: JSON.stringify(body) });
-    return r.data || [];
+  async function _search(table, filter = {}) {
+    // NCB 已停用 POST /search/{table} (404/deprecated) → 改用 GET /read/{table} 欄位查詢參數
+    // 已驗證支援: 欄位等值 (event=x)、__like (tags__like)、__gte/__lte (ts__gte/ts__lte)
+    // 只做 server-side 粗篩,精確過濾仍由呼叫端 filterEntries 收尾
+    const qs = new URLSearchParams({ page: '1', limit: String(DEFAULT_NCB_LIST_LIMIT) });
+    if (filter.event) qs.set('event', filter.event);
+    if (filter.tag) qs.set('tags__like', filter.tag);
+    if (filter.since) qs.set('ts__gte', filter.since);
+    if (filter.until) qs.set('ts__lte', filter.until);
+
+    const all = [];
+    let page = 1;
+    while (true) {
+      qs.set('page', String(page));
+      const r = await _req(`/read/${table}?${qs}`);
+      const data = r.data || [];
+      all.push(...data);
+      if (!r.metadata?.hasMore) break;
+      page++;
+      if (page > MAX_NCB_PAGES) break;
+    }
+    return all;
   }
 
   return {
@@ -239,7 +258,7 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
       let rows;
       try {
         rows = useServerSideSearch
-          ? await _search(tables.memory, _buildSearchBody(filter))
+          ? await _search(tables.memory, filter)
           : await _listAll(tables.memory);
       } catch (e) { if (e.message.includes("doesn't exist")) return []; throw e; }
       const entries = rows.map(r => {
@@ -351,13 +370,3 @@ export function createNcbBackend({ base, token, project, tables = NCB_TABLES }) 
   };
 }
 
-function _buildSearchBody(filter) {
-  // NCB /search 端點: WHERE clause 只接欄位名運算,不收 limit/page/contains
-  // limit 由後端在 _search 後本地 trim
-  const body = {};
-  if (filter.event) body.event = filter.event;
-  if (filter.tag) body.tags = filter.tag;
-  if (filter.since) body.ts_gte = filter.since;
-  if (filter.until) body.ts_lte = filter.until;
-  return body;
-}
