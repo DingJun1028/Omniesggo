@@ -52,9 +52,11 @@ export function CaptureBar({ onCaptured }: { onCaptured: () => void }) {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
         />
+        {/* 主按鈕改 JunAiKey 語意（.btn .btn-primary）；深色主題下文字自動轉深 */
+        }
         <button
           type="button"
-          className="rounded-xl bg-omni-alpha/90 px-5 py-2 text-sm font-medium text-slate-950 transition hover:bg-omni-alpha disabled:opacity-50"
+          className="btn btn-primary disabled:opacity-50"
           disabled={busy || text.trim().length === 0}
           onClick={() => void submit()}
         >

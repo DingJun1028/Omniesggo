@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =============================================================================
+   JunAiKey 基礎設計層 Base design layer：
+   @esggo/tailwind-preset/junaikey-ui（代幣＋元件樣式）已於 layout.tsx 先行引入。
+   本檔為 OmniNote 應用層：液態玻璃表面識別＋對基礎層之最小覆寫與語意延伸。
+   The JunAiKey UI stylesheet is imported first in layout.tsx (tokens + components).
+   This file is the OmniNote app layer: liquid-glass surface identity plus minimal
+   overrides and semantic extensions over the base layer.
+   ============================================================================= */
+
 :root {
   color-scheme: dark;
 }
@@ -16,13 +25,13 @@ body {
   min-height: 100vh;
 }
 
-/* 液態玻璃面板 */
+/* 液態玻璃面板 Liquid glass panel（圓角改由 JunAiKey 代幣衍生 radius now derives from the JunAiKey token） */
 .glass {
   background: linear-gradient(145deg, rgba(30, 41, 59, 0.55), rgba(15, 23, 42, 0.45));
   backdrop-filter: blur(24px) saturate(140%);
   -webkit-backdrop-filter: blur(24px) saturate(140%);
   border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 1.25rem;
+  border-radius: var(--r-xl);
   box-shadow:
     0 8px 32px rgba(2, 6, 23, 0.45),
     inset 0 1px 0 rgba(226, 232, 240, 0.08);
@@ -38,7 +47,7 @@ body {
   box-shadow: 0 12px 40px rgba(2, 6, 23, 0.55), 0 0 24px rgba(0, 168, 150, 0.12);
 }
 
-/* 三態品牌光暈 */
+/* 三態品牌光暈 Tri-phase brand glow */
 .phase-alpha { --phase: #00a896; }
 .phase-sigma { --phase: #0056b3; }
 .phase-omega { --phase: #eeb21b; }
@@ -51,10 +60,15 @@ body {
   box-shadow: 0 0 10px var(--phase, #64748b);
 }
 
-/* 輸入控制 */
+/* 輸入控制 Form control（疊加於 JunAiKey .field 之上）
+   覆寫：JunAiKey .field 之 12px 下距回歸本應用 utility 間距治理；
+   焦點環改由 JunAiKey 代幣（--focus／--primary-soft）衍生。
+   Overlays JunAiKey .field. Overrides: its 12px bottom margin returns to
+   utility-controlled spacing; the focus ring now derives from JunAiKey tokens. */
 .field {
   width: 100%;
-  border-radius: 0.75rem;
+  margin-bottom: 0;
+  border-radius: var(--r-lg);
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: rgba(15, 23, 42, 0.6);
   padding: 0.6rem 0.85rem;
@@ -65,10 +79,24 @@ body {
 }
 
 .field:focus {
-  border-color: rgba(0, 168, 150, 0.7);
-  box-shadow: 0 0 0 3px rgba(0, 168, 150, 0.15);
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+
+/* JunAiKey .status 語意延伸 Semantic extensions（在線/離線；色彩由代幣衍生 colors derive from tokens） */
+.status.online {
+  color: var(--success);
+  background: rgba(88, 201, 111, 0.12);
+}
+
+.status.offline {
+  color: var(--danger);
+  background: rgba(238, 119, 119, 0.12);
 }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
+/* 捲軸色改由 JunAiKey --gray-500 代幣混色，前值保留為 fallback（不支援 color-mix 之瀏覽器）
+   Scrollbar thumb now mixes the JunAiKey --gray-500 token; original value kept as fallback */
+::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.4); border-radius: 8px; }
+::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--gray-500) 40%, transparent); border-radius: 8px; }
