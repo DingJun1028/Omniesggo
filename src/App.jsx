@@ -28,46 +28,46 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <aside className="sidebar">
+      <aside className="side">
         <div className="brand">
-          <div className="brand-mark">O</div>
-          <div className="brand-text">
-            <span className="brand-name">Omniesggo</span>
-            <span className="brand-sub">萬能永續平台</span>
+          <div className="mark">O</div>
+          <div className="bt">
+            <span className="bn">Omniesggo</span>
+            <span className="bs">萬能永續平台</span>
           </div>
         </div>
 
         <nav className="nav">
-          <div className="nav-label">四大支柱</div>
+          <div className="nl">四大支柱</div>
           {NAV.map((n) => (
             <button
               key={n.id}
-              className={`nav-item ${route === n.id ? 'is-active' : ''}`}
+              className={`ni ${route === n.id ? 'on' : ''}`}
               onClick={() => setRoute(n.id)}
             >
-              <span className="nav-icon">{n.icon}</span>
+              <span className="ic">{n.icon}</span>
               {n.label}
             </button>
           ))}
         </nav>
 
-        <div className="sidebar-foot">
-          <div className="foot-card">
-            <span className="foot-dot" />
+        <div className="foot">
+          <div className="fc">
+            <span className="fd" />
             <div>
-              <div className="foot-title">系統運作中</div>
-              <div className="foot-sub">AI 標籤引擎 · 即時</div>
+              <div className="ft">系統運作中</div>
+              <div className="fs">AI 標籤引擎 · 即時</div>
             </div>
           </div>
         </div>
       </aside>
 
       <main className="main">
-        <header className="topbar">
-          <div className="topbar-title">Omniesggo</div>
-          <div className="topbar-right">
-            <span className="topbar-badge">MVP</span>
-            <div className="avatar">林</div>
+        <header className="top">
+          <div className="tt">Omniesggo</div>
+          <div className="tr">
+            <span className="badge-mvp">MVP</span>
+            <div className="av">林</div>
           </div>
         </header>
         <div className="content">{renderView()}</div>

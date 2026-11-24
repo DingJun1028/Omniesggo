@@ -1,28 +1,53 @@
 :root {
-  /* Omniesggo palette — grounded in earth, water, growth */
-  --ink: #14201a;
-  --ink-soft: #3d4a43;
-  --moss: #2f6b4f;
-  --moss-deep: #1f4a37;
-  --leaf: #4c9a6b;
-  --leaf-soft: #e6f0e9;
-  --clay: #c96f4a;
-  --clay-soft: #f7e9e2;
-  --sky: #3a7ca5;
-  --sky-soft: #e7f0f6;
-  --sand: #f6f3ec;
-  --paper: #fffdf8;
-  --line: #e3e0d6;
-  --line-strong: #cfcbbd;
-  --shadow: 0 1px 2px rgba(20, 32, 26, 0.06), 0 8px 24px rgba(20, 32, 26, 0.06);
+  /* Boreal Canopy Observatory — palette */
+  /* Deep Boreal Pine · Moss Canopy Green · Raw Birchwood · Sprout Lime */
+  --pine: #0e231d;        /* deep boreal pine — ink & dark surfaces */
+  --pine-deep: #17352b;   /* darker pine — hovers on dark */
+  --moss: #22543d;        /* moss canopy green — primary */
+  --moss-deep: #17352b;
+  --birch: #ece5d8;       /* raw birchwood — app background */
+  --birch-deep: #e4dccb;  /* topbar / slightly darker birch */
+  --sprout: #84cc16;      /* sprout lime — accent */
+  --sprout-bright: #a3e635;
+  --sprout-deep: #65a30d;
+
+  --panel: #f6f1e6;       /* light panel surface */
+  --panel-line: #c9bfa9;  /* panel border */
+  --line: #d8cfb8;       /* hairline on birch */
+  --line-strong: #c9bfa9;
+  --line-soft: #b5a98f;
+
+  --ink: #0e231d;
+  --ink-soft: #3d5249;
+  --muted: #5b7366;
+  --muted-2: #7f9a86;
+  --on-dark: #ece5d8;
+  --on-dim: #d8d2c3;
+  --on-dark-soft: #a9b9a8;
+
+  /* risk / status accents (kept names for existing views) */
+  --leaf: #84cc16;
+  --leaf-soft: #eef4dc;
+  --clay: #9a5a32;
+  --clay-soft: #f0e4d6;
+  --sky: #5b7366;
+  --sky-soft: #e3e8e0;
+
+  --sand: #ece5d8;
+  --paper: #f6f1e6;
+
+  --shadow: 0 6px 18px rgba(14, 35, 29, 0.12);
+  --shadow-lg: 0 10px 24px rgba(34, 84, 61, 0.25);
 
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
-  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-body: "Inter", "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   --radius-sm: 8px;
-  --radius: 14px;
+  --radius: 16px;
   --radius-lg: 22px;
+  --organic: 22px 6px 22px 6px;
+  --organic-2: 20px 6px 20px 6px;
 }
 
 * { box-sizing: border-box; }
@@ -33,14 +58,14 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--ink);
-  background: var(--sand);
+  background: var(--birch);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4 {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.15;
   margin: 0;
   letter-spacing: -0.01em;
@@ -51,10 +76,10 @@ a:hover { text-decoration: underline; }
 
 button { font-family: inherit; cursor: pointer; }
 
-::selection { background: var(--leaf); color: #fff; }
+::selection { background: var(--sprout); color: var(--pine); }
 
 :focus-visible {
-  outline: 3px solid var(--sky);
+  outline: 2px solid var(--sprout);
   outline-offset: 2px;
   border-radius: 4px;
 }
