@@ -94,3 +94,11 @@ This block is written and re-added by `turbo` before repository-scoped commands 
 - 環境變數：主連線 `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`（或 anon key 後備）；次要連線 `SUPABASE_OMNI_URL` + `SUPABASE_OMNI_SERVICE_ROLE_KEY`；Raw SQL 走 `pg`，使用 `DATABASE_URL`。表名預設為 Prisma Model 名，可用 `SUPABASE_TABLE_MAP` (JSON) 覆寫。
 - 已知限制：`$transaction` 為循序執行、非原子；Raw SQL 僅限 Node 環境；營運腳本（omni-snapshot/omni-healthcheck/seed-5t-demo/omni-dreams/create_omni_memory）已改為 `pg` 直連 SQL。
 - CI/CD 已移除所有 `prisma generate` / `prisma migrate` 步驟。合併前需在本地執行一次 `pnpm install` 以更新 `pnpm-lock.yaml`（frozen-lockfile 工作流程相依）。
+
+## Base44 沙箱啟動（docker-compose.base44.yml）
+
+- 入口為 repo 根目錄的 Next.js 16 app（App Router，`app/` + `src/`），host port 3000；`docker compose -f docker-compose.base44.yml up -d` 會在 node:22 容器內 `pnpm install --frozen-lockfile` 後跑 `next dev -H 0.0.0.0 -p 3000`。
+- **不要在環境中設 `NODE_ENV`**：`next build` 若讀到 `NODE_ENV=development` 會以 dev 版 React 產生靜態頁，導致 `/carbon`、`/_global-error` prerender 失敗（`Cannot read properties of null (reading 'useEffect')`）。dev 模式由 `next dev` 自行設定。
+- 驗證：`docker compose ... exec -T web sh -c 'pnpm exec next build'`（正式建置須 exit 0；目前通過），再 `curl localhost:3000/` 與 `/carbon` 應為 200。
+- 缺 `DATABASE_URL`/`SUPABASE_*` 不影響啟動：`src/lib/db/prisma-compat.ts` 為延遲連線，僅在首次資料操作時報錯；`.env.base44-defaults` 提供佔位值，`/run/base44/app.env` 置於最後以覆蓋。
+- `next start` 會警告 `output: standalone`（正式鏡像改用 `.next/standalone/server.js`），但本地仍可正常服務。
