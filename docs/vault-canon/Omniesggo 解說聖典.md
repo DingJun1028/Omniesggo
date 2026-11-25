@@ -1,3 +1,8 @@
+---
+source_origin: omniesggo 知識庫更新
+co_authors: [human review pending]
+---
+
 # Omniesggo 解說聖典
 
 > 萬能 ESG-GO 積體系列（Omni ESG-GO Unified Series）的官方解說與指引。
