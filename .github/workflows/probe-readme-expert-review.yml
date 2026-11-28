@@ -1,0 +1,52 @@
+name: Insert expert-review section into README
+
+on:
+  push:
+    branches: [probe/readme-expert-review-20261128]
+
+permissions:
+  contents: write
+
+jobs:
+  insert:
+    name: Insert section 12 before License and push fix branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 1
+      - name: Configure git
+        run: |
+          git config user.name "omniesggo-maintenance-bot"
+          git config user.email "omniesggo-maintenance-bot@users.noreply.github.com"
+      - name: Work
+        id: work
+        env:
+          SECTION_B64: IyMgMTIuIOWwiOalremgmOWfn+iplei/sO+8iDIwMjYtMTEtMjgg5YWl5YW477yJCgrmnKznr4DngrogRGV2T3Bz77yPQ0ktQ0TjgIHou5/pq5Tmnrbmp4vjgIHos4flronoiIfkvpvmh4npj4jkuInlgIvlsIjmpa3poJjln5/lsI3mnKzlgInluqvnj77ms4HkuYvoqZXov7DjgILop4Dpu57ku6XnrKwgN+OAgTgg56+A44CBQURSIOe0muaxuuetlue0gOmMhOiIhyAyMDI2LTEwIOiHsyAxMSDmnIjkuYvlr6bpmpsgQ0kg5LqL6K2J54K65pOa77yM5bGs5rK755CG5rG6562W5Y+D6ICD77yb5ZCE6aCF5Li75by15LmL5Y6f5aeL5a+m6K2J6KaL5bCN5oeJ5bel5L2c5rWB6IiHIFBSIOe0gOmMhOOAggoKIyMjIDEyLjEgRGV2T3Bz77yPQ0ktQ0Qg5bel56iL6KeA6bueCgotICoq5rK755CG5oiQ54af5bqm6auYKirvvJo0MSDmop3mtYHmsLTnt5rliIblsaTvvIjnoazplpjploDvvI/oh6rli5Xkv67lvqnvvI/ntYToo53pkYTpgKDvvI/mtL7pgaPpgYvntq3vvInvvIxgY2ktZ3JlZW4tZ2F0ZS55bWxgIOS7peWQjCBjb21taXQg5YWo6YePIGNoZWNrLXJ1bnMg6Lyq6Kmi6JC95a+m44CM5YWo57ag5omN5Y+v5L2144CN5LmL56Gs6KaP5YmH77yM5YWN6Zmk5Lq65bel5qC45bCN5riF5Zau77yb5ZCM6KaP5qih5bCI5qGI5aSa5pW45LuN5YCa6LO05Lq65belIENJIOWvqemWse+8jOatpOiZleW3sueoi+W8j+WMluOAggotICoq6KiK6Jmf5ZOB6LOq5rK755CG5YC85b6X6IKv5a6aKirvvJpTU0gg5Y+v6YGU5oCn6aCQ5qqi6ZaY5Yi277yIZGVwbG95LW9yYWNsZe+8j2RlcGxveS1mdGctc3RhdGlj77yPZGVwbG95LWRlZXJmbG9377yJ5bCH44CM5aSW6YOo5Z+656SO6Kit5pa954uA5oWL44CN6IiH44CM5YCJ5bqr5Lqk5LuY5YGl5bq344CN5YiG6Zui77yM5p2c57WV5aSW6YOo6Zi75aGe5bCNIENJIOingOa4rOmdouS5i+mVt+Wwvue0heeHiOaxoeafk++8m3F1YWxpdHktZ2F0ZSDkuYsgc2V0dGxl77yLZnJlc2gtdmVyZGljdCDnqanlrprpm5nnqpfomZXnkIYgU29uYXJDbG91ZCBBdXRvbWF0aWMgQW5hbHlzaXMg56u25oWL77yM5bGs5rex5YWl56CU56m257Sa5L+u5b6p77yI6YCj57qM5LiJ5qyh5ZCM5Z6L56u25oWL5b6M5LmL57WQ5qeL5oCn5pS25paC77yJ44CCCi0gKirpoqjpmqrmj5DphpLvvIjllq7pu57pm4bkuK3vvIkqKu+8mjIwMjYtMTEtMjUgR2l0SHViIOW4s+iZn+WboOW4s+WLmeWVj+mhjOmBremOluWumu+8jOWFqOmDqOa1geawtOe3muiIhyBEZXBlbmRhYm90IOWQjOaZguWBnOaTuuOAgeWkseaVl+W9ouaFi+eCuumbtuatpempnyAzIOenkuWNs+aVl+KAlOKAlOmhr+ekuuS6pOS7mOmrlOezu+iIh+WWruS4gOW4s+iZn+WBpeW6t+W6puWujOWFqOe2geWumuOAguW7uuitsO+8mihhKSDluLPli5nvvI/phY3poY3lkYrorabpgJrpgZPnjajnq4vmlrwgR2l0SHViIEFjdGlvbnPvvIjlpJbpg6jnm7TpgZTvvIzlpoIgVGVsZWdyYW0gYm90IOiHquihjOaOkueoi++8ie+8myhiKSDpl5zpjbXpg6jnvbLohbPmnKzkv53nlZnlj6/mlrwgVlBTIOaIluacrOapn+ebtOi3keS5i+mboue3mui3r+W+ke+8iGBmaXgvaGVybWVzLXNlcnZlLXJlY292ZXJ5YCDkuYsgd29ya2Zsb3dfZGlzcGF0Y2gg5L+u5b6p5bel5L2c5rWB5Y2z54K65q2k5Z6L5LmL5YWI5L6L77yM5oeJ5pO05Y+K6YOo572y5Li76Y+I77yJ44CCCi0gKirluqbph4/lu7rorbAqKu+8muWbm+mghSBET1JBIOaMh+aome+8iOmDqOe9sumgu+eOh+OAgeiuiuabtOWJjee9ruaZgumWk+OAgeiuiuabtOWkseaVl+eOh+OAgeW+qeWOn+aZgumWk++8ieWwmueEoeWEgOihqOadv+WMluizh+aWme+8m+mDqOe9sumgu+eOh+WPr+eUsSB3b3JrZmxvdyBydW5zIOWbnuaOqOOAgeiuiuabtOWkseaVl+eOh+WPr+eUsSBPQS1UV0lOUyB0cmFja2VyIGlzc3VlIOe1seioiO+8jOW7uuitsOe0jeWFpeS4i+S4gOayu+eQhui/reS7o++8jOS7pOOAjOWFqOe2oOaWh+WMluOAjeaciemHj+WMluWfuua6luOAggoKIyMjIDEyLjIg6Luf6auU5p625qeL6IiH57O757Wx6Kit6KiI6KeA6bueCgotICoq5aWR57SE6ZaJ55Kw6Kit6KiI5a6M5pW0KirvvJpUeXBlQm94IHNjaGVtYSDngrrlpZHntITmraPmnKzjgIFgc2hhcmVkL3ByZC1tYXRyaXguanNvbmAg54K6IFBSRCDov73muq/mraPmnKzjgIFgc291bC1saW5lYWdlYCDlrojorbfniYjmnKzooYDohIjigJTigJTjgIzmlofku7bigJTnqIvlvI/igJTmuKzoqabjgI3kuInmlrnku6XmqZ/lmajlj6/pqZforYnmlrnlvI/plonnkrDvvIzlhbflgpnlpJrmlbggbW9ub3JlcG8g57y65LmP5LmL57ix5ZCR6L+95rqv6IO95Yqb77ybc2NoZW1hLXRyYWNlYWJpbGl0eSDplpjku6Tov73muq/mlrfpj4jljbPntIXvvIzov73muq/kuI3lho3mmK/lj6PomZ/jgIIKLSAqKuajmOi8qu+8iHJhdGNoZXTvvInmqKHlvI/mraPnoroqKu+8mlRTIOe1guWni+efqemZo+S5iyBkcmlmdCDln7rnt5rmjqHlj6rmuJvkuI3lop7opo/liYfvvIzlsazmvLjpgLLlhJ/lgrXkuYvmqJnmupbkvZzms5XvvIzpgb/lhY3lhajph4/muIXlhJ/lh43ntZDmvJTpgLLvvJtkcmlmdC1yZXBvcnQg5LulIGFydGlmYWN0IOS4iuWCs+eCuiA1VCDorYnmk5rvvIzku6TlgrXli5nmiJDngrrlj6/op4DmuKzlrZjph4/jgIIKLSAqKuWll+S7tueUn+aFi+ayu+eQhumbhuS4reWMlioq77yab3ZlcnJpZGVzIOmJl+WItumbhuS4reaWvOWQhOWuieijneaguSBgcG5wbS13b3Jrc3BhY2UueWFtbGDvvIhyb29077yPbGVhcm5pbmctY2VudGVy77yPbXktd29ya2Vy77yPb2Etc3dhcm3vvInogIzpnZ4gcGFja2FnZS5qc29u77yM5bey5q2j56K65Zue5oeJIHBucG0gMTIg5LmL6KGM54K66K6K5YyW77yb5paw5aKeIHdvcmtzcGFjZSDlpZfku7bkuYvpjpbmqpTlkIzmraXku6XkuIDmrKHmgKcgbG9ja2ZpbGUtc3luYyDlt6XkvZzmtYHomZXnkIbvvIzlsazlj6/opIfnlKjmqJnmupbkv67ms5XjgIIKLSAqKumiqOmaquaPkOmGku+8iOayu+eQhuiApuWQiO+8iSoq77yaNVQg6amX6K2J6IiH6IGW5YW46auY5bqm6ICm5ZCI77yIc291bC5tZCDorormm7TljbPop7jnmbzooYDohIjplpjvvInvvIzogZblhbjmvJTpgLLpoIjlmrTmoLzotbDniYjmnKzov63ku6MgUFLvvIzpmLLmraLmsrvnkIbopo/liYflj43miJDmvJTpgLLpmLvlipvvvJtBRFIg5Yi25bqm77yIZG9jcy9hZHIv77yJ5bey5YW35YKZ77yM5bu66K2w6YeN5aSn5oqA6KGT5rG6562W57at5oyB44CM54ShIEFEUiDkuI3okL3lnLDjgI3ntIDlvovvvIzku6ToqZXov7DpoZ7lhaflrrnvvIjlkKvmnKznr4DvvInoiIfmsbrnrZbpoZ7lhaflrrnliIbmtYHjgIIKCiMjIyAxMi4zIOizh+WuieiIh+S+m+aHiemPiOmiqOmaquingOm7ngoKLSAqKuS+m+aHiemPiOmYsuitt+mdouWujOaVtCoq77yaYWN0aW9ubGludCDnlLHpjpblrprmqpTnt6jora/pqZforYkgd29ya2Zsb3cg6Kqe5rOV44CB5q+P6YCxIGBzZWN1cml0eS1hdWRpdC55bWxgIOWft+ihjCBwbnBtIGF1ZGl077yIY3JpdGljYWwg5Y2z5pWX77yJ77yL5YWo5bqr56WV5a+G5qij5byP5o6D5o+P77yIQVdT77yPR2l0SHVi77yPU3RyaXBl77yPU2xhY2vvvI/np4HpkbDvvInvvIsuZW52IOWFpeW6q+aqouafpe+8i+mBjuacn+S+neiztOWgseWRiu+8m+apn+WZqOS6uuaPkOS6pOS4gOW+i+i1sOWKn+iDveWIhuaUryBQUiDkuI3lvpfnm7TmjqggbWFpbu+8jOS+m+aHiemPiOiuiuabtOi3r+W+keWWruS4gOWPr+aOp+OAggotICoq5oaR6K2J5rK755CG5oiQ54afKirvvJrmmI7mlofmsLjkuI3lhaXluqvjgIF2YXVsdCDliIblsaTnrqHnkIbjgIHmjIfntIvmr5TlsI3pqZforYnjgIHkuIDmrKHmgKcgT1RTIOS6pOaOpeOAgeWFrOmWi+WAieW6q+WgseWRiuWPqui8uOWHuuW4g+ael+WAvOiIh+aMh+e0i+KAlOKAlOatpOWll+e0gOW+i+aWvOWFrOmWi+WAieW6q+WxrOWwkeimi+WatOagvO+8jOS4lOW3sueUseatt+asoe+8iHNlbGYtbGVhayDoh6rniq/oh6roo5zlvozkuYvnq4vljbPovKrmm7/vvInlr6borYnlhbflgpnkuovku7bmh4nororog73lipvjgIIKLSAqKumiqOmaquaPkOmGkuS4gO+8iOasiumZkOacgOWwj+WMlu+8iSoq77ya5LiA5qyh5oCnIHByb2JlIOW3peS9nOa1geS5iyBgcGVybWlzc2lvbnNgIOaHiemAkOahiOaMiemcgOizpuS6iO+8iGNvbnRlbnRz77yPYWN0aW9uc++8j2lzc3Vlczogd3JpdGUg5ZCE6Ieq542o56uL77yJ77yM5LiU5LiN5b6X5L2/55So6Z2e55m95ZCN5Zau6Y2177yb5bu66K2w5bCH5q2k5oWj5L6L5YWl56ysIDExIOevgOmWi+eZvOimj+evhOaIkOaWh+OAggotICoq6aKo6Zqq5o+Q6YaS5LqM77yI6YOo572y6Y+I5L6d6LO05pmJ57Sa77yJKirvvJp3cmFuZ2xlciDoiIcgVHlwZVNjcmlwdCBtYWpvciDlt7LpmqggRGVwZW5kYWJvdCDoh6rli5XmmYnntJrvvIh0eXBlc2NyaXB0IDcuMC4y44CBd3JhbmdsZXIgNC4xNjbvvInvvIzogIwgUFIgQ0kg57ag5LiN562J5pa86YOo572y57ag77yIcGRmLXBhcnNl4oaSQG5hcGktcnMvY2FudmFzIOW7uue9ruWcluitnOS6i+aVheS5i+Wvpuitie+8ie+8m+mDqOe9sumPiOS+neiztO+8iHdyYW5nbGVy77yPdmluZXh077yPdml0Ze+8j3BkZi1wYXJzZe+8ieS5i+S7u+S9leabtOaWsO+8jOWFtumDqOe9suW3peS9nOa1geWvpui3kee1kOaenOaHieimlueCuuWQiOS9teWJjee9ruaineS7tuOAggotICoq6aKo6Zqq5o+Q6YaS5LiJ77yI5a+p6KiI6Zui57ea6Lev5b6R77yJKirvvJrmjpLnqIvlronlhajlr6noqIjoiIfluLPomZ/lgaXlurfluqbpgKPli5XvvIzluLPli5npjpblrprmnJ/plpPpgLHmnJ/lr6noqIjlkIzmraXlgZzmk7rvvJt3b3JrZmxvd19kaXNwYXRjaCDpoJDmqqLmqKHlvI/vvIjmjqLph53op7jnmbzmjpLnqIvlt6XkvZzmtYHlr6bot5HvvInmh4nkv53nlZnngrrluLjopo/poJDmvJTmiYvmrrXvvIzmlrzph43lpKflkIjkvbXms6LmrKHlvozkuLvli5XpoJDmqqLvvIzli7/lvoXpgLHmnJ/oh6rnhLbliLDkvobmlrnnmbznj77pmLvloZ7jgIIKCi0tLQoK
+        run: |
+          set +e
+          printf %s "$SECTION_B64" | base64 -d > /tmp/section.md
+          echo "section_lines=$(wc -l < /tmp/section.md)" >> "$GITHUB_OUTPUT"
+          git checkout -b fix/readme-expert-review
+          python3 - <<'PYEOF'
+          import io
+          src = io.open('README.md', encoding='utf-8').read()
+          sec = io.open('/tmp/section.md', encoding='utf-8').read()
+          marker = '## License'
+          idx = src.index(marker)
+          io.open('README.md', 'w', encoding='utf-8').write(src[:idx] + sec + src[idx:])
+          PYEOF
+          echo "py_rc=$? sec12=$(grep -c '^## 12\.' README.md) lic=$(grep -c '^## License' README.md)" >> "$GITHUB_OUTPUT"
+          git add README.md
+          git commit -m "docs(readme): add section 12 expert review (DevOps/CI-CD, architecture, supply-chain security)"
+          echo "commit_rc=$?" >> "$GITHUB_OUTPUT"
+          git push origin fix/readme-expert-review
+          echo "push_rc=$?" >> "$GITHUB_OUTPUT"
+      - name: Self-delete probe branch on success
+        if: steps.work.outputs.push_rc == '0'
+        run: |
+          set -e
+          git push origin --delete probe/readme-expert-review-20261128
