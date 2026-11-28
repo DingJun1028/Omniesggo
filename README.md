@@ -368,6 +368,34 @@ Puppeteer 建 read-only billing token 寫入 `.env.local`。
 - **硬編碼禁令**：fail-fast，禁止祕密與環境值入碼；TypeBox schema 為契約正本，PRD 追溯以 `shared/prd-matrix.json` 為準。
 - **RWD 紀律**：任何 UI 變更不得違反 §6 三視口硬標準；PR 宜附 E2E 三視口執行結果。
 
+## 12. 專業領域評述（2026-11-28 入典）
+
+本節為 DevOps／CI-CD、軟體架構、資安與供應鏈三個專業領域對本倉庫現況之評述。觀點以第 7、8 節、ADR 級決策紀錄與 2026-10 至 11 月之實際 CI 事證為據，屬治理決策參考；各項主張之原始實證見對應工作流與 PR 紀錄。
+
+### 12.1 DevOps／CI-CD 工程觀點
+
+- **治理成熟度高**：41 條流水線分層（硬閘門／自動修復／組裝鑄造／派遣運維），`ci-green-gate.yml` 以同 commit 全量 check-runs 輪詢落實「全綠才可併」之硬規則，免除人工核對清單；同規模專案多數仍倚賴人工 CI 審閱，此處已程式化。
+- **訊號品質治理值得肯定**：SSH 可達性預檢閘制（deploy-oracle／deploy-ftg-static／deploy-deerflow）將「外部基礎設施狀態」與「倉庫交付健康」分離，杜絕外部阻塞對 CI 觀測面之長尾紅燈污染；quality-gate 之 settle＋fresh-verdict 穩定雙窗處理 SonarCloud Automatic Analysis 競態，屬深入研究級修復（連續三次同型競態後之結構性收斂）。
+- **風險提醒（單點集中）**：2026-11-25 GitHub 帳號因帳務問題遭鎖定，全部流水線與 Dependabot 同時停擺、失敗形態為零步驟 3 秒即敗——顯示交付體系與單一帳號健康度完全綁定。建議：(a) 帳務／配額告警通道獨立於 GitHub Actions（外部直達，如 Telegram bot 自行排程）；(b) 關鍵部署腳本保留可於 VPS 或本機直跑之離線路徑（`fix/hermes-serve-recovery` 之 workflow_dispatch 修復工作流即為此型之先例，應擴及部署主鏈）。
+- **度量建議**：四項 DORA 指標（部署頻率、變更前置時間、變更失敗率、復原時間）尚無儀表板化資料；部署頻率可由 workflow runs 回推、變更失敗率可由 OA-TWINS tracker issue 統計，建議納入下一治理迭代，令「全綠文化」有量化基準。
+
+### 12.2 軟體架構與系統設計觀點
+
+- **契約閉環設計完整**：TypeBox schema 為契約正本、`shared/prd-matrix.json` 為 PRD 追溯正本、`soul-lineage` 守護版本血脈——「文件—程式—測試」三方以機器可驗證方式閉環，具備多數 monorepo 缺乏之縱向追溯能力；schema-traceability 閘令追溯斷鏈即紅，追溯不再是口號。
+- **棘輪（ratchet）模式正確**：TS 終始矩陣之 drift 基線採只減不增規則，屬漸進償債之標準作法，避免全量清償凍結演進；drift-report 以 artifact 上傳為 5T 證據，令債務成為可觀測存量。
+- **套件生態治理集中化**：overrides 鉗制集中於各安裝根 `pnpm-workspace.yaml`（root／learning-center／my-worker／oa-swarm）而非 package.json，已正確回應 pnpm 12 之行為變化；新增 workspace 套件之鎖檔同步以一次性 lockfile-sync 工作流處理，屬可複用標準修法。
+- **風險提醒（治理耦合）**：5T 驗證與聖典高度耦合（soul.md 變更即觸發血脈閘），聖典演進須嚴格走版本迭代 PR，防止治理規則反成演進阻力；ADR 制度（docs/adr/）已具備，建議重大技術決策維持「無 ADR 不落地」紀律，令評述類內容（含本節）與決策類內容分流。
+
+### 12.3 資安與供應鏈風險觀點
+
+- **供應鏈防護面完整**：actionlint 由鎖定檔編譯驗證 workflow 語法、每週 `security-audit.yml` 執行 pnpm audit（critical 即敗）＋全庫祕密樣式掃描（AWS／GitHub／Stripe／Slack／私鑰）＋.env 入庫檢查＋過期依賴報告；機器人提交一律走功能分支 PR 不得直推 main，供應鏈變更路徑單一可控。
+- **憑證治理成熟**：明文永不入庫、vault 分層管理、指紋比對驗證、一次性 OTS 交接、公開倉庫報告只輸出布林值與指紋——此套紀律於公開倉庫屬少見嚴格，且已由歷次（self-leak 自犯自補後之立即輪替）實證具備事件應變能力。
+- **風險提醒一（權限最小化）**：一次性 probe 工作流之 `permissions` 應逐案按需賦予（contents／actions／issues: write 各自獨立），且不得使用非白名單鍵；建議將此慣例入第 11 節開發規範成文。
+- **風險提醒二（部署鏈依賴晉級）**：wrangler 與 TypeScript major 已隨 Dependabot 自動晉級（typescript 7.0.2、wrangler 4.166），而 PR CI 綠不等於部署綠（pdf-parse→@napi-rs/canvas 建置圖譜事故之實證）；部署鏈依賴（wrangler／vinext／vite／pdf-parse）之任何更新，其部署工作流實跑結果應視為合併前置條件。
+- **風險提醒三（審計離線路徑）**：排程安全審計與帳號健康度連動，帳務鎖定期間週期審計同步停擺；workflow_dispatch 預檢模式（探針觸發排程工作流實跑）應保留為常規預演手段，於重大合併波次後主動預檢，勿待週期自然到來方發現阻塞。
+
+---
+
 ## License
 
 AGPL-3.0 — 詳見 [LICENSE](LICENSE)。
